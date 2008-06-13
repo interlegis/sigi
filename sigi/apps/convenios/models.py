@@ -65,23 +65,3 @@ class EquipamentoPrevisto(models.Model):
         ordering = ('convenio', 'equipamento')
         list_display = ('convenio', 'equipamento', 'quantidade')
         list_display_links = ('convenio', 'equipamento')
-
-# class Ocorrencia(models.Model):
-#     data_publicacao = models.DateField(
-#         'data',
-#         help_text='Data de publicação da ocorrência.'
-#         default=datetime.now
-#     )
-#     ocorrencia = models.TextField('ocorrência')
-#     convenio = models.ForeignKey(Convenio)
-#
-#     class Meta:
-#         get_latest_by = 'data_publicacao'
-#         ordering = ('-data_publicacao',)
-#         verbose_name = 'ocorrência'
-#
-#     class Admin:
-#         list_display = ('id', 'convenio', 'data_publicacao')
-#
-#     def __unicode__(self):
-#         return self.id
