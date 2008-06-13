@@ -77,6 +77,7 @@ class Equipamento(models.Model):
 class Bem(models.Model):
     casa_legislativa = models.ForeignKey('casas.CasaLegislativa')
     equipamento = models.ForeignKey(Equipamento)
+    fornecedor = models.ForeignKey(Fornecedor)
     num_serie = models.CharField(
         'número de série',
         max_length=50,
@@ -94,9 +95,9 @@ class Bem(models.Model):
         verbose_name_plural = 'bens'
 
     class Admin:
-        ordering = ('casa_legislativa', 'equipamento')
-        list_display = ('equipamento', 'num_serie', 'num_tombamento',
-                        'casa_legislativa')
+        ordering = ('casa_legislativa', 'fornecedor', 'equipamento')
+        list_display = ('equipamento', 'fornecedor', 'num_serie',
+                        'num_tombamento', 'casa_legislativa')
 
     def __unicode__(self):
         return '%s (%s)' % (self.equipamento, self.casa_legislativa)
