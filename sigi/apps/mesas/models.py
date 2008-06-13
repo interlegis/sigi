@@ -56,6 +56,10 @@ class SessaoLegislativa(models.Model):
         ('E', 'Extraordinária'),
     )
     numero = models.PositiveSmallIntegerField(u'número da sessão', unique=True)
+    mesa_diretora = models.ForeignKey(
+        'MesaDiretora',
+        verbose_name='Mesa Diretora'
+    )
     legislatura = models.ForeignKey(Legislatura)
     tipo = models.CharField(
         max_length=1,
@@ -82,7 +86,8 @@ class SessaoLegislativa(models.Model):
         verbose_name_plural = 'Sessões Legislativas'
 
     class Admin:
-        list_display = ('numero', 'legislatura', 'tipo', 'data_inicio', 'data_fim')
+        list_display = ('numero', 'mesa_diretora', 'legislatura', 'tipo',
+                        'data_inicio', 'data_fim')
         list_display_links = ('numero',)
         list_filter = ('tipo',)
 
@@ -90,17 +95,20 @@ class SessaoLegislativa(models.Model):
         return self.numero
 
 class MesaDiretora(models.Model):
-    legislatura = models.ForeignKey(Legislatura)
+    casa_legislativa = models.ForeignKey(
+        'casas.CasaLegislativa',
+        verbose_name='Casa Legislativa'
+   )
 
     class Meta:
         verbose_name = 'Mesa Diretora'
         verbose_name_plural = 'Mesas Diretoras'
 
     class Admin:
-        list_display = ('legislatura',)
+        list_display = ('id', 'casa_legislativa')
 
     def __unicode__(self):
-        return self.legislatura
+        return self.id
 
 class Cargo(models.Model):
     descricao = models.CharField(u'descrição', max_length=30)
