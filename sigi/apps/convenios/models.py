@@ -30,7 +30,7 @@ class Convenio(models.Model):
         null=True,
         blank=True
     )
-    data_publicacao = models.DateField(
+    data_publicacao_diario = models.DateField(
         'data da publicação no Diário Oficial',
         null=True,
         blank=True
@@ -65,3 +65,19 @@ class EquipamentoPrevisto(models.Model):
         ordering = ('convenio', 'equipamento')
         list_display = ('convenio', 'equipamento', 'quantidade')
         list_display_links = ('convenio', 'equipamento')
+
+class Anexo(models.Model):
+    convenio = models.ForeignKey(Convenio, verbose_name='convênio')
+    arquivo = models.FileField(upload_to='arquivos/anexos',)
+    descricao = models.CharField('descrição', max_length='70')
+    data_publicacao = models.DateField(
+        'data da publicação do anexo',
+        default=datetime.now
+    )
+
+    class Meta:
+        ordering = ('-data_publicacao',)
+
+    class Admin:
+        date_hierarchy = 'data_publicacao'
+        list_display = ('descricao', 'data_publicacao', 'convenio')
