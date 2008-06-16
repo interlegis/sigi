@@ -45,6 +45,10 @@ class TipoEquipamento(models.Model):
         return self.tipo
 
 class ModeloEquipamento(models.Model):
+    tipo = models.ForeignKey(
+        TipoEquipamento,
+        verbose_name='tipo de equipamento'
+    )
     modelo = models.CharField(max_length=30)
 
     class Meta:
@@ -53,18 +57,17 @@ class ModeloEquipamento(models.Model):
         verbose_name_plural = 'modelos de equipamentos'
 
     class Admin:
-        list_display = ('id', 'modelo')
+        list_display = ('id', 'tipo', 'modelo')
 
     def __unicode__(self):
         return self.modelo
 
 class Equipamento(models.Model):
     fabricante = models.ForeignKey(Fabricante)
-    tipo = models.ForeignKey(TipoEquipamento)
     modelo = models.ForeignKey(ModeloEquipamento)
 
     class Meta:
-        unique_together = (('fabricante', 'tipo', 'modelo'),)
+        unique_together = (('fabricante', 'modelo'),)
 
     class Admin:
         ordering = ('fabricante', 'tipo', 'modelo')
