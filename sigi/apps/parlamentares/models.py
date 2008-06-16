@@ -21,10 +21,6 @@ class Parlamentar(models.Model):
         ('M', 'Masculino'),
         ('F', 'Feminino'),
     )
-    SUPLENCIA_CHOICES = (
-        ('T', 'Titular'),
-        ('S', 'Suplente'),
-    )
     nome_completo = models.CharField(max_length=60)
     nome_parlamentar = models.CharField(max_length=35, blank=True)
     foto = models.ImageField(
@@ -44,20 +40,6 @@ class Parlamentar(models.Model):
         'data de nascimento',
         blank=True,
         null=True,
-    )
-    partido = models.ForeignKey(Partido)
-    inicio_mandato = models.DateField('início de mandato')
-    inicio_mandato = models.DateField('fim de mandato')
-    is_afastado = models.BooleanField(
-        'Afastado',
-        default=False,
-        help_text='Marque caso parlamentar não esteja ativo'
-    )
-    suplencia = models.CharField(
-        'suplência',
-        max_length=1,
-        choices=SUPLENCIA_CHOICES,
-        radio_admin=True
     )
     logradouro = models.CharField(max_length=100)
     bairro = models.CharField(max_length=40)
@@ -80,3 +62,35 @@ class Parlamentar(models.Model):
                         'suplencia')
         list_display_links = ('nome_completo', 'nome_parlamentar')
         list_filter = ('sexo', 'suplencia', 'partido')
+
+    def __unicode__(self):
+        if self.nome_parlamentar:
+            return self.nome_parlamentar
+        return self.nome_completo
+
+class Mandato(models.Model):
+    SUPLENCIA_CHOICES = (
+        ('T', 'Titular'),
+        ('S', 'Suplente'),
+    )
+    parlamentar = models.ForeignKey(Parlamentar)
+    legislatura = models.ForeignKey('mesas.Legislatura')
+    partido = models.ForeignKey(Partido)
+    inicio_mandato = models.DateField('início de mandato')
+    fim_mandato = models.DateField('fim de mandato')
+    is_afastado = models.BooleanField(
+        'Afastado',
+        default=False,
+        help_text='Marque caso parlamentar não esteja ativo'
+    )
+    suplencia = models.CharField(
+        'suplência',
+        max_length=1,
+        choices=SUPLENCIA_CHOICES,
+        radio_admin=True
+    )
+
+    class Admin:
+        list_display = ('parlamentar', 'legislatura', 'partido',
+                        'inicio_mandato', 'fim_mandato', 'is_afastado')
+        list_filter = ('is_afastado', 'partido')
