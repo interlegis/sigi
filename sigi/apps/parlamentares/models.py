@@ -43,13 +43,13 @@ class Parlamentar(models.Model):
     )
     logradouro = models.CharField(max_length=100)
     bairro = models.CharField(max_length=40)
-    cidade = models.ForeignKey('localidades.Municipio')
+    cidade = models.ForeignKey('contatos.Municipio')
     cep = models.CharField(
         'CEP',
         max_length=9,
         help_text="Formato: <em>XXXXX-XXX</em>."
     )
-    telefones = generic.GenericRelation('telefones.Telefone')
+    telefones = generic.GenericRelation('contatos.Telefone')
     pagina_web = models.URLField('página web')
     email = models.EmailField('e-mail')
 

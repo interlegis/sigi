@@ -80,10 +80,9 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'extensions',               # http://django-command-extensions.googlecode.com/
     'sigi.apps.casas',
+    'sigi.apps.contatos',
     'sigi.apps.convenios',
     'sigi.apps.inventario',
-    'sigi.apps.localidades',
     'sigi.apps.mesas',
     'sigi.apps.parlamentares',
-    'sigi.apps.telefones',
 )

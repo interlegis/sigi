@@ -6,7 +6,8 @@ class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
     email = models.EmailField('e-mail', blank=True)
     pagina_web = models.URLField('página web', blank=True)
-    telefones = generic.GenericRelation('telefones.Telefone')
+    telefones = generic.GenericRelation('contatos.Telefone')
+    contatos = generic.GenericRelation('contatos.Contato')
 
     class Meta:
         ordering = ('nome',)
