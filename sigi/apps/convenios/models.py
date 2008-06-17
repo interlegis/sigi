@@ -5,9 +5,9 @@ from django.contrib.contenttypes import generic
 
 class Convenio(models.Model):
     RECEBIDOS_CHOICES = (
-        ('S', 'Sim'),
         ('N', 'Não'),
-        ('P', 'Pendente'),
+        ('S', 'Sim'),
+        ('P', 'Pendente(s)'),
     )
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
@@ -30,15 +30,18 @@ class Convenio(models.Model):
         null=True,
         blank=True
     )
-    data_publicacao_diario = models.DateField(
+    data_pub_diario = models.DateField(
         'data da publicação no Diário Oficial',
         null=True,
         blank=True
     )
-    recebidos = models.CharField(
-        'recebidos igual ao previsto?',
+    equipamentos_recebidos = models.CharField(
         max_length=1,
         choices=RECEBIDOS_CHOICES,
+    )
+    servicos = models.ManyToManyField(
+        'servicos.Servico',
+        verbose_name='serviços prestados',
     )
 
     class Meta:
@@ -50,7 +53,7 @@ class Convenio(models.Model):
         ordering = ('-num_convenio',)
         list_display = ('num_convenio', 'casa_legislativa',
                         'num_processo_sf', 'data_adesao')
-        list_filter  = ('recebidos',)
+        list_filter  = ('equipamentos_recebidos',)
 
 class EquipamentoPrevisto(models.Model):
     convenio = models.ForeignKey(Convenio)
@@ -70,14 +73,14 @@ class Anexo(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name='convênio')
     arquivo = models.FileField(upload_to='arquivos/anexos',)
     descricao = models.CharField('descrição', max_length='70')
-    data_publicacao = models.DateField(
+    data_pub = models.DateField(
         'data da publicação do anexo',
         default=datetime.now
     )
 
     class Meta:
-        ordering = ('-data_publicacao',)
+        ordering = ('-data_pub',)
 
     class Admin:
-        date_hierarchy = 'data_publicacao'
-        list_display = ('descricao', 'data_publicacao', 'convenio')
+        date_hierarchy = 'data_pub'
+        list_display = ('descricao', 'data_pub', 'convenio')
