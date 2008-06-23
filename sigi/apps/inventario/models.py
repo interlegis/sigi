@@ -71,9 +71,9 @@ class Equipamento(models.Model):
         unique_together = (('fabricante', 'modelo'),)
 
     class Admin:
-        ordering = ('fabricante', 'tipo', 'modelo')
-        list_display = ('id', 'tipo', 'modelo', 'fabricante')
-        list_filter  = ('tipo', 'fabricante')
+        ordering = ('fabricante', 'modelo')
+        list_display = ('id', 'modelo', 'fabricante')
+        list_filter  = ('fabricante',)
 
     def __unicode__(self):
         return self.id

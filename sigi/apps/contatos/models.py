@@ -147,7 +147,7 @@ class Contato(models.Model):
         verbose_name_plural = 'contatos Interlegis'
 
     class Admin:
-        list_display = ('nome', 'nota', 'casa_legislativa')
+        list_display = ('nome', 'nota')
         list_display_links = ('nome',)
 
     def __unicode__(self):

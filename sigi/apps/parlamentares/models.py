@@ -58,10 +58,9 @@ class Parlamentar(models.Model):
         verbose_name_plural = 'parlamentares'
 
     class Admin:
-        list_display = ('nome_completo', 'nome_parlamentar', 'sexo', 'partido',
-                        'suplencia')
+        list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
         list_display_links = ('nome_completo', 'nome_parlamentar')
-        list_filter = ('sexo', 'suplencia', 'partido')
+        list_filter = ('sexo',)
 
     def __unicode__(self):
         if self.nome_parlamentar:
@@ -93,4 +92,4 @@ class Mandato(models.Model):
     class Admin:
         list_display = ('parlamentar', 'legislatura', 'partido',
                         'inicio_mandato', 'fim_mandato', 'is_afastado')
-        list_filter = ('is_afastado', 'partido')
+        list_filter = ('is_afastado', 'partido', 'suplencia')
