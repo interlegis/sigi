@@ -1,0 +1,124 @@
+% $Id$
+% ---------------------------------------------------------------------------
+%
+%  This is part of the SIGI.
+%  Copyright (C) 2008 Interlegis
+%  See the file relatorio.tex for copying conditions.
+%
+
+\section{Requisitos}
+\label{sec:requisitos}
+
+\subsection{Detalhamento do Produto}
+O produto a ser desenvolvido deverá contemplar as seguintes
+funcionalidades:
+
+\begin{itemize}
+\item Gerenciamento das informações das Casas Legislativas;
+\item Gerenciamento de partidos políticos, parlamentares e seus
+  mandatos e de legislaturas;
+\item Gerenciamento de sessões legislativas, mesas diretora e de sua
+  composição partidária;
+\item Gerenciamento de convênios das Casas Legislativas junto ao
+  Interlegis;
+\item Gerenciamento dos equipamentos fornecidos e serviços prestados
+  às Casas Legislativas;
+\item Conjunto de autorização e configuração de perfis de acesso ao
+  sistema;
+\item Permitir que o usuário efetue pesquisas no banco de dados
+  utilizando filtros de seleção;
+\item Permitir o ``rollback'' (recuo) das alterações em tempo de
+  edição dos dados;
+\item Permitir a geração de relatórios em PDF dos dados estratégicos e
+  de pesquisas;
+\item Manter o histórico das atividades com as Casas Legislativas.
+\end{itemize}
+
+Deverá também ser considerado as seguintes características:
+
+\begin{itemize}
+\item Interface web compatível com os padrões e recomendações da World
+  Wide Web Consortium (W3C);
+\item Uso de \emph{AJAX} para validação de dados e para otimização e
+  facilidade de uso do sistema;
+\item Uso de um \emph{Sistema de Controle de Versões} para gerenciamento e
+  acompanhamento da codificação;
+\item Ajuda \textit{online} e contextual do sistema;
+\item Instalação simplificada;
+\item Sistema multi-usuário em rede concebido para a operacionalização
+  em três camadas distintas: apresentação (navegador web), aplicação e
+  dados.
+\end{itemize}
+
+\subsection{Requisitos de Hardware}
+Requisitos de \textit{hardware}necessários para que a aplicação
+funcione corretamente:
+
+\begin{itemize}
+\item Aproximadamente 100 MB de espaço em disco;
+\item Mínimo de 256 MB de memória RAM;
+\item Processador compatível ao Pentium III ou superior;
+\end{itemize}
+
+\subsection{Requisitos de Software}
+Requisitos de \textit{software} necessários para que a aplicação
+funcione corretamente:
+
+\begin{itemize}
+\item Sistemas operacionais GNU/Linux ou de família Unix BSD;
+\item Apache 2 ou superior;
+\item PostgreSQL 8.3 ou superior;
+\item Python 2.5 ou superior (< 3.0);
+\item Django 0.97-pre (trunk) ou 1.0.
+\end{itemize}
+
+\subsection{Requisitos de performance}
+Requisitos necessários para tirar o melhor proveito da aplicação:
+
+\begin{itemize}
+\item Considerar o uso do sistema operacional GNU/Linux ou FreeBSD;
+\item Uso do servidor web Apache para a aplicação;
+\item Uso do servidor Lighttpd para os arquivos estáticos;
+\item Cache das transações com o Banco de Dados e da saída
+  (\textit{output}) das requisições HTTP.
+\end{itemize}
+
+\subsection{Requisitos de documentação}
+Documentação necessária que deverá vir a ser elaborada para servir de
+suporte ao produto:
+
+\begin{itemize}
+\item Documentação da \textit{Application Programming Interface} (API)
+  do software;
+\item Manual de configuração e implantação do sistema;
+\item Manual do usuário;
+\item Ajuda \textit{online} e contextual do sistema;
+\item Arquivos LEIA-ME e de licenciamento.
+\end{itemize}
+
+\subsection{Licenças}
+O novo SIGI se baseia apenas em aplicações \emph{livres}, as quais
+possuem um licenciamento sem nenhuma restrição de uso. A obtenção das
+mesmas também são gratuitas.
+
+Segue abaixo uma lista dos principais \emph{softwares} necessários
+para o desenvolvimento do SIGI e suas respectivas licenças:
+
+\begin{description}
+\item[Apache:] Apache License 2.0
+\item[PostgreSQL:] BSD License
+\item[Python:] Python License
+\item[Django:] BSD License
+\end{description}
+
+O SIGI será publicado como \emph{software livre} utilizando a licença
+\textit{GNU General Public License (GNU GPL)} em sua versão 3, assim
+como os outros produtos do Interlegis, e estará disponível no
+repositório de \emph{software livre} Colab\footnote{Endereço web do
+  Colab: http://colab.interlegis.gov.br} do Interlegis.
+%
+% Local variables:
+%   mode: flyspell
+%   TeX-master: "relatorio.tex"
+% End:
+%

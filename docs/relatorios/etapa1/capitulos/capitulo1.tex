@@ -1,0 +1,95 @@
+% $Id$
+% ---------------------------------------------------------------------------
+%
+%  This is part of the SIGI.
+%  Copyright (C) 2008 Interlegis
+%  See the file relatorio.tex for copying conditions.
+%
+
+\section{Visão Geral}
+\label{sec:visaogeral}
+O atual Sistema de Informações Gerenciais do Interlegis, ou SIGI,
+fornece um conjunto limitado de informações sobre as Casas
+Legislativas e não contempla a atual realidade do \emph{Programa
+  Interlegis}.
+
+O sistema é executado em ambiente \emph{Microsoft Windows} utilizando
+a plataforma \emph{Microsoft Access}, o qual possui uma série de
+limitações tecnológicas, de manutenibilidade, e de acesso às
+informações pelos usuários, bem como também o acesso através de outros
+\textit{softwares}, gerando, neste caso, redundância e disparidade de
+dados.
+
+Foi observado por parte dos usuários a necessidade de um sistema com
+interface \textit{web} e com uma \emph{base de dados} única e
+centralizada, tornando o acesso flexível e as informações atualizadas
+refletindo diretamente nos outros sistemas do Interlegis.
+
+O novo sistema será desenvolvido utilizando a plataforma \emph{Python}
+com o framework de desenvolvimento \emph{Django}, o qual cumpre os
+requisitos necessários para a implementação do sistema. Além do mais,
+o Django permitirá uma evolução natural do sistema e grande facilidade
+na manutenção do mesmo.
+
+O sistema, inicialmente, será dividido em 7 aplicações (ou
+componentes) Django:
+
+\begin{enumerate}
+\item \verb|sigi.apps.casas| (Casas Legislativas)
+\item \verb|sigi.apps.contatos| (Contatos)
+\item \verb|sigi.apps.convenios| (Convênios)
+\item \verb|sigi.apps.inventario| (Inventário)
+\item \verb|sigi.apps.mesas| (Mesas Diretoras)
+\item \verb|sigi.apps.parlamentares| (Parlamentares)
+\item \verb|sigi.apps.servicos| (Serviços)
+\end{enumerate}
+
+Esta ``componentização'' permitirá o reaproveitamento dessas mesmas
+aplicações para outros projetos futuros do Interlegis baseado em
+Django.
+
+\subsection{Descrição das Atividades}
+Esta seção descreve as principais etapas de desenvolvimento do sistema
+a serem cumpridas. Desde o planejamento e levantamento de requisitos
+até a implantação do sistema e transferência de tecnologia à equipe do
+Interlegis.
+
+\subsubsection{Primeira Etapa}
+\begin{enumerate}
+\item Levantamento de requisitos (Seção \ref{sec:requisitos});
+\item Identificação dos \emph{Casos de Uso} (Seção \ref{sec:casos});
+\item Definição do \emph{Modelo de Dados} (Seção \ref{sec:modelo});
+\item Esquema da Base de Dados (Seção \ref{sec:esquema});
+\item Protótipo de interface gráfica (Seção \ref{sec:prototipo}).
+\end{enumerate}
+
+\subsubsection{Segunda Etapa}
+\begin{enumerate}
+\item Codificação do sistema;
+\item Transformação do protótipo em interface para o sistema;
+\item Implantação de sistema \textit{alpha} em um servidor de testes;
+\item Avaliação final do sistema.
+\end{enumerate}
+
+\subsubsection{Terceira Etapa}
+\begin{enumerate}
+\item Documentação do sistema desenvolvido;
+\item Documentação dos parâmetros de configuração do sistema;
+\item Manual de implantação (\textit{deployment}).
+\end{enumerate}
+
+\subsubsection{Quarta Etapa}
+\begin{enumerate}
+\item Manual de usuário;
+\item Treinamento;
+\item Implantação do sistema em servidor em produção;
+\item Transferência de tecnologia para equipe do Interlegis;
+\item Entrega final do produto.
+\end{enumerate}
+
+%
+% Local variables:
+%   mode: flyspell
+%   TeX-master: "relatorio.tex"
+% End:
+%
