@@ -8,28 +8,27 @@
 
 \section{Visão Geral}
 \label{sec:visaogeral}
-O atual Sistema de Informações Gerenciais do Interlegis, ou SIGI,
+O atual Sistema de Informações Gerenciais do Interlegis (SIGI)
 fornece um conjunto limitado de informações sobre as Casas
 Legislativas e não contempla a atual realidade do \emph{Programa
   Interlegis}.
 
 O sistema é executado em ambiente \emph{Microsoft Windows} utilizando
-a plataforma \emph{Microsoft Access}, o qual possui uma série de
-limitações tecnológicas, de manutenibilidade, e de acesso às
-informações pelos usuários, bem como também o acesso através de outros
-\textit{softwares}, gerando, neste caso, redundância e disparidade de
-dados.
+a plataforma \emph{Microsoft Access}, o qual possui limitações
+tecnológicas, de manutenibilidade, e de acesso às informações pelos
+usuários, bem como de acesso através de outros \textit{softwares},
+gerando, neste caso, redundância e disparidade de dados.
 
 Foi observado por parte dos usuários a necessidade de um sistema com
 interface \textit{web} e com uma \emph{base de dados} única e
 centralizada, tornando o acesso flexível e as informações atualizadas
-refletindo diretamente nos outros sistemas do Interlegis.
+refletindo diretamente nos demais sistemas do Interlegis.
 
 O novo sistema será desenvolvido utilizando a plataforma \emph{Python}
 com o framework de desenvolvimento \emph{Django}, o qual cumpre os
 requisitos necessários para a implementação do sistema. Além do mais,
-o Django permitirá uma evolução natural do sistema e grande facilidade
-na manutenção do mesmo.
+o Django permitirá uma evolução natural do sistema e facilidade na
+manutenção.
 
 O sistema, inicialmente, será dividido em 7 aplicações (ou
 componentes) Django:
@@ -44,14 +43,14 @@ componentes) Django:
 \item \verb|sigi.apps.servicos| (Serviços)
 \end{enumerate}
 
-Esta ``componentização'' permitirá o reaproveitamento dessas mesmas
+Esta ``componentização'' permitirá o reaproveitamento dessas
 aplicações para outros projetos futuros do Interlegis baseado em
 Django.
 
 \subsection{Descrição das Atividades}
 Esta seção descreve as principais etapas de desenvolvimento do sistema
-a serem cumpridas. Desde o planejamento e levantamento de requisitos
-até a implantação do sistema e transferência de tecnologia à equipe do
+a serem cumpridas. Desde o levantamento de requisitos até a
+implantação do sistema e a transferência de tecnologia à equipe do
 Interlegis.
 
 \subsubsection{Primeira Etapa}
@@ -67,14 +66,15 @@ Interlegis.
 \begin{enumerate}
 \item Codificação do sistema;
 \item Transformação do protótipo em interface para o sistema;
-\item Implantação de sistema \textit{alpha} em um servidor de testes;
+\item Implantação do sistema versão \textit{alpha} em um servidor de
+  testes;
 \item Avaliação final do sistema.
 \end{enumerate}
 
 \subsubsection{Terceira Etapa}
 \begin{enumerate}
-\item Documentação do sistema desenvolvido;
-\item Documentação dos parâmetros de configuração do sistema;
+\item Documentação;
+\item Documentação dos parâmetros de configuração;
 \item Manual de implantação (\textit{deployment}).
 \end{enumerate}
 
