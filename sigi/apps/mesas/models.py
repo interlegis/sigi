@@ -7,10 +7,6 @@ class Legislatura(models.Model):
     data_fim = models.DateField('fim')
     data_eleicao = models.DateField(u'data da eleição')
 
-    class Admin:
-        list_display = ('numero', 'data_inicio', 'data_fim', 'data_eleicao')
-        list_display_links = ('numero',)
-
     def __unicode__(self):
         return str(self.numero)
 
@@ -28,11 +24,6 @@ class Coligacao(models.Model):
         verbose_name = 'coligação'
         verbose_name_plural = 'coligações'
 
-    class Admin:
-        list_display = ('nome', 'legislatura', 'numero_votos')
-        list_display_links = ('nome',)
-        search_fields = ('nome',)
-
     def __unicode__(self):
         return self.nome
 
@@ -44,11 +35,8 @@ class ComposicaoColigacao(models.Model):
         verbose_name = 'composição da coligação'
         verbose_name_plural = 'composições das coligações'
 
-    class Admin:
-        list_display = ('coligacao', 'partido')
-        list_display_links = ('coligacao', 'partido')
-        list_filter = ('partido',)
-
+    def __unicode__(self):
+        return str(self.id)
 
 class SessaoLegislativa(models.Model):
     SESSAO_CHOICES = (
@@ -64,7 +52,6 @@ class SessaoLegislativa(models.Model):
     tipo = models.CharField(
         max_length=1,
         choices=SESSAO_CHOICES,
-        radio_admin=True,
         default='O'
     )
     data_inicio = models.DateField(u'início')
@@ -85,14 +72,8 @@ class SessaoLegislativa(models.Model):
         verbose_name = 'Sessão Legislativa'
         verbose_name_plural = 'Sessões Legislativas'
 
-    class Admin:
-        list_display = ('numero', 'mesa_diretora', 'legislatura', 'tipo',
-                        'data_inicio', 'data_fim')
-        list_display_links = ('numero',)
-        list_filter = ('tipo',)
-
     def __unicode__(self):
-        return self.numero
+        return str(self.numero)
 
 class MesaDiretora(models.Model):
     casa_legislativa = models.ForeignKey(
@@ -104,20 +85,14 @@ class MesaDiretora(models.Model):
         verbose_name = 'Mesa Diretora'
         verbose_name_plural = 'Mesas Diretoras'
 
-    class Admin:
-        list_display = ('id', 'casa_legislativa')
-
     def __unicode__(self):
-        return self.id
+        return 'Mesa Diretora da(o) %s' % unicode(self.casa_legislativa)
 
 class Cargo(models.Model):
     descricao = models.CharField(u'descrição', max_length=30)
 
     class Meta:
         ordering = ('descricao',)
-
-    class Admin:
-        list_display = ('descricao',)
 
     def __unicode__(self):
         return self.descricao
@@ -128,24 +103,12 @@ class MembroMesaDiretora(models.Model):
         core=True,
     )
     cargo = models.ForeignKey(Cargo, core=True)
-    mesa_diretora = models.ForeignKey(
-        MesaDiretora,
-        edit_inline=True,
-        max_num_in_admin=11,
-        num_extra_on_change=4,
-        num_in_admin=4
-    )
+    mesa_diretora = models.ForeignKey(MesaDiretora)
 
     class Meta:
         ordering = ('parlamentar',)
         verbose_name = 'membro de Mesa Diretora'
         verbose_name_plural = 'membros de Mesas Diretora'
 
-    class Admin:
-        list_display = ('parlamentar', 'cargo')
-        list_display_links = ('parlamentar', 'cargo')
-        list_filter = ('cargo',)
-        search_fields = ('parlamentar', 'cargo')
-
     def __unicode__(self):
-        return '%s (%s)' % (self.parlamentar, self.cargo)
+        return '%s (%s)' % (unicode(self.parlamentar), unicode(self.cargo))

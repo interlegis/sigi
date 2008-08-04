@@ -9,12 +9,8 @@ class Partido(models.Model):
     class Meta:
         ordering = ('nome',)
 
-    class Admin:
-        list_display = ('nome', 'sigla')
-        list_display_links = ('nome', 'sigla')
-
     def __unicode__(self):
-        return '%s (%s)' % (self.nome, self.sigla)
+        return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))
 
 class Parlamentar(models.Model):
     SEXO_CHOICES = (
@@ -34,7 +30,6 @@ class Parlamentar(models.Model):
     sexo = models.CharField(
         max_length=1,
         choices=SEXO_CHOICES,
-        radio_admin=True
     )
     data_nascimento = models.DateField(
         'data de nascimento',
@@ -50,17 +45,12 @@ class Parlamentar(models.Model):
         help_text="Formato: <em>XXXXX-XXX</em>."
     )
     telefones = generic.GenericRelation('contatos.Telefone')
-    pagina_web = models.URLField('página web')
+    pagina_web = models.URLField(u'página web')
     email = models.EmailField('e-mail')
 
     class Meta:
         ordering = ('nome_completo',)
         verbose_name_plural = 'parlamentares'
-
-    class Admin:
-        list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
-        list_display_links = ('nome_completo', 'nome_parlamentar')
-        list_filter = ('sexo',)
 
     def __unicode__(self):
         if self.nome_parlamentar:
@@ -75,21 +65,15 @@ class Mandato(models.Model):
     parlamentar = models.ForeignKey(Parlamentar)
     legislatura = models.ForeignKey('mesas.Legislatura')
     partido = models.ForeignKey(Partido)
-    inicio_mandato = models.DateField('início de mandato')
+    inicio_mandato = models.DateField(u'início de mandato')
     fim_mandato = models.DateField('fim de mandato')
     is_afastado = models.BooleanField(
         'Afastado',
         default=False,
-        help_text='Marque caso parlamentar não esteja ativo'
+        help_text=u'Marque caso parlamentar não esteja ativo'
     )
     suplencia = models.CharField(
-        'suplência',
+        u'suplência',
         max_length=1,
         choices=SUPLENCIA_CHOICES,
-        radio_admin=True
     )
-
-    class Admin:
-        list_display = ('parlamentar', 'legislatura', 'partido',
-                        'inicio_mandato', 'fim_mandato', 'is_afastado')
-        list_filter = ('is_afastado', 'partido', 'suplencia')

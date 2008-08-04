@@ -13,9 +13,6 @@ class Fornecedor(models.Model):
         ordering = ('nome',)
         verbose_name_plural = 'fornecedores'
 
-    class Admin:
-        list_display = ('id', 'nome')
-
     def __unicode__(self):
         return self.nome
 
@@ -24,9 +21,6 @@ class Fabricante(models.Model):
 
     class Meta:
         ordering = ('nome',)
-
-    class Admin:
-        list_display = ('id', 'nome')
 
     def __unicode__(self):
         return self.nome
@@ -38,9 +32,6 @@ class TipoEquipamento(models.Model):
         ordering = ('tipo',)
         verbose_name = 'tipo de equipamento'
         verbose_name_plural = 'tipos de equipamentos'
-
-    class Admin:
-        list_display = ('id', 'tipo')
 
     def __unicode__(self):
         return self.tipo
@@ -57,9 +48,6 @@ class ModeloEquipamento(models.Model):
         verbose_name = 'modelo de equipamento'
         verbose_name_plural = 'modelos de equipamentos'
 
-    class Admin:
-        list_display = ('id', 'tipo', 'modelo')
-
     def __unicode__(self):
         return self.modelo
 
@@ -70,13 +58,8 @@ class Equipamento(models.Model):
     class Meta:
         unique_together = (('fabricante', 'modelo'),)
 
-    class Admin:
-        ordering = ('fabricante', 'modelo')
-        list_display = ('id', 'modelo', 'fabricante')
-        list_filter  = ('fabricante',)
-
     def __unicode__(self):
-        return self.id
+        return str(self.id)
 
 class Bem(models.Model):
     casa_legislativa = models.ForeignKey('casas.CasaLegislativa')
@@ -98,10 +81,6 @@ class Bem(models.Model):
     class Meta:
         verbose_name_plural = 'bens'
 
-    class Admin:
-        ordering = ('casa_legislativa', 'fornecedor', 'equipamento')
-        list_display = ('equipamento', 'fornecedor', 'num_serie',
-                        'num_tombamento', 'casa_legislativa')
-
     def __unicode__(self):
-        return '%s (%s)' % (self.equipamento, self.casa_legislativa)
+        return '%s (%s)' % (unicode(self.equipamento),
+                            unicode(self.casa_legislativa))

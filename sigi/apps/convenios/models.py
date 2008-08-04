@@ -49,12 +49,6 @@ class Convenio(models.Model):
         ordering = ('num_convenio',)
         verbose_name = 'convênio'
 
-    class Admin:
-        ordering = ('-num_convenio',)
-        list_display = ('num_convenio', 'casa_legislativa',
-                        'num_processo_sf', 'data_adesao')
-        list_filter  = ('equipamentos_recebidos',)
-
 class EquipamentoPrevisto(models.Model):
     convenio = models.ForeignKey(Convenio)
     equipamento = models.ForeignKey('inventario.Equipamento')
@@ -63,11 +57,6 @@ class EquipamentoPrevisto(models.Model):
     class Meta:
         verbose_name = 'equipamento previsto'
         verbose_name_plural = 'equipamentos previstos'
-
-    class Admin:
-        ordering = ('convenio', 'equipamento')
-        list_display = ('convenio', 'equipamento', 'quantidade')
-        list_display_links = ('convenio', 'equipamento')
 
 class Anexo(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name='convênio')
@@ -80,7 +69,3 @@ class Anexo(models.Model):
 
     class Meta:
         ordering = ('-data_pub',)
-
-    class Admin:
-        date_hierarchy = 'data_pub'
-        list_display = ('descricao', 'data_pub', 'convenio')

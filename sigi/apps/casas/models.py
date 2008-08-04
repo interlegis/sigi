@@ -13,7 +13,11 @@ class CasaLegislativa(models.Model):
     nome = models.CharField(max_length=60)
     sigla = models.CharField(max_length=30, blank=True)
     tipo = models.CharField(max_length=2, choices=CASA_CHOICES)
-    cnpj = models.CharField('CNPJ', max_length=18)
+    cnpj = models.CharField(
+        'CNPJ',
+        max_length=18,
+        help_text="Formato: <em></em>."
+    )
 
     logradouro = models.CharField(max_length=100)
     bairro = models.CharField(max_length=40)
@@ -23,7 +27,7 @@ class CasaLegislativa(models.Model):
         help_text="Formato: <em>XXXXX-XXX</em>."
     )
     email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField('página web', blank=True)
+    pagina_web = models.URLField(u'página web', blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -34,7 +38,7 @@ class CasaLegislativa(models.Model):
     )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
-    historico = models.TextField('histórico', blank=True)
+    historico = models.TextField(u'histórico', blank=True)
 
     contatos = generic.GenericRelation('contatos.Contato')
 
@@ -42,10 +46,6 @@ class CasaLegislativa(models.Model):
         ordering = ('nome',)
         verbose_name = 'Casa Legislativa'
         verbose_name_plural = 'Casas Legislativas'
-
-    class Admin:
-        list_display = ('nome', 'email', 'pagina_web')
-        list_display_links = ('nome',)
 
     def __unicode__(self):
         return self.nome

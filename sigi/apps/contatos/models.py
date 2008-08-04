@@ -26,11 +26,6 @@ class UnidadeFederativa(models.Model):
         verbose_name = 'Unidade Federativa'
         verbose_name_plural = 'Unidades Federativas'
 
-    class Admin:
-        list_display = ('codigo_ibge', 'nome', 'sigla')
-        list_display_links = ('codigo_ibge', 'nome', 'sigla')
-        search_fields = ('codigo_ibge', 'nome', 'sigla')
-
     def __unicode__(self):
         return self.nome
 
@@ -71,12 +66,6 @@ class Municipio(models.Model):
         verbose_name = 'município'
         verbose_name_plural = 'municípios'
 
-    class Admin:
-        list_display = ('codigo_ibge', 'nome', 'uf')
-        list_display_links = ('codigo_ibge', 'nome')
-        list_filter = ('uf',)
-        search_fields = ('codigo_ibge', 'nome', 'uf')
-
     def __unicode__(self):
         return self.nome
 
@@ -103,7 +92,6 @@ class Telefone(models.Model):
     tipo = models.CharField(
         max_length=1,
         choices=TELEFONE_CHOICES,
-        radio_admin=True
     )
     nota = models.CharField(max_length=70, blank=True)
     content_type = models.ForeignKey(ContentType)
@@ -114,14 +102,8 @@ class Telefone(models.Model):
         ordering = ('codigo_ddd', 'numero')
         unique_together = ('codigo_ddd', 'numero', 'tipo')
 
-    class Admin:
-        list_display = ('codigo_ddd', 'numero', 'tipo', 'nota')
-        list_display_links = ('codigo_ddd', 'numero')
-        list_filter = ('codigo_ddd',)
-        search_fields = ('codigo_ddd', 'numero', 'tipo', 'nota')
-
     def __unicode__(self):
-        return "(%s) %s" % (self.codigo_ddd, self.numero)
+        return "(%s) %s" % (unicode(self.codigo_ddd), unicode(self.numero))
 
 class Contato(models.Model):
     nome = models.CharField('nome completo', max_length=60)
@@ -145,10 +127,6 @@ class Contato(models.Model):
         ordering = ('nome',)
         verbose_name = 'contato Interlegis'
         verbose_name_plural = 'contatos Interlegis'
-
-    class Admin:
-        list_display = ('nome', 'nota')
-        list_display_links = ('nome',)
 
     def __unicode__(self):
         return self.nome

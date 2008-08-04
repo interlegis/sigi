@@ -48,9 +48,5 @@ class Servico(models.Model):
         verbose_name = 'serviço'
         verbose_name_plural = 'serviços'
 
-    class Admin:
-        list_display = ('id', 'tipo', 'situacao', 'avaliacao')
-        list_filter  = ('situacao', 'avaliacao',)
-
     def __unicode__(self):
-        return self.id
+        return str(self.id)
