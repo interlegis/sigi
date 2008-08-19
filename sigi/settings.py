@@ -1,84 +1,90 @@
-# Django settings for SIGI project.
+#
+# Default Django settings for SIGI.
+#
+#   (!!!)
+#
+#   DON'T CHANGE THIS FILE, USE local_settings.py. YOU GET A TEMPLATE IN
+#   local_settings.template (COPY HIM TO local_settings.py AND MAKE YOUR
+#   NECESSARY CHANGES.
+#
+
+import os
+BASE_DIR = os.path.abspath(os.path.dirname(__file__) + '../..')
+PROJECT_DIR = BASE_DIR + '/sigi'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+MAINTENANCE = False
 
-ADMINS = (
-    # ('Your Name', 'your_email@domain.com'),
-)
-
+# I can't determine this, use local_settings.py.
+ADMINS = (('root', 'root@localhost'),)
 MANAGERS = ADMINS
+SERVER_EMAIL = 'root@localhost'
+DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
-DATABASE_ENGINE = 'sqlite3'    # 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-DATABASE_NAME = 'devel.db'     # Or path to database file if using sqlite3.
-DATABASE_USER = ''             # Not used with sqlite3.
-DATABASE_PASSWORD = ''         # Not used with sqlite3.
-DATABASE_HOST = ''             # Set to empty string for localhost. Not used with sqlite3.
-DATABASE_PORT = ''             # Set to empty string for default. Not used with sqlite3.
+INTERNAL_IPS = ('127.0.0.1',)
 
-# Local time zone for this installation. Choices can be found here:
-# http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
-# although not all choices may be available on all operating systems.
-# If running in a Windows environment this must be set to the same as your
-# system time zone.
+DATABASE_ENGINE = 'sqlite3'
+DATABASE_NAME = BASE_DIR + '/devel.db'
+
 TIME_ZONE = 'America/Sao_Paulo'
-
-# Language code for this installation. All choices can be found here:
-# http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'pt-br'
-
 SITE_ID = 1
 
-# If you set this to False, Django will make some optimizations so as not
-# to load the internationalization machinery.
 USE_I18N = True
 
-# Absolute path to the directory that holds media.
-# Example: "/home/media/media.lawrence.com/"
-MEDIA_ROOT = ''
+MEDIA_ROOT = BASE_DIR + '/media/'
+MEDIA_URL = '/media/'
+ADMIN_MEDIA_PREFIX = '/admin_media/'
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash if there is a path component (optional in other cases).
-# Examples: "http://media.lawrence.com", "http://example.com/media/"
-MEDIA_URL = ''
+CACHE_BACKEND = 'dummy:///'
+CACHE_MIDDLEWARE_SECONDS = 60
+CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
 
-# URL prefix for admin media -- CSS, JavaScript and images. Make sure to use a
-# trailing slash.
-# Examples: "http://foo.com/media/", "/media/".
-ADMIN_MEDIA_PREFIX = '/media/'
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = 'ns4w_j^t$*81bl%+3s6-l01&+lai01kz1si&720bmsu-#nmle8'
+# Used to provide a seed in secret-key hashing algorithms. Set this to
+# a random string in your local_settings.py - the longer, the better.
+SECRET_KEY = 'set-this-in-your-local_settings.py!'
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.load_template_source',
     'django.template.loaders.app_directories.load_template_source',
-#     'django.template.loaders.eggs.load_template_source',
+)
+
+TEMPLATE_CONTEXT_PROCESSORS = (
+    'django.core.context_processors.auth',
+    'django.core.context_processors.debug',
+    'django.core.context_processors.i18n',
+    'django.core.context_processors.media',
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
+    'django.middleware.http.ConditionalGetMiddleware',
+    'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.middleware.cache.CacheMiddleware',
+    'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
 )
 
 ROOT_URLCONF = 'sigi.urls'
 
 TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
+    PROJECT_DIR + '/templates',
 )
+
+FIXTURE_DIRS = (PROJECT_DIR + '/fixtures',)
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
+    'django.contrib.databrowse',
     'django.contrib.admin',
-    'extensions',   # http://django-command-extensions.googlecode.com/
+    'django_extensions', # http://django-command-extensions.googlecode.com/
     'sigi.apps.casas',
     'sigi.apps.contatos',
     'sigi.apps.convenios',
@@ -87,3 +93,14 @@ INSTALLED_APPS = (
     'sigi.apps.parlamentares',
     'sigi.apps.servicos',
 )
+
+try:
+    from local_settings import *
+except ImportError:
+    from warnings import warn
+    msg = "You don't have local_settings.py file, using defaults settings."
+    try:
+        # don't work in Python 2.4 or before
+        warn(msg, category=ImportWarning)
+    except NameError:
+        warn(msg)
