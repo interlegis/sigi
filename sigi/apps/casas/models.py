@@ -13,19 +13,18 @@ class CasaLegislativa(models.Model):
     nome = models.CharField(max_length=60)
     sigla = models.CharField(max_length=30, blank=True)
     tipo = models.CharField(max_length=2, choices=CASA_CHOICES)
-    cnpj = models.CharField(
-        'CNPJ',
-        max_length=18,
-        help_text="Formato: <em></em>."
-    )
+    cnpj = models.CharField('CNPJ', max_length=18)
 
-    logradouro = models.CharField(max_length=100)
-    bairro = models.CharField(max_length=40)
-    cidade = models.ForeignKey('contatos.Municipio')
-    cep = models.CharField(
-        max_length=9,
-        help_text="Formato: <em>XXXXX-XXX</em>."
+    logradouro = models.CharField(
+        max_length=100,
+        help_text='Avenida, rua, praça, jardim, parque...'
     )
+    bairro = models.CharField(max_length=40)
+    municipio = models.ForeignKey(
+        'contatos.Municipio',
+        verbose_name='município'
+    )
+    cep = models.CharField(max_length=9)
     email = models.EmailField('e-mail', blank=True)
     pagina_web = models.URLField(u'página web', blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
