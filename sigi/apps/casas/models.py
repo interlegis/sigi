@@ -10,8 +10,16 @@ class CasaLegislativa(models.Model):
         ('CT', 'Câmara Distrital'),
         ('SF', 'Senado Federal'),
     )
-    nome = models.CharField(max_length=60)
-    sigla = models.CharField(max_length=30, blank=True)
+    nome = models.CharField(
+        max_length=60,
+        help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
+    )
+    sigla = models.CharField(
+        max_length=30,
+        help_text='Forneça apenas se a Casa Legislativa indicar um. '
+                  'Exemplo: <em>cmpains</em>.',
+        blank=True
+    )
     tipo = models.CharField(max_length=2, choices=CASA_CHOICES)
     cnpj = models.CharField('CNPJ', max_length=18)
 
@@ -26,7 +34,11 @@ class CasaLegislativa(models.Model):
     )
     cep = models.CharField(max_length=9)
     email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField(u'página web', blank=True)
+    pagina_web = models.URLField(
+        u'página web',
+        help_text='Exemplo: <em>http://www.camarapains.mg.gov.br</em>.',
+        blank=True
+    )
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -48,3 +60,7 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+    def uf (self):
+        return self.municipio.uf.nome
+    uf.short_description = 'Unidade Federativa'

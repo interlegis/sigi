@@ -14,10 +14,15 @@ class UnidadeFederativa(models.Model):
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
         primary_key=True,
+        unique=True,
         help_text='Código do estado segundo IBGE.'
     )
     nome = models.CharField(max_length=25)
-    sigla = models.CharField(max_length=2, help_text="Exemplo: <em>MG</em>.")
+    sigla = models.CharField(
+        max_length=2,
+        unique=True,
+        help_text="Exemplo: <em>MG</em>.",
+    )
     regiao = models.CharField(max_length=2, choices=REGIAO_CHOICES)
     populacao = models.PositiveIntegerField('população')
 
@@ -33,6 +38,7 @@ class Municipio(models.Model):
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
         primary_key=True,
+        unique=True,
         help_text='Código do município segundo IBGE.'
     )
     codigo_mesorregiao = models.PositiveIntegerField(

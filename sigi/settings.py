@@ -84,6 +84,7 @@ INSTALLED_APPS = (
     'django.contrib.sites',
     'django.contrib.databrowse',
     'django.contrib.admin',
+    'django.contrib.admindocs',
     'django_extensions', # http://django-command-extensions.googlecode.com/
     'sigi.apps.casas',
     'sigi.apps.contatos',

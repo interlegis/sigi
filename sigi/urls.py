@@ -10,8 +10,8 @@ map(databrowse.site.register, get_models())
 urlpatterns = patterns(
     '',
 
-    (r'^(.*)', admin.site.root),
     (r'^doc/', include('django.contrib.admindocs.urls')),
+    (r'^(.*)', admin.site.root),
 
     # databrowse
     (r'^databrowse/(.*)', databrowse.site.root),
