@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.admin.filterspecs import ChoicesFilterSpec, FilterSpec
 from django.contrib.contenttypes import generic
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa
