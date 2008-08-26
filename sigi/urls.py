@@ -22,7 +22,7 @@ urlpatterns = patterns(
     (r'^(.*)', sites.default.root),
 )
 
-if not settings.DEBUG:
+if settings.DEBUG:
     urlpatterns = patterns(
         '',
 
