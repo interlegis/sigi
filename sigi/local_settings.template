@@ -12,7 +12,7 @@
 
 #DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
-
+#MAINTENANCE_MODE = False
 
 ####################################
 ## TEMPLATE FOR USE IN PRODUCTION ##
@@ -20,8 +20,7 @@
 
 #DEBUG = False
 #TEMPLATE_DEBUG = DEBUG
-#MAINTENANCE = True
-
+#MAINTENANCE_MODE = False
 
 #ADMINS = (('root', 'root@localhost'),)
 #MANAGERS = ADMINS

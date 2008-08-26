@@ -14,7 +14,6 @@ PROJECT_DIR = BASE_DIR + '/sigi'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-MAINTENANCE = False
 
 # I can't determine this, use local_settings.py.
 ADMINS = (('root', 'root@localhost'),)
@@ -42,6 +41,8 @@ CACHE_MIDDLEWARE_SECONDS = 60
 CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
 
+MAINTENANCE_MODE = False
+
 # Used to provide a seed in secret-key hashing algorithms. Set this to
 # a random string in your local_settings.py - the longer, the better.
 SECRET_KEY = 'set-this-in-your-local_settings.py!'
@@ -64,6 +65,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'maintenancemode.middleware.MaintenanceModeMiddleware',
     'django.middleware.cache.CacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
