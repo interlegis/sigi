@@ -98,11 +98,8 @@ class Cargo(models.Model):
         return self.descricao
 
 class MembroMesaDiretora(models.Model):
-    parlamentar = models.ForeignKey(
-        'parlamentares.Parlamentar',
-        core=True,
-    )
-    cargo = models.ForeignKey(Cargo, core=True)
+    parlamentar = models.ForeignKey('parlamentares.Parlamentar')
+    cargo = models.ForeignKey(Cargo)
     mesa_diretora = models.ForeignKey(MesaDiretora)
 
     class Meta:
