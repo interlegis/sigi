@@ -14,6 +14,7 @@ PROJECT_DIR = BASE_DIR + '/sigi'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
+MAINTENANCE_MODE = False
 
 # I can't determine this, use local_settings.py.
 ADMINS = (('root', 'root@localhost'),)
@@ -40,8 +41,6 @@ CACHE_BACKEND = 'dummy:///'
 CACHE_MIDDLEWARE_SECONDS = 60
 CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
-
-MAINTENANCE_MODE = False
 
 # Used to provide a seed in secret-key hashing algorithms. Set this to
 # a random string in your local_settings.py - the longer, the better.
@@ -88,6 +87,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions', # http://django-command-extensions.googlecode.com/
+    'maintenancemode',
     'sigi.apps.casas',
     'sigi.apps.contatos',
     'sigi.apps.convenios',

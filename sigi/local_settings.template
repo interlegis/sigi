@@ -12,7 +12,6 @@
 
 #DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
-#MAINTENANCE_MODE = False
 
 ####################################
 ## TEMPLATE FOR USE IN PRODUCTION ##
