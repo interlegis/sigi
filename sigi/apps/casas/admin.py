@@ -3,8 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.contatos.models import Contato
-from sigi.apps.contatos.models import Telefone
+from sigi.apps.contatos.models import Contato, Telefone
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
