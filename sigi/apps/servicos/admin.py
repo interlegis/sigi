@@ -1,9 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.contrib.contenttypes import generic
+from sigi.apps.contatos.models import Contato
 from sigi.apps.servicos.models import Servico
 
+class ContatosInline(generic.GenericTabularInline):
+    model = Contato
+    extra = 1
+
 class ServicoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'tipo', 'situacao', 'avaliacao')
-    list_filter  = ('situacao', 'avaliacao',)
+    date_hierarchy = 'data_inicio'
+    inlines = (ContatosInline,)
+    list_display = ('id', 'titulo', 'tipo', 'situacao', 'avaliacao')
+    list_filter  = ('tipo','situacao', 'avaliacao',)
+    search_fields = ('titulo', 'tipo', 'descricao',)
 
 admin.site.register(Servico, ServicoAdmin)

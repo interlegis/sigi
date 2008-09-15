@@ -7,9 +7,11 @@ from sigi.apps.contatos.models import Contato, Telefone
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
+    extra = 1
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
+    extra = 1
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm

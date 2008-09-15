@@ -4,6 +4,7 @@ from django.contrib.contenttypes import generic
 
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
+    nome.alphabetic_filter = True
     email = models.EmailField('e-mail', blank=True)
     pagina_web = models.URLField('página web', blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
@@ -18,6 +19,7 @@ class Fornecedor(models.Model):
 
 class Fabricante(models.Model):
     nome = models.CharField(max_length=40)
+    nome.alphabetic_filter = True
 
     class Meta:
         ordering = ('nome',)
@@ -27,6 +29,7 @@ class Fabricante(models.Model):
 
 class TipoEquipamento(models.Model):
     tipo = models.CharField(max_length=40)
+    tipo.alphabetic_filter = True
 
     class Meta:
         ordering = ('tipo',)
@@ -42,6 +45,7 @@ class ModeloEquipamento(models.Model):
         verbose_name='tipo de equipamento'
     )
     modelo = models.CharField(max_length=30)
+    modelo.alphabetic_filter = True
 
     class Meta:
         ordering = ('modelo',)
@@ -59,7 +63,8 @@ class Equipamento(models.Model):
         unique_together = (('fabricante', 'modelo'),)
 
     def __unicode__(self):
-        return str(self.id)
+        return unicode('%s %s %s' % (self.modelo.tipo, self.fabricante.nome,
+                                     self.modelo.modelo))
 
 class Bem(models.Model):
     casa_legislativa = models.ForeignKey('casas.CasaLegislativa')
@@ -82,5 +87,4 @@ class Bem(models.Model):
         verbose_name_plural = 'bens'
 
     def __unicode__(self):
-        return '%s (%s)' % (unicode(self.equipamento),
-                            unicode(self.casa_legislativa))
+        return unicode('%s (%s)') % (self.equipamento, self.casa_legislativa)

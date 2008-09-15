@@ -16,7 +16,8 @@ class Servico(models.Model):
         (2, 'Regular'),
         (1, 'Ruim'),
     )
-    tipo = models.CharField(max_length=50)
+    titulo = models.CharField('título', max_length=60)
+    tipo = models.CharField(max_length=30)
     descricao = models.TextField(u'descrição')
     colaboradores = generic.GenericRelation('contatos.Contato')
     data_inicio = models.DateField(
@@ -49,4 +50,4 @@ class Servico(models.Model):
         verbose_name_plural = 'serviços'
 
     def __unicode__(self):
-        return str(self.id)
+        return str(self.titulo)

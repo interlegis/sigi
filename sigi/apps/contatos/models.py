@@ -23,8 +23,9 @@ class UnidadeFederativa(models.Model):
         unique=True,
         help_text="Exemplo: <em>MG</em>.",
     )
-    regiao = models.CharField(max_length=2, choices=REGIAO_CHOICES)
+    regiao = models.CharField('região', max_length=2, choices=REGIAO_CHOICES)
     populacao = models.PositiveIntegerField('população')
+    populacao.list_filter_range = [100000, 1000000, 10000000]
 
     class Meta:
         ordering = ('nome',)
@@ -51,6 +52,7 @@ class Municipio(models.Model):
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
     is_capital = models.BooleanField('capital')
     populacao = models.PositiveIntegerField(u'população')
+    populacao.list_filter_range = [10000, 100000, 1000000]
     is_polo = models.BooleanField(u'pólo')
     latitude = models.DecimalField(
         max_digits=10,
@@ -113,6 +115,7 @@ class Telefone(models.Model):
 
 class Contato(models.Model):
     nome = models.CharField('nome completo', max_length=60)
+    nome.alphabetic_filter = True
     nota = models.CharField(max_length=70, blank=True)
 
     email = models.EmailField('e-mail', blank=True)

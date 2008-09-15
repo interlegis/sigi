@@ -42,6 +42,8 @@ class Convenio(models.Model):
     servicos = models.ManyToManyField(
         'servicos.Servico',
         verbose_name='serviços prestados',
+        null=True,
+        blank=True
     )
 
     class Meta:
@@ -49,8 +51,11 @@ class Convenio(models.Model):
         ordering = ('num_convenio',)
         verbose_name = 'convênio'
 
+    def __unicode__(self):
+        return str(self.num_convenio)
+
 class EquipamentoPrevisto(models.Model):
-    convenio = models.ForeignKey(Convenio)
+    convenio = models.ForeignKey(Convenio, verbose_name='convênio')
     equipamento = models.ForeignKey('inventario.Equipamento')
     quantidade = models.PositiveSmallIntegerField(default=1)
 
@@ -58,14 +63,20 @@ class EquipamentoPrevisto(models.Model):
         verbose_name = 'equipamento previsto'
         verbose_name_plural = 'equipamentos previstos'
 
+    def __unicode__(self):
+        return '%s %s(s)' % (self.quantidade, self.equipamento)
+
 class Anexo(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name='convênio')
     arquivo = models.FileField(upload_to='arquivos/anexos',)
     descricao = models.CharField('descrição', max_length='70')
-    data_pub = models.DateField(
+    data_pub = models.DateTimeField(
         'data da publicação do anexo',
         default=datetime.now
     )
 
     class Meta:
         ordering = ('-data_pub',)
+
+    def __unicode__(self):
+        return self.arquivo.name
