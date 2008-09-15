@@ -41,6 +41,9 @@ FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'alphabetic_filter', Fal
 
 class RangeValuesFilterSpec(FilterSpec):
     """
+    Author: Willie Gollino (wgollino@yahoo.com)
+    License: LGPLv3
+
     Adds filtering by ranges of values in the admin filter sidebar.
     Set range split points in the model field attribute 'list_filter_range'.
 
@@ -53,8 +56,9 @@ class RangeValuesFilterSpec(FilterSpec):
       my_model_field >= 300
     """
 
-    def __init__(self, f, request, params, model):
-        super(RangeValuesFilterSpec, self).__init__(f, request, params, model)
+    def __init__(self, f, request, params, model, model_admin):
+        super(RangeValuesFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
         self.field_generic = '%s__' % self.field.name
         self.parsed_params = dict([(k, v) for k, v in params.items() if k.startswith(self.field_generic)])
 
