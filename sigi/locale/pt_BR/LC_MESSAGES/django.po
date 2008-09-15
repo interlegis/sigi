@@ -1,0 +1,28 @@
+# Localização local do projeto SIGI.
+# Copyright (C) 2008 Interlegis
+# This file is distributed under the same license as the sigi package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 0.1\n"
+"Report-Msgid-Bugs-To: SPDT <SPDT@interlegis.gov.br>\n"
+"POT-Creation-Date: 2008-09-12 20:00-0300\n"
+"PO-Revision-Date: 2008-09-12 20:04-0300\n"
+"Last-Translator: SPDT <SPDT@interlegis.gov.br>\n"
+"Language-Team: SPDT <SPDT@interlegis.gov.br>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: admin/filterspecs.py:29 admin/filterspecs.py:61
+msgid "All"
+msgstr "Todos"
+
+#: admin/filterspecs.py:35
+#, python-format
+msgid "%(field_name)s that starts with"
+msgstr "%(field_name)s que comece com"
+
+#: templates/503.html:6
+msgid "Home"
+msgstr "Início"
