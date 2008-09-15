@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf.urls.defaults import *
 from django.contrib import databrowse
 from django.db.models import get_models
+import sigi.admin.filterspecs
 from sigi import sites
 
 map(databrowse.site.register, get_models())
@@ -11,9 +12,6 @@ urlpatterns = patterns(
 
     # databrowse
     (r'^databrowse/(.*)', databrowse.site.root),
-
-    # bug report
-    #(r'^bug_report/$', 'sigi.views.bug_report'),
 
     # admin docs
     (r'^doc/', include('django.contrib.admindocs.urls')),
