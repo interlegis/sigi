@@ -14,9 +14,16 @@ from sigi.apps.inventario.admin import (Fornecedor, FornecedorAdmin, Fabricante,
                                         TipoEquipamentoAdmin, ModeloEquipamento,
                                         ModeloEquipamentoAdmin, Bem, BemAdmin)
 from sigi.apps.servicos.admin import Servico, ServicoAdmin
+from sigi.apps.mesas.admin import (Legislatura, LegislaturaAdmin, Coligacao,
+                                   ColigacaoAdmin, ComposicaoColigacao,
+                                   ComposicaoColigacaoAdmin, SessaoLegislativa,
+                                   SessaoLegislativaAdmin, MesaDiretora,
+                                   MesaDiretoraAdmin, Cargo, CargoAdmin,
+                                   MembroMesaDiretora, MembroMesaDiretoraAdmin)
+from sigi.apps.parlamentares.admin import (Partido, PartidoAdmin, Parlamentar,
+                                           ParlamentarAdmin, Mandato, MandatoAdmin)
 
-
-class DefaultSite(AdminSite):
+class  DefaultSite(AdminSite):
     index_template = 'index.html'
     login_template = 'login.html'
 
@@ -56,3 +63,17 @@ default.register(Bem, BemAdmin)
 
 # sigi.apps.servicos
 default.register(Servico, ServicoAdmin)
+
+# sigi.apps.mesas
+default.register(Legislatura, LegislaturaAdmin)
+default.register(Coligacao, ColigacaoAdmin)
+default.register(ComposicaoColigacao, ComposicaoColigacaoAdmin)
+default.register(SessaoLegislativa, SessaoLegislativaAdmin)
+default.register(MesaDiretora, MesaDiretoraAdmin)
+default.register(Cargo, CargoAdmin)
+default.register(MembroMesaDiretora, MembroMesaDiretoraAdmin)
+
+# sigi.apps.parlamentares
+default.register(Partido, PartidoAdmin)
+default.register(Parlamentar, ParlamentarAdmin)
+default.register(Mandato, MandatoAdmin)

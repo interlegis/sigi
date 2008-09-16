@@ -86,7 +86,7 @@ class MesaDiretora(models.Model):
         verbose_name_plural = 'Mesas Diretoras'
 
     def __unicode__(self):
-        return 'Mesa Diretora da(o) %s' % unicode(self.casa_legislativa)
+        return 'Mesa Diretora da %s' % unicode(self.casa_legislativa)
 
 class Cargo(models.Model):
     descricao = models.CharField(u'descrição', max_length=30)
