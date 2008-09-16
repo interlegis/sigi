@@ -7,6 +7,8 @@ from sigi.apps.servicos.models import Servico
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
     extra = 1
+    verbose_name = 'colaborador Interlegis'
+    verbose_name_plural = 'colaboradores Interlegis'
 
 class ServicoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
