@@ -23,7 +23,12 @@ Lista das principais características do SIGI:
 * Baseado na interface de administração nativa do Django;
 
 * Gerencia convênios, equipamentos e inventários, serviços prestados e
-  composição de Mesas Diretoras das Casas Legislativas.
+  composição de Mesas Diretoras das Casas Legislativas;
+
+* Autenticação no sistema baseada em usuários e grupos, com perfis
+  diferentes;
+
+* Emissão de relatórios.
 
 Aplicações
 ==========
