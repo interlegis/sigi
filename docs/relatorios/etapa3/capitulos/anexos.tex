@@ -42,8 +42,9 @@ internet quanto na intranet;
 \item {} 
 Multi-plataforma;
 
-\item {} 
-Baseado na interface de administração nativa do Django;
+\item {} Baseia-se na interface de administração nativa do Django
+  (\verb|django.contrib.admin|, maiores informações em
+  \href{http://docs.djangoproject.com/en/dev/ref/contrib/admin/}{http://docs.djangoproject.com/en/dev/ref/contrib/admin/});
 
 \item {} 
 Gerencia convênios, equipamentos e inventários, serviços prestados e
@@ -142,8 +143,8 @@ Django 1.0
 \pdfbookmark[0]{Instalação e documentação}{instala-o-e-documenta-o}
 \subsection*{Instalação e documentação}
 
-Para informações quanto a instalação e demais configurações, veja o
-arquivo \texttt{docs/instalacao.txt}.
+Para informações quanto a instalação do SIGI e demais configurações,
+veja o arquivo \texttt{docs/instalacao.txt}.
 \begin{description}
 %[visit_definition_list_item]
 \item[{Casos de uso}:] %[visit_definition]
@@ -177,11 +178,12 @@ A documentação do SIGI está disponível no diretório \texttt{docs/}.
 \pdfbookmark[0]{Licença de uso}{licen-a-de-uso}
 \subsection*{Licença de uso}
 
-O SIGI é disponibilizado como \href{http://pt.wikipedia.org/wiki/Software_Livre}{software livre}, isto significa que
-você pode redistribuí-lo e/ou modifica-lo dentro dos termos da Licença
-Pública Geral GNU como publicada pela Fundação do Software Livre
-(FSF); na versão 3 da Licença, ou (na sua opinião) em qualquer versão
-mais recente.
+O SIGI é disponibilizado como
+\href{http://pt.wikipedia.org/wiki/Software_Livre}{software livre},
+isto significa que você pode redistribuí-lo e/ou modifica-lo dentro
+dos termos da Licença Pública Geral GNU (GPL) como publicada pela
+Fundação do Software Livre (FSF); na versão 3 da Licença, ou (na sua
+opinião) em qualquer versão mais recente.
 
 Veja o arquivo \texttt{LEIA-ME} para maiores informações a respeito das
 condições de cópia e redistribuição.
@@ -190,8 +192,9 @@ condições de cópia e redistribuição.
 \label{sec:a3}
 Este documento descreve como efetuar a instalação do Sistema de
 Informações Gerenciais do Interlegis (SIGI). Os passos são baseados
-nas distribuições GNU/Linux Debian e Ubuntu, porém podem ser aplicados
-sem dificuldades em outras distribuições, com um pouco de adaptação.
+nas distribuições GNU/Linux Debian e Ubuntu. Podem ser aplicados sem
+dificuldades em outras distribuições, mas poderão sofrer alguma
+adaptação.
 
 
 %___________________________________________________________________________
@@ -201,7 +204,7 @@ sem dificuldades em outras distribuições, com um pouco de adaptação.
 \subsection*{Preparação do ambiente para a instalação}
 
 Há dois tipos de instalação do SIGI, uma para desenvolvimento e outra
-para colocar em produção.
+para produção.
 
 Para ambas instalações, certifique-se que os seguintes softwares
 estejam instalados em seu sistema:
@@ -214,12 +217,12 @@ Django 1.0
 
 \end{itemize}
 
-O Python pode ser instalado à partir do pacote \texttt{python} com uma
+O Python pode ser instalado a partir do pacote \texttt{python} com uma
 ferramenta de instalação de pacotes como o \texttt{apt-get} ou
 \texttt{aptitude}.
 
-Se sua distribuição não possui o pacote \texttt{python-django}, para o
-Django na versão 1.0, será necessário obter e configurar o mesmo
+Se a sua distribuição não possui o pacote \texttt{python-django}, para
+o Django na versão 1.0, será necessário obter e configurar o mesmo
 manualmente. A próxima seção traz mais detalhes para esta tarefa.
 
 
@@ -274,7 +277,7 @@ qualquer outro pacote Python.
 \pdfbookmark[1]{Preparando o ambiente para desenvolvimento}{preparando-o-ambiente-para-desenvolvimento}
 \subsubsection*{Preparando o ambiente para desenvolvimento}
 
-Se você irá desenvolver pro SIGI, é necessário possuir os seguintes
+Se você irá desenvolver o SIGI, é necessário possuir os seguintes
 pacotes instalados em sua máquina:
 \begin{itemize}
 \item {} 
@@ -334,9 +337,10 @@ A página do projeto SIGI no Colab pode ser acessada através do link
 Para baixar o SIGI, é necessário ter o Subversion instalado em sua
 máquina (pacote \texttt{subversion}). Para \emph{checkout} do sistema via
 Subversion, execute o comando abaixo:
-\begin{quote}{\ttfamily \raggedright \noindent
-svn~checkout~http://repositorio.interlegis.gov.br/SIGI/trunk/~/path/to/SIGI
-}\end{quote}
+\begin{verbatim}
+svn checkout http://repositorio.interlegis.gov.br/SIGI/trunk/ \
+  /path/to/SIGI
+\end{verbatim}
 
 Substitua \texttt{/path/to/SIGI} para o local onde deseja instalar o
 SIGI. (Iremos considerar o diretório SIGI como a raiz do projeto
@@ -364,7 +368,7 @@ altere os parâmetros neste arquivo.
 \pdfbookmark[1]{Instalação em ambiente para desenvolvimento}{instala-o-em-ambiente-para-desenvolvimento}
 \subsubsection*{Instalação em ambiente para desenvolvimento}
 
-As configurações padrões do projeto já estão direcionadas para um
+As configurações padrão do projeto já estão direcionadas para um
 ambiente de desenvolvimento e não exige demais configurações.
 
 (Os comandos abaixo deverão ser executados dentro do diretório
