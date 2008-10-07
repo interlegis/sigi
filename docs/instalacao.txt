@@ -4,14 +4,15 @@ Instalando o SIGI
 
 Este documento descreve como efetuar a instalação do Sistema de
 Informações Gerenciais do Interlegis (SIGI). Os passos são baseados
-nas distribuições GNU/Linux Debian e Ubuntu, porém podem ser aplicados
-sem dificuldades em outras distribuições, com um pouco de adaptação.
+nas distribuições GNU/Linux Debian e Ubuntu. Podem ser aplicados sem
+dificuldades em outras distribuições, mas poderão sofrer alguma
+adaptação.
 
 Preparação do ambiente para a instalação
 ========================================
 
 Há dois tipos de instalação do SIGI, uma para desenvolvimento e outra
-para colocar em produção.
+para produção.
 
 Para ambas instalações, certifique-se que os seguintes softwares
 estejam instalados em seu sistema:
@@ -20,11 +21,11 @@ estejam instalados em seu sistema:
 
 * Django 1.0
 
-O Python pode ser instalado à partir do pacote ``python`` com uma
+O Python pode ser instalado a partir do pacote ``python`` com uma
 ferramenta de instalação de pacotes como o ``apt-get`` ou
 ``aptitude``.
 
-Se sua distribuição não possui o pacote ``python-django``, para o
+Se a sua distribuição não possui o pacote ``python-django``, para o
 Django na versão 1.0, será necessário obter e configurar o mesmo
 manualmente. A próxima seção traz mais detalhes para esta tarefa.
 
@@ -68,7 +69,7 @@ qualquer outro pacote Python.
 Preparando o ambiente para desenvolvimento
 ------------------------------------------
 
-Se você irá desenvolver pro SIGI, é necessário possuir os seguintes
+Se você irá desenvolver o SIGI, é necessário possuir os seguintes
 pacotes instalados em sua máquina:
 
 * sqlite3, para SQLite 3;
@@ -113,7 +114,8 @@ Para baixar o SIGI, é necessário ter o Subversion instalado em sua
 máquina (pacote ``subversion``). Para *checkout* do sistema via
 Subversion, execute o comando abaixo::
 
-  svn checkout http://repositorio.interlegis.gov.br/SIGI/trunk/ /path/to/SIGI
+  svn checkout http://repositorio.interlegis.gov.br/SIGI/trunk/ \
+    /path/to/SIGI
 
 Substitua ``/path/to/SIGI`` para o local onde deseja instalar o
 SIGI. (Iremos considerar o diretório SIGI como a raiz do projeto
@@ -133,7 +135,7 @@ altere os parâmetros neste arquivo.
 Instalação em ambiente para desenvolvimento
 -------------------------------------------
 
-As configurações padrões do projeto já estão direcionadas para um
+As configurações padrão do projeto já estão direcionadas para um
 ambiente de desenvolvimento e não exige demais configurações.
 
 (Os comandos abaixo deverão ser executados dentro do diretório
