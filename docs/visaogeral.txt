@@ -1,0 +1,91 @@
+====
+SIGI
+====
+
+O **SIGI** é um projeto para um Sistema de Informações Gerenciais do
+`Interlegis <http://www.interlegis.gov.br/>`_, escrito na linguagem de
+programação `Python <http://www.python.org>`_ com o framework para
+desenvolvimento web `Django <http://www.djangoproject.org>`_.
+
+Página do projeto
+  http://colab.interlegis.gov.br/wiki/ProjetoSigi
+
+Características
+===============
+
+Lista das principais características do SIGI:
+
+* Serviço web cliente/servidor, podendo ser disponibilizado tanto na
+  internet quanto na intranet;
+
+* Multi-plataforma;
+
+* Baseado na interface de administração nativa do Django;
+
+* Gerencia convênios, equipamentos e inventários, serviços prestados e
+  composição de Mesas Diretoras das Casas Legislativas.
+
+Aplicações
+==========
+
+Lista das aplicações Django desenvolvidas para o SIGI:
+
+sigi.apps.casas
+  Gerência de Casas Legislativas.
+
+sigi.apps.contatos
+  Gerência de Contatos do Interlegis com Casas Legislativas,
+  fornecedores de equipamentos, serviços e etc.
+
+sigi.apps.convenios
+  Convênios do Interlegis com as Casas Legislativas.
+
+sigi.apps.inventario
+  Inventário de equipamentos disponibilizados pelo Interlegis para as
+  Casas Legislativas.
+
+sigi.apps.mesas
+  Composição das Mesas Diretoras das Casas Legislativas.
+
+sigi.apps.parlamentares
+  Gerência de Parlamentares.
+
+sigi.apps.servicos
+  Serviços prestados às Casas Legislativas conveniadas ao Interlegis.
+
+Requisitos básicos de software
+==============================
+
+* Python >= 2.4 < 3.0
+
+* Django 1.0
+
+Instalação e documentação
+=========================
+
+Para informações quanto a instalação e demais configurações, veja o
+arquivo ``docs/instalacao.txt``.
+
+Casos de uso
+  ``docs/arquivos/casosdeuso.dia``
+
+Grafo dos Modelos
+  ``docs/arquivos/models.png``
+
+Esquema de dados
+  ``docs/arquivos/esquema.sql``
+
+A documentação do SIGI está disponível no diretório ``docs/``.
+
+Licença de uso
+==============
+
+O SIGI é disponibilizado como `software livre
+<http://pt.wikipedia.org/wiki/Software_Livre>`_, isto significa que
+você pode redistribuí-lo e/ou modifica-lo dentro dos termos da Licença
+Pública Geral GNU como publicada pela Fundação do Software Livre
+(FSF); na versão 3 da Licença, ou (na sua opinião) em qualquer versão
+mais recente.
+
+Veja o arquivo ``LEIA-ME`` para maiores informações a respeito das
+condições de cópia e redistribuição.
