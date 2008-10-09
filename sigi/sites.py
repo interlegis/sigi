@@ -36,9 +36,6 @@ default.register(User, UserAdmin)
 # django.contrib.sites
 default.register(Site, SiteAdmin)
 
-# maintenancemode
-default.register(AllowedPath, AllowedPathAdmin)
-
 # sigi.apps.casas
 default.register(CasaLegislativa, CasaLegislativaAdmin)
 
