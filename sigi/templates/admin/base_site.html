@@ -17,11 +17,23 @@
 {% endblock %}
 
 {% block nav-global %}
+<div id="nav-global">
+  <ul>
+    <li><a href="/">Dashboard</a></li>
+    <li>| <a href="/casas/">Casa Legislativas</a></li>
+    <li>| <a href="/parlamentares/">Parlamentares</a></li>
+    <li>| <a href="/mesas/">Mesas Diretoras</a></li>
+    <li>| <a href="/convenios/">Convênios</a></li>
+    <li>| <a href="/inventario/">Inventário</a></li>
+  </ul>
+</div>
 {% endblock %}
 
 {% block footer %}
 <div id="footer">
-Copyright &copy; 2008 Interlegis. Todos os Direitos Reservados.<br />
+<img src="/media/images/logo-interlegis.png">
+
+<p>Copyright &copy; 2008 Interlegis. Todos os Direitos Reservados.<br />
 É proibido o uso das informações aqui fornecidas fora do âmbito do Interlegis.
 </div>
 {% endblock %}

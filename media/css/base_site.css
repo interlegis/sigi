@@ -1,0 +1,31 @@
+#header { background: #003351; }
+#branding h1 { color: #fff; }
+
+#nav-global {
+    color: #b87912;
+    background-color: #101a20;
+    border-top: 1px solid #252525;
+    border-bottom: 1px solid #999;
+    width: 100%;
+}
+#nav-global ul { margin: 0; padding: 3px; }
+#nav-global li {
+    display: inline;
+    font-size: 1em;
+}
+#nav-global li a {
+    color: #dfdfdf !important;
+    margin: 0 5px 0 5px;
+}
+#nav-global li a:hover {
+    color: #fff !important;
+    margin: 0 5px 0 5px;
+    text-decoration: none;
+}
+
+#footer {
+    color: #555;
+    font-size: 0.9em;
+    text-align: center;
+    margin-top: 40px;
+}
