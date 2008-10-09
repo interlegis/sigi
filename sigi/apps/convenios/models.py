@@ -68,7 +68,7 @@ class EquipamentoPrevisto(models.Model):
 
 class Anexo(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name='convênio')
-    arquivo = models.FileField(upload_to='arquivos/anexos',)
+    arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo',)
     descricao = models.CharField('descrição', max_length='70')
     data_pub = models.DateTimeField(
         'data da publicação do anexo',
