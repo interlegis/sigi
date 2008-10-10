@@ -1,3 +1,21 @@
+a:link, a:visited {
+    color: #0f3361;
+}
+
+a:hover {
+    color: #11488d;
+}
+
+.dashboard #content {
+    width: auto;
+}
+
+.module h2, .module caption, .inline-group h2 { 
+    background: #00367b url(../images/default-bg.gif);
+}
+
+.row1 { background: #f5f6fc none repeat scroll 0 0; }
+
 #header { background: #003351; }
 #branding h1 { color: #fff; }
 
