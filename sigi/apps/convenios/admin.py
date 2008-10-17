@@ -4,11 +4,11 @@ from sigi.apps.convenios.models import Convenio, EquipamentoPrevisto, Anexo
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
-    extra = 1
+    extra = 2
 
 class EquipamentoPrevistoInline(admin.TabularInline):
     model = EquipamentoPrevisto
-    extra = 1
+    extra = 2
 
 class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'

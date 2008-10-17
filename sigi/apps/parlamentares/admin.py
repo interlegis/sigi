@@ -4,9 +4,13 @@ from django.contrib.contenttypes import generic
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 
+class MandatosInline(admin.StackedInline):
+    model = Mandato
+    extra = 1
+
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
-    extra = 1
+    extra = 2
 
 class PartidoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'sigla')
@@ -14,7 +18,7 @@ class PartidoAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'sigla')
 
 class ParlamentarAdmin(admin.ModelAdmin):
-    inlines = (TelefonesInline,)
+    inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
     list_filter = ('nome_completo', 'sexo')

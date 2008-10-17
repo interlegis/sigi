@@ -8,11 +8,11 @@ from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
-    extra = 1
+    extra = 2
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
-    extra = 1
+    extra = 2
 
 class FornecedorAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, ContatosInline)
