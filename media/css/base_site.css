@@ -6,15 +6,8 @@ a:hover {
     color: #11488d;
 }
 
-.dashboard #content {
-    width: auto;
-}
 
-.module h2, .module caption, .inline-group h2 { 
-    background: #00367b url(../images/default-bg.gif);
-}
-
-.row1 { background: #f5f6fc none repeat scroll 0 0; }
+/* HEADER */
 
 #header { background: #003351; }
 #branding h1 { color: #fff; }
@@ -40,6 +33,32 @@ a:hover {
     margin: 0 5px 0 5px;
     text-decoration: none;
 }
+
+/* CONTENT */
+
+.module h2, .module caption, .inline-group h2 { 
+    background: #00367b
+    url(../images/default-bg.gif); 
+}
+
+.row1 { background: #f5f6fc none repeat scroll 0 0; }
+
+.dashboard #content { 
+    width: auto; 
+}
+
+.dashboard #content-main .module {
+    float: left;
+    margin-right: 1%;
+    width: 48.5%;
+    
+}
+
+.dashboard #content-related { 
+    width: auto; 
+}
+
+/* FOOTER */
 
 #footer {
     color: #555;
