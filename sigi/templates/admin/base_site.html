@@ -19,6 +19,12 @@
 <h1 id="site-name">Sistema de Informações Gerenciais do Interlegis</h1>
 {% endblock %}
 
+{% block userlinks %}
+  {% url django-admindocs-docroot as docsroot %}
+  {% if docsroot %}<a href="{{ docsroot }}">Documentação</a> / {% endif %}
+  <a href="{{ root_path }}logout/">Encerrar sessão</a>
+{% endblock %}
+
 {% block nav-global %}
 <div id="nav-global">
   <ul>
