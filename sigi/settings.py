@@ -88,7 +88,6 @@ INSTALLED_APPS = (
     'django.contrib.admindocs',
     'django_extensions', # http://django-command-extensions.googlecode.com/
     'GChartWrapper.charts',
-    'sigi.apps.log',
     'sigi.apps.casas',
     'sigi.apps.contatos',
     'sigi.apps.convenios',
