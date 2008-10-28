@@ -1,0 +1,602 @@
+------------------------------------------------------------------------
+r3586 | guilhermegondim | 2008-10-27 17:12:43 -0200 (Mon, 27 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/media/css/base_site.css
+
+Melhorias no CSS do dashboard.
+------------------------------------------------------------------------
+r3528 | guilhermegondim | 2008-10-17 17:11:23 -0300 (Fri, 17 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+   M /SIGI/trunk/sigi/apps/convenios/admin.py
+   M /SIGI/trunk/sigi/apps/inventario/admin.py
+   M /SIGI/trunk/sigi/apps/parlamentares/admin.py
+   M /SIGI/trunk/sigi/apps/servicos/admin.py
+
+Algumas melhorias em inlines.
+------------------------------------------------------------------------
+r3504 | guilhermegondim | 2008-10-13 18:53:39 -0300 (Mon, 13 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/templates/index.html
+
+Adicionado bloco de últimas atividades de todos usuários.
+------------------------------------------------------------------------
+r3492 | guilhermegondim | 2008-10-10 19:09:17 -0300 (Fri, 10 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/media/css/base_site.css
+   A /SIGI/trunk/media/images/default-bg.gif
+
+Mudanças em cores e layout.
+------------------------------------------------------------------------
+r3489 | guilhermegondim | 2008-10-09 18:26:52 -0300 (Thu, 09 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/media
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+   M /SIGI/trunk/sigi/templates/admin/base_site.html
+
+Pequenas modificações no layout.
+------------------------------------------------------------------------
+r3488 | guilhermegondim | 2008-10-09 18:24:10 -0300 (Thu, 09 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/media/css
+   A /SIGI/trunk/media/css/base_site.css
+   A /SIGI/trunk/media/images
+   A /SIGI/trunk/media/images/logo-interlegis.png
+   M /SIGI/trunk/sigi/templates/admin/base_site.html
+
+Pequenas modificações no layout.
+------------------------------------------------------------------------
+r3487 | guilhermegondim | 2008-10-09 18:22:49 -0300 (Thu, 09 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/settings.py
+   M /SIGI/trunk/sigi/sites.py
+
+Removido uso de models de maintenancemode.
+------------------------------------------------------------------------
+r3485 | guilhermegondim | 2008-10-09 15:38:21 -0300 (Thu, 09 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/templates/login.html
+
+Retirado rodapé de página de login.
+------------------------------------------------------------------------
+r3475 | guilhermegondim | 2008-10-07 19:17:54 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.pdf
+
+Upload de atualização de relatório da etapa 3 compilado.
+------------------------------------------------------------------------
+r3474 | guilhermegondim | 2008-10-07 19:15:46 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/instalacao.txt
+   M /SIGI/trunk/docs/visaogeral.txt
+
+Revisão em visaogeral.txt e instalacao.txt.
+------------------------------------------------------------------------
+r3473 | guilhermegondim | 2008-10-07 19:14:55 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/anexos.tex
+
+Revisão em relatório da etapa 3.
+------------------------------------------------------------------------
+r3472 | guilhermegondim | 2008-10-07 18:19:13 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/visaogeral.txt
+
+Adicionado outras características do sistema em visaogerao.txt.
+------------------------------------------------------------------------
+r3471 | guilhermegondim | 2008-10-07 18:18:25 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/relatorios/etapa3/capitulos/anexos.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo1.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/introducao.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.pdf
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.tex
+
+Atualizações no relatório da etapa 3.
+------------------------------------------------------------------------
+r3467 | guilhermegondim | 2008-10-07 15:13:30 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/etc/apache/apache.conf
+
+Adicionado alias para media na configuração do Apache.
+------------------------------------------------------------------------
+r3466 | guilhermegondim | 2008-10-07 12:44:31 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/templates/admin/base_site.html
+
+Adicionado rodapé e nota de copyright.
+------------------------------------------------------------------------
+r3465 | guilhermegondim | 2008-10-07 12:40:42 -0300 (Tue, 07 Oct 2008) | 3 lines
+Changed paths:
+   M /SIGI/trunk/sigi/manage.py
+
+Alterado ambiente padrao para ``python2.4`` em ambimente de desenvolvimento,
+para fins de testes e compatibilidade com Python 2.4.
+
+------------------------------------------------------------------------
+r3464 | guilhermegondim | 2008-10-07 12:38:34 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/instalacao.txt
+
+Adicionado documentação para instalação do projeto.
+------------------------------------------------------------------------
+r3463 | guilhermegondim | 2008-10-07 12:36:26 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/LEIA-ME
+   M /SIGI/trunk/README
+
+Adicionado nota de copyright em português.
+------------------------------------------------------------------------
+r3462 | guilhermegondim | 2008-10-07 12:33:32 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/etc/apache
+   A /SIGI/trunk/etc/apache/apache.conf
+   A /SIGI/trunk/etc/apache/django.wsgi
+
+Adicionado configurações para Apache com WSGI.
+------------------------------------------------------------------------
+r3461 | guilhermegondim | 2008-10-07 12:05:37 -0300 (Tue, 07 Oct 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo1.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/introducao.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.pdf
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.tex
+   A /SIGI/trunk/docs/visaogeral.txt
+
+Adicionado documento visaogeral.txt.
+------------------------------------------------------------------------
+r3438 | guilhermegondim | 2008-10-06 12:42:15 -0300 (Mon, 06 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/arquivos/esquema.sql
+   A /SIGI/trunk/docs/arquivos/models.png
+
+Adicionado grafo dos modelos e esquema da base de dados.
+------------------------------------------------------------------------
+r3422 | guilhermegondim | 2008-10-02 17:02:40 -0300 (Thu, 02 Oct 2008) | 1 line
+Changed paths:
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/casas.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/contatos.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/convenios.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/inventario.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/mesas.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/parlamentares.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/arquivos/servicos.sql
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/apps.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/cabecalho.pdf
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/cadastro.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/casas.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/casosdeuso.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/contatos.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/convenios.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/dashboard.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/er.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/inventario.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/listagem.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/mesas.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/parlamentares.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/servicos.png
+   D /SIGI/trunk/docs/relatorios/etapa3/imagens/telalogin.png
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.pdf
+
+Removido lixo.
+------------------------------------------------------------------------
+r3421 | guilhermegondim | 2008-10-02 17:00:49 -0300 (Thu, 02 Oct 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/relatorios/etapa3 (from /SIGI/trunk/docs/relatorios/etapa1:3343)
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo1.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo2.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo3.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo4.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo5.tex
+   D /SIGI/trunk/docs/relatorios/etapa3/capitulos/capitulo6.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/capitulos/introducao.tex
+   M /SIGI/trunk/docs/relatorios/etapa3/comandos.tex
+   A /SIGI/trunk/docs/relatorios/etapa3/relatorio.pdf (from /SIGI/trunk/docs/relatorios/etapa1/relatorio.pdf:3346)
+   M /SIGI/trunk/docs/relatorios/etapa3/relatorio.tex
+
+Início de relatório para etapa 3.
+------------------------------------------------------------------------
+r3369 | guilhermegondim | 2008-09-16 18:34:59 -0300 (Tue, 16 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/mesas/admin.py
+   M /SIGI/trunk/sigi/apps/mesas/models.py
+   M /SIGI/trunk/sigi/apps/parlamentares/admin.py
+   M /SIGI/trunk/sigi/apps/parlamentares/models.py
+   M /SIGI/trunk/sigi/sites.py
+
+Adicionado CRUD de mesas e parlamentares.
+------------------------------------------------------------------------
+r3368 | guilhermegondim | 2008-09-16 18:34:38 -0300 (Tue, 16 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/servicos/admin.py
+
+Alterado 'verbose_name' em ContatosInline de 'servicos'.
+------------------------------------------------------------------------
+r3366 | guilhermegondim | 2008-09-15 19:35:19 -0300 (Mon, 15 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+   M /SIGI/trunk/sigi/apps/contatos/admin.py
+   M /SIGI/trunk/sigi/apps/contatos/models.py
+   M /SIGI/trunk/sigi/apps/convenios/admin.py
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+   M /SIGI/trunk/sigi/apps/inventario/admin.py
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+   M /SIGI/trunk/sigi/apps/servicos/admin.py
+   M /SIGI/trunk/sigi/apps/servicos/models.py
+   M /SIGI/trunk/sigi/sites.py
+
+Corrigido albuns bugs e adicionado CRUD para inventário, serviços e convênios.
+------------------------------------------------------------------------
+r3365 | guilhermegondim | 2008-09-15 16:36:19 -0300 (Mon, 15 Sep 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/media
+
+Adicionado diretório para dedia.
+------------------------------------------------------------------------
+r3364 | guilhermegondim | 2008-09-15 15:24:53 -0300 (Mon, 15 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/urls.py
+
+Importação de filterspecs para registro de novos filtros do admin.
+------------------------------------------------------------------------
+r3363 | guilhermegondim | 2008-09-15 15:23:44 -0300 (Mon, 15 Sep 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/sigi/locale
+   A /SIGI/trunk/sigi/locale/pt_BR
+   A /SIGI/trunk/sigi/locale/pt_BR/LC_MESSAGES
+   A /SIGI/trunk/sigi/locale/pt_BR/LC_MESSAGES/django.mo
+   A /SIGI/trunk/sigi/locale/pt_BR/LC_MESSAGES/django.po
+
+Adicionado localização local do SIGI para pt_BR.
+------------------------------------------------------------------------
+r3362 | guilhermegondim | 2008-09-15 15:23:05 -0300 (Mon, 15 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/admin/filterspecs.py
+
+Adicionado crédito e licença para RangeValuesFilterSpec, autorizado por Willie Gollino.
+------------------------------------------------------------------------
+r3358 | guilhermegondim | 2008-09-12 19:58:53 -0300 (Fri, 12 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/admin/filterspecs.py
+
+Corrigido ordenação de AlphabeticFilterSpec.
+------------------------------------------------------------------------
+r3357 | guilhermegondim | 2008-09-12 19:51:43 -0300 (Fri, 12 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+
+Pequena melhora na importação.
+------------------------------------------------------------------------
+r3352 | guilhermegondim | 2008-09-12 17:02:38 -0300 (Fri, 12 Sep 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/sigi/admin
+   A /SIGI/trunk/sigi/admin/__init__.py
+   A /SIGI/trunk/sigi/admin/filterspecs.py
+
+Adicionado alguns filtros extras para o admin.
+------------------------------------------------------------------------
+r3346 | guilhermegondim | 2008-09-10 18:48:48 -0300 (Wed, 10 Sep 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/relatorios/etapa1/relatorio.pdf
+
+Adicionado relatório da etapa 1 por comodidade.
+------------------------------------------------------------------------
+r3345 | guilhermegondim | 2008-09-10 16:33:26 -0300 (Wed, 10 Sep 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/etc
+   A /SIGI/trunk/etc/patchs
+   A /SIGI/trunk/etc/patchs/django-maintenancemode
+   A /SIGI/trunk/etc/patchs/django-maintenancemode/paths_with_access_allowed.r10.patch
+   M /SIGI/trunk/sigi/local_settings.template
+   M /SIGI/trunk/sigi/settings.py
+   M /SIGI/trunk/sigi/sites.py
+   M /SIGI/trunk/sigi/templates/503.html
+
+Adicionado suporte a modo de manutenção com django-maintenancemode.
+------------------------------------------------------------------------
+r3344 | guilhermegondim | 2008-09-10 14:55:52 -0300 (Wed, 10 Sep 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/mesas/models.py
+
+Retirado parâmetro obsoleto.
+------------------------------------------------------------------------
+r3313 | guilhermegondim | 2008-08-26 19:32:55 -0300 (Tue, 26 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/urls.py
+
+Desfeita modificação por engano em r3312.
+------------------------------------------------------------------------
+r3312 | guilhermegondim | 2008-08-26 16:28:56 -0300 (Tue, 26 Aug 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/sigi/sites.py
+   A /SIGI/trunk/sigi/templates/admin
+   A /SIGI/trunk/sigi/templates/admin/base_site.html
+   A /SIGI/trunk/sigi/templates/index.html
+   A /SIGI/trunk/sigi/templates/login.html
+   M /SIGI/trunk/sigi/urls.py
+
+Início de personalização de templates do admin.
+------------------------------------------------------------------------
+r3311 | guilhermegondim | 2008-08-26 16:27:58 -0300 (Tue, 26 Aug 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/sigi/templates/503.html
+
+Adicionado template para página em manutenção.
+------------------------------------------------------------------------
+r3310 | guilhermegondim | 2008-08-26 16:06:37 -0300 (Tue, 26 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/local_settings.template
+   M /SIGI/trunk/sigi/settings.py
+
+Passando a utilizar o pacote maintenancemode para o modo de site em manutenção.
+------------------------------------------------------------------------
+r3290 | guilhermegondim | 2008-08-21 16:28:35 -0300 (Thu, 21 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+
+Removido imports desnecessários.
+------------------------------------------------------------------------
+r3289 | guilhermegondim | 2008-08-21 16:27:08 -0300 (Thu, 21 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+   M /SIGI/trunk/sigi/apps/casas/models.py
+   M /SIGI/trunk/sigi/apps/contatos/models.py
+   M /SIGI/trunk/sigi/settings.py
+   A /SIGI/trunk/sigi/templates
+   M /SIGI/trunk/sigi/urls.py
+
+Adicionado suporte à documentação do admin.
+------------------------------------------------------------------------
+r3278 | guilhermegondim | 2008-08-19 16:59:35 -0300 (Tue, 19 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi
+   A /SIGI/trunk/sigi/local_settings.template
+   M /SIGI/trunk/sigi/settings.py
+   M /SIGI/trunk/sigi/urls.py
+
+Adicionado template para settings e suporte para databrowse.
+------------------------------------------------------------------------
+r3277 | guilhermegondim | 2008-08-19 16:59:10 -0300 (Tue, 19 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/admin.py
+   A /SIGI/trunk/sigi/apps/casas/forms.py
+   M /SIGI/trunk/sigi/apps/casas/models.py
+
+Adicionado formulário personalizado para admin na app casas.
+------------------------------------------------------------------------
+r3219 | guilhermegondim | 2008-08-04 18:19:51 -0300 (Mon, 04 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/urls.py
+
+Corrigo urls.py para funcionar com Django 1.0.
+------------------------------------------------------------------------
+r3218 | guilhermegondim | 2008-08-04 18:17:38 -0300 (Mon, 04 Aug 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/sigi/apps/casas/admin.py
+   M /SIGI/trunk/sigi/apps/casas/models.py
+   A /SIGI/trunk/sigi/apps/contatos/admin.py
+   M /SIGI/trunk/sigi/apps/contatos/models.py
+   A /SIGI/trunk/sigi/apps/convenios/admin.py
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+   A /SIGI/trunk/sigi/apps/inventario/admin.py
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+   A /SIGI/trunk/sigi/apps/mesas/admin.py
+   M /SIGI/trunk/sigi/apps/mesas/models.py
+   A /SIGI/trunk/sigi/apps/parlamentares/admin.py
+   M /SIGI/trunk/sigi/apps/parlamentares/models.py
+   A /SIGI/trunk/sigi/apps/servicos/admin.py
+   M /SIGI/trunk/sigi/apps/servicos/models.py
+
+Migrado código para suporte ao Django 1.0 e corrigido alguns bugs.
+------------------------------------------------------------------------
+r3215 | guilhermegondim | 2008-08-04 15:24:54 -0300 (Mon, 04 Aug 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi
+
+Adicionado propriedade svn:ignore.
+------------------------------------------------------------------------
+r3214 | guilhermegondim | 2008-08-04 15:24:20 -0300 (Mon, 04 Aug 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/arquivos
+   A /SIGI/trunk/docs/arquivos/casosdeuso.dia
+   M /SIGI/trunk/docs/relatorios/etapa1
+   M /SIGI/trunk/docs/relatorios/etapa1/capa.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo1.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo2.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo3.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo4.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo5.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo6.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/introducao.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/comandos.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/apps.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/cadastro.png
+   M /SIGI/trunk/docs/relatorios/etapa1/imagens/casosdeuso.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/dashboard.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/listagem.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/telalogin.png
+
+Upload da versão final do relatório 1.
+------------------------------------------------------------------------
+r3083 | guilhermegondim | 2008-06-26 19:05:25 -0300 (Thu, 26 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo2.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo3.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo4.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo5.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/introducao.tex
+
+Pequenas modificações e correções tipográficas.
+------------------------------------------------------------------------
+r3082 | guilhermegondim | 2008-06-26 17:57:03 -0300 (Thu, 26 Jun 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/casas.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/contatos.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/convenios.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/inventario.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/mesas.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/parlamentares.sql
+   A /SIGI/trunk/docs/relatorios/etapa1/arquivos/servicos.sql
+
+Adicionado arquivos com o esquema de dados das aplicações do SIGI para o Relatório I.
+------------------------------------------------------------------------
+r3081 | guilhermegondim | 2008-06-26 17:56:05 -0300 (Thu, 26 Jun 2008) | 1 line
+Changed paths:
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo1.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo2.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo3.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo4.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo5.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/capitulo6.tex
+   M /SIGI/trunk/docs/relatorios/etapa1/capitulos/introducao.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/casas.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/casosdeuso.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/contatos.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/convenios.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/er.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/inventario.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/mesas.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/parlamentares.png
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/servicos.png
+   M /SIGI/trunk/docs/relatorios/etapa1/relatorio.tex
+
+Adição de novas seções ao relatório.
+------------------------------------------------------------------------
+r3073 | guilhermegondim | 2008-06-23 19:32:00 -0300 (Mon, 23 Jun 2008) | 3 lines
+Changed paths:
+   A /SIGI/trunk/docs
+   A /SIGI/trunk/docs/relatorios
+   A /SIGI/trunk/docs/relatorios/etapa1
+   A /SIGI/trunk/docs/relatorios/etapa1/Makefile
+   A /SIGI/trunk/docs/relatorios/etapa1/cabecalho.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capa.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos
+   A /SIGI/trunk/docs/relatorios/etapa1/capitulos/introducao.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/comandos.tex
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens
+   A /SIGI/trunk/docs/relatorios/etapa1/imagens/cabecalho.pdf
+   A /SIGI/trunk/docs/relatorios/etapa1/relatorio.tex
+
+Adicionado estrutura de diretorios para documentacao e inicio de
+desenvolvimento do primeiro relatorio do produto.
+
+------------------------------------------------------------------------
+r3072 | guilhermegondim | 2008-06-23 19:31:36 -0300 (Mon, 23 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/contatos/models.py
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+   M /SIGI/trunk/sigi/apps/parlamentares/models.py
+   M /SIGI/trunk/sigi/settings.py
+
+Adequado configurações do admin de alguns models.
+------------------------------------------------------------------------
+r3060 | guilhermegondim | 2008-06-17 17:55:05 -0300 (Tue, 17 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/casas/models.py
+   A /SIGI/trunk/sigi/apps/contatos
+   A /SIGI/trunk/sigi/apps/contatos/__init__.py
+   A /SIGI/trunk/sigi/apps/contatos/models.py
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+   D /SIGI/trunk/sigi/apps/localidades
+   M /SIGI/trunk/sigi/apps/parlamentares/models.py
+   D /SIGI/trunk/sigi/apps/telefones
+   M /SIGI/trunk/sigi/settings.py
+
+Fundido aplicações telefones e localidades.
+------------------------------------------------------------------------
+r3059 | guilhermegondim | 2008-06-17 17:46:55 -0300 (Tue, 17 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+   A /SIGI/trunk/sigi/apps/servicos
+   A /SIGI/trunk/sigi/apps/servicos/__init__.py
+   A /SIGI/trunk/sigi/apps/servicos/models.py
+
+Adicionado aplicação para serviços prestados.
+------------------------------------------------------------------------
+r3058 | guilhermegondim | 2008-06-16 16:51:29 -0300 (Mon, 16 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+
+Remanejado chaves extrangeiras de equipamento para permitir melhores filtros.
+------------------------------------------------------------------------
+r3057 | guilhermegondim | 2008-06-16 16:50:03 -0300 (Mon, 16 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+
+Adicionado model para contemplar anexos à um convênio.
+------------------------------------------------------------------------
+r3056 | guilhermegondim | 2008-06-16 16:32:44 -0300 (Mon, 16 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/parlamentares/models.py
+
+Desmembrado informações de mandato de parlamentar para um novo model.
+------------------------------------------------------------------------
+r3055 | guilhermegondim | 2008-06-13 16:44:56 -0300 (Fri, 13 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/localidades/models.py
+
+Adicionado novos campos utilizados pelo IBGE.
+------------------------------------------------------------------------
+r3054 | guilhermegondim | 2008-06-13 16:43:45 -0300 (Fri, 13 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/convenios/models.py
+
+Removido model Ocorrencia não utilizado.
+------------------------------------------------------------------------
+r3053 | guilhermegondim | 2008-06-13 16:43:11 -0300 (Fri, 13 Jun 2008) | 4 lines
+Changed paths:
+   M /SIGI/trunk/sigi/apps/mesas/models.py
+
+Corrigido relacionamento --- Uma MesaDiretora deve se relacionar com uma
+SessaoLegislativa e nao com Legislatura, isso permite manter um historico
+de mesas.
+
+------------------------------------------------------------------------
+r3052 | guilhermegondim | 2008-06-13 14:24:49 -0300 (Fri, 13 Jun 2008) | 1 line
+Changed paths:
+   M /SIGI/trunk/sigi/apps/inventario/models.py
+
+Adicionado campo fornecedor no model Bem.
+------------------------------------------------------------------------
+r3049 | guilhermegondim | 2008-06-04 18:16:16 -0300 (Wed, 04 Jun 2008) | 1 line
+Changed paths:
+   A /SIGI
+   A /SIGI/branches
+   A /SIGI/tags
+   A /SIGI/trunk
+   A /SIGI/trunk/COPYING
+   A /SIGI/trunk/README
+   A /SIGI/trunk/sigi
+   A /SIGI/trunk/sigi/__init__.py
+   A /SIGI/trunk/sigi/apps
+   A /SIGI/trunk/sigi/apps/__init__.py
+   A /SIGI/trunk/sigi/apps/casas
+   A /SIGI/trunk/sigi/apps/casas/__init__.py
+   A /SIGI/trunk/sigi/apps/casas/models.py
+   A /SIGI/trunk/sigi/apps/casas/views.py
+   A /SIGI/trunk/sigi/apps/convenios
+   A /SIGI/trunk/sigi/apps/convenios/__init__.py
+   A /SIGI/trunk/sigi/apps/convenios/models.py
+   A /SIGI/trunk/sigi/apps/inventario
+   A /SIGI/trunk/sigi/apps/inventario/__init__.py
+   A /SIGI/trunk/sigi/apps/inventario/models.py
+   A /SIGI/trunk/sigi/apps/localidades
+   A /SIGI/trunk/sigi/apps/localidades/__init__.py
+   A /SIGI/trunk/sigi/apps/localidades/models.py
+   A /SIGI/trunk/sigi/apps/mesas
+   A /SIGI/trunk/sigi/apps/mesas/__init__.py
+   A /SIGI/trunk/sigi/apps/mesas/models.py
+   A /SIGI/trunk/sigi/apps/parlamentares
+   A /SIGI/trunk/sigi/apps/parlamentares/__init__.py
+   A /SIGI/trunk/sigi/apps/parlamentares/models.py
+   A /SIGI/trunk/sigi/apps/telefones
+   A /SIGI/trunk/sigi/apps/telefones/__init__.py
+   A /SIGI/trunk/sigi/apps/telefones/models.py
+   A /SIGI/trunk/sigi/manage.py
+   A /SIGI/trunk/sigi/settings.py
+   A /SIGI/trunk/sigi/urls.py
+
+Importação inicial do projeto SIGI.
+------------------------------------------------------------------------
