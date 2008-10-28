@@ -56,6 +56,18 @@
 
 \subsection{Descrição das aplicações}
 \label{sec:apps}
+O SIGI é composto de algumas aplicações Django, cada uma com um
+propósito bem definido.
+
+Uma aplicação Django é um pacote Python modular, podendo ser
+reaproveitado em outros projetos.
+
+Algumas aplicações possuem algum nível de relacionamento com as
+outras. A Seção \ref{sec:rel} demonstra o relacionamento entre essas
+aplicações.
+
+Segue descrição de cada aplicação:
+
 \begin{description}
 \item[sigi.apps.casas:]
   Gerência de Casas Legislativas.
@@ -81,7 +93,19 @@
   Serviços prestados às Casas Legislativas conveniadas ao Interlegis.
 \end{description}
 
-\subsubsection{Relacionamento entre as aplicações (Figura \ref{fig:apps})}
+\subsubsection{Relacionamento entre as aplicações}
+\label{sec:rel}
+
+A Figura \ref{fig:apps} demonstra o relacionamento entre as
+aplicações e seus \emph{models}.
+
+Uma seta direcional representa uma relação \textit{muitos para
+  um}. Uma seta bidirecional representa uma relação \textit{muitos
+  para muitos}.
+
+A seta pontilhada representa uma relação genérica, como descrito na
+documentação do Django:\\
+http://docs.djangoproject.com/en/dev/ref/contrib/contenttypes/\#id1
 
 \begin{figure}[p]
   \centering
