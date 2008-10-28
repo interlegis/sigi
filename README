@@ -2,6 +2,10 @@ SIGI é um projeto para um Sistema de Informações Gerenciais do
 Interlegis, escrito na linguagem de programação Python com o framework
 para desenvolvimento web Django.
 
+Para instalá-lo, veja o arquivo ``docs/instalacao.txt``. Maiores
+informações em ``docs/visaogeral.txt``.
+
+
 
 Copyright (c) 2008 Interlegis
 
