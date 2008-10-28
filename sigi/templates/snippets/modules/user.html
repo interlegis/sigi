@@ -1,0 +1,10 @@
+{% load i18n %}
+<div class="module" id="user-module">
+  <h2>Meu espaço</h2>
+  <h3>{{ user.get_full_name }}</h3>
+
+  <ul>
+    <li><a href="{{ root_path }}password_change/">Alterar senha</a></li>
+    <li><a href="{{ root_path }}logout/">Encerrar sessão</a></li>
+  </ul>
+</div>

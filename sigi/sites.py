@@ -23,9 +23,10 @@ from sigi.apps.mesas.admin import (Legislatura, LegislaturaAdmin, Coligacao,
 from sigi.apps.parlamentares.admin import (Partido, PartidoAdmin, Parlamentar,
                                            ParlamentarAdmin, Mandato, MandatoAdmin)
 
-class  DefaultSite(AdminSite):
+class DefaultSite(AdminSite):
     index_template = 'index.html'
     login_template = 'login.html'
+    app_index_template = 'app_index.html'
 
 default = DefaultSite()
 
