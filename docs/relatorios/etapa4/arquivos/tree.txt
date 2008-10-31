@@ -1,0 +1,88 @@
+.
+|-- COPYING
+|-- LEIA-ME -> README
+|-- README
+|-- devel.db
+|-- docs
+|   |-- arquivos
+|   |   |-- casosdeuso.dia
+|   |   |-- esquema.sql
+|   |   `-- models.png
+|   |-- instalacao.txt
+|   |-- relatorios
+|   |   `-- [...]
+|   `-- visaogeral.txt
+|-- etc
+|   |-- apache
+|   |   |-- apache.conf
+|   |   `-- django.wsgi
+|   `-- patchs
+|       `-- django-maintenancemode
+|           `-- paths_with_access_allowed.r10.patch
+|-- media
+|   |-- css
+|   |   `-- base_site.css
+|   |-- images
+|   |   |-- default-bg.gif
+|   |   `-- logo-interlegis.png
+|   `-- js
+|       |-- jquery-1.2.6.js
+|       `-- jquery-1.2.6.min.js
+`-- sigi
+    |-- __init__.py
+    |-- admin
+    |   |-- __init__.py
+    |   `-- filterspecs.py
+    |-- apps
+    |   |-- __init__.py
+    |   |-- casas
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   |-- forms.py
+    |   |   |-- models.py
+    |   |   `-- views.py
+    |   |-- contatos
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   `-- models.py
+    |   |-- convenios
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   `-- models.py
+    |   |-- inventario
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   `-- models.py
+    |   |-- mesas
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   `-- models.py
+    |   |-- parlamentares
+    |   |   |-- __init__.py
+    |   |   |-- admin.py
+    |   |   `-- models.py
+    |   `-- servicos
+    |       |-- __init__.py
+    |       |-- admin.py
+    |       `-- models.py
+    |-- local_settings.template
+    |-- locale
+    |   `-- pt_BR
+    |       `-- LC_MESSAGES
+    |           |-- django.mo
+    |           `-- django.po
+    |-- manage.py
+    |-- settings.py
+    |-- sites.py
+    |-- templates
+    |   |-- 503.html
+    |   |-- admin
+    |   |   `-- base_site.html
+    |   |-- app_index.html
+    |   |-- index.html
+    |   |-- login.html
+    |   `-- snippets
+    |       `-- modules
+    |           |-- actions.html
+    |           `-- user.html
+    `-- urls.py
