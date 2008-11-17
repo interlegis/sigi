@@ -1,0 +1,248 @@
+[
+    {
+        "pk": 1, 
+        "model": "inventario.fornecedor", 
+        "fields": {
+            "pagina_web": "http://www.dell.com/", 
+            "email": "", 
+            "nome": "Dell"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "inventario.fornecedor", 
+        "fields": {
+            "pagina_web": "http://www.submarino.com.br/", 
+            "email": "", 
+            "nome": "Submarino"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "3Com"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "D-Link"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Dell"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Encore"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Hewlett-Packard"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Itautec"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Lexmark"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Linksys"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Logitech"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Microsoft"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Realtek"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Samsung"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Seagate"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Western Digital"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "inventario.fabricante", 
+        "fields": {
+            "nome": "Xerox"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Disco R\u00edgido"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Estabilizador"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Hub"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Impressora"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Mem\u00f3ria RAM"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Monitor"
+        }
+    }, 
+    {
+        "pk": 5, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Notebook/Laptop"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Placa de Rede"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Processador"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Roteador"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Scanner/Digitalizadora"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Switch"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "inventario.tipoequipamento", 
+        "fields": {
+            "tipo": "Teclado"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "inventario.modeloequipamento", 
+        "fields": {
+            "modelo": "LaserJet P2015DN", 
+            "tipo": 1
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "inventario.modeloequipamento", 
+        "fields": {
+            "modelo": "Phaser 6300DN", 
+            "tipo": 1
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "inventario.equipamento", 
+        "fields": {
+            "modelo": 2, 
+            "fabricante": 15
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "inventario.equipamento", 
+        "fields": {
+            "modelo": 3, 
+            "fabricante": 2
+        }
+    }
+]
