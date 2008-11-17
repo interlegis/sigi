@@ -18,7 +18,7 @@ class Fornecedor(models.Model):
         return self.nome
 
 class Fabricante(models.Model):
-    nome = models.CharField(max_length=40)
+    nome = models.CharField(max_length=40, unique=True)
     nome.alphabetic_filter = True
 
     class Meta:
