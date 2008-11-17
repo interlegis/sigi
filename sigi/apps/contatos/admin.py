@@ -27,11 +27,11 @@ class MunicipioAdmin(admin.ModelAdmin):
                      'nome', 'uf__nome', 'uf__sigla')
 
 class TelefoneAdmin(admin.ModelAdmin):
-    list_display = ('codigo_ddd', 'numero', 'tipo', 'nota')
-    list_display_links = ('codigo_ddd', 'numero')
-    list_filter = ('codigo_ddd', 'tipo')
+    list_display = ('codigo_area', 'numero', 'tipo', 'nota')
+    list_display_links = ('codigo_area', 'numero')
+    list_filter = ('codigo_area', 'tipo')
     radio_fields = {'tipo': admin.VERTICAL}
-    search_fields = ('codigo_ddd', 'numero', 'tipo', 'nota')
+    search_fields = ('codigo_area', 'numero', 'tipo', 'nota')
 
 class ContatoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'nota', 'email', 'municipio', 'get_uf')

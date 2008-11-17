@@ -87,15 +87,16 @@ class Telefone(models.Model):
         ('M', 'Móvel'),
         ('X', 'Fax'),
     )
-    codigo_ddd = models.CharField(
-        'código DDD',
-        max_length=2,
-        help_text='Exemplo: <em>31</em>.'
+    codigo_area = models.CharField(
+        'código de área',
+        max_length=4,
+        help_text='Exemplo: <em>31</em>.',
+        blank=True
     )
     numero = models.CharField(
         'número',
-        max_length=9,
-        help_text='Formato: <em>XXXX-XXXX</em>.'
+        max_length=16,
+        help_text='Somente números.'
     )
     tipo = models.CharField(
         max_length=1,
@@ -107,11 +108,14 @@ class Telefone(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        ordering = ('codigo_ddd', 'numero')
-        unique_together = ('codigo_ddd', 'numero', 'tipo')
+        ordering = ('codigo_area', 'numero')
+        unique_together = ('codigo_area', 'numero', 'tipo')
 
     def __unicode__(self):
-        return "(%s) %s" % (unicode(self.codigo_ddd), unicode(self.numero))
+        if self.codigo_area:
+            return "(%s) %s" % (unicode(self.codigo_area), unicode(self.numero))
+        else:
+            return unicode(self.numero)
 
 class Contato(models.Model):
     nome = models.CharField('nome completo', max_length=60)
