@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from sigi.apps.convenios.models import Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.servicos.models import Servico
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -9,6 +10,10 @@ class AnexosInline(admin.TabularInline):
 class EquipamentoPrevistoInline(admin.TabularInline):
     model = EquipamentoPrevisto
     extra = 2
+
+class ServicosInline(admin.StackedInline):
+    model = Servico
+    extra = 1
 
 class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'
@@ -27,11 +32,11 @@ class ConvenioAdmin(admin.ModelAdmin):
             {'fields': ('data_adesao', 'data_retorno_assinatura',
                         'data_termo_aceite', 'data_pub_diario')}
         ),
-        ('Equipamentos & Serviços',
-            {'fields': ('equipamentos_recebidos', 'servicos')}
+        ('Equipamentos',
+            {'fields': ('equipamentos_recebidos',)}
         )
     )
-    inlines = (AnexosInline, EquipamentoPrevistoInline)
+    inlines = (AnexosInline, EquipamentoPrevistoInline, ServicosInline)
     list_display = ('num_convenio', 'casa_legislativa',
                     'num_processo_sf', 'data_adesao')
     list_filter  = ('equipamentos_recebidos',)

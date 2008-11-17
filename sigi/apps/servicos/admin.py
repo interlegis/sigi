@@ -13,8 +13,8 @@ class ContatosInline(generic.GenericTabularInline):
 class ServicoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
     inlines = (ContatosInline,)
-    list_display = ('id', 'titulo', 'tipo', 'situacao', 'avaliacao')
-    list_filter  = ('tipo','situacao', 'avaliacao',)
-    search_fields = ('titulo', 'tipo', 'descricao',)
+    list_display = ('id', 'titulo', 'tipo', 'convenio', 'situacao')
+    list_filter  = ('tipo','situacao', 'avaliacao')
+    search_fields = ('titulo', 'tipo', 'descricao')
 
 admin.site.register(Servico, ServicoAdmin)

@@ -19,6 +19,7 @@ class Servico(models.Model):
     titulo = models.CharField('título', max_length=60)
     tipo = models.CharField(max_length=30)
     descricao = models.TextField(u'descrição')
+    convenio = models.ForeignKey('convenios.Convenio', verbose_name='Convênio')
     colaboradores = generic.GenericRelation('contatos.Contato')
     data_inicio = models.DateField(
         u'início',

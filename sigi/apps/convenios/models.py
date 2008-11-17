@@ -39,12 +39,6 @@ class Convenio(models.Model):
         max_length=1,
         choices=RECEBIDOS_CHOICES,
     )
-    servicos = models.ManyToManyField(
-        'servicos.Servico',
-        verbose_name='serviços prestados',
-        null=True,
-        blank=True
-    )
 
     class Meta:
         get_latest_by = 'num_convenio'
