@@ -38,15 +38,17 @@ class UnidadeFederativa(models.Model):
 class Municipio(models.Model):
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
-        primary_key=True,
-        unique=True,
         help_text='Código do município segundo IBGE.'
     )
     codigo_mesorregiao = models.PositiveIntegerField(
         u'código mesorregião',
+        blank=True,
+        null=True
     )
     codigo_microrregiao = models.PositiveIntegerField(
         u'código microrregião',
+        blank=True,
+        null=True
     )
     nome = models.CharField(max_length=50)
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
@@ -71,6 +73,7 @@ class Municipio(models.Model):
 
     class Meta:
         ordering = ('nome', 'codigo_ibge')
+        unique_together = (('codigo_ibge', 'uf'),)
         verbose_name = 'município'
         verbose_name_plural = 'municípios'
 
