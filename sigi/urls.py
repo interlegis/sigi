@@ -2,8 +2,10 @@ from django.conf import settings
 from django.conf.urls.defaults import *
 from django.contrib import databrowse
 from django.db.models import get_models
-import sigi.admin.filterspecs
 from sigi import sites
+
+# register admin filters
+import sigi.admin.filterspecs
 
 map(databrowse.site.register, get_models())
 
