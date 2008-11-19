@@ -12,7 +12,7 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
 class MunicipioAdmin(admin.ModelAdmin):
     list_display = ('codigo_ibge', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo')
     list_display_links = ('codigo_ibge', 'nome')
-    list_filter = ('uf', 'is_capital', 'is_polo', 'populacao')
+    list_filter = ('is_capital', 'is_polo', 'populacao', 'uf')
     fieldsets = (
         (None, {
             'fields': ('codigo_ibge', 'codigo_mesorregiao',

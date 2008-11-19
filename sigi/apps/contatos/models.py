@@ -38,6 +38,8 @@ class UnidadeFederativa(models.Model):
 class Municipio(models.Model):
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
+        primary_key=True,
+        unique=True,
         help_text='Código do município segundo IBGE.'
     )
     codigo_mesorregiao = models.PositiveIntegerField(
@@ -73,12 +75,11 @@ class Municipio(models.Model):
 
     class Meta:
         ordering = ('nome', 'codigo_ibge')
-        unique_together = (('codigo_ibge', 'uf'),)
         verbose_name = 'município'
         verbose_name_plural = 'municípios'
 
     def __unicode__(self):
-        return self.nome
+        return "%s, %s" % (self.nome, self.uf)
 
     def get_google_maps_url(self):
         return "http://maps.google.com.br/maps/mm?ie=UTF8&hl=pt-BR&t=h&ll=%s,%s&spn=1.61886,1.812744&z=9&source=embed" % \
