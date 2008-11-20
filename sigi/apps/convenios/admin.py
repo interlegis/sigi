@@ -10,6 +10,7 @@ class AnexosInline(admin.TabularInline):
 class EquipamentoPrevistoInline(admin.TabularInline):
     model = EquipamentoPrevisto
     extra = 2
+    raw_id_fields = ('equipamento',)
 
 class ServicosInline(admin.StackedInline):
     model = Servico
@@ -19,6 +20,7 @@ class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'
     exclude = ['data_pub',]
     list_display = ('arquivo', 'descricao', 'data_pub', 'convenio')
+    raw_id_fields = ('convenio',)
     search_fields = ('descricao', 'convenio__num_convenio', 'arquivo',
                      'convenio__casa_legislativa__nome')
 
@@ -41,6 +43,7 @@ class ConvenioAdmin(admin.ModelAdmin):
                     'num_processo_sf', 'data_adesao')
     list_filter  = ('equipamentos_recebidos',)
     ordering = ('-num_convenio',)
+    raw_id_fields = ('casa_legislativa',)
     search_fields = ('num_convenio', 'casa_legislativa__nome',
                      'num_processo_sf', 'casa_legislativa__municipio__nome',
                      'casa_legislativa__municipio__uf__nome')
@@ -49,6 +52,7 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     list_display = ('convenio', 'equipamento', 'quantidade')
     list_display_links = ('convenio', 'equipamento')
     ordering = ('convenio', 'equipamento')
+    raw_id_fields = ('convenio', 'equipamento')
     search_fields = ('convenio__num_convenio', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
 

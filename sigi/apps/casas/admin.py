@@ -8,6 +8,7 @@ from sigi.apps.contatos.models import Contato, Telefone
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
     extra = 2
+    raw_id_fields = ('municipio',)
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -30,6 +31,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             'fields': ('email', 'pagina_web', 'foto', 'historico'),
         }),
     )
+    raw_id_fields = ('municipio',)
     search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'pagina_web')

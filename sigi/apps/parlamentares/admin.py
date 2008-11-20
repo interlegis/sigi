@@ -7,6 +7,7 @@ from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 class MandatosInline(admin.StackedInline):
     model = Mandato
     extra = 1
+    raw_id_fields = ('legislatura', 'partido')
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -33,9 +34,10 @@ class ParlamentarAdmin(admin.ModelAdmin):
             'fields': ('data_nascimento', 'email', 'pagina_web', 'foto'),
         }),
     )
+    radio_fields = {'sexo': admin.VERTICAL}
+    raw_id_fields = ('municipio',)
     search_fields = ('nome_completo', 'nome_parlamentar', 'email',
                      'pagina_web', 'municipio__nome')
-    radio_fields = {'sexo': admin.VERTICAL}
 
 class MandatoAdmin(admin.ModelAdmin):
     list_display = ('parlamentar', 'legislatura', 'partido',
@@ -44,6 +46,7 @@ class MandatoAdmin(admin.ModelAdmin):
     search_fields = ('legislatura__numero', 'parlamentar__nome_completo',
                      'parlamentar__nome_parlamentar', 'partido__nome',
                      'partido__sigla')
+    raw_id_fields = ('parlamentar', 'legislatura', 'partido')
     radio_fields = {'suplencia': admin.VERTICAL}
 
 admin.site.register(Partido, PartidoAdmin)

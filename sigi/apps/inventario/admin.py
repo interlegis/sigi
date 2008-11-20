@@ -9,6 +9,7 @@ from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
     extra = 2
+    raw_id_fields = ('municipio',)
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -38,12 +39,14 @@ class ModeloEquipamentoAdmin(admin.ModelAdmin):
     list_filter = ('tipo', 'modelo')
     ordering = ('tipo', 'modelo')
     search_fields = ('id', 'tipo', 'modelo')
+    raw_id_fields = ('tipo',)
 
 class EquipamentoAdmin(admin.ModelAdmin):
     list_display = ('id', 'fabricante', 'modelo', 'get_tipo')
     list_display_links = ('id', 'modelo')
     list_filter  = ('fabricante',)
     ordering = ('fabricante', 'modelo')
+    raw_id_fields = ('fabricante', 'modelo')
     search_fields = ('id', 'modelo', 'fabricante')
 
     def get_tipo(self, obj):
@@ -55,6 +58,7 @@ class BemAdmin(admin.ModelAdmin):
                     'num_tombamento', 'casa_legislativa')
     list_filter = ('fornecedor',)
     ordering = ('casa_legislativa', 'fornecedor', 'equipamento')
+    raw_id_fields = ('casa_legislativa', 'equipamento', 'fornecedor')
     search_fields = ('fornecedor__nome', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'num_serie',
                      'num_tombamento', 'casa_legislativa__nome')

@@ -13,12 +13,14 @@ class LegislaturaAdmin(admin.ModelAdmin):
 class ColigacaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'legislatura', 'numero_votos')
     list_display_links = ('nome',)
+    raw_id_fields = ('legislatura',)
     search_fields = ('nome', 'legislatura__numero')
 
 class ComposicaoColigacaoAdmin(admin.ModelAdmin):
     list_display = ('coligacao', 'partido')
     list_display_links = ('coligacao', 'partido')
     list_filter = ('partido',)
+    raw_id_fields = ('coligacao', 'partido')
     search_fields = ('coligacao__nome', 'partido__nome', 'partido__sigla')
 
 class SessaoLegislativaAdmin(admin.ModelAdmin):
@@ -36,6 +38,7 @@ class SessaoLegislativaAdmin(admin.ModelAdmin):
         }),
     )
     radio_fields = {'tipo': admin.VERTICAL}
+    raw_id_fields = ('mesa_diretora', 'legislatura')
     search_fields = ('numero', 'mesa_diretora__casa_legislativa__nome')
 
 class CargoAdmin(admin.ModelAdmin):
@@ -46,17 +49,20 @@ class MembroMesaDiretoraInline(admin.TabularInline):
     model = MembroMesaDiretora
     max_num = 11
     extra = 4
+    raw_id_fields = ('parlamentar', 'cargo')
 
 class MembroMesaDiretoraAdmin(admin.ModelAdmin):
     list_display = ('parlamentar', 'cargo', 'mesa_diretora')
     list_display_links = ('parlamentar',)
     list_filter = ('cargo',)
+    raw_id_fields = ('parlamentar', 'cargo', 'mesa_diretora')
     search_fields = ('cargo__descricao', 'parlamentar__nome_completo',
                      'parlamentar__nome_parlamentar',
                      'mesa_diretora__casa_legislativa__nome')
 
 class MesaDiretoraAdmin(admin.ModelAdmin):
     inlines = (MembroMesaDiretoraInline,)
+    raw_id_fields = ('casa_legislativa',)
     list_display = ('id', 'casa_legislativa')
     search_fields = ('casa_legislativa__nome',)
 
