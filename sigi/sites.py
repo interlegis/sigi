@@ -1,7 +1,6 @@
 from django.contrib.auth.admin import Group, GroupAdmin, User, UserAdmin
 from django.contrib.sites.admin import Site, SiteAdmin
 from django.contrib.admin.sites import AdminSite
-from maintenancemode.admin import AllowedPath, AllowedPathAdmin
 from sigi.apps.casas.admin import CasaLegislativa, CasaLegislativaAdmin
 from sigi.apps.contatos.admin import (UnidadeFederativa, UnidadeFederativaAdmin,
                                       Municipio, MunicipioAdmin, Telefone,
