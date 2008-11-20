@@ -2,9 +2,17 @@
 <div class="module" id="user-module">
   <h2>Meu espaço</h2>
   <h3>{{ user.get_full_name }}</h3>
-
   <ul>
     <li><a href="{{ root_path }}password_change/">Alterar senha</a></li>
     <li><a href="{{ root_path }}logout/">Encerrar sessão</a></li>
   </ul>
+
+  {% if user.is_superuser %}
+  <h3>Administração</h3>
+  <ul>
+    <li><a href="/auth/">Usuários & Grupos</a></li>
+    <li><a href="/sites/">Sites</a></li>
+    <li><a href="/contatos/">Contatos</a></li>
+  </ul>
+  {% endif %}
 </div>
