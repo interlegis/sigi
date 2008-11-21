@@ -6,6 +6,7 @@ from sigi.apps.casas.models import CasaLegislativa
 class CasaLegislativaForm(forms.ModelForm):
     cnpj = BRCNPJField(
         label='CNPJ',
+        required=False,
         help_text='Utilize o formato <em>XX.XXX.XXX/XXXX-XX</em> ou '
                   'insira apenas os dígitos.'
     )
