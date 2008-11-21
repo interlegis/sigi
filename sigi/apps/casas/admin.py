@@ -17,7 +17,7 @@ class TelefonesInline(generic.GenericTabularInline):
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     inlines = (TelefonesInline, ContatosInline)
-    list_display = ('nome', 'email', 'pagina_web', 'municipio', 'uf')
+    list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
     list_filter = ('tipo',)
     fieldsets = (

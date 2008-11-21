@@ -34,14 +34,10 @@ class TelefoneAdmin(admin.ModelAdmin):
     search_fields = ('codigo_area', 'numero', 'tipo', 'nota')
 
 class ContatoAdmin(admin.ModelAdmin):
-    list_display = ('nome', 'nota', 'email', 'municipio', 'get_uf')
+    list_display = ('nome', 'nota', 'email', 'municipio')
     list_display_links = ('nome',)
     list_filter = ('nome',)
     search_fields = ('nome', 'nota', 'email', 'municipio__nome', 'municipio__uf__nome')
-
-    def get_uf(self, obj):
-        return obj.municipio.uf.nome
-    get_uf.short_description = 'UF'
 
 admin.site.register(UnidadeFederativa, UnidadeFederativaAdmin)
 admin.site.register(Municipio, MunicipioAdmin)
