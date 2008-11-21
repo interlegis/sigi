@@ -20,14 +20,14 @@ class CasaLegislativa(models.Model):
                   'Exemplo: <em>cmpains</em>.',
         blank=True
     )
-    tipo = models.CharField(max_length=2, choices=CASA_CHOICES)
-    cnpj = models.CharField('CNPJ', max_length=18)
+    tipo = models.CharField(max_length=2, choices=CASA_CHOICES, default='CM')
+    cnpj = models.CharField('CNPJ', max_length=18, blank=True)
 
     logradouro = models.CharField(
         max_length=100,
         help_text='Avenida, rua, praça, jardim, parque...'
     )
-    bairro = models.CharField(max_length=40)
+    bairro = models.CharField(max_length=40, blank=True)
     municipio = models.ForeignKey(
         'contatos.Municipio',
         verbose_name='município'
@@ -60,7 +60,3 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
-
-    def uf (self):
-        return self.municipio.uf.nome
-    uf.short_description = 'Unidade Federativa'
