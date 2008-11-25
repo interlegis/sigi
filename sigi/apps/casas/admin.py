@@ -28,12 +28,13 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
         }),
         ('Outras informações', {
+            'classes': ('collapse',),
             'fields': ('email', 'pagina_web', 'foto', 'historico'),
         }),
     )
     raw_id_fields = ('municipio',)
     search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
-                     'pagina_web')
+                     'municipio__codigo_ibge', 'pagina_web')
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
