@@ -6,15 +6,12 @@ from sigi.apps.servicos.models import Servico
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
+    exclude = ['data_pub',]
 
 class EquipamentoPrevistoInline(admin.TabularInline):
     model = EquipamentoPrevisto
     extra = 2
     raw_id_fields = ('equipamento',)
-
-class ServicosInline(admin.StackedInline):
-    model = Servico
-    extra = 1
 
 class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'
@@ -38,7 +35,7 @@ class ConvenioAdmin(admin.ModelAdmin):
             {'fields': ('equipamentos_recebidos',)}
         )
     )
-    inlines = (AnexosInline, EquipamentoPrevistoInline, ServicosInline)
+    inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('num_convenio', 'casa_legislativa',
                     'num_processo_sf', 'data_adesao')
     list_filter  = ('equipamentos_recebidos',)

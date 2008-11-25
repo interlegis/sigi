@@ -13,10 +13,15 @@ class Convenio(models.Model):
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
     )
-    num_convenio = models.PositiveIntegerField('número do convênio')
+    num_convenio = models.PositiveIntegerField(
+        'número do convênio',
+        primary_key=True,
+        unique=True
+    )
     num_processo_sf = models.CharField(
         'número do processo SF',
         max_length=11,
+        blank=True,
         help_text='Formato: <em>XXXXXX/XX-X</em>.'
     )
     data_adesao = models.DateField('data de adesão')
