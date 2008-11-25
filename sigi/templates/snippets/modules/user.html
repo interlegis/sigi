@@ -2,8 +2,11 @@
 <div class="module" id="user-module">
   <h2>Meu espaço</h2>
   <h3>{{ user.get_full_name }}</h3>
+  {% url django-admindocs-docroot as docsroot %}
   <ul>
-    <li><a href="{{ root_path }}password_change/">Alterar senha</a></li>
+    <li><a href="{{ root_path }}password_change/">Alterar
+	senha</a></li>
+    {% if docsroot %}<li><a href="{{ docsroot }}">Documentação</a></li>{% endif %}
     <li><a href="{{ root_path }}logout/">Encerrar sessão</a></li>
   </ul>
 

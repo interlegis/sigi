@@ -17,8 +17,6 @@
 {% endblock %}
 
 {% block userlinks %}
-  {% url django-admindocs-docroot as docsroot %}
-  {% if docsroot %}<a href="{{ docsroot }}">Documentação</a> / {% endif %}
   <a href="{{ root_path }}logout/">Encerrar sessão</a>
 {% endblock %}
 
@@ -30,6 +28,7 @@
     <li>| <a href="/parlamentares/">Parlamentares</a></li>
     <li>| <a href="/mesas/">Mesas Diretoras</a></li>
     <li>| <a href="/convenios/">Convênios</a></li>
+    <li>| <a href="/servicos/">Serviços</a></li>
     <li>| <a href="/inventario/">Inventário</a></li>
   </ul>
 </div>
