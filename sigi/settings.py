@@ -57,6 +57,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
+    'sigi.context_processors.charts_data',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -87,7 +88,7 @@ INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.admindocs',
     'django_extensions', # http://django-command-extensions.googlecode.com/
-    'GChartWrapper.charts',
+    'googlecharts',
     'sigi.apps.casas',
     'sigi.apps.contatos',
     'sigi.apps.convenios',

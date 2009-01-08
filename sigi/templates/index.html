@@ -1,44 +1,46 @@
 {% extends "admin/index.html" %}
-{% load i18n %}
+{% load charts i18n %}
 
 {% block title %}Dashboard | SIGI{% endblock %}
 
 {% block content_title %}<h1>Dashboard</h1>{% endblock %}
 
 {% block content %}
+
+{% chart as convenios %}
+  {% chart-size 340 160 %}
+  {% chart-type "pie" %}
+  {% chart-labels "Conveniadas" "Não conveniadas" "Não aderidas" %}
+  {% chart-data   convenios_chart_data %}
+{% endchart %}
+
+{% chart as regioes %}
+  {% chart-size 320 160 %}
+  {% chart-type "column-stacked" %}
+  {% chart-bar-width "40" %}
+  {% chart-labels "Centro-O" "Norte" "Nordeste" "Sudeste" "Sul" %}
+  {% chart-data   regioes_chart_data.0 regioes_chart_data.1 %}
+  {% chart-legend "Conveniadas" "Total" %}
+  {% chart-colors "ff9900,ffc266" %}
+{% endchart %}
+
 <div id="content-main">
-{% if app_list %}
-    {% for app in app_list %}
-        <div class="module">
-        <table summary="{% blocktrans with app.name as name %}Models available in the {{ name }} application.{% endblocktrans %}">
-        <caption><a href="{{ app.app_url }}" class="section">{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}</a></caption>
-        {% for model in app.models %}
-            <tr>
-            {% if model.perms.change %}
-                <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
-            {% else %}
-                <th scope="row">{{ model.name }}</th>
-            {% endif %}
+  <div class="module">
+    <h2>Convênios</h2>
+    <h3>Convênios com as Casas Legislativas</h3>
+    <p class="align-center">
+      <img src="{{ convenios.url }}" class="chart" />
+    </p>
+  </div>
 
-            {% if model.perms.add %}
-                <td><a href="{{ model.admin_url }}add/" class="addlink">{% trans 'Add' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
+  <div class="module">
+    <h2>Convênios</h2>
+    <h3>Casas Legislativas conveniadas por região</h3>
+    <p class="align-center">
+      <img src="{{ regioes.url }}" class="chart" />
+    </p>
+  </div>
 
-            {% if model.perms.change %}
-                <td><a href="{{ model.admin_url }}" class="changelink">{% trans 'Change' %}</a></td>
-            {% else %}
-                <td>&nbsp;</td>
-            {% endif %}
-            </tr>
-        {% endfor %}
-        </table>
-        </div>
-    {% endfor %}
-{% else %}
-    <p>{% trans "You don't have permission to edit anything." %}</p>
-{% endif %}
 </div>
 {% endblock %}
 
