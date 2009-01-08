@@ -13,45 +13,42 @@ class Convenio(models.Model):
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
     )
-    num_convenio = models.PositiveIntegerField(
-        'número do convênio',
-        primary_key=True,
-        unique=True
-    )
     num_processo_sf = models.CharField(
         'número do processo SF',
         max_length=11,
         blank=True,
         help_text='Formato: <em>XXXXXX/XX-X</em>.'
     )
-    data_adesao = models.DateField('data de adesão')
+    data_adesao = models.DateField(
+        'data de adesão',
+        null=True,
+        blank=True,
+    )
     data_retorno_assinatura = models.DateField(
         'data do retorno e assinatura',
         null=True,
-        blank=True
-    )
-    data_termo_aceite = models.DateField(
-        'data do Termo de Aceite',
-        null=True,
-        blank=True
+        blank=True,
+        help_text='Convênio firmado.'
     )
     data_pub_diario = models.DateField(
         'data da publicação no Diário Oficial',
         null=True,
         blank=True
     )
-    equipamentos_recebidos = models.CharField(
-        max_length=1,
-        choices=RECEBIDOS_CHOICES,
+    data_termo_aceite = models.DateField(
+        'data do Termo de Aceite',
+        null=True,
+        blank=True,
+        help_text='Equipamentos recebidos.'
     )
 
     class Meta:
-        get_latest_by = 'num_convenio'
-        ordering = ('num_convenio',)
+        get_latest_by = 'id'
+        ordering = ('id',)
         verbose_name = 'convênio'
 
     def __unicode__(self):
-        return str(self.num_convenio)
+        return str(self.id)
 
 class EquipamentoPrevisto(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name='convênio')
