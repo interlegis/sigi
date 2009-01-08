@@ -8,6 +8,7 @@ class LegislaturaAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
     list_display = ('numero', 'data_inicio', 'data_fim', 'data_eleicao')
     list_display_links = ('numero',)
+    list_filter = ('data_eleicao',)
     search_fields = ('numero',)
 
 class ColigacaoAdmin(admin.ModelAdmin):
