@@ -90,6 +90,7 @@ class Telefone(models.Model):
         ('F', 'Fixo'),
         ('M', 'Móvel'),
         ('X', 'Fax'),
+        ('I', 'Indefinido'),
     )
     codigo_area = models.CharField(
         'código de área',
