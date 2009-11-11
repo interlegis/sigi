@@ -1,0 +1,34 @@
+{% load charts %}
+
+{% chart as convenios %}
+  {% chart-size 340 160 %}
+  {% chart-type "pie" %}
+  {% chart-labels "Conveniadas" "Não conveniadas" "Não aderidas" %}
+  {% chart-data   convenios_chart_data %}
+{% endchart %}
+
+{% chart as regioes %}
+  {% chart-size 320 160 %}
+  {% chart-type "column-stacked" %}
+  {% chart-bar-width "40" %}
+  {% chart-labels "Centro-O" "Norte" "Nordeste" "Sudeste" "Sul" %}
+  {% chart-data   regioes_chart_data.0 regioes_chart_data.1 %}
+  {% chart-legend "Conveniadas" "Total" %}
+  {% chart-colors "ff9900,ffc266" %}
+{% endchart %}
+
+<div class="module">
+  <h2>Convênios</h2>
+  <h3>Convênios com as Casas Legislativas</h3>
+  <p class="align-center">
+    <img src="{{ convenios.url }}" class="chart" />
+  </p>
+</div>
+
+<div class="module">
+  <h2>Convênios</h2>
+  <h3>Casas Legislativas conveniadas por região</h3>
+  <p class="align-center">
+    <img src="{{ regioes.url }}" class="chart" />
+  </p>
+</div>

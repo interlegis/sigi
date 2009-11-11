@@ -1,4 +1,3 @@
-from django.db import models
 from django.contrib.admin.filterspecs import FilterSpec, ChoicesFilterSpec
 from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
