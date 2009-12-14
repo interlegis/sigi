@@ -36,25 +36,21 @@ a:hover {
 
 /* CONTENT */
 
-.module h2, .module caption, .inline-group h2 { 
+.module h2, .module caption, .inline-group h2 {
     background: #00367b
-    url(../images/default-bg.gif); 
+    url(../images/default-bg.gif);
 }
 
 .row1 { background: #f5f6fc none repeat scroll 0 0; }
 
-.dashboard #content { 
-    width: auto; 
+.dashboard #content {
+    width: auto;
 }
 
 .dashboard #content-main .module {
     float: left;
-    margin-right: 1%;
-    width: 48.5%;
-}
-
-.dashboard #content-related { 
-    width: auto; 
+    margin-right: 1.5%;
+    width: 48%;
 }
 
 /* FOOTER */

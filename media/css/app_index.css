@@ -1,3 +1,7 @@
 .dashboard #content-main .module {
-    width: 99.2%;
+    width: 100%;
+}
+
+.dashboard #content-main caption {
+    width: 100%;
 }
