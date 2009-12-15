@@ -15,9 +15,6 @@ urlpatterns = patterns(
     # databrowse
     (r'^databrowse/(.*)', databrowse.site.root),
 
-    # admin docs
-    (r'^doc/', include('django.contrib.admindocs.urls')),
-
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),
 )

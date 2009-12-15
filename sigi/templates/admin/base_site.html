@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% load tree_menu_tags %}
 
 {% block title %}{{ title }} | SIGI{% endblock %}
 
@@ -13,7 +14,9 @@
 {% endblock %}
 
 {% block branding %}
-<h1 id="site-name">Sistema de Informações Gerenciais do Interlegis</h1>
+<h1 id="site-name">
+  <a href="/">Sistema de Informações Gerenciais do Interlegis</a>
+</h1>
 {% endblock %}
 
 {% block userlinks %}
@@ -22,23 +25,19 @@
 
 {% block nav-global %}
 <div id="nav-global">
-  <ul>
-    <li><a href="/">Dashboard</a></li>
-    <li>| <a href="/casas/">Casa Legislativas</a></li>
-    <li>| <a href="/parlamentares/">Parlamentares</a></li>
-    <li>| <a href="/mesas/">Mesas Diretoras</a></li>
-    <li>| <a href="/convenios/">Convênios</a></li>
-    <li>| <a href="/servicos/">Serviços</a></li>
-    <li>| <a href="/inventario/">Inventário</a></li>
-  </ul>
+  {% show_menu "Barra de navegação" "unordered-list" %}
 </div>
 {% endblock %}
+
 
 {% block footer %}
-<div id="footer">
-<img src="/media/images/logo-interlegis.png">
+  {% if not is_popup %}
+    <div id="footer">
+      <img src="/media/images/logo-interlegis.png">
 
-<p>Copyright &copy; 2008 Interlegis. Todos os Direitos Reservados.<br />
-É proibido o uso das informações aqui fornecidas fora do âmbito do Interlegis.
-</div>
+      <p>Copyright &copy; 2008&ndash;2010 Interlegis. Todos os Direitos Reservados.<br />
+        É proibido o uso das informações aqui fornecidas fora do âmbito do Interlegis.
+    </div>
+  {% endif %}
 {% endblock %}
+

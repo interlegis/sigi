@@ -1,6 +1,7 @@
 from django.contrib.auth.admin import Group, GroupAdmin, User, UserAdmin
 from django.contrib.sites.admin import Site, SiteAdmin
 from django.contrib.admin.sites import AdminSite
+from treemenus.admin import Menu, MenuAdmin
 from sigi.apps.casas.admin import CasaLegislativa, CasaLegislativaAdmin
 from sigi.apps.contatos.admin import (UnidadeFederativa, UnidadeFederativaAdmin,
                                       Municipio, MunicipioAdmin, Telefone,
@@ -35,6 +36,9 @@ default.register(User, UserAdmin)
 
 # django.contrib.sites
 default.register(Site, SiteAdmin)
+
+# treemenus
+default.register(Menu, MenuAdmin)
 
 # sigi.apps.casas
 default.register(CasaLegislativa, CasaLegislativaAdmin)

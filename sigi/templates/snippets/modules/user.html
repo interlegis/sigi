@@ -1,21 +1,11 @@
-{% load i18n %}
+{% load i18n tree_menu_tags %}
 <div class="module" id="user-module">
   <h2>Meu espaço</h2>
   <h3>{{ user.get_full_name }}</h3>
-  {% url django-admindocs-docroot as docsroot %}
-  <ul>
-    <li><a href="{{ root_path }}password_change/">Alterar
-	senha</a></li>
-    {% if docsroot %}<li><a href="{{ docsroot }}">Documentação</a></li>{% endif %}
-    <li><a href="{{ root_path }}logout/">Encerrar sessão</a></li>
-  </ul>
+  {% show_menu "Usuário" "unordered-list" %}
 
   {% if user.is_superuser %}
   <h3>Administração</h3>
-  <ul>
-    <li><a href="/auth/">Usuários & Grupos</a></li>
-    <li><a href="/sites/">Sites</a></li>
-    <li><a href="/contatos/">Contatos</a></li>
-  </ul>
+  {% show_menu "Administrador" "unordered-list" %}
   {% endif %}
 </div>

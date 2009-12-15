@@ -1,0 +1,20 @@
+{% load tree_menu_tags %}
+
+{% ifequal menu_type "unordered-list" %}
+  {% if menu_item.has_children %}
+    <li>
+      {% if menu_item.url %}
+        <a href="{{ menu_item.url }}">{{ menu_item.caption }}</a>
+      {% else %}
+        {{ menu_item.caption }}
+      {% endif %}
+      <ul>
+	{% for child in menu_item.children %}
+	  {% show_menu_item child %}
+	{% endfor %}
+      </ul>
+    </li>
+  {% else %}
+    <li><a href="{{ menu_item.url }}">{{ menu_item.caption }}</a></li>
+  {% endif %}
+{% endifequal %}

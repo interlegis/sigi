@@ -1,38 +1,90 @@
-a:link, a:visited {
-    color: #0f3361;
-}
-
-a:hover {
-    color: #11488d;
-}
+a:link, a:visited { color:#0f3361; }
+a:hover { color:#11488d; }
 
 
 /* HEADER */
 
-#header { background: #003351; }
-#branding h1 { color: #fff; }
+#header { background:#003351; }
+#site-name a:hover { text-decoration: none; }
 
 #nav-global {
-    color: #b87912;
-    background-color: #101a20;
-    border-top: 1px solid #252525;
-    border-bottom: 1px solid #999;
-    width: 100%;
+    border:none;
+    border:0px;
+    margin:0px;
+    padding:0px;
+    font-size:14px;
+    font-weight:bold;
 }
-#nav-global ul { margin: 0; padding: 3px; }
+#nav-global ul {
+    background:#222;
+    height:25px;
+    margin:0;
+    padding:0;
+}
 #nav-global li {
-    display: inline;
-    font-size: 1em;
+    float:left;
+    list-style:none;
+    padding:0px;
 }
 #nav-global li a {
-    color: #dfdfdf !important;
-    margin: 0 5px 0 5px;
+    background:#222 url("../images/menu/seperator.gif") bottom right no-repeat;
+    color:#cccccc;
+    display:block;
+    font-weight:normal;
+    line-height:25px;
+    margin:0px;
+    padding:0px 15px;
+    text-align:center;
+    text-decoration:none;
 }
-#nav-global li a:hover {
-    color: #fff !important;
-    margin: 0 5px 0 5px;
-    text-decoration: none;
+#nav-global li a:hover, #nav-global ul li:hover a {
+    background: #333 url("../images/menu/hover.gif") bottom center no-repeat;
+    color:#FFFFFF;
+    text-decoration:none;
 }
+#nav-global li ul {
+    background:#333;
+    display:none;
+    height:auto;
+    padding:0px;
+    margin:0px;
+    border:0px;
+    position:absolute;
+    width:225px;
+    z-index:200;
+    /*top:1em;
+    /*left:0;*/
+}
+#nav-global li:hover ul { display:block; }
+#nav-global li li {
+    background:url('../images/menu/sub_sep.gif') bottom left no-repeat;
+    display:block;
+    float:none;
+    margin:0px;
+    padding:0px;
+    width:225px;
+}
+#nav-global li:hover li a { background:none; }
+#nav-global li ul a {
+    display:block;
+    height:25px;
+    font-style:normal;
+    margin:0px;
+    padding:0px 10px 0px 15px;
+    text-align:left;
+}
+#nav-global li ul a:hover, #nav-global li ul li:hover a {
+    background:#444 url('../images/menu/hover_sub.gif') center left no-repeat;
+    border:0px;
+    color:#ffffff;
+    text-decoration:none;
+}
+#nav-global p {
+    clear:left;
+}
+
+div.breadcrumbs { display:none; }
+
 
 /* CONTENT */
 
@@ -42,6 +94,10 @@ a:hover {
 }
 
 .row1 { background: #f5f6fc none repeat scroll 0 0; }
+
+.align-center { text-align: center; }
+
+img.chart { margin: 20px 0; }
 
 .dashboard #content {
     width: auto;
