@@ -228,7 +228,7 @@
       "level": 2, 
       "url": "/inventario/equipamento/", 
       "menu": 1, 
-      "rank": 1, 
+      "rank": 2, 
       "caption": "Equipamentos", 
       "named_url": ""
     }
@@ -241,7 +241,7 @@
       "level": 2, 
       "url": "/inventario/fabricante/", 
       "menu": 1, 
-      "rank": 2, 
+      "rank": 3, 
       "caption": "Fabricantes", 
       "named_url": ""
     }
@@ -254,7 +254,7 @@
       "level": 2, 
       "url": "/inventario/fornecedor/", 
       "menu": 1, 
-      "rank": 4, 
+      "rank": 1, 
       "caption": "Fornecedores", 
       "named_url": ""
     }
@@ -280,7 +280,7 @@
       "level": 2, 
       "url": "/inventario/tipoequipamento/", 
       "menu": 1, 
-      "rank": 3, 
+      "rank": 4, 
       "caption": "Tipos de equipamentos", 
       "named_url": ""
     }
