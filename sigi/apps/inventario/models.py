@@ -79,7 +79,7 @@ class Bem(models.Model):
     num_tombamento = models.CharField(
         'número de tombamento',
         max_length=50,
-        help_text='Número fornecido pelo Interlegis.',
+        blank=True,
         unique=True
     )
 
