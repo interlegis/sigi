@@ -28,7 +28,7 @@ class Coligacao(models.Model):
         return self.nome
 
 class ComposicaoColigacao(models.Model):
-    coligacao = models.ForeignKey(Coligacao)
+    coligacao = models.ForeignKey(Coligacao, verbose_name='coligação')
     partido = models.ForeignKey('parlamentares.Partido')
 
     class Meta:
