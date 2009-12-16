@@ -114,7 +114,9 @@ class Telefone(models.Model):
 
     class Meta:
         ordering = ('codigo_area', 'numero')
-        unique_together = ('codigo_area', 'numero', 'tipo')
+        # desabilitado para facilitar a migração de dados
+        # TODO: voltar quando estiver em produção
+        #unique_together = ('codigo_area', 'numero', 'tipo')
 
     def __unicode__(self):
         if self.codigo_area:
