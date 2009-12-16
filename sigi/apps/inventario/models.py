@@ -72,16 +72,16 @@ class Bem(models.Model):
     fornecedor = models.ForeignKey(Fornecedor)
     num_serie = models.CharField(
         'número de série',
-        max_length=50,
+        max_length=64,
         help_text='Número fornecido pelo fabricante.',
         unique=True
     )
-    num_tombamento = models.CharField(
-        'número de tombamento',
-        max_length=50,
+    recebido_por = models.CharField(
+        max_length=64,
         blank=True,
-        unique=True
+        help_text='Nome de quem recebeu o equipamento.'
     )
+    observacoes = models.TextField('observações', blank=True)
 
     class Meta:
         verbose_name_plural = 'bens'

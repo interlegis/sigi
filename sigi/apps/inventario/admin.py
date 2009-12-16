@@ -55,7 +55,7 @@ class EquipamentoAdmin(admin.ModelAdmin):
 
 class BemAdmin(admin.ModelAdmin):
     list_display = ('equipamento', 'fornecedor', 'num_serie',
-                    'num_tombamento', 'casa_legislativa')
+                    'casa_legislativa')
     list_filter = ('fornecedor',)
     ordering = ('casa_legislativa', 'fornecedor', 'equipamento')
     raw_id_fields = ('casa_legislativa', 'equipamento', 'fornecedor')
