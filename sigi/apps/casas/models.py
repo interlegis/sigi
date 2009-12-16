@@ -56,6 +56,7 @@ class CasaLegislativa(models.Model):
 
     class Meta:
         ordering = ('nome',)
+        unique_together = ('municipio', 'tipo')
         verbose_name = 'Casa Legislativa'
         verbose_name_plural = 'Casas Legislativas'
 
