@@ -38,19 +38,19 @@ a:hover { color:#11488d; }
     text-decoration:none;
 }
 #nav-global li a:hover, #nav-global ul li:hover a {
-    background: #333 url("../images/menu/hover.gif") bottom center no-repeat;
+    background-color:#292929;
     color:#FFFFFF;
     text-decoration:none;
 }
 #nav-global li ul {
-    background:#333;
+    background:#292929;
     display:none;
     height:auto;
     padding:0px;
     margin:0px;
     border:0px;
     position:absolute;
-    width:225px;
+    width:200px;
     z-index:200;
     /*top:1em;
     /*left:0;*/
@@ -62,7 +62,7 @@ a:hover { color:#11488d; }
     float:none;
     margin:0px;
     padding:0px;
-    width:225px;
+    width:200px;
 }
 #nav-global li:hover li a { background:none; }
 #nav-global li ul a {
@@ -74,7 +74,7 @@ a:hover { color:#11488d; }
     text-align:left;
 }
 #nav-global li ul a:hover, #nav-global li ul li:hover a {
-    background:#444 url('../images/menu/hover_sub.gif') center left no-repeat;
+    background-color:#393939;
     border:0px;
     color:#ffffff;
     text-decoration:none;
