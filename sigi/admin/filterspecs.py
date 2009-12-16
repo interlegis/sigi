@@ -19,7 +19,7 @@ class AlphabeticFilterSpec(ChoicesFilterSpec):
         self.lookup_val = request.GET.get(self.lookup_kwarg, None)
         values_list = model.objects.values_list(f.name, flat=True)
         # getting the first char of values
-        self.lookup_choices = list(set(val[0] for val in values_list))
+        self.lookup_choices = list(set(val[0] for val in values_list if val))
         self.lookup_choices.sort()
 
     def choices(self, cl):
