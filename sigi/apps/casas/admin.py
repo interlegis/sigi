@@ -22,7 +22,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     list_filter = ('tipo',)
     fieldsets = (
         (None, {
-            'fields': ('nome', 'sigla', 'tipo', 'cnpj'),
+            'fields': ('nome', 'sigla', 'tipo', 'cnpj', 'observacoes'),
         }),
         ('Endereço', {
             'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
@@ -35,6 +35,6 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     raw_id_fields = ('municipio',)
     search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
-                     'municipio__codigo_ibge', 'pagina_web')
+                     'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
