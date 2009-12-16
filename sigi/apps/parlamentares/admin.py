@@ -20,7 +20,7 @@ class PartidoAdmin(admin.ModelAdmin):
 
 class ParlamentarAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
-    list_display = ('nome_completo', 'nome_parlamentar', 'sexo', 'municipio')
+    list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
     list_filter = ('nome_completo', 'sexo')
     fieldsets = (
