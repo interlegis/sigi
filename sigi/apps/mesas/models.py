@@ -104,6 +104,7 @@ class MembroMesaDiretora(models.Model):
 
     class Meta:
         ordering = ('parlamentar',)
+        unique_together = ('cargo', 'mesa_diretora')
         verbose_name = 'membro de Mesa Diretora'
         verbose_name_plural = 'membros de Mesas Diretora'
 
