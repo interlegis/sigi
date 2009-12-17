@@ -24,18 +24,20 @@ class AnexoAdmin(admin.ModelAdmin):
 class ConvenioAdmin(admin.ModelAdmin):
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf',)}
+            {'fields': ('casa_legislativa', 'num_processo_sf')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
-                        'data_termo_aceite', 'data_pub_diario')}
+                        'data_termo_aceite', 'data_pub_diario',
+                        'data_devolucao_via', 'data_postagem_correio')}
         ),
     )
     inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('id', 'casa_legislativa',
                     'num_processo_sf', 'data_adesao')
     list_filter  = ('data_adesao', 'data_retorno_assinatura',
-                    'data_termo_aceite',)
+                    'data_termo_aceite', 'data_devolucao_via',
+                    'data_postagem_correio')
     ordering = ('-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',

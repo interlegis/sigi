@@ -4,11 +4,6 @@ from django.db import models
 from django.contrib.contenttypes import generic
 
 class Convenio(models.Model):
-    RECEBIDOS_CHOICES = (
-        ('N', 'Não'),
-        ('S', 'Sim'),
-        ('P', 'Pendente(s)'),
-    )
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
@@ -40,6 +35,17 @@ class Convenio(models.Model):
         null=True,
         blank=True,
         help_text='Equipamentos recebidos.'
+    )
+    data_devolucao_via = models.DateField(
+        'data de devolução da via',
+        null=True,
+        blank=True,
+        help_text='Data de devolução da via do convênio à Câmara Municipal.'
+    )
+    data_postagem_correio = models.DateField(
+        'data postagem correio',
+        null=True,
+        blank=True,
     )
 
     class Meta:
