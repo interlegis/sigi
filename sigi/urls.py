@@ -12,9 +12,6 @@ map(databrowse.site.register, get_models())
 urlpatterns = patterns(
     '',
 
-    # databrowse
-    (r'^databrowse/(.*)', databrowse.site.root),
-
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),
 )

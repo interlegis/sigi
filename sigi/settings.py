@@ -84,7 +84,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-    'django.contrib.databrowse',
     'django.contrib.admin',
     'django_extensions',      # http://django-command-extensions.googlecode.com
     'googlecharts',           # http://github.com/jacobian/django-googlecharts
