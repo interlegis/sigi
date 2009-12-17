@@ -210,6 +210,9 @@ def migra_cnpj(filename):
         except CasaLegislativa.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
+        except CasaLegislativa.MultipleObjectsReturned:
+            print ERROR_MSG_1 % (filename, linenum)
+            continue
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
@@ -274,6 +277,6 @@ if __name__ == '__main__':
     print "<iniciando migração das demais casas legislativas>"
     migra_casas('casas.csv')
     print "<iniciando migração dos CNPJ das casas>"
-    migra_cnpj('cnpj.csv', 'casas.csv')
+    migra_cnpj('cnpj.csv')
     print "<iniciando migração dos convênios>"
     migra_convenios('casas.csv')
