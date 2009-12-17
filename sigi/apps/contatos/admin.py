@@ -10,12 +10,12 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
     search_fields = ('codigo_ibge', 'nome', 'sigla', 'regiao')
 
 class MunicipioAdmin(admin.ModelAdmin):
-    list_display = ('codigo_ibge', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo')
-    list_display_links = ('codigo_ibge', 'nome')
+    list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo')
+    list_display_links = ('codigo_ibge', 'codigo_tse', 'nome')
     list_filter = ('is_capital', 'is_polo', 'populacao', 'uf')
     fieldsets = (
         (None, {
-            'fields': ('codigo_ibge', 'codigo_mesorregiao',
+            'fields': ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
                        'codigo_microrregiao', 'nome', 'uf', 'is_capital',
                        'populacao', 'is_polo')
         }),
@@ -23,8 +23,8 @@ class MunicipioAdmin(admin.ModelAdmin):
             'fields': ('latitude', 'longitude'),
         }),
     )
-    search_fields = ('codigo_ibge', 'codigo_mesorregiao', 'codigo_microrregiao',
-                     'nome', 'uf__nome', 'uf__sigla')
+    search_fields = ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
+                     'codigo_microrregiao', 'nome', 'uf__nome', 'uf__sigla')
 
 class TelefoneAdmin(admin.ModelAdmin):
     list_display = ('codigo_area', 'numero', 'tipo', 'nota')

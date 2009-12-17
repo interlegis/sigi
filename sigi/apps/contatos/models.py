@@ -52,6 +52,12 @@ class Municipio(models.Model):
         blank=True,
         null=True
     )
+    codigo_tse = models.PositiveIntegerField(
+        u'código TSE',
+        unique=True,
+        null=True,
+        help_text='Código do município segundo TSE.'
+    )
     nome = models.CharField(max_length=50)
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
     is_capital = models.BooleanField('capital')
