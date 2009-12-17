@@ -43,7 +43,7 @@ class ModeloEquipamentoAdmin(admin.ModelAdmin):
 
 class EquipamentoAdmin(admin.ModelAdmin):
     list_display = ('id', 'fabricante', 'modelo', 'get_tipo')
-    list_display_links = ('id', 'modelo')
+    list_display_links = ('id',)
     list_filter  = ('fabricante',)
     ordering = ('fabricante', 'modelo')
     raw_id_fields = ('fabricante', 'modelo')
