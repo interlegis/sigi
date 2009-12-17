@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.contenttypes import generic
+from sigi.apps.mesas.models import MesaDiretora
 
 class CasaLegislativa(models.Model):
     CASA_CHOICES = (
@@ -62,3 +63,8 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+    def get_presidente(self):
+        mesa = MesaDiretora.objects.get(casa_legislativa=self)
+        membro = mesa.membromesadiretora_set.get(cargo__descricao__iexact='presidente')
+        return membro.parlamentar
