@@ -38,12 +38,12 @@ a:hover { color:#11488d; }
     text-decoration:none;
 }
 #nav-global li a:hover, #nav-global ul li:hover a {
-    background-color:#292929;
+    background-color:#333;
     color:#FFFFFF;
     text-decoration:none;
 }
 #nav-global li ul {
-    background:#292929;
+    background:#333;
     display:none;
     height:auto;
     padding:0px;
