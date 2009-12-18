@@ -1,5 +1,1101 @@
 [
   {
+    "pk": 22, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_logentry", 
+      "name": "Can add log entry", 
+      "content_type": 8
+    }
+  }, 
+  {
+    "pk": 23, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_logentry", 
+      "name": "Can change log entry", 
+      "content_type": 8
+    }
+  }, 
+  {
+    "pk": 24, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_logentry", 
+      "name": "Can delete log entry", 
+      "content_type": 8
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_group", 
+      "name": "Can add group", 
+      "content_type": 2
+    }
+  }, 
+  {
+    "pk": 10, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_message", 
+      "name": "Can add message", 
+      "content_type": 4
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_permission", 
+      "name": "Can add permission", 
+      "content_type": 1
+    }
+  }, 
+  {
+    "pk": 7, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_user", 
+      "name": "Can add user", 
+      "content_type": 3
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_group", 
+      "name": "Can change group", 
+      "content_type": 2
+    }
+  }, 
+  {
+    "pk": 11, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_message", 
+      "name": "Can change message", 
+      "content_type": 4
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_permission", 
+      "name": "Can change permission", 
+      "content_type": 1
+    }
+  }, 
+  {
+    "pk": 8, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_user", 
+      "name": "Can change user", 
+      "content_type": 3
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_group", 
+      "name": "Can delete group", 
+      "content_type": 2
+    }
+  }, 
+  {
+    "pk": 12, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_message", 
+      "name": "Can delete message", 
+      "content_type": 4
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_permission", 
+      "name": "Can delete permission", 
+      "content_type": 1
+    }
+  }, 
+  {
+    "pk": 9, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_user", 
+      "name": "Can delete user", 
+      "content_type": 3
+    }
+  }, 
+  {
+    "pk": 31, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_casalegislativa", 
+      "name": "Can add Casa Legislativa", 
+      "content_type": 11
+    }
+  }, 
+  {
+    "pk": 32, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_casalegislativa", 
+      "name": "Can change Casa Legislativa", 
+      "content_type": 11
+    }
+  }, 
+  {
+    "pk": 33, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_casalegislativa", 
+      "name": "Can delete Casa Legislativa", 
+      "content_type": 11
+    }
+  }, 
+  {
+    "pk": 43, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_contato", 
+      "name": "Can add contato Interlegis", 
+      "content_type": 15
+    }
+  }, 
+  {
+    "pk": 37, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_municipio", 
+      "name": "Can add munic\u00edpio", 
+      "content_type": 13
+    }
+  }, 
+  {
+    "pk": 40, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_telefone", 
+      "name": "Can add telefone", 
+      "content_type": 14
+    }
+  }, 
+  {
+    "pk": 34, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_unidadefederativa", 
+      "name": "Can add Unidade Federativa", 
+      "content_type": 12
+    }
+  }, 
+  {
+    "pk": 44, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_contato", 
+      "name": "Can change contato Interlegis", 
+      "content_type": 15
+    }
+  }, 
+  {
+    "pk": 38, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_municipio", 
+      "name": "Can change munic\u00edpio", 
+      "content_type": 13
+    }
+  }, 
+  {
+    "pk": 41, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_telefone", 
+      "name": "Can change telefone", 
+      "content_type": 14
+    }
+  }, 
+  {
+    "pk": 35, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_unidadefederativa", 
+      "name": "Can change Unidade Federativa", 
+      "content_type": 12
+    }
+  }, 
+  {
+    "pk": 45, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_contato", 
+      "name": "Can delete contato Interlegis", 
+      "content_type": 15
+    }
+  }, 
+  {
+    "pk": 39, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_municipio", 
+      "name": "Can delete munic\u00edpio", 
+      "content_type": 13
+    }
+  }, 
+  {
+    "pk": 42, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_telefone", 
+      "name": "Can delete telefone", 
+      "content_type": 14
+    }
+  }, 
+  {
+    "pk": 36, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_unidadefederativa", 
+      "name": "Can delete Unidade Federativa", 
+      "content_type": 12
+    }
+  }, 
+  {
+    "pk": 13, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_contenttype", 
+      "name": "Can add content type", 
+      "content_type": 5
+    }
+  }, 
+  {
+    "pk": 14, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_contenttype", 
+      "name": "Can change content type", 
+      "content_type": 5
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_contenttype", 
+      "name": "Can delete content type", 
+      "content_type": 5
+    }
+  }, 
+  {
+    "pk": 52, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_anexo", 
+      "name": "Can add anexo", 
+      "content_type": 18
+    }
+  }, 
+  {
+    "pk": 46, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_convenio", 
+      "name": "Can add conv\u00eanio", 
+      "content_type": 16
+    }
+  }, 
+  {
+    "pk": 49, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_equipamentoprevisto", 
+      "name": "Can add equipamento previsto", 
+      "content_type": 17
+    }
+  }, 
+  {
+    "pk": 53, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_anexo", 
+      "name": "Can change anexo", 
+      "content_type": 18
+    }
+  }, 
+  {
+    "pk": 47, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_convenio", 
+      "name": "Can change conv\u00eanio", 
+      "content_type": 16
+    }
+  }, 
+  {
+    "pk": 50, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_equipamentoprevisto", 
+      "name": "Can change equipamento previsto", 
+      "content_type": 17
+    }
+  }, 
+  {
+    "pk": 54, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_anexo", 
+      "name": "Can delete anexo", 
+      "content_type": 18
+    }
+  }, 
+  {
+    "pk": 48, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_convenio", 
+      "name": "Can delete conv\u00eanio", 
+      "content_type": 16
+    }
+  }, 
+  {
+    "pk": 51, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_equipamentoprevisto", 
+      "name": "Can delete equipamento previsto", 
+      "content_type": 17
+    }
+  }, 
+  {
+    "pk": 70, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_bem", 
+      "name": "Can add bem", 
+      "content_type": 24
+    }
+  }, 
+  {
+    "pk": 67, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_equipamento", 
+      "name": "Can add equipamento", 
+      "content_type": 23
+    }
+  }, 
+  {
+    "pk": 58, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_fabricante", 
+      "name": "Can add fabricante", 
+      "content_type": 20
+    }
+  }, 
+  {
+    "pk": 55, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_fornecedor", 
+      "name": "Can add fornecedor", 
+      "content_type": 19
+    }
+  }, 
+  {
+    "pk": 64, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_modeloequipamento", 
+      "name": "Can add modelo de equipamento", 
+      "content_type": 22
+    }
+  }, 
+  {
+    "pk": 61, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_tipoequipamento", 
+      "name": "Can add tipo de equipamento", 
+      "content_type": 21
+    }
+  }, 
+  {
+    "pk": 71, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_bem", 
+      "name": "Can change bem", 
+      "content_type": 24
+    }
+  }, 
+  {
+    "pk": 68, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_equipamento", 
+      "name": "Can change equipamento", 
+      "content_type": 23
+    }
+  }, 
+  {
+    "pk": 59, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_fabricante", 
+      "name": "Can change fabricante", 
+      "content_type": 20
+    }
+  }, 
+  {
+    "pk": 56, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_fornecedor", 
+      "name": "Can change fornecedor", 
+      "content_type": 19
+    }
+  }, 
+  {
+    "pk": 65, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_modeloequipamento", 
+      "name": "Can change modelo de equipamento", 
+      "content_type": 22
+    }
+  }, 
+  {
+    "pk": 62, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_tipoequipamento", 
+      "name": "Can change tipo de equipamento", 
+      "content_type": 21
+    }
+  }, 
+  {
+    "pk": 72, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_bem", 
+      "name": "Can delete bem", 
+      "content_type": 24
+    }
+  }, 
+  {
+    "pk": 69, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_equipamento", 
+      "name": "Can delete equipamento", 
+      "content_type": 23
+    }
+  }, 
+  {
+    "pk": 60, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_fabricante", 
+      "name": "Can delete fabricante", 
+      "content_type": 20
+    }
+  }, 
+  {
+    "pk": 57, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_fornecedor", 
+      "name": "Can delete fornecedor", 
+      "content_type": 19
+    }
+  }, 
+  {
+    "pk": 66, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_modeloequipamento", 
+      "name": "Can delete modelo de equipamento", 
+      "content_type": 22
+    }
+  }, 
+  {
+    "pk": 63, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_tipoequipamento", 
+      "name": "Can delete tipo de equipamento", 
+      "content_type": 21
+    }
+  }, 
+  {
+    "pk": 88, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_cargo", 
+      "name": "Can add cargo", 
+      "content_type": 30
+    }
+  }, 
+  {
+    "pk": 76, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_coligacao", 
+      "name": "Can add coliga\u00e7\u00e3o", 
+      "content_type": 26
+    }
+  }, 
+  {
+    "pk": 79, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_composicaocoligacao", 
+      "name": "Can add composi\u00e7\u00e3o da coliga\u00e7\u00e3o", 
+      "content_type": 27
+    }
+  }, 
+  {
+    "pk": 73, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_legislatura", 
+      "name": "Can add legislatura", 
+      "content_type": 25
+    }
+  }, 
+  {
+    "pk": 91, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_membromesadiretora", 
+      "name": "Can add membro de Mesa Diretora", 
+      "content_type": 31
+    }
+  }, 
+  {
+    "pk": 85, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_mesadiretora", 
+      "name": "Can add Mesa Diretora", 
+      "content_type": 29
+    }
+  }, 
+  {
+    "pk": 82, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_sessaolegislativa", 
+      "name": "Can add Sess\u00e3o Legislativa", 
+      "content_type": 28
+    }
+  }, 
+  {
+    "pk": 89, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_cargo", 
+      "name": "Can change cargo", 
+      "content_type": 30
+    }
+  }, 
+  {
+    "pk": 77, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_coligacao", 
+      "name": "Can change coliga\u00e7\u00e3o", 
+      "content_type": 26
+    }
+  }, 
+  {
+    "pk": 80, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_composicaocoligacao", 
+      "name": "Can change composi\u00e7\u00e3o da coliga\u00e7\u00e3o", 
+      "content_type": 27
+    }
+  }, 
+  {
+    "pk": 74, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_legislatura", 
+      "name": "Can change legislatura", 
+      "content_type": 25
+    }
+  }, 
+  {
+    "pk": 92, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_membromesadiretora", 
+      "name": "Can change membro de Mesa Diretora", 
+      "content_type": 31
+    }
+  }, 
+  {
+    "pk": 86, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_mesadiretora", 
+      "name": "Can change Mesa Diretora", 
+      "content_type": 29
+    }
+  }, 
+  {
+    "pk": 83, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_sessaolegislativa", 
+      "name": "Can change Sess\u00e3o Legislativa", 
+      "content_type": 28
+    }
+  }, 
+  {
+    "pk": 90, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_cargo", 
+      "name": "Can delete cargo", 
+      "content_type": 30
+    }
+  }, 
+  {
+    "pk": 78, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_coligacao", 
+      "name": "Can delete coliga\u00e7\u00e3o", 
+      "content_type": 26
+    }
+  }, 
+  {
+    "pk": 81, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_composicaocoligacao", 
+      "name": "Can delete composi\u00e7\u00e3o da coliga\u00e7\u00e3o", 
+      "content_type": 27
+    }
+  }, 
+  {
+    "pk": 75, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_legislatura", 
+      "name": "Can delete legislatura", 
+      "content_type": 25
+    }
+  }, 
+  {
+    "pk": 93, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_membromesadiretora", 
+      "name": "Can delete membro de Mesa Diretora", 
+      "content_type": 31
+    }
+  }, 
+  {
+    "pk": 87, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_mesadiretora", 
+      "name": "Can delete Mesa Diretora", 
+      "content_type": 29
+    }
+  }, 
+  {
+    "pk": 84, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_sessaolegislativa", 
+      "name": "Can delete Sess\u00e3o Legislativa", 
+      "content_type": 28
+    }
+  }, 
+  {
+    "pk": 100, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_mandato", 
+      "name": "Can add mandato", 
+      "content_type": 34
+    }
+  }, 
+  {
+    "pk": 97, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_parlamentar", 
+      "name": "Can add parlamentar", 
+      "content_type": 33
+    }
+  }, 
+  {
+    "pk": 94, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_partido", 
+      "name": "Can add partido", 
+      "content_type": 32
+    }
+  }, 
+  {
+    "pk": 101, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_mandato", 
+      "name": "Can change mandato", 
+      "content_type": 34
+    }
+  }, 
+  {
+    "pk": 98, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_parlamentar", 
+      "name": "Can change parlamentar", 
+      "content_type": 33
+    }
+  }, 
+  {
+    "pk": 95, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_partido", 
+      "name": "Can change partido", 
+      "content_type": 32
+    }
+  }, 
+  {
+    "pk": 102, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_mandato", 
+      "name": "Can delete mandato", 
+      "content_type": 34
+    }
+  }, 
+  {
+    "pk": 99, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_parlamentar", 
+      "name": "Can delete parlamentar", 
+      "content_type": 33
+    }
+  }, 
+  {
+    "pk": 96, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_partido", 
+      "name": "Can delete partido", 
+      "content_type": 32
+    }
+  }, 
+  {
+    "pk": 103, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_servico", 
+      "name": "Can add servi\u00e7o", 
+      "content_type": 35
+    }
+  }, 
+  {
+    "pk": 104, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_servico", 
+      "name": "Can change servi\u00e7o", 
+      "content_type": 35
+    }
+  }, 
+  {
+    "pk": 105, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_servico", 
+      "name": "Can delete servi\u00e7o", 
+      "content_type": 35
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_session", 
+      "name": "Can add session", 
+      "content_type": 6
+    }
+  }, 
+  {
+    "pk": 17, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_session", 
+      "name": "Can change session", 
+      "content_type": 6
+    }
+  }, 
+  {
+    "pk": 18, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_session", 
+      "name": "Can delete session", 
+      "content_type": 6
+    }
+  }, 
+  {
+    "pk": 19, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_site", 
+      "name": "Can add site", 
+      "content_type": 7
+    }
+  }, 
+  {
+    "pk": 20, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_site", 
+      "name": "Can change site", 
+      "content_type": 7
+    }
+  }, 
+  {
+    "pk": 21, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_site", 
+      "name": "Can delete site", 
+      "content_type": 7
+    }
+  }, 
+  {
+    "pk": 28, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_menu", 
+      "name": "Can add Menu", 
+      "content_type": 10
+    }
+  }, 
+  {
+    "pk": 25, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "add_menuitem", 
+      "name": "Can add menu item", 
+      "content_type": 9
+    }
+  }, 
+  {
+    "pk": 29, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_menu", 
+      "name": "Can change Menu", 
+      "content_type": 10
+    }
+  }, 
+  {
+    "pk": 26, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "change_menuitem", 
+      "name": "Can change menu item", 
+      "content_type": 9
+    }
+  }, 
+  {
+    "pk": 30, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_menu", 
+      "name": "Can delete Menu", 
+      "content_type": 10
+    }
+  }, 
+  {
+    "pk": 27, 
+    "model": "auth.permission", 
+    "fields": {
+      "codename": "delete_menuitem", 
+      "name": "Can delete menu item", 
+      "content_type": 9
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "SEIT", 
+      "permissions": [
+        70, 
+        67, 
+        58, 
+        55, 
+        64, 
+        61, 
+        71, 
+        68, 
+        59, 
+        56, 
+        65, 
+        62, 
+        72, 
+        69, 
+        60, 
+        57, 
+        66, 
+        63, 
+        103, 
+        104, 
+        105, 
+        16, 
+        17, 
+        18
+      ]
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "SSFAC", 
+      "permissions": [
+        88, 
+        76, 
+        79, 
+        73, 
+        91, 
+        85, 
+        82, 
+        89, 
+        77, 
+        80, 
+        74, 
+        92, 
+        86, 
+        83, 
+        90, 
+        78, 
+        81, 
+        75, 
+        93, 
+        87, 
+        84, 
+        100, 
+        97, 
+        94, 
+        101, 
+        98, 
+        95, 
+        102, 
+        99, 
+        96
+      ]
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "SSADM", 
+      "permissions": [
+        31, 
+        32, 
+        33, 
+        43, 
+        37, 
+        40, 
+        34, 
+        44, 
+        38, 
+        41, 
+        35, 
+        45, 
+        39, 
+        42, 
+        36, 
+        52, 
+        46, 
+        49, 
+        53, 
+        47, 
+        50, 
+        54, 
+        48, 
+        51, 
+        70, 
+        71, 
+        72, 
+        88, 
+        76, 
+        79, 
+        73, 
+        91, 
+        85, 
+        82, 
+        89, 
+        77, 
+        80, 
+        74, 
+        92, 
+        86, 
+        83, 
+        90, 
+        78, 
+        81, 
+        75, 
+        93, 
+        87, 
+        84, 
+        100, 
+        97, 
+        94, 
+        101, 
+        98, 
+        95
+      ]
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "SSATR", 
+      "permissions": []
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "auth.group", 
+    "fields": {
+      "name": "SSPLF", 
+      "permissions": []
+    }
+  }, 
+  {
     "pk": 1, 
     "model": "treemenus.menuitem", 
     "fields": {
