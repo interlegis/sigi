@@ -17,6 +17,13 @@
   {% chart-colors "ff9900,ffc266" %}
 {% endchart %}
 
+{% chart as equipamentos %}
+  {% chart-size 340 160 %}
+  {% chart-type "pie" %}
+  {% chart-labels "Recebidos" "Não recebidos" %}
+  {% chart-data   equipamentos_chart_data %}
+{% endchart %}
+
 <div class="module">
   <h2>Convênios</h2>
   <h3>Convênios com as Casas Legislativas</h3>
@@ -30,5 +37,13 @@
   <h3>Casas Legislativas conveniadas por região</h3>
   <p class="align-center">
     <img src="{{ regioes.url }}" class="chart" />
+  </p>
+</div>
+
+<div class="module">
+  <h2>Convênios</h2>
+  <h3>Casas Legislativas com equipamentos</h3>
+  <p class="align-center">
+    <img src="{{ equipamentos.url }}" class="chart" />
   </p>
 </div>

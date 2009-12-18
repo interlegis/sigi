@@ -25,8 +25,12 @@ def charts_data(request):
         convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='SL').count()
     ]
 
+    equip_n_recebidos = convenios.filter(data_termo_aceite=None).count()
+    equip_recebidos = convenios.exclude(data_termo_aceite=None).count()
+
     return {
         'regioes_chart_data': [num_convenios_firmados_regiao, num_casas_regiao],
         'convenios_chart_data': [num_convenios_firmados, num_convenios_nao_firmados,
-                                 num_casas_nao_aderidas]
+                                 num_casas_nao_aderidas],
+        'equipamentos_chart_data': [equip_recebidos, equip_n_recebidos]
     }
