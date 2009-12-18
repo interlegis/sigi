@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.conf.urls.defaults import *
-from django.contrib import databrowse
-from django.db.models import get_models
 from sigi import sites
 
 # register admin filters
 import sigi.admin.filterspecs
 
-map(databrowse.site.register, get_models())
-
 urlpatterns = patterns(
     '',
+
+    # reports
+    (r'^casas/casalegislativa/labels/',
+     'sigi.apps.casas.views.labels_report'),
+    (r'^casas/casalegislativa/(?P<id>\w+)/labels/',
+     'sigi.apps.casas.views.labels_report'),
 
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),

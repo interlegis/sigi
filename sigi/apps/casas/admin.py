@@ -16,6 +16,8 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
+    change_form_template = 'casas/change_form.html'
+    change_list_template = 'casas/change_list.html'
     inlines = (TelefonesInline, ContatosInline)
     list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
@@ -36,5 +38,11 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+
+    def changelist_view(self, request, extra_context=None):
+        return super(CasaLegislativaAdmin, self).changelist_view(
+            request,
+            extra_context={'query_str': '?' + request.META['QUERY_STRING']}
+        )
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
