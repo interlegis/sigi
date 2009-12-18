@@ -17,7 +17,7 @@ class Parlamentar(models.Model):
         ('M', 'Masculino'),
         ('F', 'Feminino'),
     )
-    nome_completo = models.CharField(max_length=60)
+    nome_completo = models.CharField(max_length=128)
     nome_completo.alphabetic_filter = True
     nome_parlamentar = models.CharField(max_length=35, blank=True)
     foto = models.ImageField(
