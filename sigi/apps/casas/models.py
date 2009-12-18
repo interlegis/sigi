@@ -22,7 +22,7 @@ class CasaLegislativa(models.Model):
         blank=True
     )
     tipo = models.CharField(max_length=2, choices=CASA_CHOICES, default='CM')
-    cnpj = models.CharField('CNPJ', max_length=18, blank=True)
+    cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
 
     logradouro = models.CharField(
