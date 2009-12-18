@@ -14,7 +14,6 @@ PROJECT_DIR = BASE_DIR + '/sigi'
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
-MAINTENANCE_MODE = False
 
 # I can't determine this, use local_settings.py.
 ADMINS = (('root', 'root@localhost'),)
@@ -65,7 +64,6 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'sigi.middleware.MaintenanceModeMiddleware',
     'django.middleware.cache.CacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
