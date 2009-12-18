@@ -34,7 +34,7 @@ class CasaLegislativa(models.Model):
         'contatos.Municipio',
         verbose_name='município'
     )
-    cep = models.CharField(max_length=9)
+    cep = models.CharField(max_length=32)
     email = models.EmailField('e-mail', max_length=128, blank=True)
     pagina_web = models.URLField(
         u'página web',
