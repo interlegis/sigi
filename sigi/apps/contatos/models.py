@@ -106,7 +106,7 @@ class Telefone(models.Model):
     )
     numero = models.CharField(
         'número',
-        max_length=32,
+        max_length=64, # TODO: diminuir tamanho de campo após migração de dados
         help_text='Somente números.'
     )
     tipo = models.CharField(
