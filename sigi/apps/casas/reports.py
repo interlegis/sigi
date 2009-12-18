@@ -36,5 +36,3 @@ class CasasLegislativasLabels(Report):
             ObjectValue(attribute_name='municipio', top=2.5*cm, left=0, width=9.00*cm),
             ObjectValue(attribute_name='cep', top=3*cm, left=0, width=9.00*cm),
         ]
-
-reporting.site.register(CasasLegislativasLabels, CasaLegislativa, 'etiquetas')
