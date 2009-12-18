@@ -106,7 +106,7 @@ class Telefone(models.Model):
     )
     numero = models.CharField(
         'número',
-        max_length=16,
+        max_length=32,
         help_text='Somente números.'
     )
     tipo = models.CharField(
