@@ -22,6 +22,7 @@ class AnexoAdmin(admin.ModelAdmin):
                      'convenio__casa_legislativa__nome')
 
 class ConvenioAdmin(admin.ModelAdmin):
+    change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf')}
