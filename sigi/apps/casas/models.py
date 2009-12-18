@@ -35,7 +35,7 @@ class CasaLegislativa(models.Model):
         verbose_name='município'
     )
     cep = models.CharField(max_length=9)
-    email = models.EmailField('e-mail', blank=True)
+    email = models.EmailField('e-mail', max_length=128, blank=True)
     pagina_web = models.URLField(
         u'página web',
         help_text='Exemplo: <em>http://www.camarapains.mg.gov.br</em>.',
