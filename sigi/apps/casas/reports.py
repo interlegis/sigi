@@ -1,8 +1,7 @@
 # -*- coding: utf-8 -*-
-import reporting
+from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from geraldo import Report, ReportBand, Label, ObjectValue
-from sigi.apps.casas.models import CasaLegislativa
+from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements
 
 class CasasLegislativasLabels(Report):
     """
@@ -15,24 +14,33 @@ class CasasLegislativasLabels(Report):
 
     """
 
-    class band_detail(ReportBand):
-        width  = 9.40*cm
-        height = 4.60*cm
+    page_size = A4
+    margin_top = 0.8*cm
+    margin_bottom = 0.8*cm
+    margin_left = 0.4*cm
+    margin_right = 0.4*cm
+
+    class band_detail(DetailBand):
+        width  = 9.9*cm
+        height = 5.6*cm
+        margin_bottom = 0.0*cm
+        margin_right  = 0.3*cm
 
         # With this attribute as True, the band will try to align in
         # the same line.
         display_inline = True
 
+        default_style = {'fontName': 'Helvetica', 'fontSize': 11}
+
         elements = [
-            Label(text='A Sua Excelência o(a) Senhor(a)', top=0, left=0),
-            ObjectValue(
-                attribute_name='get_presidente_nome',
-                top=0.5*cm, left=0, width=9.00*cm,
-                get_value=lambda obj: obj.get_presidente_nome(),
+            Label(
+                text='A Sua Excelência o(a) Senhor(a)',
+                top=1*cm, left=1*cm, width=9.4*cm,
             ),
-            ObjectValue(attribute_name='nome', top=1.0*cm, left=0, width=9.00*cm),
-            ObjectValue(attribute_name='logradouro', top=1.5*cm, left=0, width=9.00*cm),
-            ObjectValue(attribute_name='bairro', top=2*cm, left=0, width=9.00*cm),
-            ObjectValue(attribute_name='municipio', top=2.5*cm, left=0, width=9.00*cm),
-            ObjectValue(attribute_name='cep', top=3*cm, left=0, width=9.00*cm),
+            ManyElements(
+                ObjectValue,
+                count=6,
+                attribute_name=('get_presidente_nome','nome','logradouro','bairro','municipio','cep'),
+                start_top=1.5*cm, height=0.5*cm, left=1*cm, width=9.4*cm,
+            ),
         ]
