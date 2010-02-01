@@ -21,7 +21,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, ContatosInline)
     list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
-    list_filter = ('tipo',)
+    list_filter = ('tipo', 'municipio')
     fieldsets = (
         (None, {
             'fields': ('nome', 'sigla', 'tipo', 'cnpj', 'observacoes'),

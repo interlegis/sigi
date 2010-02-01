@@ -34,6 +34,7 @@ class CasaLegislativa(models.Model):
         'contatos.Municipio',
         verbose_name='município'
     )
+    municipio.uf_filter = True
     cep = models.CharField(max_length=32)
     email = models.EmailField('e-mail', max_length=128, blank=True)
     pagina_web = models.URLField(

@@ -2,6 +2,7 @@ from django.contrib.admin.filterspecs import FilterSpec, ChoicesFilterSpec
 from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
+from sigi.apps.contatos.models import UnidadeFederativa
 
 class AlphabeticFilterSpec(ChoicesFilterSpec):
     """
@@ -37,6 +38,41 @@ class AlphabeticFilterSpec(ChoicesFilterSpec):
 # registering the filter
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'alphabetic_filter', False),
                                    AlphabeticFilterSpec))
+
+class MunicipioUFFilterSpec(ChoicesFilterSpec):
+    """
+    Usage:
+
+      my_municipio_field.uf_filter = True
+
+    On Django 1.2 you will can specify a lookup on admin filters. Example:
+
+      list_filter = ('municipio__uf',)
+
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(MunicipioUFFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
+        self.lookup_kwarg = '%s__uf__codigo_ibge__exact' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = UnidadeFederativa.objects.all().order_by('nome')
+
+    def choices(self, cl):
+        yield {'selected': self.lookup_val is None,
+                'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
+                'display': _('All')}
+        for val in self.lookup_choices:
+            yield {'selected': smart_unicode(val.codigo_ibge) == self.lookup_val,
+                    'query_string': cl.get_query_string({self.lookup_kwarg: val.codigo_ibge}),
+                    'display': val.nome}
+    def title(self):
+        return _('UF') % \
+            {'field_name': self.field.verbose_name}
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'uf_filter', False),
+                                   MunicipioUFFilterSpec))
 
 class RangeValuesFilterSpec(FilterSpec):
     """
