@@ -18,34 +18,39 @@ Para ambas instalações, certifique-se que os seguintes softwares
 estejam instalados em seu sistema:
 
 * Python >= 2.4 < 3.0
+* Python Image Library (PIL)
+* reportlab
+* Django 1.1
+* django-extensions <http://django-command-extensions.googlecode.com>
+* django-googlecharts <http://github.com/jacobian/django-googlecharts>
+* django-treemenus' <http://django-treemenus.googlecode.com>
+* django-geraldo <http://github.com/marinho/geraldo>
 
-* Django 1.0
 
 O Python pode ser instalado a partir do pacote ``python`` com uma
 ferramenta de instalação de pacotes como o ``apt-get`` ou
 ``aptitude``.
 
 Se a sua distribuição não possui o pacote ``python-django``, para o
-Django na versão 1.0, será necessário obter e configurar o mesmo
+Django na versão 1.1, será necessário obter e configurar o mesmo
 manualmente. A próxima seção traz mais detalhes para esta tarefa.
 
 Instalação do Django
 --------------------
 
-O Django 1.0 pode ser obtido através da `página de download
+O Django 1.1 pode ser obtido através da `página de download
 <http://www.djangoproject.com/download/>`_ do `Django Project
-<http://www.djangoproject.com>`_ via *tarball* (``tar.gz``) ou via
-Subversion (revisão 8961).
+<http://www.djangoproject.com>`_ via *tarball* (``tar.gz``).
 
 Obtendo e instalando o Django
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Primeiramente baixe o `tarball do Django 1.0
-<http://www.djangoproject.com/download/1.0/tarball/>`_ ou dê
-*checkout* na tag 1.0 disponível no repositório do Subversion do
+Primeiramente baixe o `tarball do Django 1.1
+<http://www.djangoproject.com/download/1.1/tarball/>`_ ou dê
+*checkout* na tag 1.1 disponível no repositório do Subversion do
 projeto::
 
-  svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.0/
+  svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.1/
 
 Após isso será necessário colocar o pacote Python do ``django``
 (diretório ``django`` disponível dentro do diretório/tarball baixado)
@@ -70,7 +75,8 @@ Preparando o ambiente para desenvolvimento
 ------------------------------------------
 
 Se você irá desenvolver o SIGI, é necessário possuir os seguintes
-pacotes instalados em sua máquina:
+pacotes instalados em sua máquina (para versões do Python anterior
+à 2.5):
 
 * sqlite3, para SQLite 3;
 
