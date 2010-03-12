@@ -47,7 +47,10 @@ class Parlamentar(models.Model):
         help_text="Formato: <em>XXXXX-XXX</em>."
     )
     telefones = generic.GenericRelation('contatos.Telefone')
-    pagina_web = models.URLField(u'página web', blank=True)
+    pagina_web = models.URLField(
+        u'página web', blank=True,
+        verify_exists=False
+    )
     email = models.EmailField('e-mail', blank=True)
 
     class Meta:

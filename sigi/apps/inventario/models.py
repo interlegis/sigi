@@ -6,7 +6,7 @@ class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
     nome.alphabetic_filter = True
     email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField('página web', blank=True)
+    pagina_web = models.URLField('página web', blank=True, verify_exists=False)
     telefones = generic.GenericRelation('contatos.Telefone')
     contatos = generic.GenericRelation('contatos.Contato')
 

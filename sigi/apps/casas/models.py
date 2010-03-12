@@ -40,7 +40,8 @@ class CasaLegislativa(models.Model):
     pagina_web = models.URLField(
         u'página web',
         help_text='Exemplo: <em>http://www.camarapains.mg.gov.br</em>.',
-        blank=True
+        blank=True,
+        verify_exists=False
     )
     telefones = generic.GenericRelation('contatos.Telefone')
 
