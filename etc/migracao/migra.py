@@ -1,3 +1,4 @@
+
 #!/usr/bin/env python
 # coding: utf-8
 
@@ -219,7 +220,7 @@ def migra_cnpj(filename):
         casa.cnpj = line[COD_CNPJ1_COL] if not 'BRANCO' in line[COD_CNPJ1_COL] else line[COD_CNPJ2_COL]
         casa.save()
 
-def migra_convenios(filename):
+def migra_convenios_casas(filename):
     def get_datetime_obj(data):
         ldata = data.split('-')
         if len(ldata) != 3:
@@ -270,6 +271,56 @@ def migra_convenios(filename):
             print ERROR_MSG_0 % (filename, linenum)
             continue
 
+def migra_convenios_assembleias(filename):
+    def get_datetime_obj(data):
+        ldata = data.split('-')
+        if len(ldata) != 3:
+            return None
+        return datetime(int(ldata[0]), int(ldata[1]), int(ldata[2]))
+
+    # identificação das colunas no arquivo CSV
+    COD_IBGE_COL = 1
+    NUM_PROCESSO_SF_COL = 25
+    DATA_ADESAO_COL = 10
+    DATA_TERMO_ACEITE_COL = 21
+    DATA_RETORNO_ASSINATURA = 28
+    DATA_PUB_DIARIO = 30
+    DATA_DEV_VIA_CONV_CM = 32
+    DATA_POSTAGEM_CORREIO = 26
+
+    reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
+    header = reader.next()
+    linenum = 1
+    for line in reader:
+        linenum += 1
+
+        try:
+            assembleia = CasaLegislativa.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
+        except CasaLegislativa.DoesNotExist:
+            print ERROR_MSG_1 % (filename, linenum)
+            continue
+        except CasaLegistativa.MultipleObjectsReturned:
+            print ERROR_MSG_1 % (filename, linenum)
+        except ValueError:
+            print ERROR_MSG_1 % (filename, linenum)
+            continue
+
+        convenio = Convenio(
+            casa_legislativa=assembleia,
+            num_processo_sf=line[NUM_PROCESSO_SF_COL],
+            data_adesao=get_datetime_obj(line[DATA_ADESAO_COL]),
+            data_retorno_assinatura=get_datetime_obj(line[DATA_TERMO_ACEITE_COL]),
+            data_pub_diario=get_datetime_obj(line[DATA_RETORNO_ASSINATURA]),
+            data_termo_aceite=get_datetime_obj(line[DATA_PUB_DIARIO]),
+            data_devolucao_via=get_datetime_obj(line[DATA_DEV_VIA_CONV_CM]),
+            data_postagem_correio=get_datetime_obj(line[DATA_POSTAGEM_CORREIO]),
+            )
+        try:
+            convenio.save()
+        except:
+            print ERROR_MSG_0 % (filename, linenum)
+            continue
+
 
 if __name__ == '__main__':
     print "<iniciando migração das assembléias legislativas>"
@@ -278,5 +329,7 @@ if __name__ == '__main__':
     migra_casas('casas.csv')
     print "<iniciando migração dos CNPJ das casas>"
     migra_cnpj('cnpj.csv')
-    print "<iniciando migração dos convênios>"
-    migra_convenios('casas.csv')
+    print "<iniciando migração dos convênios das casas municipais>"
+    migra_convenios_casas('casas.csv')
+    print "<iniciando migração dos convênios das assembléias>"
+    migra_convenios_casas('assembleias.csv')
