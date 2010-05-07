@@ -4,6 +4,7 @@ from django.contrib.contenttypes import generic
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Contato, Telefone
+from sigi.apps.convenios.models import Convenio, EquipamentoPrevisto, Anexo
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
@@ -14,11 +15,15 @@ class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
     extra = 2
 
+class ConveniosInline(admin.TabularInline):
+    model = Convenio
+    extra =0
+
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    inlines = (TelefonesInline, ContatosInline)
+    inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')

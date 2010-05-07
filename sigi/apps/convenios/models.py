@@ -1,9 +1,15 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
+#from django.contrib.contenttypes import ContentType
 from django.contrib.contenttypes import generic
 
 class Convenio(models.Model):
+    CONVENIO_TIPO = (
+    ('PI', 'Programa Interlegis'),
+    ('PPL', 'Projeto Piloto de Modernização'),
+    ('PML', 'Projeto Modernização Legislaivo')
+    )
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
@@ -18,6 +24,10 @@ class Convenio(models.Model):
         'data de adesão',
         null=True,
         blank=True,
+    )
+    tipo_convenio = models.CharField(
+        max_length=10,
+        choices=CONVENIO_TIPO
     )
     data_retorno_assinatura = models.DateField(
         'data do retorno e assinatura',
@@ -47,6 +57,7 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
+    #content_type = models.ForeignKey(ContentType)    
 
     class Meta:
         get_latest_by = 'id'

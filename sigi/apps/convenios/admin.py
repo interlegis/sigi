@@ -25,7 +25,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf')}
+            {'fields': ('casa_legislativa', 'num_processo_sf','tipo_convenio')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
