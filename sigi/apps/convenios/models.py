@@ -8,7 +8,7 @@ class Convenio(models.Model):
     CONVENIO_TIPO = (
     ('PI', 'Programa Interlegis'),
     ('PPL', 'Projeto Piloto de Modernização'),
-    ('PML', 'Projeto Modernização Legislaivo')
+    ('PML', 'Projeto Modernização Legislativo')
     )
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
@@ -50,7 +50,7 @@ class Convenio(models.Model):
         'data de devolução da via',
         null=True,
         blank=True,
-        help_text='Data de devolução da via do convênio à Câmara Municipal.'
+        help_text=u'Data de devolução da via do convênio à Câmara Municipal.'
     )
     data_postagem_correio = models.DateField(
         'data postagem correio',
@@ -62,13 +62,13 @@ class Convenio(models.Model):
     class Meta:
         get_latest_by = 'id'
         ordering = ('id',)
-        verbose_name = 'convênio'
+        verbose_name = u'convênio'
 
     def __unicode__(self):
         return str(self.id)
 
 class EquipamentoPrevisto(models.Model):
-    convenio = models.ForeignKey(Convenio, verbose_name='convênio')
+    convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
     equipamento = models.ForeignKey('inventario.Equipamento')
     quantidade = models.PositiveSmallIntegerField(default=1)
 
@@ -80,7 +80,7 @@ class EquipamentoPrevisto(models.Model):
         return '%s %s(s)' % (self.quantidade, self.equipamento)
 
 class Anexo(models.Model):
-    convenio = models.ForeignKey(Convenio, verbose_name='convênio')
+    convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo',)
     descricao = models.CharField('descrição', max_length='70')
     data_pub = models.DateTimeField(

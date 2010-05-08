@@ -17,7 +17,7 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
-    extra =0
+    extra =1
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
