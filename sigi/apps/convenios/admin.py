@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from sigi.apps.convenios.models import Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from sigi.apps.servicos.models import Servico
 
 class AnexosInline(admin.TabularInline):
@@ -25,7 +25,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf','tipo_convenio')}
+            {'fields': ('casa_legislativa', 'num_processo_sf','projeto')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
@@ -53,6 +53,7 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     search_fields = ('convenio__id', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
 
+admin.site.register(Projeto)
 admin.site.register(Convenio, ConvenioAdmin)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)
 admin.site.register(Anexo, AnexoAdmin)

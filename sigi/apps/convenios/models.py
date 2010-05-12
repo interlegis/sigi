@@ -4,12 +4,13 @@ from django.db import models
 #from django.contrib.contenttypes import ContentType
 from django.contrib.contenttypes import generic
 
-class Convenio(models.Model):
-    CONVENIO_TIPO = (
-    ('PI', 'Programa Interlegis'),
-    ('PPL', 'Projeto Piloto de Modernização'),
-    ('PML', 'Projeto Modernização Legislativo')
-    )
+class Projeto(models.Model):
+    nome = models.CharField(max_length=50)
+        
+    def __unicode__(self):
+        return self.nome
+    
+class Convenio(models.Model):    
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
@@ -25,9 +26,8 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
-    tipo_convenio = models.CharField(
-        max_length=10,
-        choices=CONVENIO_TIPO
+    projeto = models.ForeignKey(
+        Projeto
     )
     data_retorno_assinatura = models.DateField(
         'data do retorno e assinatura',

@@ -4,7 +4,7 @@ from django.contrib.contenttypes import generic
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Contato, Telefone
-from sigi.apps.convenios.models import Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
@@ -17,7 +17,7 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
-    extra =1
+    extra = 1
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm

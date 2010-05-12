@@ -6,7 +6,7 @@ from sigi.apps.casas.admin import CasaLegislativa, CasaLegislativaAdmin
 from sigi.apps.contatos.admin import (UnidadeFederativa, UnidadeFederativaAdmin,
                                       Municipio, MunicipioAdmin, Telefone,
                                       TelefoneAdmin, Contato, ContatoAdmin)
-from sigi.apps.convenios.admin import (Convenio, ConvenioAdmin, EquipamentoPrevisto,
+from sigi.apps.convenios.admin import (Projeto, Convenio, ConvenioAdmin, EquipamentoPrevisto,
                                        EquipamentoPrevistoAdmin, Anexo, AnexoAdmin)
 from sigi.apps.inventario.admin import (Fornecedor, FornecedorAdmin, Fabricante,
                                         FabricanteAdmin, Equipamento,
@@ -50,6 +50,7 @@ default.register(Telefone, TelefoneAdmin)
 default.register(Contato, ContatoAdmin)
 
 # sigi.apps.convenios
+default.register(Projeto)
 default.register(Convenio, ConvenioAdmin)
 default.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)
 default.register(Anexo, AnexoAdmin)
