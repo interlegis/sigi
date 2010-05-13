@@ -8,11 +8,14 @@ import sigi.admin.filterspecs
 urlpatterns = patterns(
     '',
 
-    # reports
+    # reports labels
     (r'^casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),
     (r'^casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
+    # reports
+    (r'^convenios/convenio/reports/',
+     'sigi.apps.convenios.views.report'),
 
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),

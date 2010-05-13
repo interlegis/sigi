@@ -2,6 +2,7 @@
 from django.contrib import admin
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from sigi.apps.servicos.models import Servico
+from django.http import HttpResponseRedirect
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -33,17 +34,29 @@ class ConvenioAdmin(admin.ModelAdmin):
                         'data_devolucao_via', 'data_postagem_correio')}
         ),
     )
+    actions = ['delete_selected', 'relatorio']
     inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('id', 'casa_legislativa',
-                    'num_processo_sf', 'data_adesao')
+                    'num_processo_sf', 'data_adesao', 'projeto')
     list_filter  = ('data_adesao', 'data_retorno_assinatura',
                     'data_termo_aceite', 'data_devolucao_via',
-                    'data_postagem_correio')
+                    'data_postagem_correio', 'projeto')
     ordering = ('-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',
                      'num_processo_sf', 'casa_legislativa__municipio__nome',
                      'casa_legislativa__municipio__uf__nome')
+    def changelist_view(self, request, extra_context=None):
+        return super(ConvenioAdmin, self).changelist_view(
+            request,
+            extra_context={'query_str': '?' + request.META['QUERY_STRING']}
+        )
+    def relatorio(modeladmin, request, queryset):
+        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        print selected
+        return HttpResponseRedirect("reports/?ids=%s"%(",".join(selected)))
+    relatorio.short_description = 'Selecione para gerar relatorio'
+    
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     list_display = ('convenio', 'equipamento', 'quantidade')
@@ -56,4 +69,3 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
 admin.site.register(Projeto)
 admin.site.register(Convenio, ConvenioAdmin)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)
-admin.site.register(Anexo, AnexoAdmin)
