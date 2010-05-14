@@ -38,10 +38,8 @@ class ConvenioAdmin(admin.ModelAdmin):
     inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('id', 'casa_legislativa',
                     'num_processo_sf', 'data_adesao', 'projeto')
-    list_filter  = ('data_adesao', 'data_retorno_assinatura',
-                    'data_termo_aceite', 'data_devolucao_via',
-                    'data_postagem_correio', 'projeto')
-                    #, 'casa_legislativa__nome')
+    list_filter  = ('projeto',)
+    date_hierarchy = 'data_adesao'                    
     ordering = ('-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',
