@@ -21,6 +21,11 @@ class Convenio(models.Model):
         blank=True,
         help_text='Formato: <em>XXXXXX/XX-X</em>.'
     )
+    num_convenio = models.CharField(
+        'número do convênio',
+        max_length=10,
+        blank=True
+    )
     data_adesao = models.DateField(
         'data de adesão',
         null=True,

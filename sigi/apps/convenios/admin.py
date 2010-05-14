@@ -26,7 +26,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf','projeto')}
+            {'fields': ('casa_legislativa', 'num_processo_sf','num_convenio','projeto')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
@@ -41,11 +41,12 @@ class ConvenioAdmin(admin.ModelAdmin):
     list_filter  = ('data_adesao', 'data_retorno_assinatura',
                     'data_termo_aceite', 'data_devolucao_via',
                     'data_postagem_correio', 'projeto')
+                    #, 'casa_legislativa__nome')
     ordering = ('-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',
-                     'num_processo_sf', 'casa_legislativa__municipio__nome',
-                     'casa_legislativa__municipio__uf__nome')
+                     'num_processo_sf')
+
     def changelist_view(self, request, extra_context=None):
         return super(ConvenioAdmin, self).changelist_view(
             request,
@@ -66,6 +67,6 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     search_fields = ('convenio__id', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
 
-admin.site.register(Projeto)
+#admin.site.register(Projeto)
 admin.site.register(Convenio, ConvenioAdmin)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)
