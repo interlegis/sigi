@@ -9,12 +9,14 @@ def report(request, id=None):
         qs = qs.filter(pk=id)
     elif request.GET: #Se tiver algum parametro de pesquisa
         kwargs = {}
+        ids = 0
         for k, v in request.GET.iteritems():
             kwargs[str(k)] = v
             if(str(k)=='ids'):
+                ids = 1
                 break
             qs = qs.filter(**kwargs)
-        if kwargs['ids']:
+        if ids:
             query = 'id IN ('+ kwargs['ids'].__str__()+')'
             qs = Convenio.objects.extra(where=[query])
     if not qs:
