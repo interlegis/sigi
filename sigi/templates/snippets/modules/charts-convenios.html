@@ -3,7 +3,8 @@
 {% chart as convenios %}
   {% chart-size 340 160 %}
   {% chart-type "pie" %}
-  {% chart-labels "Conveniadas" "Não conveniadas" "Não aderidas" %}
+  {% chart-labels convenios_chart_data %}
+  {% chart-legend "Conveniadas" "Não conveniadas" "Não aderidas" %}
   {% chart-data   convenios_chart_data %}
 {% endchart %}
 
@@ -18,10 +19,11 @@
 {% endchart %}
 
 {% chart as equipamentos %}
-  {% chart-size 340 160 %}
-  {% chart-type "pie" %}
-  {% chart-labels "Recebidos" "Não recebidos" %}
+  {% chart-size   340 160 %}
+  {% chart-type   "pie" %}
+  {% chart-labels equipamentos_chart_data %}
   {% chart-data   equipamentos_chart_data %}
+  {% chart-legend "Recebidos" "Não recebidos" %}
 {% endchart %}
 
 <div class="module">
