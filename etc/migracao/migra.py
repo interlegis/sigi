@@ -136,17 +136,11 @@ def migra_casas(filename):
         linenum += 1
         try:
             municipio = Municipio.objects.get(codigo_ibge=line[COD_IBGE_COL])
-            #print line[COD_IBGE_COL]
-            #var =  raw_input()
-            print municipio.codigo_ibge
         except Municipio.DoesNotExist:
             print "Municipio não existe"
-            #var =  raw_input()
-            #print line[COD_IBDE_COL]
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
-            var =  raw_input()
             print ERROR_MSG_1 % (filename, linenum)
             continue
         casa = CasaLegislativa(
@@ -159,12 +153,10 @@ def migra_casas(filename):
             pagina_web=line[PAGINA_COL],
             observacoes=line[OBS_COL],
         )
-        #print casa.nome
         try:
             casa.save()
         except:
             print "Erro ao inserir casa"
-            #var =  raw_input("teste")
             print ERROR_MSG_0 % (filename, linenum)
             continue
 
@@ -382,13 +374,13 @@ def migra_convenios_assembleias(filename):
 
 
 if __name__ == '__main__':
-#    print "<iniciando migração das assembléias legislativas>"
-#    migra_assembleias('assembleias.csv')
-#    print "<iniciando migração das demais casas legislativas>"
-#    migra_casas('casas.csv')
-#    print "<iniciando migração dos CNPJ das casas>"
-#    migra_cnpj('cnpj.csv')
+    print "<iniciando migração das assembléias legislativas>"
+    migra_assembleias('assembleias.csv')
+    print "<iniciando migração das demais casas legislativas>"
+    migra_casas('casas.csv')
+    print "<iniciando migração dos CNPJ das casas>"
+    migra_cnpj('cnpj.csv')
     print "<iniciando migração dos convênios das casas municipais>"
     migra_convenios_casas('casas.csv')
-#    print "<iniciando migração dos convênios das assembléias>"
-#    migra_convenios_assembleias('assembleias.csv')
+    print "<iniciando migração dos convênios das assembléias>"
+    migra_convenios_assembleias('assembleias.csv')
