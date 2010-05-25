@@ -62,7 +62,7 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
-    #content_type = models.ForeignKey(ContentType)    
+    observacao = models.TextField()
 
     class Meta:
         get_latest_by = 'id'

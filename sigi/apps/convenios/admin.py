@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico
 from django.http import HttpResponseRedirect
 
@@ -26,7 +27,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf','num_convenio','projeto')}
+            {'fields': ('casa_legislativa', 'num_processo_sf','num_convenio','projeto','observacao')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
@@ -67,4 +68,5 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
 
 #admin.site.register(Projeto)
 admin.site.register(Convenio, ConvenioAdmin)
+#admin.site.register(CasaLegislativa)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)
