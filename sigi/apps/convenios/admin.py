@@ -38,8 +38,9 @@ class ConvenioAdmin(admin.ModelAdmin):
     actions = ['delete_selected', 'relatorio']
     inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('id', 'casa_legislativa',
-                    'num_processo_sf', 'data_adesao', 'projeto')
-    list_filter  = ('projeto','casa_legislativa')
+                    'num_processo_sf', 'data_adesao', 'projeto',
+                     )
+    list_filter  = ('projeto','casa_legislativa','conveniada', 'equipada')
     date_hierarchy = 'data_adesao'                    
     ordering = ('-id',)
     raw_id_fields = ('casa_legislativa',)

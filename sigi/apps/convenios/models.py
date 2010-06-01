@@ -63,7 +63,15 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
-    observacao = models.TextField()
+    observacao = models.TextField(null=True, blank=True)
+    conveniada = models.BooleanField()
+    equipada = models.BooleanField()
+
+    def save(self, *args, **kwargs):
+        self.conveniada = self.data_retorno_assinatura!=None
+        self.equipada = self.data_termo_aceite!=None
+        super(Convenio, self).save(*args, **kwargs)
+
 
     class Meta:
         get_latest_by = 'id'
