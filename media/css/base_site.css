@@ -4,7 +4,7 @@ a:hover { color:#11488d; }
 
 /* HEADER */
 
-#header { background:#003351; }
+#header { background:#003351 url(../images/default-bg3.jpg);}
 #site-name a:hover { text-decoration: none; }
 
 #nav-global {
@@ -16,7 +16,8 @@ a:hover { color:#11488d; }
     font-weight:bold;
 }
 #nav-global ul {
-    background:#222;
+    /*background:#222;*/
+    background:#efefef url("../../admin_media/img/admin/nav-bg.gif");/*#9C9C9C;*/    
     height:25px;
     margin:0;
     padding:0;
@@ -27,7 +28,7 @@ a:hover { color:#11488d; }
     padding:0px;
 }
 #nav-global li a {
-    background:#222 url("../images/menu/seperator.gif") bottom right no-repeat;
+    /*background: url("../images/menu/seperator.gif") bottom right no-repeat;*/    
     color:#cccccc;
     display:block;
     font-weight:normal;
@@ -36,7 +37,10 @@ a:hover { color:#11488d; }
     padding:0px 15px;
     text-align:center;
     text-decoration:none;
+    /*font-size: medium;*/
 }
+#nav-global li a:link,#nav-global li a:visited{ color: black;}
+
 #nav-global li a:hover, #nav-global ul li:hover a {
     background-color:#333;
     color:#FFFFFF;
@@ -52,7 +56,7 @@ a:hover { color:#11488d; }
     position:absolute;
     width:200px;
     z-index:200;
-    /*top:1em;
+    /*top:1em;*/
     /*left:0;*/
 }
 #nav-global li:hover ul { display:block; }
