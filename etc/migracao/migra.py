@@ -37,6 +37,7 @@ ERROR_MSG_0 = ('<ERRO> %s[%s]: erro desconhecido! Possível erro de integridade 
                'necessário.')
 ERROR_MSG_1 = ('<ERRO> %s[%s]: erro ao inserir item, será necessário inserção '
                'manual.')
+OBS_CONVENIO = ('Convênio sem termo de adesão')
 
 def migra_assembleias(filename):
     # identificação das colunas nos arquivo CSV
@@ -59,8 +60,8 @@ def migra_assembleias(filename):
     header = reader.next()
 
     for line in reader:
-        UF = UnidadeFederativa.objects.get(sigla=line[UF_COL])
-        municipio = Municipio.objects.get(municipio__codigo_ibge=line[UF_COL], is_capital=True)
+        uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
+        municipio = Municipio.objects.get(uf=uf, is_capital=True)
         casa = CasaLegislativa(
             municipio=municipio,
             nome=line[NOME_COL],
@@ -143,6 +144,10 @@ def migra_casas(filename):
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
+        parlamentar=None
+        if(line[PRESIDENTE_COL]):
+            parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
+            parlamentar.save()
         casa = CasaLegislativa(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
@@ -152,11 +157,13 @@ def migra_casas(filename):
             email=line[EMAIL_COL],
             pagina_web=line[PAGINA_COL],
             observacoes=line[OBS_COL],
+            parlamentar=parlamentar,
         )
+
         try:
             casa.save()
         except:
-            print "Erro ao inserir casa"
+            print "Erro ao inserir casa..."
             print ERROR_MSG_0 % (filename, linenum)
             continue
 
@@ -224,15 +231,20 @@ def migra_cnpj(filename):
 def migra_convenios_casas(filename):
     """
         Será preciso cadastrar no banco os seguintes Projeto:
-        1 - Sem Projeto
-        2 - Projeto Interlegis
-        3 - Programa Piloto de Modernização
+        1 - Projeto Interlegis
+        2 - Programa Piloto de Modernização
     """
     def get_datetime_obj(data):
         ldata = data.split('-')
         if len(ldata) != 3:
             return None
         return datetime(int(ldata[0]), int(ldata[1]), int(ldata[2]))
+
+    projeto1 = Projeto(nome="Projeto Interlegis")
+    projeto1.save()
+    projeto2 = Projeto(nome="Projeto Piloto de Modernização")
+    projeto2.save()
+    
 
     # identificação das colunas no arquivo CSV
     # No arquivo CSV colunas que contém _100 são do Programa Interlegis
@@ -247,6 +259,7 @@ def migra_convenios_casas(filename):
     DATA_PUB_DIARIO = 30
     DATA_DEV_VIA_CONV_CM = 32
 
+
     DATA_ADESAO_100_COL = 11
     DATA_TERMO_ACEITE_100_COL = 22
     NUM_CONVENIO_100_COL = 24
@@ -259,12 +272,20 @@ def migra_convenios_casas(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
     linenum = 1
+    ###Geração de arquivos para análise###
+    import codecs    
+    f1 = codecs.open('file1.txt','w' , encoding="utf-8")
+    f1.write(u'Casas que não tem Número Processo Senado Federal\n')
+    f2 = codecs.open('file2.txt','w', encoding="utf-8")
+    f2.write(u'Casas que não tem data de adesão e não tem convênio mas recebeu equipamentos\n')
+    ######
     for line in reader:
         linenum += 1
 
         try:
             casa = CasaLegislativa.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
         except CasaLegislativa.DoesNotExist:
+            print "Erro ao inserir convênio. Casa não existe"
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except CasaLegislativa.MultipleObjectsReturned:
@@ -273,14 +294,20 @@ def migra_convenios_casas(filename):
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        if line[DATA_ADESAO_COL]=='1001-01-01':#Sem Projeto
-            line[DATA_ADESAO_COL]=''
-            projeto = Projeto.objects.get(id=1)
-        else:
-            projeto = Projeto.objects.get(id=2)
 
-        if(projeto.id!=1 or line[NUM_PROCESSO_SF_COL].__len__()!=0 or 
-           line[NUM_CONVENIO_COL].__len__()!=0):
+        # Se o convênio não tiver data de adesão mas tiver data retorno assinatura copiar essa data para a data de adesão.
+        obs = ''
+        projeto = None
+        convenio1=None
+        convenio2=None
+        if line[DATA_ADESAO_COL]=='1001-01-01' and line[DATA_RETORNO_ASSINATURA].__len__()!=0:
+            line[DATA_ADESAO_COL] = line[DATA_RETORNO_ASSINATURA]
+            obs = OBS_CONVENIO
+            
+        if line[DATA_ADESAO_COL]!='1001-01-01':
+            projeto = Projeto.objects.get(id=1)
+
+        if projeto:
             convenio1 = Convenio(
                 casa_legislativa=casa,
                 projeto=projeto,
@@ -292,14 +319,23 @@ def migra_convenios_casas(filename):
                 data_termo_aceite=get_datetime_obj(line[DATA_PUB_DIARIO]),
                 data_devolucao_via=get_datetime_obj(line[DATA_DEV_VIA_CONV_CM]),
                 data_postagem_correio=get_datetime_obj(line[DATA_POSTAGEM_CORREIO]),
-                )
-        if line[DATA_ADESAO_100_COL]=='1001-01-01':#Sem Projeto
-            line[DATA_ADESAO_100_COL]=''
-            projeto = Projeto.objects.get(id=1)
-        else:
-            projeto = Projeto.objects.get(id=3)
-        if(projeto.id!=1 or line[NUM_PROCESSO_SF_100_COL].__len__()!=0 or
-           line[NUM_CONVENIO_100_COL].__len__()!=0):
+                observacao=obs,)
+
+        ###Relatório###
+        if( (projeto or line[DATA_TERMO_ACEITE_COL]) and line[NUM_PROCESSO_SF_COL].__len__()==0):
+            f1.write(casa.nome+","+casa.municipio.uf.sigla+"\n")
+        if(projeto==None and line[DATA_TERMO_ACEITE_COL].__len__()!=0):
+            f2.write(casa.nome+","+casa.municipio.uf.sigla+"\n")
+        ######    
+        projeto=None
+        obs = ''
+        if line[DATA_ADESAO_100_COL]=='1001-01-01' and line[DATA_RETORNO_ASSINATURA_100_COL].__len__()!=0:
+            line[DATA_ADESAO_100_COL] = line[DATA_RETORNO_ASSINATURA_100_COL]
+            obs = OBS_CONVENIO
+        if line[DATA_ADESAO_100_COL]!='1001-01-01':
+            projeto = Projeto.objects.get(id=2)
+            
+        if projeto:
             convenio2 = Convenio(
             casa_legislativa=casa,
             projeto=projeto,
@@ -309,16 +345,18 @@ def migra_convenios_casas(filename):
             data_retorno_assinatura=get_datetime_obj(line[DATA_TERMO_ACEITE_100_COL]),
             data_pub_diario=get_datetime_obj(line[DATA_RETORNO_ASSINATURA_100_COL]),
             data_termo_aceite=get_datetime_obj(line[DATA_PUB_DIARIO_100_COL]),
-            #            data_devolucao_via=get_datetime_obj(line[DATA_DEV_VIA_CONV_CM]),
-            #            data_postagem_correio=get_datetime_obj(line[DATA_POSTAGEM_CORREIO]),
+            observacao=obs,
             )
 
         try:
             if convenio1: convenio1.save()
             if convenio2: convenio2.save()
         except:
+            print "Erro ao inserir convênio"
             print ERROR_MSG_0 % (filename, linenum)
             continue
+    f1.close()
+    f2.close()    
 
 def migra_convenios_assembleias(filename):
     def get_datetime_obj(data):
@@ -334,9 +372,8 @@ def migra_convenios_assembleias(filename):
     NUM_CONVENIO_COL = 23
     NUM_PROCESSO_SF_COL = 26
     DATA_RETORNO_ASSINATURA = 27
-    DATA_PUB_DIARIO = 39
-    DATA_DEV_VIA_CONV_CM = 31
-
+    DATA_PUB_DIARIO = 29
+    
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
     linenum = 1
@@ -344,7 +381,7 @@ def migra_convenios_assembleias(filename):
         linenum += 1
 
         try:
-            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[COD_IBGE_COL])
+            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo='AL')
         except CasaLegislativa.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
@@ -353,7 +390,7 @@ def migra_convenios_assembleias(filename):
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        projeto = Projeto.object.get(id=2)
+        projeto = Projeto.objects.get(id=2)
         convenio = Convenio(
             casa_legislativa=assembleia,
             num_processo_sf=line[NUM_PROCESSO_SF_COL],
@@ -363,8 +400,6 @@ def migra_convenios_assembleias(filename):
             data_retorno_assinatura=get_datetime_obj(line[DATA_TERMO_ACEITE_COL]),
             data_pub_diario=get_datetime_obj(line[DATA_RETORNO_ASSINATURA]),
             data_termo_aceite=get_datetime_obj(line[DATA_PUB_DIARIO]),
-            data_devolucao_via=get_datetime_obj(line[DATA_DEV_VIA_CONV_CM]),
-            data_postagem_correio=get_datetime_obj(line[DATA_POSTAGEM_CORREIO]),
             )
         try:
             convenio.save()
@@ -374,12 +409,12 @@ def migra_convenios_assembleias(filename):
 
 
 if __name__ == '__main__':
-    print "<iniciando migração das assembléias legislativas>"
-    migra_assembleias('assembleias.csv')
-    print "<iniciando migração das demais casas legislativas>"
-    migra_casas('casas.csv')
-    print "<iniciando migração dos CNPJ das casas>"
-    migra_cnpj('cnpj.csv')
+#    print "<iniciando migração das assembléias legislativas>"
+#    migra_assembleias('assembleias.csv')
+#    print "<iniciando migração das demais casas legislativas>"
+#    migra_casas('casas.csv')
+#    print "<iniciando migração dos CNPJ das casas>"
+#    migra_cnpj('cnpj.csv')
     print "<iniciando migração dos convênios das casas municipais>"
     migra_convenios_casas('casas.csv')
     print "<iniciando migração dos convênios das assembléias>"
