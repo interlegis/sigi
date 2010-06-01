@@ -37,21 +37,11 @@ class Parlamentar(models.Model):
         blank=True,
         null=True,
     )
-    logradouro = models.CharField(max_length=100, blank=True)
-    bairro = models.CharField(max_length=40, blank=True)
-    municipio = models.ForeignKey('contatos.Municipio', blank=True, null=True)
-    cep = models.CharField(
-        'CEP',
-        max_length=9,
-        blank=True,
-        help_text="Formato: <em>XXXXX-XXX</em>."
-    )
-    telefones = generic.GenericRelation('contatos.Telefone')
+    email = models.EmailField('e-mail', blank=True)
     pagina_web = models.URLField(
         u'página web', blank=True,
         verify_exists=False
     )
-    email = models.EmailField('e-mail', blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
@@ -61,6 +51,20 @@ class Parlamentar(models.Model):
         if self.nome_parlamentar:
             return self.nome_parlamentar
         return self.nome_completo
+
+
+#    logradouro = models.CharField(max_length=100, blank=True)
+#    bairro = models.CharField(max_length=40, blank=True)
+#    municipio = models.ForeignKey('contatos.Municipio', blank=True, null=True)
+#    cep = models.CharField(
+#        'CEP',
+#        max_length=9,
+#        blank=True,
+#        help_text="Formato: <em>XXXXX-XXX</em>."
+#    )
+#    telefones = generic.GenericRelation('contatos.Telefone')
+
+
 
 class Mandato(models.Model):
     SUPLENCIA_CHOICES = (
@@ -77,11 +81,13 @@ class Mandato(models.Model):
         default=False,
         help_text=u'Marque caso parlamentar não esteja ativo.'
     )
-    suplencia = models.CharField(
-        u'suplência',
-        max_length=1,
-        choices=SUPLENCIA_CHOICES,
-    )
+
+#    suplencia = models.CharField(
+#        u'suplência',
+#        max_length=1,
+#        choices=SUPLENCIA_CHOICES,
+#    )
+
 
     def __unicode__(self):
         return str(self.id)
