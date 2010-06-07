@@ -63,7 +63,11 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
-    observacao = models.TextField(null=True, blank=True)
+    observacao = models.CharField(
+        null=True, 
+        blank=True,
+        max_length=100,
+    )
     conveniada = models.BooleanField()
     equipada = models.BooleanField()
 
