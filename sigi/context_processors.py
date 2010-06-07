@@ -10,7 +10,8 @@ def charts_data(request):
 
     num_convenios_firmados = convenios_firmados.count()
     num_convenios_nao_firmados = convenios.filter(data_retorno_assinatura=None).count()
-    num_casas_nao_aderidas = casas.count() - convenios.exclude(data_adesao=None).count()
+    num_casas_nao_aderidas = CasaLegislativa.objects.filter(convenio=None).count()
+    #num_casas_nao_aderidas = casas.count() - convenios.exclude(data_adesao=None).count()
 
     # Verifica quantidade de convenios por projeto
     convenios_por_projeto = []
@@ -32,7 +33,7 @@ def charts_data(request):
         convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='SL').count()
     ]
     
-    # Verifica qual regiao tem mais convenios e guarda valor para "axis" do grafico de regioes
+    # Verifica qual regiao tem mais convenios e guarda valor para "axis left" do grafico de regioes
     num_regiao_maior = 0
     for i in num_casas_regiao:
         if num_regiao_maior<i:
