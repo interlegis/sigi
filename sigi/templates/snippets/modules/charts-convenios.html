@@ -4,7 +4,7 @@
   {% chart-size 440 160 %}
   {% chart-type "pie-3d" %}
   {% chart-labels convenios_chart_data %}
-  {% chart-legend "Convênios firmados" "Convênios pendentes" "Casas sem convênio" %}
+  {% chart-legend "Convênios firmados" "Convênios pendentes" %}
   {% chart-data   convenios_chart_data %}
   {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
 {% endchart %}
@@ -17,7 +17,7 @@
   {% chart-data   regioes_chart_data.0 regioes_chart_data.1 %}
   {% chart-legend "Conveniadas" "Total" %}    
   {% axis "left" %}
-     {% axis-range 0 num_regiao_maior_chart_data%}
+     {% axis-range 0 regioes_chart_data.2 %}
   {% endaxis %}
   {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
 {% endchart %}
