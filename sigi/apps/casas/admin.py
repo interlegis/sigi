@@ -5,6 +5,9 @@ from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Contato, Telefone
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from django.http import HttpResponse, HttpResponseRedirect
+from sigi.apps.casas.reports import CasasLegislativasLabels
+from geraldo.generators import PDFGenerator
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
@@ -23,6 +26,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
+    actions = ['delete_selected','etiqueta']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
@@ -50,5 +54,12 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
+
+    def etiqueta(modelAdmin,request,queryset):
+        response = HttpResponse(mimetype='application/pdf')
+        report = CasasLegislativasLabels(queryset=queryset)
+        report.generate_by(PDFGenerator, filename=response)
+        return response        
+    etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)

@@ -3,7 +3,9 @@ from django.contrib import admin
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico
-from django.http import HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect
+from sigi.apps.convenios.reports import ConvenioReport
+from geraldo.generators import PDFGenerator
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -53,10 +55,15 @@ class ConvenioAdmin(admin.ModelAdmin):
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
     def relatorio(modeladmin, request, queryset):
-        selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-        print selected
-        return HttpResponseRedirect("reports/?ids=%s"%(",".join(selected)))
-    relatorio.short_description = 'Selecione para gerar relatorio'
+        response = HttpResponse(mimetype='application/pdf')
+        report = ConvenioReport(queryset=queryset)
+        report.generate_by(PDFGenerator, filename=response)
+        return response        
+        #selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
+        #print selected
+        #return HttpResponseRedirect("reports/?ids=%s"%(",".join(selected)))
+    #relatorio.short_description = 'Selecione para gerar relatorio'
+    relatorio.short_description = 'Gerar relatorio dos convenios selecionados'
     
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):
