@@ -1,7 +1,9 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from geraldo.generators import PDFGenerator
 from sigi.apps.convenios.models import Convenio
-from sigi.apps.convenios.reports import ConvenioReport
+from sigi.apps.convenios.reports import ConvenioReport, ConvenioReportRegiao
+from sigi.apps.casas.models import CasaLegislativa
+
 
 def report(request, id=None):
     qs = Convenio.objects.all()
@@ -25,3 +27,35 @@ def report(request, id=None):
     report = ConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
+
+class Relatorios(object):
+    def __init__(self, regiao, casas, casas_conveniadas):
+        self.regiao = regiao
+        self.casas = casas
+        self.casas_conveniadas = casas_conveniadas
+        if(casas_conveniadas!=0):
+            self.porc_casas_conveniadas = float(casas_conveniadas)/float(casas)*100
+        else:
+            self.porc_casas_conveniadas = 0
+
+def reportRegiao(request):
+    REGIAO_CHOICES = (
+        ('SL', 'Sul'),
+        ('SD', 'Sudeste'),
+        ('CO', 'Centro-Oeste'),
+        ('NE', 'Nordeste'),
+        ('NO', 'Norte'),
+    )
+    relatorio = []
+    for casa in REGIAO_CHOICES:
+        casasSD = CasaLegislativa.objects.filter(municipio__uf__regiao=casa[0])
+        casasConvSD = CasaLegislativa.objects.filter(convenio__casa_legislativa__municipio__uf__regiao=casa[0]).distinct()
+
+        relatorio.append(Relatorios(casa[1], casasSD.count(), 
+                                casasConvSD.count()))
+    
+    response = HttpResponse(mimetype='application/pdf')
+    relatorio  = ConvenioReportRegiao(queryset=relatorio)
+    relatorio.generate_by(PDFGenerator, filename=response)
+    return response
+     
