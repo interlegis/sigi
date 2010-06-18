@@ -24,7 +24,7 @@ def report(request, id=None):
     if not qs:
         return HttpResponseRedirect('../')
     response = HttpResponse(mimetype='application/pdf')
-    report = ConvenioReport(queryset=qs)
+    report = ConvenioReport(queryset=qs.order_by('casa_legislativa'))
     report.generate_by(PDFGenerator, filename=response)
     return response
 
