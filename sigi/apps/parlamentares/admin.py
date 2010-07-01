@@ -27,27 +27,27 @@ class ParlamentarAdmin(admin.ModelAdmin):
         (None, {
             'fields': ('nome_completo', 'nome_parlamentar', 'sexo'),
         }),
-        ('Endereço', {
-            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
-        }),
+#        ('Endereço', {
+#            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
+#        }),
         ('Outras informações', {
             'fields': ('data_nascimento', 'email', 'pagina_web', 'foto'),
         }),
     )
     radio_fields = {'sexo': admin.VERTICAL}
-    raw_id_fields = ('municipio',)
+#    raw_id_fields = ('municipio',)
     search_fields = ('nome_completo', 'nome_parlamentar', 'email',
-                     'pagina_web', 'municipio__nome')
+                     'pagina_web',)
 
 class MandatoAdmin(admin.ModelAdmin):
     list_display = ('parlamentar', 'legislatura', 'partido',
                     'inicio_mandato', 'fim_mandato', 'is_afastado')
-    list_filter = ('is_afastado', 'partido', 'suplencia')
+    list_filter = ('is_afastado', 'partido')
     search_fields = ('legislatura__numero', 'parlamentar__nome_completo',
                      'parlamentar__nome_parlamentar', 'partido__nome',
                      'partido__sigla')
     raw_id_fields = ('parlamentar', 'legislatura', 'partido')
-    radio_fields = {'suplencia': admin.VERTICAL}
+#    radio_fields = {'suplencia': admin.VERTICAL}
 
 admin.site.register(Partido, PartidoAdmin)
 admin.site.register(Parlamentar, ParlamentarAdmin)

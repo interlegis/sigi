@@ -1,28 +1,45 @@
 {% load charts %}
 
 {% chart as convenios %}
-  {% chart-size 340 160 %}
-  {% chart-type "pie" %}
-  {% chart-labels "Conveniadas" "Não conveniadas" "Não aderidas" %}
+  {% chart-size 440 160 %}
+  {% chart-type "pie-3d" %}
+  {% chart-labels convenios_chart_data %}
+  {% chart-legend "Convênios firmados" "Convênios pendentes" %}
   {% chart-data   convenios_chart_data %}
+  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
 {% endchart %}
 
 {% chart as regioes %}
-  {% chart-size 320 160 %}
+  {% chart-size 440 160 %}
   {% chart-type "column-stacked" %}
   {% chart-bar-width "40" %}
   {% chart-labels "Centro-O" "Norte" "Nordeste" "Sudeste" "Sul" %}
   {% chart-data   regioes_chart_data.0 regioes_chart_data.1 %}
-  {% chart-legend "Conveniadas" "Total" %}
-  {% chart-colors "ff9900,ffc266" %}
+  {% chart-legend "Conveniadas" "Total" %}    
+  {% axis "left" %}
+     {% axis-range 0 regioes_chart_data.2 %}
+  {% endaxis %}
+  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
 {% endchart %}
 
 {% chart as equipamentos %}
-  {% chart-size 340 160 %}
-  {% chart-type "pie" %}
-  {% chart-labels "Recebidos" "Não recebidos" %}
+  {% chart-size   440 160 %}
+  {% chart-type   "pie-3d" %}
+  {% chart-labels equipamentos_chart_data %}
   {% chart-data   equipamentos_chart_data %}
+  {% chart-legend "Recebidos" "Não recebidos" %}
+  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
 {% endchart %}
+
+{% chart as projetos %}
+  {% chart-size   440 160 %}
+  {% chart-type   "pie-3d" %}
+  {% chart-labels convenios_por_projeto_chart_data %}
+  {% chart-data   convenios_por_projeto_chart_data %}
+  {% chart-legend projetos_chart_data %}
+  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
+{% endchart %}
+
 
 <div class="module">
   <h2>Convênios</h2>
@@ -47,3 +64,12 @@
     <img src="{{ equipamentos.url }}" class="chart" />
   </p>
 </div>
+
+<div class="module">
+  <h2>Convênios</h2>
+  <h3>Convênios por projeto</h3>
+  <p class="align-center">
+    <img src="{{ projetos.url }}" class="chart" />
+  </p>
+</div>
+

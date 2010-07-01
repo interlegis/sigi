@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.contenttypes import generic
 from sigi.apps.mesas.models import MesaDiretora, MembroMesaDiretora
+from sigi.apps.parlamentares.models import Parlamentar
 
 class CasaLegislativa(models.Model):
     CASA_CHOICES = (
@@ -24,6 +25,7 @@ class CasaLegislativa(models.Model):
     tipo = models.CharField(max_length=2, choices=CASA_CHOICES, default='CM')
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
+    parlamentar = models.ForeignKey(Parlamentar, null=True, blank=True, verbose_name="Presidente")
 
     logradouro = models.CharField(
         max_length=100,
