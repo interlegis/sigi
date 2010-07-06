@@ -26,12 +26,14 @@ class ReportDefault(Report):
     class band_page_header(ReportBand):
         height = 4.2*cm
 
+        BASE_DIR = os.path.abspath(os.path.dirname('') + '..')
+
         elements = [
-            Image(filename=  'apps/convenios/templates/imagens/logo-interlegis.jpg',
+            Image(filename= BASE_DIR + '/media/images/logo-interlegis.jpg',
                 left=15.5*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
                 width=4.2*cm,height=3*cm,
             ),
-            Image(filename=  'apps/convenios/templates/imagens/logo-senado.png',
+            Image(filename=  BASE_DIR + '/media/images/logo-senado.png',
                 left=1*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
                 width=3*cm,height=3*cm,
             ),
