@@ -23,8 +23,12 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = BASE_DIR + '/devel.db'
+DATABASE_ENGINE = 'postgresql_psycopg2'
+DATABASE_NAME = 'sigi'
+DATABASE_USER = 'administrador'
+DATABASE_PASSWORD = 'interlegis' 
+DATABASE_HOST = 'banco'
+DATABASE_PORT = '5432'          
 
 TIME_ZONE = 'America/Sao_Paulo'
 LANGUAGE_CODE = 'pt-br'
