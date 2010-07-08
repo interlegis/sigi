@@ -26,7 +26,8 @@ class ReportDefault(Report):
     class band_page_header(ReportBand):
         height = 4.2*cm
 
-        BASE_DIR = os.path.abspath(os.path.dirname('') + '..')
+        BASE_DIR = os.path.abspath(os.path.dirname(__file__) + '../../../../')
+        #BASE_DIR = os.path.abspath(os.getcwd() + '../..')
 
         elements = [
             Image(filename= BASE_DIR + '/media/images/logo-interlegis.jpg',
