@@ -25,6 +25,8 @@ class ReportDefault(Report):
 
     class band_page_header(ReportBand):
         height = 4.2*cm
+        label_top = 3.7*cm
+        default_style = {'fontName': 'Helvetica', 'fontSize':9}
 
         BASE_DIR = os.path.abspath(os.path.dirname(__file__) + '../../../../')
         #BASE_DIR = os.path.abspath(os.getcwd() + '../..')
@@ -64,6 +66,7 @@ class ReportDefault(Report):
 
     class band_detail(DetailBand):
         height = 0.5*cm
+        default_style = {'fontName': 'Helvetica', 'fontSize': 8}
 
 
 
@@ -79,16 +82,55 @@ class CasasComEquipamentosReport(object):
 class SemEquipamentosReport(object):
     pass
 class ConvenioReport(ReportDefault):
-    title = u'Relatório de Convênios'
+    title = u'Relatório de Convênios'    
 
     class band_page_header(ReportDefault.band_page_header):
 
-        ReportDefault.band_page_header.elements += [
-            (Label(text="Estado", left=0.5*cm,top=3.7*cm)),
-            (Label(text="Nº Processo", left=3*cm,top=3.7*cm)),
-            (Label(text="Nome", left=6*cm,top=3.7*cm)),
-            (Label(text="Data Adesão", left=11*cm,top=3.7*cm)),
-            (Label(text="Projeto", left=14*cm,top=3.7*cm)),
+        label_top = ReportDefault.band_page_header.label_top
+        label_left = [0,1.5,6,9,11,13,15,17]
+        elements = list(ReportDefault.band_page_header.elements)
+
+        elements += [
+            Label(
+                text="Estado",
+                left=label_left[0]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Municipio",
+                left=label_left[1]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Nº Convenio",
+                left=label_left[2]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Data Adesão",
+                left=label_left[3]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Data Conv.",
+                left=label_left[4]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Data Aceite",
+                left=label_left[5]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Data D.O.",
+                left=label_left[6]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Projeto",
+                left=label_left[7]*cm,
+                top=label_top
+            ),
         ]
 
 
@@ -97,30 +139,65 @@ class ConvenioReport(ReportDefault):
         pass
 
     class band_detail(ReportDefault.band_detail):
-        elements=[
-            ObjectValue(attribute_name='casa_legislativa.municipio.uf', left=0.5*cm),
-            ObjectValue(attribute_name='num_processo_sf', left=3*cm),
-            ObjectValue(attribute_name='casa_legislativa', left=6*cm),
-            ObjectValue(attribute_name='data_adesao', left=11*cm,
-                get_value=lambda instance: instance.data_adesao.strftime('%d/%m/%Y')
-            ),
-            ObjectValue(attribute_name='projeto', left=14*cm)
-        ]
-        #border = {'bottom': True}
 
-    #groups = [
-    #    ReportGroup(attribute_name='casa_legislativa.municipio.uf',
-    #        band_header=ReportBand(
-    #            height=0.7*cm,
-    #            elements= [
-    #                ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-    #                    get_Value= lambda instance: 'CasaLegislativa: '+ (instance.casa_legislativa.uf.regiao)
-    #                )
-    #            ],
-    #            borders={'bottom': True},
-    #        )
-    #    )
-    #]
+        label_left = [0,1.5,6,9,11,13,15,17]
+
+        elements=[
+            ObjectValue(
+                attribute_name='casa_legislativa.municipio.uf.sigla',
+                left=label_left[0]*cm
+            ),
+            ObjectValue(
+                attribute_name='casa_legislativa.municipio.nome',
+                left=label_left[1]*cm
+            ),
+            ObjectValue(
+                attribute_name='num_convenio',
+                left=label_left[2]*cm
+            ),
+            ObjectValue(
+                attribute_name='data_adesao',
+                left=label_left[3]*cm,
+                get_value=lambda instance:
+                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao != None else '-'
+            ),
+            ObjectValue(
+                attribute_name='data_retorno_assinatura',
+                left=label_left[4]*cm,
+                get_value=lambda instance:
+                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura != None else '-'
+            ),
+            ObjectValue(
+                attribute_name='data_termo_aceite',
+                left=label_left[5]*cm,
+                get_value=lambda instance:
+                    instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite != None else '-'
+            ),
+            ObjectValue(
+                attribute_name='data_pub_diario',
+                left=label_left[6]*cm,
+                get_value=lambda instance:
+                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
+            ),
+            ObjectValue(
+                attribute_name='projeto.sigla',
+                left=label_left[7]*cm
+            ),
+        ]                
+
+    groups = [
+        ReportGroup(attribute_name='casa_legislativa.municipio.uf',
+            band_header=ReportBand(
+                height=0.7*cm,
+                elements= [
+                    ObjectValue(attribute_name='casa_legislativa.municipio.uf',
+                        get_Value= lambda instance: 'CasaLegislativa: '+ (instance.casa_legislativa.uf)
+                    )
+                ],
+                borders={'top': True},
+            )
+        )
+    ]
 
 
 class ConvenioReportRegiao(Report):
