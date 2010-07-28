@@ -31,7 +31,6 @@ class CasaLegislativa(models.Model):
         max_length=100,
         help_text='Avenida, rua, praça, jardim, parque...'
     )
-    bairro = models.CharField(max_length=40, blank=True)
     municipio = models.ForeignKey(
         'contatos.Municipio',
         verbose_name='município'
