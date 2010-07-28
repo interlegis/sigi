@@ -6,9 +6,10 @@ from django.contrib.contenttypes import generic
 
 class Projeto(models.Model):
     nome = models.CharField(max_length=50)
+    sigla = models.CharField(max_length=10)
         
     def __unicode__(self):
-        return self.nome
+        return self.sigla
     
 class Convenio(models.Model):    
     casa_legislativa = models.ForeignKey(
