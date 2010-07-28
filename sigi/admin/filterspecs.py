@@ -40,13 +40,13 @@ class AlphabeticFilterSpec(ChoicesFilterSpec):
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'alphabetic_filter', False),
                                    AlphabeticFilterSpec))
 
-class UFFilterSpec(ChoicesFilterSpec):
+class AbstractFilterSpec(ChoicesFilterSpec):
     """  
     This is an abstract class and customs filters by 'Uf' have to extend this class.
     """
     __metaclass__ = ABCMeta
     def __init__(self, f, request, params, model, model_admin):
-        super(UFFilterSpec, self).__init__(f, request, params, model, 
+        super(AbstractFilterSpec, self).__init__(f, request, params, model, 
                                              model_admin)
         
     def choices(self, cl):
@@ -57,11 +57,8 @@ class UFFilterSpec(ChoicesFilterSpec):
             yield {'selected': smart_unicode(val.codigo_ibge) == self.lookup_val,
                     'query_string': cl.get_query_string({self.lookup_kwarg: val.codigo_ibge}),
                     'display': val.nome}
-    def title(self):
-        return _('UF') % \
-            {'field_name': self.field.verbose_name}
 
-class MunicipioUFFilterSpec(UFFilterSpec):
+class MunicipioUFFilterSpec(AbstractFilterSpec):
     """
     Usage:
 
@@ -79,13 +76,16 @@ class MunicipioUFFilterSpec(UFFilterSpec):
         self.lookup_kwarg = '%s__uf__codigo_ibge__exact' % f.name
         self.lookup_val = request.GET.get(self.lookup_kwarg, None)
         self.lookup_choices = UnidadeFederativa.objects.all().order_by('nome')
+    def title(self):
+        return _('UF') % \
+            {'field_name': self.field.verbose_name}
 
 
 # registering the filter
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'uf_filter', False),
                              MunicipioUFFilterSpec))
 
-class ConvenioUFFilterSpec(UFFilterSpec):
+class ConvenioUFFilterSpec(AbstractFilterSpec):
     """
     Usage:
 
@@ -101,9 +101,47 @@ class ConvenioUFFilterSpec(UFFilterSpec):
         self.lookup_kwarg = '%s__municipio__uf__codigo_ibge__exact' % f.name
         self.lookup_val = request.GET.get(self.lookup_kwarg, None)
         self.lookup_choices = UnidadeFederativa.objects.all().order_by('nome')
+    def title(self):
+        return _('UF') % \
+            {'field_name': self.field.verbose_name}
 
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'convenio_uf_filter', False),
 ConvenioUFFilterSpec))
+
+class MunicipioRegiaoFilterSpec(AbstractFilterSpec):
+    """
+    Usage:
+
+      my_municipio_field.uf_filter = True
+
+    On Django 1.3 you will can specify a lookup on admin filters. Example:
+
+      list_filter = ('municipio__uf',)
+
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(MunicipioRegiaoFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
+        self.lookup_kwarg = '%s__uf__regiao__exact' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = UnidadeFederativa.REGIAO_CHOICES
+    def title(self):
+        return _('UF') % \
+            {'field_name': self.field.verbose_name}
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'regiao_filter', False),
+                             MunicipioRegiaoFilterSpec))
+
+class ConvenioRegiaoFilterSpec(AbstractFilterSpec):
+    def __init__(self, f, request, params, model, model_admin):
+        super(ConvenioUFFilterSpec, self).__init__(f, request, params, model, model_admin)
+        self.lookup_kwarg = '%s__municipio__uf__regiao__exact' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = UnidadeFederativa.REGIAO_CHOICES
+
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'convenio_regiao_filter', False), ConvenioRegiaoFilterSpec))
 
 class RangeValuesFilterSpec(FilterSpec):
     """

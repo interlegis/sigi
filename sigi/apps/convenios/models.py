@@ -15,7 +15,7 @@ class Convenio(models.Model):
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
     )
-    casa_legislativa.uf_filter = True
+    casa_legislativa.convenio_uf_filter = True
     num_processo_sf = models.CharField(
         'número do processo SF',
         max_length=11,
