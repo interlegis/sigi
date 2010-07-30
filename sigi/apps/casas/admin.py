@@ -6,7 +6,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Contato, Telefone
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from django.http import HttpResponse, HttpResponseRedirect
-from sigi.apps.casas.reports import CasasLegislativasLabels
+from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
 
 class ContatosInline(generic.GenericTabularInline):
@@ -26,11 +26,12 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    actions = ['delete_selected','etiqueta']
+    actions = ['delete_selected','etiqueta','relatorio']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome', 'email', 'pagina_web', 'municipio')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
+    ordering = ('municipio__uf','nome')
     fieldsets = (
         (None, {
             'fields': ('nome', 'sigla', 'tipo', 'cnpj', 'observacoes',
@@ -61,5 +62,12 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         report.generate_by(PDFGenerator, filename=response)
         return response        
     etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
+
+    def relatorio(modelAdmin,request,queryset):
+        response = HttpResponse(mimetype='application/pdf')
+        report = CasasLegislativasReport(queryset=queryset)
+        report.generate_by(PDFGenerator, filename=response)
+        return response
+    relatorio.short_description = u"Gerar relatório(s) da(s) casa(s) selecionada(s)"
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)

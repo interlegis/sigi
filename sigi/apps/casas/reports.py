@@ -1,7 +1,10 @@
 # -*- coding: utf-8 -*-
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
-from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements
+from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements, \
+                    ReportGroup, ReportBand
+
+from sigi.apps.relatorios.reports import ReportDefault
 
 class CasasLegislativasLabels(Report):
     """
@@ -44,3 +47,85 @@ class CasasLegislativasLabels(Report):
                 start_top=1.5*cm, height=0.5*cm, left=1*cm, width=9.4*cm,
             ),
         ]
+
+class CasasLegislativasReport(ReportDefault):
+    title = u'Relatório de Casas Legislativas'
+
+    class band_page_header(ReportDefault.band_page_header):
+
+        label_top = ReportDefault.band_page_header.label_top
+        label_left = [0.3,1,5.5,6.5,12]
+        elements = list(ReportDefault.band_page_header.elements)
+
+        elements += [
+            Label(
+                text="UF",
+                left=label_left[0]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Municipio",
+                left=label_left[1]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Tipo",
+                left=label_left[2]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Presidente",
+                left=label_left[3]*cm,
+                top=label_top
+            ),
+            Label(
+                text="Logradouro",
+                left=label_left[4]*cm,
+                top=label_top
+            ),
+            
+        ]
+
+
+
+    class band_page_footer(ReportDefault.band_page_footer):
+        pass
+
+    class band_detail(ReportDefault.band_detail):
+
+        label_left = [0.3,1,5.5,6.5,12]
+
+        elements=[
+            ObjectValue(
+                attribute_name='municipio.uf.sigla',
+                left=label_left[0]*cm
+            ),
+            ObjectValue(
+                attribute_name='municipio.nome',
+                left=label_left[1]*cm
+            ),
+            ObjectValue(
+                attribute_name='tipo',
+                left=label_left[2]*cm
+            ),
+            ObjectValue(
+                attribute_name='parlamentar',
+                left=label_left[3]*cm
+            ),
+            ObjectValue(
+                attribute_name='logradouro',
+                left=label_left[4]*cm,
+            ),
+        ]
+
+    groups = [
+        ReportGroup(attribute_name='municipio.uf',
+            band_header=ReportBand(
+                height=0.7*cm,
+                elements= [
+                    ObjectValue(attribute_name='municipio.uf')
+                ],
+                borders={'top': True},
+            )
+        )
+    ]
