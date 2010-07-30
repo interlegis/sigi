@@ -24,6 +24,7 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 INTERNAL_IPS = ('127.0.0.1',)
 
 DATABASE_ENGINE = 'postgresql_psycopg2'
+#DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = 'sigi'
 DATABASE_USER = 'administrador'
 DATABASE_PASSWORD = 'interlegis' 
@@ -98,6 +99,7 @@ INSTALLED_APPS = (
     'sigi.apps.mesas',
     'sigi.apps.parlamentares',
     'sigi.apps.servicos',
+    'sigi.apps.relatorios',
 )
 
 try:
