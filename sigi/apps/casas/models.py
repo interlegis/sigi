@@ -4,14 +4,18 @@ from django.contrib.contenttypes import generic
 from sigi.apps.mesas.models import MesaDiretora, MembroMesaDiretora
 from sigi.apps.parlamentares.models import Parlamentar
 
-class CasaLegislativa(models.Model):
-    CASA_CHOICES = (
-        ('CM', 'Câmara Municipal'),
-        ('AL', 'Assembléia Legislativa'),
-        ('CD', 'Câmara dos Deputados'),
-        ('CT', 'Câmara Distrital'),
-        ('SF', 'Senado Federal'),
+class TipoCasaLegislativa(models.Model):
+    sigla = models.CharField(
+        max_length=5
     )
+    nome = models.CharField(
+        max_length=100
+    )
+    def __unicode__(self):
+        return self.nome
+    
+
+class CasaLegislativa(models.Model):
     nome = models.CharField(
         max_length=60,
         help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
@@ -22,7 +26,7 @@ class CasaLegislativa(models.Model):
                   'Exemplo: <em>cmpains</em>.',
         blank=True
     )
-    tipo = models.CharField(max_length=2, choices=CASA_CHOICES, default='CM')
+    tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
     parlamentar = models.ForeignKey(Parlamentar, null=True, blank=True, verbose_name="Presidente")
