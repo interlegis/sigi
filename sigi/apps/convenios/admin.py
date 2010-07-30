@@ -39,12 +39,13 @@ class ConvenioAdmin(admin.ModelAdmin):
     )
     actions = ['delete_selected', 'relatorio']
     inlines = (AnexosInline, EquipamentoPrevistoInline)
-    list_display = ('id', 'casa_legislativa',
-                    'num_processo_sf', 'data_adesao', 'projeto',
-                     )
+    list_display = ('num_convenio', 'casa_legislativa',
+                    'data_adesao','data_retorno_assinatura','data_termo_aceite',
+                    'projeto',
+                    )
     list_filter  = ('projeto','casa_legislativa','conveniada', 'equipada')
     date_hierarchy = 'data_adesao'                    
-    ordering = ('-id',)
+    ordering = ('casa_legislativa__municipio__uf','-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',
                      'num_processo_sf')
@@ -55,14 +56,12 @@ class ConvenioAdmin(admin.ModelAdmin):
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
     def relatorio(modeladmin, request, queryset):
+        #queryset.order_by('casa_legislativa__municipio__uf')        
         response = HttpResponse(mimetype='application/pdf')
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
         return response        
-        #selected = request.POST.getlist(admin.ACTION_CHECKBOX_NAME)
-        #print selected
-        #return HttpResponseRedirect("reports/?ids=%s"%(",".join(selected)))
-    #relatorio.short_description = 'Selecione para gerar relatorio'
+        
     relatorio.short_description = 'Gerar relatorio dos convenios selecionados'
     
 

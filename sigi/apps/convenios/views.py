@@ -6,7 +6,7 @@ from sigi.apps.casas.models import CasaLegislativa
 
 
 def report(request, id=None):
-    qs = Convenio.objects.all()
+    qs = Convenio.objects.all().order_by('casa_legislativa__municipio__uf','casa_legislativa')
     if id:
         qs = qs.filter(pk=id)
     elif request.GET: #Se tiver algum parametro de pesquisa
@@ -22,9 +22,9 @@ def report(request, id=None):
             query = 'id IN ('+ kwargs['ids'].__str__()+')'
             qs = Convenio.objects.extra(where=[query])
     if not qs:
-        return HttpResponseRedirect('../')
+        return HttpResponseRedirect('../')    
     response = HttpResponse(mimetype='application/pdf')
-    report = ConvenioReport(queryset=qs.order_by('casa_legislativa'))
+    report = ConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
 
