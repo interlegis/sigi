@@ -16,6 +16,8 @@ urlpatterns = patterns(
     # reports
     (r'^casas/casalegislativa/reports/',
     'sigi.apps.casas.views.report'),
+    (r'^casas/casalegislativa/casas_sem_convenio_report/',
+    'sigi.apps.casas.views.casas_sem_convenio_report'),
     (r'^convenios/convenio/reports/',
      'sigi.apps.convenios.views.report'),
     (r'^convenios/convenio/reportsRegiao/',

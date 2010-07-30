@@ -40,3 +40,11 @@ def report(request, id=None):
     report = CasasLegislativasReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
+
+def casas_sem_convenio_report(request):
+    qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf','nome')
+
+    response = HttpResponse(mimetype='application/pdf')
+    report = CasasLegislativasReport(queryset=qs)
+    report.generate_by(PDFGenerator, filename=response)
+    return response

@@ -43,7 +43,7 @@ class CasasLegislativasLabels(Report):
             ManyElements(
                 ObjectValue,
                 count=5,
-                attribute_name=('get_presidente_nome','nome','logradouro','municipio','cep'),
+                attribute_name=('parlamentar','nome','logradouro','municipio','cep'),
                 start_top=1.5*cm, height=0.5*cm, left=1*cm, width=9.4*cm,
             ),
         ]
