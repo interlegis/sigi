@@ -14,6 +14,8 @@ urlpatterns = patterns(
     (r'^casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
     # reports
+    (r'^casas/casalegislativa/reports/',
+    'sigi.apps.casas.views.report'),
     (r'^convenios/convenio/reports/',
      'sigi.apps.convenios.views.report'),
     (r'^convenios/convenio/reportsRegiao/',
