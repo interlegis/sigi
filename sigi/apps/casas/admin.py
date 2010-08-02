@@ -28,7 +28,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_list_template = 'casas/change_list.html'
     actions = ['delete_selected','etiqueta','relatorio']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
-    list_display = ('nome', 'email', 'pagina_web', 'municipio')
+    list_display = ('nome','municipio','parlamentar','logradouro')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
     ordering = ('municipio__uf','nome')

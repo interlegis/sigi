@@ -43,12 +43,13 @@ class ConvenioAdmin(admin.ModelAdmin):
                     'data_adesao','data_retorno_assinatura','data_termo_aceite',
                     'projeto',
                     )
+    list_display_links = ('num_convenio','casa_legislativa',)
     list_filter  = ('projeto','casa_legislativa','conveniada', 'equipada')
     date_hierarchy = 'data_adesao'                    
     ordering = ('casa_legislativa__municipio__uf','-id',)
     raw_id_fields = ('casa_legislativa',)
     search_fields = ('id', 'casa_legislativa__nome',
-                     'num_processo_sf')
+                     'num_processo_sf','num_convenio')
 
     def changelist_view(self, request, extra_context=None):
         return super(ConvenioAdmin, self).changelist_view(
