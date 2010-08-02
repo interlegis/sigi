@@ -40,11 +40,21 @@ class CasasLegislativasLabels(Report):
                 text='A Sua Excelência o(a) Senhor(a)',
                 top=1*cm, left=1*cm, width=9.4*cm,
             ),
+            ObjectValue(
+                attribute_name='parlamentar',
+                top=1.5*cm, left=1*cm, width=9.4*cm,
+            ),
+            ObjectValue(
+                attribute_name='tipo',
+                top=2*cm, left=1*cm, width=9.4*cm,
+                get_value=lambda instance:
+                    "Presidente da " + instance.tipo.nome + " de"
+            ),
             ManyElements(
                 ObjectValue,
                 count=5,
-                attribute_name=('parlamentar','nome','logradouro','municipio','cep'),
-                start_top=1.5*cm, height=0.5*cm, left=1*cm, width=9.4*cm,
+                attribute_name=('municipio.nome','logradouro','bairro','municipio','cep'),
+                start_top=2.5*cm, height=0.5*cm, left=1*cm, width=9.4*cm,
             ),
         ]
 
@@ -54,34 +64,29 @@ class CasasLegislativasReport(ReportDefault):
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
-        label_left = [0.3,1,5.5,6.5,12]
+        label_left = [0.3,1,5.5,10]
         elements = list(ReportDefault.band_page_header.elements)
 
         elements += [
             Label(
                 text="UF",
                 left=label_left[0]*cm,
-                top=label_top
+                top=label_top,
             ),
             Label(
                 text="Municipio",
                 left=label_left[1]*cm,
-                top=label_top
-            ),
-            Label(
-                text="Tipo",
-                left=label_left[2]*cm,
-                top=label_top
-            ),
+                top=label_top,
+            ),            
             Label(
                 text="Presidente",
-                left=label_left[3]*cm,
-                top=label_top
+                left=label_left[2]*cm,
+                top=label_top,                
             ),
             Label(
                 text="Logradouro",
-                left=label_left[4]*cm,
-                top=label_top
+                left=label_left[3]*cm,
+                top=label_top,                
             ),
             
         ]
@@ -93,28 +98,26 @@ class CasasLegislativasReport(ReportDefault):
 
     class band_detail(ReportDefault.band_detail):
 
-        label_left = [0.3,1,5.5,6.5,12]
+        label_left = [0.3,1,5.5,10]
 
         elements=[
             ObjectValue(
                 attribute_name='municipio.uf.sigla',
-                left=label_left[0]*cm
+                left=label_left[0]*cm,
             ),
             ObjectValue(
                 attribute_name='municipio.nome',
-                left=label_left[1]*cm
-            ),
-            ObjectValue(
-                attribute_name='tipo',
-                left=label_left[2]*cm
-            ),
+                left=label_left[1]*cm,
+            ),            
             ObjectValue(
                 attribute_name='parlamentar',
-                left=label_left[3]*cm
+                left=label_left[2]*cm,
             ),
             ObjectValue(
                 attribute_name='logradouro',
-                left=label_left[4]*cm,
+                left=label_left[3]*cm,
+                get_value=lambda instance: instance.logradouro + ' - '+ instance.bairro,
+                width = 10*cm
             ),
         ]
 
