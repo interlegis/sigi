@@ -18,8 +18,10 @@ urlpatterns = patterns(
     'sigi.apps.casas.views.report'),
     (r'^casas/casalegislativa/casas_sem_convenio_report/',
     'sigi.apps.casas.views.casas_sem_convenio_report'),
-    (r'^convenios/convenio/reports/',
-     'sigi.apps.convenios.views.report'),
+    (r'^convenios/convenio/reports_por_cm/',
+     'sigi.apps.convenios.views.report_por_cm'),
+    (r'^convenios/convenio/reports_por_al/',
+     'sigi.apps.convenios.views.report_por_al'),
     (r'^convenios/convenio/reportsRegiao/',
      'sigi.apps.convenios.views.reportRegiao'),
     # automatic interface based on admin

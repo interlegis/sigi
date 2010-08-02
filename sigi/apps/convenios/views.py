@@ -5,8 +5,8 @@ from sigi.apps.convenios.reports import ConvenioReport, ConvenioReportRegiao
 from sigi.apps.casas.models import CasaLegislativa
 
 
-def report(request, id=None):
-    qs = Convenio.objects.all().order_by('casa_legislativa__municipio__uf','casa_legislativa')
+def report_por_cm(request, id=None):
+    qs = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM').order_by('casa_legislativa__municipio__uf','casa_legislativa')
     if id:
         qs = qs.filter(pk=id)
     elif request.GET: #Se tiver algum parametro de pesquisa
@@ -23,6 +23,29 @@ def report(request, id=None):
             qs = Convenio.objects.extra(where=[query])
     if not qs:
         return HttpResponseRedirect('../')    
+    response = HttpResponse(mimetype='application/pdf')
+    report = ConvenioReport(queryset=qs)
+    report.generate_by(PDFGenerator, filename=response)
+    return response
+
+def report_por_al(request, id=None):
+    qs = Convenio.objects.filter(casa_legislativa__tipo__sigla='AL').order_by('casa_legislativa__municipio__uf','casa_legislativa')
+    if id:
+        qs = qs.filter(pk=id)
+    elif request.GET: #Se tiver algum parametro de pesquisa
+        kwargs = {}
+        ids = 0
+        for k, v in request.GET.iteritems():
+            kwargs[str(k)] = v
+            if(str(k)=='ids'):
+                ids = 1
+                break
+            qs = qs.filter(**kwargs)
+        if ids:
+            query = 'id IN ('+ kwargs['ids'].__str__()+')'
+            qs = Convenio.objects.extra(where=[query])
+    if not qs:
+        return HttpResponseRedirect('../')
     response = HttpResponse(mimetype='application/pdf')
     report = ConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)

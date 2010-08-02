@@ -4,7 +4,8 @@
 {% block object-tools %}
   {% if has_add_permission %}
     <ul class="object-tools">
-      <li><a href="reports/{{ query_str }}">Relatórios</a></li>
+      <li><a href="reports_por_cm/{{ query_str }}">Relatórios por Câmara Municipal</a></li>
+      <li><a href="reports_por_al/{{ query_str }}">Relatórios por Assembléia Legislativa</a></li>
       <li><a href="reportsRegiao/">Sumário Região</a></li>
       <li>
         <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
