@@ -20,6 +20,7 @@ banco de dados em produção.
 """
 
 from django.core.management import setup_environ
+
 from sigi import settings
 setup_environ(settings)
 
@@ -31,6 +32,7 @@ from sigi.apps.convenios.models import *
 from sigi.apps.inventario.models import *
 from sigi.apps.mesas.models import *
 from sigi.apps.parlamentares.models import *
+from django.db.utils import DatabaseError
 
 ERROR_MSG_0 = ('<ERRO> %s[%s]: erro desconhecido! Possível erro de integridade '
                'do banco de dados. Favor verificar e inserir manualmente caso '
@@ -59,21 +61,30 @@ def migra_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
 
+    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
+    
+
     for line in reader:
         uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
         municipio = Municipio.objects.get(uf=uf, is_capital=True)
+        bairro = line[ENDERECO_COL].split('-')
+        if(bairro.__len__()>1):
+            bairro = bairro[1]
+        else:
+            bairro = ''
         casa = CasaLegislativa(
             municipio=municipio,
             nome=line[NOME_COL],
-            tipo='AL',
+            tipo=tipo_casa,
             logradouro=line[ENDERECO_COL],
+            bairro=bairro,
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
             pagina_web=line[PAGINA_COL],
             observacoes=line[OBS_COL],
         )
         if line[UF_COL] == 'DF':
-            casa.tipo = 'CT'
+            casa.tipo = tipo_casa = TipoCasaLegislativa.objects.filter(sigla='CT').get()
         casa.save()
 
         if line[FONE_1_COL]:
@@ -129,9 +140,12 @@ def migra_casas(filename):
     PRESIDENTE_COL = 39
     EMAIL_PRESIDENTE_COL = 43
     REPRESENTANTE_COL = 85
+    
 
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
+    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='CM').get()
+    
     linenum = 1
     for line in reader:
         linenum += 1
@@ -148,10 +162,15 @@ def migra_casas(filename):
         if(line[PRESIDENTE_COL]):
             parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
             parlamentar.save()
+        bairro = line[ENDERECO_COL].split('-')
+        if(bairro.__len__()>1):
+            bairro = bairro[1]
+        else:
+            bairro = ''
         casa = CasaLegislativa(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
-            tipo='CM',
+            tipo=tipo_casa,
             logradouro=line[ENDERECO_COL],
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
@@ -229,21 +248,13 @@ def migra_cnpj(filename):
         casa.save()
 
 def migra_convenios_casas(filename):
-    """
-        Será preciso cadastrar no banco os seguintes Projeto:
-        1 - Projeto Interlegis
-        2 - Programa Piloto de Modernização
-    """
     def get_datetime_obj(data):
         ldata = data.split('-')
         if len(ldata) != 3:
             return None
         return datetime(int(ldata[0]), int(ldata[1]), int(ldata[2]))
 
-    projeto1 = Projeto(nome="Projeto Interlegis")
-    projeto1.save()
-    projeto2 = Projeto(nome="Projeto Piloto de Modernização")
-    projeto2.save()
+
     
 
     # identificação das colunas no arquivo CSV
@@ -290,6 +301,10 @@ def migra_convenios_casas(filename):
             continue
         except CasaLegislativa.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
+            continue
+        except DatabaseError:
+            print "Erro ao inserir convenio"
+            print casa
             continue
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
@@ -377,16 +392,18 @@ def migra_convenios_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
     linenum = 1
+    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
     for line in reader:
         linenum += 1
 
         try:
-            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo='AL')
+            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo=tipo_casa)
         except CasaLegislativa.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegistativa.MultipleObjectsReturned:
+        except CasaLegislativa.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
+            continue
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
@@ -405,16 +422,42 @@ def migra_convenios_assembleias(filename):
             convenio.save()
         except:
             print ERROR_MSG_0 % (filename, linenum)
+            print convenio
             continue
+
+def popula():
+    """
+        Será preciso cadastrar no banco os seguintes Projeto:
+        1 - Projeto Interlegis
+        2 - Projeto Piloto de Modernização
+        3 - Projeto Modernização Legislativo
+    """
+
+    projeto1 = Projeto(sigla='PI', nome='Projeto Interlegis')
+    projeto1.save()
+    projeto2 = Projeto(sigla='PPM', nome='Projeto Piloto de Modernização')
+    projeto2.save()
+    projeto3 = Projeto(sigla='PML', nome='Projeto Modernização Legislativo')
+    projeto3.save()
+
+    tipo1 = TipoCasaLegislativa(sigla='CM', nome='Câmara Municipal')
+    tipo1.save()
+    tipo2 = TipoCasaLegislativa(sigla='AL', nome='Assembléia Legislativa')
+    tipo2.save()
+    tipo3 = TipoCasaLegislativa(sigla='CT', nome='Câmara Distrital')
+    tipo3.save()
+        
+
 
 
 if __name__ == '__main__':
-#    print "<iniciando migração das assembléias legislativas>"
-#    migra_assembleias('assembleias.csv')
-#    print "<iniciando migração das demais casas legislativas>"
-#    migra_casas('casas.csv')
-#    print "<iniciando migração dos CNPJ das casas>"
-#    migra_cnpj('cnpj.csv')
+    popula()
+    print "<iniciando migração das assembléias legislativas>"
+    migra_assembleias('assembleias.csv')
+    print "<iniciando migração das demais casas legislativas>"
+    migra_casas('casas.csv')
+    print "<iniciando migração dos CNPJ das casas>"
+    migra_cnpj('cnpj.csv')
     print "<iniciando migração dos convênios das casas municipais>"
     migra_convenios_casas('casas.csv')
     print "<iniciando migração dos convênios das assembléias>"
