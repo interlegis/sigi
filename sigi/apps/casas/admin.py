@@ -38,7 +38,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
                        'parlamentar'),
         }),
         ('Endereço', {
-            'fields': ('logradouro', 'municipio', 'cep'),
+            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
         }),
         ('Outras informações', {
             'classes': ('collapse',),
@@ -46,7 +46,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         }),
     )
     raw_id_fields = ('municipio','parlamentar')
-    search_fields = ('nome', 'sigla', 'cnpj', 'logradouro',
+    search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
