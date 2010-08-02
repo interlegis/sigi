@@ -85,7 +85,7 @@ class Municipio(models.Model):
         verbose_name_plural = 'municípios'
 
     def __unicode__(self):
-        return "%s, %s" % (self.nome, self.uf)
+        return "%s - %s" % (self.nome, self.uf)
 
     def get_google_maps_url(self):
         return "http://maps.google.com.br/maps/mm?ie=UTF8&hl=pt-BR&t=h&ll=%s,%s&spn=1.61886,1.812744&z=9&source=embed" % \
