@@ -60,8 +60,8 @@ def charts_data(request):
         if num_regiao_maior<i:
             num_regiao_maior = i
 
-    equip_n_recebidos = CasaLegislativa.objects.exclude(convenio__data_termo_aceite=None).count()
-    equip_recebidos = CasaLegislativa.objects.filter(convenio__data_termo_aceite=None).count()
+    equip_n_recebidos = CasaLegislativa.objects.filter(convenio__data_termo_aceite=None).count()
+    equip_recebidos = CasaLegislativa.objects.exclude(convenio__data_termo_aceite=None).count()
     #equip_n_recebidos = convenios.filter(data_termo_aceite=None).count()    
     #equip_recebidos = convenios.exclude(data_termo_aceite=None).count()
 
