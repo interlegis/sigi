@@ -132,3 +132,7 @@ class CasasLegislativasReport(ReportDefault):
             )
         )
     ]
+
+
+class CasasSemConvenioReport(CasasLegislativasReport):
+    title = u'Relatório de Casas Legislativas sem Convênio'

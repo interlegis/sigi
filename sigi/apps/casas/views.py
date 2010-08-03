@@ -3,6 +3,7 @@ from geraldo.generators import PDFGenerator
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.casas.reports import CasasLegislativasLabels
 from sigi.apps.casas.reports import CasasLegislativasReport
+from sigi.apps.casas.reports import CasasSemConvenioReport
 
 
 def labels_report(request, id=None):
@@ -43,8 +44,17 @@ def report(request, id=None):
 
 def casas_sem_convenio_report(request):
     qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf','nome')
+    
+    if request.GET:        
+        kwargs = {}
+        for k, v in request.GET.iteritems():
+            kwargs[str(k)] = v
+            qs = qs.filter(**kwargs)
+    if not qs:
+        return HttpResponseRedirect('../')
 
+    #qs.order_by('municipio__uf','nome')
     response = HttpResponse(mimetype='application/pdf')
-    report = CasasLegislativasReport(queryset=qs)
+    report = CasasSemConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response

@@ -5,7 +5,7 @@
   {% if has_add_permission %}
     <ul class="object-tools">
         <li><a href="reports/{{query_str}}">Relatório</a> </li>
-        <li><a href="casas_sem_convenio_report">Casas sem convênio</a> </li>
+        <li><a href="casas_sem_convenio_report/{{query_str}}">Casas sem convênio</a> </li>
         <li><a href="labels/{{ query_str }}">Gerar etiquetas</a></li>
         <li>
             <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
