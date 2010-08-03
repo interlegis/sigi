@@ -32,7 +32,6 @@ from sigi.apps.convenios.models import *
 from sigi.apps.inventario.models import *
 from sigi.apps.mesas.models import *
 from sigi.apps.parlamentares.models import *
-from django.db.utils import DatabaseError
 
 ERROR_MSG_0 = ('<ERRO> %s[%s]: erro desconhecido! Possível erro de integridade '
                'do banco de dados. Favor verificar e inserir manualmente caso '
@@ -67,16 +66,16 @@ def migra_assembleias(filename):
     for line in reader:
         uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
         municipio = Municipio.objects.get(uf=uf, is_capital=True)
-        bairro = line[ENDERECO_COL].split('-')
-        if(bairro.__len__()>1):
-            bairro = bairro[1]
+        endereco = line[ENDERECO_COL].split('-')
+        if(endereco.__len__()>1):
+            bairro = endereco[1]
         else:
             bairro = ''
         casa = CasaLegislativa(
             municipio=municipio,
             nome=line[NOME_COL],
             tipo=tipo_casa,
-            logradouro=line[ENDERECO_COL],
+            logradouro=endereco[0],
             bairro=bairro,
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
@@ -162,16 +161,17 @@ def migra_casas(filename):
         if(line[PRESIDENTE_COL]):
             parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
             parlamentar.save()
-        bairro = line[ENDERECO_COL].split('-')
-        if(bairro.__len__()>1):
-            bairro = bairro[1]
+        endereco = line[ENDERECO_COL].split('-')
+        if(endereco.__len__()>1):
+            bairro = endereco[1]
         else:
             bairro = ''
         casa = CasaLegislativa(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
             tipo=tipo_casa,
-            logradouro=line[ENDERECO_COL],
+            logradouro=endereco[0],
+	    bairro=bairro,
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
             pagina_web=line[PAGINA_COL],
@@ -301,10 +301,6 @@ def migra_convenios_casas(filename):
             continue
         except CasaLegislativa.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
-            continue
-        except DatabaseError:
-            print "Erro ao inserir convenio"
-            print casa
             continue
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
