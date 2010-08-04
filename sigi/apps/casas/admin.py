@@ -20,6 +20,7 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
+    exclude = ['equipada','conveniada','observacao']
     extra = 1
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
