@@ -16,6 +16,8 @@ urlpatterns = patterns(
     # reports
     (r'^casas/casalegislativa/reports/',
     'sigi.apps.casas.views.report'),
+    (r'^casas/casalegislativa/csv/',
+    'sigi.apps.casas.views.export_csv'),
     (r'^casas/casalegislativa/casas_sem_convenio_report/',
     'sigi.apps.casas.views.casas_sem_convenio_report'),
     (r'^convenios/convenio/reports_por_cm/',
