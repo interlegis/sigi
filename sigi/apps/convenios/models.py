@@ -30,7 +30,7 @@ class Convenio(models.Model):
         blank=True
     )
     data_adesao = models.DateField(
-        'data de adesão',
+        'Aderidas',
         null=True,
         blank=True,
     )
@@ -38,7 +38,7 @@ class Convenio(models.Model):
         Projeto
     )
     data_retorno_assinatura = models.DateField(
-        'data do retorno e assinatura',
+        'Conveniadas',
         null=True,
         blank=True,
         help_text='Convênio firmado.'
@@ -49,7 +49,7 @@ class Convenio(models.Model):
         blank=True
     )
     data_termo_aceite = models.DateField(
-        'data do Termo de Aceite',
+        'Equipadas',
         null=True,
         blank=True,
         help_text='Equipamentos recebidos.'
