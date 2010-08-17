@@ -27,7 +27,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    actions = ['delete_selected','etiqueta','relatorio']
+    actions = ['etiqueta','relatorio']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome','municipio','parlamentar','logradouro')
     list_display_links = ('nome',)
@@ -70,5 +70,10 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         report.generate_by(PDFGenerator, filename=response)
         return response
     relatorio.short_description = u"Gerar relatório(s) da(s) casa(s) selecionada(s)"
+    
+    def get_actions(self, request):
+        actions = super(CasaLegislativaAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
