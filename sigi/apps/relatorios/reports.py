@@ -60,3 +60,4 @@ class ReportDefault(Report):
     class band_detail(DetailBand):
         height = 0.5*cm
         default_style = {'fontName': 'Helvetica', 'fontSize': 8}
+        auto_expand_height = True

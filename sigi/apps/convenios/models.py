@@ -18,6 +18,9 @@ class Convenio(models.Model):
     )
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
+    projeto = models.ForeignKey(
+        Projeto
+    )
     num_processo_sf = models.CharField(
         'número do processo SF',
         max_length=11,
@@ -33,10 +36,7 @@ class Convenio(models.Model):
         'Aderidas',
         null=True,
         blank=True,
-    )
-    projeto = models.ForeignKey(
-        Projeto
-    )
+    )    
     data_retorno_assinatura = models.DateField(
         'Conveniadas',
         null=True,

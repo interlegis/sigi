@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
+from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements, \
-                    ReportGroup, ReportBand, landscape
+                    ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH
 
 from sigi.apps.relatorios.reports import ReportDefault
 
@@ -294,11 +295,12 @@ class InfoCasaLegislativa(ReportDefault):
         posicao_left = [
             0,1.8,       #Regiao
             5.5,6.8,     #U.F.
-            12,13.3,           #Tipo
+            12,13.3,     #Tipo
             0,2.3,       #Municipio
             0,2.8,       #Logradouro
-            0,1.6,         #Bairro
-            0,1.3,         #CEP
+            0,1.6,       #Bairro
+            0,1.3,       #CEP
+            0,2.7,       #Presidente
         ]
         posicao_top = [
             0.5,         #Regiao
@@ -308,13 +310,14 @@ class InfoCasaLegislativa(ReportDefault):
             2.1,         #Logradouro
             2.9,         #Bairro
             3.7,         #CEP
+            4.5,         #Presidente
         ]
 
-        display_inline = True
-        REGIAO_CHOICES = {'SL': 'Sul','SD': 'Sudeste','CO': 'Centro-Oeste','NE': 'Nordeste','NO': 'Norte',}
+        height=30*cm
+
+        display_inline = True        
         default_style = {'fontName': 'Helvetica', 'fontSize':14}
-
-
+        
         elements = [
 
             # Linha 1
@@ -396,6 +399,118 @@ class InfoCasaLegislativa(ReportDefault):
                 left=posicao_left[13]*cm,
                 top=posicao_top[6]*cm,
             ),
+            Label(
+                text="Presidente: ",
+                left=posicao_left[14]*cm,
+                top=posicao_top[7]*cm,
+            ),
+            ObjectValue(
+                attribute_name='parlamentar',
+                left=posicao_left[15]*cm,
+                top=posicao_top[7]*cm,
+                width=20*cm,
+            ),
+        ]        
+    label_top = 1.5*cm
+    label_left = [0,1.5,4,8,10.5,13,15.5,18]
+    subreports = [
+        SubReport(
+            queryset_string = '%(object)s.convenio_set.all()',
+            band_header = ReportBand(
+                     default_style = {'fontName': 'Helvetica', 'fontSize':11},
+                     height=2*cm,
+                     elements=[
+                         Label(
+                             text="Convênio(s)",
+                             style = {'fontSize':14,'alignment': TA_CENTER},
+                             width=BAND_WIDTH,
+                             top=1*cm,
+                         ),
+                         Label(
+                             text="Projeto",
+                             left=label_left[0]*cm,
+                             top=label_top
+                         ),
+                         Label(
+                             text="Nº Convenio",
+                             left=label_left[1]*cm,
+                             top=label_top
+                         ),
+                         Label(
+                             text="Nº Processo SF",
+                             left=label_left[2]*cm,
+                             top=label_top
+                          ),
+                         Label(
+                             text="Adesão",
+                             left=label_left[3]*cm,
+                             top=label_top
+                         ),
+                         Label(
+                             text="Convênio",
+                             left=label_left[4]*cm,
+                             top=label_top
+                          ),
+                        Label(
+                              text="Equipada",
+                             left=label_left[5]*cm,
+                             top=label_top
+                         ),
+                         Label(
+                              text="Data D.O.",
+                             left=label_left[6]*cm,
+                             top=label_top
+                         ),                         
+                     ],
+                     borders = {'bottom': True}
+                 ),
+             band_detail = ReportBand(
+                     default_style = {'fontName': 'Helvetica', 'fontSize':11},
+                     height=0.5*cm,
+                     elements=[
+                        ObjectValue(
+                            attribute_name='projeto.sigla',
+                            left=label_left[0]*cm
+                        ),
+                        ObjectValue(
+                            attribute_name='num_convenio',
+                            left=label_left[1]*cm
+                        ),
+                        ObjectValue(
+                            attribute_name='num_processo_sf',
+                            left=label_left[2]*cm
+                        ),
+                        ObjectValue(
+                            attribute_name='data_adesao',
+                            left=label_left[3]*cm,
+                            get_value=lambda instance:
+                                instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao != None else '-'
+                        ),
+                        ObjectValue(
+                            attribute_name='data_retorno_assinatura',
+                            left=label_left[4]*cm,
+                            get_value=lambda instance:
+                                instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura != None else '-'
+                        ),
+                        ObjectValue(
+                            attribute_name='data_termo_aceite',
+                            left=label_left[5]*cm,
+                            get_value=lambda instance:
+                                instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite != None else '-'
+                        ),
+                        ObjectValue(
+                            attribute_name='data_pub_diario',
+                            left=label_left[6]*cm,
+                            get_value=lambda instance:
+                                instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
+                        ),                        
+                     ],
+                     #borders={'left': True, 'right': True},
+                 ),
+             band_footer = ReportBand(
+                     #height=0.5*cm,
+                 ),
+        )
+    ]
 
-            
-        ]
+    

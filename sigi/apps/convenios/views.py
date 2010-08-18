@@ -1,7 +1,10 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from geraldo.generators import PDFGenerator
 from sigi.apps.convenios.models import Convenio
-from sigi.apps.convenios.reports import ConvenioReport, ConvenioReportRegiao
+from sigi.apps.convenios.reports import ConvenioReport,      \
+                                        ConvenioPorCMReport, \
+                                        ConvenioPorALReport,  \
+                                        ConvenioReportRegiao
 from sigi.apps.casas.models import CasaLegislativa
 
 
@@ -24,7 +27,7 @@ def report_por_cm(request, id=None):
     if not qs:
         return HttpResponseRedirect('../')    
     response = HttpResponse(mimetype='application/pdf')
-    report = ConvenioReport(queryset=qs)
+    report = ConvenioPorCMReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
 
@@ -47,32 +50,43 @@ def report_por_al(request, id=None):
     if not qs:
         return HttpResponseRedirect('../')
     response = HttpResponse(mimetype='application/pdf')
-    report = ConvenioReport(queryset=qs)
+    report = ConvenioPorALReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
 
 class Relatorios(object):
     def __init__(self, regiao, casas, casas_conveniadas):
         self.regiao = regiao
-        self.casas = casas
-        self.casas_conveniadas = casas_conveniadas
+        self.quant_casas = casas
+        self.quant_casas_conveniadas = casas_conveniadas
         if(casas_conveniadas!=0):
             self.porc_casas_conveniadas = float(casas_conveniadas)/float(casas)*100
         else:
             self.porc_casas_conveniadas = 0
 
 def reportRegiao(request):
+
     REGIAO_CHOICES = (
         ('SL', 'Sul'),
         ('SD', 'Sudeste'),
         ('CO', 'Centro-Oeste'),
         ('NE', 'Nordeste'),
         ('NO', 'Norte'),
-    )
-    relatorio = []
-    for casa in REGIAO_CHOICES:
-        casasSD = CasaLegislativa.objects.filter(municipio__uf__regiao=casa[0])
-        casasConvSD = CasaLegislativa.objects.filter(convenio__casa_legislativa__municipio__uf__regiao=casa[0]).distinct()
+    )    
+    
+    convenios = Convenio.object.all()
+    
+    regioes = []
+    conveniosCO.filter(municipio__uf__regiao='CO')
+    conveniosNO.filter(municipio__uf__regiao='NO')
+    conveniosNE.filter(municipio__uf__regiao='NE')
+    conveniosSD.filter(municipio__uf__regiao='SD')
+    conveniosSL.filter(municipio__uf__regiao='SL')
+    
+    for regiao in REGIAO_CHOICES:
+
+        casasSD = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao[0])
+        casasConvSD = CasaLegislativa.objects.filter(convenio__casa_legislativa__municipio__uf__regiao=regiao[0]).distinct()
 
         relatorio.append(Relatorios(casa[1], casasSD.count(), 
                                 casasConvSD.count()))

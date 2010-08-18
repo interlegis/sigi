@@ -32,7 +32,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     list_display = ('nome','municipio','parlamentar','logradouro')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
-    ordering = ('municipio__uf','nome')
+    ordering = ('nome','municipio__uf')
     fieldsets = (
         (None, {
             'fields': ('nome', 'sigla', 'tipo', 'cnpj', 'observacoes',

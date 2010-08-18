@@ -40,8 +40,8 @@ def charts_data(request):
     num_casas_conveniadas_regiao = []
     for regiao in REGIAO_CHOICES:
         num_casas_conveniadas_regiao.append(
-            CasaLegislativa.objects.filter(
-               convenio__casa_legislativa__municipio__uf__regiao=regiao
+            casas.filter(
+               municipio__uf__regiao=regiao
             ).exclude(
                convenio__data_retorno_assinatura=None
             ).distinct().count()         
@@ -60,8 +60,8 @@ def charts_data(request):
         if num_regiao_maior<i:
             num_regiao_maior = i
 
-    equip_n_recebidos = CasaLegislativa.objects.filter(convenio__data_termo_aceite=None).count()
-    equip_recebidos = CasaLegislativa.objects.exclude(convenio__data_termo_aceite=None).count()
+    equip_n_recebidos = CasaLegislativa.objects.exclude(convenio=None).filter(convenio__data_termo_aceite=None).distinct().count()
+    equip_recebidos = CasaLegislativa.objects.exclude(convenio=None).exclude(convenio__data_termo_aceite=None).distinct().count()
     #equip_n_recebidos = convenios.filter(data_termo_aceite=None).count()    
     #equip_recebidos = convenios.exclude(data_termo_aceite=None).count()
 

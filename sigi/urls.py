@@ -8,6 +8,9 @@ import sigi.admin.filterspecs
 urlpatterns = patterns(
     '',
 
+    # Informacoes de uma casa legislativa
+    (r'^casas/casalegislativa/(?P<id>\w+)/casa_info/',
+     'sigi.apps.casas.views.casa_info'),
     # reports labels
     (r'^casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),

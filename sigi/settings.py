@@ -31,7 +31,7 @@ DATABASE_PASSWORD = 'interlegis'
 DATABASE_HOST = 'banco'
 DATABASE_PORT = '5432'          
 
-TIME_ZONE = 'America/Sao_Paulo'
+TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
 SITE_ID = 1
 

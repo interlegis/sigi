@@ -145,31 +145,42 @@ class ConvenioReport(ReportDefault):
     ]
 
 
-class ConvenioReportRegiao(Report):
-    title = u'Relatório dos Convênios por Região'
-    author = u'Interlegis'
-    class band_page_header(ReportBand):
-        elements = [
+class ConvenioReportRegiao(ReportDefault):
+    title = u'Relatório de Convênios por Região'
+
+    class band_page_header(ReportDefault.band_page_header):
+       label_top = ReportDefault.band_page_header.label_top
+       
+       elements = list(ReportDefault.band_page_header.elements)
+
+       elements += [
             Label(
-                text="Região", left=0*cm
+                text="Região", left=0*cm,
+                top=label_top,
             ),
             Label(
-                text="Quantidade Casas", left=3*cm,
+                text="Casas", left=3*cm,
+                top=label_top,
             ),
             Label(
-                text="Quantidade Casas Conveniadas", left=6*cm
+                text="Conveniadas", left=5*cm,
+                top=label_top,
+            ),            
+            Label(
+                text="%", left=7*cm,
+                top=label_top
             ),
             Label(
-                text="Porcentagem Casas Conveniadas", left=15*cm
+                text="Não Conveniadas", left=9*cm,
+                top=label_top,
             ),
         ]
-    class band_detail(DetailBand):
-        height = 0.5*cm
+    class band_detail(ReportDefault.band_detail):
         elements=[
             ObjectValue(attribute_name='regiao', left=0*cm, ),
             ObjectValue(attribute_name='casas', left=3*cm,),
-            ObjectValue(attribute_name='casas_conveniadas', left=6*cm),
-            ObjectValue(attribute_name='porc_casas_conveniadas', left=15*cm),
+            ObjectValue(attribute_name='casas_conveniadas', left=5*cm),
+            ObjectValue(attribute_name='porc_casas_conveniadas', left=7*cm),
         ]
         border = {'bottom': True}
 
@@ -180,12 +191,17 @@ class ConvenioReportRegiao(Report):
             ObjectValue(attribute_name='casas_conveniadas', left=6*cm, action=FIELD_ACTION_SUM),
                     ]
         borders = {'top':True}
-        child_bands = [
-            ReportBand(
-                height = 0.6*cm,
-                elements = [
-                    Label(text="Total",),
-                    ObjectValue(attribute_name='casas', action=FIELD_ACTION_COUNT,)
-                    ]
-                ),
-            ]
+        #child_bands = [
+        #    ReportBand(
+        #        height = 0.6*cm,
+        #        elements = [
+        #            Label(text="Total",),
+        #            ObjectValue(attribute_name='casas', action=FIELD_ACTION_COUNT,)
+        #            ]
+        #        ),
+        #    ]
+class ConvenioPorCMReport(ConvenioReport):
+    title = u'Relatório de Convênios por Câmera Municipal'
+
+class ConvenioPorALReport(ConvenioReport):
+    title = u'Relatório de Convênios por Assembléia Legislativa'
