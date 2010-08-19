@@ -20,16 +20,10 @@ class CasaLegislativa(models.Model):
         max_length=60,
         help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
     )
-    sigla = models.CharField(
-        max_length=30,
-        help_text='Forneça apenas se a Casa Legislativa indicar um. '
-                  'Exemplo: <em>cmpains</em>.',
-        blank=True
-    )
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
-    parlamentar = models.ForeignKey(Parlamentar, null=True, blank=True, verbose_name="Presidente")
+    presidente = models.CharField('Presidente', max_length=150, blank=True)
 
     logradouro = models.CharField(
         max_length=100,
@@ -49,6 +43,7 @@ class CasaLegislativa(models.Model):
         blank=True,
         verify_exists=False
     )
+    telefone = models.CharField('Telefone', max_length=20, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -59,7 +54,7 @@ class CasaLegislativa(models.Model):
     )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
-    historico = models.TextField(u'histórico', blank=True)
+
 
     contatos = generic.GenericRelation('contatos.Contato')
 

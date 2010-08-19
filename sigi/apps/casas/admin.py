@@ -29,24 +29,24 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_list_template = 'casas/change_list.html'
     actions = ['etiqueta','relatorio']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
-    list_display = ('nome','municipio','parlamentar','logradouro')
+    list_display = ('nome','municipio','presidente','logradouro')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
     ordering = ('nome','municipio__uf')
     fieldsets = (
         (None, {
-            'fields': ('nome', 'sigla', 'tipo', 'cnpj', 'observacoes',
-                       'parlamentar'),
+            'fields': ('tipo', 'nome', 'telefone', 'cnpj',
+                       'presidente'),
         }),
         ('Endereço', {
             'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
         }),
         ('Outras informações', {
             'classes': ('collapse',),
-            'fields': ('email', 'pagina_web', 'foto', 'historico'),
+            'fields': ('observacoes', 'email', 'pagina_web', 'foto'),
         }),
     )
-    raw_id_fields = ('municipio','parlamentar')
+    raw_id_fields = ('municipio',)
     search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
