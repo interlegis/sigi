@@ -17,17 +17,20 @@ from sigi.apps.casas.reports import string_to_cm
 from reportlab.lib.units import cm
 
 
-def labels_report(request, id=None):
+def labels_report(request, id=None,queryset=None):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
-    qs = CasaLegislativa.objects.all()
-    if id:
-        qs = qs.filter(pk=id)
-    elif request.GET:
-        kwargs = {}
-        for k, v in request.GET.iteritems():
-            kwargs[str(k)] = v
-            qs = qs.filter(**kwargs)    
+    if queryset:
+        qs = queryset
+    else:
+        qs = CasaLegislativa.objects.all()
+        if id:
+            qs = qs.filter(pk=id)
+        elif request.GET:
+            kwargs = {}
+            for k, v in request.GET.iteritems():
+                kwargs[str(k)] = v
+                qs = qs.filter(**kwargs)
   
 
     casasNormais = []
@@ -151,16 +154,45 @@ def report(request, id=None):
     report.generate_by(PDFGenerator, filename=response)
     return response
 
-def casa_info(request,id=None):
-    qs = CasaLegislativa.objects.all()
-    if id:
-        qs = qs.filter(pk=id)
+def casa_info(request,id=None,queryset=None):
+    if queryset:
+        qs = queryset
     else:
+        qs = CasaLegislativa.objects.all()
+        if id:
+            qs = qs.filter(pk=id)
+        elif request.GET:
+            kwargs = {}
+            for k, v in request.GET.iteritems():
+                kwargs[str(k)] = v
+                qs = qs.filter(**kwargs)
+    if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
-    report = InfoCasaLegislativa(queryset=qs)
-    report.generate_by(PDFGenerator, filename=response)
+    response = HttpResponse(mimetype='application/pdf')   
+
+    # Gera um relatorio para cada casa e concatena os relatorios
+    cont = 0
+    canvas = None    
+    quant = qs.count()    
+    if quant > 1:    
+        for i in qs:
+            cont += 1
+            #queryset deve ser uma lista
+            lista = (i,)
+            if cont == 1:
+                report = InfoCasaLegislativa(queryset=lista)
+                canvas = report.generate_by(PDFGenerator, return_canvas=True,filename=response,)
+            else:
+                report = InfoCasaLegislativa(queryset=lista)
+                if cont == quant:
+                    report.generate_by(PDFGenerator, canvas=canvas)
+                else:
+                    canvas = report.generate_by(PDFGenerator, canvas=canvas, return_canvas=True)
+    else:
+        report = InfoCasaLegislativa(queryset=qs)
+        report.generate_by(PDFGenerator,filename=response)
+    
     return response
 
 def casas_sem_convenio_report(request):

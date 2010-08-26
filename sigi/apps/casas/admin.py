@@ -9,6 +9,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
 
+from sigi.apps.casas.views import casa_info, labels_report
+
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
     extra = 2
@@ -27,7 +29,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    actions = ['etiqueta','relatorio']
+    actions = ['etiqueta','relatorio','relatorio_completo']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome','municipio','presidente','logradouro')
     list_display_links = ('nome',)
@@ -47,7 +49,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         }),
     )
     raw_id_fields = ('municipio',)
-    search_fields = ('nome', 'sigla', 'cnpj', 'logradouro', 'bairro',
+    search_fields = ('nome','cnpj', 'logradouro', 'bairro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
@@ -58,10 +60,8 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         )
 
     def etiqueta(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='application/pdf')
-        report = CasasLegislativasLabels(queryset=queryset)
-        report.generate_by(PDFGenerator, filename=response)
-        return response        
+        response = HttpResponse(mimetype='application/pdf')        
+        return labels_report(request,queryset=queryset)
     etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
 
     def relatorio(modelAdmin,request,queryset):
@@ -69,7 +69,12 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         report = CasasLegislativasReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
         return response
-    relatorio.short_description = u"Gerar relatório(s) da(s) casa(s) selecionada(s)"
+    relatorio.short_description = u"Gerar relatório resumido da(s) casa(s) selecionada(s)"
+
+    def relatorio_completo(modelAdmin,request,queryset):
+        response = HttpResponse(mimetype='application/pdf')
+        return casa_info(request,queryset=queryset)
+    relatorio_completo.short_description = u"Gerar relatório completo da(s) casa(s) selecionada(s)"
     
     def get_actions(self, request):
         actions = super(CasaLegislativaAdmin, self).get_actions(request)
