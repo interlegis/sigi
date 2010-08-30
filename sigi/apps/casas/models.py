@@ -29,7 +29,7 @@ class CasaLegislativa(models.Model):
         max_length=100,
         help_text='Avenida, rua, praça, jardim, parque...'
     )
-    bairro = models.CharField(max_length=40, blank=True)
+    bairro = models.CharField(max_length=100, blank=True)
     municipio = models.ForeignKey(
         'contatos.Municipio',
         verbose_name='município'
@@ -43,7 +43,7 @@ class CasaLegislativa(models.Model):
         blank=True,
         verify_exists=False
     )
-    telefone = models.CharField('Telefone', max_length=20, blank=True)
+    telefone = models.CharField('Telefone', max_length=100, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
