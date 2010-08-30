@@ -66,29 +66,29 @@ def migra_assembleias(filename):
     for line in reader:
         uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
         municipio = Municipio.objects.get(uf=uf, is_capital=True)
-        endereco = line[ENDERECO_COL].split('-')
-        if(endereco.__len__()>1):
-            bairro = endereco[1]
+        aux_end = line[ENDERECO_COL].split('-')
+        bairro = ''
+        if(aux_end.__len__()>1):
+            bairro = aux_end[1].replace(' ', '', 1)
         else:
             bairro = ''
         casa = CasaLegislativa(
             municipio=municipio,
             nome=line[NOME_COL],
             tipo=tipo_casa,
-            logradouro=endereco[0],
+            logradouro=aux_end[0],
             bairro=bairro,
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
             pagina_web=line[PAGINA_COL],
             observacoes=line[OBS_COL],
+            presidente=line[PRESIDENTE_COL],
+            telefone=line[FONE_1_COL]
         )
         if line[UF_COL] == 'DF':
-            casa.tipo = tipo_casa = TipoCasaLegislativa.objects.filter(sigla='CT').get()
+            casa.tipo = TipoCasaLegislativa.objects.filter(sigla='CT').get()
         casa.save()
 
-        if line[FONE_1_COL]:
-            fone1 = Telefone(numero=line[FONE_1_COL], tipo='F', content_object=casa)
-            fone1.save()
         if line[FONE_2_COL]:
             fone2 = Telefone(numero=line[FONE_2_COL], tipo='I', content_object=casa)
             fone2.save()
@@ -103,23 +103,23 @@ def migra_assembleias(filename):
                 nota='Telefone da Prefeitura.'
             )
             fone_prefeitura.save()
-
+# Presidente será um atributo de casa legislativa
 #        if line[REPRESENTANTE_COL]:
 #            representante = Contato(nome=line[REPRESENTANTE_COL], content_object=casa)
 #            representante.save()
 
-        if line[PRESIDENTE_COL]:
-            mesa = MesaDiretora(casa_legislativa=casa)
-            mesa.save()
-            parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
-            parlamentar.save()
-            cargo_presidente = Cargo.objects.get(descricao__iexact='presidente')
-            presidente = MembroMesaDiretora(
-                parlamentar=parlamentar,
-                cargo=cargo_presidente,
-                mesa_diretora=mesa
-                )
-            presidente.save()
+#        if line[PRESIDENTE_COL]:
+#            mesa = MesaDiretora(casa_legislativa=casa)
+#            mesa.save()
+#            parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
+#            parlamentar.save()
+#            cargo_presidente = Cargo.objects.get(descricao__iexact='presidente')
+#            presidente = MembroMesaDiretora(
+#                parlamentar=parlamentar,
+#                cargo=cargo_presidente,
+#                mesa_diretora=mesa
+#                )
+#            presidente.save()
 
 
 def migra_casas(filename):
@@ -157,26 +157,23 @@ def migra_casas(filename):
         except ValueError:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        parlamentar=None
-        if(line[PRESIDENTE_COL]):
-            parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
-            parlamentar.save()
-        endereco = line[ENDERECO_COL].split('-')
-        if(endereco.__len__()>1):
-            bairro = endereco[1]
-        else:
-            bairro = ''
+
+        aux_end = line[ENDERECO_COL].split('-')
+        bairro = ''
+        if(aux_end.__len__()>1):
+            bairro = aux_end[1].replace(' ', '', 1)
         casa = CasaLegislativa(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
             tipo=tipo_casa,
-            logradouro=endereco[0],
+            logradouro=aux_end[0],
 	    bairro=bairro,
             cep=line[CEP_COL],
             email=line[EMAIL_COL],
             pagina_web=line[PAGINA_COL],
             observacoes=line[OBS_COL],
-            parlamentar=parlamentar,
+            presidente=line[PRESIDENTE_COL],
+            telefone=line[FONE_1_COL]
         )
 
         try:
@@ -186,9 +183,6 @@ def migra_casas(filename):
             print ERROR_MSG_0 % (filename, linenum)
             continue
 
-        if line[FONE_1_COL]:
-            fone1 = Telefone(numero=line[FONE_1_COL], tipo='F', content_object=casa)
-            fone1.save()
         if line[FONE_2_COL]:
             fone2 = Telefone(numero=line[FONE_2_COL], tipo='I', content_object=casa)
             fone2.save()
@@ -207,19 +201,6 @@ def migra_casas(filename):
         if line[REPRESENTANTE_COL]:
             representante = Contato(nome=line[REPRESENTANTE_COL], content_object=casa)
             representante.save()
-
-        if line[PRESIDENTE_COL]:
-            mesa = MesaDiretora(casa_legislativa=casa)
-            mesa.save()
-            parlamentar = Parlamentar(nome_completo=line[PRESIDENTE_COL], email=line[EMAIL_PRESIDENTE_COL])
-            parlamentar.save()
-            cargo_presidente = Cargo.objects.get(descricao__iexact='presidente')
-            presidente = MembroMesaDiretora(
-                parlamentar=parlamentar,
-                cargo=cargo_presidente,
-                mesa_diretora=mesa
-            )
-            presidente.save()
 
 def migra_cnpj(filename):
     # identificação das colunas no arquivo CSV
