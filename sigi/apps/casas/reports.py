@@ -299,7 +299,7 @@ class InfoCasaLegislativa(ReportDefault):
             0,1.8,       #Regiao
             5.5,6.8,     #U.F.            
             0,2.3,       #Municipio
-            0,2.8,       #Logradouro
+            0,2.4,       #Endereco
             0,1.6,       #Bairro
             0,1.3,       #CEP
             0,1.6,       #CNPJ
