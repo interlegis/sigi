@@ -34,47 +34,54 @@ class ConvenioReport(ReportDefault):
         label_top = ReportDefault.band_page_header.label_top
         label_left = [0,1.5,6,9,11,13,15,17]
         elements = list(ReportDefault.band_page_header.elements)
+        height = 4.7*cm
 
         elements += [
             Label(
                 text="Estado",
                 left=label_left[0]*cm,
-                top=label_top
+                top=label_top + 0.4*cm,
             ),
             Label(
                 text="Municipio",
                 left=label_left[1]*cm,
-                top=label_top
+                top=label_top + 0.4*cm,
             ),
             Label(
-                text="Nº Convenio",
+                text="Número do Convenio",
                 left=label_left[2]*cm,
-                top=label_top
+                top=label_top,
+                width=2*cm,
             ),
             Label(
-                text="Data Adesão",
+                text="Data de Adesão",
                 left=label_left[3]*cm,
-                top=label_top
+                top=label_top,
+                width=2*cm,
             ),
             Label(
-                text="Data Conv.",
+                text="Data do Convênio",
                 left=label_left[4]*cm,
-                top=label_top
+                top=label_top,
+                width=2*cm,
             ),
             Label(
-                text="Data Aceite",
+                text="Data de Aceite",
                 left=label_left[5]*cm,
-                top=label_top
+                top=label_top,
+                width=2*cm,
             ),
             Label(
-                text="Data D.O.",
+                text="Data de Publicação",
                 left=label_left[6]*cm,
-                top=label_top
+                top=label_top,
+                width=2*cm,
             ),
             Label(
                 text="Projeto",
                 left=label_left[7]*cm,
-                top=label_top
+                top=label_top + 0.4*cm,
+                width=2*cm,
             ),
         ]
 
