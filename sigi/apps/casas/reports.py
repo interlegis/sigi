@@ -238,7 +238,7 @@ class CasasLegislativasReport(ReportDefault):
                 top=label_top,                
             ),
             Label(
-                text="Logradouro",
+                text="Endereço",
                 left=label_left[3]*cm,
                 top=label_top,                
             ),
@@ -373,7 +373,7 @@ class InfoCasaLegislativa(ReportDefault):
             ),
             # Linha 3
             Label(
-                text="Logradouro: ",
+                text="Endereço: ",
                 left=posicao_left[8]*cm,
                 top=posicao_top[4]*cm,
             ),
