@@ -219,7 +219,7 @@ def export_csv(request):
     response['Content-Disposition'] = 'attachment; filename=casas.csv'
     
     csv_writer = csv.writer(response)
-    casas = CasaLegislativa.objects.filter(municipio__uf__sigla=u'MG')
+    casas = CasaLegislativa.objects.all()
     for casa in casas:
         csv_writer.writerow([casa.nome.encode("utf-8"), casa.municipio.uf.sigla.encode("utf-8")])
     
