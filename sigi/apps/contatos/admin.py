@@ -4,12 +4,14 @@ from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
 
 class UnidadeFederativaAdmin(admin.ModelAdmin):
+    actions = None
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
     list_display_links = ('codigo_ibge', 'nome')
     list_filter = ('regiao', 'populacao')
     search_fields = ('codigo_ibge', 'nome', 'sigla', 'regiao')
 
 class MunicipioAdmin(admin.ModelAdmin):
+    actions = None
     list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo')
     list_display_links = ('codigo_ibge', 'codigo_tse', 'nome')
     list_filter = ('is_capital', 'is_polo', 'populacao', 'uf')
