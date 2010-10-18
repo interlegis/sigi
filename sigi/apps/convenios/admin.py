@@ -5,6 +5,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico
 from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.convenios.reports import ConvenioReport
+from sigi.apps.utils import queryset_ascii
 from geraldo.generators import PDFGenerator
 
 class AnexosInline(admin.TabularInline):
@@ -48,7 +49,8 @@ class ConvenioAdmin(admin.ModelAdmin):
     #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa__municipio__uf','-id',)
     raw_id_fields = ('casa_legislativa',)
-    search_fields = ('id', 'casa_legislativa__nome',
+    queryset = queryset_ascii
+    search_fields = ('id', 'search_text',#'casa_legislativa__nome',
                      'num_processo_sf','num_convenio')
 
     def changelist_view(self, request, extra_context=None):

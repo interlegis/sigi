@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 from sigi.apps.mesas.models import MesaDiretora, MembroMesaDiretora
 from sigi.apps.parlamentares.models import Parlamentar
+from sigi.apps.utils import SearchField
 
 class TipoCasaLegislativa(models.Model):
     sigla = models.CharField(
@@ -20,6 +21,7 @@ class CasaLegislativa(models.Model):
         max_length=60,
         help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
     )
+    search_text = SearchField(field_names=['nome'])
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)

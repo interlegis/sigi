@@ -3,6 +3,7 @@ from datetime import datetime
 from django.db import models
 #from django.contrib.contenttypes import ContentType
 from django.contrib.contenttypes import generic
+from sigi.apps.utils import SearchField
 
 class Projeto(models.Model):
     nome = models.CharField(max_length=50)
@@ -16,6 +17,7 @@ class Convenio(models.Model):
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
     )
+    search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
     projeto = models.ForeignKey(

@@ -2,19 +2,22 @@
 from django.contrib import admin
 from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
+from sigi.apps.utils import queryset_ascii
 
 class UnidadeFederativaAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
     list_display_links = ('codigo_ibge', 'nome')
     list_filter = ('regiao', 'populacao')
-    search_fields = ('codigo_ibge', 'nome', 'sigla', 'regiao')
+    search_fields = ('search_text', 'codigo_ibge',  'sigla', 'regiao')
+    queryset = queryset_ascii
 
 class MunicipioAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo')
     list_display_links = ('codigo_ibge', 'codigo_tse', 'nome')
     list_filter = ('is_capital', 'is_polo', 'populacao', 'uf')
+    queryset = queryset_ascii
     fieldsets = (
         (None, {
             'fields': ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
@@ -25,8 +28,8 @@ class MunicipioAdmin(admin.ModelAdmin):
             'fields': ('latitude', 'longitude'),
         }),
     )
-    search_fields = ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
-                     'codigo_microrregiao', 'nome', 'uf__nome', 'uf__sigla')
+    search_fields = ('search_text', 'codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
+                     'codigo_microrregiao', 'uf__sigla')
 
 class TelefoneAdmin(admin.ModelAdmin):
     list_display = ('codigo_area', 'numero', 'tipo', 'nota')

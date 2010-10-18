@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
+from sigi.apps.utils import SearchField
 
 class UnidadeFederativa(models.Model):
     REGIAO_CHOICES = (
@@ -18,6 +19,7 @@ class UnidadeFederativa(models.Model):
         help_text='Código do estado segundo IBGE.'
     )
     nome = models.CharField(max_length=25)
+    search_text = SearchField(field_names=['nome'])
     sigla = models.CharField(
         max_length=2,
         unique=True,
@@ -59,6 +61,7 @@ class Municipio(models.Model):
         help_text='Código do município segundo TSE.'
     )
     nome = models.CharField(max_length=50)
+    search_text = SearchField(field_names=['nome', 'uf'])
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
     is_capital = models.BooleanField('capital')
     populacao = models.PositiveIntegerField(u'população')

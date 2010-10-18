@@ -8,8 +8,8 @@ from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, A
 from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
-
 from sigi.apps.casas.views import casa_info, labels_report
+from sigi.apps.utils import queryset_ascii
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
@@ -35,6 +35,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
     ordering = ('nome','municipio__uf')
+    queyrset = queryset_ascii
     fieldsets = (
         (None, {
             'fields': ('tipo', 'nome', 'telefone', 'cnpj',
@@ -49,7 +50,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         }),
     )
     raw_id_fields = ('municipio',)
-    search_fields = ('nome','cnpj', 'logradouro', 'bairro',
+    search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
