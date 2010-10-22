@@ -4,7 +4,7 @@ from ctypes import alignment
 from operator import attrgetter
 from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, \
                     landscape,SystemField, BAND_WIDTH,ReportGroup, \
-                    FIELD_ACTION_SUM, FIELD_ACTION_COUNT
+                    FIELD_ACTION_SUM, FIELD_ACTION_COUNT, FIELD_ACTION_AVG
 from geraldo.graphics import Image
 
 from reportlab.lib.units import cm
@@ -26,8 +26,9 @@ class CasasComEquipamentosReport(object):
 
 class SemEquipamentosReport(object):
     pass
+
 class ConvenioReport(ReportDefault):
-    title = u'Relatório de Convênios'    
+    title = u'Relatório de Convênios'
 
     class band_page_header(ReportDefault.band_page_header):
 
@@ -151,62 +152,60 @@ class ConvenioReport(ReportDefault):
         )
     ]
 
-
+float_duas_casas = lambda instance: '%.2f' %  (instance)
 class ConvenioReportRegiao(ReportDefault):
     title = u'Relatório de Convênios por Região'
 
     class band_page_header(ReportDefault.band_page_header):
        label_top = ReportDefault.band_page_header.label_top
+       label_left = [0.5,6,8,10,12,14]
+       map(lambda x:x-0.4,label_left)
        
        elements = list(ReportDefault.band_page_header.elements)
 
        elements += [
-            Label(
-                text="Região", left=0*cm,
-                top=label_top,
-            ),
-            Label(
-                text="Casas", left=3*cm,
-                top=label_top,
-            ),
-            Label(
-                text="Conveniadas", left=5*cm,
-                top=label_top,
-            ),            
-            Label(
-                text="%", left=7*cm,
-                top=label_top
-            ),
-            Label(
-                text="Não Conveniadas", left=9*cm,
-                top=label_top,
-            ),
+            Label(text="UF", left=label_left[0]*cm,top=label_top,),
+            Label(text="Total", left=label_left[1]*cm,top=label_top,),
+            Label(text="Aderidas", left=label_left[2]*cm,top=label_top,),
+            Label(text="%", left=label_left[3]*cm,top=label_top),
+            Label(text="Ñ Aderidas", left=label_left[4]*cm,top=label_top,),
+            Label(text="%", left=label_left[5]*cm,top=label_top),
         ]
     class band_detail(ReportDefault.band_detail):
-        elements=[
-            ObjectValue(attribute_name='regiao', left=0*cm, ),
-            ObjectValue(attribute_name='casas', left=3*cm,),
-            ObjectValue(attribute_name='casas_conveniadas', left=5*cm),
-            ObjectValue(attribute_name='porc_casas_conveniadas', left=7*cm),
-        ]
-        border = {'bottom': True}
+        label_left = [0.5,6,8,10,12,14]
+        display_inline = True
+        float_duas_casas = lambda instance: '%.2f' %  (instance.porc_casas_aderidas)
+        default_style = {'fontName': 'Helvetica', 'fontSize': 11}
 
-    class band_summary(ReportBand):
+        elements=[
+            ObjectValue(attribute_name='estado', left=label_left[0]*cm, ),
+            ObjectValue(attribute_name='quant_casas', left=label_left[1]*cm,),
+            ObjectValue(attribute_name='quant_casas_aderidas', left=label_left[2]*cm),
+            ObjectValue(attribute_name='porc_casas_aderidas', left=label_left[3]*cm),
+            ObjectValue(attribute_name='quant_casas_nao_aderidas', left=label_left[4]*cm),
+            ObjectValue(attribute_name='porc_casas_nao_aderidas', left=label_left[5]*cm,),
+        ]        
+
+    class band_summary(ReportBand):        
+        label_left = [0.5,6,8,10,12,14]        
         elements = [
-            Label(text="Total", top=0.1*cm, left=0),
-            ObjectValue(attribute_name='casas', action=FIELD_ACTION_SUM, left=3*cm, top=0.1*cm),
-            ObjectValue(attribute_name='casas_conveniadas', left=6*cm, action=FIELD_ACTION_SUM),
+            Label(text="Total", top=0.1*cm, left=label_left[0]*cm),
+            ObjectValue(attribute_name='quant_casas', action=FIELD_ACTION_SUM, left=label_left[1]*cm, ),
+            ObjectValue(attribute_name='quant_casas_aderidas', action=FIELD_ACTION_SUM, left=label_left[2]*cm),            
+#            ObjectValue(attribute_name='porc_casas_aderidas', action=FIELD_ACTION_AVG, left=label_left[3]*cm,
+#                #get_value= lambda instance : lambda instance: '%.2f' %  (instance.porc_casas_aderidas),
+#            ),
+            ObjectValue(attribute_name='quant_casas_nao_aderidas', action=FIELD_ACTION_SUM, left=label_left[4]*cm),
+#            ObjectValue(attribute_name='porc_casas_nao_aderidas', left=label_left[5]*cm,
+#               get_value=lambda x: teste(),
+#            ),
                     ]
         borders = {'top':True}
-        #child_bands = [
-        #    ReportBand(
-        #        height = 0.6*cm,
-        #        elements = [
-        #            Label(text="Total",),
-        #            ObjectValue(attribute_name='casas', action=FIELD_ACTION_COUNT,)
-        #            ]
-        #        ),
-        #    ]
+        
+
+        
+
+        
 class ConvenioPorCMReport(ConvenioReport):
     title = u'Relatório de Convênios por Câmera Municipal'
 

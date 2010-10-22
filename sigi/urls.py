@@ -27,8 +27,8 @@ urlpatterns = patterns(
      'sigi.apps.convenios.views.report_por_cm'),
     (r'^convenios/convenio/reports_por_al/',
      'sigi.apps.convenios.views.report_por_al'),
-    (r'^convenios/convenio/reportsRegiao/',
-     'sigi.apps.convenios.views.reportRegiao'),
+    (r'^convenios/convenio/reportsRegiao/(?P<regiao>\w+)',
+     'sigi.apps.convenios.views.report_regiao'),
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),
 )

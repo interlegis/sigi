@@ -1,17 +1,63 @@
 {% extends "admin/change_list.html" %}
 {% load i18n reporting_tags  %}
 
+{% block extrastyle %}  
+  {{ block.super }}
+  {% include "jquery/tabs_style.html" %}
+  
+{% endblock %}
+
 {% block object-tools %}
   {% if has_add_permission %}
-    <ul class="object-tools">
-      <li><a href="reports_por_cm/{{ query_str }}">Relatórios por Câmara Municipal</a></li>
-      <li><a href="reports_por_al/{{ query_str }}">Relatórios por Assembléia Legislativa</a></li>
-      <li><a href="reportsRegiao/">Sumário Região</a></li>
-      <li>
-        <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
-          {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
-        </a>
-      </li>
-    </ul>
+  
+    <div id="tabs">
+        
+        <ul>
+            <!--<li><a href="#tabs-0"> </a></li>-->
+            <li><a href="#tabs-1">Exportar</a></li>
+            <li><a href="#tabs-2">Resumo por Região</a></li>
+            <li>
+                <a style="display: none" href="#tabs-0" /><a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                    {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+                </a>
+            </li>
+	</ul>
+<!--        <div id="tabs-0">
+
+        </div>-->
+	<div id="tabs-1">
+            <p>Escolha uma das opções abaixo para exportar todos os convênios listados.
+               Caso queira selecionar convênios especificos, utilize a opção "exportar
+               convênios selecionados" na caixa "Ação".</p>
+            <div class="tabs-conteudo">
+                <div>                
+                    <ul>
+                        <li><a href="reports_por_cm/{{ query_str }}">Exportar para PDF por Câmara Municipal</a></li>
+                        <li><a href="reports_por_al/{{ query_str }}">Exportar para PDF por Assembléia Legislativa</a></li>
+                    </ul>                
+                </div>
+            </div>
+	</div>
+	<div id="tabs-2">
+            <p>Escolha uma das opções abaixo para obter um resumo de informações do Projeto Interlegis por região.
+            Outros projetos como PPM e PML não serão incluidos. </p>
+            <ul class="tabs-conteudo">
+                <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
+                <li><a href="reportsRegiao/NE">Nordeste</a></li>
+                <li><a href="reportsRegiao/NO">Norte</a></li>
+                <li><a href="reportsRegiao/SD">Sudeste</a></li>
+                <li><a href="reportsRegiao/SL">Sul</a></li>
+            </ul>
+	</div>	
+    </div>
+  
+    <!--<ul class="object-tools">
+        
+        <li>
+            <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+        </li>
+    </ul>  -->
   {% endif %}
 {% endblock %}

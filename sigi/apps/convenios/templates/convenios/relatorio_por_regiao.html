@@ -1,0 +1,165 @@
+<html>
+<head>
+    <title>Relatório por Região</title>
+    <style>
+        @page {
+            size: a4;
+            margin-top: 6.5cm;
+            margin-left: 1.5cm;
+            margin-right: 1cm;
+            margin-bottom: 3.5cm;
+            @frame top{
+                -pdf-frame-content: cabecalho;
+                top: 2cm;
+                margin-left: 1cm;
+                margin-right: 1cm;
+                /*height: 1cm;                */
+            }
+           /* @frame midle{
+                -pdf-frame-content: midle;
+                top: 6cm;
+                height: 1cm;
+                margin: 2cm;
+            }*/
+            @frame footer {
+                -pdf-frame-content: footerContent;
+                bottom: 2cm;
+                margin-left: 1cm;
+                margin-right: 1cm;
+                height: 1cm;
+            }
+        }        
+        body{
+            font-family: 'Helvetica';
+            font-size: 9pt;
+        }        
+        #corpo h1{
+            text-align: center;
+        }
+        #cabecalho {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+        }
+        #cabecalho .item2{
+            font-size: 13pt;
+        }
+        #cabecalho .titulo{
+            font-size: 14pt;
+        }
+        #footerContent {
+            border-top: black outset;
+            padding-top: 0.15cm;
+        }
+        #footerContent #esquerda{
+            text-align: left;
+        }
+        #footerContent #direita{
+            text-align: right;
+        }
+        .tabela {            
+            padding-top: 0.1cm;
+            padding-left: 0.1cm;
+            border: black solid;
+            width: 2cm;
+            background-color: #B5B5B5;
+        }
+        .tabela caption{
+            text-align: center;
+            font-weight: bold;
+            font-size: 11pt;
+        }
+        .tabela th{            
+            background-color: #CFCFCF;
+            text-align: left;
+        }
+        .tabela .conteudo {
+            background-color: white;/*#E8E8E8;*/
+        }
+        .tabela .sumario{
+            font-weight: bold;
+            background-color: #CFCFCF;
+        }                
+        .tabela .aderidas{
+            /*background-color: #E8E8E8;*/
+            border: blue solid;
+        }
+        .tabela .estado{
+            background-color: #E8E8E8;
+            font-weight: bold;
+        }
+
+        
+    </style>
+
+</head>
+<body>
+    <div id="cabecalho">
+        <table>
+            <tr>
+                <td id="imagem1"><img src="../media/images/logo-senado.png" width="80" height="80" alt="Logo Senado"/></td>
+                <td id="centro" colspan="3">SENADO FEDERAL<br/><span class="item2">SINTER - Secretaria Especial do Interlegis</span></td>
+                <td id="imagem2"><img src="../media/images/logo-interlegis.jpg" width="90" height="65" alt="Logo Interlegis"/></td>
+            </tr>            
+        </table>
+        <h1 class="titulo">Resumo por Região</h1>        
+    </div>    
+    <div id="midle">        
+        <table class="tabela" repeat="1">
+            <caption>{{sumario_regiao.regiao}}</caption>
+            <thead>
+                <tr>
+                    <th>UF</th>
+                    <th>Total</th>
+                    <th>Não Aderidas</th>
+                    <th>%</th>
+                    <th>Aderidas</th>
+                    <th>%</th>                    
+                    <th>Não Equipadas</th>
+                    <th>%</th>
+                    <th>Equipadas</th>
+                    <th>%</th>
+                </tr>
+            </thead>
+            <tbody>                                
+                {%for r in lista%}                
+                <tr class="conteudo">
+                    <td class="estado">{{r.estado}}</td>
+                    <td>{{r.quant_casas}}</td>
+                    <td>{{r.quant_casas_nao_aderidas}}</td>
+                    <td>{{r.porc_casas_nao_aderidas}}</td>
+                    <td class="aderidas">{{r.quant_casas_aderidas}}</td>
+                    <td class="aderidas">{{r.porc_casas_aderidas}}</td>
+                    <td class="aderidas">{{r.quant_casas_nao_equipadas}}</td>
+                    <td class="aderidas">{{r.porc_casas_nao_equipadas}}</td>
+                    <td class="aderidas">{{r.quant_casas_equipadas}}</td>
+                    <td class="aderidas">{{r.porc_casas_equipadas}}</td>
+                    
+                </tr>                                
+                {%endfor%}                
+                <tr class="sumario">
+                    <td>Total</td>
+                    <td>{{sumario_regiao.total}}</td>
+                    <td>{{sumario_regiao.total_casas_nao_aderidas}}</td>
+                    <td>{{sumario_regiao.porc_casas_nao_aderidas}}</td>
+                    <td>{{sumario_regiao.total_casas_aderidas}}</td>
+                    <td>{{sumario_regiao.porc_casas_aderidas}}</td>
+                    <td>{{sumario_regiao.total_casas_nao_equipadas }}</td>
+                    <td>{{sumario_regiao.porc_casas_nao_equipadas }}</td>
+                    <td>{{sumario_regiao.total_casas_equipadas }}</td>
+                    <td>{{sumario_regiao.porc_casas_equipadas }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>    
+    <div id="footerContent">
+        <table>
+            <tr>
+                <td id="esquerda">{{data}} às {{hora}}</td>
+                <td id="direita">Página <pdf:pagenumber /> </td>
+            </tr>
+        </table>
+    </div>
+    
+</body>
+</html>

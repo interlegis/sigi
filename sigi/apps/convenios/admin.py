@@ -65,7 +65,7 @@ class ConvenioAdmin(admin.ModelAdmin):
         report.generate_by(PDFGenerator, filename=response)
         return response        
         
-    relatorio.short_description = 'Gerar relatorio dos convenios selecionados'
+    relatorio.short_description = u'Exportar convênios selecionados para PDF'
     
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):

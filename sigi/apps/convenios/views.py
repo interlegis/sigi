@@ -1,4 +1,5 @@
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response, get_list_or_404
 from geraldo.generators import PDFGenerator
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.convenios.reports import ConvenioReport,      \
@@ -6,6 +7,14 @@ from sigi.apps.convenios.reports import ConvenioReport,      \
                                         ConvenioPorALReport,  \
                                         ConvenioReportRegiao
 from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import UnidadeFederativa
+
+import ho.pisa as pisa
+from django.template import Context, loader
+
+import datetime
+
+
 
 
 def report_por_cm(request, id=None):
@@ -54,45 +63,110 @@ def report_por_al(request, id=None):
     report.generate_by(PDFGenerator, filename=response)
     return response
 
-class Relatorios(object):
-    def __init__(self, regiao, casas, casas_conveniadas):
-        self.regiao = regiao
+class RelatorioRegiao(object):
+    def __init__(self, estado, casas, casas_aderidas, casas_equipadas,casas_nao_equipadas):
+        self.estado = estado
         self.quant_casas = casas
-        self.quant_casas_conveniadas = casas_conveniadas
-        if(casas_conveniadas!=0):
-            self.porc_casas_conveniadas = float(casas_conveniadas)/float(casas)*100
+        self.quant_casas_aderidas = casas_aderidas
+        self.quant_casas_nao_aderidas = (casas - casas_aderidas)
+        self.quant_casas_equipadas = casas_equipadas
+        self.quant_casas_nao_equipadas = casas_nao_equipadas
+        if(casas!=0):
+            self.porc_casas_aderidas = "%.2f" % (float(casas_aderidas)*100/float(casas))
+            self.porc_casas_nao_aderidas = "%.2f" % (float(self.quant_casas_nao_aderidas)*100/float(casas))            
         else:
-            self.porc_casas_conveniadas = 0
+            self.porc_casas_aderidas = 0
+            self.porc_casas_nao_aderidas = 0
 
-def reportRegiao(request):
+        if(casas_aderidas!=0):
+            self.porc_casas_equipadas = "%.2f" % (float(casas_equipadas)*100/float(casas_aderidas))
+            self.porc_casas_nao_equipadas = "%.2f" % (float(self.quant_casas_nao_equipadas)*100/float(casas_aderidas))
+        else:
+            self.porc_casas_equipadas = 0
+            self.porc_casas_nao_equipadas = 0
 
-    REGIAO_CHOICES = (
-        ('SL', 'Sul'),
-        ('SD', 'Sudeste'),
-        ('CO', 'Centro-Oeste'),
-        ('NE', 'Nordeste'),
-        ('NO', 'Norte'),
-    )    
-    
-    convenios = Convenio.object.all()
-    
-    regioes = []
-    conveniosCO.filter(municipio__uf__regiao='CO')
-    conveniosNO.filter(municipio__uf__regiao='NO')
-    conveniosNE.filter(municipio__uf__regiao='NE')
-    conveniosSD.filter(municipio__uf__regiao='SD')
-    conveniosSL.filter(municipio__uf__regiao='SL')
-    
-    for regiao in REGIAO_CHOICES:
+class RelatorioRegiaoTotal:
+    def __init__(self,regiao,total,total_casas_aderidas,total_casas_equipadas,total_casas_nao_equipadas):
+        self.regiao = regiao
+        self.total = total
+        self.total_casas_aderidas = total_casas_aderidas
+        self.total_casas_nao_aderidas = (total - total_casas_aderidas)
+        self.total_casas_equipadas = total_casas_equipadas
+        self.total_casas_nao_equipadas = total_casas_nao_equipadas
 
-        casasSD = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao[0])
-        casasConvSD = CasaLegislativa.objects.filter(convenio__casa_legislativa__municipio__uf__regiao=regiao[0]).distinct()
+        if(total!=0):
+            self.porc_casas_aderidas = "%.2f" % (float(self.total_casas_aderidas)*100/float(total))
+            self.porc_casas_nao_aderidas = "%.2f" % (float(self.total_casas_nao_aderidas)*100/float(total))            
+        else:
+            self.porc_casas_aderidas = 0
+            self.porc_casas_nao_aderidas = 0
 
-        relatorio.append(Relatorios(casa[1], casasSD.count(), 
-                                casasConvSD.count()))
+        if(total_casas_aderidas!=0):
+            self.porc_casas_equipadas = "%.2f" % (float(self.total_casas_equipadas)*100/float(total_casas_aderidas))
+            self.porc_casas_nao_equipadas = "%.2f" % (float(total_casas_nao_equipadas)*100/float(total_casas_aderidas))
+        else:
+            self.porc_casas_equipadas = 0
+            self.porc_casas_nao_equipadas = 0
+
+def report_regiao(request,regiao='NE'):
+
+    REGIAO_CHOICES = {
+        'SL': 'Sul',
+        'SD': 'Sudeste',
+        'CO': 'Centro-Oeste',
+        'NE': 'Nordeste',
+        'NO': 'Norte',
+    }
+
+    get_list_or_404(UnidadeFederativa,regiao=regiao)
+
+    # Contando casas por estado
+    estados = get_list_or_404(UnidadeFederativa,regiao=regiao)
+
+    lista = []
+    for estado in estados:
+
+        casas = CasaLegislativa.objects.filter(municipio__uf=estado)
+        casas_aderidas = casas.exclude(convenio=None).distinct()
+        casas_equipadas = casas_aderidas.exclude(convenio__data_termo_aceite=None).distinct()
+        casas_nao_equipadas = casas_aderidas.filter(convenio__data_termo_aceite=None).distinct()
+
+        lista.append(
+            RelatorioRegiao(
+                estado.sigla,casas.count(),
+                casas_aderidas.count(),
+                casas_equipadas.count(),
+                casas_nao_equipadas.count()
+            )
+        )
+
+    # Total de casas na regiao
+    casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
+    casas_aderidas = casas.exclude(convenio=None).distinct()
+    casas_equipadas = casas_aderidas.exclude(convenio__data_termo_aceite=None).distinct()
+    casas_nao_equipadas = casas_aderidas.filter(convenio__data_termo_aceite=None).distinct()
+    sumario_regiao = RelatorioRegiaoTotal(
+        REGIAO_CHOICES[regiao],
+        casas.count(),
+        casas_aderidas.count(),
+        casas_equipadas.count(),
+        casas_nao_equipadas.count(),
+    )
+
+#    response = HttpResponse(mimetype='application/pdf')
+#    relatorio  = ConvenioReportRegiao(queryset=lista)
+#    relatorio.generate_by(PDFGenerator, filename=response)
     
+    data = datetime.datetime.now().strftime('%d/%m/%Y')
+    hora = datetime.datetime.now().strftime('%H:%M')    
+    pisa.showLogging()
     response = HttpResponse(mimetype='application/pdf')
-    relatorio  = ConvenioReportRegiao(queryset=relatorio)
-    relatorio.generate_by(PDFGenerator, filename=response)
+    response['Content-Disposition'] = 'attachment; filename=RelatorioRegiao_' + regiao + '.pdf'
+    t = loader.get_template('convenios/relatorio_por_regiao.html')
+    c = Context({'lista': lista,'sumario_regiao':sumario_regiao,'data':data,'hora':hora})
+    pdf = pisa.CreatePDF(t.render(c),response)
+    if not pdf.err:
+        pisa.startViewer(response)
+
     return response
      
