@@ -62,154 +62,43 @@ class CasasLegislativasLabels(Report):
         width  = 9.9*cm
         height = 5.6*cm
         margin_bottom = 0.0*cm
-        margin_right  = 0.3*cm                
+        margin_right  = 0.3*cm
 
         # With this attribute as True, the band will try to align in
         # the same line.
-        display_inline = True        
+        display_inline = True
 
-        default_style = {'fontName': 'Helvetica', 'fontSize': 11}        
-       
-        elements = [            
-            Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=1*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='presidente',
-                top=1.5*cm, left=0.5*cm, width=9.4*cm,                
-            ),
-            ObjectValue(
-                attribute_name='nome',
-                top=2*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.nome
-            ),
-            ObjectValue(
-                attribute_name='logradouro',
-                top=2.5*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:                    
-                        (instance.logradouro +" - "+ instance.bairro)
-                            if len(instance.bairro) != 0
-                            else instance.logradouro                    
-            ),
-            ObjectValue(
-                attribute_name='municipio',
-                top=3*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='cep',
-                top=3.5*cm, left=0.5*cm, width=9.4*cm,                
-            ),            
-        ]
+        default_style = {'fontName': 'Helvetica', 'fontSize': 11}
 
-class CasasLabelsNomeMaior(CasasLegislativasLabels):
-    class band_detail(CasasLegislativasLabels.band_detail):        
+
         elements = [
             Label(
                 text='A Sua Excelência o(a) Senhor(a)',
                 top=1*cm, left=0.5*cm, width=9.4*cm,
             ),
             ObjectValue(
-                attribute_name='presidente',
+                attribute_name='tipo',
                 top=1.5*cm, left=0.5*cm, width=9.4*cm,
+                get_value=lambda instance:
+                    "Presidente da " + instance.tipo.nome + " de "
             ),
             ObjectValue(
                 attribute_name='nome',
                 top=2*cm, left=0.5*cm, width=9.4*cm,
                 get_value=lambda instance:
-                    "Presidente da " + instance.nome
+                    instance.municipio.uf.nome
+                        if instance.tipo.nome == u'Assembléia Legislativa'
+                        else instance.municipio.nome
+
             ),
-            ObjectValue(
-                attribute_name='logradouro',
-                top=3*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                        instance.logradouro +" - "+ instance.bairro
-                            if len(instance.bairro) != 0
-                            else instance.logradouro
+            ManyElements(
+                ObjectValue,
+                count=4,
+                attribute_name=('logradouro','bairro','municipio','cep'),
+                start_top=2.5*cm, height=0.5*cm, left=0.5*cm, width=9.4*cm,
             ),
-            ObjectValue(
-                attribute_name='municipio',
-                top=3.5*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='cep',
-                top=4*cm, left=0.5*cm, width=9.4*cm,
-            ),
+
         ]
-
-class CasasLabelsEnderecoMaior(CasasLegislativasLabels):
-    class band_detail(CasasLegislativasLabels.band_detail):
-        elements = [
-            Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=1*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='presidente',
-                top=1.5*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='nome',
-                top=2*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.nome
-            ),
-            ObjectValue(
-                attribute_name='logradouro',
-                top=2.5*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                        instance.logradouro +" - "+ instance.bairro
-                            if len(instance.bairro) != 0
-                            else instance.logradouro
-            ),
-            ObjectValue(
-                attribute_name='municipio',
-                top=3.5*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='cep',
-                top=4*cm, left=0.5*cm, width=9.4*cm,
-            ),
-        ]
-
-class CasasLabelsNomeMaiorEnderecoMaior(CasasLegislativasLabels):
-    class band_detail(CasasLegislativasLabels.band_detail):
-        elements = [
-            Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=1*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='presidente',
-                top=1.5*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='nome',
-                top=2*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.nome
-            ),
-            ObjectValue(
-                attribute_name='logradouro',
-                top=3*cm, left=0.5*cm, width=9.4*cm,
-                get_value=lambda instance:
-                        instance.logradouro +" - "+ instance.bairro
-                            if len(instance.bairro) != 0
-                            else instance.logradouro
-            ),
-            ObjectValue(
-                attribute_name='municipio',
-                top=4*cm, left=0.5*cm, width=9.4*cm,
-            ),
-            ObjectValue(
-                attribute_name='cep',
-                top=4.5*cm, left=0.5*cm, width=9.4*cm,
-            ),
-        ]
-
-
-
 
 class CasasLegislativasReport(ReportDefault):
     title = u'Relatório de Casas Legislativas'
@@ -560,4 +449,4 @@ class InfoCasaLegislativa(ReportDefault):
         )
     ]
 
-    
+
