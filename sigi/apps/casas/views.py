@@ -4,6 +4,7 @@ from geraldo.generators import PDFGenerator
 from sigi.apps.casas.models import CasaLegislativa
 
 from sigi.apps.casas.reports import CasasLegislativasLabels
+from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
 from sigi.apps.casas.reports import CasasLegislativasReport
 from sigi.apps.casas.reports import CasasSemConvenioReport
 from sigi.apps.casas.reports import InfoCasaLegislativa
@@ -27,6 +28,27 @@ def labels_report(request, id=None,queryset=None):
 
     response = HttpResponse(mimetype='application/pdf')
     report = CasasLegislativasLabels(queryset=qs)
+    report.generate_by(PDFGenerator, filename=response)
+
+    return response
+
+def labels_report_sem_presidente(request, id=None,queryset=None):
+    """ TODO: adicionar suporte para resultado de pesquisa do admin.
+    """
+    if queryset:
+        qs = queryset
+    else:
+        qs = CasaLegislativa.objects.all()
+        if id:
+            qs = qs.filter(pk=id)
+        elif request.GET:
+            kwargs = {}
+            for k, v in request.GET.iteritems():
+                kwargs[str(k)] = v
+                qs = qs.filter(**kwargs)
+
+    response = HttpResponse(mimetype='application/pdf')
+    report = CasasLegislativasLabelsSemPresidente(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
 
     return response

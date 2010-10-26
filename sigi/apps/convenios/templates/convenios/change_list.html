@@ -12,30 +12,25 @@
   
     <div id="tabs">
         
-        <ul>
-            <!--<li><a href="#tabs-0"> </a></li>-->
+        <ul>           
             <li><a href="#tabs-1">Exportar</a></li>
             <li><a href="#tabs-2">Resumo por Região</a></li>
             <li>
-                <a style="display: none" href="#tabs-0" /><a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                <a style="display: none" href="#tabs-0" />
+                <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
                     {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
                 </a>
             </li>
 	</ul>
-<!--        <div id="tabs-0">
-
-        </div>-->
 	<div id="tabs-1">
             <p>Escolha uma das opções abaixo para exportar todos os convênios listados.
                Caso queira selecionar convênios especificos, utilize a opção "exportar
                convênios selecionados" na caixa "Ação".</p>
-            <div class="tabs-conteudo">
-                <div>                
-                    <ul>
-                        <li><a href="reports_por_cm/{{ query_str }}">Exportar para PDF por Câmara Municipal</a></li>
-                        <li><a href="reports_por_al/{{ query_str }}">Exportar para PDF por Assembléia Legislativa</a></li>
-                    </ul>                
-                </div>
+            <div class="tabs-conteudo">            
+                <ul>
+                    <li><a href="reports_por_cm/{{ query_str }}">Exportar para PDF por Câmara Municipal</a></li>
+                    <li><a href="reports_por_al/{{ query_str }}">Exportar para PDF por Assembléia Legislativa</a></li>
+                </ul>
             </div>
 	</div>
 	<div id="tabs-2">

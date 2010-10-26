@@ -70,7 +70,45 @@ class CasasLegislativasLabels(Report):
 
         default_style = {'fontName': 'Helvetica', 'fontSize': 11}
 
+        elements = [
+            Label(
+                text='A Sua Excelência o(a) Senhor(a)',
+                top=1*cm, left=0.5*cm, width=9.4*cm,
+            ),
+            ObjectValue(
+                attribute_name='presidente',
+                top=1.5*cm, left=0.5*cm, width=9.4*cm,
+            ),
+            ObjectValue(
+                attribute_name='tipo',
+                top=2*cm, left=0.5*cm, width=9.4*cm,
+                get_value=lambda instance:
+                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
+            ),
+            ObjectValue(
+                attribute_name='nome',
+                top=2.5*cm, left=0.5*cm, width=9.4*cm,
+                get_value=lambda instance:
+                    instance.municipio.uf.nome
+                        if instance.tipo.nome == u'Assembléia Legislativa'
+                        else instance.municipio.nome
 
+            ),
+            ManyElements(
+                ObjectValue,
+                count=4,
+                attribute_name=('logradouro','bairro','municipio','cep'),
+                start_top=3*cm, height=0.5*cm, left=0.5*cm, width=9.4*cm,
+            ),
+
+        ]
+
+
+        
+
+class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
+    
+    class band_detail(CasasLegislativasLabels.band_detail):
         elements = [
             Label(
                 text='A Sua Excelência o(a) Senhor(a)',
@@ -80,7 +118,7 @@ class CasasLegislativasLabels(Report):
                 attribute_name='tipo',
                 top=1.5*cm, left=0.5*cm, width=9.4*cm,
                 get_value=lambda instance:
-                    "Presidente da " + instance.tipo.nome + " de "
+                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
             ),
             ObjectValue(
                 attribute_name='nome',
@@ -99,6 +137,7 @@ class CasasLegislativasLabels(Report):
             ),
 
         ]
+    
 
 class CasasLegislativasReport(ReportDefault):
     title = u'Relatório de Casas Legislativas'
