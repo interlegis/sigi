@@ -47,7 +47,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     list_display_links = ('num_convenio','casa_legislativa',)
     list_filter  = ('projeto','casa_legislativa','conveniada', 'equipada')
     #date_hierarchy = 'data_adesao'
-    ordering = ('casa_legislativa__municipio__uf','-id',)
+    ordering = ('casa_legislativa__municipio__uf','casa_legislativa','-id',)
     raw_id_fields = ('casa_legislativa',)
     queryset = queryset_ascii
     search_fields = ('id', 'search_text',#'casa_legislativa__nome',

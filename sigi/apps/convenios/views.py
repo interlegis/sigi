@@ -14,25 +14,44 @@ from django.template import Context, loader
 
 import datetime
 
+def query_ordena(qs,o,ot):
+    list_display = ('num_convenio', 'casa_legislativa',
+                    'data_adesao','data_retorno_assinatura','data_termo_aceite',
+                    'projeto',
+                    )
 
+    aux = list_display[(int(o)-1)]
+    if ot =='asc':
+        qs = qs.order_by(aux)
+    else:
+        qs = qs.order_by("-"+aux)
+    return qs
 
+def get_for_qs(get,qs):
+    kwargs = {}
+    ids = 0
+    for k,v in get.iteritems():
+        if not k == 'o':
+            if k == "ot":
+                qs = query_ordena(qs,get["o"],get["ot"])
+            else:
+                kwargs[str(k)] = v
+                if(str(k)=='ids'):
+                    ids = 1
+                    break
+                qs = qs.filter(**kwargs)
+
+    if ids:
+        query = 'id IN ('+ kwargs['ids'].__str__()+')'
+        qs = Convenio.objects.extra(where=[query])
+    return qs
 
 def report_por_cm(request, id=None):
     qs = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM').order_by('casa_legislativa__municipio__uf','casa_legislativa')
     if id:
         qs = qs.filter(pk=id)
     elif request.GET: #Se tiver algum parametro de pesquisa
-        kwargs = {}
-        ids = 0
-        for k, v in request.GET.iteritems():
-            kwargs[str(k)] = v
-            if(str(k)=='ids'):
-                ids = 1
-                break
-            qs = qs.filter(**kwargs)
-        if ids:
-            query = 'id IN ('+ kwargs['ids'].__str__()+')'
-            qs = Convenio.objects.extra(where=[query])
+        qs = get_for_qs(request.GET,qs)
     if not qs:
         return HttpResponseRedirect('../')    
     response = HttpResponse(mimetype='application/pdf')
@@ -45,17 +64,7 @@ def report_por_al(request, id=None):
     if id:
         qs = qs.filter(pk=id)
     elif request.GET: #Se tiver algum parametro de pesquisa
-        kwargs = {}
-        ids = 0
-        for k, v in request.GET.iteritems():
-            kwargs[str(k)] = v
-            if(str(k)=='ids'):
-                ids = 1
-                break
-            qs = qs.filter(**kwargs)
-        if ids:
-            query = 'id IN ('+ kwargs['ids'].__str__()+')'
-            qs = Convenio.objects.extra(where=[query])
+        qs = get_for_qs(request.GET,qs)
     if not qs:
         return HttpResponseRedirect('../')
     response = HttpResponse(mimetype='application/pdf')

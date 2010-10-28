@@ -8,7 +8,8 @@ from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, A
 from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
-from sigi.apps.casas.views import casa_info, labels_report, export_csv, labels_report_sem_presidente
+from sigi.apps.casas.views import casa_info, labels_report, export_csv, \
+                                    labels_report_sem_presidente, report
 from sigi.apps.utils import queryset_ascii
 
 class ContatosInline(generic.GenericTabularInline):
@@ -60,30 +61,23 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
 
-    def etiqueta(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='application/pdf')        
+    def etiqueta(modelAdmin,request,queryset):        
         return labels_report(request,queryset=queryset)
     etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
 
-    def etiqueta_sem_presidente(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='application/pdf')
+    def etiqueta_sem_presidente(modelAdmin,request,queryset):        
         return labels_report_sem_presidente(request,queryset=queryset)
     etiqueta_sem_presidente.short_description = "Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)"
 
-    def relatorio(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='application/pdf')
-        report = CasasLegislativasReport(queryset=queryset)
-        report.generate_by(PDFGenerator, filename=response)
-        return response
+    def relatorio(modelAdmin,request,queryset):        
+        return report(request,queryset=queryset)
     relatorio.short_description = u"Exportar a(s) casa(s) selecionada(s) para PDF"
 
-    def relatorio_completo(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='application/pdf')
+    def relatorio_completo(modelAdmin,request,queryset):        
         return casa_info(request,queryset=queryset)
     relatorio_completo.short_description = u"Gerar relatório completo da(s) casa(s) selecionada(s)"
 
-    def relatorio_csv(modelAdmin,request,queryset):
-        response = HttpResponse(mimetype='text/csv')
+    def relatorio_csv(modelAdmin,request,queryset):        
         return export_csv(request)        
     relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
     

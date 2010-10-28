@@ -11,9 +11,31 @@ from sigi.apps.casas.reports import InfoCasaLegislativa
 
 import csv
 
+def query_ordena(qs,o,ot):
+    list_display = ('nome','municipio','presidente','logradouro')
+
+    aux = list_display[(int(o)-1)]
+    if ot =='asc':
+        qs = qs.order_by(aux)
+    else:
+        qs = qs.order_by("-"+aux)
+    return qs
+
+def get_for_qs(get,qs):
+    kwargs = {}
+    for k,v in get.iteritems():
+        if not k == 'o':
+            if k == "ot":
+                qs = query_ordena(qs,get["o"],get["ot"])
+            else:
+                kwargs[str(k)] = v
+                qs = qs.filter(**kwargs)
+    return qs
+
+
 def labels_report(request, id=None,queryset=None):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
-    """
+    """    
     if queryset:
         qs = queryset
     else:
@@ -21,10 +43,7 @@ def labels_report(request, id=None,queryset=None):
         if id:
             qs = qs.filter(pk=id)
         elif request.GET:
-            kwargs = {}
-            for k, v in request.GET.iteritems():
-                kwargs[str(k)] = v
-                qs = qs.filter(**kwargs)
+            qs = get_for_qs(request.GET,qs)
 
     response = HttpResponse(mimetype='application/pdf')
     report = CasasLegislativasLabels(queryset=qs)
@@ -42,10 +61,7 @@ def labels_report_sem_presidente(request, id=None,queryset=None):
         if id:
             qs = qs.filter(pk=id)
         elif request.GET:
-            kwargs = {}
-            for k, v in request.GET.iteritems():
-                kwargs[str(k)] = v
-                qs = qs.filter(**kwargs)
+            qs = get_for_qs(request.GET,qs)
 
     response = HttpResponse(mimetype='application/pdf')
     report = CasasLegislativasLabelsSemPresidente(queryset=qs)
@@ -54,17 +70,18 @@ def labels_report_sem_presidente(request, id=None,queryset=None):
     return response
 
 
-def report(request, id=None):
-    qs = CasaLegislativa.objects.all().order_by('municipio__uf','nome')
-    if id:
-        qs = qs.filter(pk=id)
-    elif request.GET:
-        kwargs = {}
-        for k, v in request.GET.iteritems():
-            kwargs[str(k)] = v
-            qs = qs.filter(**kwargs)
-    if not qs:
-        return HttpResponseRedirect('../')
+def report(request, id=None,queryset=None):
+    if queryset:
+        qs = queryset
+    else:
+        qs = CasaLegislativa.objects.all()
+        if id:
+            qs = qs.filter(pk=id)
+        elif request.GET:
+            qs = get_for_qs(request.GET,qs)
+
+        if not qs:
+            return HttpResponseRedirect('../')
     
     #qs.order_by('municipio__uf','nome')
     response = HttpResponse(mimetype='application/pdf')
@@ -80,10 +97,7 @@ def casa_info(request,id=None,queryset=None):
         if id:
             qs = qs.filter(pk=id)
         elif request.GET:
-            kwargs = {}
-            for k, v in request.GET.iteritems():
-                kwargs[str(k)] = v
-                qs = qs.filter(**kwargs)
+            qs = get_for_qs(request.GET,qs)
     if not qs:
         return HttpResponseRedirect('../')
 
@@ -116,15 +130,11 @@ def casa_info(request,id=None,queryset=None):
 def casas_sem_convenio_report(request):
     qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf','nome')
     
-    if request.GET:        
-        kwargs = {}
-        for k, v in request.GET.iteritems():
-            kwargs[str(k)] = v
-            qs = qs.filter(**kwargs)
+    if request.GET:
+        qs = get_for_qs(request.GET,qs)
     if not qs:
         return HttpResponseRedirect('../')
-
-    #qs.order_by('municipio__uf','nome')
+    
     response = HttpResponse(mimetype='application/pdf')
     report = CasasSemConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)

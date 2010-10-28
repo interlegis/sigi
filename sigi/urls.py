@@ -16,6 +16,11 @@ urlpatterns = patterns(
      'sigi.apps.casas.views.labels_report'),
     (r'^casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
+     # reports labels sem presidente
+    (r'^casas/casalegislativa/labels_sem_presidente/',
+     'sigi.apps.casas.views.labels_report_sem_presidente'),
+    (r'^casas/casalegislativa/(?P<id>\w+)/labels_sem_presidente/',
+     'sigi.apps.casas.views.labels_report_sem_presidente'),
     # reports
     (r'^casas/casalegislativa/reports/',
     'sigi.apps.casas.views.report'),
