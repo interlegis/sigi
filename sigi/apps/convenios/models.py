@@ -114,4 +114,4 @@ class Anexo(models.Model):
         ordering = ('-data_pub',)
 
     def __unicode__(self):
-        return self.arquivo.name
+        return unicode(self.arquivo.name)
