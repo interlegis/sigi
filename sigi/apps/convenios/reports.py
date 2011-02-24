@@ -207,7 +207,7 @@ class ConvenioReportRegiao(ReportDefault):
 
         
 class ConvenioPorCMReport(ConvenioReport):
-    title = u'Relatório de Convênios por Câmera Municipal'
+    title = u'Relatório de Convênios por Câmara Municipal'
 
 class ConvenioPorALReport(ConvenioReport):
     title = u'Relatório de Convênios por Assembléia Legislativa'
