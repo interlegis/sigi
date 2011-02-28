@@ -36,7 +36,14 @@ def get_for_qs(get,qs):
 def labels_report(request, id=None,queryset=None):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """    
-    if queryset:
+    if request.session.has_key('ids_selecionados_etiqueta') == True:
+        ids = request.session['ids_selecionados_etiqueta']
+        del request.session['ids_selecionados_etiqueta']
+#        request.session.modified = True
+        print "Impressao",
+        print ids
+        qs = CasaLegislativa.objects.filter(pk__in=ids)
+    elif queryset:
         qs = queryset
     else:
         qs = CasaLegislativa.objects.all()

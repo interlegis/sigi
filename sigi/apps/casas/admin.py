@@ -30,7 +30,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    actions = ['etiqueta','relatorio','relatorio_csv','relatorio_completo','etiqueta_sem_presidente']
+    actions = ['etiqueta','relatorio','relatorio_csv','relatorio_completo','etiqueta_sem_presidente', 'adicionar_casas', 'teste']
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome','municipio','presidente','logradouro')
     list_display_links = ('nome',)
@@ -80,6 +80,22 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     def relatorio_csv(modelAdmin,request,queryset):        
         return export_csv(request)        
     relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
+    
+    def adicionar_casas(modelAdmin, request, queryset):
+        if request.method == 'POST':
+            ids_selecionados = request.POST.getlist('_selected_action')
+            print "Selecionados atual :",
+            print ids_selecionados
+            if request.session.has_key('ids_selecionados_etiqueta') == False:
+                request.session['ids_selecionados_etiqueta'] = ids_selecionados
+            else:
+                lista = request.session['ids_selecionados_etiqueta']
+                print "Selecionados anteriormente :",
+                print lista                
+                lista.extend(ids_selecionados)
+                print "Todos selecionados :",
+                print lista
+                request.session['ids_selecionados_etiqueta'] = lista
     
     def get_actions(self, request):
         actions = super(CasaLegislativaAdmin, self).get_actions(request)
