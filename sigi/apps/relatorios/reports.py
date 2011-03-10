@@ -47,15 +47,15 @@ class ReportDefault(Report):
         borders = {'bottom': True}
 
     class band_page_footer(ReportBand):
-        height = 0.5*cm
+        height = 1*cm
 
         elements = [
-            SystemField(expression=u'%(now:%d/%m/%Y)s às %(now:%H:%M)s', top=0.1*cm),
-            SystemField(expression=u'Página %(page_number)d de %(page_count)d', top=0.1*cm,
+            SystemField(expression=u'%(now:%d/%m/%Y)s às %(now:%H:%M)s', top=0.3*cm),
+            SystemField(expression=u'Página %(page_number)d de %(page_count)d', top=0.3*cm,
                 width=BAND_WIDTH, style={'alignment': TA_RIGHT}
             ),
         ]
-        borders = {'top': True}
+        #borders = {'top': True}
 
     class band_detail(DetailBand):
         height = 0.5*cm
