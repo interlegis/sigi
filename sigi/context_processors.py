@@ -1,74 +1,107 @@
+#-*- coding:utf-8 -*-
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.contatos.models import UnidadeFederativa
 
 def charts_data(request):
-    casas = CasaLegislativa.objects.all()
+    '''
+        Busca informacoes para a criacao dos graficos e resumos
+    '''
+
+    projetos = Projeto.objects.all()
     convenios = Convenio.objects.all()
+    convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
+
+    tabela_resumo_camara = busca_informacoes_camara()
+    g_conv_proj = grafico_convenio_projeto(convenios)
+    g_convassinado_proj = grafico_convenio_projeto(convenios_assinados)
+
+    return {        
+        'tabela_resumo_camara' : tabela_resumo_camara,
+        'g_conv_proj': g_conv_proj,
+        "g_convassinado_proj":g_convassinado_proj,
+    }
+
+def busca_informacoes_camara():
+    '''
+        Busca informacoes no banco para montar tabela de resumo de camaras por projeto
+        Retorna um dicionario de listas
+    '''
+    casas = CasaLegislativa.objects.all()
+    camaras = casas.filter(tipo__sigla='CM')
+    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     projetos = Projeto.objects.all()
 
-    convenios_firmados = convenios.exclude(data_retorno_assinatura=None)
+    convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
+    convenios_em_andamento = convenios.filter(data_retorno_assinatura=None)
 
-    num_convenios_firmados = convenios_firmados.count()
-    num_convenios_nao_firmados = convenios.filter(data_retorno_assinatura=None).count()
-    #num_casas_nao_aderidas = CasaLegislativa.objects.filter(convenio=None).count()
-    #num_casas_nao_aderidas = casas.count() - convenios.exclude(data_adesao=None).count()
+    camaras_nao_aderidas = camaras.filter(convenio__data_adesao=None)
+    camaras_aderidas = camaras.exclude(convenio__data_adesao=None)
 
-    # Verifica quantidade de convenios por projeto
-    convenios_por_projeto = []
-    for p in projetos:
-        convenios_por_projeto.append(convenios_firmados.filter(projeto=p).count())
-    
-    num_casas_regiao = [
-        casas.filter(municipio__uf__regiao='CO').count(),
-        casas.filter(municipio__uf__regiao='NO').count(),
-        casas.filter(municipio__uf__regiao='NE').count(),
-        casas.filter(municipio__uf__regiao='SD').count(),
-        casas.filter(municipio__uf__regiao='SL').count()
-    ]
-    #num_convenios_firmados_regiao = [
-    #    convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='CO').count(),
-    #    convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='NO').count(),
-    #    convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='NE').count(),
-    #    convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='SD').count(),
-    #    convenios_firmados.filter(casa_legislativa__municipio__uf__regiao='SL').count()
-    #]
-    
-    REGIAO_CHOICES = ('CO','NO','NE','SD','SL')
- 
-    # Busca numero de casas conveniadas por regiao
-    num_casas_conveniadas_regiao = []
-    for regiao in REGIAO_CHOICES:
-        num_casas_conveniadas_regiao.append(
-            casas.filter(
-               municipio__uf__regiao=regiao
-            ).exclude(
-               convenio__data_retorno_assinatura=None
-            ).distinct().count()         
-        )
+    camaras_equipadas = camaras.exclude(convenio__data_termo_aceite=None)
 
-    # Busca numero de casas sem convenio por regiao
-    num_casas_sem_convenio_regiao = []
-    for i in range(len(num_casas_regiao)):
-        num_casas_sem_convenio_regiao.append(
-            num_casas_regiao[i] - num_casas_conveniadas_regiao[i] 
-        )
-    
-    # Verifica qual regiao tem mais convenios e guarda valor para "axis left" do grafico de regioes
-    num_regiao_maior = 0
-    for i in num_casas_regiao:
-        if num_regiao_maior<i:
-            num_regiao_maior = i
+    # Criacao das listas para o resumo de camaras por projeto
 
-    equip_n_recebidos = CasaLegislativa.objects.exclude(convenio=None).filter(convenio__data_termo_aceite=None).distinct().count()
-    equip_recebidos = CasaLegislativa.objects.exclude(convenio=None).exclude(convenio__data_termo_aceite=None).distinct().count()
-    #equip_n_recebidos = convenios.filter(data_termo_aceite=None).count()    
-    #equip_recebidos = convenios.exclude(data_termo_aceite=None).count()
+    cabecalho_topo = ['','Total'] # Cabecalho superior da tabela
 
+    lista_total = [camaras.count()]
+    lista_nao_aderidas =  [camaras_nao_aderidas.count()]
+    lista_aderidas = [camaras_aderidas.count()]
+    lista_convenios_assinados = [convenios_assinados.count()]
+    lista_convenios_em_andamento = [convenios_em_andamento.count()]
+    lista_camaras_equipadas = [camaras_equipadas.count()]
+    for projeto in projetos:
+        cabecalho_topo.append(projeto.sigla)
+        lista_total.append(camaras.filter(convenio__projeto=projeto).count())
+        lista_nao_aderidas.append(camaras_nao_aderidas.filter(convenio__projeto=projeto).count())
+        lista_aderidas.append(camaras_aderidas.filter(convenio__projeto=projeto).count())
+        lista_convenios_assinados.append(convenios_assinados.filter(projeto=projeto).count())
+        lista_convenios_em_andamento.append(convenios_em_andamento.filter(projeto=projeto).count())
+        lista_camaras_equipadas.append(camaras_equipadas.filter(convenio__projeto=projeto).count())
+
+    # Cabecalho da esquerda na tabela
+    cabecalho_esquerda = (
+        u'Total de câmaras municipais',
+        u'Câmaras municipais não aderidas',
+        u'Câmaras municipais aderidas',
+        u'Câmaras municipais com convênios assinados',
+        u'Câmaras municipais convênios em andamento',
+        u'Câmaras municipais equipadas'
+    )
+
+    linhas = (
+        lista_total,
+        lista_nao_aderidas,
+        lista_aderidas,
+        lista_convenios_assinados,
+        lista_convenios_em_andamento,
+        lista_camaras_equipadas,
+    )
+
+    # Unindo as duas listass para que o cabecalho da esquerda fique junto com sua
+    # respectiva linha
+    lista_zip = zip(cabecalho_esquerda,linhas)
+
+    # Retornando listas em forma de dicionario
     return {
-        'regioes_chart_data': [num_casas_conveniadas_regiao, num_casas_sem_convenio_regiao, num_regiao_maior],
-        'convenios_chart_data': [num_convenios_firmados, num_convenios_nao_firmados,],
-        'equipamentos_chart_data': [equip_recebidos, equip_n_recebidos],
-        'projetos_chart_data': projetos,
-        'convenios_por_projeto_chart_data': convenios_por_projeto,        
+        u'cabecalho_topo': cabecalho_topo,
+        u'lista_zip': lista_zip,
+        u'linhas' : linhas,
+        
     }
+
+def grafico_convenio_projeto(convenios):    
+    projetos = Projeto.objects.all()
+
+    lista_convenios = []
+    for projeto in projetos:
+        lista_convenios.append(convenios.filter(projeto=projeto).count())
+
+    dic = {
+        "total_convenios":("Total: " + str(convenios.count())),
+        "convenios":lista_convenios,
+        "projetos":projetos
+    }
+    return dic
+
+

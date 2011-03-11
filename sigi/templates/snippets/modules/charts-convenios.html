@@ -1,75 +1,60 @@
 {% load charts %}
 
-{% chart as convenios %}
-  {% chart-size 440 160 %}
-  {% chart-type "pie-3d" %}
-  {% chart-labels convenios_chart_data %}
-  {% chart-legend "Convêniadas" "Aderidas" %}
-  {% chart-data   convenios_chart_data %}
-  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
-{% endchart %}
-
-{% chart as regioes %}
-  {% chart-size 440 160 %}
-  {% chart-type "column-stacked" %}
-  {% chart-bar-width "40" %}
-  {% chart-labels "Centro-O" "Norte" "Nordeste" "Sudeste" "Sul" %}
-  {% chart-data   regioes_chart_data.0 regioes_chart_data.1 %}
-  {% chart-legend "Conveniadas" "Total" %}    
-  {% axis "left" %}
-     {% axis-range 0 regioes_chart_data.2 %}
-  {% endaxis %}
-  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
-{% endchart %}
-
-{% chart as equipamentos %}
+{% chart as convenios_assinados %}
   {% chart-size   440 160 %}
   {% chart-type   "pie-3d" %}
-  {% chart-labels equipamentos_chart_data %}
-  {% chart-data   equipamentos_chart_data %}
-  {% chart-legend "Recebidos" "Não recebidos" %}
+  {% chart-labels g_convassinado_proj.convenios %}
+  {% chart-data g_convassinado_proj.convenios %}
+  {% chart-legend g_convassinado_proj.projetos %}
   {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
+  {% chart-title g_convassinado_proj.total_convenios %}  
 {% endchart %}
 
-{% chart as projetos %}
+{% chart as processos %}
   {% chart-size   440 160 %}
   {% chart-type   "pie-3d" %}
-  {% chart-labels convenios_por_projeto_chart_data %}
-  {% chart-data   convenios_por_projeto_chart_data %}
-  {% chart-legend projetos_chart_data %}
+  {% chart-labels g_conv_proj.convenios %}
+  {% chart-data g_conv_proj.convenios %}
+  {% chart-legend g_conv_proj.projetos %}
   {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
+  {% chart-title g_conv_proj.total_convenios %}  
 {% endchart %}
 
-
 <div class="module">
-  <h2>Convênios</h2>
-  <h3>Convênios com as Casas Legislativas</h3>
-  <p class="align-center">
-    <img src="{{ convenios.url }}" class="chart" />
-  </p>
-</div>
+    <h2>Resumo de informações</h2>
+    <h3>Câmaras municipais por projeto</h3>
+    <div class="align-center">
+        <table>
+            <tr>
+                {% for item in tabela_resumo_camara.cabecalho_topo %}
+                <th>{{item}}</th>
+                {% endfor %}
+            </tr>
 
-<!--<div class="module">
-  <h2>Convênios</h2>
-  <h3>Casas Legislativas conveniadas por região</h3>
-  <p class="align-center">
-    <img src="{{ regioes.url }}" class="chart" />
-  </p>
-</div>-->
-
-<div class="module">
-  <h2>Convênios</h2>
-  <h3>Casas Legislativas com equipamentos</h3>
-  <p class="align-center">
-    <img src="{{ equipamentos.url }}" class="chart" />
-  </p>
+            {% for cabecalho,lista in tabela_resumo_camara.lista_zip %}
+            <tr>
+                <th>{{cabecalho}}</th>
+                {% for item in lista %}
+                <td>{{item}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}            
+        </table>
+    </div>
 </div>
 
 <div class="module">
-  <h2>Convênios</h2>
-  <h3>Convênios por projeto</h3>
-  <p class="align-center">
-    <img src="{{ projetos.url }}" class="chart" />
-  </p>
+    <h2>Convênios</h2>
+    <h3>Convênios assinados por projeto</h3>
+    <div class="align-center">
+        <img src="{{ convenios_assinados.url }}" class="chart" />
+    </div>
 </div>
 
+<div class="module">
+    <h2>Convênios</h2>
+    <h3>Processos de convênios por projeto</h3>
+    <div class="align-center">
+        <img src="{{ processos.url }}" class="chart" />
+    </div>
+</div>
