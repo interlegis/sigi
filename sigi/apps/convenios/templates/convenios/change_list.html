@@ -26,11 +26,20 @@
             <p>Escolha uma das opções abaixo para exportar todos os convênios listados.
                Caso queira selecionar convênios especificos, utilize a opção "exportar
                convênios selecionados" na caixa "Ação".</p>
-            <div class="tabs-conteudo">            
-                <ul>
-                    <li><a href="reports_por_cm/{{ query_str }}">Exportar para PDF por Câmara Municipal</a></li>
-                    <li><a href="reports_por_al/{{ query_str }}">Exportar para PDF por Assembléia Legislativa</a></li>
-                </ul>
+            <div class="tabs-conteudo">
+            	<table>
+	            	<tr>
+		            	<td>			            	
+					        <ul><li><a href="reports_por_cm/{{ query_str }}">PDF por Câmara Municipal</a></li></ul>	            
+					        <ul><li><a href="reports_por_al/{{ query_str }}">PDF por Assembléia Legislativa</a></li></ul>					        	
+				        </td>
+				        <td>
+					        <ul><li><a href="report_semaceite_por_cm/{{ query_str }}">PDF por Câmara Municipal (sem Data de Aceite)</a></li></ul>	            
+					        <ul><li><a href="report_semaceite_por_al/{{ query_str }}">PDF por Assembléia Legislativa (sem Data de Aceite)</a></li></ul>					        				        	
+				        </td>
+			        </tr>
+		        </table>            
+		        	            	                            
             </div>
 	</div>
 	<div id="tabs-2">

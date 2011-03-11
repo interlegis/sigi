@@ -5,7 +5,9 @@ from sigi.apps.convenios.models import Convenio
 from sigi.apps.convenios.reports import ConvenioReport,      \
                                         ConvenioPorCMReport, \
                                         ConvenioPorALReport,  \
-                                        ConvenioReportRegiao
+                                        ConvenioReportRegiao,     \
+                                        ConvenioReportSemAceiteAL, \
+                                        ConvenioReportSemAceiteCM 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
 
@@ -71,6 +73,33 @@ def report_por_al(request, id=None):
     report = ConvenioPorALReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
+
+def report_semaceite_por_cm(request, id=None):
+    qs = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM').order_by('casa_legislativa__municipio__uf','casa_legislativa')
+    if id:
+        qs = qs.filter(pk=id)
+    elif request.GET: #Se tiver algum parametro de pesquisa
+        qs = get_for_qs(request.GET,qs)
+    if not qs:
+        return HttpResponseRedirect('../')    
+    response = HttpResponse(mimetype='application/pdf')
+    report = ConvenioReportSemAceiteCM(queryset=qs)
+    report.generate_by(PDFGenerator, filename=response)
+    return response
+
+def report_semaceite_por_al(request, id=None):
+    qs = Convenio.objects.filter(casa_legislativa__tipo__sigla='AL').order_by('casa_legislativa__municipio__uf','casa_legislativa')
+    if id:
+        qs = qs.filter(pk=id)
+    elif request.GET: #Se tiver algum parametro de pesquisa
+        qs = get_for_qs(request.GET,qs)
+    if not qs:
+        return HttpResponseRedirect('../')    
+    response = HttpResponse(mimetype='application/pdf')
+    report = ConvenioReportSemAceiteAL(queryset=qs)
+    report.generate_by(PDFGenerator, filename=response)
+    return response
+    
 
 class RelatorioRegiao(object):
     def __init__(self, estado, casas, casas_aderidas, casas_equipadas,casas_nao_equipadas):

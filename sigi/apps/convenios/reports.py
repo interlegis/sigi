@@ -55,7 +55,7 @@ class ConvenioReport(ReportDefault):
                 width=2*cm,
             ),
             Label(
-                text="Número do Convenio",
+                text="Número do Convênio",
                 left=label_left[3]*cm,
                 top=label_top,
                 width=2*cm,
@@ -151,6 +151,103 @@ class ConvenioReport(ReportDefault):
             )
         )
     ]
+    
+class ConvenioReportSemAceite(ConvenioReport):
+    class band_page_header(ReportDefault.band_page_header):
+
+        label_top = ReportDefault.band_page_header.label_top
+        label_left = [0,1.5,7,9,11,13,15,17]
+        elements = list(ReportDefault.band_page_header.elements)
+        height = 4.7*cm
+
+        elements += [
+            Label(
+                text="UF",
+                left=label_left[0]*cm,
+                top=label_top + 0.4*cm,
+            ),
+            Label(
+                text="Município",
+                left=label_left[1]*cm,
+                top=label_top + 0.4*cm,
+            ),            
+            Label(
+                text="Data de Adesão",
+                left=label_left[3]*cm,
+                top=label_top,
+                width=2*cm,
+            ),
+            Label(
+                text="Número do Convênio",
+                left=label_left[4]*cm,
+                top=label_top,
+                width=2*cm,
+            ),
+            Label(
+                text="Data do Convênio",
+                left=label_left[5]*cm,
+                top=label_top,
+                width=2*cm,
+            ),            
+            Label(
+                text="Data de Publicação",
+                left=label_left[6]*cm,
+                top=label_top,
+                width=2*cm,
+            ),            
+            Label(
+                text="Projeto",
+                left=label_left[7]*cm,
+                top=label_top + 0.4*cm,
+                width=2*cm,
+            ),
+        ]
+   
+
+    class band_detail(ReportDefault.band_detail):
+
+        label_left = [0,1.5,7,9,11,13,15,17]
+
+        elements=[
+            ObjectValue(
+                attribute_name='casa_legislativa.municipio.uf.sigla',
+                left=label_left[0]*cm
+            ),
+            ObjectValue(
+                attribute_name='casa_legislativa.municipio.nome',
+                left=label_left[1]*cm
+            ),            
+            ObjectValue(
+                attribute_name='data_adesao',
+                left=label_left[3]*cm,
+                get_value=lambda instance:
+                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao != None else '-'
+            ),
+            ObjectValue(
+                attribute_name='num_convenio',
+                left=label_left[4]*cm
+            ),
+            ObjectValue(
+                attribute_name='data_retorno_assinatura',
+                left=label_left[5]*cm,
+                get_value=lambda instance:
+                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura != None else '-'
+            ),            
+            ObjectValue(
+                attribute_name='data_pub_diario',
+                left=label_left[6]*cm,
+                get_value=lambda instance:
+                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
+            ),            
+            ObjectValue(
+                attribute_name='projeto.sigla',
+                left=label_left[7]*cm
+            ),
+        ] 
+            
+        
+        
+    
 
 float_duas_casas = lambda instance: '%.2f' %  (instance)
 class ConvenioReportRegiao(ReportDefault):
@@ -210,4 +307,10 @@ class ConvenioPorCMReport(ConvenioReport):
     title = u'Relatório de Convênios por Câmara Municipal'
 
 class ConvenioPorALReport(ConvenioReport):
+    title = u'Relatório de Convênios por Assembléia Legislativa'
+    
+class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
+    title = u'Relatório de Convênios por Câmara Municipal'
+    
+class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
     title = u'Relatório de Convênios por Assembléia Legislativa'
