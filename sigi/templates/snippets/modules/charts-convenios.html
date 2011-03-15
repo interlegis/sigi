@@ -24,7 +24,7 @@
     <h2>Resumo de informações</h2>
     <h3>Câmaras municipais por projeto</h3>
     <div class="align-center">
-        <table>
+        <table>            
             <tr>
                 {% for item in tabela_resumo_camara.cabecalho_topo %}
                 <th>{{item}}</th>
@@ -38,8 +38,15 @@
                 <td>{{item}}</td>
                 {% endfor %}
             </tr>
-            {% endfor %}            
-        </table>
+            {% endfor %}
+            
+        </table>        
+        <div style="font-weight: bold;"><p>
+            <br />Câmaras sem processo: {{tabela_resumo_camara.camaras_sem_processo}}<br /><br />
+            Total de câmaras: {{tabela_resumo_camara.total_camaras}} <br />
+            </p>
+        </div>
+
     </div>
 </div>
 
