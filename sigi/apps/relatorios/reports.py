@@ -68,7 +68,7 @@ class ReportDefault(Report):
         height = 0.8*cm
         elements = [
             Label(text="Total:", top=0.1*cm, left=0),
-            ObjectValue(attribute_name='id', top=0.1*cm, left=2*cm,\
+            ObjectValue(attribute_name='id', top=0.1*cm, left=1*cm,\
                 action=FIELD_ACTION_COUNT, display_format='%s'),
         ]
         borders = {'top': Line(stroke_color=navy, stroke_width=2)}
