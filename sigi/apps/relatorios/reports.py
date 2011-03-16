@@ -3,11 +3,13 @@ import os
 
 from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, \
                     landscape,SystemField, BAND_WIDTH,ReportGroup, \
-                    FIELD_ACTION_SUM, FIELD_ACTION_COUNT
+                    FIELD_ACTION_SUM, FIELD_ACTION_COUNT, Line
 from geraldo.graphics import Image
 from reportlab.lib.units import cm
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
+from reportlab.lib.colors import navy, red
+
 
 class ReportDefault(Report):
     #__metaclass__ = ABCMeta
@@ -61,3 +63,14 @@ class ReportDefault(Report):
         height = 0.5*cm
         default_style = {'fontName': 'Helvetica', 'fontSize': 8}
         auto_expand_height = True
+    
+    class band_summary(ReportBand):
+        height = 0.8*cm
+        elements = [
+            Label(text="Total:", top=0.1*cm, left=0),
+            ObjectValue(attribute_name='id', top=0.1*cm, left=2*cm,\
+                action=FIELD_ACTION_COUNT, display_format='%s'),
+        ]
+        borders = {'top': Line(stroke_color=navy, stroke_width=2)}
+
+
