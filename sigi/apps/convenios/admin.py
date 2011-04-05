@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico
+from apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from apps.casas.models import CasaLegislativa
+from apps.servicos.models import Servico
 from django.http import HttpResponse, HttpResponseRedirect
-from sigi.apps.convenios.reports import ConvenioReport
-from sigi.apps.utils import queryset_ascii
+from apps.convenios.reports import ConvenioReport
+from apps.utils import queryset_ascii
 from geraldo.generators import PDFGenerator
+
+from apps.convenios.views import adicionar_convenios_carrinho
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -38,7 +40,7 @@ class ConvenioAdmin(admin.ModelAdmin):
                         'data_devolucao_via', 'data_postagem_correio')}
         ),
     )
-    actions = ['delete_selected', 'relatorio']
+    actions = ['adicionar_convenios']
     inlines = (AnexosInline, EquipamentoPrevistoInline)
     list_display = ('num_convenio', 'casa_legislativa',
                     'data_adesao','data_retorno_assinatura','data_termo_aceite',
@@ -47,7 +49,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     list_display_links = ('num_convenio','casa_legislativa',)
     list_filter  = ('projeto','casa_legislativa','conveniada', 'equipada')
     #date_hierarchy = 'data_adesao'
-    ordering = ('casa_legislativa__municipio__uf','casa_legislativa','-id',)
+    ordering = ('casa_legislativa__tipo__sigla','casa_legislativa__municipio__uf','casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
     queryset = queryset_ascii
     search_fields = ('id', 'search_text',#'casa_legislativa__nome',
@@ -58,14 +60,33 @@ class ConvenioAdmin(admin.ModelAdmin):
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
-    def relatorio(modeladmin, request, queryset):
+    def relatorio(self, request, queryset):
         #queryset.order_by('casa_legislativa__municipio__uf')        
         response = HttpResponse(mimetype='application/pdf')
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
-        return response        
-        
+        return response                
     relatorio.short_description = u'Exportar convênios selecionados para PDF'
+    
+    def adicionar_convenios(self, request, queryset):        
+        if request.session.has_key('carrinho_convenios'):
+            q1 = len(request.session['carrinho_convenios'])
+        else:
+            q1 = 0        
+        adicionar_convenios_carrinho(request,queryset=queryset)
+        q2 = len(request.session['carrinho_convenios'])
+        quant = q2 - q1
+        if quant:
+            self.message_user(request,str(q2-q1)+" Convênios adicionados no carrinho" )
+        else:
+            self.message_user(request,"Os Convênios selecionados já foram adicionadas anteriormente" )
+        return HttpResponseRedirect('.')
+    adicionar_convenios.short_description = u"Armazenar convênios no carrinho para exportar"
+    
+    def get_actions(self, request):
+        actions = super(ConvenioAdmin, self).get_actions(request)
+        del actions['delete_selected']
+        return actions
     
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):

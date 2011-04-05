@@ -1,15 +1,21 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
 from geraldo.generators import PDFGenerator
-from sigi.apps.casas.models import CasaLegislativa
+from apps.casas.models import CasaLegislativa
 
-from sigi.apps.casas.reports import CasasLegislativasLabels
-from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
-from sigi.apps.casas.reports import CasasLegislativasReport
-from sigi.apps.casas.reports import CasasSemConvenioReport
-from sigi.apps.casas.reports import InfoCasaLegislativa
+from apps.casas.reports import CasasLegislativasLabels
+from apps.casas.reports import CasasLegislativasLabelsSemPresidente
+from apps.casas.reports import CasasLegislativasReport
+from apps.casas.reports import CasasSemConvenioReport
+from apps.casas.reports import InfoCasaLegislativa
+
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+
+from django.conf import settings
 
 import csv
+from bzrlib.switch import switch
 
 def query_ordena(qs,o,ot):
     list_display = ('nome','municipio','presidente','logradouro')
@@ -22,93 +28,186 @@ def query_ordena(qs,o,ot):
     return qs
 
 def get_for_qs(get,qs):
+    """
+        Verifica atributos do GET e retorna queryset correspondente
+    """
     kwargs = {}
     for k,v in get.iteritems():
-        if not k == 'o':
-            if k == "ot":
-                qs = query_ordena(qs,get["o"],get["ot"])
-            else:
-                kwargs[str(k)] = v
-                qs = qs.filter(**kwargs)
+        if not (k == 'page' or k == 'pop' or k == 'q'):            
+            if not k == 'o':
+                if k == "ot":
+                    qs = query_ordena(qs,get["o"],get["ot"])
+                else:
+                    kwargs[str(k)] = v
+                    qs = qs.filter(**kwargs)
     return qs
 
+def carrinhoOrGet_for_qs(request):
+    """
+       Verifica se existe casas na sessão se não verifica get e retorna qs correspondente.
+    """    
+    if request.session.has_key('carrinho_casas'):
+        ids = request.session['carrinho_casas']                
+        qs = CasaLegislativa.objects.filter(pk__in=ids)    
+    else:
+        qs = CasaLegislativa.objects.all()        
+        if request.GET:
+            qs = get_for_qs(request.GET,qs)
+    return qs
 
-def labels_report(request, id=None,queryset=None):
+def adicionar_casas_carrinho(request,queryset=None,id=None):
+    if request.method == 'POST':
+        ids_selecionados = request.POST.getlist('_selected_action')            
+        if not request.session.has_key('carrinho_casas'):
+            request.session['carrinho_casas'] = ids_selecionados
+        else:
+            lista = request.session['carrinho_casas']
+            # Verifica se id já não está adicionado
+            for id in ids_selecionados:
+                if not id in lista:
+                    lista.append(id)                                        
+            request.session['carrinho_casas'] = lista            
+            
+
+
+def visualizar_carrinho(request):
+    
+    qs = carrinhoOrGet_for_qs(request)
+    
+    paginator = Paginator(qs, 100)
+    
+    # Make sure page request is an int. If not, deliver first page.
+    # Esteja certo de que o `page request` é um inteiro. Se não, mostre a primeira página.
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+
+    # Se o page request (9999) está fora da lista, mostre a última página.
+    try:
+        paginas = paginator.page(page)
+    except (EmptyPage, InvalidPage):
+        paginas = paginator.page(paginator.num_pages)
+        
+    carrinhoIsEmpty = not(request.session.has_key('carrinho_casas'))
+        
+    return render_to_response(
+        'casas/carrinho.html',
+        {
+             "ADMIN_MEDIA_PREFIX":settings.ADMIN_MEDIA_PREFIX,
+             'MEDIA_URL':settings.MEDIA_URL,
+             'carIsEmpty':carrinhoIsEmpty,
+             'paginas':paginas,
+             'query_str':'?'+request.META['QUERY_STRING']
+        }
+    )
+
+def excluir_carrinho(request):
+    if request.session.has_key('carrinho_casas'):
+        del request.session['carrinho_casas']
+    return HttpResponseRedirect('.')
+
+def deleta_itens_carrinho(request):
+    if request.method == 'POST':
+        ids_selecionados = request.POST.getlist('_selected_action')            
+        if request.session.has_key('carrinho_casas'):            
+            lista = request.session['carrinho_casas']                                        
+            for item in ids_selecionados:
+                lista.remove(item)
+            if lista:                
+                request.session['carrinho_casas'] = lista
+            else:
+                del lista;
+                del request.session['carrinho_casas']                    
+    
+    return HttpResponseRedirect('.')
+        
+
+    
+
+def labels_report(request, id=None, tipo=None):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """    
-    if request.session.has_key('ids_selecionados_etiqueta') == True:
-        ids = request.session['ids_selecionados_etiqueta']
-        del request.session['ids_selecionados_etiqueta']
-#        request.session.modified = True
-        print "Impressao",
-        print ids
-        qs = CasaLegislativa.objects.filter(pk__in=ids)
-    elif queryset:
-        qs = queryset
-    else:
-        qs = CasaLegislativa.objects.all()
-        if id:
-            qs = qs.filter(pk=id)
-        elif request.GET:
-            qs = get_for_qs(request.GET,qs)
+    
+    if request.POST:
+        if request.POST.has_key('tipo_etiqueta'):
+            tipo = request.POST['tipo_etiqueta']
+            
+    if tipo =='sem_presidente':
+        return labels_report_sem_presidente(request, id)
+    
+    if id:
+        qs = CasaLegislativa.objects.filter(pk=id)    
+    else:    
+        qs = carrinhoOrGet_for_qs(request)
+    
+    if not qs:
+        return HttpResponseRedirect('../')
 
     response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasLabels(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
 
     return response
 
-def labels_report_sem_presidente(request, id=None,queryset=None):
+def labels_report_sem_presidente(request, id=None):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
-    if queryset:
-        qs = queryset
-    else:
-        qs = CasaLegislativa.objects.all()
-        if id:
-            qs = qs.filter(pk=id)
-        elif request.GET:
-            qs = get_for_qs(request.GET,qs)
+    
+    if id:
+        qs = CasaLegislativa.objects.filter(pk=id)    
+    else:    
+        qs = carrinhoOrGet_for_qs(request)
+    
+    if not qs:
+        return HttpResponseRedirect('../')
 
     response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasLabelsSemPresidente(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
 
     return response
 
 
-def report(request, id=None,queryset=None):
-    if queryset:
-        qs = queryset
-    else:
-        qs = CasaLegislativa.objects.all()
-        if id:
-            qs = qs.filter(pk=id)
-        elif request.GET:
-            qs = get_for_qs(request.GET,qs)
+def report(request, id=None,tipo=None):
+    
+    if request.POST:
+        if request.POST.has_key('tipo_relatorio'):
+            tipo = request.POST['tipo_relatorio']
+            
+    if tipo =='completo':
+        return report_complete(request, id)
+        
+    
+    if id:
+        qs = CasaLegislativa.objects.filter(pk=id)    
+    else:    
+        qs = carrinhoOrGet_for_qs(request)
 
-        if not qs:
-            return HttpResponseRedirect('../')
+    if not qs:
+        return HttpResponseRedirect('../')
     
     #qs.order_by('municipio__uf','nome')
     response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
 
-def casa_info(request,id=None,queryset=None):
-    if queryset:
-        qs = queryset
-    else:
-        qs = CasaLegislativa.objects.all()
-        if id:
-            qs = qs.filter(pk=id)
-        elif request.GET:
-            qs = get_for_qs(request.GET,qs)
+def report_complete(request,id=None):
+    
+    if id:
+        qs = CasaLegislativa.objects.filter(pk=id)    
+    else:    
+        qs = carrinhoOrGet_for_qs(request)
+        
     if not qs:
         return HttpResponseRedirect('../')
 
     response = HttpResponse(mimetype='application/pdf')   
+    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
 
     # Gera um relatorio para cada casa e concatena os relatorios
     cont = 0
@@ -154,8 +253,39 @@ def export_csv(request):
     response['Content-Disposition'] = 'attachment; filename=casas.csv'
     
     csv_writer = csv.writer(response)
-    casas = CasaLegislativa.objects.all()
+    casas = carrinhoOrGet_for_qs(request)
+    if not casas:
+        return HttpResponseRedirect('../')
+    
+    if request.POST:
+        atributos = request.POST.getlist("itens_csv_selected")
+        map(unicode,atributos)
+        csv_writer.writerow(atributos)        
+        
     for casa in casas:
-        csv_writer.writerow([casa.nome.encode("utf-8"), casa.municipio.uf.sigla.encode("utf-8")])
+        lista = []
+        for atributo in atributos:
+            if u"CNPJ" == atributo:
+                lista.append(casa.cnpj.encode("utf-8"))
+            elif u"Código IBGE" == atributo:
+                lista.append(str(casa.municipio.codigo_ibge).encode("utf-8"))
+            elif u"Nome" == atributo:
+                lista.append(casa.nome.encode("utf-8"))
+            elif u"Município" == atributo:
+                lista.append(str(casa.municipio).encode("utf-8"))            
+            elif u"Presidente" == atributo:
+                lista.append(casa.presidente.encode("utf-8"))
+            elif u"Logradouro" == atributo:
+                lista.append(casa.logradouro.encode("utf-8"))
+            elif u"Bairro" == atributo:
+                lista.append(casa.bairro.encode("utf-8"))
+            elif u"CEP" == atributo:
+                lista.append(casa.cep.encode("utf-8"))
+            elif u"Telefone" == atributo:
+                lista.append(casa.telefone.encode("utf-8"))
+            else:
+                pass
+                                
+        csv_writer.writerow(lista)
     
     return response

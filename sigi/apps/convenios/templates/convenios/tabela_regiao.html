@@ -52,11 +52,12 @@
             padding-top: 0.15cm;
         }
         #footerContent #esquerda{
-            text-align: left;
+            text-align: left;            
         }
         #footerContent #direita{
             text-align: right;
-        }
+            background-image: url("/media/images/logo-senado.png");
+        }        
         .tabela {            
             padding-top: 0.1cm;
             padding-left: 0.1cm;
@@ -79,12 +80,8 @@
         .tabela .sumario{
             font-weight: bold;
             background-color: #CFCFCF;
-        }                
-        .tabela .aderidas{
-            /*background-color: #E8E8E8;*/
-            border: blue solid;
-        }
-        .tabela .estado{
+        }        
+        .tabela .cabecalho_esquerda{
             background-color: #E8E8E8;
             font-weight: bold;
         }
@@ -102,53 +99,33 @@
                 <td id="imagem2"><img src="../media/images/logo-interlegis.jpg" width="90" height="65" alt="Logo Interlegis"/></td>
             </tr>            
         </table>
-        <h1 class="titulo">Resumo por Região</h1>        
+        <h1 class="titulo">{{tabela.regiao}}</h1>        
     </div>    
     <div id="midle">        
         <table class="tabela" repeat="1">
-            <caption>{{sumario_regiao.regiao}}</caption>
+            <caption>{{tabela.projeto}} - {{tabela.regiao}}</caption>
             <thead>
                 <tr>
-                    <th>UF</th>
-                    <th>Total</th>
-                    <th>Não Aderidas</th>
-                    <th>%</th>
-                    <th>Aderidas</th>
-                    <th>%</th>                    
-                    <th>Não Equipadas</th>
-                    <th>%</th>
-                    <th>Equipadas</th>
-                    <th>%</th>
+                    {%for item in tabela.cabecalho%}
+                    <th>{{item}}</th>
+                    {%endfor%}
                 </tr>
             </thead>
             <tbody>                                
-                {%for r in lista%}                
-                <tr class="conteudo">
-                    <td class="estado">{{r.estado}}</td>
-                    <td>{{r.quant_casas}}</td>
-                    <td>{{r.quant_casas_nao_aderidas}}</td>
-                    <td>{{r.porc_casas_nao_aderidas}}</td>
-                    <td class="aderidas">{{r.quant_casas_aderidas}}</td>
-                    <td class="aderidas">{{r.porc_casas_aderidas}}</td>
-                    <td class="aderidas">{{r.quant_casas_nao_equipadas}}</td>
-                    <td class="aderidas">{{r.porc_casas_nao_equipadas}}</td>
-                    <td class="aderidas">{{r.quant_casas_equipadas}}</td>
-                    <td class="aderidas">{{r.porc_casas_equipadas}}</td>
-                    
-                </tr>                                
-                {%endfor%}                
-                <tr class="sumario">
-                    <td>Total</td>
-                    <td>{{sumario_regiao.total}}</td>
-                    <td>{{sumario_regiao.total_casas_nao_aderidas}}</td>
-                    <td>{{sumario_regiao.porc_casas_nao_aderidas}}</td>
-                    <td>{{sumario_regiao.total_casas_aderidas}}</td>
-                    <td>{{sumario_regiao.porc_casas_aderidas}}</td>
-                    <td>{{sumario_regiao.total_casas_nao_equipadas }}</td>
-                    <td>{{sumario_regiao.porc_casas_nao_equipadas }}</td>
-                    <td>{{sumario_regiao.total_casas_equipadas }}</td>
-                    <td>{{sumario_regiao.porc_casas_equipadas }}</td>
-                </tr>
+            {% for linha in tabela.linhas %}
+            <tr class="conteudo">
+                <th class="cabecalho_esquerda">{{linha.estado}}</th>
+                {% for item in linha.lista %}
+                <td>{{item}}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+            <tr>
+            	<th>Total</th>
+            	{% for item in tabela.sumario %}
+            	<th>{{item}}</th>
+            	{% endfor %}
+            </tr>
             </tbody>
         </table>
     </div>    

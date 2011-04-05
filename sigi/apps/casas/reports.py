@@ -3,7 +3,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements, \
-                    ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH
+                    ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH,SystemField
 
 from sigi.apps.relatorios.reports import ReportDefault
 
@@ -220,6 +220,15 @@ class CasasSemConvenioReport(CasasLegislativasReport):
 
 class InfoCasaLegislativa(ReportDefault):
     title = u'Casa legislativa'
+    class band_summary(ReportBand):
+        pass
+    class band_page_footer(ReportBand):
+        height = 1*cm
+
+        elements = [
+            SystemField(expression=u'%(now:%d/%m/%Y)s às %(now:%H:%M)s', top=0.3*cm),            
+        ]
+    
     class band_detail(ReportDefault.band_detail):
         
         posicao_left = [
@@ -403,7 +412,7 @@ class InfoCasaLegislativa(ReportDefault):
                     ),
                     ObjectValue(attribute_name='nota',left=tel_left[2]*cm),
                 ],
-                borders = {'all':True},
+                #borders = {'all':True},
             ),
         ),
     #Contatos
@@ -433,7 +442,7 @@ class InfoCasaLegislativa(ReportDefault):
                     ObjectValue(attribute_name='nota',left=cont_left[1]*cm),
                     ObjectValue(attribute_name='email',left=cont_left[2]*cm),
                 ],
-                borders = {'all':True},
+                #borders = {'all':True},
             ),
         ),
     #Convenios
@@ -483,7 +492,7 @@ class InfoCasaLegislativa(ReportDefault):
                                 instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
                         ),                        
                      ],
-                     borders = {'all':True},
+                     #borders = {'all':True},
                  ),             
         )
     ]

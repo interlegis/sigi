@@ -1,16 +1,19 @@
+#-*- coding:utf-8 -*-
 from django.conf import settings
 from django.conf.urls.defaults import *
-from sigi import sites
+import sites
 
 # register admin filters
-import sigi.admin.filterspecs
+import admin.filterspecs
 
 urlpatterns = patterns(
     '',
 
     # Informacoes de uma casa legislativa
-    (r'^casas/casalegislativa/(?P<id>\w+)/casa_info/',
-     'sigi.apps.casas.views.casa_info'),
+    (r'^casas/casalegislativa/(?P<id>\w+)/report_complete/',
+     'sigi.apps.casas.views.report_complete'),
+     (r'^casas/casalegislativa/report_complete/',
+     'sigi.apps.casas.views.report_complete'),
     # reports labels
     (r'^casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),
@@ -21,24 +24,35 @@ urlpatterns = patterns(
      'sigi.apps.casas.views.labels_report_sem_presidente'),
     (r'^casas/casalegislativa/(?P<id>\w+)/labels_sem_presidente/',
      'sigi.apps.casas.views.labels_report_sem_presidente'),
-    # reports
+    # reports casa    
     (r'^casas/casalegislativa/reports/',
-    'sigi.apps.casas.views.report'),
-    (r'^casas/casalegislativa/csv/',
-    'sigi.apps.casas.views.export_csv'),
+    'sigi.apps.casas.views.report'),    
     (r'^casas/casalegislativa/casas_sem_convenio_report/',
     'sigi.apps.casas.views.casas_sem_convenio_report'),
-    (r'^convenios/convenio/reports_por_cm/',
-     'sigi.apps.convenios.views.report_por_cm'),
-    (r'^convenios/convenio/reports_por_al/',
-     'sigi.apps.convenios.views.report_por_al'),
-    (r'^convenios/convenio/reportsRegiao/(?P<regiao>\w+)',
-     'sigi.apps.convenios.views.report_regiao'),
-     #reports sem data de aceite
-     (r'^convenios/convenio/report_semaceite_por_cm/',
-     'sigi.apps.convenios.views.report_semaceite_por_cm'),
-     (r'^convenios/convenio/report_semaceite_por_al/',
-     'sigi.apps.convenios.views.report_semaceite_por_al'),
+    # reports convenios
+    (r'^convenios/convenio/reports/',
+     'sigi.apps.convenios.views.report'),         
+     #Carrinho Casa
+     (r'^casas/casalegislativa/carrinho/deleta_itens_carrinho',
+     'sigi.apps.casas.views.deleta_itens_carrinho'),
+     (r'^casas/casalegislativa/carrinho/excluir_carrinho',
+     'sigi.apps.casas.views.excluir_carrinho'),
+     (r'^casas/casalegislativa/carrinho/',
+     'sigi.apps.casas.views.visualizar_carrinho'),
+     #Carrinho Convenio
+     (r'^convenios/convenio/carrinho/deleta_itens_carrinho',
+     'sigi.apps.convenios.views.deleta_itens_carrinho'),
+      (r'^convenios/convenio/carrinho/excluir_carrinho',
+     'sigi.apps.convenios.views.excluir_carrinho'),
+     (r'^convenios/convenio/carrinho/',
+     'sigi.apps.convenios.views.visualizar_carrinho'),
+     #CSV Casa
+     (r'^casas/casalegislativa/csv/',
+    'sigi.apps.casas.views.export_csv'),     
+     # Resumo por região PDF     
+     (r'^reportsRegiao/(?P<regiao>\w+)',
+     'sigi.apps.convenios.views.report_regiao'),     
+     
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),
 )

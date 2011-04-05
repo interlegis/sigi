@@ -3,65 +3,21 @@
 
 {% block extrastyle %}  
   {{ block.super }}
-  {% include "jquery/tabs_style.html" %}
+  {% include "admin/tabs_style.html" %}
   
 {% endblock %}
 
 {% block object-tools %}
-  {% if has_add_permission %}
+  {% if has_add_permission %}    
   
-    <div id="tabs">
-        
-        <ul>           
-            <li><a href="#tabs-1">Exportar</a></li>
-            <li><a href="#tabs-2">Resumo por Região</a></li>
-            <li>
-                <a style="display: none" href="#tabs-0" />
-                <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
-                    {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
-                </a>
-            </li>
-	</ul>
-	<div id="tabs-1">
-            <p>Escolha uma das opções abaixo para exportar todos os convênios listados.
-               Caso queira selecionar convênios especificos, utilize a opção "exportar
-               convênios selecionados" na caixa "Ação".</p>
-            <div class="tabs-conteudo">
-            	<table>
-	            	<tr>
-		            	<td>			            	
-					        <ul><li><a href="reports_por_cm/{{ query_str }}">PDF por Câmara Municipal</a></li></ul>	            
-					        <ul><li><a href="reports_por_al/{{ query_str }}">PDF por Assembléia Legislativa</a></li></ul>					        	
-				        </td>
-				        <td>
-					        <ul><li><a href="report_semaceite_por_cm/{{ query_str }}">PDF por Câmara Municipal (sem Data de Aceite)</a></li></ul>	            
-					        <ul><li><a href="report_semaceite_por_al/{{ query_str }}">PDF por Assembléia Legislativa (sem Data de Aceite)</a></li></ul>					        				        	
-				        </td>
-			        </tr>
-		        </table>            
-		        	            	                            
-            </div>
-	</div>
-	<div id="tabs-2">
-            <p>Escolha uma das opções abaixo para obter um resumo de informações do Projeto Interlegis por região.
-            Outros projetos como PPM e PML não serão incluidos. </p>
-            <ul class="tabs-conteudo">
-                <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
-                <li><a href="reportsRegiao/NE">Nordeste</a></li>
-                <li><a href="reportsRegiao/NO">Norte</a></li>
-                <li><a href="reportsRegiao/SD">Sudeste</a></li>
-                <li><a href="reportsRegiao/SL">Sul</a></li>
-            </ul>
-	</div>	
-    </div>
-  
-    <!--<ul class="object-tools">
-        
+    <ul class="object-tools">
+        <li><a onclick="return showRelatedObjectLookupPopup(this);" href="carrinho/{{query_str}}">Carrinho / Exportar</a></li>        
         <li>
             <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
                 {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
             </a>
         </li>
-    </ul>  -->
+    </ul>
+    
   {% endif %}
 {% endblock %}

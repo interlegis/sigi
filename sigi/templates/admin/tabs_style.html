@@ -7,27 +7,25 @@
     <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.core.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.widget.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.mouse.js"></script>
+	<script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/	jquery.ui.sortable.js"></script>    
     <script type="text/javascript">        
         $(function() {
-                $("#tabs").tabs(
-                    {collapsible: true}
-                );
+        	$( "#tabs" ).tabs({
+    			event: "mouseover"
+    		});
         });
-    </script>
-    <!--End Script's JQuery-->
+    </script>    
 
-    <!--CSS para o conteudo das tabs do jquery-->
-    <style>
-    .ui-tabs-nav{
-        background-image: url("../../admin_media/img/admin/nav-bg.gif");
-    }    
-    .tabs-conteudo li{
-        border: 1px solid #CCC;
-        background-image: url("../../admin_media/img/admin/nav-bg.gif");
-        display: inline;
-        padding: 4px 8px;
-    }
-    .tabs-conteudo a{
-        color:#000;
-    }
-    </style>
+	<script>
+		$(function() {
+			$( "#sortable" ).sortable();
+			$( "#sortable" ).disableSelection();
+		});
+	</script>
+	
+	<style>
+	.ui-tabs-nav {
+		background-image: url("{{ADMIN_MEDIA_PREFIX}}img/admin/nav-bg.gif");
+	}	
+	</style>

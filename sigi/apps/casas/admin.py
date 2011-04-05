@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-from sigi.apps.casas.forms import CasaLegislativaForm
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.contatos.models import Contato, Telefone
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from apps.casas.forms import CasaLegislativaForm
+from apps.casas.models import CasaLegislativa
+from apps.contatos.models import Contato, Telefone
+from apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from django.http import HttpResponse, HttpResponseRedirect
-from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
+from apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
-from sigi.apps.casas.views import casa_info, labels_report, export_csv, \
-                                    labels_report_sem_presidente, report
-from sigi.apps.utils import queryset_ascii
+from apps.casas.views import report_complete, labels_report, export_csv, \
+                                    labels_report_sem_presidente, report, \
+                                    adicionar_casas_carrinho
+from apps.utils import queryset_ascii
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato
@@ -30,7 +31,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
-    actions = ['etiqueta','relatorio','relatorio_csv','relatorio_completo','etiqueta_sem_presidente', 'adicionar_casas', 'teste']
+    actions = ['adicionar_casas',]
     inlines = (TelefonesInline, ContatosInline, ConveniosInline)
     list_display = ('nome','municipio','presidente','logradouro')
     list_display_links = ('nome',)
@@ -61,41 +62,42 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
 
-    def etiqueta(modelAdmin,request,queryset):        
+    def etiqueta(self,request,queryset):        
         return labels_report(request,queryset=queryset)
     etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
 
-    def etiqueta_sem_presidente(modelAdmin,request,queryset):        
+    def etiqueta_sem_presidente(self,request,queryset):        
         return labels_report_sem_presidente(request,queryset=queryset)
     etiqueta_sem_presidente.short_description = "Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)"
 
-    def relatorio(modelAdmin,request,queryset):        
+    def relatorio(self,request,queryset):        
         return report(request,queryset=queryset)
     relatorio.short_description = u"Exportar a(s) casa(s) selecionada(s) para PDF"
 
-    def relatorio_completo(modelAdmin,request,queryset):        
-        return casa_info(request,queryset=queryset)
+    def relatorio_completo(self,request,queryset):        
+        return report_complete(request,queryset=queryset)
     relatorio_completo.short_description = u"Gerar relatório completo da(s) casa(s) selecionada(s)"
 
-    def relatorio_csv(modelAdmin,request,queryset):        
+    def relatorio_csv(self,request,queryset):        
         return export_csv(request)        
     relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
     
-    def adicionar_casas(modelAdmin, request, queryset):
-        if request.method == 'POST':
-            ids_selecionados = request.POST.getlist('_selected_action')
-            print "Selecionados atual :",
-            print ids_selecionados
-            if request.session.has_key('ids_selecionados_etiqueta') == False:
-                request.session['ids_selecionados_etiqueta'] = ids_selecionados
-            else:
-                lista = request.session['ids_selecionados_etiqueta']
-                print "Selecionados anteriormente :",
-                print lista                
-                lista.extend(ids_selecionados)
-                print "Todos selecionados :",
-                print lista
-                request.session['ids_selecionados_etiqueta'] = lista
+    def adicionar_casas(self, request, queryset):        
+        if request.session.has_key('carrinho_casas'):
+            q1 = len(request.session['carrinho_casas'])
+        else:
+            q1 = 0        
+        response = adicionar_casas_carrinho(request,queryset=queryset)
+        q2 = len(request.session['carrinho_casas'])
+        quant = q2 - q1
+        if quant:
+            self.message_user(request,str(q2-q1)+" Casas Legislativas adicionadas no carrinho" )
+        else:
+            self.message_user(request,"As Casas Legislativas selecionadas já foram adicionadas anteriormente" )
+        return HttpResponseRedirect('.')
+    
+    adicionar_casas.short_description = u"Armazenar casas no carrinho para exportar"
+        
     
     def get_actions(self, request):
         actions = super(CasaLegislativaAdmin, self).get_actions(request)
