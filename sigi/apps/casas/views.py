@@ -2,20 +2,19 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from geraldo.generators import PDFGenerator
-from apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa
 
-from apps.casas.reports import CasasLegislativasLabels
-from apps.casas.reports import CasasLegislativasLabelsSemPresidente
-from apps.casas.reports import CasasLegislativasReport
-from apps.casas.reports import CasasSemConvenioReport
-from apps.casas.reports import InfoCasaLegislativa
+from sigi.apps.casas.reports import CasasLegislativasLabels
+from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
+from sigi.apps.casas.reports import CasasLegislativasReport
+from sigi.apps.casas.reports import CasasSemConvenioReport
+from sigi.apps.casas.reports import InfoCasaLegislativa
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 
 from django.conf import settings
 
 import csv
-from bzrlib.switch import switch
 
 def query_ordena(qs,o,ot):
     list_display = ('nome','municipio','presidente','logradouro')

@@ -1,17 +1,17 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-from apps.casas.forms import CasaLegislativaForm
-from apps.casas.models import CasaLegislativa
-from apps.contatos.models import Contato, Telefone
-from apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.casas.forms import CasaLegislativaForm
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import Contato, Telefone
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from django.http import HttpResponse, HttpResponseRedirect
-from apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
+from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from geraldo.generators import PDFGenerator
-from apps.casas.views import report_complete, labels_report, export_csv, \
+from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
                                     labels_report_sem_presidente, report, \
                                     adicionar_casas_carrinho
-from apps.utils import queryset_ascii
+from sigi.apps.utils import queryset_ascii
 
 class ContatosInline(generic.GenericTabularInline):
     model = Contato

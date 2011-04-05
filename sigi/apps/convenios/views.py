@@ -2,14 +2,14 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_list_or_404
 from geraldo.generators import PDFGenerator
-from apps.convenios.models import Convenio
-from apps.convenios.reports import ConvenioReport      \
+from sigi.apps.convenios.models import Convenio
+from sigi.apps.convenios.reports import ConvenioReport      \
                                         ,ConvenioPorCMReport      \
                                         ,ConvenioPorALReport      \
                                         ,ConvenioReportSemAceiteAL \
                                         ,ConvenioReportSemAceiteCM 
-from apps.casas.models import CasaLegislativa
-from apps.contatos.models import UnidadeFederativa
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import UnidadeFederativa
 
 import ho.pisa as pisa
 from django.template import Context, loader
