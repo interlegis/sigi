@@ -116,10 +116,6 @@ div.breadcrumbs {
 }
 
 /* CONTENT */
-.module{
-    height:300px;
-}
-
 .module h2,.module caption,.inline-group h2 {
 	background: #00367b url(../images/default-bg.gif);
 }
