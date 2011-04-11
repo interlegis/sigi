@@ -1,0 +1,278 @@
+diff -Naur Django-1.1-orig/build/lib/django/contrib/admin/options.py Django-1.1/build/lib/django/contrib/admin/options.py
+--- Django-1.1-orig/build/lib/django/contrib/admin/options.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/build/lib/django/contrib/admin/options.py	2010-01-22 14:35:00.000000000 +0100
+@@ -265,6 +265,14 @@
+         return forms.Media(js=['%s%s' % (settings.ADMIN_MEDIA_PREFIX, url) for url in js])
+     media = property(_media)
+ 
++    def has_view_permission(self, request, obj=None):
++        "Returns True if the given request has permission to view an object."
++        opts = self.opts
++        if self.has_change_permission(request, obj): # Only require explicit view-permissions if no change-permissions
++            return True
++        perm = request.user.has_perm(opts.app_label + '.' + opts.get_view_permission())
++        return perm
++
+     def has_add_permission(self, request):
+         "Returns True if the given request has permission to add an object."
+         opts = self.opts
+@@ -299,6 +307,7 @@
+         of those actions.
+         """
+         return {
++            'view': self.has_view_permission(request),            
+             'add': self.has_add_permission(request),
+             'change': self.has_change_permission(request),
+             'delete': self.has_delete_permission(request),
+@@ -569,6 +578,7 @@
+         context.update({
+             'add': add,
+             'change': change,
++            'has_view_permission': self.has_view_permission(request, obj),
+             'has_add_permission': self.has_add_permission(request),
+             'has_change_permission': self.has_change_permission(request, obj),
+             'has_delete_permission': self.has_delete_permission(request, obj),
+@@ -615,10 +625,10 @@
+         else:
+             self.message_user(request, msg)
+ 
+-            # Figure out where to redirect. If the user has change permission,
++            # Figure out where to redirect. If the user has view-or-change permission,
+             # redirect to the change-list page for this object. Otherwise,
+             # redirect to the admin index.
+-            if self.has_change_permission(request, None):
++            if self.has_view_permission(request, None):
+                 post_url = '../'
+             else:
+                 post_url = '../../../'
+@@ -797,7 +807,7 @@
+             # to determine whether a given object exists.
+             obj = None
+ 
+-        if not self.has_change_permission(request, obj):
++        if not self.has_view_permission(request, obj):
+             raise PermissionDenied
+ 
+         if obj is None:
+@@ -857,8 +867,12 @@
+             inline_admin_formsets.append(inline_admin_formset)
+             media = media + inline_admin_formset.media
+ 
++        title = _('View %s') % force_unicode(opts.verbose_name)
++        if self.has_change_permission(request, obj):
++            title = _('Change %s') % force_unicode(opts.verbose_name)
++
+         context = {
+-            'title': _('Change %s') % force_unicode(opts.verbose_name),
++            'title': title,
+             'adminform': adminForm,
+             'object_id': object_id,
+             'original': obj,
+@@ -878,7 +892,7 @@
+         from django.contrib.admin.views.main import ChangeList, ERROR_FLAG
+         opts = self.model._meta
+         app_label = opts.app_label
+-        if not self.has_change_permission(request, None):
++        if not self.has_view_permission(request, None):
+             raise PermissionDenied
+ 
+         # Check actions to see if any are available on this changelist
+diff -Naur Django-1.1-orig/build/lib/django/contrib/admin/templatetags/admin_modify.py Django-1.1/build/lib/django/contrib/admin/templatetags/admin_modify.py
+--- Django-1.1-orig/build/lib/django/contrib/admin/templatetags/admin_modify.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/build/lib/django/contrib/admin/templatetags/admin_modify.py	2010-01-22 14:27:50.000000000 +0100
+@@ -34,6 +34,6 @@
+                             not is_popup and (not save_as or context['add']),
+         'show_save_and_continue': not is_popup and context['has_change_permission'],
+         'is_popup': is_popup,
+-        'show_save': True
++        'show_save': context['has_change_permission']
+     }
+ submit_row = register.inclusion_tag('admin/submit_line.html', takes_context=True)(submit_row)
+diff -Naur Django-1.1-orig/build/lib/django/contrib/admin/views/main.py Django-1.1/build/lib/django/contrib/admin/views/main.py
+--- Django-1.1-orig/build/lib/django/contrib/admin/views/main.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/build/lib/django/contrib/admin/views/main.py	2010-01-22 14:25:04.000000000 +0100
+@@ -67,7 +67,7 @@
+         self.query = request.GET.get(SEARCH_VAR, '')
+         self.query_set = self.get_query_set()
+         self.get_results(request)
+-        self.title = (self.is_popup and ugettext('Select %s') % force_unicode(self.opts.verbose_name) or ugettext('Select %s to change') % force_unicode(self.opts.verbose_name))
++        self.title = (self.is_popup and ugettext('Select %s') % force_unicode(self.opts.verbose_name) or ugettext('Select %s to view') % force_unicode(self.opts.verbose_name))
+         self.filter_specs, self.has_filters = self.get_filters(request)
+         self.pk_attname = self.lookup_opts.pk.attname
+ 
+diff -Naur Django-1.1-orig/build/lib/django/contrib/auth/management/__init__.py Django-1.1/build/lib/django/contrib/auth/management/__init__.py
+--- Django-1.1-orig/build/lib/django/contrib/auth/management/__init__.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/build/lib/django/contrib/auth/management/__init__.py	2010-01-22 14:12:51.000000000 +0100
+@@ -11,7 +11,7 @@
+ def _get_all_permissions(opts):
+     "Returns (codename, name) for all permissions in the given opts."
+     perms = []
+-    for action in ('add', 'change', 'delete'):
++    for action in ('add', 'change', 'delete', 'view'):
+         perms.append((_get_permission_codename(action, opts), u'Can %s %s' % (action, opts.verbose_name_raw)))
+     return perms + list(opts.permissions)
+ 
+diff -Naur Django-1.1-orig/build/lib/django/db/models/options.py Django-1.1/build/lib/django/db/models/options.py
+--- Django-1.1-orig/build/lib/django/db/models/options.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/build/lib/django/db/models/options.py	2010-01-22 13:59:31.000000000 +0100
+@@ -335,6 +335,9 @@
+             self._name_map = cache
+         return cache
+ 
++    def get_view_permission(self):
++        return 'view_%s' % self.object_name.lower()
++
+     def get_add_permission(self):
+         return 'add_%s' % self.object_name.lower()
+ 
+diff -Naur Django-1.1-orig/django/contrib/admin/options.py Django-1.1/django/contrib/admin/options.py
+--- Django-1.1-orig/django/contrib/admin/options.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/admin/options.py	2010-01-22 14:35:00.000000000 +0100
+@@ -265,6 +265,14 @@
+         return forms.Media(js=['%s%s' % (settings.ADMIN_MEDIA_PREFIX, url) for url in js])
+     media = property(_media)
+ 
++    def has_view_permission(self, request, obj=None):
++        "Returns True if the given request has permission to view an object."
++        opts = self.opts
++        if self.has_change_permission(request, obj): # Only require explicit view-permissions if no change-permissions
++            return True
++        perm = request.user.has_perm(opts.app_label + '.' + opts.get_view_permission())
++        return perm
++
+     def has_add_permission(self, request):
+         "Returns True if the given request has permission to add an object."
+         opts = self.opts
+@@ -299,6 +307,7 @@
+         of those actions.
+         """
+         return {
++            'view': self.has_view_permission(request),            
+             'add': self.has_add_permission(request),
+             'change': self.has_change_permission(request),
+             'delete': self.has_delete_permission(request),
+@@ -569,6 +578,7 @@
+         context.update({
+             'add': add,
+             'change': change,
++            'has_view_permission': self.has_view_permission(request, obj),
+             'has_add_permission': self.has_add_permission(request),
+             'has_change_permission': self.has_change_permission(request, obj),
+             'has_delete_permission': self.has_delete_permission(request, obj),
+@@ -615,10 +625,10 @@
+         else:
+             self.message_user(request, msg)
+ 
+-            # Figure out where to redirect. If the user has change permission,
++            # Figure out where to redirect. If the user has view-or-change permission,
+             # redirect to the change-list page for this object. Otherwise,
+             # redirect to the admin index.
+-            if self.has_change_permission(request, None):
++            if self.has_view_permission(request, None):
+                 post_url = '../'
+             else:
+                 post_url = '../../../'
+@@ -797,7 +807,7 @@
+             # to determine whether a given object exists.
+             obj = None
+ 
+-        if not self.has_change_permission(request, obj):
++        if not self.has_view_permission(request, obj):
+             raise PermissionDenied
+ 
+         if obj is None:
+@@ -857,8 +867,12 @@
+             inline_admin_formsets.append(inline_admin_formset)
+             media = media + inline_admin_formset.media
+ 
++        title = _('View %s') % force_unicode(opts.verbose_name)
++        if self.has_change_permission(request, obj):
++            title = _('Change %s') % force_unicode(opts.verbose_name)
++
+         context = {
+-            'title': _('Change %s') % force_unicode(opts.verbose_name),
++            'title': title,
+             'adminform': adminForm,
+             'object_id': object_id,
+             'original': obj,
+@@ -878,7 +892,7 @@
+         from django.contrib.admin.views.main import ChangeList, ERROR_FLAG
+         opts = self.model._meta
+         app_label = opts.app_label
+-        if not self.has_change_permission(request, None):
++        if not self.has_view_permission(request, None):
+             raise PermissionDenied
+ 
+         # Check actions to see if any are available on this changelist
+diff -Naur Django-1.1-orig/django/contrib/admin/templates/admin/change_list.html Django-1.1/django/contrib/admin/templates/admin/change_list.html
+--- Django-1.1-orig/django/contrib/admin/templates/admin/change_list.html	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/admin/templates/admin/change_list.html	2010-01-22 14:22:19.000000000 +0100
+@@ -75,7 +75,7 @@
+ 
+       {% block result_list %}
+           {% if action_form and actions_on_top and cl.full_result_count %}{% admin_actions %}{% endif %}
+-          {% result_list cl %}
++            {% result_list cl %}
+           {% if action_form and actions_on_bottom and cl.full_result_count %}{% admin_actions %}{% endif %}
+       {% endblock %}
+       {% block pagination %}{% pagination cl %}{% endblock %}
+diff -Naur Django-1.1-orig/django/contrib/admin/templates/admin/index.html Django-1.1/django/contrib/admin/templates/admin/index.html
+--- Django-1.1-orig/django/contrib/admin/templates/admin/index.html	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/admin/templates/admin/index.html	2010-01-22 14:23:21.000000000 +0100
+@@ -19,7 +19,7 @@
+         <caption><a href="{{ app.app_url }}" class="section">{% blocktrans with app.name as name %}{{ name }}{% endblocktrans %}</a></caption>
+         {% for model in app.models %}
+             <tr>
+-            {% if model.perms.change %}
++            {% if model.perms.view %}
+                 <th scope="row"><a href="{{ model.admin_url }}">{{ model.name }}</a></th>
+             {% else %}
+                 <th scope="row">{{ model.name }}</th>
+diff -Naur Django-1.1-orig/django/contrib/admin/templatetags/admin_modify.py Django-1.1/django/contrib/admin/templatetags/admin_modify.py
+--- Django-1.1-orig/django/contrib/admin/templatetags/admin_modify.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/admin/templatetags/admin_modify.py	2010-01-22 14:27:50.000000000 +0100
+@@ -34,6 +34,6 @@
+                             not is_popup and (not save_as or context['add']),
+         'show_save_and_continue': not is_popup and context['has_change_permission'],
+         'is_popup': is_popup,
+-        'show_save': True
++        'show_save': context['has_change_permission']
+     }
+ submit_row = register.inclusion_tag('admin/submit_line.html', takes_context=True)(submit_row)
+diff -Naur Django-1.1-orig/django/contrib/admin/views/main.py Django-1.1/django/contrib/admin/views/main.py
+--- Django-1.1-orig/django/contrib/admin/views/main.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/admin/views/main.py	2010-01-22 14:25:04.000000000 +0100
+@@ -67,7 +67,7 @@
+         self.query = request.GET.get(SEARCH_VAR, '')
+         self.query_set = self.get_query_set()
+         self.get_results(request)
+-        self.title = (self.is_popup and ugettext('Select %s') % force_unicode(self.opts.verbose_name) or ugettext('Select %s to change') % force_unicode(self.opts.verbose_name))
++        self.title = (self.is_popup and ugettext('Select %s') % force_unicode(self.opts.verbose_name) or ugettext('Select %s to view') % force_unicode(self.opts.verbose_name))
+         self.filter_specs, self.has_filters = self.get_filters(request)
+         self.pk_attname = self.lookup_opts.pk.attname
+ 
+diff -Naur Django-1.1-orig/django/contrib/auth/management/__init__.py Django-1.1/django/contrib/auth/management/__init__.py
+--- Django-1.1-orig/django/contrib/auth/management/__init__.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/contrib/auth/management/__init__.py	2010-01-22 14:12:51.000000000 +0100
+@@ -11,7 +11,7 @@
+ def _get_all_permissions(opts):
+     "Returns (codename, name) for all permissions in the given opts."
+     perms = []
+-    for action in ('add', 'change', 'delete'):
++    for action in ('add', 'change', 'delete', 'view'):
+         perms.append((_get_permission_codename(action, opts), u'Can %s %s' % (action, opts.verbose_name_raw)))
+     return perms + list(opts.permissions)
+ 
+diff -Naur Django-1.1-orig/django/db/models/options.py Django-1.1/django/db/models/options.py
+--- Django-1.1-orig/django/db/models/options.py	2010-01-22 13:55:44.000000000 +0100
++++ Django-1.1/django/db/models/options.py	2010-01-22 13:59:31.000000000 +0100
+@@ -335,6 +335,9 @@
+             self._name_map = cache
+         return cache
+ 
++    def get_view_permission(self):
++        return 'view_%s' % self.object_name.lower()
++
+     def get_add_permission(self):
+         return 'add_%s' % self.object_name.lower()
+ 
