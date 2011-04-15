@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:BpmnDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:bpmn="http://stp.eclipse.org/bpmn" xmi:id="_4Aep4WdTEeCmVPahISvJVw" iD="_4Aep4GdTEeCmVPahISvJVw">
+  <pools xmi:type="bpmn:Pool" xmi:id="_4BBccWdTEeCmVPahISvJVw" iD="_4BBccGdTEeCmVPahISvJVw" name="Interlegis">
+    <artifacts xmi:type="bpmn:TextAnnotation" xmi:id="_9PLkkWdtEeCmVPahISvJVw" iD="_9PLkkGdtEeCmVPahISvJVw" name="Quem decide qual casa será diagnosticada?">
+      <associations xmi:type="bpmn:Association" xmi:id="_CSrToGduEeCmVPahISvJVw"/>
+    </artifacts>
+    <artifacts xmi:type="bpmn:TextAnnotation" xmi:id="_FXZB0WduEeCmVPahISvJVw" iD="_FXZB0GduEeCmVPahISvJVw" name="Quem define a composição das equipes?">
+      <associations xmi:type="bpmn:Association" xmi:id="_KbKdsGduEeCmVPahISvJVw"/>
+    </artifacts>
+    <artifacts xmi:type="bpmn:TextAnnotation" xmi:id="_OmRMMWduEeCmVPahISvJVw" iD="_OmRMMGduEeCmVPahISvJVw" name="É o líder da equipe quem deve fazer esse contato?">
+      <associations xmi:type="bpmn:Association" xmi:id="_X6OD0GduEeCmVPahISvJVw"/>
+    </artifacts>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_OnZMYWdUEeCmVPahISvJVw" iD="_OnZMYGdUEeCmVPahISvJVw" associations="_CSrToGduEeCmVPahISvJVw" outgoingEdges="_RtKqgWdUEeCmVPahISvJVw" name="Desejo de Diagnosticar" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="EventStartEmpty"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_RtDVwWdUEeCmVPahISvJVw" iD="_RtDVwGdUEeCmVPahISvJVw" outgoingEdges="_WOmOUWdUEeCmVPahISvJVw" incomingEdges="_RtKqgWdUEeCmVPahISvJVw" name="Definir a Casa&#xA;a ser diagnosticada" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_WOfgoWdUEeCmVPahISvJVw" iD="_WOfgoGdUEeCmVPahISvJVw" associations="_KbKdsGduEeCmVPahISvJVw" outgoingEdges="_vBECYWdUEeCmVPahISvJVw" incomingEdges="_WOmOUWdUEeCmVPahISvJVw" name="Definir a equipe&#xA;(Indicar líder)" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:SubProcess" xmi:id="_l5G_YWdUEeCmVPahISvJVw" iD="_l5G_YGdUEeCmVPahISvJVw" outgoingEdges="__h6wIGdVEeCmVPahISvJVw" incomingEdges="_vBECYWdUEeCmVPahISvJVw" name="Planejar viagem" lanes="_6mxWsWdTEeCmVPahISvJVw _8T8qMWdTEeCmVPahISvJVw" activityType="SubProcess">
+      <vertices xmi:type="bpmn:Activity" xmi:id="_l5G_Y2dUEeCmVPahISvJVw" iD="_l5G_YmdUEeCmVPahISvJVw" associations="_X6OD0GduEeCmVPahISvJVw" outgoingEdges="_0rmjUWdUEeCmVPahISvJVw" name="Contactar a Casa" lanes="_6mxWsWdTEeCmVPahISvJVw"/>
+      <vertices xmi:type="bpmn:Activity" xmi:id="_0rhDwWdUEeCmVPahISvJVw" iD="_0rhDwGdUEeCmVPahISvJVw" incomingEdges="_0rmjUWdUEeCmVPahISvJVw" name="Definir Data de &#xA;partida e retorno" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+      <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_0rmjUWdUEeCmVPahISvJVw" iD="_0rmjUGdUEeCmVPahISvJVw"/>
+    </vertices>
+    <vertices xmi:type="bpmn:Activity" xmi:id="__h1QkWdVEeCmVPahISvJVw" iD="__h1QkGdVEeCmVPahISvJVw" outgoingEdges="_GeoDkWdWEeCmVPahISvJVw" incomingEdges="__h6wIGdVEeCmVPahISvJVw" name="Informar Financeiro" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_GeikAWdWEeCmVPahISvJVw" iD="_GeikAGdWEeCmVPahISvJVw" outgoingEdges="_NWpEQWdWEeCmVPahISvJVw" incomingEdges="_GeoDkWdWEeCmVPahISvJVw" name="Preparar todo o&#xA;processo de viagem" lanes="_8T8qMWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_NWkLwGdWEeCmVPahISvJVw" iD="_NWjksGdWEeCmVPahISvJVw" outgoingEdges="_QvVeYWdWEeCmVPahISvJVw" incomingEdges="_NWpEQWdWEeCmVPahISvJVw" name="Informar Gerência" lanes="_8T8qMWdTEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_QvPXwWdWEeCmVPahISvJVw" iD="_QvPXwGdWEeCmVPahISvJVw" outgoingEdges="_YIZWoWdWEeCmVPahISvJVw" incomingEdges="_QvVeYWdWEeCmVPahISvJVw" name="Realizar&#xA;diagnóstico" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_YIT3EWdWEeCmVPahISvJVw" iD="_YIT3EGdWEeCmVPahISvJVw" outgoingEdges="_fnx5UWdWEeCmVPahISvJVw" incomingEdges="_YIZWoWdWEeCmVPahISvJVw" name="Solicitar áreas temáticas&#xA;para preparação&#xA;dos Planos executivos" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_fnsZwWdWEeCmVPahISvJVw" iD="_fnsZwGdWEeCmVPahISvJVw" outgoingEdges="_tEf9IWdWEeCmVPahISvJVw" incomingEdges="_fnx5UWdWEeCmVPahISvJVw" name="Preparar&#xA;planos executivos" lanes="_7ZDIMWdTEeCmVPahISvJVw _jpEyQWdbEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_tEadkWdWEeCmVPahISvJVw" iD="_tEadkGdWEeCmVPahISvJVw" outgoingEdges="_yR4A8WdWEeCmVPahISvJVw" incomingEdges="_tEf9IWdWEeCmVPahISvJVw" name="Enviar planos executivos&#xA;para a gerência" lanes="_7ZDIMWdTEeCmVPahISvJVw _jpEyQWdbEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_yRxTQWdWEeCmVPahISvJVw" iD="_yRxTQGdWEeCmVPahISvJVw" outgoingEdges="_9XylcWdWEeCmVPahISvJVw" incomingEdges="_yR4A8WdWEeCmVPahISvJVw" name="Aguardar planos&#xA;executivos" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_9XtF4WdWEeCmVPahISvJVw" iD="_9XtF4GdWEeCmVPahISvJVw" outgoingEdges="_ntyIYWdcEeCmVPahISvJVw" incomingEdges="_9XylcWdWEeCmVPahISvJVw" name="Consolidar os&#xA;planos executivos em&#xA;um Projeto para a Casa" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_M9kAcWdXEeCmVPahISvJVw" iD="_M9kAcGdXEeCmVPahISvJVw" outgoingEdges="_bg1coWdXEeCmVPahISvJVw" incomingEdges="_5TrEMWdgEeCmVPahISvJVw _n8BTgWduEeCmVPahISvJVw" name="Controlar a execução&#xA;do Projeto da casa" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_QYZvoWdXEeCmVPahISvJVw" iD="_QYZvoGdXEeCmVPahISvJVw" outgoingEdges="_q4EsYWdXEeCmVPahISvJVw _n8BTgWduEeCmVPahISvJVw" incomingEdges="_bg1coWdXEeCmVPahISvJVw" name="Executar&#xA;Projeto da Casa" lanes="_7ZDIMWdTEeCmVPahISvJVw _jpEyQWdbEeCmVPahISvJVw" activityType="Task"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_q3_M0WdXEeCmVPahISvJVw" iD="_q3_M0GdXEeCmVPahISvJVw" outgoingEdges="_wtdycWdXEeCmVPahISvJVw" incomingEdges="_q4EsYWdXEeCmVPahISvJVw" name="Comunicar Encerramento&#xA;do Projeto da Casa" lanes="_7ZDIMWdTEeCmVPahISvJVw _jpEyQWdbEeCmVPahISvJVw" activityType="EventIntermediateMessage"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_zFWP0WdXEeCmVPahISvJVw" iD="_zFWP0GdXEeCmVPahISvJVw" incomingEdges="_wtdycWdXEeCmVPahISvJVw" name="Encerrar projeto" lanes="_6mxWsWdTEeCmVPahISvJVw" activityType="EventEndEmpty"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_ntplgWdcEeCmVPahISvJVw" iD="_ntplgGdcEeCmVPahISvJVw" outgoingEdges="_5TrEMWdgEeCmVPahISvJVw" incomingEdges="_ntyIYWdcEeCmVPahISvJVw" name="Firmar convênio&#xA;com a Casa" lanes="_jpEyQWdbEeCmVPahISvJVw" activityType="Task"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_RtKqgWdUEeCmVPahISvJVw" iD="_RtKqgGdUEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_WOmOUWdUEeCmVPahISvJVw" iD="_WOmOUGdUEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_vBECYWdUEeCmVPahISvJVw" iD="_vBECYGdUEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="__h6wIGdVEeCmVPahISvJVw" iD="__h6JEGdVEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_GeoDkWdWEeCmVPahISvJVw" iD="_GeoDkGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_NWpEQWdWEeCmVPahISvJVw" iD="_NWpEQGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_QvVeYWdWEeCmVPahISvJVw" iD="_QvVeYGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_YIZWoWdWEeCmVPahISvJVw" iD="_YIZWoGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_fnx5UWdWEeCmVPahISvJVw" iD="_fnx5UGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_tEf9IWdWEeCmVPahISvJVw" iD="_tEf9IGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_yR4A8WdWEeCmVPahISvJVw" iD="_yR4A8GdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_9XylcWdWEeCmVPahISvJVw" iD="_9XylcGdWEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_bg1coWdXEeCmVPahISvJVw" iD="_bg1coGdXEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_q4EsYWdXEeCmVPahISvJVw" iD="_q4EsYGdXEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_wtdycWdXEeCmVPahISvJVw" iD="_wtdycGdXEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_ntyIYWdcEeCmVPahISvJVw" iD="_ntyIYGdcEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_5TrEMWdgEeCmVPahISvJVw" iD="_5TrEMGdgEeCmVPahISvJVw"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_n8BTgWduEeCmVPahISvJVw" iD="_n8BTgGduEeCmVPahISvJVw"/>
+    <lanes xmi:type="bpmn:Lane" xmi:id="_6mxWsWdTEeCmVPahISvJVw" iD="_6mxWsGdTEeCmVPahISvJVw" name="Gerência" activities="_OnZMYWdUEeCmVPahISvJVw _RtDVwWdUEeCmVPahISvJVw _WOfgoWdUEeCmVPahISvJVw _l5G_Y2dUEeCmVPahISvJVw _l5G_YWdUEeCmVPahISvJVw _0rhDwWdUEeCmVPahISvJVw __h1QkWdVEeCmVPahISvJVw _QvPXwWdWEeCmVPahISvJVw _YIT3EWdWEeCmVPahISvJVw _yRxTQWdWEeCmVPahISvJVw _9XtF4WdWEeCmVPahISvJVw _M9kAcWdXEeCmVPahISvJVw _zFWP0WdXEeCmVPahISvJVw"/>
+    <lanes xmi:type="bpmn:Lane" xmi:id="_7ZDIMWdTEeCmVPahISvJVw" iD="_7ZDIMGdTEeCmVPahISvJVw" name="Áreas temáticas" activities="_fnsZwWdWEeCmVPahISvJVw _QYZvoWdXEeCmVPahISvJVw _q3_M0WdXEeCmVPahISvJVw _tEadkWdWEeCmVPahISvJVw"/>
+    <lanes xmi:type="bpmn:Lane" xmi:id="_8T8qMWdTEeCmVPahISvJVw" iD="_8T8qMGdTEeCmVPahISvJVw" name="Administrativo" activities="_l5G_YWdUEeCmVPahISvJVw _GeikAWdWEeCmVPahISvJVw _NWkLwGdWEeCmVPahISvJVw"/>
+    <lanes xmi:type="bpmn:Lane" xmi:id="_jpEyQWdbEeCmVPahISvJVw" iD="_jpEyQGdbEeCmVPahISvJVw" name="Convênios" activities="_q3_M0WdXEeCmVPahISvJVw _QYZvoWdXEeCmVPahISvJVw _ntplgWdcEeCmVPahISvJVw _tEadkWdWEeCmVPahISvJVw _fnsZwWdWEeCmVPahISvJVw"/>
+  </pools>
+</bpmn:BpmnDiagram>

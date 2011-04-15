@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:BpmnDiagram xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:bpmn="http://stp.eclipse.org/bpmn" xmi:id="_g2ZLgmboEeCyc8kgfygIJA" iD="_g2ZLgWboEeCyc8kgfygIJA">
+  <pools xmi:type="bpmn:Pool" xmi:id="_g3ySoGboEeCyc8kgfygIJA" iD="_g3xrkGboEeCyc8kgfygIJA" name="Interlegis">
+    <vertices xmi:type="bpmn:Activity" xmi:id="_5GMXYWboEeCyc8kgfygIJA" iD="_5GMXYGboEeCyc8kgfygIJA" outgoingEdges="_PpSJ0GbpEeCyc8kgfygIJA" name="Desejo de diagnosticar" activityType="EventStartEmpty"/>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_LDlxEWbpEeCyc8kgfygIJA" iD="_LDlxEGbpEeCyc8kgfygIJA" incomingEdges="_PpSJ0GbpEeCyc8kgfygIJA" name="Solicita diagnóstico" activityType="Task">
+      <outgoingMessages xmi:type="bpmn:MessagingEdge" href="#_QYy7MGbpEeCyc8kgfygIJA"/>
+    </vertices>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_PpSJ0GbpEeCyc8kgfygIJA" iD="_PpRiwGbpEeCyc8kgfygIJA"/>
+  </pools>
+  <pools xmi:type="bpmn:Pool" xmi:id="_lLcgMWboEeCyc8kgfygIJA" iD="_lLcgMGboEeCyc8kgfygIJA" name="Gerência de projeto">
+    <vertices xmi:type="bpmn:Activity" xmi:id="_6vU4YWboEeCyc8kgfygIJA" iD="_6vU4YGboEeCyc8kgfygIJA" outgoingEdges="_seDVsWbpEeCyc8kgfygIJA" name="Planejar ação&#xA;de diagnóstico">
+      <incomingMessages xmi:type="bpmn:MessagingEdge" href="#_QYy7MGbpEeCyc8kgfygIJA"/>
+    </vertices>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_sd_EQWbpEeCyc8kgfygIJA" iD="_sd_EQGbpEeCyc8kgfygIJA" outgoingEdges="_qBtZoWbqEeCyc8kgfygIJA" incomingEdges="_seDVsWbpEeCyc8kgfygIJA" name="Definir equipe, indicando o líder&#xA;Definir data prevista de partida e retorno" activityType="Task">
+      <outgoingMessages xmi:type="bpmn:MessagingEdge" href="#_u567MWbpEeCyc8kgfygIJA"/>
+    </vertices>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_H-hBEWbqEeCyc8kgfygIJA" iD="_H-hBEGbqEeCyc8kgfygIJA" incomingEdges="_qBtZoWbqEeCyc8kgfygIJA" name="Agendar diagnóstico&#xA;com a Câmara" activityType="Task"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_seDVsWbpEeCyc8kgfygIJA" iD="_seDVsGbpEeCyc8kgfygIJA"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_qBtZoWbqEeCyc8kgfygIJA" iD="_qBtZoGbqEeCyc8kgfygIJA"/>
+  </pools>
+  <pools xmi:type="bpmn:Pool" xmi:id="_nmK2MWboEeCyc8kgfygIJA" iD="_nmK2MGboEeCyc8kgfygIJA" name="Administrativo/Financeiro">
+    <vertices xmi:type="bpmn:Activity" xmi:id="_u52pwWbpEeCyc8kgfygIJA" iD="_u52pwGbpEeCyc8kgfygIJA" outgoingEdges="_71Ct0WbpEeCyc8kgfygIJA" name="Preparar a&#xA;viagem" activityType="Task">
+      <incomingMessages xmi:type="bpmn:MessagingEdge" href="#_u567MWbpEeCyc8kgfygIJA"/>
+    </vertices>
+    <vertices xmi:type="bpmn:Activity" xmi:id="_70-cYGbpEeCyc8kgfygIJA" iD="_7091UGbpEeCyc8kgfygIJA" incomingEdges="_71Ct0WbpEeCyc8kgfygIJA" name="Diárias&#xA;Traslados" activityType="Task"/>
+    <sequenceEdges xmi:type="bpmn:SequenceEdge" xmi:id="_71Ct0WbpEeCyc8kgfygIJA" iD="_71Ct0GbpEeCyc8kgfygIJA"/>
+  </pools>
+  <pools xmi:type="bpmn:Pool" xmi:id="_pnyvsWboEeCyc8kgfygIJA" iD="_pnyvsGboEeCyc8kgfygIJA" name="Áreas temáticas"/>
+  <messages xmi:type="bpmn:MessagingEdge" xmi:id="_QYy7MGbpEeCyc8kgfygIJA" iD="_QYyUIGbpEeCyc8kgfygIJA" source="_LDlxEWbpEeCyc8kgfygIJA" target="_6vU4YWboEeCyc8kgfygIJA"/>
+  <messages xmi:type="bpmn:MessagingEdge" xmi:id="_u567MWbpEeCyc8kgfygIJA" iD="_u567MGbpEeCyc8kgfygIJA" source="_sd_EQWbpEeCyc8kgfygIJA" target="_u52pwWbpEeCyc8kgfygIJA"/>
+</bpmn:BpmnDiagram>
