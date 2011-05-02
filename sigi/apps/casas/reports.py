@@ -7,6 +7,8 @@ from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements, \
 
 from sigi.apps.relatorios.reports import ReportDefault
 
+from geraldo.graphics import Image
+
 def string_to_cm(texto):
     tamanho = 0
     minEspeciais = {
@@ -142,14 +144,33 @@ class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
 class CasasLegislativasReport(ReportDefault):
     title = u'Relatório de Casas Legislativas'
     height = 80*cm
+    page_size = landscape(A4)
 
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
-        label_left = [0.3,1,5.5,11]
+        label_left = [0.3,1,5.5,11,17,22]
         elements = list(ReportDefault.band_page_header.elements)
 
-        elements += [
+        elements = [
+            Image(filename= ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-interlegis.jpg',
+                left=23.5*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
+                width=4.2*cm,height=3*cm,
+            ),
+            Image(filename=  ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-senado.png',
+                left=1*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
+                width=3*cm,height=3*cm,
+            ),
+            Label(text="SENADO FEDERAL",top=1*cm,left=0,width=BAND_WIDTH,
+                style={'fontName': 'Helvetica-Bold','fontSize':14, 'alignment': TA_CENTER}
+            ),
+            Label(text="SINTER - Secretaria Especial do Interlegis",top=1.5*cm,left=0,width=BAND_WIDTH,
+                style={'fontName': 'Helvetica-Bold','fontSize':13, 'alignment': TA_CENTER}
+            ),
+            SystemField(
+                expression='%(report_title)s',top=2.5*cm,left=0,width=BAND_WIDTH,
+                style={'fontName': 'Helvetica-Bold','fontSize':14, 'alignment': TA_CENTER}
+            ),
             Label(
                 text="UF",
                 left=label_left[0]*cm,
@@ -170,6 +191,17 @@ class CasasLegislativasReport(ReportDefault):
                 left=label_left[3]*cm,
                 top=label_top,                
             ),
+	    Label(
+                text="Endereço na Internet",
+                left=label_left[4]*cm,
+                top=label_top,
+            ),
+	    Label(
+                text="Email",
+                left=label_left[5]*cm,
+                top=label_top,
+            ),
+
             
         ]
 
@@ -180,12 +212,13 @@ class CasasLegislativasReport(ReportDefault):
 
     class band_detail(ReportDefault.band_detail):
 
-        label_left = [0.3,1,5.5,11]
+        label_left = [0.3,1,5.5,11,17,22]
 
         elements=[
             ObjectValue(
                 attribute_name='municipio.uf.sigla',
                 left=label_left[0]*cm,
+		width=1*cm,
             ),
             ObjectValue(
                 attribute_name='municipio.nome',
@@ -200,6 +233,15 @@ class CasasLegislativasReport(ReportDefault):
                 left=label_left[3]*cm,
                 get_value=lambda instance: instance.logradouro + ' - '+ instance.bairro,                
             ),
+	    ObjectValue(
+                attribute_name='pagina_web',
+                left=label_left[4]*cm,
+            ),
+            ObjectValue(
+                attribute_name='email',
+                left=label_left[5]*cm,
+            ),
+
         ]
 
     groups = [
