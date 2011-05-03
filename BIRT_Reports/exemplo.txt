@@ -1,0 +1,1 @@
+env BIRT_HOME="/caminho/para/birt-runtime-2_6_2/" /caminho/para/birt-runtime-2_6_2/ReportEngine/genReport.sh -f PDF listaCasas.rptdesign
