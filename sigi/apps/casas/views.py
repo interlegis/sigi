@@ -258,8 +258,8 @@ def export_csv(request):
     
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
-        map(unicode,atributos)
-        csv_writer.writerow(atributos)        
+	atributos2 = [s.encode("utf-8") for s in atributos]
+        csv_writer.writerow(atributos2)        
         
     for casa in casas:
         lista = []
@@ -271,7 +271,7 @@ def export_csv(request):
             elif u"Nome" == atributo:
                 lista.append(casa.nome.encode("utf-8"))
             elif u"Município" == atributo:
-                lista.append(str(casa.municipio).encode("utf-8"))            
+                lista.append(str(casa.municipio))            
             elif u"Presidente" == atributo:
                 lista.append(casa.presidente.encode("utf-8"))
             elif u"Logradouro" == atributo:
@@ -282,6 +282,10 @@ def export_csv(request):
                 lista.append(casa.cep.encode("utf-8"))
             elif u"Telefone" == atributo:
                 lista.append(casa.telefone.encode("utf-8"))
+            elif u"Página web" == atributo:
+                lista.append(casa.pagina_web.encode("utf-8"))
+            elif u"Email" == atributo:
+                lista.append(casa.email.encode("utf-8"))
             else:
                 pass
                                 
