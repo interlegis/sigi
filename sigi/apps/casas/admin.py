@@ -44,11 +44,11 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
                        'presidente'),
         }),
         ('Endereço', {
-            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
+            'fields': ('logradouro', 'bairro', 'municipio', 'cep', 'pagina_web','email'),
         }),
         ('Outras informações', {
             'classes': ('collapse',),
-            'fields': ('observacoes', 'email', 'pagina_web', 'foto'),
+            'fields': ('observacoes', 'foto'),
         }),
     )
     raw_id_fields = ('municipio',)
