@@ -82,6 +82,11 @@
                     <text-property name="displayName">telefone</text-property>
                     <text-property name="heading">telefone</text-property>
                 </structure>
+                <structure>
+                    <property name="columnName">cep</property>
+                    <text-property name="displayName">cep</text-property>
+                    <text-property name="heading">cep</text-property>
+                </structure>
             </list-property>
             <list-property name="sortHints">
                 <structure>
@@ -136,6 +141,11 @@
                         <property name="name">telefone</property>
                         <property name="dataType">string</property>
                     </structure>
+                    <structure>
+                        <property name="position">8</property>
+                        <property name="name">cep</property>
+                        <property name="dataType">string</property>
+                    </structure>
                 </list-property>
             </structure>
             <property name="dataSource">sigi</property>
@@ -145,55 +155,55 @@
                     <property name="name">estado</property>
                     <property name="nativeName">estado</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">2</property>
                     <property name="name">nome</property>
                     <property name="nativeName">nome</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">3</property>
                     <property name="name">logradouro</property>
                     <property name="nativeName">logradouro</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">4</property>
                     <property name="name">bairro</property>
                     <property name="nativeName">bairro</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">5</property>
                     <property name="name">email</property>
                     <property name="nativeName">email</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">6</property>
                     <property name="name">pagina_web</property>
                     <property name="nativeName">pagina_web</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
                 </structure>
                 <structure>
                     <property name="position">7</property>
                     <property name="name">telefone</property>
                     <property name="nativeName">telefone</property>
                     <property name="dataType">string</property>
-                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">8</property>
+                    <property name="name">cep</property>
+                    <property name="nativeName">cep</property>
+                    <property name="dataType">string</property>
                 </structure>
             </list-property>
             <xml-property name="queryText"><![CDATA[SELECT "public"."contatos_unidadefederativa"."nome" AS "estado",
   "public"."casas_casalegislativa"."nome", "public"."casas_casalegislativa"."logradouro",
   "public"."casas_casalegislativa"."bairro", "public"."casas_casalegislativa"."email",
-  "public"."casas_casalegislativa"."pagina_web", "public"."casas_casalegislativa"."telefone"
+  "public"."casas_casalegislativa"."pagina_web", "public"."casas_casalegislativa"."telefone",
+  "public"."casas_casalegislativa"."cep"
   FROM
        "public"."casas_casalegislativa" JOIN "public"."contatos_municipio" JOIN "public"."contatos_unidadefederativa" ON "public"."contatos_municipio"."uf_id" = "public"."contatos_unidadefederativa"."codigo_ibge" ON "public"."casas_casalegislativa"."municipio_id" = "public"."contatos_municipio"."codigo_ibge"
   ORDER BY "estado" ASC, "public"."casas_casalegislativa"."nome" ASC
@@ -201,16 +211,16 @@
             <structure name="designerState">
                 <property name="version">1.0</property>
                 <property name="stateContentAsString">&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="Conjunto de Dados" version="1.0">
-&lt;SQLStatement>SELECT &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;nome&amp;quot; AS &amp;quot;estado&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;logradouro&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;bairro&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;email&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;pagina_web&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;telefone&amp;quot;&amp;#x0A;  FROM&amp;#x0A;       &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;uf_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;codigo_ibge&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;municipio_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;codigo_ibge&amp;quot;&amp;#x0A;  ORDER BY &amp;quot;estado&amp;quot; ASC, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
+&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="casas" version="1.0">
+&lt;SQLStatement>SELECT &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;nome&amp;quot; AS &amp;quot;estado&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;logradouro&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;bairro&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;email&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;pagina_web&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;telefone&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;cep&amp;quot;&amp;#x0A;  FROM&amp;#x0A;       &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;uf_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;codigo_ibge&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;municipio_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;codigo_ibge&amp;quot;&amp;#x0A;  ORDER BY &amp;quot;estado&amp;quot; ASC, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
 &lt;connInfo>postgres_8.x:Transient.org.eclipse.datatools.enablement.postgresql.connectionProfile:sigi:sigi&lt;/connInfo>
 &lt;omitSchemaInfo>false:true:&lt;/omitSchemaInfo>
 &lt;editorInputUsageOptions>useWindowState=true&lt;/editorInputUsageOptions>
-&lt;windowState height="639" version="1.0" width="1412">
-&lt;control height="200" isHideable="true" isVisible="true" name="SQLSourceViewer" width="1387"/>
-&lt;control height="206" isHideable="true" isVisible="true" name="DesignViewer" width="1400"/>
-&lt;control height="201" isHideable="true" isVisible="true" name="GraphControl" width="1392"/>
-&lt;control height="201" isHideable="true" isVisible="false" name="OutlineViewer" width="198"/>
+&lt;windowState height="698" version="1.0" width="1211">
+&lt;control height="217" isHideable="true" isVisible="true" name="SQLSourceViewer" width="1186"/>
+&lt;control height="229" isHideable="true" isVisible="true" name="DesignViewer" width="1199"/>
+&lt;control height="220" isHideable="true" isVisible="true" name="GraphControl" width="1191"/>
+&lt;control height="220" isHideable="true" isVisible="false" name="OutlineViewer" width="175"/>
 &lt;/windowState>
 &lt;/SQLQueryBuilder></property>
             </structure>
@@ -494,7 +504,7 @@
                 <structure>
                     <property name="name">logradouro</property>
                     <text-property name="displayName">logradouro</text-property>
-                    <expression name="expression" type="javascript">dataSetRow["logradouro"] + " " + dataSetRow["bairro"]</expression>
+                    <expression name="expression" type="javascript">dataSetRow["logradouro"] + " " + dataSetRow["bairro"] + " cep: " + dataSetRow["cep"]</expression>
                     <property name="dataType">string</property>
                 </structure>
                 <structure>
@@ -519,6 +529,12 @@
                     <property name="name">telefone</property>
                     <text-property name="displayName">telefone</text-property>
                     <expression name="expression" type="javascript">dataSetRow["telefone"]</expression>
+                    <property name="dataType">string</property>
+                </structure>
+                <structure>
+                    <property name="name">cep</property>
+                    <text-property name="displayName">cep</text-property>
+                    <expression name="expression" type="javascript">dataSetRow["cep"]</expression>
                     <property name="dataType">string</property>
                 </structure>
             </list-property>
@@ -552,7 +568,7 @@
                         <property name="borderRightColor">#FFFFFF</property>
                         <property name="borderRightStyle">solid</property>
                         <label id="35">
-                            <text-property name="text">logradouro</text-property>
+                            <text-property name="text">logradouro / bairro / cep</text-property>
                         </label>
                     </cell>
                     <cell id="13">
@@ -610,7 +626,7 @@
             </group>
             <detail>
                 <row id="16">
-                    <property name="height">0.6770833333333334in</property>
+                    <property name="height">0.9270833333333334in</property>
                     <property name="borderBottomColor">#000000</property>
                     <property name="borderBottomStyle">dotted</property>
                     <property name="borderBottomWidth">thin</property>
