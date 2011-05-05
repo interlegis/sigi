@@ -6,16 +6,18 @@
     <property name="bidiLayoutOrientation">ltr</property>
     <property name="imageDPI">96</property>
     <parameters>
-        <scalar-parameter name="prm_uf" id="76">
-            <text-property name="promptText">Informe a UF</text-property>
-            <property name="valueType">static</property>
+        <scalar-parameter name="prm_uf" id="79">
+            <text-property name="promptText">Estado</text-property>
+            <property name="valueType">dynamic</property>
+            <property name="dataSetName">estados</property>
+            <expression name="valueExpr" type="javascript">dataSetRow["sigla"]</expression>
+            <expression name="labelExpr" type="javascript">dataSetRow["nome"]</expression>
             <property name="dataType">string</property>
             <property name="distinct">true</property>
-            <simple-property-list name="defaultValue">
-                <value type="constant">Todas</value>
-            </simple-property-list>
             <property name="paramType">simple</property>
-            <property name="controlType">text-box</property>
+            <property name="controlType">list-box</property>
+            <property name="mustMatch">false</property>
+            <property name="fixedOrder">true</property>
             <structure name="format">
                 <property name="category">Unformatted</property>
             </structure>
@@ -102,6 +104,18 @@
                     <property name="columnName">cep</property>
                     <text-property name="displayName">cep</text-property>
                     <text-property name="heading">cep</text-property>
+                </structure>
+            </list-property>
+            <list-property name="parameters">
+                <structure>
+                    <property name="name">uf</property>
+                    <property name="paramName">prm_uf</property>
+                    <property name="nativeName">uf</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                    <property name="position">1</property>
+                    <property name="isInput">true</property>
+                    <property name="isOutput">false</property>
                 </structure>
             </list-property>
             <list-property name="sortHints">
@@ -222,27 +236,43 @@
   "public"."casas_casalegislativa"."cep"
   FROM
        "public"."casas_casalegislativa" JOIN "public"."contatos_municipio" JOIN "public"."contatos_unidadefederativa" ON "public"."contatos_municipio"."uf_id" = "public"."contatos_unidadefederativa"."codigo_ibge" ON "public"."casas_casalegislativa"."municipio_id" = "public"."contatos_municipio"."codigo_ibge"
+  WHERE "public"."contatos_unidadefederativa"."sigla" = ?
   ORDER BY "estado" ASC, "public"."casas_casalegislativa"."nome" ASC
 ]]></xml-property>
             <structure name="designerState">
                 <property name="version">1.0</property>
                 <property name="stateContentAsString">&lt;?xml version="1.0" encoding="UTF-8"?>
-&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="casas" version="1.0">
-&lt;SQLStatement>SELECT &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;nome&amp;quot; AS &amp;quot;estado&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;logradouro&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;bairro&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;email&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;pagina_web&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;telefone&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;cep&amp;quot;&amp;#x0A;  FROM&amp;#x0A;       &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;uf_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;codigo_ibge&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;municipio_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;codigo_ibge&amp;quot;&amp;#x0A;  ORDER BY &amp;quot;estado&amp;quot; ASC, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
+&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="casas" preparableSQLText="SELECT &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;nome&amp;quot; AS &amp;quot;estado&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;logradouro&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;bairro&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;email&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;pagina_web&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;telefone&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;cep&amp;quot;&amp;#x0A;  FROM&amp;#x0A;       &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;uf_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;codigo_ibge&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;municipio_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;codigo_ibge&amp;quot;&amp;#x0A;  WHERE &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;sigla&amp;quot; = ?&amp;#x0A;  ORDER BY &amp;quot;estado&amp;quot; ASC, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot; ASC&amp;#x0A;" version="1.0">
+&lt;SQLStatement>SELECT &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;nome&amp;quot; AS &amp;quot;estado&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;logradouro&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;bairro&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;email&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;pagina_web&amp;quot;, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;telefone&amp;quot;,&amp;#x0A;  &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;cep&amp;quot;&amp;#x0A;  FROM&amp;#x0A;       &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot; JOIN &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;uf_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;codigo_ibge&amp;quot; ON &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;municipio_id&amp;quot; = &amp;quot;public&amp;quot;.&amp;quot;contatos_municipio&amp;quot;.&amp;quot;codigo_ibge&amp;quot;&amp;#x0A;  WHERE &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;.&amp;quot;sigla&amp;quot; = :uf&amp;#x0A;  ORDER BY &amp;quot;estado&amp;quot; ASC, &amp;quot;public&amp;quot;.&amp;quot;casas_casalegislativa&amp;quot;.&amp;quot;nome&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
 &lt;connInfo>postgres_8.x:Transient.org.eclipse.datatools.enablement.postgresql.connectionProfile:sigi:sigi&lt;/connInfo>
 &lt;omitSchemaInfo>false:true:&lt;/omitSchemaInfo>
 &lt;editorInputUsageOptions>useWindowState=true&lt;/editorInputUsageOptions>
-&lt;windowState height="698" version="1.0" width="1211">
-&lt;control height="217" isHideable="true" isVisible="true" name="SQLSourceViewer" width="1186"/>
-&lt;control height="229" isHideable="true" isVisible="true" name="DesignViewer" width="1199"/>
-&lt;control height="220" isHideable="true" isVisible="true" name="GraphControl" width="1191"/>
-&lt;control height="220" isHideable="true" isVisible="false" name="OutlineViewer" width="175"/>
+&lt;windowState height="668" version="1.0" width="1209">
+&lt;control height="205" isHideable="true" isVisible="true" name="SQLSourceViewer" width="1184"/>
+&lt;control height="222" isHideable="true" isVisible="true" name="DesignViewer" width="1197"/>
+&lt;control height="209" isHideable="true" isVisible="true" name="GraphControl" width="1189"/>
+&lt;control height="209" isHideable="true" isVisible="false" name="OutlineViewer" width="155"/>
 &lt;/windowState>
 &lt;/SQLQueryBuilder></property>
             </structure>
             <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
 <model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
   <Version>2.0</Version>
+  <DataSetParameters>
+    <parameter>
+      <design:ParameterDefinition>
+        <design:inOutMode>In</design:inOutMode>
+        <design:attributes>
+          <design:identifier>
+            <design:name>uf</design:name>
+            <design:position>1</design:position>
+          </design:identifier>
+          <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+          <design:precision>2</design:precision>
+        </design:attributes>
+      </design:ParameterDefinition>
+    </parameter>
+  </DataSetParameters>
   <design:ResultSets derivedMetaData="true">
     <design:resultSetDefinitions>
       <design:resultSetColumns>
@@ -415,6 +445,149 @@
     </design:resultSetDefinitions>
   </design:ResultSets>
 </model:DesignValues>]]></xml-property>
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>parameterMetaData</name>
+                    <value>1,uf</value>
+                </ex-property>
+            </list-property>
+        </oda-data-set>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.dbprofile.sqbDataSet" name="estados" id="78">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">nome</property>
+                    <text-property name="displayName">nome</text-property>
+                    <text-property name="heading">nome</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">sigla</property>
+                    <text-property name="displayName">sigla</text-property>
+                    <text-property name="heading">sigla</text-property>
+                </structure>
+            </list-property>
+            <list-property name="sortHints">
+                <structure>
+                    <property name="columnName">sigla</property>
+                    <property name="position">0</property>
+                    <property name="direction">asc</property>
+                    <property name="nullValueOrdering">unknown</property>
+                    <property name="isOptional">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">nome</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">sigla</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">sigi</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">nome</property>
+                    <property name="nativeName">nome</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">sigla</property>
+                    <property name="nativeName">sigla</property>
+                    <property name="dataType">string</property>
+                    <property name="nativeDataType">12</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[SELECT "nome", "sigla"
+  FROM "public"."contatos_unidadefederativa"
+  ORDER BY "sigla" ASC
+]]></xml-property>
+            <structure name="designerState">
+                <property name="version">1.0</property>
+                <property name="stateContentAsString">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="Conjunto de Dados" version="1.0">
+&lt;SQLStatement>SELECT &amp;quot;nome&amp;quot;, &amp;quot;sigla&amp;quot;&amp;#x0A;  FROM &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;&amp;#x0A;  ORDER BY &amp;quot;sigla&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
+&lt;connInfo>postgres_8.x:Transient.org.eclipse.datatools.enablement.postgresql.connectionProfile:sigi:sigi&lt;/connInfo>
+&lt;omitSchemaInfo>false:true:&lt;/omitSchemaInfo>
+&lt;editorInputUsageOptions>useWindowState=true&lt;/editorInputUsageOptions>
+&lt;windowState height="497" version="1.0" width="685">
+&lt;control height="153" isHideable="true" isVisible="true" name="SQLSourceViewer" width="660"/>
+&lt;control height="158" isHideable="true" isVisible="true" name="DesignViewer" width="673"/>
+&lt;control height="154" isHideable="true" isVisible="true" name="GraphControl" width="665"/>
+&lt;control height="154" isHideable="true" isVisible="false" name="OutlineViewer" width="198"/>
+&lt;/windowState>
+&lt;/SQLQueryBuilder></property>
+            </structure>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>nome</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>25</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>nome</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>nome</design:label>
+            <design:formattingHints>
+              <design:displaySize>25</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>sigla</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>2</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>sigla</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>sigla</design:label>
+            <design:formattingHints>
+              <design:displaySize>2</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria>
+        <design:rowOrdering>
+          <design:sortKeys>
+            <design:columnIdentifier>
+              <design:name>sigla</design:name>
+            </design:columnIdentifier>
+            <design:sortDirection>Ascending</design:sortDirection>
+            <design:optional>false</design:optional>
+          </design:sortKeys>
+        </design:rowOrdering>
+      </design:criteria>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
         </oda-data-set>
     </data-sets>
     <styles>
@@ -466,35 +639,44 @@
         <grid id="62">
             <property name="width">10.447916666666666in</property>
             <column id="63">
-                <property name="width">1.9375in</property>
+                <property name="width">1.3958333333333333in</property>
             </column>
             <column id="64">
-                <property name="width">7.03125in</property>
+                <property name="width">7.71875in</property>
             </column>
             <column id="65">
-                <property name="width">1.4791666666666667in</property>
+                <property name="width">1.3333333333333333in</property>
             </column>
             <row id="66">
                 <cell id="67">
                     <image id="71">
-                        <property name="height">1.1267605633802817in</property>
-                        <property name="width">1.6901408450704225in</property>
+                        <property name="height">0.6770833333333334in</property>
+                        <property name="width">1.0104166666666667in</property>
                         <property name="source">embed</property>
                         <property name="imageName">logo-interlegis.jpg</property>
                     </image>
                 </cell>
                 <cell id="68">
-                    <text id="73">
-                        <property name="contentType">html</property>
-                        <text-property name="content"><![CDATA[<h1>SENADO FEDERAL</h1>
-<h2>SINTER - Secretaria Especial do Interlegis</h2>
-<H3>Listagem das Casas Legislativas por Estado</H3>]]></text-property>
-                    </text>
+                    <label id="80">
+                        <property name="fontSize">14pt</property>
+                        <property name="fontWeight">bold</property>
+                        <text-property name="text">SENADO FEDERAL</text-property>
+                    </label>
+                    <label id="81">
+                        <property name="fontWeight">bold</property>
+                        <text-property name="text">SINTER - Secretaria Especial do Interlegis</text-property>
+                    </label>
+                    <label id="82">
+                        <property name="fontWeight">normal</property>
+                        <property name="fontStyle">italic</property>
+                        <text-property name="text">Listagem das casas legislativas por estado</text-property>
+                    </label>
                 </cell>
                 <cell id="69">
+                    <property name="textAlign">right</property>
                     <image id="72">
-                        <property name="height">1.3333333333333333in</property>
-                        <property name="width">1.2708333333333333in</property>
+                        <property name="height">0.8020833333333334in</property>
+                        <property name="width">0.7708333333333334in</property>
                         <property name="source">embed</property>
                         <property name="imageName">logo-senado.png</property>
                     </image>
@@ -617,7 +799,7 @@
                 <property name="hideDetail">false</property>
                 <header>
                     <row id="49">
-                        <property name="height">0.6145833333333334in</property>
+                        <property name="height">0.3645833333333333in</property>
                         <property name="backgroundColor">#F0F0F0</property>
                         <property name="textAlign">center</property>
                         <cell id="50">
@@ -625,6 +807,7 @@
                             <property name="rowSpan">1</property>
                             <property name="verticalAlign">middle</property>
                             <data id="61">
+                                <property name="fontWeight">bold</property>
                                 <property name="resultSetColumn">estado</property>
                             </data>
                         </cell>
@@ -642,7 +825,7 @@
             </group>
             <detail>
                 <row id="16">
-                    <property name="height">0.9270833333333334in</property>
+                    <property name="height">0.6770833333333334in</property>
                     <property name="borderBottomColor">#000000</property>
                     <property name="borderBottomStyle">dotted</property>
                     <property name="borderBottomWidth">thin</property>

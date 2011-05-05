@@ -2,16 +2,20 @@
 <report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.22" id="1">
     <list-property name="configVars">
         <structure>
-            <property name="name">__isdisplay__prm_uf_76_0</property>
-            <property name="value">Todas</property>
+            <property name="name">__isdisplay__prm_uf_79_0</property>
+            <property name="value">Minas Gerais</property>
         </structure>
         <structure>
-            <property name="name">prm_uf_76_1</property>
-            <property name="value">Todas</property>
+            <property name="name">prm_uf_79_1</property>
+            <property name="value">MG</property>
         </structure>
         <structure>
-            <property name="name">prm_uf_76_type_</property>
+            <property name="name">prm_uf_79_type_</property>
             <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">prm_uf_79_expr_</property>
+            <property name="value">dataSetRow["sigla"]</property>
         </structure>
     </list-property>
 </report>
