@@ -20,11 +20,19 @@ estejam instalados em seu sistema:
 * Python >= 2.4 < 3.0
 * Python Image Library (PIL)
 * reportlab
-* Django 1.1
+* Django 1.2.1
 * django-extensions <http://django-command-extensions.googlecode.com>
 * django-googlecharts <http://github.com/jacobian/django-googlecharts>
 * django-treemenus' <http://django-treemenus.googlecode.com>
 * django-geraldo <http://github.com/marinho/geraldo>
+* pisa (html2pdy) http://www.xhtml2pdf.com/
+
+Alguns desses pacotes encontram-se no repositório do ubuntu com os seguintes nomes
+* python-django
+* python-django-extensions
+* python-imaging   (PIL)
+* python-reportlab
+* python-pisa   (pisa/html2pdf)
 
 
 O Python pode ser instalado a partir do pacote ``python`` com uma
@@ -32,25 +40,25 @@ ferramenta de instalação de pacotes como o ``apt-get`` ou
 ``aptitude``.
 
 Se a sua distribuição não possui o pacote ``python-django``, para o
-Django na versão 1.1, será necessário obter e configurar o mesmo
+Django na versão 1.2.1, será necessário obter e configurar o mesmo
 manualmente. A próxima seção traz mais detalhes para esta tarefa.
 
 Instalação do Django
 --------------------
 
-O Django 1.1 pode ser obtido através da `página de download
+O Django 1.2.1 pode ser obtido através da `página de download
 <http://www.djangoproject.com/download/>`_ do `Django Project
 <http://www.djangoproject.com>`_ via *tarball* (``tar.gz``).
 
 Obtendo e instalando o Django
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Primeiramente baixe o `tarball do Django 1.1
-<http://www.djangoproject.com/download/1.1/tarball/>`_ ou dê
-*checkout* na tag 1.1 disponível no repositório do Subversion do
+Primeiramente baixe o `tarball do Django 1.2.1
+<http://www.djangoproject.com/download/1.2.1/tarball/>`_ ou dê
+*checkout* na tag 1.2.1 disponível no repositório do Subversion do
 projeto::
 
-  svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.1/
+  svn checkout http://code.djangoproject.com/svn/django/tags/releases/1.2.1/
 
 Após isso será necessário colocar o pacote Python do ``django``
 (diretório ``django`` disponível dentro do diretório/tarball baixado)
@@ -70,6 +78,17 @@ formato do ``PYTHONPATH`` é o mesmo do ``PATH`` do sistema. Exemplo::
 
 De maneira simplificada, a instalação do Django é como a instalação de
 qualquer outro pacote Python.
+
+Geraldo reports
+------------------------------------------
+
+Após a instalação do geraldo reports será necessário a copia de dois 
+modulos (geraldo,reporting) que estão dentro do arquivo baixadopara um 
+diretório que esteja dentro do path do python. 
+Segue uma exmplo para o python 2.6
+
+sudo cp -a /diretorio/do/geraldoReports/geraldo /diretorio/do/geraldoReports/reporting  /usr/local/lib/python2.6/dist-packages/
+
 
 Preparando o ambiente para desenvolvimento
 ------------------------------------------
