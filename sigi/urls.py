@@ -48,7 +48,10 @@ urlpatterns = patterns(
      'sigi.apps.convenios.views.visualizar_carrinho'),
      #CSV Casa
      (r'^casas/casalegislativa/csv/',
-    'sigi.apps.casas.views.export_csv'),     
+    'sigi.apps.casas.views.export_csv'),
+    #CSV Convenio
+     (r'^convenios/convenio/csv/',
+    'sigi.apps.convenios.views.export_csv'),
      # Resumo por região PDF     
      (r'^reportsRegiao/(?P<regiao>\w+)',
      'sigi.apps.convenios.views.report_regiao'),     

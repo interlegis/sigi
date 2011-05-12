@@ -59,7 +59,8 @@
 <div id="tabs">
         
     <ul>           
-        <li><a href="#tabs-1">Relatório</a></li>            
+        <li><a href="#tabs-1">Relatório</a></li>
+        <li><a href="#tabs-2">Arquivo CSV (Excel, Calc)</a></li>
 	</ul>
 	<div id="tabs-1">            
     	<form action="../reports/{{ query_str }}" method="post">
@@ -93,6 +94,65 @@
 				<li><input type="submit" value="Gerar Relatório"></li>
 			</ul>
         </form>			
-	</div>	
+	</div>
+        <div id="tabs-2">
+		<form action="../csv/{{query_str}}" method="post">
+			<fieldset><legend>Escolha os atributos para exportar</legend>
+                            <ul id="sortable" class="tabs-conteudo">
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="No. Processo"
+						class="action-select" checked="checked" />
+					<label>Nº Processo</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="No. Convênio"
+						class="action-select" checked="checked" />
+					<label>Nº Convênio</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Projeto"
+						class="action-select" checked="checked" />
+					<label>Projeto</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Casa Legislativa"
+						class="action-select" checked="checked" />
+					<label>Casa Legislativa</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data de Adesão"
+						class="action-select" checked="checked" />
+					<label>Data de Adesão</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data de Convênio"
+						class="action-select" checked="checked" />
+					<label>Data de Convênio</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data da Publicacao no D.O."
+						class="action-select" checked="checked" />
+					<label>Data da Publicação no Diário Oficial</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data Equipada"
+						class="action-select" checked="checked" />
+					<label>Data Equipada</label>
+				</li>
+                            </ul>
+                        </fieldset>
+                        <ul class="botoes">
+				<li><input type="submit" value="Exportar CSV" /></li>
+			</ul>
+                </form>
+        </div>
 </div>
  {% endblock %}

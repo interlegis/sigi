@@ -20,6 +20,8 @@ from django.conf import settings
 
 import datetime
 
+import csv
+
 def query_ordena(qs,o,ot):
     list_display = ('num_convenio', 'casa_legislativa',
                     'data_adesao','data_retorno_assinatura','data_termo_aceite',
@@ -290,6 +292,46 @@ def report_regiao(request,regiao='NE'):
     pdf = pisa.CreatePDF(t.render(c),response)
     if not pdf.err:
         pisa.startViewer(response)
+
+    return response
+
+def export_csv(request):
+    response = HttpResponse(mimetype='text/csv')
+    response['Content-Disposition'] = 'attachment; filename=convenios.csv'
+
+    csv_writer = csv.writer(response)
+    convenios = carrinhoOrGet_for_qs(request)
+    if not convenios:
+        return HttpResponseRedirect('../')
+
+    if request.POST:
+        atributos = request.POST.getlist("itens_csv_selected")
+	atributos2 = [s.encode("utf-8") for s in atributos]
+        csv_writer.writerow(atributos2)
+
+    for convenio in convenios:
+        lista = []
+        for atributo in atributos:
+            if u"No. Processo" == atributo:
+                lista.append(convenio.num_processo_sf.encode("utf-8"))
+            elif u"No. Convênio" == atributo:
+                lista.append(convenio.num_convenio.encode("utf-8"))
+            elif u"Projeto" == atributo:
+                lista.append(convenio.projeto.nome.encode("utf-8"))
+            elif u"Casa Legislativa" == atributo:
+                lista.append(convenio.casa_legislativa.nome.encode("utf-8"))
+            elif u"Data de Adesão" == atributo:
+                lista.append(convenio.data_adesao.strftime("%d/%m/%Y").encode("utf-8"))
+            elif u"Data de Convênio" == atributo:
+                lista.append(convenio.data_retorno_assinatura.strftime("%d/%m/%Y").encode("utf-8"))
+            elif u"Data da Publicacao no D.O." == atributo:
+                lista.append(convenio.data_pub_diario.strftime("%d/%m/%Y").encode("utf-8"))
+            elif u"Data Equipada" == atributo:
+                lista.append(convenio.data_termo_aceite.strftime("%d/%m/%Y").encode("utf-8"))
+            else:
+                pass
+
+        csv_writer.writerow(lista)
 
     return response
      
