@@ -321,13 +321,25 @@ def export_csv(request):
             elif u"Casa Legislativa" == atributo:
                 lista.append(convenio.casa_legislativa.nome.encode("utf-8"))
             elif u"Data de Adesão" == atributo:
-                lista.append(convenio.data_adesao.strftime("%d/%m/%Y").encode("utf-8"))
+                data = ''
+                if convenio.data_adesao:
+                    data = convenio.data_adesao.strftime("%d/%m/%Y")
+                lista.append(data.encode("utf-8"))
             elif u"Data de Convênio" == atributo:
-                lista.append(convenio.data_retorno_assinatura.strftime("%d/%m/%Y").encode("utf-8"))
+                data = ''
+                if convenio.data_retorno_assinatura:
+                    data = convenio.data_retorno_assinatura.strftime("%d/%m/%Y")
+                lista.append(data.encode("utf-8"))
             elif u"Data da Publicacao no D.O." == atributo:
-                lista.append(convenio.data_pub_diario.strftime("%d/%m/%Y").encode("utf-8"))
+                data = ''
+                if convenio.data_pub_diario:
+                    data = convenio.data_pub_diario.strftime("%d/%m/%Y")
+                lista.append(data.encode("utf-8"))
+                data = ''
             elif u"Data Equipada" == atributo:
-                lista.append(convenio.data_termo_aceite.strftime("%d/%m/%Y").encode("utf-8"))
+                if convenio.data_termo_aceite:
+                    data = convenio.data_termo_aceite.strftime("%d/%m/%Y")
+                lista.append(data.encode("utf-8"))
             else:
                 pass
 
