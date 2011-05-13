@@ -54,7 +54,19 @@ urlpatterns = patterns(
     'sigi.apps.convenios.views.export_csv'),
      # Resumo por região PDF     
      (r'^reportsRegiao/(?P<regiao>\w+)',
-     'sigi.apps.convenios.views.report_regiao'),     
+     'sigi.apps.convenios.views.report_regiao'),
+     # Submenu com Birt reports
+     (r'^birt/menu/(?P<folder>\w+)',
+     'sigi.apps.birt.views.menu'),
+     # Execução com Birt reports
+     (r'^birt/run/(?P<file>\w+)',
+     'sigi.apps.birt.views.run'),
+     # Mostrar um relatório em formato HTML
+     (r'^birt/showreport/',
+     'sigi.apps.birt.views.show'),
+     # Menu com Birt reports
+     (r'^birt/',
+     'sigi.apps.birt.views.menu'),
      
     # automatic interface based on admin
     (r'^(.*)', sites.default.root),
