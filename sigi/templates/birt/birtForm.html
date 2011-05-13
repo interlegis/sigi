@@ -1,0 +1,60 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block title %}Relatórios{% endblock %}
+
+{% block content %}
+	<h1> {{birt.getName}}</h1>
+	<h2>{{birt.getTitle}}</h2>
+	
+	<form action="/birt/showreport/" method="post">
+		<input type="hidden" name="reportFileName" value="{{birt.rptFile}}"/>
+		{% for paramName, paramData in params.iteritems %}
+			<p>
+				<label for="{{paramName}}" title="{{paramData.helpText}}"
+				  {%if paramData.isRequired|default:"true" == "true"%}class="required"{%endif%}>
+					{{paramData.promptText}}
+				</label>
+				  
+				{%if paramData.controlType == 'list-box'%}
+					<select name="{{paramName}}" title="{{paramData.helpText}}"
+					  {%if paramData.paramType == 'multi-value'%} multiple='true' aria-required='true'{%endif%}
+					  lines="10" editable="false">
+						{%for option in paramData.selectionList%}
+							<option value="{{option.value}}" {%if paramData.defaultValue.0 == option.value%}selected="selected"{%endif%}>
+								{{option.label}}
+							</option>
+						{%endfor%}
+					</select>
+				{%else%}
+					{%if paramData.controlType == 'radio-button'%}
+						<br/>
+						{%for option in paramData.selectionList%}
+							<input type="radio" name="{{paramName}}" title="{{paramData.helpText}}"
+							  value="{{option.value}}">
+								<label title="{{paramData.helpText}}">{{option.label}}</label>
+							</input>
+							<br/>
+						{%endfor%}
+					{%else%}
+						<input name="{{paramName}}" title="{{paramData.helpText}}"
+							{%if paramData.controlType == 'check-box'%}
+								type="checkbox"
+								{%if paramData.defaultValue.0 == 'true'%}checked="checked"{%endif%}
+							{%endif%}
+				
+							{%if paramData.controlType == 'text-box'%}
+								type="text" value="{{paramData.defaultValue.0}}"
+							{%endif%}/>
+					{%endif%}
+				{%endif%}
+				<br/>
+			</p>
+		{% endfor %}
+		
+		<input type="submit" name="submit" value="Ver na tela"/>
+		<input type="submit" name="submit" value="Salvar para impressão"/>
+		<input type="reset" value="Limpar"/>
+	</form>
+
+{% endblock %}
