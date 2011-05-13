@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.22" id="1">
+    <list-property name="configVars">
+        <structure>
+            <property name="name">__isdisplay__prm_sub_titulo_9_0</property>
+            <property name="value">Relatório de teste</property>
+        </structure>
+        <structure>
+            <property name="name">__isdisplay__prm_cores_13_1</property>
+            <property name="value">Vermelho</property>
+        </structure>
+        <structure>
+            <property name="name">__isdisplay__prm_estado_14_2</property>
+            <property name="value">Paraíba (PB)</property>
+        </structure>
+        <structure>
+            <property name="name">prm_estado_14_3</property>
+            <property name="value">25</property>
+        </structure>
+        <structure>
+            <property name="name">prm_estado_14_type_</property>
+            <property name="value">integer</property>
+        </structure>
+        <structure>
+            <property name="name">prm_estado_14_expr_</property>
+            <property name="value">dataSetRow["codigo_ibge"]</property>
+        </structure>
+        <structure>
+            <property name="name">prm_sub_titulo_9_4</property>
+            <property name="value">Relatório de teste</property>
+        </structure>
+        <structure>
+            <property name="name">prm_sub_titulo_9_type_</property>
+            <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">prm_cores_13_5</property>
+            <property name="value">red</property>
+        </structure>
+        <structure>
+            <property name="name">prm_cores_13_type_</property>
+            <property name="value">string</property>
+        </structure>
+        <structure>
+            <property name="name">prm_booleano_12_6</property>
+            <property name="value">true</property>
+        </structure>
+        <structure>
+            <property name="name">prm_booleano_12_type_</property>
+            <property name="value">boolean</property>
+        </structure>
+    </list-property>
+</report>
