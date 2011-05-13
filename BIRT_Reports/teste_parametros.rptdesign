@@ -1,0 +1,364 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<report xmlns="http://www.eclipse.org/birt/2005/design" version="3.2.22" id="1">
+    <property name="author">Sesóstris Vieira</property>
+    <property name="createdBy">Eclipse BIRT Designer Versão 2.6.2.r262_v20110209 Build &lt;2.6.2.v20110214-1523></property>
+    <text-property name="title">Relatório criado para testar o uso de parâmetros</text-property>
+    <property name="units">in</property>
+    <text-property name="displayName">Teste de parâmetros</text-property>
+    <property name="iconFile">/templates/blank_report.gif</property>
+    <property name="bidiLayoutOrientation">rtl</property>
+    <property name="imageDPI">96</property>
+    <parameters>
+        <scalar-parameter name="prm_sub_titulo" id="9">
+            <property name="hidden">false</property>
+            <text-property name="helpText">Ajuda subtitulo</text-property>
+            <text-property name="promptText">Sub título</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">Relatório de teste</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="concealValue">true</property>
+            <property name="controlType">text-box</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="prm_booleano" id="12">
+            <property name="hidden">false</property>
+            <text-property name="helpText">Marque ou desmarque a vontade ;)</text-property>
+            <text-property name="promptText">Booleano</text-property>
+            <property name="valueType">static</property>
+            <property name="isRequired">true</property>
+            <property name="dataType">boolean</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">true</value>
+            </simple-property-list>
+            <property name="paramType">simple</property>
+            <property name="controlType">check-box</property>
+            <structure name="format"/>
+        </scalar-parameter>
+        <scalar-parameter name="prm_cores" id="13">
+            <text-property name="promptText">Cores</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <simple-property-list name="defaultValue">
+                <value type="constant">blue</value>
+            </simple-property-list>
+            <list-property name="selectionList">
+                <structure>
+                    <property name="value">red</property>
+                    <property name="label">Vermelho</property>
+                </structure>
+                <structure>
+                    <property name="value">green</property>
+                    <property name="label">Verde</property>
+                </structure>
+                <structure>
+                    <property name="value">blue</property>
+                    <property name="label">Azul</property>
+                </structure>
+            </list-property>
+            <property name="paramType">multi-value</property>
+            <property name="controlType">list-box</property>
+            <property name="mustMatch">true</property>
+            <property name="fixedOrder">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="prm_estado" id="14">
+            <text-property name="promptText">Estado</text-property>
+            <property name="valueType">dynamic</property>
+            <property name="dataSetName">estados</property>
+            <expression name="valueExpr" type="javascript">dataSetRow["codigo_ibge"]</expression>
+            <expression name="labelExpr" type="javascript">dataSetRow["nome"]</expression>
+            <property name="dataType">integer</property>
+            <property name="distinct">true</property>
+            <property name="paramType">simple</property>
+            <property name="controlType">list-box</property>
+            <property name="mustMatch">false</property>
+            <property name="fixedOrder">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+        <scalar-parameter name="NewParameter" id="15">
+            <text-property name="promptText">NewParameter</text-property>
+            <property name="valueType">static</property>
+            <property name="dataType">string</property>
+            <property name="distinct">true</property>
+            <list-property name="selectionList">
+                <structure>
+                    <property name="value">1</property>
+                    <property name="label">Opção 1</property>
+                </structure>
+                <structure>
+                    <property name="value">2</property>
+                    <property name="label">opção 2</property>
+                </structure>
+                <structure>
+                    <property name="value">3</property>
+                    <property name="label">Opção 3</property>
+                </structure>
+            </list-property>
+            <property name="paramType">simple</property>
+            <property name="controlType">radio-button</property>
+            <property name="fixedOrder">true</property>
+            <structure name="format">
+                <property name="category">Unformatted</property>
+            </structure>
+        </scalar-parameter>
+    </parameters>
+    <data-sources>
+        <oda-data-source extensionID="org.eclipse.birt.report.data.oda.jdbc.dbprofile" name="sigi" id="7">
+            <list-property name="privateDriverProperties">
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.connectionProperties</name>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.oda.profile.db.provider.id</name>
+                    <value>org.eclipse.datatools.enablement.postgresql.connectionProfile</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.savePWD</name>
+                    <value>true</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.drivers.defnType</name>
+                    <value>org.eclipse.datatools.enablement.postgresql.postgresqlDriverTemplate</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.driverDefinitionID</name>
+                    <value>DriverDefn.org.eclipse.datatools.enablement.postgresql.postgresqlDriverTemplate.Sigi PostgreDatabase</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.version</name>
+                    <value>8.x</value>
+                </ex-property>
+                <ex-property>
+                    <name>org.eclipse.datatools.connectivity.db.vendor</name>
+                    <value>postgres</value>
+                </ex-property>
+            </list-property>
+            <property name="databaseName">sigi</property>
+            <property name="username">sigi</property>
+            <encrypted-property name="password" encryptionID="base64">MTIzNDU2</encrypted-property>
+            <property name="URL">jdbc:postgresql://localhost:5432/sigi</property>
+            <property name="driverClass">org.postgresql.Driver</property>
+            <property name="jarList">/opt/eclipse/plugins/postgresql-8.1-404.jdbc2.jar</property>
+        </oda-data-source>
+    </data-sources>
+    <data-sets>
+        <oda-data-set extensionID="org.eclipse.birt.report.data.oda.jdbc.dbprofile.sqbDataSet" name="estados" id="8">
+            <list-property name="columnHints">
+                <structure>
+                    <property name="columnName">codigo_ibge</property>
+                    <text-property name="displayName">codigo_ibge</text-property>
+                    <text-property name="heading">codigo_ibge</text-property>
+                </structure>
+                <structure>
+                    <property name="columnName">nome</property>
+                    <text-property name="displayName">nome</text-property>
+                    <text-property name="heading">nome</text-property>
+                </structure>
+            </list-property>
+            <list-property name="sortHints">
+                <structure>
+                    <property name="columnName">nome</property>
+                    <property name="position">0</property>
+                    <property name="direction">asc</property>
+                    <property name="nullValueOrdering">unknown</property>
+                    <property name="isOptional">false</property>
+                </structure>
+            </list-property>
+            <structure name="cachedMetaData">
+                <list-property name="resultSet">
+                    <structure>
+                        <property name="position">1</property>
+                        <property name="name">codigo_ibge</property>
+                        <property name="dataType">integer</property>
+                    </structure>
+                    <structure>
+                        <property name="position">2</property>
+                        <property name="name">nome</property>
+                        <property name="dataType">string</property>
+                    </structure>
+                </list-property>
+            </structure>
+            <property name="dataSource">sigi</property>
+            <list-property name="resultSet">
+                <structure>
+                    <property name="position">1</property>
+                    <property name="name">codigo_ibge</property>
+                    <property name="nativeName">codigo_ibge</property>
+                    <property name="dataType">integer</property>
+                </structure>
+                <structure>
+                    <property name="position">2</property>
+                    <property name="name">nome</property>
+                    <property name="nativeName">nome</property>
+                    <property name="dataType">string</property>
+                </structure>
+            </list-property>
+            <xml-property name="queryText"><![CDATA[SELECT "codigo_ibge", "nome" || ' (' || "sigla" || ')' AS "nome"
+  FROM "public"."contatos_unidadefederativa"
+  ORDER BY "nome" ASC
+]]></xml-property>
+            <structure name="designerState">
+                <property name="version">1.0</property>
+                <property name="stateContentAsString">&lt;?xml version="1.0" encoding="UTF-8"?>
+&lt;SQLQueryBuilder editorInputType="SQLBuilderStorageEditorInput" name="estados" version="1.0">
+&lt;SQLStatement>SELECT &amp;quot;codigo_ibge&amp;quot;, &amp;quot;nome&amp;quot; || &amp;apos; (&amp;apos; || &amp;quot;sigla&amp;quot; || &amp;apos;)&amp;apos; AS &amp;quot;nome&amp;quot;&amp;#x0A;  FROM &amp;quot;public&amp;quot;.&amp;quot;contatos_unidadefederativa&amp;quot;&amp;#x0A;  ORDER BY &amp;quot;nome&amp;quot; ASC&amp;#x0A;&lt;/SQLStatement>
+&lt;connInfo>postgres_8.x:Transient.org.eclipse.datatools.enablement.postgresql.connectionProfile:sigi:sigi&lt;/connInfo>
+&lt;omitSchemaInfo>false:true:&lt;/omitSchemaInfo>
+&lt;editorInputUsageOptions>useWindowState=true&lt;/editorInputUsageOptions>
+&lt;windowState height="698" version="1.0" width="1211">
+&lt;control height="217" isHideable="true" isVisible="true" name="SQLSourceViewer" width="1186"/>
+&lt;control height="230" isHideable="true" isVisible="true" name="DesignViewer" width="1199"/>
+&lt;control height="219" isHideable="true" isVisible="true" name="GraphControl" width="1191"/>
+&lt;control height="219" isHideable="true" isVisible="false" name="OutlineViewer" width="156"/>
+&lt;/windowState>
+&lt;/SQLQueryBuilder></property>
+            </structure>
+            <xml-property name="designerValues"><![CDATA[<?xml version="1.0" encoding="UTF-8"?>
+<model:DesignValues xmlns:design="http://www.eclipse.org/datatools/connectivity/oda/design" xmlns:model="http://www.eclipse.org/birt/report/model/adapter/odaModel">
+  <Version>2.0</Version>
+  <design:ResultSets derivedMetaData="true">
+    <design:resultSetDefinitions>
+      <design:resultSetColumns>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>codigo_ibge</design:name>
+              <design:position>1</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>4</design:nativeDataTypeCode>
+            <design:precision>10</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>codigo_ibge</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>codigo_ibge</design:label>
+            <design:formattingHints>
+              <design:displaySize>11</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>nome</design:name>
+              <design:position>2</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>25</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>nome</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>nome</design:label>
+            <design:formattingHints>
+              <design:displaySize>25</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+        <design:resultColumnDefinitions>
+          <design:attributes>
+            <design:identifier>
+              <design:name>sigla</design:name>
+              <design:position>3</design:position>
+            </design:identifier>
+            <design:nativeDataTypeCode>12</design:nativeDataTypeCode>
+            <design:precision>2</design:precision>
+            <design:scale>0</design:scale>
+            <design:nullability>NotNullable</design:nullability>
+            <design:uiHints>
+              <design:displayName>sigla</design:displayName>
+            </design:uiHints>
+          </design:attributes>
+          <design:usageHints>
+            <design:label>sigla</design:label>
+            <design:formattingHints>
+              <design:displaySize>2</design:displaySize>
+            </design:formattingHints>
+          </design:usageHints>
+        </design:resultColumnDefinitions>
+      </design:resultSetColumns>
+      <design:criteria>
+        <design:rowOrdering>
+          <design:sortKeys>
+            <design:columnIdentifier>
+              <design:name>nome</design:name>
+            </design:columnIdentifier>
+            <design:sortDirection>Ascending</design:sortDirection>
+            <design:optional>false</design:optional>
+          </design:sortKeys>
+        </design:rowOrdering>
+      </design:criteria>
+    </design:resultSetDefinitions>
+  </design:ResultSets>
+</model:DesignValues>]]></xml-property>
+        </oda-data-set>
+    </data-sets>
+    <styles>
+        <style name="report" id="4">
+            <property name="fontFamily">sans-serif</property>
+            <property name="fontSize">10pt</property>
+        </style>
+        <style name="crosstab-cell" id="5">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+        <style name="crosstab" id="6">
+            <property name="borderBottomColor">#CCCCCC</property>
+            <property name="borderBottomStyle">solid</property>
+            <property name="borderBottomWidth">1pt</property>
+            <property name="borderLeftColor">#CCCCCC</property>
+            <property name="borderLeftStyle">solid</property>
+            <property name="borderLeftWidth">1pt</property>
+            <property name="borderRightColor">#CCCCCC</property>
+            <property name="borderRightStyle">solid</property>
+            <property name="borderRightWidth">1pt</property>
+            <property name="borderTopColor">#CCCCCC</property>
+            <property name="borderTopStyle">solid</property>
+            <property name="borderTopWidth">1pt</property>
+        </style>
+    </styles>
+    <page-setup>
+        <simple-master-page name="Simple MasterPage" id="2">
+            <page-footer>
+                <text id="3">
+                    <property name="contentType">html</property>
+                    <text-property name="content"><![CDATA[<value-of>new Date()</value-of>]]></text-property>
+                </text>
+            </page-footer>
+        </simple-master-page>
+    </page-setup>
+    <body>
+        <text-data id="11">
+            <expression name="valueExpr">params["prm_sub_titulo"].value</expression>
+            <property name="contentType">html</property>
+        </text-data>
+    </body>
+</report>
