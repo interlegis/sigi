@@ -8,7 +8,8 @@ from django.shortcuts import render_to_response
 from birtReport.birtReportTree import BirtReportTree
 from birtReport.birtReport import BirtReport
 from settings import BASE_DIR
-from django.http import HttpResponse, QueryDict, Http404
+from django.http import HttpResponse, Http404, HttpResponseServerError
+import os
 
 BIRT_REPORT_DIR = BASE_DIR + '/BIRT_Reports/'
 
@@ -18,6 +19,7 @@ def menu(request, folder = ''):
     if folder == '':
         items = brt.getRootItems()
     else:
+        folder = folder + '/'
         items = brt.getFolderItems(folder)
         
     folders = items['folders']
@@ -25,7 +27,7 @@ def menu(request, folder = ''):
     return render_to_response('birt/birtMenu.html', {'folders': folders, 'reports': reports, 'submenu': folder})
 
 def run(request, file):
-    birt   = BirtReport(BIRT_REPORT_DIR + file + '.rptdesign')
+    birt   = BirtReport(BIRT_REPORT_DIR + file)
     params = birt.getReportParams()
     
     if params != {}:
@@ -34,8 +36,6 @@ def run(request, file):
     return HttpResponse('<html><body>Deu a louca ' + str(params) + '</body></html>')
 
 def show(request):
-#    QueryDict.has_key(k)
-    html  = '<html><body><h1>Vejamos o que dá pra fazer...</h1>'
     if not request.POST.has_key('reportFileName'):
         raise Http404
     
@@ -45,15 +45,46 @@ def show(request):
     if not birt.rptExists():
         raise Http404
     
-    params = {}
+    if os.environ.has_key('BIRT_HOME'):
+        birt_home = os.environ['BIRT_HOME']
+    else:
+        return HttpResponseServerError('Serviço não instalado ou indisponível.')
+    
+    params = ''
     
     for pName in birt.getReportParams():
         if request.POST.has_key(pName):
-            params[pName] = request.POST[pName]
+            params += '"%s=%s" ' % (pName, request.POST[pName])
         else:
-            params[pName] = '' 
-            
-    html += '<p>%s</p>' % str(params)
+            params += '"%s=%s" ' % (pName, '')
 
-    html += '</body></html>'
-    return HttpResponse(html)
+    output   = os.tempnam()
+    fileName = os.path.split(rptFileName)[1]
+    fileName = os.path.splitext(fileName)[0]
+
+    if (request.POST['submit'] == 'Ver na tela'):
+        format   = 'HTML'
+        mimeType = 'text/html'
+        contentDisposition = ''
+    else:
+        format = 'PDF'
+        mimeType = 'application/pdf'
+        contentDisposition = 'attachment; filename=%s.pdf' % fileName
+
+    fileName = output + '/' + fileName + '.' + format
+    
+    cmd = '%s/ReportEngine/genReport.sh -f %s -p %s -o %s %s' % (birt_home, format, params, output, rptFileName)
+    os.system(cmd)
+    
+    if not os.path.isfile(fileName):
+        return HttpResponseServerError('Servidor não conseguiu produzir o relatório: %s' % fileName)
+    
+    resultFile = open(fileName)
+    result     = resultFile.read()
+    resultFile.close()
+    
+    response = HttpResponse(mimetype=mimeType)
+    response['Content-Disposition'] = contentDisposition
+    response.write(result)
+              
+    return response
