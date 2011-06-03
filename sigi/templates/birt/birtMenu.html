@@ -10,10 +10,10 @@
 {%if folders or reports %}
 	<ul>
 	{% for folderName, folderDesc in folders.iteritems %}
-		<li><a href="/birt/menu/{{ folderName }}" title="{{folderDesc.title}}">{{ folderDesc.name }}</a></li>
+		<li><a href="/birt/menu/{{submenu}}{{ folderName }}" title="{{folderDesc.title}}">{{ folderDesc.name }}</a></li>
 	{% endfor %}
 	{% for fileName, report in reports.iteritems %}
-		<li><a href="/birt/run/{{fileName}}" title="{{report.title}}">{{report.name}}</a></li> 
+		<li><a href="/birt/run/{{submenu}}{{fileName}}" title="{{report.title}}">{{report.name}}</a></li> 
 	{% endfor %}
 	</ul>
 {%else%}
