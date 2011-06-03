@@ -64,7 +64,24 @@ class BirtReport():
                                     for xmlProp in dataSet.getElementsByTagName('xml-property'):
                                         if xmlProp.getAttribute('name') == 'queryText':
                                             formField['queryText'] = xmlProp.childNodes[0].data
-                        
+
+                                    labelFieldName = formField['labelExpr'].replace('dataSetRow["', '').replace('"]', '')
+                                    valueFieldName = formField['valueExpr'].replace('dataSetRow["', '').replace('"]', '')
+                                    
+                                    for struct in dataSet.getElementsByTagName('structure'):
+                                        if struct.getAttribute('name') == 'cachedMetaData':
+                                            for list in struct.getElementsByTagName('list-property'):
+                                                if list.getAttribute('name') == 'resultSet':
+                                                    for subStructure in list.getElementsByTagName('structure'):
+                                                        dataSetField = {}
+                                                        for fieldProp in subStructure.getElementsByTagName('property'):
+                                                            dataSetField[fieldProp.getAttribute('name').encode('ascii')] = fieldProp.childNodes[0].data
+
+                                                        if dataSetField['name'] == labelFieldName:
+                                                            labelFieldIndex = int(dataSetField['position']) - 1                                                            
+                                                        if dataSetField['name'] == valueFieldName:
+                                                            valueFieldIndex = int(dataSetField['position']) - 1
+                                                         
                         try:
                             from django.db import connection
                             cursor = connection.cursor()
@@ -72,7 +89,7 @@ class BirtReport():
                             resultSet = cursor.fetchall()
                             formField['selectionList'] = ()
                             for record in resultSet:
-                                formField['selectionList'] = formField['selectionList'] + ({'value': record[0],'label': record[1]},)
+                                formField['selectionList'] = formField['selectionList'] + ({'value': record[valueFieldIndex],'label': record[labelFieldIndex]},)
                                 
 #                            formField['selectionList'] = resultSet
                         except:
@@ -100,7 +117,7 @@ class BirtReport():
         
         
 
-#r = birtReport('/home/sesostris/workspace/sigi/BIRT_Reports/teste_parametros.rptdesign')
+#r = BirtReport('/home/sesostris/workspace/sigi/BIRT_Reports/teste_parametros.rptdesign')
 #p = r.getReportParams()
 #print p['prm_estado']
 
