@@ -39,6 +39,9 @@ class ConvenioAdmin(admin.ModelAdmin):
                         'data_termo_aceite', 'data_pub_diario',
                         'data_devolucao_via', 'data_postagem_correio')}
         ),
+	('Datas - Convenio sem assinatura',
+	    {'fields': ('data_devolucao_sem_assinatura','data_retorno_sem_assinatura',)}
+	),
     )
     actions = ['adicionar_convenios']
     inlines = (AnexosInline, EquipamentoPrevistoInline)

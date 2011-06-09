@@ -67,6 +67,18 @@ class Convenio(models.Model):
         null=True,
         blank=True,
     )
+    data_devolucao_sem_assinatura = models.DateField(
+        'data de devolução por falta de assinatura',
+	null=True,
+	blank=True,
+	help_text=u'Data de devolução por falta de assinatura',
+    )
+    data_retorno_sem_assinatura = models.DateField(
+	'data do retorno sem assinatura',
+	null=True,
+	blank=True,
+	help_text=u'Data do retorno do convênio sem assinatura',
+    )
     observacao = models.CharField(
         null=True, 
         blank=True,
