@@ -99,11 +99,12 @@
                 <td id="imagem2"><img src="../media/images/logo-interlegis.jpg" width="90" height="65" alt="Logo Interlegis"/></td>
             </tr>            
         </table>
-        <h1 class="titulo">{{tabela.regiao}}</h1>        
+        <h1 class="titulo">{{regiao}}</h1>        
     </div>    
-    <div id="midle">        
+    <div id="midle">
+        {% for tabela in tabelas %}
         <table class="tabela" repeat="1">
-            <caption>{{tabela.projeto}} - {{tabela.regiao}}</caption>
+            <caption>{{tabela.projeto}} - {{regiao}}</caption>
             <thead>
                 <tr>
                     {%for item in tabela.cabecalho%}
@@ -128,6 +129,8 @@
             </tr>
             </tbody>
         </table>
+        <br />
+        {% endfor %}
     </div>    
     <div id="footerContent">
         <table>

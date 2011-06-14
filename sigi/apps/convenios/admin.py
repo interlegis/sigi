@@ -50,7 +50,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     actions = ['adicionar_convenios']
     inlines = (TramitacaoInline, AnexosInline, EquipamentoPrevistoInline)
     list_display = ('num_convenio', 'casa_legislativa',
-                    'data_adesao','data_retorno_assinatura','data_termo_aceite',
+                    'data_adesao','data_retorno_assinatura','data_pub_diario','data_termo_aceite',
                     'projeto',
                     )
     list_display_links = ('num_convenio','casa_legislativa',)

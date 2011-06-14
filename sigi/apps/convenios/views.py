@@ -2,7 +2,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response, get_list_or_404
 from geraldo.generators import PDFGenerator
-from sigi.apps.convenios.models import Convenio
+from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.convenios.reports import ConvenioReport      \
                                         ,ConvenioPorCMReport      \
                                         ,ConvenioPorALReport      \
@@ -173,7 +173,63 @@ def report(request, id=None):
         report.generate_by(PDFGenerator, filename=response)
     else:
         return HttpResponseRedirect('../') 
-    return response    
+    return response
+
+def casas_estado_to_tabela(casas,convenios,regiao):
+
+
+    estados = get_list_or_404(UnidadeFederativa,regiao=regiao)
+
+    class LinhaEstado():
+        pass
+
+    lista = []
+
+    for estado in estados:
+        linha = LinhaEstado()
+
+        convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
+        convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
+
+        casas_est = casas.filter(municipio__uf=estado)
+        casas_est_nao_aderidas = casas_est.exclude(convenio__in=convenios_est).distinct()
+        casas_est_aderidas = casas_est.filter(convenio__in=convenios_est).distinct()
+        casas_est_conveniadas = casas_est.filter(convenio__in=convenios_est_publicados).distinct()
+
+        linha.lista = (
+            casas_est.count(),
+            casas_est_nao_aderidas.count(),
+            casas_est_aderidas.count(),
+            casas_est_conveniadas.count(),
+        )
+
+        linha.estado = estado
+
+        lista.append(linha)
+        
+    casas_regiao = casas.filter(municipio__uf__regiao=regiao)
+    convenios_regiao = convenios.filter(casa_legislativa__municipio__uf__regiao=regiao)
+    convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
+    sumario = (
+        casas_regiao.count(),
+        casas_regiao.exclude(convenio__in=convenios_regiao).distinct().count(),
+        casas_regiao.filter(convenio__in=convenios_regiao).distinct().count(),
+        casas_regiao.filter(convenio__in=convenios_regiao_publicados).distinct().count(),
+    )
+
+    cabecalho_topo = (
+        u'UF',
+        u'Câmaras municipais',
+        u'Não Aderidas',
+        u'Aderidas',        
+        u'Conveniadas',
+    )   
+
+    return {
+        "linhas":lista,
+        "cabecalho":cabecalho_topo,
+        "sumario":sumario,
+    }
 
 def report_regiao(request,regiao='NE'):
     
@@ -187,108 +243,34 @@ def report_regiao(request,regiao='NE'):
         'CO': 'Centro-Oeste',
         'NE': 'Nordeste',
         'NO': 'Norte',
-    }   
+    }
+    
+    projetos = Projeto.objects.all()
     
     camaras = CasaLegislativa.objects.filter(tipo__sigla='CM')
-    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM',projeto__sigla='PI')
-    
-    camaras_sem_processo = camaras.exclude(convenio__projeto__sigla='PI')    
-    
-    convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
-    convenios_em_andamento = convenios.filter(data_retorno_assinatura=None)
 
-    convenios_sem_adesao = convenios.filter(data_adesao=None)
-    convenios_com_adesao = convenios.exclude(data_adesao=None)
+    tabelas = list()
+    # Geral
+    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')    
+    tabela = casas_estado_to_tabela(camaras,convenios,regiao)
+    tabela["projeto"] = "Geral"
 
-    convenios_com_aceite = convenios.exclude(data_termo_aceite=None)
-    
-    # Contando casas por estado
-    estados = get_list_or_404(UnidadeFederativa,regiao=regiao)
-    
-    class LinhaEstado():
-        pass
-    
-    lista = []
-    
-    for estado in estados:
-        linha = LinhaEstado()        
-        conv_sem_adesao_est = convenios_sem_adesao.filter(casa_legislativa__municipio__uf=estado)
-        conv_com_adesao_est = convenios_com_adesao.filter(casa_legislativa__municipio__uf=estado)
-        conv_assinados_est  = convenios_assinados.filter(casa_legislativa__municipio__uf=estado)
-        conv_em_andamento_est = convenios_em_andamento.filter(casa_legislativa__municipio__uf=estado)
-        conv_equipadas_est = convenios_com_aceite.filter(casa_legislativa__municipio__uf=estado)
-                
-        camaras_est = camaras.filter(municipio__uf=estado,tipo__sigla='CM').count()
-        camaras_sem_processo_est = camaras_sem_processo.filter(municipio__uf=estado).count()    
-        camaras_nao_aderidas_est = camaras.filter(convenio__in=conv_sem_adesao_est).count()
-        camaras_aderidas_est = camaras.filter(convenio__in=conv_com_adesao_est).count()
-        camaras_convenios_assinados_est = camaras.filter(convenio__in=conv_assinados_est).count()
-        camaras_convenios_em_andamento_est = camaras.filter(convenio__in=conv_em_andamento_est).count()
-        camaras_equipadas_est = camaras.filter(convenio__in=conv_equipadas_est).count()
-        
-        linha.lista = (
-            camaras_est,
-            camaras_sem_processo_est,
-            camaras_nao_aderidas_est,
-            camaras_aderidas_est,
-            camaras_convenios_assinados_est,
-            camaras_convenios_em_andamento_est,
-            camaras_equipadas_est,
-        )
-        
-        linha.estado = estado.sigla
-        
-        lista.append(linha)
-    # Total
-    total_cm = camaras.filter(municipio__uf__regiao=regiao,tipo__sigla='CM').count()
-    total_sem_processo = camaras_sem_processo.filter(municipio__uf__regiao=regiao).count()
-    total_sem_adesao = camaras.filter(convenio__in=convenios_sem_adesao,municipio__uf__regiao=regiao).count()
-    total_com_adesao = camaras.filter(convenio__in=convenios_com_adesao,municipio__uf__regiao=regiao).count()
-    total_conv_assin = camaras.filter(convenio__in=convenios_assinados,municipio__uf__regiao=regiao).count()
-    total_conv_andam = camaras.filter(convenio__in=convenios_em_andamento,municipio__uf__regiao=regiao).count()
-    total_equipadas  = camaras.filter(convenio__in=convenios_com_aceite,municipio__uf__regiao=regiao).count()
-    
-    sumario = [
-           total_cm,
-           total_sem_processo,
-           total_sem_adesao,
-           total_com_adesao,
-           total_conv_assin,
-           total_conv_andam,
-           total_equipadas,
-    ]
-    
-        
-        
-    
-    cabecalho_topo = (
-        u'UF',              
-        u'Câmaras municipais',
-        u'Sem processo',
-        u'Sem adesão',
-        u'Com adesão',
-        u'Convênios assinados',
-        u'Convênios andamento',
-        u'Equipadas'
-    )    
-    
-    projeto = "Projeto Interlegis"
-    
-    tabela = {
-        "regiao":REGIAO_CHOICES[regiao],
-        "linhas":lista,
-        "cabecalho":cabecalho_topo,
-        "sumario":sumario,
-        "projeto":projeto,
-    }    
+    tabelas.append(tabela)
+
+    for projeto in projetos:
+        convenios_proj = convenios.filter(projeto=projeto)
+        tabela = casas_estado_to_tabela(camaras, convenios_proj,regiao)
+        tabela["projeto"] = projeto.nome
+        tabelas.append(tabela)
     
     data = datetime.datetime.now().strftime('%d/%m/%Y')
     hora = datetime.datetime.now().strftime('%H:%M')    
     pisa.showLogging()
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=RelatorioRegiao_' + regiao + '.pdf'
+    #tabelas = ({'projeto':"PI"},{'projeto':"PML"},)
     t = loader.get_template('convenios/tabela_regiao.html')
-    c = Context({'tabela':tabela,'data':data,'hora':hora})
+    c = Context({'tabelas':tabelas,'regiao':REGIAO_CHOICES[regiao],'data':data,'hora':hora})    
     pdf = pisa.CreatePDF(t.render(c),response)
     if not pdf.err:
         pisa.startViewer(response)
