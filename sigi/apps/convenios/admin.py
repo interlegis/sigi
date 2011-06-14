@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao, UnidadeAdministrativa
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico
 from django.http import HttpResponse, HttpResponseRedirect
@@ -9,6 +9,10 @@ from sigi.apps.utils import queryset_ascii
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
+
+class TramitacaoInline(admin.TabularInline):
+    model = Tramitacao
+    extra = 1
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -44,7 +48,7 @@ class ConvenioAdmin(admin.ModelAdmin):
 	),
     )
     actions = ['adicionar_convenios']
-    inlines = (AnexosInline, EquipamentoPrevistoInline)
+    inlines = (TramitacaoInline, AnexosInline, EquipamentoPrevistoInline)
     list_display = ('num_convenio', 'casa_legislativa',
                     'data_adesao','data_retorno_assinatura','data_termo_aceite',
                     'projeto',

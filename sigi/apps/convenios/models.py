@@ -127,3 +127,30 @@ class Anexo(models.Model):
 
     def __unicode__(self):
         return unicode(self.arquivo.name)
+
+class UnidadeAdministrativa(models.Model):
+    sigla = models.CharField(max_length='10')
+    nome = models.CharField(max_length='100')
+
+    def __unicode__(self):
+        return unicode(self.sigla)
+    
+
+class Tramitacao(models.Model):
+    convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
+    unid_admin = models.ForeignKey(UnidadeAdministrativa, verbose_name=u'Unidade Administrativa')
+    data = models.DateField()
+    observacao = models.CharField(
+	'observação',
+	max_length='512',
+	null=True,
+	blank=True,
+    )
+
+    class Meta:
+        verbose_name_plural = u'Tramitações'	
+
+    def __unicode__(self):
+        return unicode(self.unid_admin)
+    
+
