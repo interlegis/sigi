@@ -190,17 +190,20 @@ def casas_estado_to_tabela(casas,convenios,regiao):
 
         convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
         convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
+        convenios_est_equipados = convenios_est.exclude(data_termo_aceite=None)
 
         casas_est = casas.filter(municipio__uf=estado)
         casas_est_nao_aderidas = casas_est.exclude(convenio__in=convenios_est).distinct()
         casas_est_aderidas = casas_est.filter(convenio__in=convenios_est).distinct()
         casas_est_conveniadas = casas_est.filter(convenio__in=convenios_est_publicados).distinct()
+        casas_est_equipadas = casas_est.filter(convenio__in=convenios_est_equipados).distinct()
 
         linha.lista = (
             casas_est.count(),
             casas_est_nao_aderidas.count(),
             casas_est_aderidas.count(),
             casas_est_conveniadas.count(),
+            casas_est_equipadas.count(),
         )
 
         linha.estado = estado
@@ -210,11 +213,13 @@ def casas_estado_to_tabela(casas,convenios,regiao):
     casas_regiao = casas.filter(municipio__uf__regiao=regiao)
     convenios_regiao = convenios.filter(casa_legislativa__municipio__uf__regiao=regiao)
     convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
+    convenios_regiao_equipados = convenios_regiao.exclude(data_termo_aceite=None)
     sumario = (
         casas_regiao.count(),
         casas_regiao.exclude(convenio__in=convenios_regiao).distinct().count(),
         casas_regiao.filter(convenio__in=convenios_regiao).distinct().count(),
         casas_regiao.filter(convenio__in=convenios_regiao_publicados).distinct().count(),
+        casas_regiao.filter(convenio__in=convenios_regiao_equipados).distinct().count(),
     )
 
     cabecalho_topo = (
@@ -223,6 +228,7 @@ def casas_estado_to_tabela(casas,convenios,regiao):
         u'Não Aderidas',
         u'Aderidas',        
         u'Conveniadas',
+        u'Equipadas'
     )   
 
     return {
