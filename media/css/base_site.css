@@ -153,7 +153,7 @@ img.chart {
 /* JQuery */
 .tabs-conteudo li {
 	border: 1px solid #CCC;
-	background-image: url("/admin_media/img/admin/nav-bg.gif");
+	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");
 	display: inline;
 	padding: 4px 8px;
 }
@@ -164,7 +164,7 @@ img.chart {
 
 .conteudo_regiao li{
 	border: 1px solid #CCC;
-	background-image: url("/admin_media/img/admin/nav-bg.gif");	
+	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");	
 	padding: 4px 8px;
 	width: 30%;
 	list-style: none;

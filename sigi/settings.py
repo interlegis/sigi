@@ -33,13 +33,15 @@ DATABASE_PORT = '5432'
 
 TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
+DEFAULT_CHARSET = 'utf-8'
 SITE_ID = 1
 
 USE_I18N = True
+USE_L10N = True
 
 MEDIA_ROOT = BASE_DIR + '/media/'
-MEDIA_URL = '/media/'
-ADMIN_MEDIA_PREFIX = '/admin_media/'
+MEDIA_URL = '/sigi/media/'
+ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
 
 CACHE_BACKEND = 'dummy:///'
 CACHE_MIDDLEWARE_SECONDS = 60

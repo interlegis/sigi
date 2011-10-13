@@ -11,7 +11,7 @@
         <li class="{% if entry.is_addition %}addlink{% endif %}
 		   {% if entry.is_change %}changelink{% endif %}
 		   {% if entry.is_deletion %}deletelink{% endif %}">
-	  {% if not entry.is_deletion %}<a href="{{ entry.get_admin_url }}">{% endif %}
+	  {% if not entry.is_deletion %}<a href="sigi/{{ entry.get_admin_url }}">{% endif %}
 	    {{ entry.object_repr|escape|truncatewords_html:3 }}
 	  {% if not entry.is_deletion %}</a>{% endif %}
 	  <br />
