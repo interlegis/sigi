@@ -77,7 +77,7 @@ if settings.DEBUG:
         '',
 
         # static files
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve',
+        (r'^sigi/media/(?P<path>.*)$', 'django.views.static.serve',
             {'document_root': settings.MEDIA_ROOT}),
 
         (r'^404/$', 'django.views.generic.simple.direct_to_template',
