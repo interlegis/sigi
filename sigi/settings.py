@@ -1,3 +1,4 @@
+# coding= utf-8
 #
 # Default Django settings for SIGI.
 #
@@ -9,6 +10,11 @@
 #
 
 import os
+import ldap
+import logging
+
+from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+
 BASE_DIR = os.path.abspath(os.path.dirname(__file__) + '../..')
 PROJECT_DIR = BASE_DIR + '/sigi'
 
@@ -27,9 +33,9 @@ DATABASE_ENGINE = 'postgresql_psycopg2'
 #DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = 'sigi'
 DATABASE_USER = 'administrador'
-DATABASE_PASSWORD = 'interlegis' 
+DATABASE_PASSWORD = 'interlegis'
 DATABASE_HOST = '10.1.10.44'
-DATABASE_PORT = '5432'          
+DATABASE_PORT = '5432'
 
 TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
@@ -42,6 +48,53 @@ USE_L10N = True
 MEDIA_ROOT = BASE_DIR + '/media/'
 MEDIA_URL = '/sigi/media/'
 ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
+
+# Baseline configuration.
+AUTH_LDAP_SERVER_URI = "ldap://w2k3dc01.interlegis.gov.br"
+AUTH_LDAP_BIND_DN = u"cn=sigi-ldap,ou=Usuários de Sistema,ou=Usuários,ou=Interlegis,dc=interlegis,dc=gov,dc=br"
+AUTH_LDAP_BIND_PASSWORD = "Sigi2609"
+AUTH_LDAP_USER_SEARCH = LDAPSearch(u"ou=SINTER,ou=Usuários,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
+
+# Set up the basic group parameters.
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(objectClass=Group)")
+AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
+
+# Only users in this group can log in.
+#AUTH_LDAP_REQUIRE_GROUP = u"cn=Acesso ao SIGI,ou=Grupos de Permissão,ou=Sede,dc=interlegis,dc=gov,dc=br"
+
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+  "is_staff": u"cn=Acesso ao SIGI,ou=Grupos de Permissão,ou=Sede,dc=interlegis,dc=gov,dc=br"
+}
+
+# Populate the Django user from the LDAP directory.
+AUTH_LDAP_USER_ATTR_MAP = {
+  "first_name": "givenName",
+  "last_name": "sn",
+  "email": "userPrincipalName"
+}
+
+# Populate the Django user_profile from the LDAP directory.
+#AUTH_LDAP_PROFILE_ATTR_MAP = {
+#  "employee_number": "employeeNumber"
+#}
+
+#AUTH_LDAP_PROFILE_FLAGS_BY_GROUP = {
+#  "is_awesome": "cn=awesome,ou=django,ou=groups,dc=example,dc=com",
+#}
+
+# Use LDAP group membership to calculate group permissions.
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_MIRROR_GROUPS = True
+
+# Cache group memberships for an hour to minimize LDAP traffic
+AUTH_LDAP_CACHE_GROUPS = True
+AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+# Keep ModelBackend around for per-user permissions and maybe a local superuser.
+AUTHENTICATION_BACKENDS = (
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 CACHE_BACKEND = 'dummy:///'
 CACHE_MIDDLEWARE_SECONDS = 60

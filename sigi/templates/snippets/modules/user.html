@@ -1,11 +1,9 @@
 {% load i18n tree_menu_tags %}
+{% if user.is_superuser %}
 <div class="module" id="user-module">
-  <h2>Meu espaço</h2>
   <h3>{{ user.get_full_name }}</h3>
-  {% show_menu "Usuário" "unordered-list" %}
 
-  {% if user.is_superuser %}
   <h3>Administração</h3>
   {% show_menu "Administrador" "unordered-list" %}
-  {% endif %}
 </div>
+{% endif %}
