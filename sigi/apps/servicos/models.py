@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.contenttypes import generic
+from apps.casas.models import CasaLegislativa
+from datetime import date
 
 class Servico(models.Model):
     SITUACAO_CHOICES = (
@@ -52,3 +54,25 @@ class Servico(models.Model):
 
     def __unicode__(self):
         return str(self.titulo)
+
+class DominioLeg(models.Model):
+    casa_legislativa = models.OneToOneField(CasaLegislativa)
+    dominio = models.URLField('Domínio', verify_exists=False)
+    contato_administrativo = models.CharField('Contato administrativo', max_length=60)
+    telefone_administrativo = models.CharField('Telefone administrativo', max_length=10, help_text='Somente números: ddaaaannnn.')
+    email_administrativo = models.EmailField('e-mail')
+    contato_tecnico = models.CharField('Contato técnico', max_length=60)
+    telefone_tecnico = models.CharField('Telefone administrativo', max_length=10, help_text='Somente números: ddaaaannnn.')
+    email_tecnico = models.EmailField('e-mail')
+    data_preenchimento = models.DateField('Data de preenchimento', default=date.today)
+    data_recebimento = models.DateField('Data de recebimento', null=True, blank=True)
+    data_atendimento = models.DateField('Data de atendimento', null=True, blank=True)
+    
+    class Meta:
+        verbose_name = 'Registro de domínio .leg.br'
+        verbose_name_plural = 'Registros de domínios .leg.br'
+        
+    def __unicode__(self):
+        return str(self.dominio)
+    
+    

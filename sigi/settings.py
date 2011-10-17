@@ -29,13 +29,13 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-DATABASE_ENGINE = 'postgresql_psycopg2'
-#DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = 'sigi'
-DATABASE_USER = 'administrador'
-DATABASE_PASSWORD = 'interlegis'
-DATABASE_HOST = '10.1.10.44'
-DATABASE_PORT = '5432'
+#DATABASE_ENGINE = 'postgresql_psycopg2'
+DATABASE_ENGINE = 'sqlite3'
+DATABASE_NAME = 'devel.db'
+#DATABASE_USER = 'sigi'
+#DATABASE_PASSWORD = '123456'
+#DATABASE_HOST = 'localhost'
+#DATABASE_PORT = '5432'
 
 TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
