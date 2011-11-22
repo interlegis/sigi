@@ -7,7 +7,8 @@ from sigi.apps.contatos.admin import (UnidadeFederativa, UnidadeFederativaAdmin,
                                       Municipio, MunicipioAdmin, Telefone,
                                       TelefoneAdmin, Contato, ContatoAdmin)
 from sigi.apps.convenios.admin import (Projeto, Convenio, ConvenioAdmin, EquipamentoPrevisto,
-                                       EquipamentoPrevistoAdmin, Anexo, AnexoAdmin,UnidadeAdministrativa,Tramitacao)
+                                       EquipamentoPrevistoAdmin, Anexo, AnexoAdmin,
+                                       UnidadeAdministrativa,Tramitacao)
 from sigi.apps.inventario.admin import (Fornecedor, FornecedorAdmin, Fabricante,
                                         FabricanteAdmin, Equipamento,
                                         EquipamentoAdmin, TipoEquipamento,
@@ -22,6 +23,13 @@ from sigi.apps.mesas.admin import (Legislatura, LegislaturaAdmin, Coligacao,
                                    MembroMesaDiretora, MembroMesaDiretoraAdmin)
 from sigi.apps.parlamentares.admin import (Partido, PartidoAdmin, Parlamentar,
                                            ParlamentarAdmin, Mandato, MandatoAdmin)
+from sigi.apps.diagnosticos.admin import (Diagnostico, DiagnosticoAdmin, Pergunta,
+                                          BaseSchemaAdmin, Escolha, Anexo as AnexoDiagnostico,
+                                          AnexoAdmin as AnexoDiagnosticoAdmin)
+from sigi.apps.servidores.admin import (Servidor, ServidorAdmin, Funcao, FuncaoAdmin,
+                                        Ferias, FeriasAdmin, Licenca, LicencaAdmin)
+from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Anexo as AnexoOcorrencia,
+                                         AnexoAdmin as AnexoOcorrenciaAdmin, Categoria)
 
 class DefaultSite(AdminSite):
     index_template = 'index.html'
@@ -82,3 +90,21 @@ default.register(MembroMesaDiretora, MembroMesaDiretoraAdmin)
 default.register(Partido, PartidoAdmin)
 default.register(Parlamentar, ParlamentarAdmin)
 default.register(Mandato, MandatoAdmin)
+
+# sigi.apps.diagnosticos
+default.register(Diagnostico, DiagnosticoAdmin)
+default.register(Pergunta, BaseSchemaAdmin)
+default.register(Escolha)
+default.register(AnexoDiagnostico, AnexoDiagnosticoAdmin)
+
+# sigi.apps.servidores
+default.register(Servidor, ServidorAdmin)
+default.register(Funcao, FuncaoAdmin)
+default.register(Ferias, FeriasAdmin)
+default.register(Licenca, LicencaAdmin)
+
+# sigi.apps.ocorrencias
+default.register(Ocorrencia, OcorrenciaAdmin)
+default.register(AnexoOcorrencia, AnexoOcorrenciaAdmin)
+default.register(Categoria)
+

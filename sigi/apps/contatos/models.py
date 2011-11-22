@@ -159,3 +159,91 @@ class Contato(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+class Endereco(models.Model):
+    TIPO_CHOICES = (
+      ('aeroporto','Aeroporto'),
+      ('alameda','Alameda'),
+      ('area',u'Área'),
+      ('avenida','Avenida'),
+      ('campo','Campo'),
+      ('chacara',u'Chácara'),
+      ('colonia',u'Colônia'),
+      ('condominio',u'Condomínio'),
+      ('conjunto','Conjunto'),
+      ('distrito','Distrito'),
+      ('esplanada','Esplanada'),
+      ('estacao',u'Estação'),
+      ('estrada','Estrada'),
+      ('favela','Favela'),
+      ('fazenda','Fazenda'),
+      ('feira','Feira'),
+      ('jardim','Jardim'),
+      ('ladeira','Ladeira'),
+      ('lago','Lago'),
+      ('lagoa','Lagoa'),
+      ('largo','Largo'),
+      ('loteamento','Loteamento'),
+      ('morro','Morro'),
+      ('nucleo',u'Núcleo'),
+      ('parque','Parque'),
+      ('passarela','Passarela'),
+      ('patio',u'Pátio'),
+      ('praca',u'Praça'),
+      ('quadra','Quadra'),
+      ('recanto','Recanto'),
+      ('residencial','Residencial'),
+      ('rodovia','Rodovia'),
+      ('rua','Rua'),
+      ('setor','Setor'),
+      ('sitio',u'Sítio'),
+      ('travessa','Travessa'),
+      ('trecho','Trecho'),
+      ('trevo','Trevo'),
+      ('vale','Vale'),
+      ('vereda','Vereda'),
+      ('via','Via'),
+      ('viaduto','Viaduto'),
+      ('viela','Viela'),
+      ('vila','Vila'),
+      ('outro','Outro'),
+    )
+    tipo = models.CharField(max_length=15,choices=TIPO_CHOICES)
+    logradouro = models.CharField(
+        max_length=100,
+    )
+    logradouro.alphabetic_filter = True
+    numero= models.CharField(max_length=15, blank=True)
+    complemento= models.CharField(max_length=15, blank=True)
+    referencia = models.CharField(max_length=100, blank=True)
+    bairro = models.CharField(max_length=100, blank=True)
+
+    cep = models.CharField(
+        'CEP',
+        max_length=9,
+        blank=True,
+        null=True,
+        help_text="Formato: <em>XXXXX-XXX</em>."
+    )
+
+    municipio = models.ForeignKey(
+        Municipio,
+        verbose_name='município',
+        blank=True,
+        null=True,
+    )
+    municipio.uf_filter = True
+
+    content_type = models.ForeignKey(ContentType)
+    object_id = models.PositiveIntegerField()
+    content_object = generic.GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        ordering = ('logradouro', 'numero')
+        verbose_name = u'endereço'
+        verbose_name_plural = u'endereços'
+
+    def __unicode__(self):
+        return self.tipo + ' ' + seld.logradouro + ', ' + self.numero \
+               + ' ' + self.complemento + ' - ' + self.bairro
+

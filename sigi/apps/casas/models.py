@@ -57,7 +57,6 @@ class CasaLegislativa(models.Model):
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
 
-
     contatos = generic.GenericRelation('contatos.Contato')
 
     class Meta:
