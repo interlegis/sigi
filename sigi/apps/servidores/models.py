@@ -6,7 +6,7 @@ from django.contrib.auth.models import User
 class Subsecretaria(models.Model):
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
-    #responsavel = models.ForeignKey('servidores.Servidor')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor')
 
     class Meta:
         ordering = ('nome',)
@@ -18,7 +18,7 @@ class Servico(models.Model):
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
     subsecretaria = models.ForeignKey(Subsecretaria)
-    #responsavel = models.ForeignKey('servidores.Servidor')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe')
 
     class Meta:
         ordering = ('nome',)
@@ -62,7 +62,7 @@ class Servidor(models.Model):
         null=True,
     )
     email = models.EmailField('e-mail', blank=True, null=True)
-    servico = models.ForeignKey(Servico, blank=True, null=True)
+    servico = models.ForeignKey('servidores.Servico', blank=True, null=True)
     is_chefe = models.BooleanField()
     matricula = models.CharField(u'matrícula', max_length=25, blank=True, null=True)
     turno= models.CharField(
