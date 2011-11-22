@@ -55,7 +55,26 @@ class ServidorAdmin(admin.ModelAdmin):
     search_fields = ('nome_completo', 'obs', 'apontamentos',
                      'user__email', 'user__first_name',
                      'user__last_name', 'user__username')
-    inlines= (EnderecoInline, TelefonesInline)
+    raw_id_fields = ('user',)
+    inlines= (TelefonesInline,EnderecoInline)
+    fieldsets = (
+      (u'Autenticação', {
+        'fields': ('user',),
+      }),
+      ('Cadastro', {
+        'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal')
+      }),
+      ('Origem', {
+        'fields': ('turno',),
+      }),
+      (u'Observações', {
+        'fields': ('apontamentos', 'obs'),
+      }),
+      #('Advanced options', {
+      #  'classes': ('collapse',),
+      #  'fields': ('enable_comments', 'registration_required', 'template_name')
+      #}),
+    )
 
 admin.site.register(Servidor, ServidorAdmin)
 admin.site.register(Funcao, FuncaoAdmin)

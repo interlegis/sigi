@@ -1,30 +1,42 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
-#from django.contrib.contenttypes import ContentType
 from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
 
 class Projeto(models.Model):
+    """ Modelo para representar os projetos do programa
+    Interlegis
+    """
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
-        
+
     def __unicode__(self):
         return self.sigla
-    
-class Convenio(models.Model):    
+
+class Convenio(models.Model):
+    """ Modelo que representa um convênio do Interlegis
+    com uma Casa Legislativa.
+
+    Uma Casa Legislativa pode não ter um convênio e sim 
+    apenas uma adesão com o Interlegis, isto é,
+    não tem compromissos direto com o Interlegis apenas
+    um pacto de colaboração entre as partes
+    """
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
         verbose_name='Casa Legislativa'
     )
+    # campo de busca em caixa baixa e sem acentos
     search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
     projeto = models.ForeignKey(
         Projeto
     )
+    # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
-        'número do processo SF',
+        'número do processo SF (Senado Federal)',
         max_length=11,
         blank=True,
         help_text='Formato: <em>XXXXXX/XX-X</em>.'
@@ -38,7 +50,7 @@ class Convenio(models.Model):
         'Aderidas',
         null=True,
         blank=True,
-    )    
+    )
     data_retorno_assinatura = models.DateField(
         'Conveniadas',
         null=True,
@@ -69,15 +81,15 @@ class Convenio(models.Model):
     )
     data_devolucao_sem_assinatura = models.DateField(
         'data de devolução por falta de assinatura',
-	null=True,
-	blank=True,
-	help_text=u'Data de devolução por falta de assinatura',
+        null=True,
+        blank=True,
+        help_text=u'Data de devolução por falta de assinatura',
     )
     data_retorno_sem_assinatura = models.DateField(
-	'data do retorno sem assinatura',
-	null=True,
-	blank=True,
-	help_text=u'Data do retorno do convênio sem assinatura',
+        'data do retorno sem assinatura',
+        null=True,
+        blank=True,
+        help_text=u'Data do retorno do convênio sem assinatura',
     )
     observacao = models.CharField(
         null=True, 
@@ -102,6 +114,10 @@ class Convenio(models.Model):
         return str(self.id)
 
 class EquipamentoPrevisto(models.Model):
+    """ Modelo utilizado para registrar os equipamentos
+    disponibilizados para as Casas Legislativas
+    (foi usado na prmeira etapa do programa)
+    """
     convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
     equipamento = models.ForeignKey('inventario.Equipamento')
     quantidade = models.PositiveSmallIntegerField(default=1)
@@ -114,7 +130,11 @@ class EquipamentoPrevisto(models.Model):
         return '%s %s(s)' % (self.quantidade, self.equipamento)
 
 class Anexo(models.Model):
+    """ Modelo para giardar os documentos gerados
+    no processo de convênio
+    """
     convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
+    # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo',)
     descricao = models.CharField('descrição', max_length='70')
     data_pub = models.DateTimeField(
@@ -129,28 +149,34 @@ class Anexo(models.Model):
         return unicode(self.arquivo.name)
 
 class UnidadeAdministrativa(models.Model):
+    """ Modelo para representar uma Unidade Administrativa
+    que pode ser um servivo do próprio Interlegis, assim como
+    uma unidade do Senado Federal
+    """
     sigla = models.CharField(max_length='10')
     nome = models.CharField(max_length='100')
 
     def __unicode__(self):
         return unicode(self.sigla)
-    
+
 
 class Tramitacao(models.Model):
+    """ Modelo para registrar as vias do processo de convênio e a Unidade
+    responsável pelo tramite (ex. colher assinaturas do secretário do senado)
+    """
     convenio = models.ForeignKey(Convenio, verbose_name=u'convênio')
     unid_admin = models.ForeignKey(UnidadeAdministrativa, verbose_name=u'Unidade Administrativa')
     data = models.DateField()
     observacao = models.CharField(
-	'observação',
-	max_length='512',
-	null=True,
-	blank=True,
+        'observação',
+        max_length='512',
+        null=True,
+        blank=True,
     )
 
     class Meta:
-        verbose_name_plural = u'Tramitações'	
+        verbose_name_plural = u'Tramitações'
 
     def __unicode__(self):
         return unicode(self.unid_admin)
-    
 

@@ -6,6 +6,12 @@ from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import SearchField
 
 class TipoCasaLegislativa(models.Model):
+    """ Modelo para representar o tipo da Casa Legislativa
+
+    Geralmente: Câmara Municipal, Assembléia Legislativa,
+    Câmara Distrital ou Legislativo Federal
+    """
+
     sigla = models.CharField(
         max_length=5
     )
@@ -14,19 +20,24 @@ class TipoCasaLegislativa(models.Model):
     )
     def __unicode__(self):
         return self.nome
-    
+
 
 class CasaLegislativa(models.Model):
+    """ Modelo para representar uma Casa Legislativa
+    """
     nome = models.CharField(
         max_length=60,
         help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
     )
+
+    # Guarda um campo para ser usado em buscas em caixa baixa e sem acento
     search_text = SearchField(field_names=['nome'])
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
     presidente = models.CharField('Presidente', max_length=150, blank=True)
 
+    # Informações de contato
     logradouro = models.CharField(
         max_length=100,
         help_text='Avenida, rua, praça, jardim, parque...'
@@ -67,13 +78,3 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
-
-    def get_presidente_nome(self):
-        try:
-            mesa = MesaDiretora.objects.get(casa_legislativa=self)
-            membro = mesa.membromesadiretora_set.get(
-                cargo__descricao__iexact='presidente'
-            )
-        except (MesaDiretora.DoesNotExist, MembroMesaDiretora.DoesNotExist):
-            return ''
-        return membro.parlamentar.nome_completo

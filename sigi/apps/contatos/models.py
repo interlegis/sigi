@@ -5,6 +5,8 @@ from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
 
 class UnidadeFederativa(models.Model):
+    """ Modelo que representa um estado brasileiro
+    """
     REGIAO_CHOICES = (
         ('SL', 'Sul'),
         ('SD', 'Sudeste'),
@@ -19,6 +21,7 @@ class UnidadeFederativa(models.Model):
         help_text='Código do estado segundo IBGE.'
     )
     nome = models.CharField(max_length=25)
+    # Campo de busca em caixa baixa sem acento
     search_text = SearchField(field_names=['nome'])
     sigla = models.CharField(
         max_length=2,
@@ -38,22 +41,29 @@ class UnidadeFederativa(models.Model):
         return self.nome
 
 class Municipio(models.Model):
+    """ Modelo para representar as cidades brasileiras
+    """
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
         primary_key=True,
         unique=True,
         help_text='Código do município segundo IBGE.'
     )
+
+    # agrupamento baseado em similaridades econômicas e sociais
     codigo_mesorregiao = models.PositiveIntegerField(
         u'código mesorregião',
         blank=True,
         null=True
     )
+    # agrupamento baseado em similaridades econômicas e sociais
     codigo_microrregiao = models.PositiveIntegerField(
         u'código microrregião',
         blank=True,
         null=True
     )
+
+    # codio designado pelo Tribunal Superior Eleitoral
     codigo_tse = models.PositiveIntegerField(
         u'código TSE',
         unique=True,
@@ -63,10 +73,13 @@ class Municipio(models.Model):
     nome = models.CharField(max_length=50)
     search_text = SearchField(field_names=['nome', 'uf'])
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
+    # verdadeiro se o município é capital do estado
     is_capital = models.BooleanField('capital')
     populacao = models.PositiveIntegerField(u'população')
     populacao.list_filter_range = [10000, 100000, 1000000]
     is_polo = models.BooleanField(u'pólo')
+
+    # posição geográfica do município
     latitude = models.DecimalField(
         max_digits=10,
         decimal_places=8,
@@ -95,6 +108,8 @@ class Municipio(models.Model):
             (self.latitude, self.longitude)
 
 class Telefone(models.Model):
+    """ Modelo genérico para agrupar telefones dos modulos do sistema
+    """
     TELEFONE_CHOICES = (
         ('F', 'Fixo'),
         ('M', 'Móvel'),
@@ -117,7 +132,10 @@ class Telefone(models.Model):
         choices=TELEFONE_CHOICES,
     )
     nota = models.CharField(max_length=70, blank=True)
+
+    # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
+    # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
@@ -134,6 +152,9 @@ class Telefone(models.Model):
             return unicode(self.numero)
 
 class Contato(models.Model):
+    """ Modelo generico para registrar contatos vinculados aos
+    modulos do sistema
+    """
     nome = models.CharField('nome completo', max_length=60)
     nome.alphabetic_filter = True
     nota = models.CharField(max_length=70, blank=True)
@@ -148,7 +169,9 @@ class Contato(models.Model):
         null=True,
     )
 
+    # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
+    # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
@@ -208,6 +231,8 @@ class Endereco(models.Model):
       ('vila','Vila'),
       ('outro','Outro'),
     )
+
+    # tipo do endereço obtido no site dos correios
     tipo = models.CharField(max_length=15,choices=TIPO_CHOICES)
     logradouro = models.CharField(
         max_length=100,
@@ -215,6 +240,7 @@ class Endereco(models.Model):
     logradouro.alphabetic_filter = True
     numero= models.CharField(max_length=15, blank=True)
     complemento= models.CharField(max_length=15, blank=True)
+    # campo de texto livre
     referencia = models.CharField(max_length=100, blank=True)
     bairro = models.CharField(max_length=100, blank=True)
 
@@ -234,7 +260,9 @@ class Endereco(models.Model):
     )
     municipio.uf_filter = True
 
+    # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
+    # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
