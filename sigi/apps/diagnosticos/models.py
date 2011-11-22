@@ -62,7 +62,6 @@ class Pergunta(BaseSchema):
     Uma pergunta tem o nome e o tipo da resposta
     """
     categoria = models.ForeignKey(Categoria,blank=True, null=True)
-    ordem = models.PositiveSmallIntegerField(blank=True, null=True)
     class Meta:
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
 
