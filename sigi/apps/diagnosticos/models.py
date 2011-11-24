@@ -65,6 +65,7 @@ class Pergunta(BaseSchema):
     """
     categoria = models.ForeignKey(Categoria)
     class Meta:
+        ordering = ('title',)
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
 
 class Escolha(BaseChoice):

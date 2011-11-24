@@ -51,10 +51,15 @@ class DiagnosticoAdmin(BaseEntityAdmin):
           }))
 
 class PerguntaAdmin (BaseSchemaAdmin):
+    search_fields = ('title', 'help_text', 'name',)
     list_display = ('title', 'categoria', 'datatype', 'help_text', 'required')
+    list_filter = ('datatype', 'categoria', 'required')
 
 class EscolhaAdmin(admin.ModelAdmin):
-    list_display = ('title', 'schema')
+    search_fields = ('title',) 
+    list_display = ('title', 'schema', 'schema_to_open')
+    raw_id_fields = ('schema', 'schema_to_open')
+    ordering = ('schema', 'title')
 
 admin.site.register(Diagnostico, DiagnosticoAdmin)
 admin.site.register(Pergunta, PerguntaAdmin)

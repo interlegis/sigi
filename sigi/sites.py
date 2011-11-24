@@ -24,7 +24,7 @@ from sigi.apps.mesas.admin import (Legislatura, LegislaturaAdmin, Coligacao,
 from sigi.apps.parlamentares.admin import (Partido, PartidoAdmin, Parlamentar,
                                            ParlamentarAdmin, Mandato, MandatoAdmin)
 from sigi.apps.diagnosticos.admin import (Diagnostico, DiagnosticoAdmin, Pergunta,
-                                          PerguntaAdmin, Escolha, Anexo as AnexoDiagnostico,
+                                          PerguntaAdmin, Escolha, EscolhaAdmin, Anexo as AnexoDiagnostico,
                                           AnexoAdmin as AnexoDiagnosticoAdmin, Categoria as
                                           CategoriaDiagnostico)
 from sigi.apps.servidores.admin import (Servidor, ServidorAdmin, Funcao, FuncaoAdmin,
@@ -95,7 +95,7 @@ default.register(Mandato, MandatoAdmin)
 # sigi.apps.diagnosticos
 default.register(Diagnostico, DiagnosticoAdmin)
 default.register(Pergunta, PerguntaAdmin)
-default.register(Escolha)
+default.register(Escolha, EscolhaAdmin)
 default.register(AnexoDiagnostico, AnexoDiagnosticoAdmin)
 default.register(CategoriaDiagnostico)
 
