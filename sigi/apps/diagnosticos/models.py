@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
+from django.utils.translation import ugettext_lazy as _
 from sigi.apps.utils import SearchField
 from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
@@ -52,8 +53,9 @@ class Categoria(models.Model):
     """ Modelo para representar a categoria de uma pergunta
     e sua ordem na hora de exibir no formulário
     """
-    nome= models.CharField(max_length=50)
-    ordem = models.PositiveSmallIntegerField(blank=True, null=True)
+    nome= models.CharField(max_length=255)
+    def __unicode__(self):
+      return self.nome
 
 class Pergunta(BaseSchema):
     """ Modelo que representa uma pergunta no questionário
@@ -61,7 +63,7 @@ class Pergunta(BaseSchema):
 
     Uma pergunta tem o nome e o tipo da resposta
     """
-    categoria = models.ForeignKey(Categoria,blank=True, null=True)
+    categoria = models.ForeignKey(Categoria)
     class Meta:
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
 
@@ -70,6 +72,7 @@ class Escolha(BaseChoice):
     cadastradas neste modelo
     """
     schema = models.ForeignKey(Pergunta, related_name='choices', verbose_name='pergunta')
+    schema_to_open = models.ForeignKey(Pergunta, related_name='', verbose_name='pergunta para abrir', blank=True, null=True)
     class Meta:
         verbose_name, verbose_name_plural = 'escolha', 'escolhas'
 
