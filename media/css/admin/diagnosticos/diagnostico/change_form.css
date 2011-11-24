@@ -1,0 +1,11 @@
+form .aligned label {
+    float: none;
+    width: 100%;
+}
+form .aligned ul {
+   margin-left: 0px;
+   padding-left: 0px;
+}
+form .aligned ul li {
+  list-style: none;
+}
