@@ -21,45 +21,45 @@ pip=`find /usr/bin/ -name pip`
 git=`find /usr/bin/ -name git`
 
 if [ ! -f $easy_install ] || [ ! -f $pip ]; then
-	echo "O aplicativo pip é obrigatório. Favor instalar para continuar a configuração do SIGI."
-	sleep 5
-	exit
+    echo "O aplicativo pip é obrigatório. Favor instalar para continuar a configuração do SIGI."
+    sleep 5
+    exit
 else
-	# Executando o arquivo requirements.txt
-	if [ -f $requirements ]; then
-		echo
-		echo "Instalando os módulos contidos no arquivo $requirements ..."
-		echo
-		sleep 2
-		pip install -r $requirements
+    # Executando o arquivo requirements.txt
+    if [ -f $requirements ]; then
+        echo
+        echo "Instalando os módulos contidos no arquivo $requirements ..."
+        echo
+        sleep 2
+        pip install -r $requirements
 
-		# Verifica se o git está instalado
-		if [ ! -f $git]; then
-			echo
-			echo "O aplicativo git não está instalado. Caso contrário, faça o checkout diretamente."
-			sleep 5
-			exit
-		else
-			# Faz o checkout do projeto e instala o módulo
-			echo
-			echo "Fazendo o checkout do projeto..."
-			echo
-			sleep 2
-			git clone git://github.com/jacobian/django-googlecharts.git
+        # Verifica se o git está instalado
+        if [ ! -f $git]; then
+            echo
+            echo "O aplicativo git não está instalado. Caso contrário, faça o checkout diretamente."
+            sleep 5
+            exit
+        else
+            # Faz o checkout do projeto e instala o módulo
+            echo
+            echo "Fazendo o checkout do projeto..."
+            echo
+            sleep 2
+            git clone git://github.com/jacobian/django-googlecharts.git
 
-			echo
-			echo "Iniciando a instalacao..."
-			echo
-			sleep 2
-			cd django-googlecharts
-			python setup.py install
-		fi
-	else
-		echo
-		echo "O arquivo requirements.txt não existe. Verifique se está na mesma pasta do arquivo de instalação do SIGI."
-		sleep 5
-		exit
-	fi
+            echo
+            echo "Iniciando a instalacao..."
+            echo
+            sleep 2
+            cd django-googlecharts
+            python setup.py install
+        fi
+    else
+        echo
+        echo "O arquivo requirements.txt não existe. Verifique se está na mesma pasta do arquivo de instalação do SIGI."
+        sleep 5
+        exit
+    fi
 fi
 
 
