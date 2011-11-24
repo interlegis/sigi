@@ -96,10 +96,10 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-CACHE_BACKEND = 'dummy:///'
-CACHE_MIDDLEWARE_SECONDS = 60
-CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
-CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
+#CACHE_BACKEND = 'dummy:///'
+#CACHE_MIDDLEWARE_SECONDS = 60
+#CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
+#CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
 
 # Used to provide a seed in secret-key hashing algorithms. Set this to
 # a random string in your local_settings.py - the longer, the better.

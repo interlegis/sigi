@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 from sigi.apps.utils import SearchField
 from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
+
 
 class Diagnostico(BaseEntity):
     """ Modelo para representar unm diagnostico realizado
@@ -39,6 +39,7 @@ class Diagnostico(BaseEntity):
         blank=True,
         help_text='Equipamentos recebidos.'
     )
+
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
 
@@ -49,13 +50,17 @@ class Diagnostico(BaseEntity):
     def __unicode__(self):
         return str(self.casa_legislativa)
 
+
 class Categoria(models.Model):
     """ Modelo para representar a categoria de uma pergunta
     e sua ordem na hora de exibir no formulário
     """
-    nome= models.CharField(max_length=255)
+
+    nome = models.CharField(max_length=255)
+
     def __unicode__(self):
-      return self.nome
+        return self.nome
+
 
 class Pergunta(BaseSchema):
     """ Modelo que representa uma pergunta no questionário
@@ -64,9 +69,11 @@ class Pergunta(BaseSchema):
     Uma pergunta tem o nome e o tipo da resposta
     """
     categoria = models.ForeignKey(Categoria)
+
     class Meta:
         ordering = ('title',)
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
+
 
 class Escolha(BaseChoice):
     """ Perguntas de multiplas escolhas tem as opções
@@ -74,8 +81,10 @@ class Escolha(BaseChoice):
     """
     schema = models.ForeignKey(Pergunta, related_name='choices', verbose_name='pergunta')
     schema_to_open = models.ForeignKey(Pergunta, related_name='', verbose_name='pergunta para abrir', blank=True, null=True)
+
     class Meta:
         verbose_name, verbose_name_plural = 'escolha', 'escolhas'
+
 
 class Resposta(BaseAttribute):
     """ Modelo para guardar as respostas das perguntas
@@ -83,8 +92,10 @@ class Resposta(BaseAttribute):
     """
     schema = models.ForeignKey(Pergunta, related_name='attrs', verbose_name='pergunta')
     choice = models.ForeignKey(Escolha, verbose_name='escolha', blank=True, null=True)
+
     class Meta:
         verbose_name, verbose_name_plural = 'resposta', 'respostas'
+
 
 class Equipe(models.Model):
     """ Modelo que representa a equipe de um diagnóstico
@@ -96,6 +107,7 @@ class Equipe(models.Model):
 
     def __unicode__(self):
         return str(self.id)
+
 
 class Anexo(models.Model):
     """ Modelo para representar os documentos levantados
@@ -114,4 +126,3 @@ class Anexo(models.Model):
 
     def __unicode__(self):
         return unicode(self.arquivo.name)
-

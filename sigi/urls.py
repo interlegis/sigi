@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 from django.conf import settings
-from django.conf.urls.defaults import *
+from django.conf.urls.defaults import patterns, include, url
 import sites
 
 # register admin filters
@@ -8,6 +8,9 @@ import admin.filterspecs
 
 urlpatterns = patterns(
     '',
+
+    # Diagnosticos
+    url(r'mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
 
     # Informacoes de uma casa legislativa
     (r'^casas/casalegislativa/(?P<id>\w+)/report_complete/',

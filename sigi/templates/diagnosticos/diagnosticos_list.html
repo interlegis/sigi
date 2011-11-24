@@ -1,0 +1,32 @@
+{% extends "base_mobile.html" %}
+
+{% block cabecalho %}
+    <h1>Diagnósticos</h1>
+    <a href="#" data-icon="delete" data-theme="e" class="ui-btn-right">Sair</a>            
+{% endblock cabecalho %}
+
+{% block corpo %}
+    <ul data-role="listview">
+        {% for diagnostico in diagnosticos %}
+            <li>
+                <a href="#">
+                    <h3>{{ diagnostico.casa_legislativa.nome }}</h3>
+                    <p><strong>Data:</strong> {{ diagnostico.data_questionario|date:"d/m/Y" }}</p>
+                    <p><strong>Responsável:</strong> Nenhum Ainda</p>
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endblock corpo %}
+
+{% block rodape %}
+    <div data-role="footer" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="#" data-icon="grid" class="ui-state-persist">Listar</a></li>
+                <li><a href="#" data-icon="home" class="ui-btn-active">Home</a></li>
+                <li><a href="#" data-icon="plus">Anexar Arquivos</a></li>
+            </ul>
+        </div>
+    </div> <!-- footer -->        
+{% endblock rodape %}
