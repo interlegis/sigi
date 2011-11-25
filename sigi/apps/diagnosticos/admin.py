@@ -26,6 +26,11 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     inlines = (EquipeInline, AnexosInline)
     raw_id_fields = ('casa_legislativa',)
 
+    eav_fieldsets = [
+        (None, {'fields': ('data_visita', 'data_questionario', 'data_relatorio_questionario')}),
+        (u'1. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
+        (u'2. Identificação de Competências da Casa Legislativa', {'fields': ()})
+      ]
     # separa as perguntas (title e name) dentro das categorias existente para ordenar
     dict_categoria = {}
     for pergunta in Pergunta.objects.all():
@@ -39,15 +44,15 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         else:
             dict_categoria[categoria] = [(pergunta.title.strip(), pergunta.name)]
 
-    # cria o eav fieldset ordenando as categorias e as perguntas
+    # popula o eav fieldset ordenando as categorias e as perguntas
     # para ser exibido no admin
-    eav_fieldsets = []
     for categoria in sorted(dict_categoria.keys()):
         # ordena as perguntas pelo title e utiliza o name no fieldset
         perguntas = [pergunta[1] for pergunta in sorted(dict_categoria[categoria])]
 
         eav_fieldsets.append((categoria, {
-          'fields': tuple(perguntas)
+          'fields': tuple(perguntas),
+          'classes': ['collapse']
           }))
 
 class PerguntaAdmin (BaseSchemaAdmin):

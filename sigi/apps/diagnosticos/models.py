@@ -33,13 +33,6 @@ class Diagnostico(BaseEntity):
         null=True,
         blank=True
     )
-    data_termo_aceite = models.DateField(
-        'Equipadas',
-        null=True,
-        blank=True,
-        help_text='Equipamentos recebidos.'
-    )
-
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
 
