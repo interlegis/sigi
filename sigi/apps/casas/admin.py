@@ -28,6 +28,8 @@ class FuncionariosInline(admin.StackedInline):
     model = Funcionario
     extra = 1
     inlines = (TelefonesInline)
+    def queryset(self, request):
+        return self.model.objects.exclude(cargo="Presidente")
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
