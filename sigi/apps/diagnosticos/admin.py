@@ -23,11 +23,12 @@ class AnexoAdmin(admin.ModelAdmin):
 
 class DiagnosticoAdmin(BaseEntityAdmin):
     form = DiagnosticoForm
+    date_hierarchy = 'data_questionario'
     inlines = (EquipeInline, AnexosInline)
-    raw_id_fields = ('casa_legislativa',)
+    raw_id_fields = ('casa_legislativa', 'responsavel')
 
     eav_fieldsets = [
-        (None, {'fields': ('data_visita', 'data_questionario', 'data_relatorio_questionario')}),
+        (u'0. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita', 'data_questionario', 'data_relatorio_questionario')}),
         (u'1. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
         (u'2. Identificação de Competências da Casa Legislativa', {'fields': ()})
       ]

@@ -26,13 +26,14 @@ class Diagnostico(BaseEntity):
         'data do questionario',
         null=True,
         blank=True,
-        help_text='Convênio firmado.'
     )
     data_relatorio_questionario = models.DateField(
         'data do relatório do questionario',
         null=True,
         blank=True
     )
+
+    responsavel = models.ForeignKey('servidores.Servidor', verbose_name=u'responsável')
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
 
@@ -48,7 +49,6 @@ class Categoria(models.Model):
     """ Modelo para representar a categoria de uma pergunta
     e sua ordem na hora de exibir no formulário
     """
-
     nome = models.CharField(max_length=255)
 
     def __unicode__(self):
@@ -95,11 +95,9 @@ class Equipe(models.Model):
     """
     diagnostico = models.ForeignKey(Diagnostico)
     membro = models.ForeignKey('servidores.Servidor')
-    # verdadeiro se o servidor é repsonsável por chefiar a equipe
-    is_chefe = models.BooleanField()
 
     def __unicode__(self):
-        return str(self.id)
+        return str(self.membro)
 
 
 class Anexo(models.Model):
