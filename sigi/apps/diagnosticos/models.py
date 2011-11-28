@@ -52,6 +52,9 @@ class Categoria(models.Model):
     """
     nome = models.CharField(max_length=255)
 
+    class Meta:
+        ordering = ('nome',)
+
     def __unicode__(self):
         return self.nome
 
@@ -96,6 +99,9 @@ class Equipe(models.Model):
     """
     diagnostico = models.ForeignKey(Diagnostico)
     membro = models.ForeignKey('servidores.Servidor')
+
+    class Meta:
+        verbose_name, verbose_name_plural = 'equipe', 'equipe'
 
     def __unicode__(self):
         return str(self.membro)

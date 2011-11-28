@@ -40,24 +40,13 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         (u'01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
         (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()})
       ]
-    # separa as perguntas (title e name) dentro das categorias existente para ordenar
-    dict_categoria = {}
-    for pergunta in Pergunta.objects.all():
-        if pergunta.categoria:
-            categoria = pergunta.categoria.nome
-        else:
-            categoria = None
 
-        if categoria in dict_categoria.keys():
-            dict_categoria[categoria].append((pergunta.title.strip(), pergunta.name))
-        else:
-            dict_categoria[categoria] = [(pergunta.title.strip(), pergunta.name)]
-
-    # popula o eav fieldset ordenando as categorias e as perguntas
-    # para ser exibido no admin
-    for categoria in sorted(dict_categoria.keys()):
+    # popula o eav fieldsets ordenando as categorias e as perguntas
+    # para serem exibidas no admin
+    for categoria in Categoria.objects.all():
         # ordena as perguntas pelo title e utiliza o name no fieldset
-        perguntas = [pergunta[1] for pergunta in sorted(dict_categoria[categoria])]
+        perguntas_by_title = [(p.title, p.name) for p in categoria.perguntas.all()]
+        perguntas = [pergunta[1] for pergunta in sorted(perguntas_by_title)]
 
         eav_fieldsets.append((categoria, {
           'fields': tuple(perguntas),
