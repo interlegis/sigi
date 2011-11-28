@@ -21,9 +21,17 @@ class AnexoAdmin(admin.ModelAdmin):
     search_fields = ('descricao', 'diagnostico__id', 'arquivo',
                      'diagnostico__casa_legislativa__nome')
 
+
+# Ação de alterar o status das publicações no modo Draft.
+def alterar_status_publicacao(modeladmin, request, queryset):
+    queryset.update(status=True)
+alterar_status_publicacao.short_description = u"""
+    Publicar diagnósticos selecionados"""
+
 class DiagnosticoAdmin(BaseEntityAdmin):
     form = DiagnosticoForm
     date_hierarchy = 'data_questionario'
+    actions = [alterar_status_publicacao]
     inlines = (EquipeInline, AnexosInline)
     raw_id_fields = ('casa_legislativa', 'responsavel')
 
@@ -55,6 +63,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
           'fields': tuple(perguntas),
           'classes': ['collapse']
           }))
+
 
 class PerguntaAdmin (BaseSchemaAdmin):
     search_fields = ('title', 'help_text', 'name',)

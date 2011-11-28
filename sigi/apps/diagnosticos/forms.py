@@ -3,6 +3,7 @@
 from copy import deepcopy
 
 from models import Diagnostico
+from django.forms.forms import BoundField
 from eav.forms import BaseDynamicEntityForm
 
 
@@ -26,21 +27,28 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         super(BaseDynamicEntityForm, self).__init__(data, *args, **kwargs)
         self._build_dynamics_fields(category)
 
+    def __iter__(self):
+        fields_by_label = [ (field.label, field) for field in self.fields.values()]
+        for label, field in sorted(fields_by_label):
+            yield BoundField(self, field, field.label)
+
     def _build_dynamics_fields(self, category):
         """Método da classe ``BaseDynamicEntityForm`` sobrescrita,
         para que as perguntas sejam agrupadas dentro das suas
         categorias.
+            * category = ID da Categoria
         """
         # Caso seja as duas primeiras categorias, utilize
         # os campos do modelo
-        if category in (0, 1, ):
+        if int(category) in (0, 1, ):
             self.fields = deepcopy(self.base_fields)
         else:
-            self.field = dict()
+            self.fields = dict()
 
         # Se determinada pergunta é da categoria pesquisada,
         # então, gere o campo no formulário.
         for schema in self.instance.get_schemata():
+
             if not schema.categoria_id == int(category):
                 continue
 
@@ -55,6 +63,12 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                 choices = getattr(self.instance, schema.name)
                 defaults.update({'queryset': schema.get_choices(),
                                  'initial': [x.pk for x in choices]})
+            elif datatype == schema.TYPE_ONE:
+                choice = getattr(self.instance, schema.name)
+                defaults.update({'queryset': schema.get_choices(),
+                                 'initial': choice.pk if choice else None,
+                                 # if schema is required remove --------- from ui
+                                 'empty_label' : None if schema.required else u"---------"})
 
             extra = self.FIELD_EXTRA.get(datatype, {})
             if hasattr(extra, '__call__'):
@@ -66,7 +80,6 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
             # fill initial data (if attribute was already defined)
             value = getattr(self.instance, schema.name)
-
-            # m2m is already done above
-            if value and not datatype == schema.TYPE_MANY:
+            if value and not datatype in (schema.TYPE_ONE, schema.TYPE_MANY):    # choices are already done above
                 self.initial[schema.name] = value
+
