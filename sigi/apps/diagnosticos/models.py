@@ -32,6 +32,7 @@ class Diagnostico(BaseEntity):
         null=True,
         blank=True
     )
+    status = models.BooleanField(u'status do diagnóstico', default=False)
 
     responsavel = models.ForeignKey('servidores.Servidor', verbose_name=u'responsável')
     class Meta:
@@ -61,7 +62,7 @@ class Pergunta(BaseSchema):
 
     Uma pergunta tem o nome e o tipo da resposta
     """
-    categoria = models.ForeignKey(Categoria)
+    categoria = models.ForeignKey(Categoria, related_name='perguntas')
 
     class Meta:
         ordering = ('title',)

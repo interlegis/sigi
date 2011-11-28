@@ -1,0 +1,32 @@
+{% extends "base_mobile.html" %}
+
+{% block cabecalho %}
+    <h1>Categorias</h1>
+    <a href="{% url lista_diagnosticos %}" data-icon="arrow-l" data-direction="reverse" data-theme="c" class="ui-btn-left">Voltar</a>
+{% endblock cabecalho %}
+
+{% block corpo %}
+    {% if categorias %}
+        <ul data-role="listview">
+            {% for categoria in categorias %}
+                <li>
+                    <a href="{% url detalhes_categoria diagnostico categoria.id %}">
+                        <h4>{{ categoria.nome }}</h4>
+                    </a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <h2>Nenhuma categoria existente.</h2>
+    {% endif %}
+{% endblock corpo %}
+
+{% block rodape %}
+    <div data-role="footer" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+            </ul>
+        </div>
+    </div> <!-- footer -->
+{% endblock rodape %}

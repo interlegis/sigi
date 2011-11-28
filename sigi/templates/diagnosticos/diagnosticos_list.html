@@ -2,16 +2,15 @@
 
 {% block cabecalho %}
     <h1>Diagnósticos</h1>
-    <a href="#" data-icon="delete" data-theme="e" class="ui-btn-right">Sair</a>            
+    <a href="#" data-icon="delete" data-theme="e" class="ui-btn-right">Sair</a>
 {% endblock cabecalho %}
 
 {% block corpo %}
     {% if diagnosticos %}
         <ul data-role="listview">
-        
             {% for diagnostico in diagnosticos %}
                 <li>
-                    <a href="#">
+                    <a href="{% url lista_categorias diagnostico.id %}">
                         <h4>{{ diagnostico.casa_legislativa.nome }}</h4>
                         <p><strong>Data:</strong> {{ diagnostico.data_questionario|date:"d/m/Y" }}</p>
                         <p><strong>Responsável:</strong> Nenhum Ainda</p>
@@ -24,14 +23,4 @@
     {% endif %}
 {% endblock corpo %}
 
-{% block rodape %}
-    <div data-role="footer" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="#" data-icon="grid" class="ui-state-persist">Listar</a></li>
-                <li><a href="#" data-icon="home" class="ui-btn-active">Home</a></li>
-                <li><a href="#" data-icon="plus">Anexar Arquivos</a></li>
-            </ul>
-        </div>
-    </div> <!-- footer -->        
-{% endblock rodape %}
+{% block rodape %}{% endblock rodape %}

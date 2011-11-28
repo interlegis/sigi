@@ -1,0 +1,33 @@
+{% extends "base_mobile.html" %}
+
+{% block cabecalho %}
+    <h1>{{ categoria.nome }}</h1>
+    <a href="{% url lista_categorias categoria.id %}" data-icon="arrow-l" 
+    data-direction="reverse" data-theme="c" class="ui-btn-left">Voltar</a>
+{% endblock cabecalho %}
+
+{% block corpo %}
+    {% if form %}
+        <form action="." method="post">
+             {% for field in form %}
+                 <div data-role="fieldcontain">
+                    <label for="{{ field.name }}">{{ field.label }}</label>
+                    {{ field }}
+                </div>
+             {% endfor %}
+        </form>
+    {% else %}
+        <h2>Nenhuma existem perguntas para essa categoria.</h2>
+    {% endif %}
+{% endblock corpo %}
+
+{% block rodape %}
+    <div data-role="footer" data-position="fixed">
+        <div data-role="navbar">
+            <ul>
+                <li><a href="{% url lista_categorias categoria.id %}" data-icon="grid" class="ui-state-persist ui-btn-active">Listar</a></li>
+                <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+            </ul>
+        </div>
+    </div> <!-- footer -->
+{% endblock rodape %}
