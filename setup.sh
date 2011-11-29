@@ -19,6 +19,7 @@ requirements="requirements.txt"
 easy_install=`find /usr/bin/ -name easy_install`
 pip=`find /usr/bin/ -name pip`
 git=`find /usr/bin/ -name git`
+                                                                                                                                                    
 
 if [ ! -f $easy_install ] || [ ! -f $pip ]; then
     echo "O aplicativo pip é obrigatório. Favor instalar para continuar a configuração do SIGI."
