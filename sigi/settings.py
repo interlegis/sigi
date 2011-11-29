@@ -29,9 +29,9 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
-# DEFAULT_FROM_EMAIL = 'admin-stc@interlegis.gov.br'
+DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
 EMAIL_SUBJECT_PREFIX = u'[SIGI]'
-EMAIL_HOST = 'smtp.interlegis.gov.br'
+EMAIL_HOST = 'smtp.interlegis.leg.br'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
