@@ -1,5 +1,10 @@
 {% extends "base_mobile.html" %}
 
+{% block media %}
+    {{ block.super }}
+    <script src="{{MEDIA_URL}}js/diagnosticos/diagnosticos_categoria_form.js"></script>
+{% endblock %}
+
 {% block cabecalho %}
     <h1>{{ categoria.nome }}</h1>
     <a href="{% url lista_categorias categoria.id %}" data-icon="arrow-l" 
@@ -8,7 +13,7 @@
 
 {% block corpo %}
     {% if form %}
-        <form action="." method="post">
+        <form id="diagnostico" action="." method="post">
              {% for field in form %}
                  <div data-role="fieldcontain">
                     <label for="{{ field.name }}">{{ field.label }}</label>

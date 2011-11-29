@@ -28,9 +28,10 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         self._build_dynamics_fields(category)
 
     def __iter__(self):
-        fields_by_label = [ (field.label, field) for field in self.fields.values()]
-        for label, field in sorted(fields_by_label):
-            yield BoundField(self, field, field.label)
+        # ordena os campos do formulario usando o atributo label
+        fields_by_label = [(field.label, name, field) for name, field in self.fields.items()]
+        for label, name, field in sorted(fields_by_label):
+            yield BoundField(self, field, name)
 
     def _build_dynamics_fields(self, category):
         """Método da classe ``BaseDynamicEntityForm`` sobrescrita,

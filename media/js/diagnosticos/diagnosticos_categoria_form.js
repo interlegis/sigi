@@ -12,12 +12,12 @@ $.ajaxSetup({
   dataType: "text",
   beforeSend: function() {
     nun_ajax++
-    $('#working').show()
+    $.mobile.showPageLoadingMsg();
   },
   success: function() {
     nun_ajax--
     if (nun_ajax == 0) {
-      $('#working').hide()
+      $.mobile.hidePageLoadingMsg();
     }
   },
   error: function(msg) {
@@ -35,10 +35,7 @@ $(document).ready(function() {
   // ao modificar o campo
   $("div.ui-field-contain input").change(function () {
     $.ajax({
-      data: {
-        schema: this.name,
-        value: this.value
-      }
+      data: $('#diagnostico').serializeArray()
     })
   })
 });

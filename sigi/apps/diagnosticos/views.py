@@ -43,9 +43,12 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
 
-    # Criando o formulário e passando o diagnóstico selecionado
-    # para ser editado pelo form.
-    form = DiagnosticoMobileForm(instance=diagnostico, category=id_categoria)
+    if request.POST:
+        form = DiagnosticoMobileForm(request.POST, instance=diagnostico, category=id_categoria)
+        if form.is_valid():
+          form.save()
+    else:
+        form = DiagnosticoMobileForm(instance=diagnostico, category=id_categoria)
 
     context = RequestContext(request, {'form': form, 'categoria': categoria})
     return render_to_response('diagnosticos/diagnosticos_categorias_form.html',
