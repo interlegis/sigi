@@ -50,6 +50,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
     else:
         form = DiagnosticoMobileForm(instance=diagnostico, category=id_categoria)
 
-    context = RequestContext(request, {'form': form, 'categoria': categoria})
+    context = RequestContext(request, {'form': form, 'categoria': categoria,
+        'diagnostico': diagnostico})
     return render_to_response('diagnosticos/diagnosticos_categorias_form.html',
         context)
