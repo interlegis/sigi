@@ -13,21 +13,23 @@ $.ajaxSetup({
   beforeSend: function() {
     nun_ajax++
     $.mobile.showPageLoadingMsg();
+    $.mobile.fixedToolbars.show()
   },
   success: function() {
     nun_ajax--
     if (nun_ajax == 0) {
       $.mobile.hidePageLoadingMsg();
+      $.mobile.fixedToolbars.show()
     }
   },
   error: function(msg) {
-    $('#working').hide()
-    //TODO melhorar o tratamento de erro
-    alert('Ops!\n' + msg);
+    $.mobile.hidePageLoadingMsg();
+    $.mobile.fixedToolbars.show();
+    $("#open-dialog").click()
   }
 });
 
-$(document).ready(function() {
+$( '#page').live('pageinit', function(event){
   // remove a resposta vazia da interface
   $("div.ui-radio span.ui-btn-text:contains('---------')").parentsUntil("ul").hide()
 
