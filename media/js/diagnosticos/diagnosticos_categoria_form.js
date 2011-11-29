@@ -23,6 +23,7 @@ $.ajaxSetup({
     }
   },
   error: function(msg) {
+    nun_ajax--
     $.mobile.hidePageLoadingMsg();
     $.mobile.fixedToolbars.show();
     $("#open-dialog").click()
