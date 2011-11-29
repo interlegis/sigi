@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
+
 from sigi.apps.utils import SearchField
+from sigi.apps.utils.email import enviar_email
 from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
 
@@ -23,7 +25,7 @@ class Diagnostico(BaseEntity):
         blank=True,
     )
     data_questionario = models.DateField(
-        'data do questionario',
+        u'data do questionário',
         null=True,
         blank=True,
     )
@@ -35,8 +37,47 @@ class Diagnostico(BaseEntity):
     status = models.BooleanField(u'status do diagnóstico', default=False)
 
     responsavel = models.ForeignKey('servidores.Servidor', verbose_name=u'responsável')
+
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
+
+    def email_diagnostico_publicado(self, from_email, host):
+        """Enviando email quando o diagnóstico for publicado. Os
+        argumentos acima são:
+            * from_email - Email de remetente
+            * host - O Host do sistema, para ser usado na
+            construção do endereço do diagnóstico
+        """
+        enviar_email(from_email, u"Diagnóstico publicado",
+            'diagnosticos/email_diagnostico_publicado.txt',
+            {
+                'responsavel': self.responsavel.nome_completo,
+                'casa_legislativa': self.casa_legislativa,
+                'data_diagnostico': self.data_questionario,
+                'host': host,
+                'url_diagnostico': self.get_absolute_url(),
+                'status': u"Publicado"
+            }
+        )
+
+    def email_diagnostico_alterado(self, from_email, host):
+        """Enviando email quando o status do diagnóstico
+        for alterado. Os argumentos acima são:
+            * from_email - Email do destinatário
+            * host - O Host do sistema, para ser usado na
+            construção do endereço do diagnóstico
+        """
+        enviar_email(from_email, u"Diagnóstico alterado",
+            'diagnosticos/email_diagnostico_alterado.txt',
+            {
+                'servidor': self.responsavel.nome_completo,
+                'casa_legislativa': self.casa_legislativa,
+                'data_diagnostico': self.data_questionario,
+                'host': host,
+                'url_diagnostico': self.get_absolute_url,
+                'status': "Alterado"
+            }
+        )
 
     @classmethod
     def get_schemata_for_model(self):
@@ -44,6 +85,9 @@ class Diagnostico(BaseEntity):
 
     def __unicode__(self):
         return str(self.casa_legislativa)
+
+    def get_absolute_url(self):
+        return "/diagnosticos/diagnostico/%i/" % (self.id, )
 
 
 class Categoria(models.Model):

@@ -29,6 +29,14 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
+DEFAULT_FROM_EMAIL = ''
+EMAIL_SUBJECT_PREFIX = u'[SIGI]'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_USE_TLS = True
+
 #DATABASE_ENGINE = 'postgresql_psycopg2'
 DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = 'devel.db'

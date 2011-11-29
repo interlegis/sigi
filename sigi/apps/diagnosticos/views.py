@@ -14,7 +14,7 @@ def lista(request):
 
     # TODO Implementar pesquisa de diagnosticos, em que esses registros
     # devem ser criado pelo servidor logado.
-    diagnosticos = Diagnostico.objects.all()
+    diagnosticos = Diagnostico.objects.filter(status=False)
 
     context = RequestContext(request, {'diagnosticos': diagnosticos})
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
