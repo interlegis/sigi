@@ -13,6 +13,11 @@
 
 {% block corpo %}
     {% if form %}
+      <div id="waiting">
+        <!-- Exibe as perguntas apos o carregamento completo do javascript -->
+        <h2>Aguarde carregando perguntas para essa categoria...</h2>
+      </div>
+      <div id="form" style="display:none;">
         <form id="diagnostico" action="." method="post">
              {% for field in form %}
                  <div data-role="fieldcontain">
@@ -21,8 +26,9 @@
                 </div>
              {% endfor %}
         </form>
+      </div>
     {% else %}
-        <h2>Nenhuma existem perguntas para essa categoria.</h2>
+      <h2>Nenhuma existem perguntas para essa categoria.</h2>
     {% endif %}
 {% endblock corpo %}
 

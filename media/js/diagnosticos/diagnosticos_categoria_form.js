@@ -41,4 +41,8 @@ $( '#page').live('pageinit', function(event){
       data: $('#diagnostico').serializeArray()
     })
   })
+
+  // se carregou o js sem erros mostra as perguntas
+  $("#waiting").hide();
+  $("#form").show();
 });
