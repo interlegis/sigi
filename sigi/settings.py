@@ -98,6 +98,9 @@ AUTH_LDAP_MIRROR_GROUPS = True
 AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 
+# Django Auth Configurations
+AUTH_PROFILE_MODULE = 'servidores.Servidor'
+
 # Keep ModelBackend around for per-user permissions and maybe a local superuser.
 AUTHENTICATION_BACKENDS = (
     'django_auth_ldap.backend.LDAPBackend',

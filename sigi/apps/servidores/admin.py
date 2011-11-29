@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.contenttypes import generic
 from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias
 from sigi.apps.contatos.models import Endereco, Telefone

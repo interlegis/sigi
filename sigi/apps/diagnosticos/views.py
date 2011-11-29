@@ -14,7 +14,8 @@ def lista(request):
 
     # TODO Implementar pesquisa de diagnosticos, em que esses registros
     # devem ser criado pelo servidor logado.
-    diagnosticos = Diagnostico.objects.filter(status=False)
+    diagnosticos = Diagnostico.objects.filter(status=False).filter(
+        responsavel=request.user.get_profile())
 
     context = RequestContext(request, {'diagnosticos': diagnosticos})
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
@@ -44,11 +45,13 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         return render_to_response('mobile/404.html', {})
 
     if request.POST:
-        form = DiagnosticoMobileForm(request.POST, instance=diagnostico, category=id_categoria)
+        form = DiagnosticoMobileForm(request.POST,
+            instance=diagnostico, category=id_categoria)
         if form.is_valid():
-          form.save()
+            form.save()
     else:
-        form = DiagnosticoMobileForm(instance=diagnostico, category=id_categoria)
+        form = DiagnosticoMobileForm(instance=diagnostico,
+            category=id_categoria)
 
     context = RequestContext(request, {'form': form, 'categoria': categoria,
         'diagnostico': diagnostico})

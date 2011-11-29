@@ -56,7 +56,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     date_hierarchy = 'data_questionario'
     actions = [alterar_status_publicacao, alterar_status_draft]
     inlines = (EquipeInline, AnexosInline)
-    list_display = ('casa_legislativa', 'data_questionario', 'status')
+    list_display = ('casa_legislativa', 'data_questionario', 'responsavel', 'status')
     raw_id_fields = ('casa_legislativa', 'responsavel')
 
     eav_fieldsets = [
