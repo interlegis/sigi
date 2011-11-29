@@ -2,11 +2,14 @@
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from django.core.urlresolvers import reverse
 
+from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.diagnosticos.forms import DiagnosticoMobileForm
 
 
+@login_required(login_url='/mobile/diagnosticos/login')
 def lista(request):
     """Consulta os diagnosticos do servidor logado,
     que contenham o status de não publicado.
@@ -21,6 +24,7 @@ def lista(request):
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
 
 
+@login_required(login_url='/mobile/diagnosticos/login')
 def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
     a partir da sua identificação
@@ -33,6 +37,7 @@ def categorias(request, id_diagnostico):
         context)
 
 
+@login_required(login_url='/mobile/diagnosticos/login')
 def categoria_detalhes(request, id_diagnostico, id_categoria):
     """Captura as perguntas da categoria
     selecionada.
