@@ -14,7 +14,7 @@ $('#page').live('pageinit', function(event){
     beforeSend: function() {
       nun_ajax++
       $.mobile.showPageLoadingMsg();
-      $.mobile.fixedToolbars.show()
+      $.mobile.fixedToolbars.hide()
     },
     success: function() {
       nun_ajax--
