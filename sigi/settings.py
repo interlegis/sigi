@@ -33,8 +33,8 @@ DEFAULT_FROM_EMAIL = 'admin-stc@interlegis.gov.br'
 EMAIL_SUBJECT_PREFIX = u'[SIGI]'
 EMAIL_HOST = 'smtp.interlegis.leg.br'
 EMAIL_PORT = 25
-#EMAIL_HOST_USER = ''
-#EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 #EMAIL_USE_TLS = True
 
 #DATABASE_ENGINE = 'postgresql_psycopg2'
