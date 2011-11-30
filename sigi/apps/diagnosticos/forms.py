@@ -3,11 +3,15 @@
 from copy import deepcopy
 from django import forms
 from django.forms.forms import BoundField
+from django.forms import (BooleanField, CharField, CheckboxSelectMultiple,
+                          DateField, FloatField, ModelChoiceField,
+                          ModelMultipleChoiceField, RadioSelect)
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
 from eav.forms import BaseDynamicEntityForm
+from eav.fields import RangeField
 
 
 class DiagnosticoForm(BaseDynamicEntityForm):
@@ -23,6 +27,22 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
     do modelo Diagnostico, como também organizar sua
     estrutura via categorias.
     """
+
+    FIELD_CLASSES = {
+        'text': CharField,
+        'float': FloatField,
+        'date': DateField,
+        'bool': BooleanField,
+        'one': ModelChoiceField,
+        'many': ModelMultipleChoiceField,
+        'range': RangeField,
+    }
+
+    FIELD_EXTRA = {
+        'one': {'widget': RadioSelect},
+        'many': {'widget': CheckboxSelectMultiple},
+    }
+
     class Meta:
         model = Diagnostico
 
