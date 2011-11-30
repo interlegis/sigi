@@ -18,7 +18,17 @@ urlpatterns = patterns('',
     # Lista de Categorias
     url(r'^(?P<id_diagnostico>\d+)/categorias/$', 'sigi.apps.diagnosticos.views.categorias', name='lista_categorias'),
 
-    # Detalhes da Categoria
+    # Detalhes da Categoria da Casa Legislativa
+    url(r'^(?P<id_diagnostico>\d+)/categorias/1/$',
+        'sigi.apps.diagnosticos.views.categoria_casa_legislativa',
+        name='detalhes_categoria_casa_legislativa'),
+
+    # Detalhes da Categoria de Contatos
+    url(r'^(?P<id_diagnostico>\d+)/categorias/2/$',
+        'sigi.apps.diagnosticos.views.categoria_contatos',
+        name='detalhes_categoria_contatos'),
+
+    # Detalhes de Categorias Dinamicas
     url(r'^(?P<id_diagnostico>\d+)/categorias/(?P<id_categoria>\d+)/$',
         'sigi.apps.diagnosticos.views.categoria_detalhes',
         name='detalhes_categoria'),

@@ -8,6 +8,16 @@
 {% block corpo %}
     {% if categorias %}
         <ul data-role="listview">
+            <li>
+                <a href="{% url detalhes_categoria_casa_legislativa diagnostico %}">
+                    <h4>01. Identificação da Casa Legislativa</h4>
+                </a>
+            </li>
+            <li>
+                <a href="{% url detalhes_categoria_contatos diagnostico %}">
+                    <h4>02. Identificação de Competências</h4>
+                </a>
+            </li>
             {% for categoria in categorias %}
                 <li>
                     <a href="{% url detalhes_categoria diagnostico categoria.id %}">

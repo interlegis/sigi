@@ -79,6 +79,17 @@ class Funcionario(models.Model):
     """ Modelo para registrar contatos vinculados às
     Casas Legislativas
     """
+    SETOR_CHOICES = [
+        ("presidencia","Presidencia"),
+        ("infraestrutura_fisica","Infraestrutura Física"),
+        ("estrutura_de_ti","Estrutura de TI"),
+        ("organizacao_do_processo_legislativo","Organização do Processo Legislativo"),
+        ("estrutura_de_comunicacao_social","Estrutura de Comunicação Social"),
+        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
+        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
+        ("estrutura_de_secretaria","Estrutura de Secretaria"),
+        ("outros","Outros"),
+        ]
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     nome = models.CharField('nome completo', max_length=60)
     nome.alphabetic_filter = True
@@ -88,6 +99,7 @@ class Funcionario(models.Model):
     endereco = generic.GenericRelation('contatos.Endereco')
     cargo = models.CharField(max_length=100, null=True, blank=True)
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
+    setor = models.CharField(max_length=100, choices = SETOR_CHOICES, default="outros")
     tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
 
     class Meta:
@@ -112,4 +124,5 @@ class Presidente(Funcionario):
 
     def save(self, *args, **kwargs):
         self.cargo = 'Presidente'
+        self.setor = 'presidencia'
         return super(Presidente, self).save(*args, **kwargs)

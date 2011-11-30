@@ -9,6 +9,7 @@ CREATE TABLE "casas_funcionario" (
     "email" varchar(75) NOT NULL,
     "cargo" varchar(100),
     "funcao" varchar(100),
+    "setor" varchar(100),
     "tempo_de_servico" varchar(50)
 );
 CREATE INDEX "casas_funcionario_casa_legislativa_id" ON "casas_funcionario" ("casa_legislativa_id");
