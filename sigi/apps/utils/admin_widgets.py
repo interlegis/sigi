@@ -9,7 +9,8 @@ class AdminImageWidget(AdminFileWidget):
             image_url = value.url
             file_name=str(value)
             output.append(
-                u' <a href="%s" target="_blank"><img src="%s" width="200" alt="%s"/></a> <br/> %s' % \
+                u''' <a href="%s" target="_blank"><img src="%s" width="100"
+                height="100" alt="%s"/></a> <br/> %s''' % \
                 (image_url, image_url, file_name, _('Change:')))
         output.append(super(AdminFileWidget, self).render(name, value, attrs))
         return mark_safe(u''.join(output))
