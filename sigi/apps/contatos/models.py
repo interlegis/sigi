@@ -272,6 +272,6 @@ class Endereco(models.Model):
         verbose_name_plural = u'endereços'
 
     def __unicode__(self):
-        return self.tipo + ' ' + seld.logradouro + ', ' + self.numero \
+        return self.tipo + ' ' + self.logradouro + ', ' + self.numero \
                + ' ' + self.complemento + ' - ' + self.bairro
 
