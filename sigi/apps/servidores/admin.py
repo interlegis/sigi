@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.contenttypes import generic
 
 from sigi.apps.utils.admin_widgets import AdminImageWidget
 from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias
 from sigi.apps.contatos.models import Endereco, Telefone
+from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
 
 class FuncaoInline(admin.TabularInline):
     model = Funcao
     extra = 1
 
 class FuncaoAdmin(admin.ModelAdmin):
+    form = FuncaoForm
     list_display = ('servidor', 'funcao', 'cargo','inicio_funcao', 'fim_funcao')
     list_filter  = ('inicio_funcao', 'fim_funcao')
     search_fields = ('funcao', 'cargo', 'descricao',
@@ -24,6 +25,7 @@ class FeriasInline(admin.TabularInline):
     extra = 1
 
 class FeriasAdmin(admin.ModelAdmin):
+    form = FeriasForm
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
     list_filter  = ('servidor', 'inicio_ferias', 'fim_ferias')
     search_fields = ('obs',
@@ -31,11 +33,13 @@ class FeriasAdmin(admin.ModelAdmin):
                      'servidor__user__email', 'servidor__user__first_name',
                      'servidor__user__last_name', 'servidor__user__username')
 
+
 class LicencaInline(admin.TabularInline):
     model = Licenca
     extra = 1
 
 class LicencaAdmin(admin.ModelAdmin):
+    form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
     list_filter  = ('servidor', 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
