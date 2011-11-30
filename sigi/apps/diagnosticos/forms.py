@@ -7,6 +7,7 @@ from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.diagnosticos.models import Diagnostico
 from eav.forms import BaseDynamicEntityForm
 
+
 class DiagnosticoForm(BaseDynamicEntityForm):
     """Classe responsável por contruir o formulário,
     vinculando ao modelo Diagnostico
@@ -69,7 +70,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                 defaults.update({'queryset': schema.get_choices(),
                                  'initial': choice.pk if choice else None,
                                  # if schema is required remove --------- from ui
-                                 'empty_label' : None if schema.required else u"---------"})
+                                 'empty_label': None if schema.required else u"---------"})
 
             extra = self.FIELD_EXTRA.get(datatype, {})
             if hasattr(extra, '__call__'):
@@ -84,14 +85,14 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
             if value and not datatype in (schema.TYPE_ONE, schema.TYPE_MANY):    # choices are already done above
                 self.initial[schema.name] = value
 
+
 class CasaLegislativaMobileForm(forms.ModelForm):
-    pass
     class Meta:
         model = CasaLegislativa
         fields = ('cnpj', 'logradouro', 'bairro', 'cep', 'email', 'pagina_web')
 
+
 class FuncionariosMobileForm(forms.ModelForm):
-    pass
     class Meta:
         model = Funcionario
         fields = ('nome', 'email', 'cargo', 'funcao', 'tempo_de_servico')

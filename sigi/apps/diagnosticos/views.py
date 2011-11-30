@@ -2,7 +2,7 @@
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.core.urlresolvers import reverse
+from django.views.decorators.cache import cache_page
 
 from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
@@ -38,6 +38,7 @@ def categorias(request, id_diagnostico):
         context)
 
 
+@cache_page(5)
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_detalhes(request, id_diagnostico, id_categoria):
     """Captura as perguntas da categoria
@@ -51,7 +52,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
 
-    if request.method =="POST":
+    if request.method == "POST":
         form = DiagnosticoMobileForm(request.POST,
             instance=diagnostico, category=id_categoria)
         if form.is_valid():
@@ -65,6 +66,9 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
     return render_to_response('diagnosticos/diagnosticos_categorias_form.html',
         context)
 
+
+@cache_page(5)
+@login_required(login_url='/mobile/diagnosticos/login')
 def categoria_casa_legislativa(request, id_diagnostico):
     try:
         diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
@@ -73,10 +77,10 @@ def categoria_casa_legislativa(request, id_diagnostico):
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
 
-    if request.method =="POST":
+    if request.method == "POST":
         form = CasaLegislativaMobileForm(request.POST, instance=casa_legislativa)
         if form.is_valid():
-          form.save()
+            form.save()
     else:
         form = CasaLegislativaMobileForm(instance=casa_legislativa)
 
@@ -85,6 +89,9 @@ def categoria_casa_legislativa(request, id_diagnostico):
     return render_to_response('diagnosticos/diagnosticos_categoria_casa_legislativa_form.html',
         context)
 
+
+@cache_page(5)
+@login_required(login_url='/mobile/diagnosticos/login')
 def categoria_contatos(request, id_diagnostico):
     try:
         diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
