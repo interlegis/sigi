@@ -2,6 +2,8 @@
 from django.contrib import admin
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.contenttypes import generic
+
+from sigi.apps.utils.admin_widgets import AdminImageWidget
 from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias
 from sigi.apps.contatos.models import Endereco, Telefone
 
@@ -76,6 +78,13 @@ class ServidorAdmin(admin.ModelAdmin):
       #  'fields': ('enable_comments', 'registration_required', 'template_name')
       #}),
     )
+
+    def formfield_for_dbfield(self, db_field, **kwargs):
+        if db_field.name == 'foto':
+            request = kwargs.pop("request", None)
+            kwargs['widget'] = AdminImageWidget
+            return db_field.formfield(**kwargs)
+        return super(ServidorAdmin,self).formfield_for_dbfield(db_field, **kwargs)
 
 admin.site.register(Servidor, ServidorAdmin)
 admin.site.register(Funcao, FuncaoAdmin)
