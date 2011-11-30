@@ -7,7 +7,8 @@ from django.views.decorators.cache import cache_page
 from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.casas.models import Funcionario
-from sigi.apps.diagnosticos.forms import DiagnosticoMobileForm, CasaLegislativaMobileForm, FuncionariosMobileForm
+from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
+        CasaLegislativaMobileForm, FuncionariosMobileForm)
 
 
 @login_required(login_url='/mobile/diagnosticos/login')
@@ -78,15 +79,17 @@ def categoria_casa_legislativa(request, id_diagnostico):
         return render_to_response('mobile/404.html', {})
 
     if request.method == "POST":
-        form = CasaLegislativaMobileForm(request.POST, instance=casa_legislativa)
+        form = CasaLegislativaMobileForm(request.POST,
+            instance=casa_legislativa)
         if form.is_valid():
             form.save()
     else:
         form = CasaLegislativaMobileForm(instance=casa_legislativa)
 
-    context = RequestContext(request, {'form': form, 'diagnostico': diagnostico,
-        'casa_legislativa': casa_legislativa})
-    return render_to_response('diagnosticos/diagnosticos_categoria_casa_legislativa_form.html',
+    context = RequestContext(request, {'form': form,
+        'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
+    return render_to_response(
+        'diagnosticos/diagnosticos_categoria_casa_legislativa_form.html',
         context)
 
 
@@ -95,22 +98,25 @@ def categoria_casa_legislativa(request, id_diagnostico):
 def categoria_contatos(request, id_diagnostico):
     try:
         diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
-        casa_legislativa = diagnostico.casa_legislativa
+        casa = diagnostico.casa_legislativa
     except Diagnostico.DoesNotExist:
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
 
-    funcionarios = [casa_legislativa.funcionario_set.get_or_create(setor=n) for n, l in Funcionario.SETOR_CHOICES]
+    funcionarios = [casa.funcionario_set.get_or_create(setor=n)
+        for n, l in Funcionario.SETOR_CHOICES]
 
     if request.method == "POST":
-        forms = [FuncionariosMobileForm(request.POST, prefix=f.setor, instance=f) for f, c in funcionarios]
+        forms = [FuncionariosMobileForm(
+            request.POST, prefix=f.setor, instance=f) for f, c in funcionarios]
         if all([form.is_valid() for form in forms]):
             for form in forms:
                 form.save()
     else:
-        forms = [FuncionariosMobileForm(prefix=f.setor, instance=f) for f, c in funcionarios]
+        forms = [FuncionariosMobileForm(prefix=f.setor, instance=f)
+            for f, c in funcionarios]
 
-    context = RequestContext(request, {'forms': forms, 'diagnostico': diagnostico,
-        'casa_legislativa': casa_legislativa})
+    context = RequestContext(request, {'forms': forms,
+        'diagnostico': diagnostico, 'casa_legislativa': casa})
     return render_to_response('diagnosticos/diagnosticos_categoria_contatos_form.html',
         context)
