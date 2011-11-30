@@ -120,6 +120,7 @@ class Telefone(models.Model):
         'código de área',
         max_length=4,
         help_text='Exemplo: <em>31</em>.',
+        null=True,
         blank=True
     )
     numero = models.CharField(
@@ -130,8 +131,9 @@ class Telefone(models.Model):
     tipo = models.CharField(
         max_length=1,
         choices=TELEFONE_CHOICES,
+        default= 'I' 
     )
-    nota = models.CharField(max_length=70, blank=True)
+    nota = models.CharField(max_length=70, null=True, blank=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)

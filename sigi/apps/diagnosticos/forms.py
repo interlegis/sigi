@@ -3,7 +3,9 @@
 from copy import deepcopy
 from django import forms
 from django.forms.forms import BoundField
+from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
+from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
 from eav.forms import BaseDynamicEntityForm
 
@@ -91,8 +93,26 @@ class CasaLegislativaMobileForm(forms.ModelForm):
         model = CasaLegislativa
         fields = ('cnpj', 'logradouro', 'bairro', 'cep', 'email', 'pagina_web')
 
+class TelefoneMobileForm(forms.ModelForm):
+    pass
+    class Meta:
+        model = Telefone
+        fields = ('numero', 'tipo')
 
 class FuncionariosMobileForm(forms.ModelForm):
+    TelefoneFormSet = generic_inlineformset_factory(Telefone, TelefoneMobileForm, extra=1, can_delete=False)
+
+    def __init__(self, data=None, prefix=None, instance=None, *args, **kwargs):
+        super(FuncionariosMobileForm, self).__init__(data, prefix=prefix, instance=instance, *args, **kwargs)
+        self.telefones = self.TelefoneFormSet(data, prefix=prefix, instance=instance)
+
+    def is_valid(self):
+        return self.telefones.is_valid() and super(FuncionariosMobileForm, self).is_valid()
+
+    def save(self, commit=True):
+        self.telefones.save(commit)
+        return super(FuncionariosMobileForm, self).save(commit)
+
     class Meta:
         model = Funcionario
         fields = ('nome', 'email', 'cargo', 'funcao', 'tempo_de_servico')

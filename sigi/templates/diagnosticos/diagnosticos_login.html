@@ -6,6 +6,12 @@
     <title>SIGI - Login de Acesso</title>
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
     <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <script language=javascript>
+      $(document).bind("mobileinit", function () {
+        $.mobile.ajaxEnabled = false;
+        $.mobile.loadingMessage = 'salvando';
+      });
+    </script>
     <script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
 </head>
 <body>
@@ -28,6 +34,7 @@
 
     <div data-role="content">
         <form action="{% url django.contrib.auth.views.login %}" method="POST">
+            {% csrf_token %}
             <div data-role="fieldcontain" class="ui-hide-label ui-body">
                 <label for="username">Usuário:</label>
                 <input type="text" name="username" id="id_username" placeholder="Usuário">

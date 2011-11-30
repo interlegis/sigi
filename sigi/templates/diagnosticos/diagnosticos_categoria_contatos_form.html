@@ -27,6 +27,16 @@
                     {{ field }}
                 </div>
              {% endfor %}
+             <h4>Telefones</h4>
+             {% for form in form.telefones.forms %}
+               <div class="phone" data-role="fieldcontain">
+                  {{ form.tipo }} {{ form.numero}}
+                  {% for field in form.hidden_fields %}
+                    {{ field }}
+                  {% endfor %}
+               </div>
+             {% endfor %}
+             {{ form.telefones.management_form }}
              <hr/>
           {% endfor %}
         </form>

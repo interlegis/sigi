@@ -11,6 +11,7 @@ from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
 
+@cache_page(5)
 @login_required(login_url='/mobile/diagnosticos/login')
 def lista(request):
     """Consulta os diagnosticos do servidor logado,
@@ -26,6 +27,7 @@ def lista(request):
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
 
 
+@cache_page(5)
 @login_required(login_url='/mobile/diagnosticos/login')
 def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
@@ -109,8 +111,10 @@ def categoria_contatos(request, id_diagnostico):
     if request.method == "POST":
         forms = [FuncionariosMobileForm(
             request.POST, prefix=f.setor, instance=f) for f, c in funcionarios]
-        if all([form.is_valid() for form in forms]):
-            for form in forms:
+
+        # valida e salva um formulario por vez
+        for form in forms:
+            if form.is_valid():
                 form.save()
     else:
         forms = [FuncionariosMobileForm(prefix=f.setor, instance=f)

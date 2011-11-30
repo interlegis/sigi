@@ -93,8 +93,8 @@ class Funcionario(models.Model):
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     nome = models.CharField('nome completo', max_length=60, blank=True)
     nome.alphabetic_filter = True
-    nota = models.CharField(max_length=70, blank=True)
-    email = models.EmailField('e-mail', blank=True)
+    nota = models.CharField(max_length=70, null=True, blank=True)
+    email = models.EmailField('e-mail', null=True, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
     endereco = generic.GenericRelation('contatos.Endereco')
     cargo = models.CharField(max_length=100, null=True, blank=True)
