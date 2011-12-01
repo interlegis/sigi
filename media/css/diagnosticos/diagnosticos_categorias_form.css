@@ -2,3 +2,8 @@
   width: 80%;
   display: inline-block;
 }
+
+span.errors {
+    display: block;
+    color: red;
+}

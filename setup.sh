@@ -19,7 +19,6 @@ requirements="requirements.txt"
 easy_install=`find /usr/bin/ -name easy_install`
 pip=`find /usr/bin/ -name pip`
 git=`find /usr/bin/ -name git`
-                                                                                                                                                    
 
 if [ ! -f $easy_install ] || [ ! -f $pip ]; then
     echo "O aplicativo pip é obrigatório. Favor instalar para continuar a configuração do SIGI."
@@ -54,6 +53,20 @@ else
             sleep 2
             cd django-googlecharts
             python setup.py install
+
+            # Instalando o django-geraldo
+            echo
+            echo "Fazendo o checkout do projeto django-geraldo..."
+            echo
+            sleep 2
+            git clone https://github.com/marinho/geraldo.git
+
+            echo
+            echo "Instalando o django-geraldo..."
+            echo
+            cd geraldo
+            python setup.py install
+            cp -Rvf reporting geraldo /usr/local/lib/python2.7/site-packages
         fi
     else
         echo

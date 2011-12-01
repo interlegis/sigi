@@ -76,15 +76,10 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         if form.is_valid():
             form.save()
         else:
-            erros = []
-            for field in form:
-                if field.errors:
-                    campo = field.name
-                    erros.append(field.errors)
+            # Montando a estrutura das mensagens de erro no formato JSON
             resposta = {
                 'mensagem': 'erro',
-                'campo': campo,
-                'erros': erros
+                'erros': form.errors
             }
             json = simplejson.dumps(resposta)
             print json

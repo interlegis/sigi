@@ -1,7 +1,11 @@
 # -*- coding: utf8 -*-
 
+from django.template import RequestContext
+from django.shortcuts import render_to_response
+
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.servidores.models import Servidor
+
 
 def validate_diagnostico(func):
     def decorator(request, id_diagnostico, *args, **kwargs):

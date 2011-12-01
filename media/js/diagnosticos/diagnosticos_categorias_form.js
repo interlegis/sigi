@@ -4,11 +4,18 @@ $('#page').live('pageinit', function(event){
     url: $(location).attr('href'),
     cache: false,
     type: 'POST',
-    success: function() {
+    success: function(data) {
+        //Retirando o span existente
+        $("span.errors").html("");
+        if (data.mensagem == "erro") {
+          for (var campo in data.erros) {
+            $("#"+ campo + " span").html(data.erros[campo].join('\n'))
+          }
+        }
     },
     error: function(msg) {
       $("#open-dialog").click()
-    }
+    },
   });
 
   // remove a resposta vazia da interface
