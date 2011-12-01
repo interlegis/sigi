@@ -46,6 +46,18 @@ class Diagnostico(BaseEntity):
         membros.append(self.responsavel)
         return membros
 
+    def categorias_respondidas(self):
+      """ Retorna uma listas das categorias dinamicas que tem
+      ao menos uma resposta
+      """
+      # obtem todas as respostas dinamicas desse diagnostico
+      respostas = Resposta.objects.filter(entity_id=self.id).all()
+
+      # unifica as categorias das perguntas dessas respostas
+      categoria_com_respostas = set([r.schema.categoria for r in respostas])
+
+      return list(categoria_com_respostas)
+
     def email_diagnostico_publicado(self, from_email, host):
         """Enviando email quando o diagnóstico for publicado. Os
         argumentos acima são:
