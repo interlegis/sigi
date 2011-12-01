@@ -1,21 +1,37 @@
+// cntabiliza a quantidade de requests
+// ajax para nao desabilitar o loader
+// antes da hora
+var nun_ajax = 0;
+
 $('#page').live('pageinit', function(event){
   // variaveis globais para as requisicoes ajax
   $.ajaxSetup({
     url: $(location).attr('href'),
     cache: false,
     type: 'POST',
+    beforeSend: function() {
+      nun_ajax++;
+      $('#working').show();
+    },
     success: function(data) {
-        //Retirando o span existente
-        $("span.errors").html("");
-        if (data.mensagem == "erro") {
-          for (var campo in data.erros) {
-            $("#"+ campo + " span").html(data.erros[campo].join('\n'))
-          }
+      nun_ajax--;
+      if (nun_ajax == 0)
+        $('#working').hide();
+
+      //Retirando o span existente
+      $("span.errors").html("");
+      if (data.mensagem == "erro") {
+        for (var campo in data.erros) {
+          $("#"+ campo + " span").html(data.erros[campo].join('\n'))
         }
+      }
     },
     error: function(msg) {
-      $("#open-dialog").click()
-    },
+      nun_ajax--;
+      if (nun_ajax == 0)
+        $('#working').hide();
+      $("#open-dialog").click();
+    }
   });
 
   // remove a resposta vazia da interface
@@ -31,5 +47,6 @@ $('#page').live('pageinit', function(event){
 
   // se carregou o js sem erros mostra as perguntas
   $("#waiting").hide();
+  $("#working").hide();
   $("#form").show();
 });

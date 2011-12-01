@@ -3,8 +3,6 @@
 {% block media %}
     {{ block.super }}
     <link rel="stylesheet" href="{{MEDIA_URL}}css/diagnosticos/diagnosticos_categorias_form.css" />
-    <script src="{{MEDIA_URL}}js/diagnosticos/diagnosticos_categorias_form.js"></script>
-
 {% endblock %}
 
 {% block cabecalho %}
@@ -36,14 +34,10 @@
 {% endblock corpo %}
 
 {% block rodape %}
-    <div data-role="footer" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="{% url lista_categorias categoria.id %}" data-icon="grid" class="ui-state-persist ui-btn-active">Listar</a></li>
-                <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
-            </ul>
-        </div>
-    </div> <!-- footer -->
+    <ul>
+        <li><a href="{% url lista_categorias categoria.id %}" data-icon="grid" class="ui-state-persist ui-btn-active">Listar</a></li>
+        <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+    </ul>
 {% endblock rodape %}
 
 

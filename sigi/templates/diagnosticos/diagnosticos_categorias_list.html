@@ -32,11 +32,7 @@
 {% endblock corpo %}
 
 {% block rodape %}
-    <div data-role="footer" data-position="fixed">
-        <div data-role="navbar">
-            <ul>
-                <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
-            </ul>
-        </div>
-    </div> <!-- footer -->
+    <ul>
+        <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+    </ul>
 {% endblock rodape %}
