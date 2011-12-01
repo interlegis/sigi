@@ -1,37 +1,19 @@
 # -*- coding: utf8 -*-
 
+from django.http import HttpResponse
+from django.utils import simplejson
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import cache_page
 
 from sigi.apps.utils.decorators import login_required
+from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
-
-def validate_diagnostico(func):
-    def decorator(request, id_diagnostico, *args, **kwargs):
-        """ Retorna 404 caso o diagnostico esteja publicado
-        ou o usuario nao seja um membro da equipe
-        """
-        msg = None
-        try:
-            diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-            if (request.user.get_profile() in diagnostico.get_membros()):
-                # continua o processamento normal da view
-                return func(request, id_diagnostico, *args, **kwargs)
-        except Servidor.DoesNotExist:
-            msg = "Para acessar os diagnóstico você precisa ter um servidor cadastrado na sua conta."
-        except Diagnostico.DoesNotExist:
-            pass
-
-        # renderiza a pagina de 404
-        context = RequestContext(request, {'msg': msg})
-        return render_to_response('mobile/404.html', context)
-    return decorator
 
 @cache_page(5)
 @login_required(login_url='/mobile/diagnosticos/login')
@@ -71,7 +53,13 @@ def categorias(request, id_diagnostico):
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_detalhes(request, id_diagnostico, id_categoria):
     """Captura as perguntas da categoria
-    selecionada.
+    selecionada. Durante o preenchimento das perguntas, o camada
+    template do projeto, vai requisitar a inserção dos campos via
+    AJAX a cada mudança de pergunta
+
+    Caso alguma inserção não passe na validação do formulário em
+    questão, será enviado as mensagens de erro no formato JSON,
+    para que a camada de template do projeto trate-as de forma adequada.
     """
 
     try:
@@ -87,6 +75,20 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
             instance=diagnostico, category=id_categoria)
         if form.is_valid():
             form.save()
+        else:
+            erros = []
+            for field in form:
+                if field.errors:
+                    campo = field.name
+                    erros.append(field.errors)
+            resposta = {
+                'mensagem': 'erro',
+                'campo': campo,
+                'erros': erros
+            }
+            json = simplejson.dumps(resposta)
+            print json
+            return HttpResponse(json, mimetype="application/json")
     else:
         form = DiagnosticoMobileForm(instance=diagnostico,
             category=id_categoria)

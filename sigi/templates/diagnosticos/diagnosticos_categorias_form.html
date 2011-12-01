@@ -22,7 +22,7 @@
       <div id="form" style="display:none;">
         <form id="diagnostico" action="." method="post">
              {% for field in form %}
-                 <div data-role="fieldcontain">
+                 <div data-role="fieldcontain" id="{{ field.name }}">
                     <label for="{{ field.name }}">{{ field.label }}</label>
                     {{ field }}
                 </div>
