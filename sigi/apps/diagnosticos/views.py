@@ -7,6 +7,7 @@ from django.views.decorators.cache import cache_page
 from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.casas.models import Funcionario
+from sigi.apps.servidores.models import Servidor
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
@@ -16,17 +17,20 @@ def validate_diagnostico(func):
         """ Retorna 404 caso o diagnostico esteja publicado
         ou o usuario nao seja um membro da equipe
         """
+        msg = None
         try:
             diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
             if (request.user.get_profile() in diagnostico.get_membros()):
                 # continua o processamento normal da view
                 return func(request, id_diagnostico, *args, **kwargs)
+        except Servidor.DoesNotExist:
+            msg = "Para acessar os diagnóstico você precisa ter um servidor cadastrado na sua conta."
         except Diagnostico.DoesNotExist:
             pass
 
         # renderiza a pagina de 404
-        context = RequestContext(request)
-        return render_to_response('mobile/404.html', {})
+        context = RequestContext(request, {'msg': msg})
+        return render_to_response('mobile/404.html', context)
     return decorator
 
 @cache_page(5)
@@ -36,14 +40,15 @@ def lista(request):
     que contenham o status de não publicado.
     """
 
-    # TODO Implementar pesquisa de diagnosticos, em que esses registros
-    # devem ser criado pelo servidor logado.
-    diagnosticos = Diagnostico.objects.filter(status=False).filter(
-        responsavel=request.user.get_profile())
-
-    context = RequestContext(request, {'diagnosticos': diagnosticos})
-    return render_to_response('diagnosticos/diagnosticos_list.html', context)
-
+    try:
+        servidor = request.user.get_profile()
+        diagnosticos = servidor.get_diagnosticos(publicado=False)
+        context = RequestContext(request, {'diagnosticos': diagnosticos})
+        return render_to_response('diagnosticos/diagnosticos_list.html', context)
+    except Servidor.DoesNotExist:
+        msg = "Para acessar os diagnóstico você precisa ter um servidor cadastrado na sua conta."
+        context = RequestContext(request, {'msg': msg})
+        return render_to_response('mobile/404.html', context)
 
 @cache_page(5)
 @validate_diagnostico

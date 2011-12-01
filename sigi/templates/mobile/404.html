@@ -4,10 +4,16 @@
     <h1>Ocorreu um erro</h1>
 {% endblock cabecalho %}
 {% block corpo %}
-    <p>A página que está procurando não existe. </p>
-    <p>Verifique se o diagnóstico, categoria ou pergunta está cadastrado no sistema.</p>
-    <a href="{% url lista_diagnosticos %}" data-icon="arrow-l" 
-    data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">Voltar</a>
+    {% if msg %}
+        <p>{{msg}}</p>
+        <a href="{{ request.META.HTTP_REFERER }}" data-icon="arrow-l" 
+        data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">Voltar</a>
+    {% else %}
+        <p>A página que está procurando não existe. </p>
+        <p>Verifique se o diagnóstico, categoria ou pergunta está cadastrado no sistema.</p>
+        <a href="{% url lista_diagnosticos %}" data-icon="arrow-l" 
+        data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">Voltar</a>
+    {% endif %}
 {% endblock corpo %}
 
 {% block rodape %}
