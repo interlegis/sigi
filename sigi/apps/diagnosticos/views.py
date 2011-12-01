@@ -33,6 +33,12 @@ def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
     a partir da sua identificação
     """
+    try:
+        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
+    except Diagnostico.DoesNotExist:
+        context = RequestContext(request)
+        return render_to_response('mobile/404.html', {})
+
     categorias = Categoria.objects.all()
 
     context = RequestContext(request, {'categorias': categorias,
@@ -49,7 +55,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
     """
 
     try:
-        diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
         categoria = Categoria.objects.get(pk=id_categoria)
     except Diagnostico.DoesNotExist, Categoria.DoesNotExist:
         context = RequestContext(request)
@@ -74,7 +80,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_casa_legislativa(request, id_diagnostico):
     try:
-        diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
         casa_legislativa = diagnostico.casa_legislativa
     except Diagnostico.DoesNotExist:
         context = RequestContext(request)
@@ -99,7 +105,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_contatos(request, id_diagnostico):
     try:
-        diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
         casa = diagnostico.casa_legislativa
     except Diagnostico.DoesNotExist:
         context = RequestContext(request)
