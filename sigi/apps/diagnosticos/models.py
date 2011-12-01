@@ -41,6 +41,11 @@ class Diagnostico(BaseEntity):
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
 
+    def get_membros(self):
+        membros = list(self.equipe_set.all())
+        membros.append(self.responsavel)
+        return membros
+
     def email_diagnostico_publicado(self, from_email, host):
         """Enviando email quando o diagnóstico for publicado. Os
         argumentos acima são:

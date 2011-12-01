@@ -104,23 +104,39 @@ class Servidor(models.Model):
         ordering = ('nome_completo',)
         verbose_name_plural = 'servidores'
 
-    def is_chefe():
+    def is_chefe(self):
       """ Verifica se o servidor é chefe ou diretor
       """
       pass
 
-    def data_entrada():
+    def data_entrada(self):
       """ Verifica a data de entrada da função mais antiga
       """
       pass
 
-    def data_saida():
+    def data_saida(self):
       """ Verifica a data de saída da função mais recente
       de um servidor desativado
 
       Caso o usuário esteja ativo retorna None
       """
       pass
+
+    def get_diagnosticos(self, publicado=None):
+        """ Retorna todos os diagnosticos que este servidor
+        participou
+          * publicado: Se for True/False filtra os diagnosticos
+            se for None retorna todos os diagnosticos
+        """
+        if isinstance(publicado, bool):
+            diagnosticos = list(self.diagnostico_set.filter(status=publicado).all())
+        else:
+            diagnosticos = list(self.diagnostico_set.all())
+
+        for equipe in self.equipe_set.all():
+            diagnosticos.append(equipe.diagnostico)
+
+        return diagnosticos
 
     def __unicode__(self):
         return self.nome_completo

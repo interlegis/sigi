@@ -11,6 +11,24 @@ from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
 
+def validate_diagnostico(func):
+    def decorator(request, id_diagnostico, *args, **kwargs):
+        """ Retorna 404 caso o diagnostico esteja publicado
+        ou o usuario nao seja um membro da equipe
+        """
+        try:
+            diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
+            if (request.user.get_profile() in diagnostico.get_membros()):
+                # continua o processamento normal da view
+                return func(request, id_diagnostico, *args, **kwargs)
+        except Diagnostico.DoesNotExist:
+            pass
+
+        # renderiza a pagina de 404
+        context = RequestContext(request)
+        return render_to_response('mobile/404.html', {})
+    return decorator
+
 @cache_page(5)
 @login_required(login_url='/mobile/diagnosticos/login')
 def lista(request):
@@ -28,17 +46,13 @@ def lista(request):
 
 
 @cache_page(5)
+@validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
 def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
     a partir da sua identificação
     """
-    try:
-        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-    except Diagnostico.DoesNotExist:
-        context = RequestContext(request)
-        return render_to_response('mobile/404.html', {})
-
+    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     categorias = Categoria.objects.all()
 
     context = RequestContext(request, {'categorias': categorias,
@@ -48,6 +62,7 @@ def categorias(request, id_diagnostico):
 
 
 @cache_page(5)
+@validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_detalhes(request, id_diagnostico, id_categoria):
     """Captura as perguntas da categoria
@@ -55,11 +70,12 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
     """
 
     try:
-        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
         categoria = Categoria.objects.get(pk=id_categoria)
-    except Diagnostico.DoesNotExist, Categoria.DoesNotExist:
+    except Categoria.DoesNotExist:
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
+
+    diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
 
     if request.method == "POST":
         form = DiagnosticoMobileForm(request.POST,
@@ -77,14 +93,12 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 
 
 @cache_page(5)
+@validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_casa_legislativa(request, id_diagnostico):
-    try:
-        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-        casa_legislativa = diagnostico.casa_legislativa
-    except Diagnostico.DoesNotExist:
-        context = RequestContext(request)
-        return render_to_response('mobile/404.html', {})
+
+    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+    casa_legislativa = diagnostico.casa_legislativa
 
     if request.method == "POST":
         form = CasaLegislativaMobileForm(request.POST,
@@ -102,16 +116,14 @@ def categoria_casa_legislativa(request, id_diagnostico):
 
 
 @cache_page(5)
+@validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_contatos(request, id_diagnostico):
-    try:
-        diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-        casa = diagnostico.casa_legislativa
-    except Diagnostico.DoesNotExist:
-        context = RequestContext(request)
-        return render_to_response('mobile/404.html', {})
 
-    funcionarios = [casa.funcionario_set.get_or_create(setor=n)
+    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+    casa_legislativa = diagnostico.casa_legislativa
+
+    funcionarios = [casa_legislativa.funcionario_set.get_or_create(setor=n)
         for n, l in Funcionario.SETOR_CHOICES]
 
     if request.method == "POST":
@@ -127,6 +139,6 @@ def categoria_contatos(request, id_diagnostico):
             for f, c in funcionarios]
 
     context = RequestContext(request, {'forms': forms,
-        'diagnostico': diagnostico, 'casa_legislativa': casa})
+        'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
     return render_to_response('diagnosticos/diagnosticos_categoria_contatos_form.html',
         context)
