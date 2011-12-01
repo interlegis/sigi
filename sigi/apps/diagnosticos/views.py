@@ -21,7 +21,6 @@ def lista(request):
     """Consulta os diagnosticos do servidor logado,
     que contenham o status de não publicado.
     """
-
     try:
         servidor = request.user.get_profile()
         diagnosticos = servidor.get_diagnosticos(publicado=False)
@@ -39,11 +38,15 @@ def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
     a partir da sua identificação
     """
-    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     categorias = Categoria.objects.all()
 
+    # Estilizando a lista de categorias para que ajude a identificar
+    # qual categoria foi a ultima a ser usada, como também as outras
+    # que ainda não foram acessadas
+    ultima_categoria = request.session.get('ultima_categoria',0)
+
     context = RequestContext(request, {'categorias': categorias,
-        'diagnostico': id_diagnostico})
+        'diagnostico': id_diagnostico, 'ultima_categoria': ultima_categoria})
     return render_to_response('diagnosticos/diagnosticos_categorias_list.html',
         context)
 
@@ -61,6 +64,10 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
     questão, será enviado as mensagens de erro no formato JSON,
     para que a camada de template do projeto trate-as de forma adequada.
     """
+
+    # Grava na sessão a categoria atual, para destacar que
+    # era foi a última visitada.
+    request.session['ultima_categoria'] = int(id_categoria)
 
     try:
         categoria = Categoria.objects.get(pk=id_categoria)
@@ -99,6 +106,10 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_casa_legislativa(request, id_diagnostico):
 
+    # Grava na sessão a categoria atual, para destacar que
+    # era foi a última visitada.
+    request.session['ultima_categoria'] = 1
+
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     casa_legislativa = diagnostico.casa_legislativa
 
@@ -121,6 +132,10 @@ def categoria_casa_legislativa(request, id_diagnostico):
 @validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
 def categoria_contatos(request, id_diagnostico):
+
+    # Grava na sessão a categoria atual, para destacar que
+    # era foi a última visitada.
+    request.session['ultima_categoria'] = 2
 
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     casa_legislativa = diagnostico.casa_legislativa

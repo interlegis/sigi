@@ -5,25 +5,42 @@
     <a href="{% url lista_diagnosticos %}" data-icon="arrow-l" data-direction="reverse" data-theme="c" class="ui-btn-left">Voltar</a>
 {% endblock cabecalho %}
 
+{% block media %}
+    {{ block.super }}
+    <link href="{{ MEDIA_URL }}css/diagnosticos/diagnosticos_categorias.css" rel="stylesheet" />
+{% endblock media %}
+
 {% block corpo %}
     {% if categorias %}
         <ul data-role="listview">
-            <li>
+            {% if ultima_categoria == 1 %}
+                <li class="ui-btn-last-c">
+            {% else %}
+                <li>
+            {% endif %}
                 <a href="{% url detalhes_categoria_casa_legislativa diagnostico %}">
                     <h4>01. Identificação da Casa Legislativa</h4>
                 </a>
             </li>
-            <li>
+            {% if ultima_categoria == 2 %}
+                <li class="ui-btn-last-c">
+            {% else %}
+                <li>
+            {% endif %}
                 <a href="{% url detalhes_categoria_contatos diagnostico %}">
                     <h4>02. Identificação de Competências</h4>
                 </a>
             </li>
             {% for categoria in categorias %}
-                <li>
-                    <a href="{% url detalhes_categoria diagnostico categoria.id %}">
-                        <h4>{{ categoria.nome }}</h4>
-                    </a>
-                </li>
+                {% if ultima_categoria == categoria.id %}
+                    <li class="ui-btn-last-c">
+                {% else %}
+                    <li>
+                {% endif %}
+                <a href="{% url detalhes_categoria diagnostico categoria.id %}">
+                    <h4>{{ categoria.nome }}</h4>
+                </a>
+            </li>
             {% endfor %}
         </ul>
     {% else %}
