@@ -47,7 +47,7 @@ class FuncaoForm(forms.ModelForm):
         servidor = Servidor.objects.get(nome_completo=data.get('servidor'))
         if len(servidor.funcao_set.all()) > 1:
             funcao_anterior = servidor.funcao_set.all()[1]
-        else:
+        elif len(servidor.funcao_set.all()) == 1:
             funcao_anterior = servidor.funcao_set.all()[0]
 
         if valida_periodo_data(funcao_anterior.inicio_funcao,
