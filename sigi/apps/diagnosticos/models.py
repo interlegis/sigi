@@ -2,6 +2,7 @@
 from datetime import datetime
 from django.db import models
 
+from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import SearchField
 from sigi.apps.utils.email import enviar_email
 from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
@@ -51,6 +52,9 @@ class Diagnostico(BaseEntity):
         """ Retorna uma listas das categorias dinamicas que tem
         ao menos uma resposta
         """
+        # Pesquisando se os contatos, que é a segunda categoria estão respondidas
+        casa_legislativa = CasaLegislativa.objects.get(pk=self.casa_legislativa.id)
+
         # obtem todas as respostas dinamicas desse diagnostico
         respostas = Resposta.objects.filter(entity_id=self.id).all()
 

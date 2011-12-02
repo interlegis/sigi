@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 
+
 def valida_data(data_inicio, data_final):
     """Função responsável por validar se o intervalo das
     datas estão erradas, ou seja, se a data de início está
@@ -12,6 +13,7 @@ def valida_data(data_inicio, data_final):
         return True
     else:
         return False
+
 
 def valida_periodo_data(di01, df01, di02, df02):
     """Função responsável por validar dois períodos de datas.
@@ -34,13 +36,7 @@ def valida_periodo_data(di01, df01, di02, df02):
     # Verificando a primeira situação
     if di01 == di02 and df01 == df02:
         return True
-    else:
-        return False
-
-    # Verificando a segunda situação
-    if di01 >= di02 or df01 <= df02:
+    elif ((di01 >= di02) or (di02 <= df01)) and df01 <= df02:
         return True
     else:
         return False
-
-
