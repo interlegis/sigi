@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 from django.conf.urls.defaults import patterns, url
 
-LOGOUT_REDIRECT_URL = '/mobile/diagnosticos/login'
+LOGIN_REDIRECT_URL = '/sigi/mobile/diagnosticos/login'
 
 urlpatterns = patterns('',
     # Lista de Diagnósticos

@@ -10,6 +10,6 @@ class DiagnosticosViewsTest(TestCase):
 
     def test_diagnostico_list_success(self):
 
-        response = self.client.get('/mobile/diagnosticos')
+        response = self.client.get('/sigi/mobile/diagnosticos')
         self.assertEquals(200, response.status_code)
         self.assertTemplateUsed(response, 'diagnosticos/diagnosticos_list.html')
