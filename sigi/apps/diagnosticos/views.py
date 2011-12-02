@@ -34,8 +34,8 @@ def lista(request):
 
 
 @cache_page(5)
-@validate_diagnostico
 @login_required(login_url=LOGIN_REDIRECT_URL)
+@validate_diagnostico
 def categorias(request, id_diagnostico):
     """Consulta as categorias do diagnostico selecionado
     a partir da sua identificação
@@ -55,8 +55,8 @@ def categorias(request, id_diagnostico):
 
 
 @cache_page(5)
-@validate_diagnostico
 @login_required(login_url=LOGIN_REDIRECT_URL)
+@validate_diagnostico
 def categoria_detalhes(request, id_diagnostico, id_categoria):
     """Captura as perguntas da categoria
     selecionada. Durante o preenchimento das perguntas, o camada
@@ -107,8 +107,8 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 
 
 @cache_page(5)
-@validate_diagnostico
 @login_required(login_url=LOGIN_REDIRECT_URL)
+@validate_diagnostico
 def categoria_casa_legislativa(request, id_diagnostico):
 
     # Grava na sessão a categoria atual, para destacar que
@@ -145,8 +145,8 @@ def categoria_casa_legislativa(request, id_diagnostico):
 
 
 @cache_page(5)
-@validate_diagnostico
 @login_required(login_url=LOGIN_REDIRECT_URL)
+@validate_diagnostico
 def categoria_contatos(request, id_diagnostico):
 
     # Grava na sessão a categoria atual, para destacar que
