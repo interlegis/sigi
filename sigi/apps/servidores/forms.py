@@ -45,15 +45,16 @@ class FuncaoForm(forms.ModelForm):
         # Verifica na função anterior, se o seu período é igual
         # ou está entre o período da função atual.
         servidor = Servidor.objects.get(nome_completo=data.get('servidor'))
-        if len(servidor.funcao_set.all()) > 1:
-            funcao_anterior = servidor.funcao_set.all()[1]
-        elif len(servidor.funcao_set.all()) == 1:
-            funcao_anterior = servidor.funcao_set.all()[0]
+        if len(servidor.funcao_set.all()):
+            if len(servidor.funcao_set.all()) > 1:
+                funcao_anterior = servidor.funcao_set.all()[1]
+            elif len(servidor.funcao_set.all()) == 1:
+                funcao_anterior = servidor.funcao_set.all()[0]
 
-        if valida_periodo_data(funcao_anterior.inicio_funcao,
-            funcao_anterior.fim_funcao, data.get('inicio_funcao'),
-            data.get('fim_funcao')):
-            raise forms.ValidationError(u"""Você não pode exercer
-            uma função no mesmo período que a anterior, como também,
-            não pode ser entre o período da mesma.""")
+            if valida_periodo_data(funcao_anterior.inicio_funcao,
+                funcao_anterior.fim_funcao, data.get('inicio_funcao'),
+                data.get('fim_funcao')):
+                raise forms.ValidationError(u"""Você não pode exercer
+                uma função no mesmo período que a anterior, como também,
+                não pode ser entre o período da mesma.""")
         return data
