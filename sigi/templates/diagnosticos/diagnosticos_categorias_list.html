@@ -10,7 +10,7 @@
     <link href="{{ MEDIA_URL }}css/diagnosticos/diagnosticos_categorias.css" rel="stylesheet" />
 {% endblock media %}
 
-{% block corpo %}
+ui-link-inherit{% block corpo %}
     {% if categorias %}
         <ul data-role="listview">
             {% if ultima_categoria == 1 %}
@@ -18,8 +18,8 @@
             {% else %}
                 <li>
             {% endif %}
-                <a href="{% url detalhes_categoria_casa_legislativa diagnostico %}">
-                    <h4>01. Identificação da Casa Legislativa</h4>
+                <a href="{% url detalhes_categoria_casa_legislativa diagnostico.id %}">
+                    <h4 class="">01. Identificação da Casa Legislativa</h4>
                 </a>
             </li>
             {% if ultima_categoria == 2 %}
@@ -27,7 +27,7 @@
             {% else %}
                 <li>
             {% endif %}
-                <a href="{% url detalhes_categoria_contatos diagnostico %}">
+                <a href="{% url detalhes_categoria_contatos diagnostico.id %}">
                     <h4>02. Identificação de Competências</h4>
                 </a>
             </li>
@@ -37,8 +37,12 @@
                 {% else %}
                     <li>
                 {% endif %}
-                <a href="{% url detalhes_categoria diagnostico categoria.id %}">
-                    <h4>{{ categoria.nome }}</h4>
+                <a href="{% url detalhes_categoria diagnostico.id categoria.id %}">
+                    {% if categoria in diagnostico.categorias_respondidas %}
+                        <h4 class="ui-li-heading-read">{{ categoria.nome }}</h4>
+                    {% else %}
+                        <h4>{{ categoria.nome }}</h4>
+                    {% endif %}
                 </a>
             </li>
             {% endfor %}

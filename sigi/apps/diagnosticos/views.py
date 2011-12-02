@@ -31,6 +31,7 @@ def lista(request):
         context = RequestContext(request, {'msg': msg})
         return render_to_response('mobile/404.html', context)
 
+
 @cache_page(5)
 @validate_diagnostico
 @login_required(login_url='/mobile/diagnosticos/login')
@@ -39,14 +40,15 @@ def categorias(request, id_diagnostico):
     a partir da sua identificação
     """
     categorias = Categoria.objects.all()
+    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
 
     # Estilizando a lista de categorias para que ajude a identificar
     # qual categoria foi a ultima a ser usada, como também as outras
     # que ainda não foram acessadas
-    ultima_categoria = request.session.get('ultima_categoria',0)
+    ultima_categoria = request.session.get('ultima_categoria', 0)
 
     context = RequestContext(request, {'categorias': categorias,
-        'diagnostico': id_diagnostico, 'ultima_categoria': ultima_categoria})
+        'diagnostico': diagnostico, 'ultima_categoria': ultima_categoria})
     return render_to_response('diagnosticos/diagnosticos_categorias_list.html',
         context)
 
