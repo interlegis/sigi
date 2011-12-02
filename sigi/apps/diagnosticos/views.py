@@ -85,15 +85,17 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
             instance=diagnostico, category=id_categoria)
         if form.is_valid():
             form.save()
+            resposta = {
+                'mensagem': 'sucesso'
+            }
         else:
             # Montando a estrutura das mensagens de erro no formato JSON
             resposta = {
                 'mensagem': 'erro',
                 'erros': form.errors
             }
-            json = simplejson.dumps(resposta)
-            print json
-            return HttpResponse(json, mimetype="application/json")
+        json = simplejson.dumps(resposta)
+        return HttpResponse(json, mimetype="application/json")
     else:
         form = DiagnosticoMobileForm(instance=diagnostico,
             category=id_categoria)
@@ -121,6 +123,17 @@ def categoria_casa_legislativa(request, id_diagnostico):
             instance=casa_legislativa)
         if form.is_valid():
             form.save()
+            resposta = {
+                'mensagem': 'sucesso'
+            }
+        else:
+            # Montando a estrutura das mensagens de erro no formato JSON
+            resposta = {
+                'mensagem': 'erro',
+                'erros': form.errors
+            }
+        json = simplejson.dumps(resposta)
+        return HttpResponse(json, mimetype="application/json")
     else:
         form = CasaLegislativaMobileForm(instance=casa_legislativa)
 
@@ -150,10 +163,26 @@ def categoria_contatos(request, id_diagnostico):
         forms = [FuncionariosMobileForm(
             request.POST, prefix=f.setor, instance=f) for f, c in funcionarios]
 
+        resposta = {
+            'mensagem': 'sucesso',
+            'erros' : {}
+        }
+
         # valida e salva um formulario por vez
         for form in forms:
             if form.is_valid():
                 form.save()
+            else:
+                # Montando a estrutura das mensagens de erro no formato JSON
+                resposta['mensagem'] = 'erro'
+                resposta['erros'].update(form.errors)
+                for form_telefones in form.telefones.forms:
+                    for key, value in form_telefones.errors.iteritems():
+                        key = form_telefones.prefix + "-" + key
+                        resposta['erros'][key] = value
+
+        json = simplejson.dumps(resposta)
+        return HttpResponse(json, mimetype="application/json")
     else:
         forms = [FuncionariosMobileForm(prefix=f.setor, instance=f)
             for f, c in funcionarios]

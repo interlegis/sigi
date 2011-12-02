@@ -24,6 +24,7 @@
                 <div data-role="fieldcontain">
                     <label class="attr" for="{{ field.name }}">{{ field.label }}</label>
                     {{ field }}
+                    <span class="errors"></span>
                 </div>
              {% endfor %}
              <h4>Telefones</h4>
@@ -32,6 +33,7 @@
                   {{ form.tipo }} {{ form.numero}}
                   {% for field in form.hidden_fields %}
                     {{ field }}
+                    <span class="errors"></span>
                   {% endfor %}
                </div>
              {% endfor %}
