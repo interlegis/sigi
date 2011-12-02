@@ -10,7 +10,7 @@
     <link href="{{ MEDIA_URL }}css/diagnosticos/diagnosticos_categorias.css" rel="stylesheet" />
 {% endblock media %}
 
-ui-link-inherit{% block corpo %}
+{% block corpo %}
     {% if categorias %}
         <ul data-role="listview">
             {% if ultima_categoria == 1 %}
