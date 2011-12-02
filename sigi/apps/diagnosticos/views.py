@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import cache_page
 
+from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria

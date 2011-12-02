@@ -13,7 +13,7 @@ urlpatterns = patterns('',
 
     # Logout do Diagnóstico
     url(r'^logout/$', 'django.contrib.auth.views.logout',
-        {'next_page': LOGOUT_REDIRECT_URL}, name='logout'),
+        {'next_page': LOGIN_REDIRECT_URL}, name='logout'),
 
     # Lista de Categorias
     url(r'^(?P<id_diagnostico>\d+)/categorias/$', 'sigi.apps.diagnosticos.views.categorias', name='lista_categorias'),
