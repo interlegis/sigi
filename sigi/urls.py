@@ -10,7 +10,7 @@ urlpatterns = patterns(
     '',
 
     # Diagnosticos
-    url(r'mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
+    url(r'/sigi/mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
 
     # Informacoes de uma casa legislativa
     (r'^casas/casalegislativa/(?P<id>\w+)/report_complete/',
