@@ -14,8 +14,8 @@ class Diagnostico(BaseEntity):
     """
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
-        verbose_name='Casa Legislativa'
-    )
+        verbose_name='Casa Legislativa')
+
     # campo de busca em caixa baixa e sem acento
     search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.convenio_uf_filter = True
@@ -33,11 +33,12 @@ class Diagnostico(BaseEntity):
     data_relatorio_questionario = models.DateField(
         'data do relatório do questionario',
         null=True,
-        blank=True
+        blank=True,
     )
     status = models.BooleanField(u'status do diagnóstico', default=False)
 
-    responsavel = models.ForeignKey('servidores.Servidor', verbose_name=u'responsável')
+    responsavel = models.ForeignKey('servidores.Servidor',
+        verbose_name=u'responsável')
 
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
@@ -48,18 +49,27 @@ class Diagnostico(BaseEntity):
         return membros
 
     @property
+    def contatos_respondidos(self):
+        """Retorna uma lista de contatos que foram
+        respondidos
+        """
+        casa_legislativa = CasaLegislativa.objects.get(
+            pk=self.casa_legislativa.id)
+        categoria_com_respostas = set(casa_legislativa.funcionario_set.all())
+
+        return list(categoria_com_respostas)
+
+    @property
     def categorias_respondidas(self):
         """ Retorna uma listas das categorias dinamicas que tem
         ao menos uma resposta
         """
-        # Pesquisando se os contatos, que é a segunda categoria estão respondidas
-        casa_legislativa = CasaLegislativa.objects.get(pk=self.casa_legislativa.id)
 
         # obtem todas as respostas dinamicas desse diagnostico
         respostas = Resposta.objects.filter(entity_id=self.id).all()
 
         # unifica as categorias das perguntas dessas respostas
-        categoria_com_respostas = set([r.schema.categoria for r in respostas])
+        categoria_com_respostas = set([r.schema.choices.all() for r in respostas])
 
         return list(categoria_com_respostas)
 
@@ -78,9 +88,8 @@ class Diagnostico(BaseEntity):
                 'data_diagnostico': self.data_questionario,
                 'host': host,
                 'url_diagnostico': self.get_absolute_url(),
-                'status': u"Publicado"
-            }
-        )
+                'status': u"Publicado",
+            })
 
     def email_diagnostico_alterado(self, from_email, host):
         """Enviando email quando o status do diagnóstico
@@ -97,9 +106,8 @@ class Diagnostico(BaseEntity):
                 'data_diagnostico': self.data_questionario,
                 'host': host,
                 'url_diagnostico': self.get_absolute_url,
-                'status': "Alterado"
-            }
-        )
+                'status': "Alterado",
+            })
 
     @classmethod
     def get_schemata_for_model(self):
@@ -142,8 +150,10 @@ class Escolha(BaseChoice):
     """ Perguntas de multiplas escolhas tem as opções
     cadastradas neste modelo
     """
-    schema = models.ForeignKey(Pergunta, related_name='choices', verbose_name='pergunta')
-    schema_to_open = models.ForeignKey(Pergunta, related_name='', verbose_name='pergunta para abrir', blank=True, null=True)
+    schema = models.ForeignKey(Pergunta,
+        related_name='choices', verbose_name='pergunta')
+    schema_to_open = models.ForeignKey(Pergunta, related_name='',
+        verbose_name='pergunta para abrir', blank=True, null=True)
 
     class Meta:
         verbose_name, verbose_name_plural = 'escolha', 'escolhas'
@@ -153,8 +163,10 @@ class Resposta(BaseAttribute):
     """ Modelo para guardar as respostas das perguntas
     de um diagnosico
     """
-    schema = models.ForeignKey(Pergunta, related_name='attrs', verbose_name='pergunta')
-    choice = models.ForeignKey(Escolha, verbose_name='escolha', blank=True, null=True)
+    schema = models.ForeignKey(Pergunta, related_name='attrs',
+        verbose_name='pergunta')
+    choice = models.ForeignKey(Escolha, verbose_name='escolha',
+        blank=True, null=True)
 
     class Meta:
         verbose_name, verbose_name_plural = 'resposta', 'respostas'
@@ -180,10 +192,8 @@ class Anexo(models.Model):
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo',)
     descricao = models.CharField('descrição', max_length='70')
-    data_pub = models.DateTimeField(
-        'data da publicação do anexo',
-        default=datetime.now
-    )
+    data_pub = models.DateTimeField('data da publicação do anexo',
+        default=datetime.now)
 
     class Meta:
         ordering = ('-data_pub',)

@@ -28,7 +28,11 @@
                 <li>
             {% endif %}
                 <a href="{% url detalhes_categoria_contatos diagnostico.id %}">
-                    <h4>02. Identificação de Competências</h4>
+                    {% if diagnostico.contatos_respondidos %}
+                        <h4 class="ui-li-heading-read">02. Identificação de Competências</h4>
+                    {% else %}
+                        <h4>02. Identificação de Competências</h4>
+                    {% endif %}
                 </a>
             </li>
             {% for categoria in categorias %}
@@ -51,9 +55,9 @@
         <h2>Nenhuma categoria existente.</h2>
     {% endif %}
 {% endblock corpo %}
-
-{% block rodape %}
-    <ul>
-        <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
-    </ul>
-{% endblock rodape %}
+<ul>
+    {% block rodape %}
+        {{ block.super }}
+        <li><a href="{% url logout %}" data-icon="delete">Sair</a></li>
+    {% endblock rodape %}
+</ul>

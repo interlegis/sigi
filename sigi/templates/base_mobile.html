@@ -30,12 +30,11 @@
       </div><!-- content -->
       <div data-role="footer">
         <div data-role="navbar">
-          {% block rodape %}
           <ul>
-            <li><a href="#" data-icon="grid" class="ui-state-persist">Listar</a></li>
-            <li><a href="#" data-icon="delete">Sair</a></li>
+            {% block rodape %}
+              <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+            {% endblock rodape %}
           </ul>
-          {% endblock rodape %}
         </div>
       </div> <!-- footer -->        
     </div> <!-- page -->
