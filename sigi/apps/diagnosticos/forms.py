@@ -77,7 +77,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                 continue
 
             defaults = {
-                'label':     schema.title.capitalize(),
+                'label':     schema.title,
                 'required':  schema.required,
                 'help_text': schema.help_text,
             }
