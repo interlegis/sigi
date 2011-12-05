@@ -5,7 +5,7 @@ from django import forms
 from django.forms.forms import BoundField
 from django.forms import (BooleanField, CharField, CheckboxSelectMultiple,
                           DateField, FloatField, ModelChoiceField,
-                          ModelMultipleChoiceField, RadioSelect)
+                          ModelMultipleChoiceField, RadioSelect, Textarea)
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.contatos.models import Telefone
@@ -43,6 +43,15 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         'many': {'widget': CheckboxSelectMultiple},
     }
 
+    FIELD_WIDGET = {
+        'consideracoes_gerais' : {'widget': Textarea},
+        'descreva_5_cursos_prioritarios_para_treinamento_de_parlamentares_da_camara_municipal' : {'widget': Textarea},
+        'descreva_5_cursos_prioritarios_para_treinamento_de_servidores_da_camara_municipal' : {'widget': Textarea},
+        'sugestoes_para_a_area_de_capacitacao' : {'widget': Textarea},
+        'sugestoes_para_a_area_de_comunicacao' : {'widget': Textarea},
+        'sugestoes_para_a_area_de_informacao' : {'widget': Textarea},
+        'sugestoes_para_a_area_de_ti' : {'widget': Textarea},
+    }
     class Meta:
         model = Diagnostico
 
@@ -95,6 +104,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                                  'empty_label': None if schema.required else u"---------"})
 
             extra = self.FIELD_EXTRA.get(datatype, {})
+            extra.update(self.FIELD_WIDGET.get(schema.name, {}))
             if hasattr(extra, '__call__'):
                 extra = extra(schema)
             defaults.update(extra)
