@@ -39,7 +39,7 @@ $('#page').live('pageinit', function(event){
 
   // para todo input do from registra um evento
   // ao modificar o campo
-  $("div.ui-field-contain input, div.ui-field-contain select").change(function () {
+  $("div.ui-field-contain textarea, div.ui-field-contain input, div.ui-field-contain select").change(function () {
     $.ajax({
       data: $('#diagnostico').serializeArray()
     })
