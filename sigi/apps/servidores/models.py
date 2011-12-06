@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 
@@ -140,6 +141,21 @@ class Servidor(models.Model):
 
     def __unicode__(self):
         return self.nome_completo
+
+# Soluçao alternativa para extender o usuário do django
+# Acesso do servidor de um objeto user
+User.profile = property(lambda user: Servidor.objects.get(user))
+
+# Sinal para ao criar um usuário criar um servidor
+# baseado no nome contino no LDAP
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Servidor.objects.create(
+              user=instance,
+              nome_completo= "%s %s" % (instance.first_name, instance.last_name)
+            )
+
+post_save.connect(create_user_profile, sender=User)
 
 class Funcao(models.Model):
     """ Modelo para guardar o histórico de funções dos

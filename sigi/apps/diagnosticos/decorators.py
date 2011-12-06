@@ -2,10 +2,7 @@
 
 from django.template import RequestContext
 from django.shortcuts import render_to_response
-
 from sigi.apps.diagnosticos.models import Diagnostico
-from sigi.apps.servidores.models import Servidor
-
 
 def validate_diagnostico(func):
     def decorator(request, id_diagnostico, *args, **kwargs):
@@ -15,11 +12,9 @@ def validate_diagnostico(func):
         msg = None
         try:
             diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-            if (request.user.get_profile() in diagnostico.get_membros()):
+            if (request.user.servidor in diagnostico.get_membros()):
                 # continua o processamento normal da view
                 return func(request, id_diagnostico, *args, **kwargs)
-        except Servidor.DoesNotExist:
-            msg = "Para acessar os diagnóstico você precisa ter um servidor cadastrado na sua conta."
         except Diagnostico.DoesNotExist:
             pass
 

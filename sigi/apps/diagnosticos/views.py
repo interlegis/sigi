@@ -11,7 +11,6 @@ from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.casas.models import Funcionario
-from sigi.apps.servidores.models import Servidor
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
@@ -22,15 +21,10 @@ def lista(request):
     """Consulta os diagnosticos do servidor logado,
     que contenham o status de não publicado.
     """
-    try:
-        servidor = request.user.get_profile()
-        diagnosticos = servidor.get_diagnosticos(publicado=False)
-        context = RequestContext(request, {'diagnosticos': diagnosticos})
-        return render_to_response('diagnosticos/diagnosticos_list.html', context)
-    except Servidor.DoesNotExist:
-        msg = "Para acessar os diagnóstico você precisa ter um servidor cadastrado na sua conta."
-        context = RequestContext(request, {'msg': msg})
-        return render_to_response('mobile/404.html', context)
+    servidor = request.user.servidor
+    diagnosticos = servidor.get_diagnosticos(publicado=False)
+    context = RequestContext(request, {'diagnosticos': diagnosticos})
+    return render_to_response('diagnosticos/diagnosticos_list.html', context)
 
 
 @cache_page(5)
