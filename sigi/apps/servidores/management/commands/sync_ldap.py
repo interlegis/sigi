@@ -57,7 +57,7 @@ class Command(BaseCommand):
                 except: email = ''
                 try: first_name = ldap_user[1]['givenName'][0]
                 except: first_name = username
-                try: last_name = ldap_user[1]['sn'][0]
+                try: last_name = ldap_user[1]['sn'][0][:30]
                 except: last_name = ''
                 try: user = User.objects.get(username=username)
                 except User.DoesNotExist:
