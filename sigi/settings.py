@@ -61,10 +61,12 @@ ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
 AUTH_LDAP_SERVER_URI = "ldap://w2k3dc01.interlegis.gov.br"
 AUTH_LDAP_BIND_DN = u"cn=sigi-ldap,ou=Usuários de Sistema,ou=Usuários,ou=Interlegis,dc=interlegis,dc=gov,dc=br"
 AUTH_LDAP_BIND_PASSWORD = "Sigi2609"
-AUTH_LDAP_USER_SEARCH = LDAPSearch(u"ou=SINTER,ou=Usuários,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
+AUTH_LDAP_USER = u"ou=SINTER,ou=Usuários,ou=Sede,dc=interlegis,dc=gov,dc=br"
+AUTH_LDAP_USER_SEARCH = LDAPSearch(AUTH_LDAP_USER, ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
 
 # Set up the basic group parameters.
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(objectClass=Group)")
+AUTH_LDAP_GROUP = "ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br"
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(AUTH_LDAP_GROUP, ldap.SCOPE_SUBTREE, "(objectClass=Group)")
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
 
 # Only users in this group can log in.
