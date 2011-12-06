@@ -114,7 +114,7 @@ class Diagnostico(BaseEntity):
         return Pergunta.objects.all()
 
     def __unicode__(self):
-        return str(self.casa_legislativa)
+        return str(self.casa_legislativa).decode('utf8')
 
     def get_absolute_url(self):
         return "/diagnosticos/diagnostico/%i/" % (self.id, )
