@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
+from django.views.generic.simple import redirect_to
 import sites
 
 # register admin filters
@@ -9,70 +10,72 @@ import admin.filterspecs
 urlpatterns = patterns(
     '',
 
+    ('^$', redirect_to, {'url': '/sigi/'}),
+
     # Diagnosticos
-    url(r'sigi/mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
+    (r'^sigi/mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
 
     # Informacoes de uma casa legislativa
-    (r'^casas/casalegislativa/(?P<id>\w+)/report_complete/',
+    (r'^sigi/casas/casalegislativa/(?P<id>\w+)/report_complete/',
      'sigi.apps.casas.views.report_complete'),
-     (r'^casas/casalegislativa/report_complete/',
+    (r'^sigi/casas/casalegislativa/report_complete/',
      'sigi.apps.casas.views.report_complete'),
     # reports labels
-    (r'^casas/casalegislativa/labels/',
+    (r'^sigi/casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),
-    (r'^casas/casalegislativa/(?P<id>\w+)/labels/',
+    (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
-     # reports labels sem presidente
-    (r'^casas/casalegislativa/labels_sem_presidente/',
+    # reports labels sem presidente
+    (r'^sigi/casas/casalegislativa/labels_sem_presidente/',
      'sigi.apps.casas.views.labels_report_sem_presidente'),
-    (r'^casas/casalegislativa/(?P<id>\w+)/labels_sem_presidente/',
+    (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels_sem_presidente/',
      'sigi.apps.casas.views.labels_report_sem_presidente'),
     # reports casa    
-    (r'^casas/casalegislativa/reports/',
+    (r'^sigi/casas/casalegislativa/reports/',
     'sigi.apps.casas.views.report'),    
-    (r'^casas/casalegislativa/casas_sem_convenio_report/',
+    (r'^sigi/casas/casalegislativa/casas_sem_convenio_report/',
     'sigi.apps.casas.views.casas_sem_convenio_report'),
     # reports convenios
-    (r'^convenios/convenio/reports/',
+    (r'^sigi/convenios/convenio/reports/',
      'sigi.apps.convenios.views.report'),         
-     #Carrinho Casa
-     (r'^casas/casalegislativa/carrinho/deleta_itens_carrinho',
+    #Carrinho Casa
+    (r'^sigi/casas/casalegislativa/carrinho/deleta_itens_carrinho',
      'sigi.apps.casas.views.deleta_itens_carrinho'),
-     (r'^casas/casalegislativa/carrinho/excluir_carrinho',
+    (r'^sigi/casas/casalegislativa/carrinho/excluir_carrinho',
      'sigi.apps.casas.views.excluir_carrinho'),
-     (r'^casas/casalegislativa/carrinho/',
+    (r'^sigi/casas/casalegislativa/carrinho/',
      'sigi.apps.casas.views.visualizar_carrinho'),
-     #Carrinho Convenio
-     (r'^convenios/convenio/carrinho/deleta_itens_carrinho',
+    #Carrinho Convenio
+    (r'^sigi/convenios/convenio/carrinho/deleta_itens_carrinho',
      'sigi.apps.convenios.views.deleta_itens_carrinho'),
-      (r'^convenios/convenio/carrinho/excluir_carrinho',
+    (r'^sigi/convenios/convenio/carrinho/excluir_carrinho',
      'sigi.apps.convenios.views.excluir_carrinho'),
-     (r'^convenios/convenio/carrinho/',
+    (r'^sigi/convenios/convenio/carrinho/',
      'sigi.apps.convenios.views.visualizar_carrinho'),
-     #CSV Casa
-     (r'^casas/casalegislativa/csv/',
-    'sigi.apps.casas.views.export_csv'),
+    #CSV Casa
+    (r'^sigi/casas/casalegislativa/csv/',
+     'sigi.apps.casas.views.export_csv'),
     #CSV Convenio
-     (r'^convenios/convenio/csv/',
+    (r'^sigi/convenios/convenio/csv/',
     'sigi.apps.convenios.views.export_csv'),
-     # Resumo por região PDF     
-     (r'^reportsRegiao/(?P<regiao>\w+)',
+    # Resumo por região PDF     
+    (r'^sigi/reportsRegiao/(?P<regiao>\w+)',
      'sigi.apps.convenios.views.report_regiao'),
-     # Submenu com Birt reports
-     (r'^birt/menu/(?P<folder>\w+)',
+    # Submenu com Birt reports
+    (r'^sigi/birt/menu/(?P<folder>\w+)',
      'sigi.apps.birt.views.menu'),
-     # Execução com Birt reports
-     (r'^birt/run/(?P<file>.+)',
+    # Execução com Birt reports
+    (r'^sigi/birt/run/(?P<file>.+)',
      'sigi.apps.birt.views.run'),
-     # Mostrar um relatório em formato HTML
-     (r'^birt/showreport/',
+    # Mostrar um relatório em formato HTML
+    (r'^sigi/birt/showreport/',
      'sigi.apps.birt.views.show'),
-     # Menu com Birt reports
-     (r'^birt/',
+    # Menu com Birt reports
+    (r'^sigi/birt/',
      'sigi.apps.birt.views.menu'),
-     
+
     # automatic interface based on admin
-    (r'^(.*)', sites.default.root),
+    (r'^sigi/(.*)', sites.default.root),
 )
 
 if settings.DEBUG:
