@@ -9,3 +9,6 @@ form .aligned ul {
 form .aligned ul li {
   list-style: none;
 }
+form .form-row.data_visita_inicio {
+  float: left;
+}

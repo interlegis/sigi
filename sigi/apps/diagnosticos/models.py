@@ -20,22 +20,22 @@ class Diagnostico(BaseEntity):
     search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
-    data_visita = models.DateField(
-        'data da visita',
+    data_visita_inicio = models.DateField(
+        u'data inicial da visita',
         null=True,
         blank=True,
     )
-    data_questionario = models.DateField(
-        u'data do questionário',
+    data_visita_fim = models.DateField(
+        u'data final da visita',
         null=True,
         blank=True,
     )
-    data_relatorio_questionario = models.DateField(
-        'data do relatório do questionario',
+    publicado = models.BooleanField(default=False)
+    data_publicacao = models.DateField(
+        u'data de publicação do diagnóstico',
         null=True,
         blank=True,
     )
-    status = models.BooleanField(u'status do diagnóstico', default=False)
 
     responsavel = models.ForeignKey('servidores.Servidor',
         verbose_name=u'responsável')
@@ -43,10 +43,15 @@ class Diagnostico(BaseEntity):
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
 
-    def get_membros(self):
-        membros = list(self.equipe_set.all())
-        membros.append(self.responsavel)
-        return membros
+    @property
+    def membros(self):
+        """ Retorna a lista de membros do diagnostico,
+        isto é responsavel + equipe
+        """
+        membros = set([self.responsavel])
+        for equipe in self.equipe_set.all():
+            membros.add(equipe.membro)
+        return list(membros)
 
     @property
     def contatos_respondidos(self):

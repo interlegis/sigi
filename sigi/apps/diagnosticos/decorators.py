@@ -9,16 +9,16 @@ def validate_diagnostico(func):
         """ Retorna 404 caso o diagnostico esteja publicado
         ou o usuario nao seja um membro da equipe
         """
-        msg = None
         try:
-            diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
-            if (request.user.servidor in diagnostico.get_membros()):
+            diagnostico = Diagnostico.objects.filter(publicado=False).get(pk=id_diagnostico)
+            print diagnostico.membros
+            if (request.user.servidor in diagnostico.membros):
                 # continua o processamento normal da view
                 return func(request, id_diagnostico, *args, **kwargs)
         except Diagnostico.DoesNotExist:
             pass
 
         # renderiza a pagina de 404
-        context = RequestContext(request, {'msg': msg})
+        context = RequestContext(request, {})
         return render_to_response('mobile/404.html', context)
     return decorator

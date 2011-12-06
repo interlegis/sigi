@@ -123,28 +123,24 @@ class Servidor(models.Model):
       """
       pass
 
-    def get_diagnosticos(self, publicado=None):
+    @property
+    def diagnosticos(self):
         """ Retorna todos os diagnosticos que este servidor
-        participou
-          * publicado: Se for True/False filtra os diagnosticos
-            se for None retorna todos os diagnosticos
+        participa, isto é, como responsavel ou parte da equipe
         """
-        if isinstance(publicado, bool):
-            diagnosticos = list(self.diagnostico_set.filter(status=publicado).all())
-        else:
-            diagnosticos = list(self.diagnostico_set.all())
+        diagnosticos = set(self.diagnostico_set.filter(publicado=True).all())
 
         for equipe in self.equipe_set.all():
-            diagnosticos.append(equipe.diagnostico)
+            diagnosticos.add(equipe.diagnostico)
 
-        return diagnosticos
+        return list(diagnosticos)
 
     def __unicode__(self):
         return self.nome_completo
 
 # Soluçao alternativa para extender o usuário do django
 # Acesso do servidor de um objeto user
-User.profile = property(lambda user: Servidor.objects.get(user))
+User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 # Sinal para ao criar um usuário criar um servidor
 # baseado no nome contino no LDAP

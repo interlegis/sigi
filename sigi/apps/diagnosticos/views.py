@@ -22,7 +22,7 @@ def lista(request):
     que contenham o status de não publicado.
     """
     servidor = request.user.servidor
-    diagnosticos = servidor.get_diagnosticos(publicado=False)
+    diagnosticos = servidor.diagnosticos
     context = RequestContext(request, {'diagnosticos': diagnosticos})
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
 
@@ -72,7 +72,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         context = RequestContext(request)
         return render_to_response('mobile/404.html', {})
 
-    diagnostico = Diagnostico.objects.filter(status=False).get(pk=id_diagnostico)
+    diagnostico = Diagnostico.objects.filter(publicado=False).get(pk=id_diagnostico)
 
     if request.method == "POST":
         form = DiagnosticoMobileForm(request.POST,

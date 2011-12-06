@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 from django.contrib import admin
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
@@ -8,33 +9,28 @@ from sigi.apps.diagnosticos.forms import DiagnosticoForm
 """
 Actions do Admin
 """
-
-
-# Ação de alterar o status das publicações no modo Draft para Publicado.
-def alterar_status_publicacao(self, request, queryset):
+def publicar_diagnostico(self, request, queryset):
     for registro in queryset:
         diagnostico = Diagnostico.objects.get(pk=registro.id)
-        diagnostico.status = True
+        diagnostico.publicado = True
+        diagnostico.data_publicacao= datetime.now()
         diagnostico.save()
 
         # Enviando o email avisando que o diagnóstico foi publicado
         diagnostico.email_diagnostico_publicado(diagnostico.responsavel.email_pessoal, request.get_host())
     self.message_user(request, "Diagnóstico(s) publicado(s) com sucesso!")
-alterar_status_publicacao.short_description = u"""
+publicar_diagnostico.short_description = u"""
     Definir diagnósticos como publicado"""
 
 
-# Ação de alterar o status das publicações no modo Publicado para Draft.
-def alterar_status_draft(self, request, queryset):
-    queryset.update(status=False)
-alterar_status_draft.short_description = u"""
+def despublicar_diagnostico(self, request, queryset):
+    queryset.update(publicado=False)
+despublicar_diagnostico.short_description = u"""
     Definir diagnósticos como não publicado"""
 
 
 class EquipeInline(admin.TabularInline):
     model = Equipe
-    extra = 4
-
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -53,14 +49,15 @@ class AnexoAdmin(admin.ModelAdmin):
 
 class DiagnosticoAdmin(BaseEntityAdmin):
     form = DiagnosticoForm
-    date_hierarchy = 'data_questionario'
-    actions = [alterar_status_publicacao, alterar_status_draft]
+    actions = [publicar_diagnostico, despublicar_diagnostico]
     inlines = (EquipeInline, AnexosInline)
-    list_display = ('casa_legislativa', 'data_questionario', 'responsavel', 'status')
-    raw_id_fields = ('casa_legislativa', 'responsavel')
+    search_fields = ('casa_legislativa__nome', 'responsavel',)
+    list_display = ('casa_legislativa', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
+    list_filter  = ('publicado', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
+    raw_id_fields = ('casa_legislativa',)
 
     eav_fieldsets = [
-        (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita', 'data_questionario', 'data_relatorio_questionario')}),
+        (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
         (u'01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
         (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()})
       ]
