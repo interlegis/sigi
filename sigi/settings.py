@@ -38,12 +38,12 @@ EMAIL_HOST_PASSWORD = ''
 #EMAIL_USE_TLS = True
 
 #DATABASE_ENGINE = 'postgresql_psycopg2'
-DATABASE_ENGINE = 'sqlite3'
-DATABASE_NAME = 'devel.db'
-#DATABASE_USER = 'sigi'
-#DATABASE_PASSWORD = '123456'
-#DATABASE_HOST = 'localhost'
-#DATABASE_PORT = '5432'
+#DATABASE_ENGINE = 'sqlite3'
+#DATABASE_NAME = 'sigi'
+#DATABASE_USER = 'administrador'
+#DATABASE_PASSWORD = 'interlegis' 
+#DATABASE_HOST = 'banco'
+#DATABASE_PORT = '5432'          
 
 TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
@@ -73,7 +73,7 @@ AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
 #AUTH_LDAP_REQUIRE_GROUP = u"cn=Acesso ao SIGI,ou=Grupos de Permissão,ou=Sede,dc=interlegis,dc=gov,dc=br"
 
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
-  "is_staff": u"cn=Acesso ao SIGI,ou=Grupos de Permissão,ou=Sede,dc=interlegis,dc=gov,dc=br"
+  "is_staff": u"cn=SINTER,ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br"
 }
 
 # Populate the Django user from the LDAP directory.
@@ -100,7 +100,7 @@ AUTH_LDAP_MIRROR_GROUPS = True
 AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
 
-AUTH_PROFILE_MODULE = 'sigi.Servidor'
+AUTH_PROFILE_MODULE = 'servidores.Servidor'
 
 # Keep ModelBackend around for per-user permissions and maybe a local superuser.
 AUTHENTICATION_BACKENDS = (
@@ -108,10 +108,10 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-#CACHE_BACKEND = 'dummy:///'
-#CACHE_MIDDLEWARE_SECONDS = 60
-#CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
-#CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
+CACHE_BACKEND = 'dummy:///'
+CACHE_MIDDLEWARE_SECONDS = 60
+CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
+CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
 
 # Used to provide a seed in secret-key hashing algorithms. Set this to
 # a random string in your local_settings.py - the longer, the better.

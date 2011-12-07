@@ -139,8 +139,12 @@ class Servidor(models.Model):
         return self.nome_completo
 
 # Soluçao alternativa para extender o usuário do django
-# Acesso do servidor de um objeto user
-User.servidor = property(lambda user: Servidor.objects.get(user=user))
+# Acessa do servidor de um objeto user criando um profile
+# baseado nos dados do LDAP
+User.servidor = property(lambda user: Servidor.objects.get_or_create(
+        user=user,
+        nome_completo= "%s %s" % (user.first_name, user.last_name)
+    )[0])
 
 # Sinal para ao criar um usuário criar um servidor
 # baseado no nome contino no LDAP
