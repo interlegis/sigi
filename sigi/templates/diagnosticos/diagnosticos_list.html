@@ -12,7 +12,7 @@
                 <li>
                     <a href="{% url lista_categorias diagnostico.id %}">
                         <h4>{{ diagnostico.casa_legislativa.nome }}</h4>
-                        <p><strong>Data:</strong> {{ diagnostico.data_questionario|date:"d/m/Y" }}</p>
+                        <p><strong>Data:</strong> {{ diagnostico.data_visita_inicio|date:"d/m/Y" }} à {{ diagnostico.data_visita_fim|date:"d/m/Y" }} </p>
                         <p><strong>Responsável:</strong> {{ diagnostico.responsavel.nome_completo }}</p>
                     </a>
                 </li>
