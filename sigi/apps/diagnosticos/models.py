@@ -58,25 +58,24 @@ class Diagnostico(BaseEntity):
         """Retorna uma lista de contatos que foram
         respondidos
         """
-        casa_legislativa = CasaLegislativa.objects.get(
-            pk=self.casa_legislativa.id)
-        categoria_com_respostas = set(casa_legislativa.funcionario_set.all())
-
-        return list(categoria_com_respostas)
+        return list(self.casa_legislativa.funcionario_set.all())
 
     @property
     def categorias_respondidas(self):
         """ Retorna uma listas das categorias dinamicas que tem
         ao menos uma resposta
         """
+        # unifica as categorias das perguntas dessas respostas
+        categoria_com_respostas = set([r.schema.categoria for r in self._get_respostas()])
 
+        return list(categoria_com_respostas)
+
+    def _get_respostas(self):
         # obtem todas as respostas dinamicas desse diagnostico
         respostas = Resposta.objects.filter(entity_id=self.id).all()
 
-        # unifica as categorias das perguntas dessas respostas
-        categoria_com_respostas = set([r.schema.choices.all() for r in respostas])
-
-        return list(categoria_com_respostas)
+        # remove as respostas nulas ou em branco
+        return [r for r in respostas if r._get_value()]
 
     def email_diagnostico_publicado(self, from_email, host):
         """Enviando email quando o diagnóstico for publicado. Os
