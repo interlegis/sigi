@@ -11,7 +11,6 @@ def validate_diagnostico(func):
         """
         try:
             diagnostico = Diagnostico.objects.filter(publicado=False).get(pk=id_diagnostico)
-            print diagnostico.membros
             if (request.user.servidor in diagnostico.membros):
                 # continua o processamento normal da view
                 return func(request, id_diagnostico, *args, **kwargs)
