@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import never_cache
 
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
@@ -15,7 +15,7 @@ from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
 
 
-@cache_page(5)
+@never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)
 def lista(request):
     """Consulta os diagnosticos do servidor logado,
@@ -27,7 +27,7 @@ def lista(request):
     return render_to_response('diagnosticos/diagnosticos_list.html', context)
 
 
-@cache_page(5)
+@never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categorias(request, id_diagnostico):
@@ -48,7 +48,7 @@ def categorias(request, id_diagnostico):
         context)
 
 
-@cache_page(5)
+@never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categoria_detalhes(request, id_diagnostico, id_categoria):
@@ -100,7 +100,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         context)
 
 
-@cache_page(5)
+@never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categoria_casa_legislativa(request, id_diagnostico):
@@ -138,7 +138,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
         context)
 
 
-@cache_page(5)
+@never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categoria_contatos(request, id_diagnostico):
