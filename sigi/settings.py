@@ -38,12 +38,12 @@ EMAIL_HOST_PASSWORD = ''
 #EMAIL_USE_TLS = True
 
 #DATABASE_ENGINE = 'postgresql_psycopg2'
-#DATABASE_ENGINE = 'sqlite3'
-#DATABASE_NAME = 'sigi'
-#DATABASE_USER = 'administrador'
-#DATABASE_PASSWORD = 'interlegis' 
-#DATABASE_HOST = 'banco'
-#DATABASE_PORT = '5432'          
+DATABASE_ENGINE = 'sqlite3'
+DATABASE_NAME = 'devel.db'
+#DATABASE_USER = 'sigi'
+#DATABASE_PASSWORD = '123456'
+#DATABASE_HOST = 'localhost'
+#DATABASE_PORT = '5432'
 
 TIME_ZONE = 'Brazil/East'
 LANGUAGE_CODE = 'pt-br'
