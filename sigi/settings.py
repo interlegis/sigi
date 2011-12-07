@@ -84,9 +84,9 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 
 # Populate the Django user_profile from the LDAP directory.
-#AUTH_LDAP_PROFILE_ATTR_MAP = {
-#  "employee_number": "employeeNumber"
-#}
+AUTH_LDAP_PROFILE_ATTR_MAP = {
+  "nome_completo": "cn"
+}
 
 #AUTH_LDAP_PROFILE_FLAGS_BY_GROUP = {
 #  "is_awesome": "cn=awesome,ou=django,ou=groups,dc=example,dc=com",
@@ -99,6 +99,8 @@ AUTH_LDAP_MIRROR_GROUPS = True
 # Cache group memberships for an hour to minimize LDAP traffic
 AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+AUTH_PROFILE_MODULE = 'sigi.Servidor'
 
 # Keep ModelBackend around for per-user permissions and maybe a local superuser.
 AUTHENTICATION_BACKENDS = (
