@@ -70,7 +70,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         categoria = Categoria.objects.get(pk=id_categoria)
     except Categoria.DoesNotExist:
         context = RequestContext(request)
-        return render_to_response('mobile/404.html', {})
+        return render_to_response('mobile/404.html', context)
 
     diagnostico = Diagnostico.objects.filter(publicado=False).get(pk=id_diagnostico)
 
