@@ -116,17 +116,10 @@ class Telefone(models.Model):
         ('X', 'Fax'),
         ('I', 'Indefinido'),
     )
-    codigo_area = models.CharField(
-        'código de área',
-        max_length=4,
-        help_text='Exemplo: <em>31</em>.',
-        null=True,
-        blank=True
-    )
     numero = models.CharField(
         'número',
         max_length=64, # TODO: diminuir tamanho de campo após migração de dados
-        help_text='Somente números.'
+        help_text='Exemplo: <em>(31)8851-9898</em>.',
     )
     tipo = models.CharField(
         max_length=1,
@@ -142,16 +135,11 @@ class Telefone(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        ordering = ('codigo_area', 'numero')
-        # desabilitado para facilitar a migração de dados
-        # TODO: voltar quando estiver em produção
-        #unique_together = ('codigo_area', 'numero', 'tipo')
+        ordering = ('numero',)
+        unique_together = ('numero', 'tipo')
 
     def __unicode__(self):
-        if self.codigo_area:
-            return "(%s) %s" % (unicode(self.codigo_area), unicode(self.numero))
-        else:
-            return unicode(self.numero)
+        return unicode(self.numero)
 
 class Contato(models.Model):
     """ Modelo generico para registrar contatos vinculados aos

@@ -13,6 +13,6 @@ ALTER TABLE "casas_casalegislativa" DROP COLUMN presidente;
 ALTER TABLE "casas_casalegislativa" DROP COLUMN telefone;
 
 -- retirando null de algumas colunas
-ALTER TABLE "contatos_telefone" ALTER COLUMN codigo_area DROP NOT NULL;
 ALTER TABLE "contatos_telefone" ALTER COLUMN codigo_nota DROP NOT NULL;
+ALTER TABLE "contatos_telefone" DROP COLUMN codigo_area;
 COMMIT;

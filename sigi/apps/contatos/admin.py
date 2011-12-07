@@ -32,11 +32,11 @@ class MunicipioAdmin(admin.ModelAdmin):
                      'codigo_microrregiao', 'uf__sigla')
 
 class TelefoneAdmin(admin.ModelAdmin):
-    list_display = ('codigo_area', 'numero', 'tipo', 'nota')
-    list_display_links = ('codigo_area', 'numero')
-    list_filter = ('codigo_area', 'tipo')
+    list_display = ('numero', 'tipo', 'nota')
+    list_display_links = ('numero',)
+    list_filter = ('tipo',)
     radio_fields = {'tipo': admin.VERTICAL}
-    search_fields = ('codigo_area', 'numero', 'tipo', 'nota')
+    search_fields = ('numero', 'tipo', 'nota')
 
 class ContatoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'nota', 'email', 'municipio')
