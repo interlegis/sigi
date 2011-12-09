@@ -3,16 +3,16 @@
 from copy import deepcopy
 from django import forms
 from django.forms.forms import BoundField
-from django.forms import (BooleanField, CharField, CheckboxSelectMultiple,
-                          DateField, FloatField, ModelChoiceField,
-                          ModelMultipleChoiceField, RadioSelect, Textarea)
+from django.forms import (BooleanField, CharField, DateField,
+                          FloatField, ModelChoiceField, Textarea,
+                          ModelMultipleChoiceField)
 from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
+from sigi.apps.diagnosticos.widgets import EavCheckboxSelectMultiple, EavRadioSelect
 from eav.forms import BaseDynamicEntityForm
 from eav.fields import RangeField
-
 
 class DiagnosticoForm(BaseDynamicEntityForm):
     """Classe responsável por contruir o formulário,
@@ -39,8 +39,8 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
     }
 
     FIELD_EXTRA = {
-        'one': {'widget': RadioSelect},
-        'many': {'widget': CheckboxSelectMultiple},
+        'one': {'widget': EavRadioSelect},
+        'many': {'widget': EavCheckboxSelectMultiple},
     }
 
     FIELD_WIDGET = {
