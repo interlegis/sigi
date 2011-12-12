@@ -8,10 +8,10 @@ class Subsecretaria(models.Model):
     """ Modelo para representação das Subsecretarias do Interlegis
     """
 
-    nome = models.CharField(max_length=50)
-    sigla = models.CharField(max_length=10)
+    nome = models.CharField(max_length=50, null=True)
+    sigla = models.CharField(max_length=10, null=True)
     # servidor responsavel por dirigir a Subsecretaria
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor', null=True)
 
     class Meta:
         ordering = ('nome',)
@@ -23,11 +23,11 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(max_length=50)
-    sigla = models.CharField(max_length=10)
-    subsecretaria = models.ForeignKey(Subsecretaria)
+    nome = models.CharField(max_length=50, null=True)
+    sigla = models.CharField(max_length=10, null=True)
+    subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe', null=True)
 
     class Meta:
         ordering = ('nome',)
@@ -88,8 +88,10 @@ class Servidor(models.Model):
         blank=True,
         null=True,
     )
+    de_fora = models.BooleanField(default=False)
     data_nomeacao = models.DateField(u'data de nomeação', blank=True, null=True)
     ato_exoneracao = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
+    ato_numero = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
     cpf = models.CharField('CPF', max_length=11, blank=True, null=True)
     rg = models.CharField('RG', max_length=25, blank=True, null=True)
     obs = models.TextField(u'observação', blank=True, null=True)
@@ -99,7 +101,7 @@ class Servidor(models.Model):
     email_pessoal = models.EmailField('e-mail pessoal', blank=True, null=True)
     endereco = generic.GenericRelation('contatos.Endereco')
     telefones = generic.GenericRelation('contatos.Telefone')
-    ramal = models.IntegerField('ramal', blank=True, null=True)
+    ramal = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:
         ordering = ('nome_completo',)
