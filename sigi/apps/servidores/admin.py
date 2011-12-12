@@ -7,10 +7,6 @@ from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias
 from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
 
-class FuncaoInline(admin.TabularInline):
-    model = Funcao
-    extra = 1
-
 class FuncaoAdmin(admin.ModelAdmin):
     form = FuncaoForm
     list_display = ('servidor', 'funcao', 'cargo','inicio_funcao', 'fim_funcao')
@@ -20,36 +16,25 @@ class FuncaoAdmin(admin.ModelAdmin):
                      'servidor__user__email', 'servidor__user__first_name',
                      'servidor__user__last_name', 'servidor__user__username')
 
-class FeriasInline(admin.TabularInline):
-    model = Ferias
-    extra = 1
-
 class FeriasAdmin(admin.ModelAdmin):
     form = FeriasForm
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
-    list_filter  = ('servidor', 'inicio_ferias', 'fim_ferias')
+    list_filter  = ('inicio_ferias', 'fim_ferias')
     search_fields = ('obs',
-                     'servidor__nome_completo', 'servidor__obs', 'servidor__apontamentos',
-                     'servidor__user__email', 'servidor__user__first_name',
-                     'servidor__user__last_name', 'servidor__user__username')
-
-
-class LicencaInline(admin.TabularInline):
-    model = Licenca
-    extra = 1
+                     'servidor__nome_completo', 'servidor__email_pesoal',
+                     'servidor__user__email', 'servidor__user__username')
 
 class LicencaAdmin(admin.ModelAdmin):
     form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
     list_filter  = ('servidor', 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
-                     'servidor__nome_completo', 'servidor__obs', 'servidor__apontamentos',
-                     'servidor__user__email', 'servidor__user__first_name',
-                     'servidor__user__last_name', 'servidor__user__username')
+                     'servidor__nome_completo', 'servidor__email_pesoal',
+                     'servidor__user__email', 'servidor__user__username')
 
-class EnderecoInline(generic.GenericTabularInline):
+class EnderecoInline(generic.GenericStackedInline):
     model = Endereco
-    extra = 1
+    extra = 0
     raw_id_fields = ('municipio',)
 
 class TelefonesInline(generic.GenericTabularInline):
@@ -57,8 +42,24 @@ class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
 
 class ServidorAdmin(admin.ModelAdmin):
-    list_display = ('nome_completo', 'servico')
-    list_filter  = ('sexo', 'servico')
+
+    def is_active(self, servidor):
+        return servidor.user.is_active
+    is_active.admin_order_field = 'is_active'
+    is_active.boolean = True
+    is_active.short_description = 'ativo'
+
+    def queryset(self, request):
+        qs = super(ServidorAdmin, self).queryset(request)
+        qs = qs.extra(select={'is_active': """
+              SELECT auth_user.is_active
+              FROM auth_user
+              WHERE auth_user.id = servidores_servidor.user_id
+            """})
+        return qs
+
+    list_display = ('nome_completo', 'is_active', 'foto', 'servico')
+    list_filter  = ('user', 'sexo', 'servico',)
     search_fields = ('nome_completo', 'obs', 'apontamentos',
                      'user__email', 'user__first_name',
                      'user__last_name', 'user__username')
@@ -69,18 +70,14 @@ class ServidorAdmin(admin.ModelAdmin):
         'fields': ('user',),
       }),
       ('Cadastro', {
-        'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal')
+        'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
       }),
       ('Origem', {
-        'fields': ('turno',),
+        'fields': ('turno', 'de_fora'),
       }),
       (u'Observações', {
         'fields': ('apontamentos', 'obs'),
       }),
-      #('Advanced options', {
-      #  'classes': ('collapse',),
-      #  'fields': ('enable_comments', 'registration_required', 'template_name')
-      #}),
     )
 
     def formfield_for_dbfield(self, db_field, **kwargs):

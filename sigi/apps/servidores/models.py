@@ -57,6 +57,7 @@ class Servidor(models.Model):
 
     # usuario responsavel pela autenticação do servidor no sistema
     user = models.ForeignKey(User, unique=True)
+    user.is_active__filter = True
     nome_completo = models.CharField(max_length=128)
     nome_completo.alphabetic_filter = True
     apelido = models.CharField(max_length=50, blank=True)
@@ -98,7 +99,7 @@ class Servidor(models.Model):
     apontamentos = models.TextField(u'apontamentos', blank=True, null=True)
 
     # Informações de contato
-    email_pessoal = models.EmailField('e-mail pessoal', blank=True, null=True)
+    email_pessoal = models.EmailField('email pessoal', blank=True, null=True)
     endereco = generic.GenericRelation('contatos.Endereco')
     telefones = generic.GenericRelation('contatos.Telefone')
     ramal = models.CharField(max_length=25, blank=True, null=True)
