@@ -161,9 +161,9 @@ class Funcao(models.Model):
     servidores no Interlegis
     """
     servidor = models.ForeignKey(Servidor)
-    funcao = models.CharField(max_length=50)
-    cargo = models.CharField(max_length=50, blank=True, null=True)
-    inicio_funcao = models.DateField(u'início da função')
+    funcao = models.CharField(max_length=50, null=True)
+    cargo = models.CharField(max_length=50, null=True)
+    inicio_funcao = models.DateField(u'início da função', null=True)
     fim_funcao = models.DateField(u'fim da função', blank=True, null=True)
     descricao = models.TextField(u'descrição', blank=True, null=True)
 

@@ -1,23 +1,28 @@
 # coding= utf-8
 import sys
 import csv
+import re
 from datetime import datetime
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
-from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria
+from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria, Funcao, Ferias, Licenca
 from sigi.apps.contatos.models import Municipio
 
-#print 'removendo...'
+#Funcao.objects.all().delete()
+#Ferias.objects.all().delete()
+#Licenca.objects.all().delete()
 #for u in User.objects.filter(date_joined__gte=datetime(2011, 12, 9, 10, 58, 49, 83734)).all():
 #    u.servidor_set.all().delete()
 #    u.delete()
 
-print 'iniciando...'
 class MigrationError(Exception):
     pass
 
 class Command(BaseCommand):
     help = 'Migra usuários do antigo Sistema de RH'
+
+    def to_date(self, data):
+        return datetime.strptime(data, "%Y-%m-%d 00:00:00")
 
     def handle(self, *args, **options):
         reader = csv.reader(open("/tmp/pessoal.csv"), delimiter=',', quotechar="\"")
@@ -50,33 +55,41 @@ class Command(BaseCommand):
                     try:
                         # Cria um usuario tratando os casos incompletos
                         # fulano@interlegis.
-                        if not '@' in p['email']:
-                            raise MigrationError
                         username = p['email'].split('@')[0].lower()
-                        if '@interlegis' in p['email']:
-                            # pode ser um antigo usuario do ad
-                            email = username + '@interlegis.gov.br'
-                        else:
-                            # cria um username a partir do email sem
-                            # colidir com os usuarios ldap
-                            username = username + '__'
-                            email = ''
-                        if not username or username == '__':
-                            raise MigrationError
-                        names = p['nome_completo'].split(' ')
-                        first_name = names[0]
-                        last_name = " ".join(names[1:])
-                        user = User.objects.create(
-                                username = username,
-                                email = email,
-                                first_name = first_name,
-                                last_name = last_name,
-                                is_active= False
-                            )
-                        servidor = user.servidor
-                    except Exception, e:
-                        print ", ".join(row)
-                        continue
+                        user = User.objects.exclude(email='').get(username=username)
+                        try:
+                            servidor = user.servidor
+                        except Servidor.DoesNotExist:
+                            servidor = Servidor.objects.create(
+                                  user=user,
+                                  nome_completo= "%s %s" % (user.first_name, user.last_name)
+                                )
+                    except (MigrationError, User.DoesNotExist):
+                        try:
+                            if not username:
+                                raise MigrationError
+                            if '@interlegis' in p['email']:
+                                # pode ser um antigo usuario do ad
+                                email = username + '@interlegis.gov.br'
+                            else:
+                                # cria um username a partir do email sem
+                                # colidir com os usuarios ldap
+                                username = username + '__'
+                                email = ''
+                            names = p['nome_completo'].split(' ')
+                            first_name = names[0]
+                            last_name = " ".join(names[1:])
+                            user = User.objects.create(
+                                    username = username,
+                                    email = email,
+                                    first_name = first_name,
+                                    last_name = last_name,
+                                    is_active= False
+                                )
+                            servidor = user.servidor
+                        except Exception, e:
+                            print ", ".join(row)
+                            continue
 
             # mapeando dados simples
             servidor.nome_completo = p['nome_completo']
@@ -115,14 +128,32 @@ class Command(BaseCommand):
                 servidor.turno = 'N'
 
             if p['aniversario']:
-                servidor.data_nascimento = datetime.strptime(p['aniversario'], "%Y-%m-%d 00:00:00")
+                servidor.data_nascimento = self.to_date(p['aniversario'])
 
             if p['data_nomeacao']:
-                servidor.data_nomeacao = datetime.strptime(p['data_nomeacao'], "%Y-%m-%d 00:00:00")
+                servidor.data_nomeacao = self.to_date(p['data_nomeacao'])
 
-            if p['secretaria']:
-                secretaria = Subsecretaria.objects.get_or_create(sigla=p['secretaria'])[0]
-                servico = Servico.objects.get_or_create(sigla=(p['servico'] or 'desconhecido'))[0]
+            if p['secretaria_sigla']:
+                if ' - ' in p['secretaria_nome']:
+                    secretaria_nome = p['secretaria_nome'].split(' - ')[1]
+                else:
+                    secretaria_nome = p['secretaria_nome']
+
+                secretaria = Subsecretaria.objects.get_or_create(
+                        sigla = p['secretaria_sigla'],
+                        nome = secretaria_nome
+                    )[0]
+
+                if ' - ' in p['servico_nome']:
+                    servico_nome = p['servico_nome'].split(' - ')[1]
+                else:
+                    servico_nome = p['servico_nome']
+
+                servico = Servico.objects.get_or_create(
+                        sigla = p['servico_sigla'],
+                        nome = servico_nome
+                    )[0]
+
                 servico.subsecretaria = secretaria
                 servico.save()
                 servidor.servico = servico
@@ -155,5 +186,46 @@ class Command(BaseCommand):
 
             servidor.apontamentos = p['apontamentos']
             servidor.obs = p['obs']
+
+            if p['cargo'] or p['funcao']:
+                funcao = servidor.funcao_set.get_or_create(
+                        funcao = p['cargo'],
+                        cargo = p['funcao'],
+                    )[0]
+
+                if p['data_bap_entrada']:
+                    funcao.data_bap_entrada = self.to_date(p['data_bap_entrada'])
+
+                if p['data_bap_saida']:
+                    funcao.data_bap_saida = self.to_date(p['data_bap_saida'])
+
+                if p['data_entrada']:
+                    funcao.inicio_funcao = self.to_date(p['data_entrada'])
+
+                if p['data_saida']:
+                    funcao.fim_funcao = self.to_date(p['data_saida'])
+
+                funcao.bap_entrada = p['bap_entrada']
+                funcao.bap_saida = p['bap_saida']
+                funcao.save()
+
+                if re.search(r'estagi.ri[o|a]',p['cargo'],re.I):
+                    #TODO inserir dados de estagio
+                    pass
+
+            if p['inicio_ferias'] and p['final_ferias']:
+                servidor.ferias_set.get_or_create(
+                        inicio_ferias = self.to_date(p['inicio_ferias']),
+                        fim_ferias = self.to_date(p['final_ferias']),
+                        obs = p['obs_ferias']
+                    )
+
+            if p['inicio_licenca'] and p['fim_licenca']:
+                servidor.licenca_set.get_or_create(
+                        inicio_licenca = self.to_date(p['inicio_licenca']),
+                        fim_licenca = self.to_date(p['fim_licenca']),
+                        obs = p['obs_licenca']
+                    )
+
             servidor.save()
 
