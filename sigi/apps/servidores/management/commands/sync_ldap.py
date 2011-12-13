@@ -61,10 +61,17 @@ class Command(BaseCommand):
                 except: last_name = ''
                 try: user = User.objects.get(username=username)
                 except User.DoesNotExist:
-                    user = User.objects.create_user(username, email, username)
-                    user.first_name = first_name
-                    user.last_name = last_name
-                    print "User '%s' created." % username
+                    try:
+                        user = User.objects.get(email=email)
+                        user.username = username
+                    except User.DoesNotExist:
+                        user = User.objects.create_user(
+                            username = username,
+                            email = email
+                        )
+                        user.first_name = first_name
+                        user.last_name = last_name
+                        print "User '%s' created." % username
                 try: nome_completo = ldap_user[1]['cn'][0]
                 except: nome_completo = ''
                 try: 
