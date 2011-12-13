@@ -3,6 +3,7 @@
 import os, sys
 
 sys.path.insert(0, '/var/aplicacoes/django/sigi')
+sys.path.insert(0, '/var/aplicacoes/django/sigi/sigi')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'sigi.settings'
 
 from django.core.management.validation import get_validation_errors
