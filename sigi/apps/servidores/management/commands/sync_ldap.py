@@ -67,19 +67,27 @@ class Command(BaseCommand):
                     print "User '%s' created." % username
                 try: nome_completo = ldap_user[1]['cn'][0]
                 except: nome_completo = ''
-                try: servidor = Servidor.objects.get(nome_completo=nome_completo)
+                try: 
+                    servidor = user.servidor
+                    if not servidor.nome_completo == nome_completo.decode('utf8'):
+                    	servidor.nome_completo = nome_completo
+                        print "Servidor '%s' updated." % nome_completo
                 except Servidor.DoesNotExist:
-                    servidor = user.servidor_set.create(nome_completo=nome_completo)
-                    print "Servidor '%s' created." % nome_completo
-                else:
-                    if not user.email == email.decode('utf8'):
-                        user.email = email
-                        print "User '%s' email updated." % username
-                    if not user.first_name == first_name.decode('utf8'):
-                        user.first_name = first_name
-                        print "User '%s' first name updated." % username
-                    if not user.last_name == last_name.decode('utf8'):
-                        user.last_name = last_name
-                        print "User '%s' last name updated." % username
+                    try: servidor = Servidor.objects.get(nome_completo=nome_completo)
+                    except Servidor.DoesNotExist:
+                        servidor = user.servidor_set.create(nome_completo=nome_completo)
+                        print "Servidor '%s' created." % nome_completo
+                    else:
+                        if not user.email == email.decode('utf8'):
+                            user.email = email
+                            print "User '%s' email updated." % username
+                        if not user.first_name == first_name.decode('utf8'):
+                            user.first_name = first_name
+                            print "User '%s' first name updated." % username
+                        if not user.last_name == last_name.decode('utf8'):
+                            user.last_name = last_name
+                            print "User '%s' last name updated." % username
+		servidor.user = user
+                servidor.save()
                 user.save()
         print "Users are synchronized."

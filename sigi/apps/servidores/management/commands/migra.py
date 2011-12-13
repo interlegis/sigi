@@ -38,58 +38,60 @@ class Command(BaseCommand):
             for (name, value) in pessoa:
                 p[name] = value.strip()
 
+            user = None
+            if not p['email']:
+                username = '' 
+                email = ''
+	    elif not ('@interlegis' in p['email']):
+                username = p['email'].split('@')[0].strip().lower()
+                email = ''
+	    else:
+                username = p['email'].split('@')[0].strip().lower()
+                email = username + '@interlegis.gov.br'
+
             # buscar usuário e servidor da linha atual
             try:
-                # procuro o usuario por email se for interlegis
-                if not p['email'] or not ('@interlegis' in p['email']):
-                    raise MigrationError
-                user = User.objects.get(email__startswith=p['email'])
-                servidor = user.servidor
-            except (MigrationError, User.DoesNotExist):
-                try:
-                    # se nao encontrar procura por nome
-                    if not p['nome_completo']:
+                # procuro o usuario por email do interlegis
+                if email:
+                    try: user = User.objects.get(email=email)
+                    except User.DoesNotExist: pass
+
+                if not user and username:
+                    try: user = User.objects.get(username=username)
+                    except User.DoesNotExist: 
+                    	try: user = User.objects.get(username=username + "__")
+                    	except User.DoesNotExist: pass
+
+                if not user:
+                    if not username:
                         raise MigrationError
-                    servidor = Servidor.objects.get(nome_completo=p['nome_completo'])
-                except (MigrationError, Servidor.DoesNotExist):
-                    try:
-                        # Cria um usuario tratando os casos incompletos
-                        # fulano@interlegis.
-                        username = p['email'].split('@')[0].lower()
-                        user = User.objects.exclude(email='').get(username=username)
-                        try:
-                            servidor = user.servidor
-                        except Servidor.DoesNotExist:
-                            servidor = Servidor.objects.create(
-                                  user=user,
-                                  nome_completo= "%s %s" % (user.first_name, user.last_name)
-                                )
-                    except (MigrationError, User.DoesNotExist):
-                        try:
-                            if not username:
-                                raise MigrationError
-                            if '@interlegis' in p['email']:
-                                # pode ser um antigo usuario do ad
-                                email = username + '@interlegis.gov.br'
-                            else:
-                                # cria um username a partir do email sem
-                                # colidir com os usuarios ldap
-                                username = username + '__'
-                                email = ''
-                            names = p['nome_completo'].split(' ')
-                            first_name = names[0]
-                            last_name = " ".join(names[1:])
-                            user = User.objects.create(
-                                    username = username,
-                                    email = email,
-                                    first_name = first_name,
-                                    last_name = last_name,
-                                    is_active= False
-                                )
-                            servidor = user.servidor
-                        except Exception, e:
-                            print ", ".join(row)
-                            continue
+
+                    if not email:
+                        # cria um username a partir do email sem
+                        # colidir com os usuarios ldap
+                        username = username + '__'
+
+                    names = p['nome_completo'].split(' ')
+                    first_name = names[0]
+                    last_name = " ".join(names[1:])
+
+                    user = User.objects.create(
+                            username = username,
+                            email = email,
+                            first_name = first_name,
+                            last_name = last_name[:30],
+                            is_active= False
+                        )
+
+                servidor = user.servidor
+            except Servidor.DoesNotExist:
+                servidor = Servidor.objects.create(
+                    user=user,
+                    nome_completo= "%s %s" % (user.first_name, user.last_name)
+                )
+            except MigrationError, e:
+                print ", ".join(row)
+                continue
 
             # mapeando dados simples
             servidor.nome_completo = p['nome_completo']
@@ -181,7 +183,7 @@ class Command(BaseCommand):
                 e = servidor.endereco.create(logradouro=p['endereco'])
               e.municipio = BRASILIA
               e.bairro = p['cidade'] # bizarro mas é isso mesmo
-              e.cep = p['cep']
+              e.cep = re.sub("\D", "", p['cep'])
               e.save()
 
             servidor.apontamentos = p['apontamentos']
@@ -189,8 +191,8 @@ class Command(BaseCommand):
 
             if p['cargo'] or p['funcao']:
                 funcao = servidor.funcao_set.get_or_create(
-                        funcao = p['cargo'],
-                        cargo = p['funcao'],
+                        funcao = p['funcao'],
+                        cargo = p['cargo'],
                     )[0]
 
                 if p['data_bap_entrada']:

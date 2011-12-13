@@ -8,7 +8,7 @@ class Subsecretaria(models.Model):
     """ Modelo para representação das Subsecretarias do Interlegis
     """
 
-    nome = models.CharField(max_length=50, null=True)
+    nome = models.CharField(max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     # servidor responsavel por dirigir a Subsecretaria
     responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor', null=True)
@@ -23,7 +23,7 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(max_length=50, null=True)
+    nome = models.CharField(max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
@@ -162,8 +162,8 @@ class Funcao(models.Model):
     servidores no Interlegis
     """
     servidor = models.ForeignKey(Servidor)
-    funcao = models.CharField(max_length=50, null=True)
-    cargo = models.CharField(max_length=50, null=True)
+    funcao = models.CharField(max_length=250, null=True)
+    cargo = models.CharField(max_length=250, null=True)
     inicio_funcao = models.DateField(u'início da função', null=True)
     fim_funcao = models.DateField(u'fim da função', blank=True, null=True)
     descricao = models.TextField(u'descrição', blank=True, null=True)
