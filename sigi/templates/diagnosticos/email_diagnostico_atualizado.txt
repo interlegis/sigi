@@ -1,0 +1,8 @@
+Foi atualizado um diagnóstico no SIGI. Os dados do diagnóstico são:
+
+Criador do Diagnóstico: {{ servidor }}
+Dados do Diagnóstico: {{ casa_legislativa }}
+Data do Diagnóstico: {{ data_diagnostico }}
+Data do Relatório do Diagnóstico: {{ data_relatorio_diagnostico }}
+
+O seu status está como {{ status }}

@@ -1,0 +1,15 @@
+{% extends "base_mobile.html" %}
+
+{% block cabecalho %}
+    <h1>Ocorreu um erro</h1>
+{% endblock cabecalho %}
+{% block corpo %}
+    <p>A página que está procurando não existe. </p>
+    <p>Verifique se o diagnóstico, categoria ou pergunta está cadastrado no sistema.</p>
+    <a href="{% url lista_diagnosticos %}" data-icon="arrow-l" 
+    data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">Voltar</a>
+{% endblock corpo %}
+
+{% block rodape %}
+
+{% endblock rodape %}

@@ -1,9 +1,30 @@
-from django.contrib.admin.filterspecs import FilterSpec, ChoicesFilterSpec
+from django.contrib.admin.filterspecs import FilterSpec, ChoicesFilterSpec, BooleanFieldFilterSpec
 from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from sigi.apps.contatos.models import UnidadeFederativa
 from abc import ABCMeta
+
+class IsActiveFilterSpec(BooleanFieldFilterSpec):
+    """
+    Adds filtering by user is_active attr in the admin filter sidebar
+    my_model_user_field.is_active__filter = True
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(IsActiveFilterSpec, self).__init__(f, request, params, model,
+                                                   model_admin)
+        self.lookup_kwarg = '%s__is_active__exact' % f.name
+        self.lookup_kwarg2 = '%s__is_active__isnull' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_val2 = request.GET.get(self.lookup_kwarg2, None)
+
+    def title(self):
+        return _('active')
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'is_active__filter', False),
+                                   IsActiveFilterSpec))
 
 class AlphabeticFilterSpec(ChoicesFilterSpec):
     """

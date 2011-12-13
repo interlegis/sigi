@@ -1,0 +1,49 @@
+{% extends "base_mobile.html" %}
+
+{% block media %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{{MEDIA_URL}}css/diagnosticos/diagnosticos_categoria_model_form.css" />
+{% endblock %}
+
+{% block cabecalho %}
+    <h1>01. Identificação da Camara Municipal</h1>
+    <a href="{% url lista_categorias diagnostico.id %}?c=1" data-icon="arrow-l" 
+    data-direction="reverse" data-theme="c" class="ui-btn-left">Voltar</a>
+{% endblock cabecalho %}
+
+{% block corpo %}
+    {% if form %}
+      <div id="waiting">
+        <!-- Exibe as perguntas apos o carregamento completo do javascript -->
+        <h2>Aguarde carregando perguntas para essa categoria...</h2>
+      </div>
+      <div id="form" style="display:none;">
+        <div data-role="fieldcontain">
+            <label class="attr">Município - UF</label>
+            {{ casa_legislativa.municipio }}
+        </div>
+        <div data-role="fieldcontain">
+            <label class="attr">Nome</label>
+            {{ casa_legislativa.nome }}
+        </div>
+        <form id="diagnostico" action="." method="post">
+             {% for field in form %}
+                <div data-role="fieldcontain">
+                    <label class="attr" for="{{ field.name }}">{{ field.label }}</label>
+                    {{ field }}
+                    <span class="errors"></span>
+                </div>
+             {% endfor %}
+        </form>
+      </div>
+    {% else %}
+      <h2>Nenhuma existem perguntas para essa categoria.</h2>
+    {% endif %}
+{% endblock corpo %}
+
+{% block rodape %}
+    <ul>
+        <li><a href="{% url lista_categorias diagnostico.id %}" data-icon="grid" class="ui-state-persist ui-btn-active">Listar</a></li>
+        <li><a href="{% url lista_diagnosticos %}" data-icon="home">Home</a></li>
+    </ul>
+{% endblock rodape %}

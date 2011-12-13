@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.contenttypes import generic
-from sigi.apps.mesas.models import MesaDiretora, MembroMesaDiretora
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import SearchField
 
@@ -35,7 +34,6 @@ class CasaLegislativa(models.Model):
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
-    presidente = models.CharField('Presidente', max_length=150, blank=True)
 
     # Informações de contato
     logradouro = models.CharField(
@@ -56,7 +54,6 @@ class CasaLegislativa(models.Model):
         blank=True,
         verify_exists=False
     )
-    telefone = models.CharField('Telefone', max_length=100, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -68,7 +65,6 @@ class CasaLegislativa(models.Model):
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
 
-    contatos = generic.GenericRelation('contatos.Contato')
 
     class Meta:
         ordering = ('nome',)
@@ -78,3 +74,55 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
+
+class Funcionario(models.Model):
+    """ Modelo para registrar contatos vinculados às
+    Casas Legislativas
+    """
+    SETOR_CHOICES = [
+        ("presidencia","Presidencia"),
+        ("infraestrutura_fisica","Infraestrutura Física"),
+        ("estrutura_de_ti","Estrutura de TI"),
+        ("organizacao_do_processo_legislativo","Organização do Processo Legislativo"),
+        ("estrutura_de_comunicacao_social","Estrutura de Comunicação Social"),
+        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
+        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
+        ("estrutura_de_secretaria","Estrutura de Secretaria"),
+        ("outros","Outros"),
+        ]
+    casa_legislativa = models.ForeignKey(CasaLegislativa)
+    nome = models.CharField('nome completo', max_length=60, blank=True)
+    nome.alphabetic_filter = True
+    nota = models.CharField(max_length=70, null=True, blank=True)
+    email = models.EmailField('e-mail', null=True, blank=True)
+    telefones = generic.GenericRelation('contatos.Telefone')
+    endereco = generic.GenericRelation('contatos.Endereco')
+    cargo = models.CharField(max_length=100, null=True, blank=True)
+    funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
+    setor = models.CharField(max_length=100, choices = SETOR_CHOICES, default="outros")
+    tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
+
+    class Meta:
+        ordering = ('nome',)
+        verbose_name = 'contato Casa Legislativa'
+        verbose_name_plural = 'contatos Casas Legislativa'
+
+    def __unicode__(self):
+        return self.nome
+
+class PresidenteManager(models.Manager):
+    def get_query_set(self):
+        qs = super(PresidenteManager, self).get_query_set()
+        qs = qs.filter(cargo='Presidente')
+        return qs
+
+class Presidente(Funcionario):
+    class Meta:
+        proxy = True
+
+    objects =  PresidenteManager()
+
+    def save(self, *args, **kwargs):
+        self.cargo = 'Presidente'
+        self.setor = 'presidencia'
+        return super(Presidente, self).save(*args, **kwargs)

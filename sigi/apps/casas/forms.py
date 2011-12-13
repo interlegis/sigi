@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.contrib.localflavor.br.forms import BRCNPJField, BRZipCodeField
+from django.contrib.localflavor.br.forms import BRZipCodeField
 from sigi.apps.casas.models import CasaLegislativa
+
 
 class CasaLegislativaForm(forms.ModelForm):
     #cnpj = BRCNPJField(
@@ -14,3 +15,6 @@ class CasaLegislativaForm(forms.ModelForm):
 
     class Meta:
         model = CasaLegislativa
+
+    def clean(self):
+        print self.cleaned_data['bairro']

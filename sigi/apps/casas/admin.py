@@ -2,8 +2,8 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from sigi.apps.casas.forms import CasaLegislativaForm
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.contatos.models import Contato, Telefone
+from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario
+from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
@@ -13,14 +13,23 @@ from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
                                     adicionar_casas_carrinho
 from sigi.apps.utils import queryset_ascii
 
-class ContatosInline(generic.GenericTabularInline):
-    model = Contato
-    extra = 2
-    raw_id_fields = ('municipio',)
-
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
-    extra = 2
+    extra = 1
+
+class PresidenteInline(admin.StackedInline):
+    model = Presidente
+    exclude = ['cargo','funcao']
+    extra = 1
+    max_num = 1
+    inlines = (TelefonesInline)
+
+class FuncionariosInline(admin.StackedInline):
+    model = Funcionario
+    extra = 1
+    inlines = (TelefonesInline)
+    def queryset(self, request):
+        return self.model.objects.exclude(cargo="Presidente")
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
@@ -32,16 +41,15 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
-    inlines = (TelefonesInline, ContatosInline, ConveniosInline)
-    list_display = ('nome','municipio','presidente','logradouro')
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline)
+    list_display = ('nome','municipio','logradouro')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
     ordering = ('nome','municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'telefone', 'cnpj',
-                       'presidente'),
+            'fields': ('tipo', 'nome', 'cnpj',)
         }),
         ('Endereço', {
             'fields': ('logradouro', 'bairro', 'municipio', 'cep', 'pagina_web','email'),

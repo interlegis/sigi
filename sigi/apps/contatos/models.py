@@ -116,22 +116,17 @@ class Telefone(models.Model):
         ('X', 'Fax'),
         ('I', 'Indefinido'),
     )
-    codigo_area = models.CharField(
-        'código de área',
-        max_length=4,
-        help_text='Exemplo: <em>31</em>.',
-        blank=True
-    )
     numero = models.CharField(
         'número',
         max_length=64, # TODO: diminuir tamanho de campo após migração de dados
-        help_text='Somente números.'
+        help_text='Exemplo: <em>(31)8851-9898</em>.',
     )
     tipo = models.CharField(
         max_length=1,
         choices=TELEFONE_CHOICES,
+        default= 'I' 
     )
-    nota = models.CharField(max_length=70, blank=True)
+    nota = models.CharField(max_length=70, null=True, blank=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
@@ -140,16 +135,11 @@ class Telefone(models.Model):
     content_object = generic.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
-        ordering = ('codigo_area', 'numero')
-        # desabilitado para facilitar a migração de dados
-        # TODO: voltar quando estiver em produção
-        #unique_together = ('codigo_area', 'numero', 'tipo')
+        ordering = ('numero',)
+        unique_together = ('numero', 'tipo')
 
     def __unicode__(self):
-        if self.codigo_area:
-            return "(%s) %s" % (unicode(self.codigo_area), unicode(self.numero))
-        else:
-            return unicode(self.numero)
+        return unicode(self.numero)
 
 class Contato(models.Model):
     """ Modelo generico para registrar contatos vinculados aos
@@ -272,6 +262,6 @@ class Endereco(models.Model):
         verbose_name_plural = u'endereços'
 
     def __unicode__(self):
-        return self.tipo + ' ' + seld.logradouro + ', ' + self.numero \
+        return self.tipo + ' ' + self.logradouro + ', ' + self.numero \
                + ' ' + self.complemento + ' - ' + self.bairro
 

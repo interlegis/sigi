@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.contenttypes import generic
-from apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa
 from datetime import date
 
 class Servico(models.Model):

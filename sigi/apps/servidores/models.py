@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.db.models.signals import post_save
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 
@@ -7,10 +8,10 @@ class Subsecretaria(models.Model):
     """ Modelo para representação das Subsecretarias do Interlegis
     """
 
-    nome = models.CharField(max_length=50)
-    sigla = models.CharField(max_length=10)
+    nome = models.CharField(max_length=250, null=True)
+    sigla = models.CharField(max_length=10, null=True)
     # servidor responsavel por dirigir a Subsecretaria
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor', null=True)
 
     class Meta:
         ordering = ('nome',)
@@ -22,11 +23,11 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(max_length=50)
-    sigla = models.CharField(max_length=10)
-    subsecretaria = models.ForeignKey(Subsecretaria)
+    nome = models.CharField(max_length=250, null=True)
+    sigla = models.CharField(max_length=10, null=True)
+    subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe')
+    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe', null=True)
 
     class Meta:
         ordering = ('nome',)
@@ -56,6 +57,7 @@ class Servidor(models.Model):
 
     # usuario responsavel pela autenticação do servidor no sistema
     user = models.ForeignKey(User, unique=True)
+    user.is_active__filter = True
     nome_completo = models.CharField(max_length=128)
     nome_completo.alphabetic_filter = True
     apelido = models.CharField(max_length=50, blank=True)
@@ -87,34 +89,36 @@ class Servidor(models.Model):
         blank=True,
         null=True,
     )
+    de_fora = models.BooleanField(default=False)
     data_nomeacao = models.DateField(u'data de nomeação', blank=True, null=True)
     ato_exoneracao = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
+    ato_numero = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
     cpf = models.CharField('CPF', max_length=11, blank=True, null=True)
     rg = models.CharField('RG', max_length=25, blank=True, null=True)
     obs = models.TextField(u'observação', blank=True, null=True)
     apontamentos = models.TextField(u'apontamentos', blank=True, null=True)
 
     # Informações de contato
-    email_pessoal = models.EmailField('e-mail pessoal', blank=True, null=True)
+    email_pessoal = models.EmailField('email pessoal', blank=True, null=True)
     endereco = generic.GenericRelation('contatos.Endereco')
     telefones = generic.GenericRelation('contatos.Telefone')
-    ramal = models.IntegerField('ramal', blank=True, null=True)
+    ramal = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:
         ordering = ('nome_completo',)
         verbose_name_plural = 'servidores'
 
-    def is_chefe():
+    def is_chefe(self):
       """ Verifica se o servidor é chefe ou diretor
       """
       pass
 
-    def data_entrada():
+    def data_entrada(self):
       """ Verifica a data de entrada da função mais antiga
       """
       pass
 
-    def data_saida():
+    def data_saida(self):
       """ Verifica a data de saída da função mais recente
       de um servidor desativado
 
@@ -122,17 +126,45 @@ class Servidor(models.Model):
       """
       pass
 
+    @property
+    def diagnosticos(self):
+        """ Retorna todos os diagnosticos que este servidor
+        participa, isto é, como responsavel ou parte da equipe
+        """
+        diagnosticos = set(self.diagnostico_set.filter(publicado=True).all())
+
+        for equipe in self.equipe_set.all():
+            diagnosticos.add(equipe.diagnostico)
+
+        return list(diagnosticos)
+
     def __unicode__(self):
         return self.nome_completo
+
+# Soluçao alternativa para extender o usuário do django
+# Acessa do servidor de um objeto user criando um profile
+# baseado nos dados do LDAP
+User.servidor = property(lambda user: Servidor.objects.get(user=user))
+
+# Sinal para ao criar um usuário criar um servidor
+# baseado no nome contino no LDAP
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Servidor.objects.create(
+              user=instance,
+              nome_completo= "%s %s" % (instance.first_name, instance.last_name)
+            )
+
+post_save.connect(create_user_profile, sender=User)
 
 class Funcao(models.Model):
     """ Modelo para guardar o histórico de funções dos
     servidores no Interlegis
     """
     servidor = models.ForeignKey(Servidor)
-    funcao = models.CharField(max_length=50)
-    cargo = models.CharField(max_length=50, blank=True, null=True)
-    inicio_funcao = models.DateField(u'início da função')
+    funcao = models.CharField(max_length=250, null=True)
+    cargo = models.CharField(max_length=250, null=True)
+    inicio_funcao = models.DateField(u'início da função', null=True)
     fim_funcao = models.DateField(u'fim da função', blank=True, null=True)
     descricao = models.TextField(u'descrição', blank=True, null=True)
 

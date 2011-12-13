@@ -29,6 +29,14 @@ DEFAULT_FROM_EMAIL = 'noreply@localhost'
 
 INTERNAL_IPS = ('127.0.0.1',)
 
+DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
+EMAIL_SUBJECT_PREFIX = u'[SIGI]'
+EMAIL_HOST = 'smtp.interlegis.leg.br'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+#EMAIL_USE_TLS = True
+
 #DATABASE_ENGINE = 'postgresql_psycopg2'
 DATABASE_ENGINE = 'sqlite3'
 DATABASE_NAME = 'devel.db'
@@ -53,10 +61,12 @@ ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
 AUTH_LDAP_SERVER_URI = "ldap://w2k3dc01.interlegis.gov.br"
 AUTH_LDAP_BIND_DN = u"cn=sigi-ldap,ou=Usuários de Sistema,ou=Usuários,ou=Interlegis,dc=interlegis,dc=gov,dc=br"
 AUTH_LDAP_BIND_PASSWORD = "Sigi2609"
-AUTH_LDAP_USER_SEARCH = LDAPSearch(u"ou=SINTER,ou=Usuários,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
+AUTH_LDAP_USER = u"ou=SINTER,ou=Usuários,ou=Sede,dc=interlegis,dc=gov,dc=br"
+AUTH_LDAP_USER_SEARCH = LDAPSearch(AUTH_LDAP_USER, ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
 
 # Set up the basic group parameters.
-AUTH_LDAP_GROUP_SEARCH = LDAPSearch("ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br", ldap.SCOPE_SUBTREE, "(objectClass=Group)")
+AUTH_LDAP_GROUP = "ou=Grupos Organizacionais,ou=Sede,dc=interlegis,dc=gov,dc=br"
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch(AUTH_LDAP_GROUP, ldap.SCOPE_SUBTREE, "(objectClass=Group)")
 AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(name_attr="cn")
 
 # Only users in this group can log in.
@@ -74,9 +84,9 @@ AUTH_LDAP_USER_ATTR_MAP = {
 }
 
 # Populate the Django user_profile from the LDAP directory.
-#AUTH_LDAP_PROFILE_ATTR_MAP = {
-#  "employee_number": "employeeNumber"
-#}
+AUTH_LDAP_PROFILE_ATTR_MAP = {
+  "nome_completo": "cn"
+}
 
 #AUTH_LDAP_PROFILE_FLAGS_BY_GROUP = {
 #  "is_awesome": "cn=awesome,ou=django,ou=groups,dc=example,dc=com",
@@ -89,6 +99,8 @@ AUTH_LDAP_MIRROR_GROUPS = True
 # Cache group memberships for an hour to minimize LDAP traffic
 AUTH_LDAP_CACHE_GROUPS = True
 AUTH_LDAP_GROUP_CACHE_TIMEOUT = 3600
+
+AUTH_PROFILE_MODULE = 'servidores.Servidor'
 
 # Keep ModelBackend around for per-user permissions and maybe a local superuser.
 AUTHENTICATION_BACKENDS = (
@@ -116,6 +128,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     'django.core.context_processors.debug',
     'django.core.context_processors.i18n',
     'django.core.context_processors.media',
+    'django.core.context_processors.request',
     'sigi.context_processors.charts_data',
 )
 
