@@ -94,7 +94,7 @@ AUTH_LDAP_PROFILE_ATTR_MAP = {
 
 # Use LDAP group membership to calculate group permissions.
 AUTH_LDAP_FIND_GROUP_PERMS = True
-AUTH_LDAP_MIRROR_GROUPS = False
+AUTH_LDAP_MIRROR_GROUPS = True
 
 # Cache group memberships for an hour to minimize LDAP traffic
 AUTH_LDAP_CACHE_GROUPS = True
