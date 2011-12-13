@@ -54,7 +54,10 @@ class Command(BaseCommand):
                 # procuro o usuario por email do interlegis
                 if email:
                     try: user = User.objects.get(email=email)
-                    except User.DoesNotExist: pass
+                    except User.DoesNotExist:
+                	email = username + '@interlegis.leg.br'
+                    	try: user = User.objects.get(email=email)
+                    	except User.DoesNotExist: pass
 
                 if not user and username:
                     try: user = User.objects.get(username=username)
