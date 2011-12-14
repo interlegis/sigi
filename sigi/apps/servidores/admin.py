@@ -21,7 +21,7 @@ class FeriasAdmin(admin.ModelAdmin):
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
     list_filter  = ('inicio_ferias', 'fim_ferias')
     search_fields = ('obs',
-                     'servidor__nome_completo', 'servidor__email_pesoal',
+                     'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
 
 class LicencaAdmin(admin.ModelAdmin):
@@ -29,7 +29,7 @@ class LicencaAdmin(admin.ModelAdmin):
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
     list_filter  = ('servidor', 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
-                     'servidor__nome_completo', 'servidor__email_pesoal',
+                     'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
 
 class EnderecoInline(generic.GenericStackedInline):
