@@ -32,12 +32,9 @@
       <h2>Nenhuma existem perguntas para essa categoria.</h2>
     {% endif %}
 {% endblock corpo %}
-<ul>
-  {% block rodape %}
-      {{ block.super }}
-      <li><a href="{% url lista_categorias diagnostico.id %}" data-icon="grid" class="ui-state-persist">Listar</a></li>
-      <li><a href="{% url logout %}" data-icon="delete">Sair</a></li>
-  {% endblock rodape %}
-</ul>
 
-
+{% block rodape %}
+    {{ block.super }}
+    <li><a href="{% url lista_categorias diagnostico.id %}" data-icon="grid" class="ui-state-persist">Listar</a></li>
+    <li><a href="{% url logout %}" data-icon="delete">Sair</a></li>
+{% endblock rodape %}
