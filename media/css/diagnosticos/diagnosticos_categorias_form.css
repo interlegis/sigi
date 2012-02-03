@@ -5,6 +5,8 @@
 
 .ui-field-contain ul {
     -webkit-padding-start: 0;
+    padding-left: 0;
+    list-style: none;
 }
 
 span.errors {
