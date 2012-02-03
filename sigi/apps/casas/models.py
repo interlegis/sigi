@@ -73,7 +73,20 @@ class CasaLegislativa(models.Model):
         verbose_name_plural = 'Casas Legislativas'
 
     @property
+    def telefone(self):
+        """ Link para acessar diretamente o primeiro telefone cadastrado da casa
+            Util para relatorios antigos
+        """
+        telefones = self.telefones.all()
+        if telefones:
+            return telefones[0]
+        return None
+
+    @property
     def presidente(self):
+        """ Link para acessar diretamente o contato do presidente da casa
+            Util para relatorios antigos
+        """
         try:
             return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:

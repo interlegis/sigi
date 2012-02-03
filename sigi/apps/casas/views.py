@@ -273,8 +273,7 @@ def export_csv(request):
             elif u"Município" == atributo:
                 lista.append(str(casa.municipio))            
             elif u"Presidente" == atributo:
-                if casa.presidente:
-                    lista.append(str(casa.presidente).encode("utf-8"))
+                lista.append(str(casa.presidente or "").encode("utf-8"))
             elif u"Logradouro" == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
             elif u"Bairro" == atributo:
@@ -282,7 +281,7 @@ def export_csv(request):
             elif u"CEP" == atributo:
                 lista.append(casa.cep.encode("utf-8"))
             elif u"Telefone" == atributo:
-                lista.append(casa.telefone.encode("utf-8"))
+                lista.append(str(casa.telefone or "").encode("utf-8"))
             elif u"Página web" == atributo:
                 lista.append(casa.pagina_web.encode("utf-8"))
             elif u"Email" == atributo:

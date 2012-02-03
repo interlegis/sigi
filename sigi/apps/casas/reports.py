@@ -461,7 +461,7 @@ class InfoCasaLegislativa(ReportDefault):
         ),
     #Contatos
         SubReport(
-            queryset_string = '%(object)s.contatos.all()',
+            queryset_string = '%(object)s.funcionario_set.all()',
             band_header = ReportBand(
                 default_style = {'fontName': 'Helvetica', 'fontSize':12    },
                 height=2.5*cm,
