@@ -74,18 +74,24 @@ class DiagnosticoAdmin(BaseEntityAdmin):
           'classes': ['collapse']
           }))
 
-
-class PerguntaAdmin (BaseSchemaAdmin):
-    search_fields = ('title', 'help_text', 'name',)
-    list_display = ('title', 'categoria', 'datatype', 'help_text', 'required')
-    list_filter = ('datatype', 'categoria', 'required')
-
-
 class EscolhaAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_display = ('title', 'schema', 'schema_to_open')
     raw_id_fields = ('schema', 'schema_to_open')
     ordering = ('schema', 'title')
+
+class EscolhaInline(admin.TabularInline):
+    model = Escolha
+    fk_name = 'schema'
+    raw_id_fields = ('schema_to_open',)
+    verbose_name = 'Escolhas (apenas para choices ou multiple choices)'
+    extra = 0
+
+class PerguntaAdmin (BaseSchemaAdmin):
+    search_fields = ('title', 'help_text', 'name',)
+    list_display = ('title', 'categoria', 'datatype', 'help_text', 'required')
+    list_filter = ('datatype', 'categoria', 'required')
+    inlines = (EscolhaInline,)
 
 admin.site.register(Diagnostico, DiagnosticoAdmin)
 admin.site.register(Pergunta, PerguntaAdmin)

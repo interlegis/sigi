@@ -158,8 +158,10 @@ class Escolha(BaseChoice):
         related_name='choices', verbose_name='pergunta')
     schema_to_open = models.ForeignKey(Pergunta, related_name='',
         verbose_name='pergunta para abrir', blank=True, null=True)
+    ordem = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
+        ordering = ('schema','ordem')
         verbose_name, verbose_name_plural = 'escolha', 'escolhas'
 
 
