@@ -15,6 +15,3 @@ class CasaLegislativaForm(forms.ModelForm):
 
     class Meta:
         model = CasaLegislativa
-
-    def clean(self):
-        print self.cleaned_data['bairro']
