@@ -21,10 +21,16 @@
         <form id="diagnostico" action="." method="post">
              {% for field in form %}
                  <div data-role="fieldcontain" id="{{ field.name }}">
-                    <label for="{{ field.name }}">{{ field.label }}</label>
-                    {{ field }}
-                    <span class="errors"></span>
-                </div>
+                   <label for="{{ field.name }}">
+                     {% if field.help_text %}
+                        {{ field.label }} ({{ field.help_text }})
+                     {% else %}
+                        {{ field.label }}
+                     {% endif %}
+                   </label>
+                   {{ field }}
+                   <span class="errors"></span>
+                 </div>
              {% endfor %}
         </form>
       </div>
