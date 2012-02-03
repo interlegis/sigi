@@ -273,7 +273,8 @@ def export_csv(request):
             elif u"Município" == atributo:
                 lista.append(str(casa.municipio))            
             elif u"Presidente" == atributo:
-                lista.append(str(casa.presidente).encode("utf-8"))
+                if casa.presidente:
+                    lista.append(str(casa.presidente).encode("utf-8"))
             elif u"Logradouro" == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
             elif u"Bairro" == atributo:
