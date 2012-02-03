@@ -80,14 +80,15 @@ class Funcionario(models.Model):
     Casas Legislativas
     """
     SETOR_CHOICES = [
-        ("presidencia","Presidencia"),
+        ("presidente","Presidente"),
+        ("contato_interlegis","Contato Interlegis"),
         ("infraestrutura_fisica","Infraestrutura Física"),
         ("estrutura_de_ti","Estrutura de TI"),
         ("organizacao_do_processo_legislativo","Organização do Processo Legislativo"),
+        ("producao_legislativa","Produção Legislativa"),
         ("estrutura_de_comunicacao_social","Estrutura de Comunicação Social"),
         ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
-        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
-        ("estrutura_de_secretaria","Estrutura de Secretaria"),
+        ("gestao","Gestão"),
         ("outros","Outros"),
         ]
     casa_legislativa = models.ForeignKey(CasaLegislativa)
