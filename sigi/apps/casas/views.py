@@ -17,7 +17,7 @@ from django.conf import settings
 import csv
 
 def query_ordena(qs,o,ot):
-    list_display = ('nome','municipio','presidente','logradouro')
+    list_display = ('nome','municipio','logradouro')
 
     aux = list_display[(int(o)-1)]
     if ot =='asc':
@@ -273,7 +273,7 @@ def export_csv(request):
             elif u"Município" == atributo:
                 lista.append(str(casa.municipio))            
             elif u"Presidente" == atributo:
-                lista.append(casa.presidente.encode("utf-8"))
+                lista.append(str(casa.presidente).encode("utf-8"))
             elif u"Logradouro" == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
             elif u"Bairro" == atributo:

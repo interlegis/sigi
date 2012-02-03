@@ -72,6 +72,13 @@ class CasaLegislativa(models.Model):
         verbose_name = 'Casa Legislativa'
         verbose_name_plural = 'Casas Legislativas'
 
+    @property
+    def presidente(self):
+        try:
+            return self.funcionario_set.get(setor='presidente')
+        except Funcionario.DoesNotExist:
+            return None
+
     def __unicode__(self):
         return self.nome
 
@@ -114,7 +121,7 @@ class Funcionario(models.Model):
 class PresidenteManager(models.Manager):
     def get_query_set(self):
         qs = super(PresidenteManager, self).get_query_set()
-        qs = qs.filter(cargo='Presidente')
+        qs = qs.filter(setor='presidente')
         return qs
 
 class Presidente(Funcionario):
@@ -124,6 +131,8 @@ class Presidente(Funcionario):
     objects =  PresidenteManager()
 
     def save(self, *args, **kwargs):
+        self.setor = 'presidente'
         self.cargo = 'Presidente'
-        self.setor = 'presidencia'
+        self.funcao = 'Presidente'
         return super(Presidente, self).save(*args, **kwargs)
+
