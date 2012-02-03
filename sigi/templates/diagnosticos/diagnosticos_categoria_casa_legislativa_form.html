@@ -19,12 +19,10 @@
       </div>
       <div id="form" style="display:none;">
         <div data-role="fieldcontain">
-            <label class="attr">Município - UF</label>
-            {{ casa_legislativa.municipio }}
+            <b>{{ casa_legislativa.municipio }}</b>
         </div>
         <div data-role="fieldcontain">
-            <label class="attr">Nome</label>
-            {{ casa_legislativa.nome }}
+            <b>{{ casa_legislativa.nome }}</b>
         </div>
         <form id="diagnostico" action="." method="post">
              {% for field in form %}
