@@ -45,7 +45,7 @@
 			{% endif %}
 			<td style="text-align: left;">{{casa.nome}}</td>
 			<td>{{casa.municipio}}</td>
-			<td>{{casa.presidente}}</td>
+			<td>{{casa.presidente|default_if_none:""}}</td>
 			<td>{{casa.logradouro}}</td>
 		</tr>
 		{% endfor %}

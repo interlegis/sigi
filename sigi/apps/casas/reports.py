@@ -80,6 +80,8 @@ class CasasLegislativasLabels(Report):
             ObjectValue(
                 attribute_name='presidente',
                 top=1.5*cm, left=0.5*cm, width=9.4*cm,
+                get_value=lambda instance:
+                    instance.presidente or ""
             ),
             ObjectValue(
                 attribute_name='tipo',
