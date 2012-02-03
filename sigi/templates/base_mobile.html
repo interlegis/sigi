@@ -8,15 +8,16 @@
     {% endblock titulo %}
     {% block media %}
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
-    <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
     <script language=javascript>
       $(document).bind("mobileinit", function () {
         $.mobile.ajaxEnabled = false;
         $.mobile.loadingMessage = 'salvando';
       });
     </script>
-    <script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
-    <script src="{{MEDIA_URL}}js/diagnosticos/diagnosticos_categorias_form.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/jquery.maskedinput-1.1.3.min.js"/></script>
+    <script type="text/javascript" src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/diagnosticos/diagnosticos_categorias_form.js"></script>
     {% endblock media %}
   </head>
   <body>

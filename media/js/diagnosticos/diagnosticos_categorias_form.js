@@ -78,6 +78,10 @@ $('#page').live('pageinit', function(event){
 
   });
 
+  // Mascaras de documentos e telefones
+  $("#id_cnpj").mask("99.999.999/9999-99");
+  $(".phone input:text").mask("(99) 9999-9999");
+
   $('input[schema_to_open]').each(function () {
     schema = $(this);
     schema_to_open = $("#" + schema.attr('schema_to_open'));
