@@ -79,6 +79,8 @@ $('#page').live('pageinit', function(event){
   });
 
   // Mascaras de documentos e telefones
+  $("#id_data_criacao").mask("9999-99-99");
+  $("#id_data_instalacao").mask("9999-99-99");
   $("#id_cnpj").mask("99.999.999/9999-99");
   $(".phone input:text").mask("(99) 9999-9999");
 

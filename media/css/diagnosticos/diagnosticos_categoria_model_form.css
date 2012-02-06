@@ -24,4 +24,7 @@ div.ui-field-contain.phone .ui-select .ui-btn-inner {
   padding-left: 15px;
 }
 
-
+span.errors {
+    display: block;
+    color: red;
+}

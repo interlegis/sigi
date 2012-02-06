@@ -119,9 +119,26 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
 
 class CasaLegislativaMobileForm(forms.ModelForm):
+    data_instalacao = forms.DateField(label = u'Data de instalação da Casa Legislativa', required=False)
+
     class Meta:
         model = CasaLegislativa
-        fields = ('cnpj', 'logradouro', 'bairro', 'cep', 'email', 'pagina_web')
+        fields = ('cnpj', 'data_criacao', 'data_instalacao', 'logradouro', 'bairro', 'cep', 'email', 'pagina_web')
+
+    def __init__(self, *args, **kwargs):
+        super(CasaLegislativaMobileForm, self).__init__(*args, **kwargs)
+        self.fields['data_criacao'] = forms.DateField(
+              label = u'Data de criação do Município',
+              initial = self.instance.municipio.data_criacao,
+              required=False
+            )
+
+    def save(self, commit=True):
+        super(CasaLegislativaMobileForm, self).save(commit=True)
+        self.instance.municipio.data_criacao = self.cleaned_data['data_criacao']
+        if commit:
+            self.instance.municipio.save()
+        return self.instance
 
 class TelefoneMobileForm(forms.ModelForm):
     pass
