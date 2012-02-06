@@ -21,8 +21,8 @@ class MunicipioAdmin(admin.ModelAdmin):
     fieldsets = (
         (None, {
             'fields': ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
-                       'codigo_microrregiao', 'nome', 'uf', 'is_capital',
-                       'populacao', 'is_polo')
+                       'codigo_microrregiao', 'nome', 'data_criacao', 'uf',
+                       'is_capital', 'populacao', 'is_polo')
         }),
         ('Posição geográfica', {
             'fields': ('latitude', 'longitude'),

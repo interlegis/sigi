@@ -52,7 +52,8 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             'fields': ('tipo', 'nome', 'cnpj',)
         }),
         ('Endereço', {
-            'fields': ('logradouro', 'bairro', 'municipio', 'cep', 'pagina_web','email'),
+            'fields': ('data_instalacao', 'logradouro', 'bairro',
+                       'municipio', 'cep', 'pagina_web','email'),
         }),
         ('Outras informações', {
             'classes': ('collapse',),

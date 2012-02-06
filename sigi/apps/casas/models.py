@@ -64,6 +64,7 @@ class CasaLegislativa(models.Model):
     )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
+    data_instalacao = models.DateField(u'data de instalação da casa legislativa', null=True, blank=True)
 
 
     class Meta:
