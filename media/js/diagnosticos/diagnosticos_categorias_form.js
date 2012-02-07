@@ -54,14 +54,27 @@ $('#page').live('pageinit', function(event){
         }
     });
 
-    for (var i in id_to_close) {
-        id = id_to_close[i]
+    while (id_to_close.length > 0) {
+		console.debug(id_to_close)
+        id = id_to_close.pop()
         // Evita apagar uma pergunta caso ela possa
         // ser exibida por outra questão
-        if (id_to_open.indexOf(id_to_close[i]) == -1) {
+        if (id_to_open.indexOf(id) == -1) {
             // limpa o valor para não salva-lo
-            // no submit do form
-            $("#" + id + " input").val('');
+            // no submit do form sendo texto,
+            $("#" + id + " input:text").val('');
+            // textarea,
+            $("#" + id + " textarea").val('');
+            // checkbox ou radio
+            $("#" + id + " input:checked").each(function () {
+                $(this).attr("checked", false)
+                $(this).checkboxradio("refresh");
+                schema_to_open = $(this).attr('schema_to_open');
+				if (schema_to_open) {
+					id_to_close.push(schema_to_open);
+				}
+            });
+
             $("#" + id).slideUp();
         }
     }
