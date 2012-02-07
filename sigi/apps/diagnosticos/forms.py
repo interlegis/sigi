@@ -51,6 +51,9 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         'sugestoes_para_a_area_de_comunicacao' : {'widget': Textarea},
         'sugestoes_para_a_area_de_informacao' : {'widget': Textarea},
         'sugestoes_para_a_area_de_ti' : {'widget': Textarea},
+        'inscricoes_para_lista_gitec' : {'widget': Textarea},
+        'inscricoes_para_lista_gial' : {'widget': Textarea},
+        'inscricoes_para_lista_gicom' : {'widget': Textarea},
     }
     class Meta:
         model = Diagnostico
