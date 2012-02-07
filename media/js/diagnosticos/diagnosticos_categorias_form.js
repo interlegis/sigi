@@ -55,7 +55,6 @@ $('#page').live('pageinit', function(event){
     });
 
     while (id_to_close.length > 0) {
-		console.debug(id_to_close)
         id = id_to_close.pop()
         // Evita apagar uma pergunta caso ela possa
         // ser exibida por outra questão
@@ -70,9 +69,9 @@ $('#page').live('pageinit', function(event){
                 $(this).attr("checked", false)
                 $(this).checkboxradio("refresh");
                 schema_to_open = $(this).attr('schema_to_open');
-				if (schema_to_open) {
-					id_to_close.push(schema_to_open);
-				}
+                if (schema_to_open) {
+                    id_to_close.push(schema_to_open);
+                }
             });
 
             $("#" + id).slideUp();
