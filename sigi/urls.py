@@ -37,7 +37,10 @@ urlpatterns = patterns(
     'sigi.apps.casas.views.casas_sem_convenio_report'),
     # reports convenios
     (r'^sigi/convenios/convenio/reports/',
-     'sigi.apps.convenios.views.report'),         
+     'sigi.apps.convenios.views.report'),
+    # reports diagnosticos
+    (r'^sigi/diagnosticos/diagnostico/(?P<id_diagnostico>\w+).pdf',
+     'sigi.apps.diagnosticos.views.diagnostico_pdf'),
     #Carrinho Casa
     (r'^sigi/casas/casalegislativa/carrinho/deleta_itens_carrinho',
      'sigi.apps.casas.views.deleta_itens_carrinho'),

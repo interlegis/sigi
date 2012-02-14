@@ -1,0 +1,55 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>My Title</title>
+        <style type="text/css">
+            @page {
+                size: {{ pagesize }};
+                margin: 2cm;
+                @frame header {
+                    -pdf-frame-content: header;
+                    top: 0.5cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+                @frame footer {
+                    -pdf-frame-content: footer;
+                    bottom: 0cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            {%block page_header%}
+            Interlegis
+            {%endblock%}
+        </div>
+        <div>
+          {% for categoria, fields in forms %}
+            <h1>Bloco {{categoria.nome}}</h1>
+            {% for field in fields %}
+                <h2>
+                  {% if field.help_text %}
+                     {{ field.label }} ({{ field.help_text }})
+                  {% else %}
+                     {{ field.label }}
+                  {% endif %}
+                </h2>
+                <p>{{ field }}<p>
+            {% endfor %}
+            <pdf:nextpage>
+          {% endfor %}
+        </div>
+        <div id="footer">
+            {%block page_foot%}
+            Página <pdf:pagenumber>
+            {%endblock%}
+        </div>
+    </body>
+</html>

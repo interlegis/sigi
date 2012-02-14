@@ -1,10 +1,12 @@
 # -*- coding: utf8 -*-
 
+import new
 from django.http import HttpResponse
 from django.utils import simplejson
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
+from geraldo.generators import PDFGenerator
 
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
@@ -13,6 +15,7 @@ from sigi.apps.diagnosticos.models import Diagnostico, Categoria
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
+from sigi.shortcuts import render_to_pdf
 
 
 @never_cache
@@ -185,3 +188,28 @@ def categoria_contatos(request, id_diagnostico):
         'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
     return render_to_response('diagnosticos/diagnosticos_categoria_contatos_form.html',
         context)
+
+def diagnostico_pdf(request, id_diagnostico):
+    diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
+    categorias = Categoria.objects.all()
+
+    forms = []
+    for categoria in categorias:
+        form = DiagnosticoMobileForm(
+              instance=diagnostico,
+              category=categoria.id
+            )
+        fields = []
+        for field in form:
+            #field.value =  field.data[field.name]
+            fields.append(field)
+        forms.append((categoria,fields))
+
+    context = RequestContext(request, {
+          'pagesize':'A4',
+          'diagnostico': diagnostico,
+          'forms': forms,
+        })
+
+    return render_to_response('diagnosticos/diagnostico_pdf.html', context)
+
