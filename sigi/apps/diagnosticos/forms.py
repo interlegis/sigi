@@ -83,10 +83,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
         # Se determinada pergunta é da categoria pesquisada,
         # então, gere o campo no formulário.
-        for schema in self.instance.get_schemata():
-
-            if not schema.categoria_id == int(category):
-                continue
+        for schema in self.instance.get_schemata(int(category)):
 
             defaults = {
                 'label':     schema.title,

@@ -193,23 +193,33 @@ def diagnostico_pdf(request, id_diagnostico):
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     categorias = Categoria.objects.all()
 
-    forms = []
+    casa_legislativa = diagnostico.casa_legislativa
+    funcionarios = [casa_legislativa.funcionario_set.get_or_create(setor=n)[0]
+        for n, l in Funcionario.SETOR_CHOICES]
+
+    schemas_by_categoria = []
     for categoria in categorias:
-        form = DiagnosticoMobileForm(
-              instance=diagnostico,
-              category=categoria.id
-            )
-        fields = []
-        for field in form:
-            #field.value =  field.data[field.name]
-            fields.append(field)
-        forms.append((categoria,fields))
+        schemas = []
+        for schema in diagnostico.get_schemata(categoria.id):
+            datatype = schema.datatype
+            data = getattr(diagnostico, schema.name)
+            if datatype == schema.TYPE_MANY:
+                schema.value = [x.pk for x in data]
+            elif datatype == schema.TYPE_ONE:
+                schema.value = data.pk if data else None,
+            else:
+                schema.value = data
+            schemas.append(schema)
+
+        schemas_by_categoria.append((categoria,schemas))
 
     context = RequestContext(request, {
           'pagesize':'A4',
+          'casa_legislativa': casa_legislativa,
+          'funcionarios': funcionarios,
           'diagnostico': diagnostico,
-          'forms': forms,
+          'schemas_by_categoria': schemas_by_categoria,
         })
 
-    return render_to_response('diagnosticos/diagnostico_pdf.html', context)
+    return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
 

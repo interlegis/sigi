@@ -113,6 +113,16 @@ class Diagnostico(BaseEntity):
                 'status': "Alterado",
             })
 
+
+    def get_schemata(self, category=None, *args, **kwargs):
+        """ Se existir uma categoria retorna apenas as questões dessa.
+        """
+        schemas = super(Diagnostico,self).get_schemata(*args, **kwargs)
+        if category:
+          schemas = [s for s in schemas if s.categoria_id == category]
+
+        return schemas
+
     @classmethod
     def get_schemata_for_model(self):
         return Pergunta.objects.all()
@@ -121,7 +131,7 @@ class Diagnostico(BaseEntity):
         return str(self.casa_legislativa).decode('utf8')
 
     def get_absolute_url(self):
-        return "/sigi/diagnosticos/diagnostico/%i/" % (self.id, )
+        return "/sigi/diagnosticos/diagnostico/%i.pdf" % (self.id, )
 
 
 class Categoria(models.Model):
