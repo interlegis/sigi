@@ -211,6 +211,7 @@ def diagnostico_pdf(request, id_diagnostico):
                 schema.value = data
             schemas.append(schema)
 
+        schemas = sorted(schemas, key=lambda schema: schema.title) # sort by title
         schemas_by_categoria.append((categoria,schemas))
 
     context = RequestContext(request, {
