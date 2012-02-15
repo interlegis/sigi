@@ -109,7 +109,7 @@ class Diagnostico(BaseEntity):
                 'casa_legislativa': self.casa_legislativa,
                 'data_diagnostico': self.data_questionario,
                 'host': host,
-                'url_diagnostico': self.get_absolute_url,
+                'url_diagnostico': self.get_absolute_url(),
                 'status': "Alterado",
             })
 
