@@ -34,6 +34,7 @@
             li.selected {
                 list-style-type: disc;
                 color: #000;
+                font-weight: bold;
             }
             p.strong {
                 margin-left: 25px;
@@ -105,13 +106,22 @@
                 </br>
                 QUESTIONÁRIO DE DIAGNÓSTICO
             </h1>
+            <h2 style="text-align: center;">
+                {{ diagnostico.casa_legislativa }} - {{ diagnostico.casa_legislativa.municipio.uf.sigla }}
+            </h2>
 
             <h3>Data do Questionário:</h3>
             <p>De {{diagnostico.data_visita_inicio}} à {{diagnostico.data_visita_fim}}</p>
 
-            <h3>Nome do Responsável pelas Informações:</h3>
+            <h3>Chefe da equipe de diagnóstico:</h3>
             <p>{{diagnostico.responsavel}}</p>
-
+            
+            <h3>Membros da equipe de diagnóstico:</h3>
+            {% for membro in diagnostico.equipe_set.all %}
+            <p>{{membro}}</p>
+            {% endfor %}
+            
+<!--
             <h3>Cargo do Responsável pelas Informações:</h3>
             <p>{{diagnostico.responsavel.cargo|default_if_none:""}}&nbsp;</p>
 
@@ -122,6 +132,7 @@
             <h3>Telefone {{telefone.get_tipo_display}} do Responsável pelas Informações:</h3>
             <p>{{telefone}}</p>
             {% endfor %}
+-->
         </div>
 
         <div class="new_page">
@@ -185,7 +196,13 @@
                     {% endfor %}
                 </ul>
                 {% else %}
-                <p class="strong">{{ schema.value|default_if_none:""}}&nbsp;</p>
+                	<p class="strong">
+						{% if schema.datatype == schema.TYPE_FLOAT %}
+							{{ schema.value|floatformat|default_if_none:""}}
+						{% else %}
+							{{ schema.value|default_if_none:""}}
+						{% endif %}
+                	&nbsp;</p>
                 {% endif %}
             </div>
             {% endfor %}
