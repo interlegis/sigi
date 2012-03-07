@@ -89,7 +89,7 @@ class Diagnostico(BaseEntity):
             {
                 'responsavel': self.responsavel.nome_completo,
                 'casa_legislativa': self.casa_legislativa,
-                'data_diagnostico': self.data_questionario,
+                'data_diagnostico': self.data_visita_inicio,
                 'host': host,
                 'url_diagnostico': self.get_absolute_url(),
                 'status': u"Publicado",
@@ -107,7 +107,7 @@ class Diagnostico(BaseEntity):
             {
                 'servidor': self.responsavel.nome_completo,
                 'casa_legislativa': self.casa_legislativa,
-                'data_diagnostico': self.data_questionario,
+                'data_diagnostico': self.data_visita_inicio,
                 'host': host,
                 'url_diagnostico': self.get_absolute_url(),
                 'status': "Alterado",
