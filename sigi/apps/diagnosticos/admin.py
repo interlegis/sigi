@@ -19,7 +19,7 @@ def publicar_diagnostico(self, request, queryset):
         # Enviando o email avisando que o diagnóstico foi publicado
         email = diagnostico.responsavel.user.email
         if email:
-          diagnostico.email_diagnostico_publicado(email, requeslt.get_host())
+          diagnostico.email_diagnostico_publicado(email, request.get_host())
     self.message_user(request, "Diagnóstico(s) publicado(s) com sucesso!")
 publicar_diagnostico.short_description = u"""
     Definir diagnósticos como publicado"""
