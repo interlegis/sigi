@@ -76,7 +76,11 @@ urlpatterns = patterns(
     # Menu com Birt reports
     (r'^sigi/birt/',
      'sigi.apps.birt.views.menu'),
-
+    # graficos de perguntas
+    (r'^sigi/diagnosticos/graficos/$',
+     'sigi.apps.diagnosticos.views.graficos'),
+    (r'^sigi/diagnosticos/grafico_api/$',
+     'sigi.apps.diagnosticos.views.grafico_api'),
     # automatic interface based on admin
     (r'^sigi/(.*)', sites.default.root),
 )

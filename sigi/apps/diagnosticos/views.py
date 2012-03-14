@@ -1,9 +1,9 @@
 # -*- coding: utf8 -*-
 
 import new
-from django.http import HttpResponse
+from django.http import HttpResponse, QueryDict
 from django.utils import simplejson
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404, redirect
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
 from geraldo.generators import PDFGenerator
@@ -11,7 +11,7 @@ from geraldo.generators import PDFGenerator
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
 from sigi.apps.diagnosticos.decorators import validate_diagnostico
-from sigi.apps.diagnosticos.models import Diagnostico, Categoria
+from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
@@ -211,7 +211,6 @@ def diagnostico_pdf(request, id_diagnostico):
                 schema.value = data
             schemas.append(schema)
 
-        schemas = sorted(schemas, key=lambda schema: schema.title) # sort by title
         schemas_by_categoria.append((categoria,schemas))
 
     context = RequestContext(request, {
@@ -223,4 +222,59 @@ def diagnostico_pdf(request, id_diagnostico):
         })
 
     return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
+
+def graficos(request):
+    categorias = Categoria.objects.all()
+
+    sel_categoria = int(request.REQUEST.get("categoria","3"))
+    perguntas = Pergunta.objects.filter(categoria=sel_categoria).all()
+
+    context = RequestContext(request, {
+        'categorias': categorias,
+        'sel_categoria': sel_categoria,
+        'perguntas': perguntas,
+        })
+    return render_to_response('diagnosticos/graficos.html',
+        context)
+
+def grafico_api(request):
+    graph_url = "http://chart.apis.google.com/chart"
+    graph_params = QueryDict("chxt=y&chbh=a&chco=A2C180,3D7930")
+    graph_params = graph_params.copy() # to make it mutable
+
+    width = request.REQUEST.get('width', '300')
+    height = request.REQUEST.get('height', '200')
+    graph_params.update({'chs': width + 'x' + height})
+
+    pergunta_slug = request.REQUEST.get('id', None)
+    pergunta = get_object_or_404(Pergunta, name=pergunta_slug)
+
+    if pergunta.datatype == 'many':
+      choices = [r[1] for r in pergunta.get_choices()]
+      graph_params.update({
+            'cht': 'bvg',
+            'chxt' : 'y',
+            'chd': 't:' + ",".join(choices)
+        })
+    elif pergunta.datatype == 'one':
+      choices = [str(r[1]) for r in pergunta.group_choices()]
+      graph_params.update({
+        'cht': 'p',
+        'chd': 't:' + ",".join(choices)
+        })
+
+    response = {
+        "version": "1.0",
+        "type": "photo",
+        "width": width,
+        "height": height,
+        "title": pergunta.title,
+        "url": graph_url + "?" + graph_params.urlencode(),
+        "provider_name": "SIGI",
+        "provider_url": "https://intranet.interlegis.gov.br/sigi/"
+    }
+
+    json = simplejson.dumps(response)
+    return HttpResponse(json, mimetype="application/json")
+    return redirect(response['url'])
 

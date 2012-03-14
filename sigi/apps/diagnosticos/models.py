@@ -155,6 +155,22 @@ class Pergunta(BaseSchema):
     """
     categoria = models.ForeignKey(Categoria, related_name='perguntas')
 
+    def group_choices(self):
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+
+        cursor.execute("""
+          SELECT choice_id, sum(1)
+          FROM diagnosticos_resposta
+          WHERE schema_id=%s
+          GROUP BY choice_id;
+        """, [self.id])
+
+        return [
+          (Escolha.objects.get(id=int(row[0])), row[1])
+          for row in cursor.fetchall()
+        ]
+
     class Meta:
         ordering = ('title',)
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
