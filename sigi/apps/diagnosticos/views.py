@@ -237,9 +237,16 @@ def graficos(request):
     return render_to_response('diagnosticos/graficos.html',
         context)
 
+def percentage(fraction, population):
+    try:
+        return "%.0f%%" % ((float(fraction) / float(population)) * 100)
+    except ValueError:
+        return ''
+
 def grafico_api(request):
     graph_url = "http://chart.apis.google.com/chart"
-    graph_params = QueryDict("chxt=y&chbh=a&chco=A2C180,3D7930")
+    #graph_params = QueryDict("chxt=y&chbh=a&chco=A2C180,3D7930")
+    graph_params = QueryDict("")
     graph_params = graph_params.copy() # to make it mutable
 
     width = request.REQUEST.get('width', '300')
@@ -249,22 +256,29 @@ def grafico_api(request):
     pergunta_slug = request.REQUEST.get('id', None)
     pergunta = get_object_or_404(Pergunta, name=pergunta_slug)
 
-    if pergunta.datatype == 'many':
-      choices = [r[1] for r in pergunta.get_choices()]
-      graph_params.update({
-            'cht': 'bvg',
-            'chxt' : 'y',
-            'chd': 't:' + ",".join(choices)
-        })
-    elif pergunta.datatype == 'one':
+    if pergunta.datatype == 'one':
+      total = sum([r[1] for r in pergunta.group_choices()])
       choices = [str(r[1]) for r in pergunta.group_choices()]
+      legend = [percentage(r[1],total) + " " + str(r[0]) for r in pergunta.group_choices()]
       graph_params.update({
         'cht': 'p',
-        'chd': 't:' + ",".join(choices)
+        'chd': 't:' + ",".join(choices),
+        'chdl': '' + "|".join(legend),
+        })
+    elif pergunta.datatype == 'many':
+      total = sum([r[1] for r in pergunta.group_choices()])
+      percent = [str(float(r[1])*100/total) for r in pergunta.group_choices()]
+      choices = [str(r[1]) for r in pergunta.group_choices()]
+      legend = [str(r[0]) for r in pergunta.group_choices()]
+      graph_params.update({
+        'cht': 'bvg',
+        'chxt': 'y',
+        'chd': 't:' + ",".join(percent),
+        'chdl': '' + "|".join(legend),
+        'chl': '' + "|".join(choices),
         })
 
     response = {
-        "version": "1.0",
         "type": "photo",
         "width": width,
         "height": height,
@@ -276,5 +290,4 @@ def grafico_api(request):
 
     json = simplejson.dumps(response)
     return HttpResponse(json, mimetype="application/json")
-    return redirect(response['url'])
 

@@ -43,13 +43,17 @@ jQuery(document).ready(function () {
   </form>
   <div id="perguntas">
     <ul>
-      {% for pergunta in perguntas%}
-      <li>
-        <a id="{{pergunta.name}}" href="/sigi/diagnosticos/grafico_api/?id={{pergunta.name}}">{{pergunta.title}}</a>
-        <div id="output_{{pergunta.name}}" class="grafico">
-          <img style="display:none"/>
-        </div>
-      </li>
+      {% for pergunta in perguntas %}
+        <li>
+          {% if pergunta.datatype == 'many' or pergunta.datatype == 'one' %}
+          <a id="{{pergunta.name}}" href="/sigi/diagnosticos/grafico_api/?id={{pergunta.name}}"><p>{{pergunta.title}}</p></a>
+          <div id="output_{{pergunta.name}}" class="grafico">
+            <img style="display:none"/>
+          </div>
+          {% else %}
+          <p>{{pergunta.title}}</p>
+          {% endif %}
+        </li>
       {% endfor %}
     </ul>
   </div>

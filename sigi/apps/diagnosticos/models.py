@@ -171,6 +171,18 @@ class Pergunta(BaseSchema):
           for row in cursor.fetchall()
         ]
 
+    def total_anwsers(self):
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+
+        cursor.execute("""
+          SELECT sum(1)
+          FROM diagnosticos_resposta
+          WHERE schema_id=%s
+        """, [self.id])
+
+        return cursor.fetchone()
+
     class Meta:
         ordering = ('title',)
         verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
