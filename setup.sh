@@ -1,4 +1,4 @@
-#!bin/bash
+#!/bin/bash
 
 #############################################################
 ## Arquivo: setup.sh                                       ##
@@ -67,6 +67,8 @@ else
             cd geraldo
             python setup.py install
             cp -Rvf reporting geraldo /usr/local/lib/python2.7/site-packages
+            # if you are using virtualenv 'sigi' use
+            # cp -Rvf reporting geraldo $WORKON_HOME/sigi/lib/python2.7/site-packages
         fi
     else
         echo
