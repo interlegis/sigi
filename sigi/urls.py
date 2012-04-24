@@ -79,7 +79,7 @@ urlpatterns = patterns(
     # graficos de perguntas
     (r'^sigi/diagnosticos/graficos/$',
      'sigi.apps.diagnosticos.views.graficos'),
-    (r'^sigi/diagnosticos/grafico_api/$',
+    (r'^sigi/api/diagnosticos/$',
      'sigi.apps.diagnosticos.views.grafico_api'),
     # automatic interface based on admin
     (r'^sigi/(.*)', sites.default.root),

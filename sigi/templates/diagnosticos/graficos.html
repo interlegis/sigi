@@ -46,7 +46,7 @@ jQuery(document).ready(function () {
       {% for pergunta in perguntas %}
         <li>
           {% if pergunta.datatype == 'many' or pergunta.datatype == 'one' %}
-          <a id="{{pergunta.name}}" href="/sigi/diagnosticos/grafico_api/?id={{pergunta.name}}"><p>{{pergunta.title}}</p></a>
+          <a id="{{pergunta.name}}" href="/sigi/api/diagnosticos/?id={{pergunta.name}}"><p>{{pergunta.title}}</p></a>
           <div id="output_{{pergunta.name}}" class="grafico">
             <img style="display:none"/>
           </div>
