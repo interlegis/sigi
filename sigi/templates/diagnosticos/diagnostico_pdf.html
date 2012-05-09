@@ -198,9 +198,9 @@
                 {% else %}
                 	<p class="strong">
 						{% if schema.datatype == schema.TYPE_FLOAT %}
-							{{ schema.value|floatformat|default_if_none:""}}
+							{{ schema.value|floatformat|default_if_none:"sem resposta"}}
 						{% else %}
-							{{ schema.value|default_if_none:""}}
+							{{ schema.value|default_if_none:"sem resposta"}}
 						{% endif %}
                 	&nbsp;</p>
                 {% endif %}
