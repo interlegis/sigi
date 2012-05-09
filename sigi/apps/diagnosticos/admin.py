@@ -4,11 +4,8 @@ from django.contrib import admin
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
+from sigi.apps.contatos.models import UnidadeFederativa
 
-
-"""
-Actions do Admin
-"""
 def publicar_diagnostico(self, request, queryset):
     for registro in queryset:
         diagnostico = Diagnostico.objects.get(pk=registro.id)
@@ -30,7 +27,6 @@ def despublicar_diagnostico(self, request, queryset):
 despublicar_diagnostico.short_description = u"""
     Definir diagnósticos como não publicado"""
 
-
 class EquipeInline(admin.TabularInline):
     model = Equipe
 
@@ -38,7 +34,6 @@ class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
     exclude = ['data_pub', ]
-
 
 class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'
@@ -48,13 +43,12 @@ class AnexoAdmin(admin.ModelAdmin):
     search_fields = ('descricao', 'diagnostico__id', 'arquivo',
                      'diagnostico__casa_legislativa__nome')
 
-
 class DiagnosticoAdmin(BaseEntityAdmin):
     form = DiagnosticoForm
     actions = [publicar_diagnostico, despublicar_diagnostico]
     inlines = (EquipeInline, AnexosInline)
     search_fields = ('casa_legislativa__nome', 'responsavel',)
-    list_display = ('casa_legislativa', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
+    list_display = ('casa_legislativa','getUf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
     list_filter  = ('publicado', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
     raw_id_fields = ('casa_legislativa',)
 
@@ -75,6 +69,11 @@ class DiagnosticoAdmin(BaseEntityAdmin):
           'fields': tuple(perguntas),
           'classes': ['collapse']
           }))
+
+    def getUf(self, obj):
+        return '%s' % (obj.casa_legislativa.municipio.uf)
+
+    getUf.short_description = 'UF'
 
 class EscolhaAdmin(admin.ModelAdmin):
     search_fields = ('title',)
