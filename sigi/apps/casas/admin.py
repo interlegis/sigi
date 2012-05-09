@@ -15,17 +15,20 @@ from sigi.apps.utils import queryset_ascii
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
+    readonly_fields = ('ult_alteracao',)
     extra = 1
 
 class PresidenteInline(admin.StackedInline):
     model = Presidente
     exclude = ['cargo','funcao']
+    readonly_fields = ('ult_alteracao',)
     extra = 1
     max_num = 1
     inlines = (TelefonesInline)
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
+    readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline)
     def queryset(self, request):
@@ -42,18 +45,19 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline)
-    list_display = ('nome','municipio','logradouro')
+    readonly_fields = ('ult_alt_endereco',)
+    list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
     ordering = ('nome','municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'cnpj',)
+            'fields': ('tipo', 'nome', 'cnpj')
         }),
         ('Endereço', {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
-                       'municipio', 'cep', 'pagina_web','email'),
+                       'municipio', 'cep', 'pagina_web','email', 'ult_alt_endereco'),
         }),
         ('Outras informações', {
             'classes': ('collapse',),

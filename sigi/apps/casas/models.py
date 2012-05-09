@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import SearchField
+from datetime import datetime
 
 class TipoCasaLegislativa(models.Model):
     """ Modelo para representar o tipo da Casa Legislativa
@@ -54,6 +55,7 @@ class CasaLegislativa(models.Model):
         blank=True,
         verify_exists=False
     )
+    ult_alt_endereco = models.DateTimeField(u'Última alteração do endereço', null=True, blank=True, editable=False)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -95,6 +97,24 @@ class CasaLegislativa(models.Model):
 
     def __unicode__(self):
         return self.nome
+    
+    def save(self, *args, **kwargs):
+        address_changed = False
+        
+        if self.pk is not None:
+            original = CasaLegislativa.objects.get(pk=self.pk)
+            if (self.logradouro != original.logradouro or
+                self.bairro != original.bairro or
+                self.municipio != original.municipio or
+                self.cep != original.cep):
+                address_changed = True
+        else:
+            address_changed = True
+            
+        if address_changed:
+            self.ult_alt_endereco = datetime.now()
+            
+        return super(CasaLegislativa, self).save(*args, **kwargs)
 
 class Funcionario(models.Model):
     """ Modelo para registrar contatos vinculados às
@@ -123,6 +143,7 @@ class Funcionario(models.Model):
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
     setor = models.CharField(max_length=100, choices = SETOR_CHOICES, default="outros")
     tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
+    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True) 
 
     class Meta:
         ordering = ('nome',)

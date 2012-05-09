@@ -128,6 +128,7 @@ class Telefone(models.Model):
         default= 'I' 
     )
     nota = models.CharField(max_length=70, null=True, blank=True)
+    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True) 
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
