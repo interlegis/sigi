@@ -273,7 +273,10 @@ def export_csv(request):
             elif u"Município" == atributo:
                 lista.append(str(casa.municipio))            
             elif u"Presidente" == atributo:
-                lista.append(str(casa.presidente or "").encode("utf-8"))
+		#TODO: Esse encode deu erro em 25/04/2012. Comentei para que o usuário pudesse continuar seu trabalho
+                # É preciso descobrir o porque do erro e fazer a correção definitiva.
+#                lista.append(str(casa.presidente or "").encode("utf-8"))
+                 lista.append(str(casa.presidente or ""))
             elif u"Logradouro" == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
             elif u"Bairro" == atributo:
