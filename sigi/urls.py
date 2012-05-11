@@ -41,6 +41,11 @@ urlpatterns = patterns(
     # reports diagnosticos
     (r'^sigi/diagnosticos/diagnostico/(?P<id_diagnostico>\w+).pdf',
      'sigi.apps.diagnosticos.views.diagnostico_pdf'),
+    # reports servidores
+    (r'^sigi/servidores/servidores_por_funcao.pdf',
+     'sigi.apps.servidores.views.servidores_por_funcao'),
+    (r'^sigi/servidores/servidores_por_cargo.pdf',
+     'sigi.apps.servidores.views.servidores_por_cargo'),
     #Carrinho Casa
     (r'^sigi/casas/casalegislativa/carrinho/deleta_itens_carrinho',
      'sigi.apps.casas.views.deleta_itens_carrinho'),
