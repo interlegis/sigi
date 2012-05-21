@@ -1,0 +1,56 @@
+21/05/2012
+
+Procedimento para importação de dados públicos obtidos do IBGE.
+
+- Tabela de Municípios:
+	Disponível desde 1940, foi atualizada a cada década entre os anos
+1940 e 2000 e depois anualmente até a última atualização em 2009 (este
+parágrafo foi escrito em maio de 2012).
+
+	A atualização mais recente, portanto, é do ano de 2009. Considerando
+que o formato de publicação tem variado bastante, o roteiro abaixo é
+específico para os dados referentes ao ano 2009.
+
+- Procedimentos e instruções:
+
+1. Questões óbvias como configuração de PROXY são omitidas por não serem
+relacionadas ao procedimento.
+2. O diretório-base de referência no projeto é o raiz do projeto conforme
+foi exportado do repositório, referenciado por $
+3. O URL-base de obtenção dos dados é:
+
+	ftp://geoftp.ibge.gov.br
+
+4. Tornar o diretório corrente para:
+
+	$/SIGI/trunk/etc/data/ibge
+
+5. Baixar o arquivo de 2009. O comando executado com sucesso considerando a
+configuração da intranet do Interlegis na data corrente - maio de 2012 - é:
+
+	wget -r --no-proxy ftp://geoftp.ibge.gov.br/organizacao_territorial/divisao_territorial/2009/ organizacao_territorial/divisao_territorial/2009
+
+(o comando acima criará o caminho local "geoftp.ibge.gov.br/organizacao_territorial/divisao_territorial/2009/")
+
+6. Torne corrente o caminho onde o arquivo de 2009 está baixado:
+
+	cd geoftp.ibge.gov.br/organizacao_territorial/divisao_territorial/2009
+
+7. Expanda o arquivo obtido:
+
+	unzip dtb_05_05_2009.zip
+
+8. Converta o arquivo expandido para o formato "CSV":
+
+	xls2csv DTB_05_05_2009.xls > DTB_05_05_2009.csv
+
+9. Volte para o diretório-base do IBGE:
+
+	$/SIGI/trunk/etc/data/ibge
+
+10. Execute o script de importação, cuja documentação dos processos encontra-se
+nos fontes:
+
+	sigi-import-ibge-2009.sh geoftp.ibge.gov.br/organizacao_territorial/divisao_territorial/2009/DTB_05_05_2009.csv
+
+
