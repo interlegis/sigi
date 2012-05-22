@@ -1,6 +1,7 @@
 #!/bin/sh
 
 arquivo_csv=""
+limite=0
 
 # Caso a variavel _DEBUG nao tenha sido preparada externamente,
 # assumir que o default é sem DEBUG
@@ -45,6 +46,10 @@ PrintMessage( )
 	fi
 }
 
+# Processar os argumentos passados pela linha de comando. Devem estar no
+# formato de atribuicao de variaveis em Shell, ou entao devem ser atribuidos
+# e exportados pelo processo chamador. Caso na expressao [var]=[valor] exista
+# separadores, todo o argumento deve estar entre aspas: "[var]=[valor]"
 while [ "${#}" -gt 0 ]
 do
 	if echo "${1}" | grep "=" 2>&1 > /dev/null
@@ -60,6 +65,8 @@ do
 	shift
 done
 
+####################################
+# Secao de validacao de parametros
 if [ -z "${arquivo_csv}" ]
 then
 	PrintDebug "ERRO: informe o arquivo de importacao."
@@ -92,11 +99,6 @@ do
 	eval "arquivo_${nivel}=/tmp/${nome_base}.${nivel}.csv"
 done
 
-# arquivo_uf=/tmp/${nome_base}.uf.csv
-# arquivo_macrorregiao=/tmp/${nome_base}.macrorregiao.csv
-# arquivo_microrregiao=/tmp/${nome_base}.microrregiao.csv
-# arquivo_municipio=/tmp/${nome_base}.municipio.csv
-
 exec 3< "${arquivo_csv}" 4> "${arquivo_uf}" 5> "${arquivo_macrorregiao}" 6> "${arquivo_microrregiao}" 7> "${arquivo_municipio}"
 
 lnum=0
@@ -115,7 +117,7 @@ do
 	echo "$linha" | cut -s -d, -f1,3,4 >&5
 	echo "$linha" | cut -s -d, -f1,3,5,6 >&6
 	echo "$linha" | cut -s -d, -f1,3,5,7,8 >&7
-	if [ "${lnum}" -ge 1000 ]
+	if [ -n "${limite}" -a "${limite}" -gt 0 -a "${lnum}" -ge "${limite}" ]
 	then
 		break
 	fi
@@ -124,7 +126,7 @@ done
 PrintMessage "\n${lnum} registros processados"
 
 # fecha os descritores de saida
-exec 4>&- 5>&- 6>&- 7>&-
+exec 3<&- 4>&- 5>&- 6>&- 7>&-
 
 for nivel in $niveis
 do
@@ -145,4 +147,5 @@ done
 IFS="$ifs"
 
 # Processar arquivos: INSERT ou UPDATE no banco
+
 

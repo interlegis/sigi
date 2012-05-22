@@ -1,5 +1,8 @@
 import sys, csv
 
+"""
+"""
+
 _root_dict = None
 
 def getUFdict( root, ufid ):
@@ -14,6 +17,7 @@ def getCidadesDict( macrodict, microid ):
 		macrodict[ '__children' ] = microdict
 
 def main( ):
+	argc = len( sys.argv )
 	arquivo = open( 'geoftp.ibge.gov.br/organizacao_territorial/divisao_territorial/2009/DTB_05_05_2009.csv', 'r' )
 	# despreza o cabecalho
 	arquivo.readline( )
