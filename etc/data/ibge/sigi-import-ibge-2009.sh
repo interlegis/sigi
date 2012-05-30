@@ -93,13 +93,13 @@ fi
 # os scripts Python para atualização do banco
 
 nome_base=sigi_ibge_import
-niveis="uf macrorregiao microrregiao municipio"
+niveis="uf mesorregiao microrregiao municipio"
 for nivel in $niveis
 do
 	eval "arquivo_${nivel}=/tmp/${nome_base}.${nivel}.csv"
 done
 
-exec 3< "${arquivo_csv}" 4> "${arquivo_uf}" 5> "${arquivo_macrorregiao}" 6> "${arquivo_microrregiao}" 7> "${arquivo_municipio}"
+exec 3< "${arquivo_csv}" 4> "${arquivo_uf}" 5> "${arquivo_mesorregiao}" 6> "${arquivo_microrregiao}" 7> "${arquivo_municipio}"
 
 lnum=0
 
