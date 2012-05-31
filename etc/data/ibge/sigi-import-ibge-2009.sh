@@ -113,6 +113,8 @@ do
 	then
 		PrintMessage -n "${lnum} "
 	fi
+	# extrair o codigo da regiao a partir do codigo da UF
+	$coduf=``
 	echo "$linha" | cut -s -d, -f1,2 >&4
 	echo "$linha" | cut -s -d, -f1,3,4 >&5
 	echo "$linha" | cut -s -d, -f1,3,5,6 >&6
