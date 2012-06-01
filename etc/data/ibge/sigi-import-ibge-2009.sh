@@ -28,12 +28,16 @@ PrintDebug( )
 
 PrintHelp( )
 {
-	PrintDebug `basename "${0}"` " -- importa tabelas de cidades do IBGE"
-	PrintDebug "Opcoes aceitas:"
-	PrintDebug "	arquivo_csv=[caminho]"
-	PrintDebug "		informa o caminho para o arquivo no formato 2009"
-	PrintDebug "	_DEBUG=[debug]"
-	PrintDebug "		0 para nao mostrar mensagens, 1 para mostrar"
+	PrintMessage `basename "${0}"` " -- importa tabelas de cidades do IBGE"
+	PrintMessage "Opcoes aceitas:"
+	PrintMessage "	arquivo_csv=[caminho]"
+	PrintMessage "		informa o caminho para o arquivo no formato 2009"
+	PrintMessage "	limite=N"
+	PrintMessage "		determina a quantidade maxima de registros de entrada processados"
+	PrintMessage "	_VERBOSE=[verbose]"
+	PrintMessage "		0 para nao mostrar mensagens, 1 para mostrar"
+	PrintMessage "	_DEBUG=[debug]"
+	PrintMessage "		0 para nao mostrar mensagens de depuracao, 1 para mostrar"
 }
 
 PrintMessage( )
@@ -69,28 +73,42 @@ done
 # Secao de validacao de parametros
 if [ -z "${arquivo_csv}" ]
 then
-	PrintDebug "ERRO: informe o arquivo de importacao."
+	PrintMessage "ERRO: informe o arquivo de importacao."
 	PrintHelp
 	exit 2
 fi
 
 if [ ! -f "${arquivo_csv}" ]
 then
-	PrintDebug "ERRO: o arquivo de importacao nao existe ou nao pode ser acessado (\"${arquivo_csv}\")."
+	PrintMessage "ERRO: o arquivo de importacao nao existe ou nao pode ser acessado (\"${arquivo_csv}\")."
 	PrintHelp
 	exit 3
 fi
 
 if [ ! -r "${arquivo_csv}" ]
 then
-	PrintDebug "ERRO: o arquivo de importacao nao pode ser lido (\"${arquivo_csv}\")."
+	PrintMessage "ERRO: o arquivo de importacao nao pode ser lido (\"${arquivo_csv}\")."
 	PrintHelp
 	exit 4
 fi
 
 # filtrar o arquivo original para area de trabalho, por
 # UF, Mesorregiao, Microrregiao, Municipio e depois executar
-# os scripts Python para atualização do banco
+# os scripts Python para atualização do banco.
+# O formato do arquivo obtido do IBGE e' CSV com as seguintes colunas:
+#
+# 1: "UF"
+# 2: "Nome_UF"
+# 3: "MesorregiãoGeográfica"
+# 4: "MesorregiãoGeográfica_Nome"
+# 5: "MicrorregiãoGeográfica"
+# 6: "MicrorregiãoGeográfica_Nome"
+# 7: "Município"
+# 8: "Município_Nome"
+# 9: "Distrito"
+# 10: "Distrito_Nome"
+# 11: "Subdistrito"
+# 12: "Subdistrito_Nome"
 
 nome_base=sigi_ibge_import
 niveis="uf mesorregiao microrregiao municipio"
@@ -114,11 +132,19 @@ do
 		PrintMessage -n "${lnum} "
 	fi
 	# extrair o codigo da regiao a partir do codigo da UF
-	$coduf=``
-	echo "$linha" | cut -s -d, -f1,2 >&4
-	echo "$linha" | cut -s -d, -f1,3,4 >&5
-	echo "$linha" | cut -s -d, -f1,3,5,6 >&6
-	echo "$linha" | cut -s -d, -f1,3,5,7,8 >&7
+	# e criar o novo campo 1 com o codigo da regiao
+	codregiao=`echo "$linha" | cut -b2-2`
+	linha="\"${codregiao}\",$linha"
+	# UFs: cod_regiao,cod_uf,nome_uf
+	#	-- a sigla por enquanto devera ser adicionada manualmente
+	echo "$linha" | cut -s -d, -f1,2,3 >&4
+	# Mesorregiao: cod_regiao,cod_uf,cod_mesorregiao,nome_mesorregiao
+	echo "$linha" | cut -s -d, -f1,2,4,5 >&5
+	# Microrregiao: cod_regiao,cod_uf,cod_mesorregiao,cod_microrregiao,nome_microrregiao
+	echo "$linha" | cut -s -d, -f1,2,4,6,7 >&6
+	# Municipio: cod_regiao,cod_uf,cod_mesorregiao,cod_microrregiao,cod_municipio,nome_municipio
+	# 7> "${arquivo_municipio}"
+	echo "$linha" | cut -s -d, -f1,2,4,6,8,9 >&7
 	if [ -n "${limite}" -a "${limite}" -gt 0 -a "${lnum}" -ge "${limite}" ]
 	then
 		break
