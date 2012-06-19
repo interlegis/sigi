@@ -35,6 +35,7 @@ class CasaLegislativa(models.Model):
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
+    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
 
     # Informações de contato
     logradouro = models.CharField(
@@ -120,6 +121,7 @@ class Funcionario(models.Model):
     """ Modelo para registrar contatos vinculados às
     Casas Legislativas
     """
+    
     SETOR_CHOICES = [
         ("presidente","Presidente"),
         ("contato_interlegis","Contato Interlegis"),
@@ -132,9 +134,15 @@ class Funcionario(models.Model):
         ("gestao","Gestão"),
         ("outros","Outros"),
         ]
+    SEXO_CHOICES = [
+        ("M", "Masculino"),
+        ("F", "Feminino")
+        ]
+    
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     nome = models.CharField('nome completo', max_length=60, blank=True)
     nome.alphabetic_filter = True
+    sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
     nota = models.CharField(max_length=70, null=True, blank=True)
     email = models.EmailField('e-mail', null=True, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
