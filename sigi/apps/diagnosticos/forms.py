@@ -162,4 +162,4 @@ class FuncionariosMobileForm(forms.ModelForm):
 
     class Meta:
         model = Funcionario
-        fields = ('nome', 'email', 'cargo', 'funcao', 'tempo_de_servico')
+        fields = ('nome', 'email', 'cargo', 'funcao', 'tempo_de_servico', 'sexo')
