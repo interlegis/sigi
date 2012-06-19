@@ -53,7 +53,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     queyrset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'cnpj')
+            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares')
         }),
         ('Endereço', {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
