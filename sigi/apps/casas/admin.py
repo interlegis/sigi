@@ -28,9 +28,12 @@ class PresidenteInline(admin.StackedInline):
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
+    fieldsets = ((None, {
+                    'fields': (('nome', 'sexo', 'nota', 'email'), ('cargo', 'funcao', 'setor', 'tempo_de_servico'), 'ult_alteracao') 
+                }),)
     readonly_fields = ('ult_alteracao',)
     extra = 1
-    inlines = (TelefonesInline)
+    inlines = (TelefonesInline,)
     def queryset(self, request):
         return self.model.objects.exclude(cargo="Presidente")
 
