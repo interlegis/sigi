@@ -1,0 +1,42 @@
+{% extends "admin/change_form.html" %}
+{% load i18n admin_modify adminmedia %}
+
+{% block after_related_objects %}
+{{ block.super }}
+<div id="servico_list-group" class="inline-group">
+	<div class="tabular inline-related last-related">
+		<fieldset class="module">
+			<h2>Servicos</h2>
+
+			<table>
+			<thead>
+     			<tr>
+        			<th colspan="2">Tipo de serviço</th>
+					<th>Hospedagem no Interlegis?</th>
+					<th>Data de ativação</th>
+					<th>Data da última alteração</th>
+					<th>Data de desativação</th>
+				</tr>
+			</thead>
+			<tbody>
+			{% for srv in original.servico_set.all %}
+     			<tr>
+        			<td><p><a href="{% url admin:servicos_servico_change srv.id %}">{{ srv.tipo_servico.sigla }}</a></p></td>
+        			<td>{{ srv.tipo_servico }}</td>
+					<td><img alt="{{ srv.hospedagem_interlegis }}" src="{% admin_media_prefix %}img/admin/icon-{{ srv.hospedagem_interlegis|yesno:'yes,no' }}.gif"></td>
+					<td>{{ srv.data_ativacao|date:'SHORT_DATE_FORMAT' }}</td>
+					<td>{{ srv.data_alteracao|date:'SHORT_DATE_FORMAT' }}</td>
+					<td>{{ srv.data_desativacao|date:'SHORT_DATE_FORMAT' }}</td>
+				</tr>
+			{% empty %}
+				<tr> <td colspan="6">Nenhum serviço cadastrado para esta Casa Legislativa</td> </tr>
+			{% endfor %}
+				<tr class="add-row">
+					<td colspan="6"><a href="{% url admin:servicos_servico_add %}?id_casa={{ original.id }}">Adicionar outro Servico</a></td>
+				</tr>			
+			</tbody>
+			</table>
+		</fieldset>
+	</div>
+</div>
+{% endblock %}

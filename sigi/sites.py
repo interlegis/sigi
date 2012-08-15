@@ -14,7 +14,8 @@ from sigi.apps.inventario.admin import (Fornecedor, FornecedorAdmin, Fabricante,
                                         EquipamentoAdmin, TipoEquipamento,
                                         TipoEquipamentoAdmin, ModeloEquipamento,
                                         ModeloEquipamentoAdmin, Bem, BemAdmin)
-from sigi.apps.servicos.admin import Servico, ServicoAdmin, DominioLeg, DominiolegAdmin
+from sigi.apps.servicos.admin import (TipoServico, TipoServicoAdmin, CasaAtendida,
+                            CasaAtendidaAdmin, Servico, ServicoAdmin)
 from sigi.apps.mesas.admin import (Legislatura, LegislaturaAdmin, Coligacao,
                                    ColigacaoAdmin, ComposicaoColigacao,
                                    ComposicaoColigacaoAdmin, SessaoLegislativa,
@@ -75,8 +76,9 @@ default.register(Equipamento, EquipamentoAdmin)
 default.register(Bem, BemAdmin)
 
 # sigi.apps.servicos
+default.register(TipoServico, TipoServicoAdmin)
 default.register(Servico, ServicoAdmin)
-default.register(DominioLeg, DominiolegAdmin)
+default.register(CasaAtendida, CasaAtendidaAdmin)
 
 # sigi.apps.mesas
 default.register(Legislatura, LegislaturaAdmin)

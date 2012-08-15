@@ -1,5 +1,6 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?eclipse-pydev version="1.0"?>
+
 <pydev_project>
   
   
@@ -34,8 +35,9 @@
   
   
   <pydev_pathproperty name="org.python.pydev.PROJECT_SOURCE_PATH">
-    <path>/sigi</path>
-  </pydev_pathproperty>
+<path>/sigi</path>
+<path>/sigi/sigi</path>
+</pydev_pathproperty>
   
   
   

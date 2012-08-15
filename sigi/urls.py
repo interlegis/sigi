@@ -87,7 +87,8 @@ urlpatterns = patterns(
     (r'^sigi/api/diagnosticos/$',
      'sigi.apps.diagnosticos.views.grafico_api'),
     # automatic interface based on admin
-    (r'^sigi/(.*)', sites.default.root),
+    #(r'^sigi/(.*)', sites.default.root),
+    (r'^sigi/', include(sites.default.urls)),
 )
 
 if settings.DEBUG:

@@ -1,78 +1,117 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.contrib.contenttypes import generic
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from datetime import date
+from django.core.mail import send_mail
+from sigi.settings import DEFAULT_FROM_EMAIL
+
+class TipoServico(models.Model):
+    email_help = '''Use:<br/>
+                        {url} para incluir a URL do serviço,<br/>
+                        {senha} para incluir a senha inicial do serviço'''
+    nome = models.CharField('Nome', max_length=60)
+    sigla = models.CharField('Sigla', max_length='12')
+    template_email_ativa = models.TextField('Template de email de ativação', help_text = email_help, blank=True)
+    template_email_altera = models.TextField('Template de email de alteração', help_text = email_help, blank=True)
+    template_email_desativa = models.TextField('Template de email de desativação', help_text = email_help + '<br/>{motivo} para incluir o motivo da desativação do serviço', blank=True)
+
+    class Meta:
+        verbose_name = 'Tipo de serviço'
+        verbose_name_plural = 'Tipos de serviço'
+    
+    def __unicode__(self):
+        return self.nome;
 
 class Servico(models.Model):
-    SITUACAO_CHOICES = (
-        ('P', 'Pendente'),
-        ('A', 'Em andamento'),
-        ('E', 'Executado'),
-        ('D', 'Demanda'),
-        ('C', 'Cancelado'),
-    )
-    AVALIACAO_CHOICES = (
-        (4, 'Ótimo'),
-        (3, 'Bom'),
-        (2, 'Regular'),
-        (1, 'Ruim'),
-    )
-    titulo = models.CharField('título', max_length=60)
-    tipo = models.CharField(max_length=30)
-    descricao = models.TextField(u'descrição')
-    convenio = models.ForeignKey('convenios.Convenio', verbose_name='Convênio')
-    colaboradores = generic.GenericRelation('contatos.Contato')
-    data_inicio = models.DateField(
-        u'início',
-        blank=True,
-        null=True,
-        help_text = 'Início da realização do serviço.',
-    )
-    data_fim = models.DateField(
-        'fim',
-        blank=True,
-        null=True,
-        help_text = 'Fim da realização do serviço.',
-    )
-    situacao = models.CharField(
-        u'situação',
-        max_length=1,
-        choices=SITUACAO_CHOICES
-    )
-    avaliacao = models.PositiveSmallIntegerField(
-        u'avaliação',
-        choices=AVALIACAO_CHOICES,
-        blank=True,
-        null=True,
-        help_text='Avaliação que o serviço obteve, quando aplicável.'
-    )
-
-    class Meta:
-        verbose_name = 'serviço'
-        verbose_name_plural = 'serviços'
-
-    def __unicode__(self):
-        return str(self.titulo)
-
-class DominioLeg(models.Model):
-    casa_legislativa = models.OneToOneField(CasaLegislativa)
-    dominio = models.URLField('Domínio', verify_exists=False)
-    contato_administrativo = models.CharField('Contato administrativo', max_length=60)
-    telefone_administrativo = models.CharField('Telefone administrativo', max_length=10, help_text='Somente números: ddaaaannnn.')
-    email_administrativo = models.EmailField('e-mail')
-    contato_tecnico = models.CharField('Contato técnico', max_length=60)
-    telefone_tecnico = models.CharField('Telefone administrativo', max_length=10, help_text='Somente números: ddaaaannnn.')
-    email_tecnico = models.EmailField('e-mail')
-    data_preenchimento = models.DateField('Data de preenchimento', default=date.today)
-    data_recebimento = models.DateField('Data de recebimento', null=True, blank=True)
-    data_atendimento = models.DateField('Data de atendimento', null=True, blank=True)
+    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name='Casa legislativa')
+    tipo_servico = models.ForeignKey(TipoServico, verbose_name='Tipo de serviço')
+    contato_tecnico = models.ForeignKey(Funcionario, verbose_name='Contato técnico', related_name='contato_tecnico')
+    contato_administrativo = models.ForeignKey(Funcionario, verbose_name='Contato administrativo', related_name='contato_administrativo')
+    url = models.URLField('URL do serviço', verify_exists=False, blank=True)
+    hospedagem_interlegis = models.BooleanField('Hospedagem no Interlegis?')
+    nome_servidor = models.CharField('Hospedado em', max_length=60, blank=True, help_text='Se hospedado no Interlegis, informe o nome do servidor.<br/>Senão, informe o nome do provedor de serviços.')
+    porta_servico = models.PositiveSmallIntegerField('Porta de serviço (instância)', blank=True, null=True)
+    senha_inicial = models.CharField('Senha inicial', max_length=33, blank=True)
+    data_ativacao = models.DateField('Data de ativação', default=date.today)
+    data_alteracao = models.DateField('Data da última alteração', blank=True, null=True, auto_now=True)
+    data_desativacao = models.DateField('Data de desativação', blank=True, null=True)
+    motivo_desativacao = models.TextField('Motivo da desativação', blank=True)
     
-    class Meta:
-        verbose_name = 'Registro de domínio .leg.br'
-        verbose_name_plural = 'Registros de domínios .leg.br'
+    def __unicode__(self):
+        return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')
+    
+    def save(self, *args, **kwargs):
+        # Reter o objeto original para verificar mudanças
         
+        if self.id is not None:
+            original = Servico.objects.get(id=self.id)
+
+        if self.id is None:
+            # Novo serviço, email de ativação
+            subject = 'INTERLEGIS - Ativação de serviço %s' % (self.tipo_servico.nome,)
+            body = self.tipo_servico.template_email_ativa
+        elif self.data_desativacao is not None and original.data_desativacao is None:
+            # Serviço foi desativado. Email de desativação
+            subject = 'INTERLEGIS - Desativação de serviço %s' % (self.tipo_servico.nome,)
+            body = self.tipo_servico.template_email_desativa
+        elif (self.tipo_servico != original.tipo_servico or
+              self.contato_tecnico != original.contato_tecnico or
+              self.url != original.url or
+              self.nome_servidor != original.nome_servidor or
+              self.senha_inicial != original.senha_inicial):
+            # Serviço foi alterado
+            subject = 'INTERLEGIS - Alteração de serviço %s' % (self.tipo_servico.nome,)
+            body = self.tipo_servico.template_email_altera
+        else:
+            # Salvar o Servico
+            super(Servico, self).save(*args, **kwargs)
+            return # sem enviar email
+        
+        # Prepara e envia o email
+        body = body.replace('{url}', self.url) \
+            .replace('{senha}', self.senha_inicial) \
+            .replace('{motivo}', self.motivo_desativacao)
+            
+#        send_mail(subject, body, DEFAULT_FROM_EMAIL, \
+#                  (self.contato_tecnico.email,), fail_silently=False)
+        
+        # Salvar o Servico
+        super(Servico, self).save(*args, **kwargs)
+
+        return
+    
+class LogServico(models.Model):
+    servico = models.ForeignKey(Servico, verbose_name='Serviço')
+    descricao = models.CharField('Breve descrição da ação', max_length=60)
+    data = models.DateField('Data da ação', default=date.today)
+    log = models.TextField('Log da ação')
+    
     def __unicode__(self):
-        return str(self.dominio)
+        return "%s (%s)" % (self.descricao, self.data)
     
+    class Meta:
+        verbose_name = 'Log do serviço'
+        verbose_name_plural = 'Logs do serviço'    
+
+class CasaAtendidaManager(models.Manager):
+    def get_query_set(self):
+        qs = super(CasaAtendidaManager, self).get_query_set()
+        qs = qs.exclude(codigo_interlegis='')
+        return qs
+
+class CasaAtendida(CasaLegislativa):
+    class Meta:
+        proxy = True
+        verbose_name_plural = 'Casas atendidas'
+
+    objects =  CasaAtendidaManager()
     
+    @property        
+    def servicos(self):
+        qs = Servico.objects.filter(casa_legislativa=self.id)
+        result = []
+        
+        for servico in qs:
+            result.append(unicode(servico))
+            
+        return ", ".join(result)
