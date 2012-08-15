@@ -39,6 +39,7 @@ class CasaLegislativa(models.Model):
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
     num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
+    codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
 
     # Informações de contato
     logradouro = models.CharField(
@@ -98,6 +99,97 @@ class CasaLegislativa(models.Model):
             return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:
             return None
+
+    def gerarCodigoInterlegis(self):
+        codigo = self.codigo_interlegis
+        
+        if codigo == '':
+            if self.tipo.sigla == 'AL': # Assembléias são tratadas a parte
+                codigo = 'A' + self.municipio.uf.sigla
+                if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() <= 0:
+                    # Só grava o código se ele for inédito
+                    self.codigo_interlegis = codigo
+                    self.save()
+                    return codigo
+                # Se já existe, então trata a Assembleia como uma Casa qualquer.
+            
+            cityName = normalize('NFKD', unicode(self.municipio.nome)).encode('ascii','ignore')
+            cityName = cityName.upper().strip()
+            cityName = cityName.replace(' DA ',' ')
+            cityName = cityName.replace(' DE ',' ')
+            cityName = cityName.replace(' DO ',' ')
+                       
+            # estratégia 1 - Pegar as 1ª letra de cada nome da cidade
+            codigo =  ''.join([x[0] for x in cityName.split(' ')[:3]])
+            
+            # Se o código ficou com menos que três letras, pegar as 2 primeiras
+            if len(codigo) < 3:
+                codigo =  ''.join([x[0:2] for x in cityName.split(' ')[:3]])[:3]
+                
+            # Se ainda ficou com menos de três letras, então o nome da cidade só
+            # tem uma palavra. Pegue as três primeiras letras da palavra
+            if len(codigo) < 3:
+                codigo =  cityName[:3]
+                
+            # Se o código já existir, substituir a última letra do código pela
+            # última letra do nome da cidade, e ir recuando, letra a letra,
+            # até achar um novo código.
+            
+            cityName = cityName.replace(' ', '')
+            ultima = len(cityName)
+            
+            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            count() > 0 and ultima > 0:
+                codigo = codigo[:2] + cityName[ultima - 1: ultima]
+                ultima -= 1
+            
+            # Se usou todas as letras do nome na última posição e ainda assim
+            # não gerou um código único, então vamos compor o nome usando as
+            # três primeiras consoantes.
+            
+            if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
+                codigo_cons = cityName.replace('A','').replace('E','').\
+                    replace('I','').replace('O','').replace('U','')[:3]
+                if len(codigo_cons) == 3 and \
+                  CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
+                    codigo = codigo_cons
+
+            # Se ainda não gerou um nome único, vamos colocar dígitos no
+            # último caractere, de A a Z
+            
+            i = 'A'
+            
+            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            count() > 0 and i <= 'Z':
+                codigo = codigo[:2] + str(i)
+                i = chr(ord(i) + 1)
+                
+            # Se não encontrou, comece a gerar strings com 3 letras aleatórias
+            # tiradas do nome da cidade, até gerar uma que não existe. Tentar
+            # 100 vezes apenas
+            
+            i = 0
+
+            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            count() > 0 and i < 100:
+                codigo = random.choice(cityName) + random.choice(cityName) + \
+                    random.choice(cityName)
+                i += 1
+                
+            # Caramba! Só resta então gerar o código com 3 letras aleatórias
+            # quaisquer do alfabeto!
+            
+            i = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
+
+            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            count() > 0:
+                codigo = random.choice(i) + random.choice(i) + \
+                    random.choice(i)
+            
+            self.codigo_interlegis = codigo
+            self.save()
+        
+        return codigo
 
     def __unicode__(self):
         return self.nome
