@@ -4,6 +4,9 @@ from django.contrib.contenttypes import generic
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import SearchField
 from datetime import datetime
+import random
+from unicodedata import normalize
+from apps.contatos.models import Municipio
 
 class TipoCasaLegislativa(models.Model):
     """ Modelo para representar o tipo da Casa Legislativa
@@ -140,7 +143,7 @@ class Funcionario(models.Model):
         ]
     
     casa_legislativa = models.ForeignKey(CasaLegislativa)
-    nome = models.CharField('nome completo', max_length=60, blank=True)
+    nome = models.CharField('nome completo', max_length=60, blank=False)
     nome.alphabetic_filter = True
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
     nota = models.CharField(max_length=70, null=True, blank=True)
