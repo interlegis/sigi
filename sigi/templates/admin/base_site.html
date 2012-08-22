@@ -20,7 +20,7 @@
 {% endblock %}
 
 {% block userlinks %}
-  <a href="{{ root_path }}logout/">Encerrar sessão</a>
+  <a href="{% url admin:logout %}">Encerrar sessão</a>
 {% endblock %}
 
 {% block nav-global %}
