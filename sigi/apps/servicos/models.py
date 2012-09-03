@@ -48,11 +48,11 @@ class Servico(models.Model):
 
         if self.id is None:
             # Novo serviço, email de ativação
-            subject = 'INTERLEGIS - Ativação de serviço %s' % (self.tipo_servico.nome,)
+            subject = u'INTERLEGIS - Ativação de serviço %s' % (self.tipo_servico.nome,)
             body = self.tipo_servico.template_email_ativa
         elif self.data_desativacao is not None and original.data_desativacao is None:
             # Serviço foi desativado. Email de desativação
-            subject = 'INTERLEGIS - Desativação de serviço %s' % (self.tipo_servico.nome,)
+            subject = u'INTERLEGIS - Desativação de serviço %s' % (self.tipo_servico.nome,)
             body = self.tipo_servico.template_email_desativa
         elif (self.tipo_servico != original.tipo_servico or
               self.contato_tecnico != original.contato_tecnico or
@@ -60,7 +60,7 @@ class Servico(models.Model):
               self.nome_servidor != original.nome_servidor or
               self.senha_inicial != original.senha_inicial):
             # Serviço foi alterado
-            subject = 'INTERLEGIS - Alteração de serviço %s' % (self.tipo_servico.nome,)
+            subject = u'INTERLEGIS - Alteração de serviço %s' % (self.tipo_servico.nome,)
             body = self.tipo_servico.template_email_altera
         else:
             # Salvar o Servico
