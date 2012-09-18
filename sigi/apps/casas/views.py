@@ -284,7 +284,7 @@ def export_csv(request):
             elif u"CEP" == atributo:
                 lista.append(casa.cep.encode("utf-8"))
             elif u"Telefone" == atributo:
-                lista.append(str(casa.telefone or "").encode("utf-8"))
+                lista.append(str(casa.telefone or ""))
             elif u"Página web" == atributo:
                 lista.append(casa.pagina_web.encode("utf-8"))
             elif u"Email" == atributo:
