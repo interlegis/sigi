@@ -226,7 +226,7 @@ class Equipe(models.Model):
         verbose_name, verbose_name_plural = u'equipe', u'equipe'
 
     def __unicode__(self):
-        return unicode(str(self.membro))
+        return self.membro.__unicode__()
 
 
 class Anexo(models.Model):
