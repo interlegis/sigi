@@ -223,10 +223,10 @@ class Equipe(models.Model):
     membro = models.ForeignKey('servidores.Servidor')
 
     class Meta:
-        verbose_name, verbose_name_plural = 'equipe', 'equipe'
+        verbose_name, verbose_name_plural = u'equipe', u'equipe'
 
     def __unicode__(self):
-        return str(self.membro)
+        return unicode(str(self.membro))
 
 
 class Anexo(models.Model):
