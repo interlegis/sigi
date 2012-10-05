@@ -47,7 +47,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     form = DiagnosticoForm
     actions = [publicar_diagnostico, despublicar_diagnostico]
     inlines = (EquipeInline, AnexosInline)
-    search_fields = ('casa_legislativa__nome', 'responsavel',)
+    search_fields = ('casa_legislativa__nome',)
     list_display = ('casa_legislativa','getUf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
     list_filter  = ('publicado', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
     raw_id_fields = ('casa_legislativa',)
