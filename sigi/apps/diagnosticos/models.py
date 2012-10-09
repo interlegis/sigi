@@ -120,6 +120,7 @@ class Diagnostico(BaseEntity):
         schemas = super(Diagnostico,self).get_schemata(*args, **kwargs)
         if category:
           schemas = [s for s in schemas if s.categoria_id == category]
+          schemas= sorted(schemas, lambda x,y: cmp(x.title, y.title))
 
         return schemas
 
