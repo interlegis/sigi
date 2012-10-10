@@ -138,7 +138,7 @@ class Telefone(models.Model):
 
     class Meta:
         ordering = ('numero',)
-        unique_together = ('numero', 'tipo')
+#        unique_together = ('numero', 'tipo')
 
     def __unicode__(self):
         return unicode(self.numero)

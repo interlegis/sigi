@@ -239,7 +239,7 @@ class Funcionario(models.Model):
     nome.alphabetic_filter = True
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
     nota = models.CharField(max_length=70, null=True, blank=True)
-    email = models.EmailField('e-mail', null=True, blank=True)
+    email = models.CharField('e-mail', max_length=75, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
     endereco = generic.GenericRelation('contatos.Endereco')
     cargo = models.CharField(max_length=100, null=True, blank=True)

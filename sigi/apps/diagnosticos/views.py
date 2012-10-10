@@ -15,6 +15,7 @@ from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
         CasaLegislativaMobileForm, FuncionariosMobileForm)
+from sigi.apps.contatos.models import Telefone
 from sigi.shortcuts import render_to_pdf
 
 
@@ -172,11 +173,20 @@ def categoria_contatos(request, id_diagnostico):
             else:
                 # Montando a estrutura das mensagens de erro no formato JSON
                 resposta['mensagem'] = 'erro'
-                resposta['erros'].update(form.errors)
+                for key, value in form.errors.iteritems():
+                    resposta['erros'][form.prefix + '-' + key + '-errors'] = value
+
                 for form_telefones in form.telefones.forms:
-                    for key, value in form_telefones.errors.iteritems():
-                        key = form_telefones.prefix + "-" + key
-                        resposta['erros'][key] = value
+                    if not form_telefones.is_valid():
+                        if (form_telefones.fields['id'].initial is not None
+                          and form_telefones.fields['tipo'].initial == 'I'
+                          and form_telefones.fields['numero'].initial is None):
+                            Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
+                            resposta['erros'][form_telefones.prefix + "-id-errors"] = u'Este telefone foi excluído da base de dados'
+                        else:  
+                            for key, value in form_telefones.errors.iteritems():
+                                key = form_telefones.prefix + "-id-errors"
+                                resposta['erros'][key] = value
 
         json = simplejson.dumps(resposta)
         return HttpResponse(json, mimetype="application/json")
@@ -222,6 +232,7 @@ def diagnostico_pdf(request, id_diagnostico):
         })
 
     return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
+    #return render_to_response('diagnosticos/diagnostico_pdf.html', context)
 
 def graficos(request):
     categorias = Categoria.objects.all()

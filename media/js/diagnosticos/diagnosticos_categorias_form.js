@@ -22,7 +22,8 @@ $('#page').live('pageinit', function(event){
       $("span.errors").html("");
       if (data.mensagem == "erro") {
         for (var campo in data.erros) {
-          $("#"+ campo + " span").html(data.erros[campo].join('\n'))
+          error = $("#" + campo);
+          error.html(data.erros[campo].join('\n'));
         }
       }
     },
