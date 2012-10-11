@@ -14,6 +14,11 @@ class TipoServico(models.Model):
     template_email_ativa = models.TextField('Template de email de ativação', help_text = email_help, blank=True)
     template_email_altera = models.TextField('Template de email de alteração', help_text = email_help, blank=True)
     template_email_desativa = models.TextField('Template de email de desativação', help_text = email_help + '<br/>{motivo} para incluir o motivo da desativação do serviço', blank=True)
+    
+    @property        
+    def qtde_casas_atendidas(self):
+        u"""Quantidade de casas atendidas"""
+        return self.servico_set.filter(data_desativacao=None).count()
 
     class Meta:
         verbose_name = 'Tipo de serviço'
@@ -108,10 +113,8 @@ class CasaAtendida(CasaLegislativa):
     
     @property        
     def servicos(self):
-        qs = Servico.objects.filter(casa_legislativa=self.id)
         result = []
-        
-        for servico in qs:
+        for servico in self.servico_set.all():
             result.append(unicode(servico))
             
         return ", ".join(result)

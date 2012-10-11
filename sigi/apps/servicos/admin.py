@@ -43,7 +43,7 @@ class ServicoFormAdmin(ModelForm):
         
 #---------------- admins ----------------------
 class TipoServicoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'sigla', 'nome', )
+    list_display = ('id', 'sigla', 'nome', 'qtde_casas_atendidas', )
     ordering = ['id']
     
 class ServicoAdmin(admin.ModelAdmin):
@@ -126,7 +126,7 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
                 ,)
     readonly_fields = ('nome',  'logradouro', 'bairro', 'municipio', 'cep')
     inlines = (ContatosInline,) 
-    list_filter = ('tipo', 'municipio')
+    list_filter = ('tipo', 'municipio', )
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
