@@ -158,18 +158,32 @@ def categoria_contatos(request, id_diagnostico):
         for n, l in Funcionario.SETOR_CHOICES]
 
     if request.method == "POST":
-        forms = [FuncionariosMobileForm(
-            request.POST, prefix=f.setor, instance=f) for f, c in funcionarios]
+        forms = []
+        for f, c in funcionarios:
+            try:
+                forms.append(FuncionariosMobileForm(request.POST, prefix=f.setor, instance=f))
+            except:
+                pass
 
         resposta = {
             'mensagem': 'sucesso',
-            'erros' : {}
+            'erros' : {},
+            'fones' : {},
+            'clean' : (),
         }
 
         # valida e salva um formulario por vez
         for form in forms:
             if form.is_valid():
                 form.save()
+                s = ''
+                for form_telefones in form.telefones.forms:
+                    tel = form_telefones.instance
+                    if tel._state.adding and tel.numero != '':
+                        s += '<p>Novo telefone %s: %s</p>' % (form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)
+                        resposta['clean'] += ('id_' + form_telefones.prefix + '-numero',)
+                if s != '':
+                    resposta['fones'][form.prefix] = s
             else:
                 # Montando a estrutura das mensagens de erro no formato JSON
                 resposta['mensagem'] = 'erro'
@@ -181,8 +195,12 @@ def categoria_contatos(request, id_diagnostico):
                         if (form_telefones.fields['id'].initial is not None
                           and form_telefones.fields['tipo'].initial == 'I'
                           and form_telefones.fields['numero'].initial is None):
-                            Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
-                            resposta['erros'][form_telefones.prefix + "-id-errors"] = u'Este telefone foi excluído da base de dados'
+                            if Telefone.objects.filter(pk=form_telefones.fields['id'].initial).exists():
+                                Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
+                                if not resposta['fones'].has_key(form.prefix):
+                                    resposta['fones'][form.prefix] = ''
+                                resposta['fones'][form.prefix] += u'<p>O telefone %s %s foi excluído da base de dados</p>' % (
+                                    form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)
                         else:  
                             for key, value in form_telefones.errors.iteritems():
                                 key = form_telefones.prefix + "-id-errors"

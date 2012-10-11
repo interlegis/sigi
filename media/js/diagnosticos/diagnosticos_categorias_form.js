@@ -26,6 +26,15 @@ $('#page').live('pageinit', function(event){
           error.html(data.erros[campo].join('\n'));
         }
       }
+      //Novos telefones
+      for (var campo in data.fones) {
+    	  painel = $("#" + campo);
+    	  painel.html(painel.html() + data.fones[campo]);
+      }
+      //Limpar campos
+      for (var campo in data.clean) {
+    	  $("#" + data.clean[campo]).val('');
+      }
     },
     error: function(msg) {
       nun_ajax--;
