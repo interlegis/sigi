@@ -51,6 +51,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     list_display = ('casa_legislativa','getUf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
     list_filter  = ('publicado', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
     raw_id_fields = ('casa_legislativa',)
+    ordering = ('casa_legislativa',)
 
     eav_fieldsets = [
         (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
