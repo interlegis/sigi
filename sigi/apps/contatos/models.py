@@ -147,7 +147,7 @@ class Contato(models.Model):
     """ Modelo generico para registrar contatos vinculados aos
     modulos do sistema
     """
-    nome = models.CharField('nome completo', max_length=60)
+    nome = models.CharField('nome completo', max_length=120)
     nome.alphabetic_filter = True
     nota = models.CharField(max_length=70, blank=True)
 
