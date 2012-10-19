@@ -77,6 +77,11 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
+        
+    def lookup_allowed(self, lookup, value):
+        return super(CasaLegislativaAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['municipio__uf__codigo_ibge__exact']
+ 
 
     def etiqueta(self,request,queryset):        
         return labels_report(request,queryset=queryset)

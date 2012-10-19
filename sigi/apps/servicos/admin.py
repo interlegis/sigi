@@ -130,6 +130,10 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+    
+    def lookup_allowed(self, lookup, value):
+        return super(CasaAtendidaAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['municipio__uf__codigo_ibge__exact']
 
     def change_view(self, request, object_id, extra_context=None):
         # Se a Casa ainda não é atendida, gerar o código interlegis para ela
