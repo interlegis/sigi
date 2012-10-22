@@ -20,7 +20,7 @@
   {% chart-title g_conv_proj.total_convenios %}  
 {% endchart %}
 
-<div class="module">
+<div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
     <h3>Câmaras municipais por projeto</h3>
     <div class="align-center">
@@ -59,6 +59,29 @@
 </div>
 
 <div class="module" style="height: 300px;">
+	<h2>Serviços</h2>
+	<h3>Serviços hospedados no Interlegis (SEIT)</h3>
+
+    <table>            
+    	<tr>
+    		<th style="width: 40%; vertical-align:bottom;">&nbsp;</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Total de casas atendidas</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Novas casas no mês anterior</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Novas casas no mês atual</th>
+    	</tr>
+	
+	{% for servico in tabela_resumo_seit %}
+		<tr>
+			<th style="width: 40%;">{{ servico.nome }}</th>
+			<td style="text-align: right;">{{ servico.total }}</td>
+			<td style="text-align: right;">{{ servico.novos_mes_anterior }}</td>
+			<td style="text-align: right;">{{ servico.novos_mes_atual }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+</div>
+
+<div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
     <h3>Resumo de informações por região</h3>
     <div >
@@ -84,4 +107,19 @@
     <div class="align-center">
         <img src="{{ processos.url }}" class="chart" />
     </div>
+</div>
+
+<div class="module" style="height: 300px;">
+    <h2>Diagnósticos</h2>
+    <h3>Resumo dos diagnósticos</h3>
+    
+    <table>            
+	{% for data in tabela_resumo_diagnostico %}
+		<tr>
+			<th>{{ data.title }}</th>
+			<td style="text-align: right;">{{ data.count }}</td>
+		</tr>
+	{% endfor %}
+	</table>
+    
 </div>

@@ -1,7 +1,10 @@
 #-*- coding:utf-8 -*-
+import datetime
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.servicos.models import TipoServico
+from sigi.apps.diagnosticos.models import Diagnostico
 
 def charts_data(request):
     '''
@@ -13,11 +16,15 @@ def charts_data(request):
     convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
 
     tabela_resumo_camara = busca_informacoes_camara()
+    tabela_resumo_seit = busca_informacoes_seit()
+    tabela_resumo_diagnostico = busca_informacoes_diagnostico()
     g_conv_proj = grafico_convenio_projeto(convenios)
     g_convassinado_proj = grafico_convenio_projeto(convenios_assinados)
 
     return {        
         'tabela_resumo_camara' : tabela_resumo_camara,
+        'tabela_resumo_seit' : tabela_resumo_seit,
+        'tabela_resumo_diagnostico': tabela_resumo_diagnostico,
         'g_conv_proj': g_conv_proj,
         "g_convassinado_proj":g_convassinado_proj,
     }
@@ -112,4 +119,25 @@ def grafico_convenio_projeto(convenios):
     }
     return dic
 
+def busca_informacoes_seit():
+    mes_atual = datetime.date.today().replace(day=1)
+    mes_anterior = mes_atual - datetime.timedelta(days=1)
 
+    result = []
+    
+    for tipo_servico in TipoServico.objects.all():
+        result.append(
+            {'nome': tipo_servico.nome,
+             'total': tipo_servico.servico_set.count(),
+             'novos_mes_anterior': tipo_servico.servico_set.filter(data_ativacao__year=mes_anterior.year, data_ativacao__month=mes_anterior.month).count(),
+             'novos_mes_atual': tipo_servico.servico_set.filter(data_ativacao__year=mes_atual.year, data_ativacao__month=mes_atual.month).count(),
+            }
+        )
+
+    return result
+
+def busca_informacoes_diagnostico():
+    return [
+        {'title': 'Diagnósticos digitados', 'count': Diagnostico.objects.count()},
+        {'title': 'Diagnósticos publicados', 'count': Diagnostico.objects.filter(publicado=True).count()},
+    ]
