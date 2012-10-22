@@ -153,9 +153,14 @@ def categoria_contatos(request, id_diagnostico):
 
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     casa_legislativa = diagnostico.casa_legislativa
-
-    funcionarios = [casa_legislativa.funcionario_set.get_or_create(setor=n)
-        for n, l in Funcionario.SETOR_CHOICES]
+    
+    funcionarios = []
+    
+    for n, l in Funcionario.SETOR_CHOICES:
+        if casa_legislativa.funcionario_set.filter(setor=n).count() <= 1:
+            funcionarios.append(casa_legislativa.funcionario_set.get_or_create(setor=n))
+        else:
+            funcionarios.append(casa_legislativa.funcionario_set.filter(setor=n))
 
     if request.method == "POST":
         forms = []
