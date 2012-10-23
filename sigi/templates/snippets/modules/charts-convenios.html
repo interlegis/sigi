@@ -64,18 +64,21 @@
 
     <table>            
     	<tr>
-    		<th style="width: 40%; vertical-align:bottom;">&nbsp;</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Total de casas atendidas</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Novas casas no mês anterior</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">Novas casas no mês atual</th>
     	</tr>
 	
 	{% for servico in tabela_resumo_seit %}
 		<tr>
+		{% if forloop.first %}
+    		<th style="width: 40%; vertical-align:bottom;">{{ servico.nome }}</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.total }}</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_anterior }}</th>
+    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_atual }}</th>
+    	{% else %}
 			<th style="width: 40%;">{{ servico.nome }}</th>
 			<td style="text-align: right;">{{ servico.total }}</td>
 			<td style="text-align: right;">{{ servico.novos_mes_anterior }}</td>
 			<td style="text-align: right;">{{ servico.novos_mes_atual }}</td>
+		{% endif %}
 		</tr>
 	{% endfor %}
 	</table>

@@ -123,14 +123,17 @@ def busca_informacoes_seit():
     mes_atual = datetime.date.today().replace(day=1)
     mes_anterior = mes_atual - datetime.timedelta(days=1)
 
-    result = []
+    result = [{'nome': '',
+               'total': 'Total de casas atendidas',
+               'novos_mes_anterior': 'Novas casas em %s/%s' % (mes_anterior.month, mes_anterior.year),
+               'novos_mes_atual': 'Novas casas em %s/%s' % (mes_atual.month, mes_atual.year)}]
     
     for tipo_servico in TipoServico.objects.all():
         result.append(
             {'nome': tipo_servico.nome,
-             'total': tipo_servico.servico_set.count(),
-             'novos_mes_anterior': tipo_servico.servico_set.filter(data_ativacao__year=mes_anterior.year, data_ativacao__month=mes_anterior.month).count(),
-             'novos_mes_atual': tipo_servico.servico_set.filter(data_ativacao__year=mes_atual.year, data_ativacao__month=mes_atual.month).count(),
+             'total': tipo_servico.servico_set.filter(data_desativacao=None).count(),
+             'novos_mes_anterior': tipo_servico.servico_set.filter(data_desativacao=None, data_ativacao__year=mes_anterior.year, data_ativacao__month=mes_anterior.month).count(),
+             'novos_mes_atual': tipo_servico.servico_set.filter(data_desativacao=None, data_ativacao__year=mes_atual.year, data_ativacao__month=mes_atual.month).count(),
             }
         )
 
