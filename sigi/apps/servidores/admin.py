@@ -80,6 +80,10 @@ class ServidorAdmin(admin.ModelAdmin):
       }),
     )
 
+    def lookup_allowed(self, lookup, value):
+        return super(ServidorAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['user__is_active__exact']
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'foto':
             request = kwargs.pop("request", None)
