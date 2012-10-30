@@ -160,7 +160,10 @@ def categoria_contatos(request, id_diagnostico):
         if casa_legislativa.funcionario_set.filter(setor=n).count() <= 1:
             funcionarios.append(casa_legislativa.funcionario_set.get_or_create(setor=n))
         else:
-            funcionarios.append(casa_legislativa.funcionario_set.filter(setor=n))
+            for f in casa_legislativa.funcionario_set.filter(setor=n):
+                funcionarios.append((f, False))
+            
+    print funcionarios
 
     if request.method == "POST":
         forms = []
