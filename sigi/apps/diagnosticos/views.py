@@ -163,8 +163,6 @@ def categoria_contatos(request, id_diagnostico):
             for f in casa_legislativa.funcionario_set.filter(setor=n):
                 funcionarios.append((f, False))
             
-    print funcionarios
-
     if request.method == "POST":
         forms = []
         for f, c in funcionarios:
@@ -230,8 +228,13 @@ def diagnostico_pdf(request, id_diagnostico):
     categorias = Categoria.objects.all()
 
     casa_legislativa = diagnostico.casa_legislativa
-    funcionarios = [casa_legislativa.funcionario_set.get_or_create(setor=n)[0]
-        for n, l in Funcionario.SETOR_CHOICES]
+    funcionarios = []
+    for n, l in Funcionario.SETOR_CHOICES:
+        if casa_legislativa.funcionario_set.filter(setor=n).count() <= 1:
+            funcionarios.append(casa_legislativa.funcionario_set.get_or_create(setor=n))
+        else:
+            for f in casa_legislativa.funcionario_set.filter(setor=n):
+                funcionarios.append(f)
 
     schemas_by_categoria = []
     for categoria in categorias:
