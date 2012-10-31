@@ -90,8 +90,8 @@ urlpatterns = patterns(
     (r'^sigi/api/diagnosticos/$',
      'sigi.apps.diagnosticos.views.grafico_api'),
     # Views dos serviços SEIT
-    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
-     'sigi.apps.servicos.views.casas_usam_servico'),
+#    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
+#     'sigi.apps.servicos.views.casas_usam_servico'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),
     (r'^sigi/', include(sites.default.urls)),
