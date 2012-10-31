@@ -331,3 +331,13 @@ def grafico_api(request):
     json = simplejson.dumps(response)
     return HttpResponse(json, mimetype="application/json")
 
+def municipios_diagnosticados(self):
+    municipios = []
+    
+    for d in Diagnostico.objects.all():
+        m = d.casa_legislativa.municipio
+        municipio = {'nome': d.casa_legislativa.nome + ', ' + m.uf.sigla, 'lat': str(m.latitude), 'lng': str(m.longitude), 'inicio': d.data_visita_inicio.strftime('%d/%m/%Y'),
+                     'fim': d.data_visita_fim.strftime('%d/%m/%Y'), 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>",}
+        municipios.append(municipio)
+        
+    return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")
