@@ -1,7 +1,7 @@
 #-*- coding:utf-8 -*-
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
-from django.views.generic.simple import redirect_to
+from django.views.generic.simple import redirect_to, direct_to_template 
 import sites
 
 # register admin filters
@@ -14,6 +14,9 @@ urlpatterns = patterns(
 
     # Diagnosticos
     (r'^sigi/mobile/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
+    (r'^sigi/diagnosticos/mapa/$', direct_to_template, {'template': 'diagnosticos/mapa.html'}),
+    (r'^sigi/diagnosticos/mundiagjson/$', 'sigi.apps.diagnosticos.views.municipios_diagnosticados'),
+    
 
     # Informacoes de uma casa legislativa
     (r'^sigi/casas/casalegislativa/(?P<id>\w+)/report_complete/',
@@ -86,6 +89,9 @@ urlpatterns = patterns(
      'sigi.apps.diagnosticos.views.graficos'),
     (r'^sigi/api/diagnosticos/$',
      'sigi.apps.diagnosticos.views.grafico_api'),
+    # Views dos serviços SEIT
+    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
+     'sigi.apps.servicos.views.casas_usam_servico'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),
     (r'^sigi/', include(sites.default.urls)),

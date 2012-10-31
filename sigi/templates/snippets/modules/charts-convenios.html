@@ -116,13 +116,17 @@
     <h2>Diagnósticos</h2>
     <h3>Resumo dos diagnósticos</h3>
     
-    <table>            
+    <table style="display: block; float: left;">            
 	{% for data in tabela_resumo_diagnostico %}
 		<tr>
 			<th>{{ data.title }}</th>
 			<td style="text-align: right;">{{ data.count }}</td>
 		</tr>
 	{% endfor %}
+      <tr><td colspan="2"><a href="/sigi/diagnosticos/mapa/">Ver mapa ampliado</a></td></tr>
 	</table>
+	
+	<div id="map_canvas" style="float: left;  height: 80%; width: 300px;">
+	</div>
     
 </div>
