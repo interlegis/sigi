@@ -1,8 +1,9 @@
 #-*- coding:utf-8 -*-
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
-from django.views.generic.simple import redirect_to, direct_to_template 
+from django.views.generic.simple import redirect_to, direct_to_template
 import sites
+from sigi.apps.servicos.models import TipoServico
 
 # register admin filters
 import admin.filterspecs
@@ -90,6 +91,8 @@ urlpatterns = patterns(
     (r'^sigi/api/diagnosticos/$',
      'sigi.apps.diagnosticos.views.grafico_api'),
     # Views dos serviços SEIT
+    (r'^sigi/servicos/mapa/(?P<servico>\w+)/$', direct_to_template, {'template': 'servicos/mapa.html', 'extra_context': {'servicos': TipoServico.objects.all()}}),
+    (r'^sigi/servicos/munatenjson/(?P<servico>\w+)/$', 'sigi.apps.servicos.views.municipios_atendidos'),
 #    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
 #     'sigi.apps.servicos.views.casas_usam_servico'),
     # automatic interface based on admin
