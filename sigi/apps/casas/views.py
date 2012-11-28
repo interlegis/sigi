@@ -124,7 +124,7 @@ def deleta_itens_carrinho(request):
 
     
 
-def labels_report(request, id=None, tipo=None):
+def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """    
     
