@@ -131,9 +131,11 @@ def labels_report(request, id=None, tipo=None):
     if request.POST:
         if request.POST.has_key('tipo_etiqueta'):
             tipo = request.POST['tipo_etiqueta']
+        if request.POST.has_key('tamanho_etiqueta'):
+            formato = request.POST['tamanho_etiqueta']
             
     if tipo =='sem_presidente':
-        return labels_report_sem_presidente(request, id)
+        return labels_report_sem_presidente(request, id, formato)
     
     if id:
         qs = CasaLegislativa.objects.filter(pk=id)    
@@ -145,15 +147,15 @@ def labels_report(request, id=None, tipo=None):
 
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
-    report = CasasLegislativasLabels(queryset=qs)
+    report = CasasLegislativasLabels(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)
 
     return response
 
-def labels_report_sem_presidente(request, id=None):
+def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
-    
+
     if id:
         qs = CasaLegislativa.objects.filter(pk=id)    
     else:    
@@ -164,7 +166,7 @@ def labels_report_sem_presidente(request, id=None):
 
     response = HttpResponse(mimetype='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
-    report = CasasLegislativasLabelsSemPresidente(queryset=qs)
+    report = CasasLegislativasLabelsSemPresidente(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)
 
     return response

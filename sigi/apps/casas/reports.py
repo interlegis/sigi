@@ -51,47 +51,57 @@ class CasasLegislativasLabels(Report):
       >>> report.generate_by(PDFGenerator, filename='./inline-detail-report.pdf')
 
     """
+    formato = ''
+    y = 2
+    largura_etiqueta = 6.7
+    altura_etiqueta = 3.3
+    tamanho_fonte = 6
+    altura_dados = 0.3 #logradouro, bairro, municipio, cep
+    delta = start = 0.5
 
-    page_size = A4
-    margin_top = 0.8*cm
-    margin_bottom = 0.8*cm
-    margin_left = 0.4*cm
-    margin_right = 0.4*cm
+    def __init__(self, queryset, formato):	
+        super(CasasLegislativasLabels, self).__init__(queryset=queryset)
+        self.formato = formato
+        self.page_size = A4
 
-    class band_detail(DetailBand):
+        if formato == '3x9_etiqueta':
+           self.margin_top = 0.0*cm
+           self.margin_bottom = 0.0*cm
+           self.margin_left = 0.0*cm
+           self.margin_right = 0.0*cm
+           self.delta = 0.3
+           self.start = 0.2
+        else:
+           self.margin_top = 0.8*cm
+           self.margin_bottom = 0.8*cm
+           self.margin_left = 0.4*cm
+           self.margin_right = 0.4*cm
+           self.largura_etiqueta = 9.9
+           self.altura_etiqueta = 5.6
+           self.tamanho_fonte = 11
+           self.altura_dados = 0.5
+           self.y = 0.5
 
-
-        width  = 9.9*cm
-        height = 5.6*cm
-        margin_bottom = 0.0*cm
-        margin_right  = 0.3*cm
-
-        # With this attribute as True, the band will try to align in
-        # the same line.
-        display_inline = True
-
-        default_style = {'fontName': 'Helvetica', 'fontSize': 11}
-
-        elements = [
+        my_elements = [
             Label(
                 text='A Sua Excelência o(a) Senhor(a)',
-                top=1*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
             ),
             ObjectValue(
                 attribute_name='presidente',
-                top=1.5*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + 2*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
                     instance.presidente or ""
             ),
             ObjectValue(
                 attribute_name='tipo',
-                top=2*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
                     "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
             ),
             ObjectValue(
                 attribute_name='nome',
-                top=2.5*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
                     instance.municipio.uf.nome
                         if instance.tipo.nome == u'Assembléia Legislativa'
@@ -102,31 +112,32 @@ class CasasLegislativasLabels(Report):
                 ObjectValue,
                 count=4,
                 attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=3*cm, height=0.5*cm, left=0.5*cm, width=9.4*cm,
+                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
             ),
 
-        ]
+        ]        		   
+        self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
-
-        
 
 class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
-    
-    class band_detail(CasasLegislativasLabels.band_detail):
-        elements = [
+    def __init__(self, queryset, formato):	
+        super(CasasLegislativasLabelsSemPresidente, self).__init__(queryset=queryset, formato=formato)
+
+
+        my_elements = [
             Label(
                 text='A Sua Excelência o(a) Senhor(a)',
-                top=1*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
             ),
             ObjectValue(
                 attribute_name='tipo',
-                top=1.5*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
                     "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
             ),
             ObjectValue(
                 attribute_name='nome',
-                top=2*cm, left=0.5*cm, width=9.4*cm,
+                top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
                     instance.municipio.uf.nome
                         if instance.tipo.nome == u'Assembléia Legislativa'
@@ -137,11 +148,13 @@ class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
                 ObjectValue,
                 count=4,
                 attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=2.5*cm, height=0.5*cm, left=0.5*cm, width=9.4*cm,
+                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
             ),
 
         ]
-    
+
+        self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
+
 
 class CasasLegislativasReport(ReportDefault):
     title = u'Relatório de Casas Legislativas'
