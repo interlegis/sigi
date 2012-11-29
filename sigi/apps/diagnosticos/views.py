@@ -289,8 +289,8 @@ def grafico_api(request):
     graph_params = QueryDict("")
     graph_params = graph_params.copy() # to make it mutable
 
-    width = request.REQUEST.get('width', '300')
-    height = request.REQUEST.get('height', '200')
+    width = request.REQUEST.get('width', '800')
+    height = request.REQUEST.get('height', '300')
     graph_params.update({'chs': width + 'x' + height})
 
     pergunta_slug = request.REQUEST.get('id', None)
@@ -310,12 +310,17 @@ def grafico_api(request):
       percent = [str(float(r[1])*100/total) for r in pergunta.group_choices()]
       choices = [str(r[1]) for r in pergunta.group_choices()]
       legend = [str(r[0]) for r in pergunta.group_choices()]
+#      colors =  [reduce(lambda x,y: x + hex(y).replace('0x',''), map(lambda x: x*(100-(p*10))/100,[0xff, 0xcc,0x33]),'') 
+#                 for p in range(0,len(pergunta.group_choices()))]
+      colors = ["%0.6x" % (0x48d1 + (0xda74 * c))
+                for c in range(0,len(pergunta.group_choices()))]
       graph_params.update({
         'cht': 'bvg',
         'chxt': 'y',
         'chd': 't:' + ",".join(percent),
         'chdl': '' + "|".join(legend),
         'chl': '' + "|".join(choices),
+        'chco': '' + "|".join(colors)
         })
 
     response = {

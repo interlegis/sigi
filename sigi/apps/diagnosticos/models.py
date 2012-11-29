@@ -163,7 +163,7 @@ class Pergunta(BaseSchema):
         cursor.execute("""
           SELECT choice_id, sum(1)
           FROM diagnosticos_resposta
-          WHERE schema_id=%s
+          WHERE schema_id=%s and choice_id is not null
           GROUP BY choice_id;
         """, [self.id])
 
