@@ -172,6 +172,8 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.servicos',
     'sigi.apps.relatorios',
+    'sigi.apps.metas',
+    'sigi.apps.financeiro',
 )
 
 try:

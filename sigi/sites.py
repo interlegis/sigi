@@ -33,6 +33,8 @@ from sigi.apps.servidores.admin import (Servidor, ServidorAdmin, Funcao, FuncaoA
 from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Anexo as AnexoOcorrencia,
                                          AnexoAdmin as AnexoOcorrenciaAdmin, Categoria)
 from sigi.apps.eventos.admin import (Recurso, RecursoAdmin)
+from sigi.apps.metas.admin import (Meta, MetaAdmin, PlanoDiretor, PlanoDiretorAdmin)
+from sigi.apps.financeiro.admin import (Desembolso, DesembolsoAdmin)
 
 class DefaultSite(AdminSite):
     index_template = 'index.html'
@@ -115,3 +117,10 @@ default.register(Categoria)
 
 # sigi.apps.eventos
 default.register(Recurso, RecursoAdmin)
+
+# sigi.apps.metas
+default.register(Meta, MetaAdmin)
+default.register(PlanoDiretor, PlanoDiretorAdmin)
+
+# sigi.apps.financeiro
+default.register(Desembolso, DesembolsoAdmin)
