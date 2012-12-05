@@ -1,0 +1,76 @@
+{% extends "admin/index.html" %}
+{% load adminmedia %}
+
+{% block title %}SIGI{% endblock %}
+
+{% block extrahead %}
+	{{ block.super }}
+	<script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
+	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
+	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
+	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
+	<script type="text/javascript" src="{{ MEDIA_URL }}js/metas/mapa.js"></script>
+{% endblock %}
+
+{% block content %}
+<div id="map" style="width:100%; height: 800px; float: left;">
+	<!-- google map -->
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<form id="filter_form" method="post" action="">
+	<div id="content-related">
+	<div class="module" id="filters"> {% comment %} Adicione style="overflow: auto; height: 800px;" para rolar apenas na caixa de filtros {% endcomment %} 
+	  <h2>Filtros</h2>
+	  <input type="submit" value="Filtrar"/>
+	  <h3>Por Serviços SEIT</h3>
+	    <ul>
+	    {% for s in servico_choices %}
+	      <li><input type="checkbox" name="seit" value="{{ s.sigla }}"
+	              {% if s.sigla in seit %} checked="checked" {% endif %}/>
+	        {{ s.nome }}
+	      </li>
+	    {% endfor %}
+	    </ul>
+	  <h3>Por Casas conveniadas</h3>
+	  	<ul>
+	  	{% for p in projeto_choices %}
+	      <li><input type="checkbox" name="convenios" value="{{ p.sigla }}" {% if p.sigla in convenios %}checked="checked" {% endif %}/>
+	        ao {{ p.sigla }}</li>
+	    {% endfor %}
+	    </ul>
+	  <h3>Por Casas equipadas</h3>
+	    <ul>
+	      {% for p in projeto_choices %}
+	      <li><input type="checkbox" name="equipadas" value="{{ p.sigla }}" {% if p.sigla in equipadas %}checked="checked" {% endif %}/>
+	        pelo {{ p.sigla }}</li>
+	      {% endfor %}
+	    </ul>
+	  <h3>Por Diagnósticos</h3>
+	    <ul>
+	      <li><input type="checkbox" name="diagnosticos" value="A" {% if "A" in diagnosticos %}checked="checked" {% endif %}/>
+	        Em andamento</li>
+	      <li><input type="checkbox" name="diagnosticos" value="P" {% if "P" in diagnosticos %}checked="checked" {% endif %}/>
+	        Publicados</li>
+		</ul>
+	  <h3>Por região</h3>
+	  <ul>
+	  {% for r in regiao_choices %}
+	    <li><input type="checkbox" name="regioes" value="{{ r.0 }}" {% if r.0  in regioes %}checked="checked"{% endif %}/> {{ r.1 }}</li>
+	  {% endfor %}
+	  </ul>  
+	  <h3>Por Estado</h3>
+	    <ul>
+	    {% for e in estado_choices %}
+	      <li><input type="checkbox" name="estados" value="{{ e.sigla }}" 
+	              {% if e.sigla in estados %} checked="checked" {% endif %}/>
+	        {{ e.nome }}
+	      </li>
+	    {% endfor %}
+	    </ul>
+	    <input type="submit" value="Filtrar"/>
+	  </div>
+	</div>
+</form>	
+{% endblock %}

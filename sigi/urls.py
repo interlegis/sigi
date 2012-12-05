@@ -4,6 +4,7 @@ from django.conf.urls.defaults import patterns, include, url
 from django.views.generic.simple import redirect_to, direct_to_template
 import sites
 from sigi.apps.servicos.models import TipoServico
+from sigi.apps.contatos.models import UnidadeFederativa
 
 # register admin filters
 import admin.filterspecs
@@ -95,6 +96,9 @@ urlpatterns = patterns(
     (r'^sigi/servicos/munatenjson/(?P<servico>\w+)/$', 'sigi.apps.servicos.views.municipios_atendidos'),
 #    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
 #     'sigi.apps.servicos.views.casas_usam_servico'),
+    # Views de dashboard
+    (r'^sigi/dashboard/mapa/$', 'sigi.apps.metas.views.mapa'),
+    (r'^sigi/dashboard/map_data/$', 'sigi.apps.metas.views.map_data'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),
     (r'^sigi/', include(sites.default.urls)),
