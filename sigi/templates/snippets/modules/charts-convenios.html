@@ -1,7 +1,7 @@
 {% load charts %}
 
 {% chart as convenios_assinados %}
-  {% chart-size   440 160 %}
+  {% chart-size   250 160 %}
   {% chart-type   "pie-3d" %}
   {% chart-labels g_convassinado_proj.convenios %}
   {% chart-data g_convassinado_proj.convenios %}
@@ -11,7 +11,7 @@
 {% endchart %}
 
 {% chart as processos %}
-  {% chart-size   440 160 %}
+  {% chart-size   250 160 %}
   {% chart-type   "pie-3d" %}
   {% chart-labels g_conv_proj.convenios %}
   {% chart-data g_conv_proj.convenios %}
