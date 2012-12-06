@@ -78,18 +78,18 @@ def map_data(request):
             }
             
             for sv in c.servico_set.all():
-                casa['info'].append("%s ativado em %s" % (sv.tipo_servico.nome, sv.data_ativacao))
+                casa['info'].append(u"%s ativado em %s <a href='//%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
                 
             for cv in c.convenio_set.all():
-                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append("Equipada em %s pelo %s" % (cv.data_termo_aceite, cv.projeto.sigla))
-                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append("Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura))
-                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append("Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura, cv.data_termo_aceite))
+                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
+                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
+                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
                     
             for dg in c.diagnostico_set.all():
-                casa['info'].append('Diagnosticada no período de %s a %s' % (dg.data_visita_inicio, dg.data_visita_fim))
+                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y'), dg.data_visita_fim.strftime('%d/%m/%Y')))
                     
             casa['info'] = "<br/>".join(casa['info'])
                 
