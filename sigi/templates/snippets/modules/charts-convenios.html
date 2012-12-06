@@ -22,7 +22,7 @@
 
 <div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
-    <h3>Câmaras municipais por projeto</h3>
+    <!-- h3>Câmaras municipais por projeto</h3 -->
     <div class="align-center">
         <table>            
             <tr>
@@ -40,14 +40,12 @@
             </tr>
             {% endfor %}
             
-        </table>        
-        <div style="font-weight: bold;"><p>
-            <br />Câmaras sem processo: {{tabela_resumo_camara.camaras_sem_processo}}<br /><br />
-            Total de câmaras: {{tabela_resumo_camara.total_camaras}} <br />
-            </p>
-        </div>
-
+        </table>
     </div>
+	<ul>
+		<li>Câmaras sem processo: {{tabela_resumo_camara.camaras_sem_processo}}</li>
+		<li>Total de câmaras: {{tabela_resumo_camara.total_camaras}}</li>
+	</ul>        
 </div>
 
 <div class="module" style="height: 300px;">
@@ -60,7 +58,10 @@
 
 <div class="module" style="height: 300px;">
 	<h2>Serviços</h2>
+	<div class="titlemapbox">
+	<div class="mapbox"><a href="/sigi/dashboard/mapa/"><img src="/sigi/media/images/mapicon.png"/><br/>Ver mapa</a></div>
 	<h3>Serviços hospedados no Interlegis (SEIT)</h3>
+	</div>
 
     <table>            
     	<tr>
@@ -81,7 +82,6 @@
 		{% endif %}
 		</tr>
 	{% endfor %}
-		<p><a href="/sigi/servicos/mapa/all/">Ver mapa</a></p>
 	</table>
 </div>
 
@@ -114,6 +114,40 @@
 </div>
 
 <div class="module" style="height: 300px;">
+	<h2>Metas BID</h2>
+	<h3>Estado das metas do contrato BID</h3>
+	<table>
+	{% for meta in metas %}
+	  	<tr>
+	  		<td><strong>{{ meta.titulo }}</strong></td>
+	  		<!-- th><meter style="width:100%;" min="0" max="100" low="{% widthratio meta.valor_desejado_low meta.valor_meta 100 %}"
+	  				high="{% widthratio meta.valor_desejado_high meta.valor_meta 100 %}" optimum="100"
+	  				value="{% widthratio meta.valor_ultimo_calculo meta.valor_meta 100 %}"></meter></th -->
+	  		<td>
+	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=350x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}" width="350" height="18" alt="" />
+	  		</td>
+	  		<td><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
+	  	</tr>
+	  {% endfor %}
+	</table>
+	<div class="legend">
+		<span><div style="background-color: #A2BBED;">&nbsp;</div>Concluído/ultrapassado</span>
+		<span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
+		<span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
+		<span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
+	</div>
+	<!-- table>
+		<tr><th colspan="4">Legenda:</td></th>
+		<tr>
+			<td><meter min="0" max="100" low="50" high="99" optimum="100" value="100"></meter> Ótimo</td>
+			<td><meter min="0" max="100" low="50" high="99" optimum="101" value="100"></meter> Bom</td>
+			<td><meter min="0" max="101" low="50" high="100" optimum="101" value="100"></meter> Preocupante</td>
+			<td><meter min="0" max="101" low="100" high="100" optimum="101" value="99"></meter> Ruim</td>
+		</tr>
+	</table -->
+</div>
+{% comment %}
+<div class="module" style="height: 300px;">
     <h2>Diagnósticos</h2>
     <h3>Resumo dos diagnósticos</h3>
     
@@ -129,5 +163,5 @@
 	
 	<div id="map_canvas" style="float: left;  height: 80%; width: 300px;">
 	</div>
-    
 </div>
+{% endcomment %}

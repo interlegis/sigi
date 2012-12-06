@@ -173,3 +173,28 @@ img.chart {
 #sortable { list-style-type: none;}
 #sortable li { display: block;margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
 #sortable li span { position: absolute; margin-left: -1.3em; }
+
+.legend {
+	margin: 1em;
+}
+
+.legend span { margin: 0 1em 0 0; }
+
+.legend div {
+    display: inline-block;
+    margin: 0 0.5em 0 0;
+	height: 18px;
+    width: 18px;	
+}
+
+.titlemapbox {
+    display: inline-block;
+    margin-bottom: 0.6em;
+    width: 100%;	
+}
+
+.mapbox {
+	text-align: center;
+	display: inline-block;
+	float: right;
+}

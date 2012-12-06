@@ -5,6 +5,7 @@ from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.diagnosticos.models import Diagnostico
+from sigi.apps.metas.models import Meta
 
 def charts_data(request):
     '''
@@ -27,6 +28,7 @@ def charts_data(request):
         'tabela_resumo_diagnostico': tabela_resumo_diagnostico,
         'g_conv_proj': g_conv_proj,
         "g_convassinado_proj":g_convassinado_proj,
+        'metas': Meta.objects.all(),
     }
 
 def busca_informacoes_camara():
@@ -73,6 +75,10 @@ def busca_informacoes_camara():
         lista_convenios_assinados.append(camaras.filter(convenio__in=conv_assinados_proj).count())
         lista_convenios_em_andamento.append(camaras.filter(convenio__in=conv_em_andamento_proj).count())
         lista_camaras_equipadas.append(camaras.filter(convenio__in=conv_equipadas_proj).count())
+        
+    # Monta linhas de diagnosticos
+    lista_diagnosticos_digitados = ['', '', Diagnostico.objects.count()]
+    lista_diagnosticos_publicados = ['', '', Diagnostico.objects.filter(publicado=True).count()]
 
     # Cabecalho da esquerda na tabela
     cabecalho_esquerda = (
@@ -81,7 +87,9 @@ def busca_informacoes_camara():
         u'Câmaras municipais aderidas',
         u'Câmaras municipais com convênios assinados',
         u'Câmaras municipais convênios em andamento',
-        u'Câmaras municipais equipadas'
+        u'Câmaras municipais equipadas',
+        u'Diagnósticos digitados',
+        u'Diagnósticos publicados'
     )
 
     linhas = (
@@ -91,6 +99,8 @@ def busca_informacoes_camara():
         lista_convenios_assinados,
         lista_convenios_em_andamento,
         lista_camaras_equipadas,
+        lista_diagnosticos_digitados,
+        lista_diagnosticos_publicados
     )
 
     # Unindo as duas listass para que o cabecalho da esquerda fique junto com sua
