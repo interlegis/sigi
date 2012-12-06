@@ -22,10 +22,6 @@ class Meta(models.Model):
     data_fim = models.DateField(u'Data final', help_text=u'Prazo final para cumprimento da meta')
     algoritmo = models.CharField(u'Algoritmo de cálculo', max_length=10, choices=ALGORITMO_CHOICES)
     valor_meta = models.FloatField(u'Valor da meta', help_text=u'Valor que deve ser atingido até o prazo final da meta')
-    hora_ultimo_calculo = models.DateTimeField(u'Data último calculo', blank=True, null=True, editable=False,
-                            help_text=u'Momento em que a meta foi calculada pela última vez')
-    valor_ultimo_calculo = models.FloatField(u'Valor último cálculo', blank=True, null=True, editable=False,
-                            help_text=u'Valor do último calculo da meta')
     
     class Meta:
         verbose_name = 'Meta BID'
@@ -35,38 +31,52 @@ class Meta(models.Model):
         return self.titulo;
     
     @property
+    def valor_executado(self):
+        """
+        Calcula o valor executado da meta
+        """
+        algoritmo = self.algoritmo.lower()
+        valor = getattr(self, algoritmo)()
+        return valor
+    
+    @property
     def percentual_concluido(self):
-        return round(self.valor_ultimo_calculo / self.valor_meta * 100.0, 2)
+        return round(float(self.valor_executado) / float(self.valor_meta) * 100.0, 2)
+    
+    @property
+    def valor_desejado(self):
+        total_meses = (self.data_fim - self.data_inicio).days / 30
+        meses_gastos = (date.today() - self.data_inicio).days / 30
+        meta_mensal = self.valor_meta / total_meses
+        return meta_mensal * meses_gastos
+    
+    @property
+    def valor_desejado_high(self):
+        return self.valor_desejado * 1.1
+        
+    @property
+    def valor_desejado_low(self):
+        return self.valor_desejado * 0.9
     
     @property
     def saude(self):
-        if self.valor_ultimo_calculo >= self.valor_meta:
-            return 'green'
+        valor_executado = self.valor_executado 
+        if valor_executado >= self.valor_meta:
+            return 'A2BBED' # Blue
 
         total_meses = (self.data_fim - self.data_inicio).days / 30
         meses_gastos = (date.today() - self.data_inicio).days / 30
         meta_mensal = self.valor_meta / total_meses
         valor_desejado = meta_mensal * meses_gastos
         
-        if self.valor_ultimo_calculo > (valor_desejado * 1.1):
-            return 'green'
+        if valor_executado > (valor_desejado * 1.1):
+            return '89D7AF' # Green
         
-        if self.valor_ultimo_calculo > (valor_desejado * 0.9):
-            return 'orange'
+        if valor_executado > (valor_desejado * 0.9):
+            return 'FFDB6E' # Orange
         
-        return 'red'
+        return 'E74A69' # Red
         
-    
-    def calcular(self):
-        """
-        Calcula o valor da meta e salva o resultado para uso futuro
-        """
-        algoritmo = self.algoritmo.lower()
-        valor = getattr(self, algoritmo)()
-        self.hora_ultimo_calculo = datetime.now()
-        self.valor_ultimo_calculo = valor
-        self.save() 
-    
     def sum_gastos(self):
         #TODO: Para fazer este algoritmo, precisamos criar registro de desembolsos no sistema financeiro
         valor = Desembolso.objects.filter(projeto=self.projeto, data__gte=self.data_inicio, data__lte=self.data_fim) \
@@ -89,8 +99,8 @@ class Meta(models.Model):
         return valor
     
     def count_pdir(self):
-        valor = PlanoDiretor.objects.filter(projeto=self.projeto, status='A', data_assinatura__gte=self.data_inicio,
-                    data_assinatura__lte=self.data_fim).exclude(data_assinatura=None).count()
+        valor = PlanoDiretor.objects.filter(projeto=self.projeto, data_entrega__gte=self.data_inicio,
+                    data_entrega__lte=self.data_fim).count()
         return valor
     
     def count_conv(self):
@@ -100,16 +110,14 @@ class Meta(models.Model):
     
 class PlanoDiretor(models.Model):
     STATUS_CHOICE = (
-        ('E', u'Em elaboração'),
-        ('A', u'Aceito'),
-        ('R', u'Rejeitado'),
+        ('E', u'Entregue'),
+        ('I', u'Implantado'),
     )
     projeto = models.ForeignKey(Projeto, verbose_name=u'Projeto')
     casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u'Casa legislativa')
     status = models.CharField(u'Status', max_length=1, choices=STATUS_CHOICE, default='E')
-    data_elaboracao = models.DateField(u'Data de elaboração')
-    data_assinatura = models.DateField(u'Data de assinatura', blank=True, null=True)
-    data_rejeicao = models.DateField(u'Data da rejeição', blank=True, null=True)
+    data_entrega = models.DateField(u'Data de entrega', blank=True, null=True)
+    data_implantacao = models.DateField(u'Data de implantação', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Plano Diretor'
