@@ -116,7 +116,7 @@
 <div class="module" style="height: 300px;">
 	<h2>Metas BID</h2>
 	<h3>Estado das metas do contrato BID</h3>
-	<table>
+	<table style="margin: auto;">
 	{% for meta in metas %}
 	  	<tr>
 	  		<td><strong>{{ meta.titulo }}</strong></td>
@@ -124,14 +124,14 @@
 	  				high="{% widthratio meta.valor_desejado_high meta.valor_meta 100 %}" optimum="100"
 	  				value="{% widthratio meta.valor_ultimo_calculo meta.valor_meta 100 %}"></meter></th -->
 	  		<td>
-	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=350x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}" width="350" height="18" alt="" />
+	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}" width="250" height="18" alt="" />
 	  		</td>
-	  		<td><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
+	  		<td style="text-align: center;"><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
 	  	</tr>
 	  {% endfor %}
 	</table>
 	<div class="legend">
-		<span><div style="background-color: #A2BBED;">&nbsp;</div>Concluído/ultrapassado</span>
+		<span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
 		<span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
 		<span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
 		<span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
