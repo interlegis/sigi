@@ -37,6 +37,7 @@ class Meta(models.Model):
         """
         algoritmo = self.algoritmo.lower()
         valor = getattr(self, algoritmo)()
+        valor = valor if type(valor) is float else 0.0
         return valor
     
     @property
@@ -78,10 +79,10 @@ class Meta(models.Model):
         return 'E74A69' # Red
         
     def sum_gastos(self):
-        #TODO: Para fazer este algoritmo, precisamos criar registro de desembolsos no sistema financeiro
         valor = Desembolso.objects.filter(projeto=self.projeto, data__gte=self.data_inicio, data__lte=self.data_fim) \
-                    .aggregate(total_dolar=models.Sum('valor_dolar')) 
-        return valor['total_dolar']
+                    .aggregate(total_dolar=models.Sum('valor_dolar'))
+        valor =  valor['total_dolar'] if type(valor['total_dolar']) is float else 0.0
+        return valor
     
     def count_equi(self):
         valor = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM', equipada=True, projeto__pk=3, data_termo_aceite__gte=
