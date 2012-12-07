@@ -130,6 +130,8 @@ div.breadcrumbs {
 
 img.chart {
 	margin: 20px 0;
+	width: 100%;
+	max-width: 250px;
 }
 
 .dashboard #content {

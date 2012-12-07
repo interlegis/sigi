@@ -124,7 +124,8 @@
 	  				high="{% widthratio meta.valor_desejado_high meta.valor_meta 100 %}" optimum="100"
 	  				value="{% widthratio meta.valor_ultimo_calculo meta.valor_meta 100 %}"></meter></th -->
 	  		<td>
-	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}" width="250" height="18" alt="" />
+	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}"
+	  				width="100%" alt="" />
 	  		</td>
 	  		<td style="text-align: center;"><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
 	  	</tr>
