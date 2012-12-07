@@ -37,7 +37,10 @@ class Meta(models.Model):
         """
         algoritmo = self.algoritmo.lower()
         valor = getattr(self, algoritmo)()
-        valor = valor if type(valor) is float else 0.0
+        try:
+            valor = float(valor)
+        except:
+            valor = 0.0
         return valor
     
     @property
@@ -81,7 +84,7 @@ class Meta(models.Model):
     def sum_gastos(self):
         valor = Desembolso.objects.filter(projeto=self.projeto, data__gte=self.data_inicio, data__lte=self.data_fim) \
                     .aggregate(total_dolar=models.Sum('valor_dolar'))
-        valor =  valor['total_dolar'] if type(valor['total_dolar']) is float else 0.0
+        valor =  valor['total_dolar']
         return valor
     
     def count_equi(self):
