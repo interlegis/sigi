@@ -106,11 +106,18 @@
 </div>
 
 <div class="module" style="height: 300px;">
+	<h2>Atendimentos</h2>
+	<h3>Mapa de atuação do Interlegis</h3>
+	<div class="align-center">
+		<a href="/sigi/dashboard/mapa/"> <img src="/sigi/media/images/mapicon-large.png" style="width: 60%;"/> </a>
+	</div>
+{% comment %}
     <h2>Convênios</h2>
     <h3>Processos de convênios por projeto</h3>
     <div class="align-center">
         <img src="{{ processos.url }}&chdlp=b" class="chart" />
     </div>
+{% endcomment %}    
 </div>
 
 <div class="module" style="height: 300px;">
@@ -132,10 +139,10 @@
 	  {% endfor %}
 	</table>
 	<div class="legend">
-		<span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
-		<span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
-		<span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
 		<span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
+		<span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
+		<span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
+		<span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
 	</div>
 	<!-- table>
 		<tr><th colspan="4">Legenda:</td></th>

@@ -109,7 +109,7 @@ AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',
 )
 
-CACHE_BACKEND = 'dummy:///'
+CACHE_BACKEND = 'locmem://' # Considerar seriamente a possibilidade de usar o memcached
 CACHE_MIDDLEWARE_SECONDS = 60
 CACHE_MIDDLEWARE_KEY_PREFIX = 'sigi'
 CACHE_MIDDLEWARE_ANONYMOUS_ONLY = False
@@ -134,6 +134,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.cache.UpdateCacheMiddleware',
     'django.middleware.http.ConditionalGetMiddleware',
     'django.middleware.gzip.GZipMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -141,6 +142,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.cache.CacheMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.doc.XViewMiddleware',
+    'django.middleware.cache.FetchFromCacheMiddleware',
 )
 
 ROOT_URLCONF = 'sigi.urls'

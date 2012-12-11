@@ -23,7 +23,6 @@
 	<div id="content-related">
 	<div class="module" id="filters"> {% comment %} Adicione style="overflow: auto; height: 800px;" para rolar apenas na caixa de filtros {% endcomment %} 
 	  <h2>Filtros</h2>
-	  <input type="submit" value="Filtrar"/>
 	  <h3>Por Serviços SEIT</h3>
 	    <ul>
 	    {% for s in servico_choices %}
@@ -43,7 +42,7 @@
 	  <h3>Por Casas equipadas</h3>
 	    <ul>
 	      {% for p in projeto_choices %}
-	      <li><input type="checkbox" name="equipadas" value="{{ p.sigla }}" {% if p.sigla in equipadas %}checked="checked" {% endif %}/>
+	      <li><input type="checkbox" name="equipadas" value="{{ p.sigla }}" {% if p.sigla in equipadas %}checked="checked"{% endif %} />
 	        pelo {{ p.sigla }}</li>
 	      {% endfor %}
 	    </ul>
@@ -69,7 +68,6 @@
 	      </li>
 	    {% endfor %}
 	    </ul>
-	    <input type="submit" value="Filtrar"/>
 	  </div>
 	</div>
 </form>	

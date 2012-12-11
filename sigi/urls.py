@@ -98,7 +98,7 @@ urlpatterns = patterns(
 #     'sigi.apps.servicos.views.casas_usam_servico'),
     # Views de dashboard
     (r'^sigi/dashboard/mapa/$', 'sigi.apps.metas.views.mapa'),
-    (r'^sigi/dashboard/map_data/$', 'sigi.apps.metas.views.map_data'),
+    (r'^sigi/dashboard/mapdata/$', 'sigi.apps.metas.views.map_data'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),
     (r'^sigi/', include(sites.default.urls)),
