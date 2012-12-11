@@ -4,7 +4,7 @@ from sigi.apps.convenios.models import Projeto
 
 class Desembolso(models.Model):
     projeto = models.ForeignKey(Projeto, verbose_name=u'Projeto')
-    descricao = models.CharField(u'Descrição da despesa', max_length=60)
+    descricao = models.CharField(u'Descrição da despesa', max_length=100)
     data = models.DateField(u'Data do desembolso')
     valor_reais = models.DecimalField(u'Valor em R$', max_digits=18, decimal_places=2)
     valor_dolar = models.DecimalField(u'Valor em US$', max_digits=18, decimal_places=2)
