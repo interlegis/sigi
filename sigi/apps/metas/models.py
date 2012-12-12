@@ -49,34 +49,29 @@ class Meta(models.Model):
     
     @property
     def valor_desejado(self):
-        total_meses = (self.data_fim - self.data_inicio).days / 30
-        meses_gastos = (date.today() - self.data_inicio).days / 30
-        meta_mensal = self.valor_meta / total_meses
-        return meta_mensal * meses_gastos
+        total_dias = (self.data_fim - self.data_inicio).days + 1
+        dias_gastos = (date.today() - self.data_inicio).days + 1
+        meta_dia = self.valor_meta / total_dias
+        return meta_dia * dias_gastos
 
     @property
     def percentual_desejado_low(self):
-        return self.valor_desejado * 0.9 / self.valor_meta
+        return (self.valor_desejado / self.valor_meta) - 0.05 # 5% abaixo do desejado
     
     @property
     def percentual_desejado_high(self):
-        return self.valor_desejado * 1.1 / self.valor_meta
+        return (self.valor_desejado / self.valor_meta) + 0.05 # 5% acima do desejado
     
     @property
     def saude(self):
-        valor_executado = self.valor_executado 
-        if valor_executado >= self.valor_meta:
+        percentual_concluido = self.percentual_concluido / 100.0 
+        if percentual_concluido >= 1:
             return 'A2BBED' # Blue
 
-        total_meses = (self.data_fim - self.data_inicio).days / 30
-        meses_gastos = (date.today() - self.data_inicio).days / 30
-        meta_mensal = self.valor_meta / total_meses
-        valor_desejado = meta_mensal * meses_gastos
-        
-        if valor_executado > (valor_desejado * 1.1):
+        if percentual_concluido > self.percentual_desejado_high:
             return '89D7AF' # Green
         
-        if valor_executado > (valor_desejado * 0.9):
+        if percentual_concluido > self.percentual_desejado_low:
             return 'FFDB6E' # Orange
         
         return 'E74A69' # Red
