@@ -127,11 +127,8 @@
 	{% for meta in metas %}
 	  	<tr>
 	  		<td><strong>{{ meta.titulo }}</strong></td>
-	  		<!-- th><meter style="width:100%;" min="0" max="100" low="{% widthratio meta.valor_desejado_low meta.valor_meta 100 %}"
-	  				high="{% widthratio meta.valor_desejado_high meta.valor_meta 100 %}" optimum="100"
-	  				value="{% widthratio meta.valor_ultimo_calculo meta.valor_meta 100 %}"></meter></th -->
 	  		<td>
-	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}"
+	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}&chm=r,00000034,0,{{ meta.percentual_desejado_low|stringformat:'f' }},{{ meta.percentual_desejado_high|stringformat:'f' }},1"
 	  				width="100%" alt="" />
 	  		</td>
 	  		<td style="text-align: center;"><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>

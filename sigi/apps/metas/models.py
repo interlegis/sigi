@@ -53,14 +53,14 @@ class Meta(models.Model):
         meses_gastos = (date.today() - self.data_inicio).days / 30
         meta_mensal = self.valor_meta / total_meses
         return meta_mensal * meses_gastos
+
+    @property
+    def percentual_desejado_low(self):
+        return self.valor_desejado * 0.9 / self.valor_meta
     
     @property
-    def valor_desejado_high(self):
-        return self.valor_desejado * 1.1
-        
-    @property
-    def valor_desejado_low(self):
-        return self.valor_desejado * 0.9
+    def percentual_desejado_high(self):
+        return self.valor_desejado * 1.1 / self.valor_meta
     
     @property
     def saude(self):
