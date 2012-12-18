@@ -94,6 +94,10 @@ class ConvenioAdmin(admin.ModelAdmin):
         actions = super(ConvenioAdmin, self).get_actions(request)
         del actions['delete_selected']
         return actions
+
+    def lookup_allowed(self, lookup, value):
+        return super(ConvenioAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
     
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):
