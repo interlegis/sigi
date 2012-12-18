@@ -1,11 +1,20 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from sigi.apps.casas.models import CasaLegislativa
 
 class Legislatura(models.Model):
+    casa_legislativa = models.ForeignKey(CasaLegislativa)
     numero = models.PositiveSmallIntegerField(u'número legislatura')
     data_inicio = models.DateField(u'início')
     data_fim = models.DateField('fim')
     data_eleicao = models.DateField(u'data da eleição')
+    total_parlamentares = models.PositiveIntegerField(u"Total de parlamentares")
+    
+    casa_legislativa.convenio_uf_filter = True
+    casa_legislativa.convenio_cl_tipo_filter = True
+    
+    def meta(self):
+        unique_together = (('casa_legislativa', 'numero'))
 
     def __unicode__(self):
         return str(self.numero)

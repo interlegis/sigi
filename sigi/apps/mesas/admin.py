@@ -6,10 +6,16 @@ from sigi.apps.mesas.models import (Legislatura, Coligacao, ComposicaoColigacao,
 
 class LegislaturaAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
-    list_display = ('numero', 'data_inicio', 'data_fim', 'data_eleicao')
+    list_display = ('casa_legislativa', 'numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares')
+    raw_id_fields = ('casa_legislativa',)
     list_display_links = ('numero',)
-    list_filter = ('data_eleicao',)
-    search_fields = ('numero',)
+    list_filter = ('casa_legislativa', 'data_eleicao',)
+    search_fields = ('numero', 'casa_legislativa')
+    
+    def lookup_allowed(self, lookup, value):
+        return super(LegislaturaAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
+    
 
 class ColigacaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'legislatura', 'numero_votos')
