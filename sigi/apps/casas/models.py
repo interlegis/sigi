@@ -99,6 +99,23 @@ class CasaLegislativa(models.Model):
             return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:
             return None
+        
+    @property
+    def total_parlamentares(self):
+        """
+        Calcula o total de parlamentares atual da Casa:
+        - O total de parlamentares da mesas.legislatura mais recente, ou
+        - num_parlamentares ou
+        - 0 se não tiver nenhuma das informações
+        """
+        
+        if self.legislatura_set.exists():
+            return self.legislatura_set.all()[0].total_parlamentares
+        
+        if self.num_parlamentares is not None:
+            return self.num_parlamentares
+        
+        return 0
 
     def gerarCodigoInterlegis(self):
         codigo = self.codigo_interlegis

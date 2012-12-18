@@ -15,6 +15,7 @@ class Legislatura(models.Model):
     
     def meta(self):
         unique_together = (('casa_legislativa', 'numero'))
+        ordering = ['-data_inicio']
 
     def __unicode__(self):
         return str(self.numero)

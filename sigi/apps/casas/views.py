@@ -291,6 +291,10 @@ def export_csv(request):
                 lista.append(casa.pagina_web.encode("utf-8"))
             elif u"Email" == atributo:
                 lista.append(casa.email.encode("utf-8"))
+            elif u"num_parlamentares" == atributo:
+                lista.append(casa.total_parlamentares)
+            elif u"ult_alt_endereco" == atributo:
+                lista.append(casa.ult_alt_endereco)
             else:
                 pass
                                 
