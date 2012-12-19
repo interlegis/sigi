@@ -255,13 +255,18 @@ def export_csv(request):
     
     csv_writer = csv.writer(response)
     casas = carrinhoOrGet_for_qs(request)
-    if not casas:
+    if not casas or not request.POST:
         return HttpResponseRedirect('../')
     
-    if request.POST:
-        atributos = request.POST.getlist("itens_csv_selected")
-	atributos2 = [s.encode("utf-8") for s in atributos]
-        csv_writer.writerow(atributos2)        
+    atributos = request.POST.getlist("itens_csv_selected")
+    atributos2 = [s.encode("utf-8") for s in atributos]
+
+    try:
+        atributos2.insert(atributos2.index(u'Município'), u'UF')
+    except ValueError:
+        pass
+        
+    csv_writer.writerow(atributos2)
         
     for casa in casas:
         lista = []
@@ -270,10 +275,13 @@ def export_csv(request):
                 lista.append(casa.cnpj.encode("utf-8"))
             elif u"Código IBGE" == atributo:
                 lista.append(str(casa.municipio.codigo_ibge).encode("utf-8"))
+            elif u"Código TSE" == atributo:
+                lista.append(str(casa.municipio.codigo_tse).encode("utf-8"))
             elif u"Nome" == atributo:
                 lista.append(casa.nome.encode("utf-8"))
             elif u"Município" == atributo:
-                lista.append(str(casa.municipio))            
+                lista.append(str(casa.municipio.uf.sigla))
+                lista.append(str(casa.municipio.nome))            
             elif u"Presidente" == atributo:
 		#TODO: Esse encode deu erro em 25/04/2012. Comentei para que o usuário pudesse continuar seu trabalho
                 # É preciso descobrir o porque do erro e fazer a correção definitiva.
@@ -291,9 +299,9 @@ def export_csv(request):
                 lista.append(casa.pagina_web.encode("utf-8"))
             elif u"Email" == atributo:
                 lista.append(casa.email.encode("utf-8"))
-            elif u"num_parlamentares" == atributo:
+            elif u"Número de parlamentares" == atributo:
                 lista.append(casa.total_parlamentares)
-            elif u"ult_alt_endereco" == atributo:
+            elif u"Última alteração de endereco" == atributo:
                 lista.append(casa.ult_alt_endereco)
             else:
                 pass

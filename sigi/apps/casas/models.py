@@ -96,7 +96,10 @@ class CasaLegislativa(models.Model):
             Util para relatorios antigos
         """
         try:
-            return self.funcionario_set.get(setor='presidente')
+            if self.funcionario_set.filter(setor='presidente').count() > 1:
+                return self.funcionario_set.filter(setor='presidente')[0]
+            else:
+                return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:
             return None
         
