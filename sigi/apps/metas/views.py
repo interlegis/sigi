@@ -8,7 +8,8 @@ from django.views.decorators.cache import cache_page
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.convenios.models import Projeto, Convenio
 from sigi.apps.contatos.models import UnidadeFederativa
-from apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.utils import to_ascii
 
 def mapa(request):
     """
@@ -95,3 +96,17 @@ def map_data(request):
             casas[c.pk] = casa
                 
     return HttpResponse(simplejson.dumps(casas), mimetype="application/json")
+
+def map_search(request):
+    response = {'result': 'NOT_FOUND'}
+    if 'q' in request.GET:
+        q = request.GET.get('q')
+        if len(q.split(',')) > 1:
+            municipio, uf = [s.strip() for s in q.split(',')]
+            casas = CasaLegislativa.objects.filter(search_text__icontains=to_ascii(municipio), municipio__uf__sigla__iexact=uf)
+        else:
+            casas = CasaLegislativa.objects.filter(search_text__icontains=to_ascii(q))
+        if casas.count() > 0:
+            response = {'result': 'FOUND', 'ids': [c.pk for c in casas]}
+    
+    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
