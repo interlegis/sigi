@@ -5,6 +5,7 @@
 
 {% block extrahead %}
 	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
 	<script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
 	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
 	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
@@ -12,6 +13,21 @@
 	<script type="text/javascript" src="{{ MEDIA_URL }}js/metas/mapa.js"></script>
 {% endblock %}
 
+{% block content_title %}
+<h1>Mapa de atuação do Interlegis</h1>
+<div id="changelist">
+	<div id="toolbar">
+		<form method="get" action="" id="changelist-search">
+			<div><!-- DIV needed for valid HTML -->
+				<label for="searchbar"><img alt="Search" src="/sigi/admin_media/img/admin/icon_searchbox.png"></label>
+				<input type="text" id="searchbar" value="" name="q" size="40">
+				<input type="submit" value="Pesquisar">
+				<span id="search-panel" class="small quiet">&nbsp;</span>
+			</div>
+		</form>	
+	</div>
+</div>
+{% endblock %}
 {% block content %}
 <div id="map" style="width:100%; height: 800px; float: left;">
 	<!-- google map -->

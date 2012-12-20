@@ -1,9 +1,10 @@
 (function($) {
 	var map; // O mapa - Será carregado assim que o documento estiver pronto
-	var municipiosArray = [];
+	var municipiosArray = {};
 
 	$(document).ready(function($) {
 		$("input[type='checkbox']").change(filter);
+		$("#changelist-search").submit( search );
 		var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
 		var myOptions = {
 				zoom: 5,
@@ -22,12 +23,10 @@
 			cache: true,
 			success: function(return_data) {
 			// Delete all markers
-			if (municipiosArray) {
-				for (i in municipiosArray) {
-					municipiosArray[i].setMap(null);
-				}
+			for (i in municipiosArray) {
+				municipiosArray[i].setMap(null);
 			}
-			municipiosArray.length = 0;
+			municipiosArray = {}
 			
 			// Create new markers
 			for (var i in return_data) {
@@ -42,7 +41,7 @@
 				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
 				linkMarkMessage(mark, infoWin, map);
 				municipio['mapmark'] = mark
-				municipiosArray.push(municipio);
+				municipiosArray[i] = municipio;
 			}
 			filter(null);
 		}});
@@ -97,6 +96,46 @@
 				}
 			}
 		}
+	}
+	
+	function search(event) {
+		var data = 
+		$.ajax({
+			url: "/sigi/dashboard/mapsearch/",
+			type: 'GET',
+			data: $("#changelist-search").serializeArray(),
+			cache: true,
+			success: function(return_data) {
+				if (return_data.result == 'NOT_FOUND') {
+					$("#search-panel").html('Nenhum município encontrado.');
+					return;
+				}
+				if (return_data.ids.length == 1) {
+					$("#search-panel").html('um município encontrado.');
+				} else {
+					$("#search-panel").html(return_data.ids.length + ' municípios encontrados.');
+				}
+				var total = 0;
+				for (var i in return_data.ids) {
+					var municipio = municipiosArray[return_data.ids[i]];
+					if (typeof(municipio) != 'undefined') {
+						google.maps.event.trigger(municipio.mapmark, 'click');
+						total = total + 1;
+					}
+				}
+
+				if (total == 0) {
+					$("#search-panel").html('Nenhum município encontrado.');
+					return;
+				}
+				if (total == 1) {
+					$("#search-panel").html('um município encontrado.');
+				} else {
+					$("#search-panel").html(total + ' municípios encontrados.');
+				}
+				
+			}});
+		return false;
 	}
 	
 })(django.jQuery);

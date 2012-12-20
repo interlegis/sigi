@@ -99,6 +99,7 @@ urlpatterns = patterns(
     # Views de dashboard
     (r'^sigi/dashboard/mapa/$', 'sigi.apps.metas.views.mapa'),
     (r'^sigi/dashboard/mapdata/$', 'sigi.apps.metas.views.map_data'),
+    (r'^sigi/dashboard/mapsearch/$', 'sigi.apps.metas.views.map_search'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),
     (r'^sigi/', include(sites.default.urls)),
