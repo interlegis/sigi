@@ -31,7 +31,7 @@ class FuncionariosInline(admin.StackedInline):
     fieldsets = ((None, {
                     'fields': (('nome', 'sexo', 'nota', 'email'), ('cargo', 'funcao', 'setor', 'tempo_de_servico'), 'ult_alteracao') 
                 }),)
-    readonly_fields = ('ult_alteracao',)
+    readonly_fields = ('ult_alteracao',)				
     extra = 1
     inlines = (TelefonesInline,)
     def queryset(self, request):
@@ -48,7 +48,6 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline)
-    readonly_fields = ('ult_alt_endereco',)
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')

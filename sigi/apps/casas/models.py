@@ -60,7 +60,7 @@ class CasaLegislativa(models.Model):
         blank=True,
         verify_exists=False
     )
-    ult_alt_endereco = models.DateTimeField(u'Última alteração do endereço', null=True, blank=True, editable=False)
+    ult_alt_endereco = models.DateTimeField(u'Última alteração do endereço', null=True, blank=True, editable=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
@@ -266,7 +266,7 @@ class Funcionario(models.Model):
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
     setor = models.CharField(max_length=100, choices = SETOR_CHOICES, default="outros")
     tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
-    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True) 
+    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=True, auto_now=False) 
 
     class Meta:
         ordering = ('nome',)
