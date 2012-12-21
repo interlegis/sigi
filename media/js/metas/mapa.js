@@ -3,8 +3,9 @@
 	var municipiosArray = {};
 
 	$(document).ready(function($) {
-		$("input[type='checkbox']").change(filter);
+		$("input[type='checkbox']").change( filter );
 		$("#changelist-search").submit( search );
+		$("#closeiwlink").click( closeAllInfowindows );
 		var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
 		var myOptions = {
 				zoom: 5,
@@ -40,7 +41,8 @@
 				var mark = new google.maps.Marker(markData);
 				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
 				linkMarkMessage(mark, infoWin, map);
-				municipio['mapmark'] = mark
+				municipio['mapmark'] = mark;
+				municipio['infowindow'] = infoWin;
 				municipiosArray[i] = municipio;
 			}
 			filter(null);
@@ -50,6 +52,12 @@
 
 	function linkMarkMessage(mark, infoWin, map) {
 		google.maps.event.addListener(mark, 'click', function() {infoWin.open(map, mark);});
+	}
+	
+	function closeAllInfowindows() {
+		for (var i in municipiosArray) {
+			municipiosArray[i]['infowindow'].close();
+		}
 	}
 	
 	function filter(event) {
@@ -70,6 +78,7 @@
 		
 		for (var i in municipiosArray) {
 			var municipio = municipiosArray[i];
+			municipio['infowindow'].close();
 			var aparece = false;
 
 			if (regioes.indexOf(municipio.regiao) == -1 && estados.indexOf(municipio.estado) == -1) {
@@ -99,7 +108,6 @@
 	}
 	
 	function search(event) {
-		var data = 
 		$.ajax({
 			url: "/sigi/dashboard/mapsearch/",
 			type: 'GET',
@@ -119,6 +127,9 @@
 				for (var i in return_data.ids) {
 					var municipio = municipiosArray[return_data.ids[i]];
 					if (typeof(municipio) != 'undefined') {
+						if (municipio.mapmark.map == null) {
+							municipio.mapmark.setMap(map);
+						}
 						google.maps.event.trigger(municipio.mapmark, 'click');
 						total = total + 1;
 					}
@@ -133,7 +144,6 @@
 				} else {
 					$("#search-panel").html(total + ' municípios encontrados.');
 				}
-				
 			}});
 		return false;
 	}
