@@ -284,6 +284,8 @@ def percentage(fraction, population):
         return ''
 
 def grafico_api(request):
+    colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080', 
+              '28d75c', '0000ff', 'fff200']
     graph_url = "http://chart.apis.google.com/chart"
     #graph_params = QueryDict("chxt=y&chbh=a&chco=A2C180,3D7930")
     graph_params = QueryDict("")
@@ -300,27 +302,28 @@ def grafico_api(request):
       total = sum([r[1] for r in pergunta.group_choices()])
       choices = [str(r[1]) for r in pergunta.group_choices()]
       legend = [percentage(r[1],total) + " " + str(r[0]) for r in pergunta.group_choices()]
+      colors = ['ff0000', 'fff200', '0000ff', '28d75c'] + ["%0.6x" % (0x48d1 + (0xda74 * c)) 
+                                                           for c in range(0,len(pergunta.group_choices()))]
       graph_params.update({
         'cht': 'p',
         'chd': 't:' + ",".join(choices),
         'chdl': '' + "|".join(legend),
+        'chco': '' + '|'.join(colors[:len(pergunta.group_choices())])
         })
     elif pergunta.datatype == 'many':
       total = sum([r[1] for r in pergunta.group_choices()])
       percent = [str(float(r[1])*100/total) for r in pergunta.group_choices()]
       choices = [str(r[1]) for r in pergunta.group_choices()]
       legend = [str(r[0]) for r in pergunta.group_choices()]
-#      colors =  [reduce(lambda x,y: x + hex(y).replace('0x',''), map(lambda x: x*(100-(p*10))/100,[0xff, 0xcc,0x33]),'') 
-#                 for p in range(0,len(pergunta.group_choices()))]
-      colors = ["%0.6x" % (0x48d1 + (0xda74 * c))
-                for c in range(0,len(pergunta.group_choices()))]
+      colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080'] + \
+               ["%0.6x" % (0x48d1 + (0xda74 * c)) for c in range(0,len(pergunta.group_choices()))]      
       graph_params.update({
         'cht': 'bvg',
         'chxt': 'y',
         'chd': 't:' + ",".join(percent),
         'chdl': '' + "|".join(legend),
         'chl': '' + "|".join(choices),
-        'chco': '' + "|".join(colors)
+        'chco': '' + '|'.join(colors[:len(pergunta.group_choices())])
         })
 
     response = {
