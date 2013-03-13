@@ -126,14 +126,14 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
                 ,)
     readonly_fields = ('nome',  'logradouro', 'bairro', 'municipio', 'cep')
     inlines = (ContatosInline,) 
-    list_filter = ('tipo', 'municipio', )
+    list_filter = ('tipo', 'codigo_interlegis', 'municipio', )
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
     
     def lookup_allowed(self, lookup, value):
         return super(CasaAtendidaAdmin, self).lookup_allowed(lookup, value) or \
-            lookup in ['municipio__uf__codigo_ibge__exact']
+            lookup in ['municipio__uf__codigo_ibge__exact', 'servico__tipo_servico__id__exact', ]
 
     def change_view(self, request, object_id, extra_context=None):
         # Se a Casa ainda não é atendida, gerar o código interlegis para ela

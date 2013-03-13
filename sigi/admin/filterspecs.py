@@ -4,6 +4,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ugettext as _
 from sigi.apps.contatos.models import UnidadeFederativa
 from abc import ABCMeta
+from apps.servicos.models import TipoServico
 
 class IsActiveFilterSpec(BooleanFieldFilterSpec):
     """
@@ -210,3 +211,39 @@ class RangeValuesFilterSpec(FilterSpec):
 
 FilterSpec.filter_specs.insert(-1, (lambda f: hasattr(f, 'list_filter_range'),
                                     RangeValuesFilterSpec))
+
+class TipoServicoFilterSpec(ChoicesFilterSpec):
+    """
+    Usage:
+
+      tipo_servico_field.ts_filter = True
+
+    On Django 1.3 you will can specify a lookup on admin filters. Example:
+
+      list_filter = ('municipio__uf',)
+
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(TipoServicoFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
+        self.lookup_kwarg = 'servico__tipo_servico__id__exact'
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = TipoServico.objects.all().order_by('nome')
+        
+    def choices(self, cl):
+        yield {'selected': self.lookup_val is None,
+                'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
+                'display': _('All')}
+        for val in self.lookup_choices:
+            yield {'selected': smart_unicode(val.id) == self.lookup_val,
+                    'query_string': cl.get_query_string({self.lookup_kwarg: val.id}),
+                    'display': val.nome}
+        
+        
+    def title(self):
+        return _('Tipo de servico')
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'ts_filter', False),
+                             TipoServicoFilterSpec))

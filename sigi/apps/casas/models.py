@@ -40,6 +40,7 @@ class CasaLegislativa(models.Model):
     observacoes = models.TextField(u'observações', blank=True)
     num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
+    codigo_interlegis.ts_filter = True
 
     # Informações de contato
     logradouro = models.CharField(
