@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+from django.http import HttpResponse, HttpResponseRedirect
+from geraldo.generators import PDFGenerator
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario
-from sigi.apps.contatos.models import Telefone
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
-from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
-from geraldo.generators import PDFGenerator
 from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
                                     labels_report_sem_presidente, report, \
                                     adicionar_casas_carrinho
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.contatos.models import Telefone
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.mesas.models import Legislatura
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -41,13 +42,32 @@ class ConveniosInline(admin.TabularInline):
     model = Convenio
     exclude = ['equipada','conveniada','observacao']
     extra = 1
+    
+class LegislaturaInline(admin.TabularInline):
+    model = Legislatura
+    fields = ['numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares', 'link_parlamentares',]
+    readonly_fields = ['link_parlamentares',]
+    
+    def link_parlamentares(self, obj):
+        if obj.pk is None:
+            return ""
+        from django.core.urlresolvers import reverse
+        url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=[obj.pk] )
+        url = url + '?_popup=1'
+        return """<input id="edit_legislatura-%s" type="hidden"/> 
+          <a id="lookup_edit_legislatura-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)"> 
+            Editar
+          </a>""" % (obj.pk, obj.pk, url)
+    
+    link_parlamentares.short_description = 'Parlamentares'
+    link_parlamentares.allow_tags = True
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline)
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline, )
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')

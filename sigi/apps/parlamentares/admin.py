@@ -4,7 +4,7 @@ from django.contrib.contenttypes import generic
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 
-class MandatosInline(admin.StackedInline):
+class MandatosInline(admin.TabularInline):
     model = Mandato
     extra = 1
     raw_id_fields = ('legislatura', 'partido')

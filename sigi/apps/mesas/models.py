@@ -15,10 +15,10 @@ class Legislatura(models.Model):
     
     def meta(self):
         unique_together = (('casa_legislativa', 'numero'))
-        ordering = ['-data_inicio']
+        ordering = ['casa_legislativa__municipio__uf__sigla', '-data_inicio']
 
     def __unicode__(self):
-        return str(self.numero)
+        return "%sª legislatura da %s (%s-%s)" % (self.numero, self.casa_legislativa.__unicode__(), self.data_inicio.year, self.data_fim.year)
 
 class Coligacao(models.Model):
     nome = models.CharField(max_length=50)

@@ -74,6 +74,7 @@ class Mandato(models.Model):
     parlamentar = models.ForeignKey(Parlamentar)
     legislatura = models.ForeignKey('mesas.Legislatura')
     partido = models.ForeignKey(Partido)
+    cargo = models.ForeignKey('mesas.Cargo')
     inicio_mandato = models.DateField(u'início de mandato')
     fim_mandato = models.DateField('fim de mandato')
     is_afastado = models.BooleanField(

@@ -1,21 +1,41 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.http import HttpResponse
+from django.utils.html import escape, escapejs
 from sigi.apps.mesas.models import (Legislatura, Coligacao, ComposicaoColigacao,
                                     SessaoLegislativa, MesaDiretora, Cargo,
                                     MembroMesaDiretora)
+from sigi.apps.parlamentares.models import Mandato
 
+class MandatoInline(admin.TabularInline):
+    model = Mandato
+    raw_id_fields = ['parlamentar',]
+    
 class LegislaturaAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
-    list_display = ('casa_legislativa', 'numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares')
+    list_display = ('numero', 'casa_legislativa', 'uf', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares')
     raw_id_fields = ('casa_legislativa',)
     list_display_links = ('numero',)
-    list_filter = ('casa_legislativa', 'data_eleicao',)
+    list_filter = ('casa_legislativa', )
     search_fields = ('numero', 'casa_legislativa')
+    inlines = (MandatoInline,)
     
+    def uf(self, obj):
+        return obj.casa_legislativa.municipio.uf.sigla
+    uf.short_description = 'UF'
+    uf.admin_order_field = 'casa_legislativa__municipio__uf'
+
     def lookup_allowed(self, lookup, value):
         return super(LegislaturaAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
-    
+            
+    def response_change(self, request, obj):
+        response = super(LegislaturaAdmin, self).response_change(request, obj) 
+        if request.POST.has_key("_popup"):
+            response = HttpResponse('<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script>' % \
+                # escape() calls force_unicode.
+                (escape(obj.pk), escapejs(obj)))
+        return response
 
 class ColigacaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'legislatura', 'numero_votos')
