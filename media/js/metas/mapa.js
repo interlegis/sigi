@@ -6,6 +6,8 @@
 		$("input[type='checkbox']").change( filter );
 		$("#changelist-search").submit( search );
 		$("#closeiwlink").click( closeAllInfowindows );
+		$("#summary_report").click( open_report );
+		$("#list_report").click( open_report );
 		var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
 		var myOptions = {
 				zoom: 5,
@@ -65,6 +67,8 @@
 		var estados = [];
 		var regioes = [];
 		
+		$(".totalizador").text("0");
+		
 		for (var i in data) {
 			var name = data[i].name, value = data[i].value;
 			if (name == 'estados') {
@@ -98,6 +102,33 @@
 			if (aparece) {
 				if (municipio.mapmark.map == null) {
 					municipio.mapmark.setMap(map);
+				}
+				var qtde = $("#" + municipio.regiao + ".totalizador").text();
+				qtde = parseInt(qtde);
+				qtde++;
+				$("#" + municipio.regiao + ".totalizador").text(qtde);
+				
+				qtde = parseInt($("#" + municipio.estado + ".totalizador").text());
+				$("#" + municipio.estado + ".totalizador").text(++qtde);
+				
+				for (var j in municipio.seit) {
+					qtde = parseInt($("#" + municipio.seit[j] + ".totalizador").text());
+					$("#" + municipio.seit[j] + ".totalizador").text(++qtde);
+				}
+
+				for (var j in municipio.convenios) {
+					qtde = parseInt($("#convenio_" + municipio.convenios[j] + ".totalizador").text());
+					$("#convenio_" + municipio.convenios[j] + ".totalizador").text(++qtde);
+				}
+
+				for (var j in municipio.equipadas) {
+					qtde = parseInt($("#equip_" + municipio.equipadas[j] + ".totalizador").text());
+					$("#equip_" + municipio.equipadas[j] + ".totalizador").text(++qtde);
+				}
+				
+				for (var j in municipio.diagnosticos) {
+					qtde = parseInt($("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text());
+					$("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text(++qtde);
 				}
 			} else {
 				if (municipio.mapmark.map != null) {
@@ -145,6 +176,14 @@
 					$("#search-panel").html(total + ' municípios encontrados.');
 				}
 			}});
+		return false;
+	}
+	
+	function open_report(event) {
+		var data = $("#filter_form").serialize();
+		var href = this.href + "?" + data;
+		var win = window.open(href, '', '');
+		win.focus();
 		return false;
 	}
 	

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse
 from django.utils import simplejson
+from django.utils.datastructures import SortedDict
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import Q
 from django.views.decorators.cache import cache_page
+from sigi.shortcuts import render_to_pdf
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.convenios.models import Projeto, Convenio
 from sigi.apps.contatos.models import UnidadeFederativa
@@ -110,3 +112,116 @@ def map_search(request):
             response = {'result': 'FOUND', 'ids': [c.pk for c in casas]}
     
     return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+
+@cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
+def map_sum(request):
+    # Filtrar Casas de acordo com os parâmetros
+    param = get_params(request)
+    casas = filtrar_casas(**param)
+    
+    # Montar registros de totalização
+    tot_servicos = SortedDict()
+    tot_projetos = SortedDict()
+    tot_diagnosticos = SortedDict()
+
+    for ts in TipoServico.objects.all():
+        tot_servicos[ts.sigla] = 0
+
+    for pr in Projeto.objects.all():
+        tot_projetos[pr.sigla] = 0 
+
+    tot_convenios = tot_projetos.copy()
+    tot_equipadas = tot_projetos.copy() 
+
+    tot_diagnosticos['A'] = 0
+    tot_diagnosticos['P'] = 0
+    
+    # Montar as linhas do array de resultados com as regiões e os estados
+    result = {}
+    
+    for uf in UnidadeFederativa.objects.filter(Q(regiao__in=param['regioes']) | Q(sigla__in=param['estados'])).order_by('regiao', 'nome'):
+        if not result.has_key(uf.regiao):
+            result[uf.regiao] = {'nome': uf.get_regiao_display(), 'ufs': {}, 'servicos': tot_servicos.copy(),
+                                 'convenios': tot_projetos.copy(), 'equipadas': tot_projetos.copy(),
+                                 'diagnosticos': tot_diagnosticos.copy()}
+        result[uf.regiao]['ufs'][uf.codigo_ibge] = {'nome': uf.nome, 'servicos': tot_servicos.copy(),
+                                                    'convenios': tot_projetos.copy(), 'equipadas': tot_projetos.copy(),
+                                                    'diagnosticos': tot_diagnosticos.copy()}
+
+    
+    # Processar as casas filtradas
+    for casa in casas.distinct():
+        uf = casa.municipio.uf
+        for s in casa.servico_set.all():
+            tot_servicos[s.tipo_servico.sigla] += 1
+            result[uf.regiao]['servicos'][s.tipo_servico.sigla] += 1
+            result[uf.regiao]['ufs'][uf.codigo_ibge]['servicos'][s.tipo_servico.sigla] += 1
+        for c in casa.convenio_set.all():
+            tot_convenios[c.projeto.sigla] += 1
+            result[uf.regiao]['convenios'][c.projeto.sigla] += 1
+            result[uf.regiao]['ufs'][uf.codigo_ibge]['convenios'][c.projeto.sigla] += 1
+            if (c.equipada and c.data_termo_aceite is not None):
+                tot_equipadas[c.projeto.sigla] += 1
+                result[uf.regiao]['equipadas'][c.projeto.sigla] += 1
+                result[uf.regiao]['ufs'][uf.codigo_ibge]['equipadas'][c.projeto.sigla] += 1
+        for d in casa.diagnostico_set.all():
+            if d.publicado:
+                tot_diagnosticos['P'] += 1
+                result[uf.regiao]['diagnosticos']['P'] += 1
+                result[uf.regiao]['ufs'][uf.codigo_ibge]['diagnosticos']['P'] += 1
+            else:
+                tot_diagnosticos['A'] += 1
+                result[uf.regiao]['diagnosticos']['A'] += 1
+                result[uf.regiao]['ufs'][uf.codigo_ibge]['diagnosticos']['A'] += 1
+            
+    extra_context = {
+        'pagesize': 'a4 landscape',
+        'servicos': TipoServico.objects.all(),
+        'projetos': Projeto.objects.all(),
+        'result': result,
+        'tot_servicos': tot_servicos,
+        'tot_convenios': tot_convenios,
+        'tot_equipadas': tot_equipadas,
+        'tot_diagnosticos': tot_diagnosticos,
+    }        
+    return render_to_pdf('metas/map_sum.html', extra_context)
+
+def map_list(request):
+    # Filtrar Casas de acordo com os parâmetros
+    param = get_params(request)
+    casas = filtrar_casas(**param)
+    casas = casas.order_by('municipio__uf__regiao', 'municipio__uf__nome', 'nome').distinct()
+    return render_to_pdf('metas/map_list.html', {'casas': casas})
+
+#----------------------------------------------------------------------------------------------------
+# Funções auxiliares - não são views
+#---------------------------------------------------------------------------------------------------- 
+
+# Pegar parâmetros da pesquisa
+def get_params(request):
+    return {
+        'seit'         : request.GET.getlist('seit'),
+        'convenios'    : request.GET.getlist('convenios'),
+        'equipadas'    : request.GET.getlist('equipadas'),
+        'diagnosticos' : request.GET.getlist('diagnosticos'), 
+        'regioes'      : request.GET.getlist('regioes'),
+        'estados'      : request.GET.getlist('estados'),
+    }
+
+# Filtrar Casas que atendem aos parâmetros de pesquisa
+def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
+    qServico  = Q(servico__tipo_servico__sigla__in=seit)
+    qConvenio = Q(convenio__projeto__sigla__in=convenios)
+    qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
+    qRegiao   = Q(municipio__uf__regiao__in=regioes)
+    qEstado   = Q(municipio__uf__sigla__in=estados)
+    
+    if diagnosticos:
+        qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' for p in diagnosticos])
+    else:
+        qDiagnostico = Q()
+        
+    casas = CasaLegislativa.objects.filter(qServico | qConvenio | qEquipada | qDiagnostico).filter(qRegiao | qEstado)
+    
+    return casas
+    

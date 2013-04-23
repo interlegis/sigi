@@ -50,8 +50,6 @@
                 @frame footer {
                     -pdf-frame-content: footer;
                     bottom: 0cm;
-                    margin-left: 9cm;
-                    margin-right: 9cm;
                     height: 1cm;
                 }
             }
@@ -66,7 +64,8 @@
                     <td class="logo"><img src="{{MEDIA_URL}}images/logo-senado.jpg"/></td>
                     <td class="header_text">
                         <p><strong>SENADO FEDERAL</strong></p>
-                        <p><strong>SECRETARIA ESPECIAL DO INTERLEGIS – SINTER</strong></p>
+                        <p><strong>INSTITUTO LEGISLATIVO BRASILEIRO - ILB</strong></p>
+                        <p><strong>PROGRAMA INTERLEGIS</strong></p>
                         <p>{% block subsecretaria %}{% endblock %}</p>
                     </td>
                     <td class="logo"><img src="{{MEDIA_URL}}images/logo-interlegis.jpg"/></td>
@@ -75,7 +74,7 @@
         </div>
         {% block report %}
         {% endblock %}
-        <div id="footer">
+        <div id="footer" style="text-align: center;">
             {%block page_foot%}
             Página <pdf:pagenumber>
             {%endblock%}
