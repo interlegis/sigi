@@ -17,7 +17,7 @@ class LegislaturaAdmin(admin.ModelAdmin):
     raw_id_fields = ('casa_legislativa',)
     list_display_links = ('numero',)
     list_filter = ('casa_legislativa', )
-    search_fields = ('numero', 'casa_legislativa')
+    search_fields = ('casa_legislativa__nome', 'casa_legislativa__municipio__nome' )
     inlines = (MandatoInline,)
     
     def uf(self, obj):

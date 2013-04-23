@@ -22,7 +22,7 @@ class ParlamentarAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
-    list_filter = ('nome_completo', 'sexo')
+    list_filter = ('nome_completo', 'nome_parlamentar')
     fieldsets = (
         (None, {
             'fields': ('nome_completo', 'nome_parlamentar', 'sexo'),
