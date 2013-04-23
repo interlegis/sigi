@@ -1,0 +1,98 @@
+{% extends "base_report.html" %}
+
+{% block extra_head %}
+<style>
+	table.data, table.data td, table.data th {
+		border: 1px solid #CCCCCC;
+		border-collapse:collapse;
+		font-size: 10px;
+		padding: 2px;
+	}
+	td.qtde, th.qtde {
+		text-align: right;
+	}
+	
+	td.nome_uf {
+		padding: 0 5px !important;
+	}
+</style>
+<title>Sumário da atuação do Interlegis</title>
+{% endblock %}
+
+{% block report %}
+<h1>Sumário da atuação do Interlegis</h1>
+<hr/><br/>
+<table class="data" repeat="2">
+	<tr>
+		<th rowspan="2">Região / Estado</th>
+		<th colspan="{{ servicos.count }}">Serviços SEIT</th>
+		<th colspan="{{ projetos.count }}">Conveniadas</th>
+		<th colspan="{{ projetos.count }}">Equipadas</th>
+		<th colspan="2">Diagnósticos</th>
+	</tr>
+	<tr>
+	{% for servico in servicos %}
+		<th>{{ servico.nome }}</th>
+	{% endfor %}
+	{% for projeto in projetos %}
+		<th>{{ projeto.sigla }}</th>
+	{% endfor %}
+	{% for projeto in projetos %}
+		<th>{{ projeto.sigla }}</th>
+	{% endfor %}
+		<th>Em andamento</th>
+		<th>Publicados</th>
+	</tr>
+	{% for r_sigla, regiao in result.iteritems %}
+	<tr>
+		<td><strong>{{ regiao.nome }}</strong></td>
+		{% for sigla, qtde in regiao.servicos.iteritems %}
+		<td class="qtde"><strong>{{ qtde|default:"-" }}</strong></td>
+		{% endfor %}
+		{% for sigla, qtde in regiao.convenios.iteritems %}
+		<td class="qtde"><strong>{{ qtde|default:"-" }}</strong></td>
+		{% endfor %}
+		{% for sigla, qtde in regiao.equipadas.iteritems %}
+		<td class="qtde"><strong>{{ qtde|default:"-" }}</strong></td>
+		{% endfor %}
+		{% for sigla, qtde in regiao.diagnosticos.iteritems %}
+		<td class="qtde"><strong>{{ qtde|default:"-" }}</strong></td>
+		{% endfor %}
+	</tr>
+	{% for uf_id, uf in regiao.ufs.iteritems %}
+	<tr>
+		<td class="nome_uf">{{ uf.nome }}</td>
+		{% for sigla, qtde in uf.servicos.iteritems %}
+		<td class="qtde">{{ qtde|default:"-" }}</td>
+		{% endfor %}
+		{% for sigla, qtde in uf.convenios.iteritems %}
+		<td class="qtde">{{ qtde|default:"-" }}</td>
+		{% endfor %}
+		{% for sigla, qtde in uf.equipadas.iteritems %}
+		<td class="qtde">{{ qtde|default:"-" }}</td>
+		{% endfor %}
+		{% for sigla, qtde in uf.diagnosticos.iteritems %}
+		<td class="qtde">{{ qtde|default:"-" }}</td>
+		{% endfor %}
+	</tr>
+	{% endfor %}
+	{% endfor %}
+	<tr>
+		<th>Total</th>
+		{% for sigla, qtde in tot_servicos.iteritems %}
+		<th class="qtde">{{ qtde|default:"-" }}</th>
+		{% endfor %}
+		{% for sigla, qtde in tot_convenios.iteritems %}
+		<th class="qtde">{{ qtde|default:"-" }}</th>
+		{% endfor %}
+		{% for sigla, qtde in tot_equipadas.iteritems %}
+		<th class="qtde">{{ qtde|default:"-" }}</th>
+		{% endfor %}
+		{% for sigla, qtde in tot_diagnosticos.iteritems %}
+		<th class="qtde">{{ qtde|default:"-" }}</th>
+		{% endfor %}
+
+</table>
+{% endblock %}
+</body>
+</html>
