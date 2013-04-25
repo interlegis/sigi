@@ -2,8 +2,8 @@
 # -*- mode: python -*-
 import os, sys
 
-sys.path.insert(0, '/var/aplicacoes/django/sigi')
-sys.path.insert(0, '/var/aplicacoes/django/sigi/sigi')
+sys.path.insert(0, '/var/interlegis/sigi')
+sys.path.insert(0, '/var/interlegis/sigi/sigi')
 os.environ['DJANGO_SETTINGS_MODULE'] = 'sigi.settings'
 
 from django.core.management.validation import get_validation_errors
