@@ -13,6 +13,9 @@ from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import to_ascii
 
+from sigi.settings import MEDIA_ROOT
+JSON_FILE_NAME = MEDIA_ROOT + 'map_data.json'
+
 def mapa(request):
     """
     Mostra o mapa com filtros carregados com valores default
@@ -46,58 +49,21 @@ def mapa(request):
     return render_to_response('metas/mapa.html', extra_context, context_instance=RequestContext(request))
 
 
-@cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
+@cache_page(1800) # Cache de 30min
 def map_data(request):
     """
-    Monta json com todos os dados dos municípios que têm relação com o Interlegis
-    """    
-
-    casas = {}
+    Retorna json com todos os dados dos municípios que têm relação com o Interlegis
+    Tenta ler esse json do arquivo JSON_FILE_NAME. Se não encontrar, chama a rotina
+    gera_map_data_file().
+    """
     
-    for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
-        if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
-            continue; # Salta essa casa, pois ela não tem nada com o Interlegis
+    try:
+        file = open(JSON_FILE_NAME, 'r')
+        json = file.read()
+    except:
+        json = gera_map_data_file()
         
-        if not casas.has_key(c.pk):
-            casa = {
-                'nome': c.nome + ', ' + c.municipio.uf.sigla,
-                'icone': 'mapmarker',
-                'lat': str(c.municipio.latitude),
-                'lng': str(c.municipio.longitude),
-                'estado': c.municipio.uf.sigla,
-                'regiao': c.municipio.uf.regiao,
-                'diagnosticos': [], 
-                'seit': [],
-                'convenios': [],
-                'equipadas': [],
-                'info': []
-            }
-            
-            for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='//%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
-                casa['seit'].append(sv.tipo_servico.sigla)
-                
-            for cv in c.convenio_set.all():
-                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
-                    casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
-                    casa['equipadas'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
-                    casa['info'].append(u"Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
-                    casa['convenios'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
-                    casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
-                    casa['equipadas'].append(cv.projeto.sigla)
-                    casa['convenios'].append(cv.projeto.sigla)
-                    
-            for dg in c.diagnostico_set.all():
-                casa['diagnosticos'].append('P' if dg.publicado else 'A')
-                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y'), dg.data_visita_fim.strftime('%d/%m/%Y')))
-                    
-            casa['info'] = "<br/>".join(casa['info'])
-                
-            casas[c.pk] = casa
-                
-    return HttpResponse(simplejson.dumps(casas), mimetype="application/json")
+    return HttpResponse(json, mimetype="application/json")
 
 def map_search(request):
     response = {'result': 'NOT_FOUND'}
@@ -197,8 +163,8 @@ def map_list(request):
 # Funções auxiliares - não são views
 #---------------------------------------------------------------------------------------------------- 
 
-# Pegar parâmetros da pesquisa
 def get_params(request):
+    ''' Pegar parâmetros da pesquisa '''
     return {
         'seit'         : request.GET.getlist('seit'),
         'convenios'    : request.GET.getlist('convenios'),
@@ -208,8 +174,8 @@ def get_params(request):
         'estados'      : request.GET.getlist('estados'),
     }
 
-# Filtrar Casas que atendem aos parâmetros de pesquisa
 def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
+    ''' Filtrar Casas que atendem aos parâmetros de pesquisa '''
     qServico  = Q(servico__tipo_servico__sigla__in=seit)
     qConvenio = Q(convenio__projeto__sigla__in=convenios)
     qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
@@ -224,4 +190,64 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     casas = CasaLegislativa.objects.filter(qServico | qConvenio | qEquipada | qDiagnostico).filter(qRegiao | qEstado)
     
     return casas
+
+def gera_map_data_file():
+    ''' Criar um arquivo json em settings.MEDIA_ROOT com o nome de map_data.json
+        Este arquivo será consumido pela view de dados de mapa.
+        Retorna os dados json gravados no arquivo.
+    ''' 
+    casas = {}
     
+    for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
+        if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
+            continue; # Salta essa casa, pois ela não tem nada com o Interlegis
+        
+        if not casas.has_key(c.pk):
+            casa = {
+                'nome': c.nome + ', ' + c.municipio.uf.sigla,
+                'icone': 'mapmarker',
+                'lat': str(c.municipio.latitude),
+                'lng': str(c.municipio.longitude),
+                'estado': c.municipio.uf.sigla,
+                'regiao': c.municipio.uf.regiao,
+                'diagnosticos': [], 
+                'seit': [],
+                'convenios': [],
+                'equipadas': [],
+                'info': []
+            }
+            
+            for sv in c.servico_set.all():
+                casa['info'].append(u"%s ativado em %s <a href='//%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
+                casa['seit'].append(sv.tipo_servico.sigla)
+                
+            for cv in c.convenio_set.all():
+                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
+                    casa['equipadas'].append(cv.projeto.sigla)
+                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
+                    casa['convenios'].append(cv.projeto.sigla)
+                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                    casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
+                    casa['equipadas'].append(cv.projeto.sigla)
+                    casa['convenios'].append(cv.projeto.sigla)
+                    
+            for dg in c.diagnostico_set.all():
+                casa['diagnosticos'].append('P' if dg.publicado else 'A')
+                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y'), dg.data_visita_fim.strftime('%d/%m/%Y')))
+                    
+            casa['info'] = "<br/>".join(casa['info'])
+                
+            casas[c.pk] = casa
+    
+    json_data = simplejson.dumps(casas)
+    
+    try:
+        file = open(JSON_FILE_NAME, 'w')
+        file.write(json_data)
+        file.close()
+    except:
+        pass # A gravação não foi bem sucedida, mas os dados poderão ser usados por quem invocou a rotina
+                
+    return json_data
