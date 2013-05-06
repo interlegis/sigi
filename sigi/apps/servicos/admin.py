@@ -48,7 +48,7 @@ class TipoServicoAdmin(admin.ModelAdmin):
     
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
-    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',)
+    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao', 'getUrl')
     fieldsets = (( None, {
                     'fields': ('casa_legislativa', 'data_ativacao',)
                  }),
@@ -69,10 +69,15 @@ class ServicoAdmin(admin.ModelAdmin):
     inlines = (LogServicoInline,)
     
     def getUf(self, obj):
-        return '%s' % (obj.casa_legislativa.municipio.uf)
-
+        return u'%s' % (obj.casa_legislativa.municipio.uf)
     getUf.short_description = 'UF'
     getUf.admin_order_field = 'casa_legislativa__municipio__uf'
+    
+    def getUrl(self, obj):
+        return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
+    getUrl.short_description = 'Url'
+    getUrl.allow_tags = True
+
     
     def lookup_allowed(self, lookup, value):
         return super(ServicoAdmin, self).lookup_allowed(lookup, value) or \
