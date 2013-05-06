@@ -48,7 +48,7 @@ class TipoServicoAdmin(admin.ModelAdmin):
     
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
-    list_display = ('casa_legislativa', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',)
+    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',)
     fieldsets = (( None, {
                     'fields': ('casa_legislativa', 'data_ativacao',)
                  }),
@@ -62,8 +62,22 @@ class ServicoAdmin(admin.ModelAdmin):
                     'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
                 }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-
+    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'casa_legislativa')
+    list_display_links = []
+    ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
+    actions = None
     inlines = (LogServicoInline,)
+    
+    def getUf(self, obj):
+        return '%s' % (obj.casa_legislativa.municipio.uf)
+
+    getUf.short_description = 'UF'
+    getUf.admin_order_field = 'casa_legislativa__municipio__uf'
+    
+    def lookup_allowed(self, lookup, value):
+        return super(ServicoAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
+    
     
     def add_view(self, request, form_url='', extra_context=None):
         id_casa = request.GET.get('id_casa', None)

@@ -107,6 +107,33 @@ class MunicipioUFFilterSpec(AbstractFilterSpec):
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'uf_filter', False),
                              MunicipioUFFilterSpec))
 
+class CasaUFFilterSpec(AbstractFilterSpec):
+    """
+    Usage:
+
+      my_casa_legislativa_field.casa_uf_filter = True
+
+    On Django 1.3 you will can specify a lookup on admin filters. Example:
+
+      list_filter = ('casa_legislativa__municipio__uf',)
+
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(CasaUFFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
+        self.lookup_kwarg = '%s__municipio__uf__codigo_ibge__exact' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = UnidadeFederativa.objects.all().order_by('nome')
+    def title(self):
+        return _('UF') % \
+            {'field_name': self.field.verbose_name}
+
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'casa_uf_filter', False),
+                             CasaUFFilterSpec))
+
 class ConvenioUFFilterSpec(AbstractFilterSpec):
     """
     Usage:

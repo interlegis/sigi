@@ -42,6 +42,8 @@ class Servico(models.Model):
     data_desativacao = models.DateField('Data de desativação', blank=True, null=True)
     motivo_desativacao = models.TextField('Motivo da desativação', blank=True)
     
+    casa_legislativa.casa_uf_filter = True
+    
     def __unicode__(self):
         return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')
     
