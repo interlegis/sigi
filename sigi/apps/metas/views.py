@@ -14,7 +14,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import to_ascii
 
 from sigi.settings import MEDIA_ROOT
-JSON_FILE_NAME = MEDIA_ROOT + 'map_data.json'
+JSON_FILE_NAME = MEDIA_ROOT + 'apps/metas/map_data.json'
 
 def mapa(request):
     """
@@ -192,7 +192,7 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     return casas
 
 def gera_map_data_file(get_error=False):
-    ''' Criar um arquivo json em settings.MEDIA_ROOT com o nome de map_data.json
+    ''' Criar um arquivo json em {settings.MEDIA_ROOT}/apps/metas/ com o nome de map_data.json
         Este arquivo será consumido pela view de dados de mapa.
         Retorna os dados json.
         Caso get_error seja True e ocorra algum erro na gravação do arquivo,
