@@ -191,10 +191,12 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     
     return casas
 
-def gera_map_data_file():
+def gera_map_data_file(get_error=False):
     ''' Criar um arquivo json em settings.MEDIA_ROOT com o nome de map_data.json
         Este arquivo será consumido pela view de dados de mapa.
-        Retorna os dados json gravados no arquivo.
+        Retorna os dados json.
+        Caso get_error seja True e ocorra algum erro na gravação do arquivo,
+        retorna a mensagem do erro que impediu a gravação. 
     ''' 
     casas = {}
     
@@ -247,7 +249,11 @@ def gera_map_data_file():
         file = open(JSON_FILE_NAME, 'w')
         file.write(json_data)
         file.close()
-    except:
-        pass # A gravação não foi bem sucedida, mas os dados poderão ser usados por quem invocou a rotina
+    except: # A gravação não foi bem sucedida ...
+        if get_error: # ... o chamador deseja a mensagem de erro
+            import sys
+            return sys.exc_info()[0]
+        else:
+            pass # ... ou os dados poderão ser usados de qualquer forma
                 
     return json_data
