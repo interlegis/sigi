@@ -4,8 +4,8 @@
 {% block title %}{{ title }} | SIGI{% endblock %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css"
-      href="{{ MEDIA_URL }}css/base_site.css" />
+<link rel="stylesheet" type="text/css" href="http://www.interlegis.leg.br/globalnav-estilos.css" />
+<link rel="stylesheet" type="text/css" href="{{ MEDIA_URL }}css/base_site.css" />
 {% endblock %}
 
 {% block extrahead %}
@@ -13,10 +13,27 @@
 				Direitos Reservados." />
 {% endblock %}
 
+{% block container-top %}
+    <ul id="globalnavbar">
+        <li class="globalnav-busca">
+            <form action="http://www.interlegis.leg.br/pesquisa">
+                <input type="hidden" name="cx" value="005989114056755709513:jxifhn8vsyw" />
+                <input type="hidden" name="cof" value="FORID:10" />
+                <input type="hidden" name="ie" value="UTF-8" />
+                <input type="text" name="q" size="8" maxlength="255" value="Pesquisar" onBlur="if (this.value == '') { this.value = 'Pesquisar'; }" onFocus="if (this.value == 'Pesquisar') { this.value = ''; }" />
+            </form>
+        </li>
+        <li><a href="http://saberes.interlegis.leg.br/" title="Saberes - Ambiente de Aprendizagem a Distância" class="globalnav-saberes">Saberes</a></li>
+        <li><a href="http://colab.interlegis.leg.br/" title="Colab - Comunidades Interlegis" class="globalnav-colab">Colab</a></li>
+        <li><a href="https://intranet.interlegis.gov.br/" title="Intranet Interlegis" class="globalnav-intranet">Intranet</a></li>
+        <li><a href="http://www.interlegis.leg.br/" title="Portal Interlegis" class="globalnav-portal">Portal</a></li>
+    </ul>
+{% endblock %}
+
 {% block branding %}
-<h1 id="site-name">
-  <a href="/sigi">Sistema de Informações Gerenciais do Interlegis</a>
-</h1>
+	<h1 id="site-name">
+		<a href="/sigi">Sistema de Informações Gerenciais do Interlegis</a>
+	</h1>
 {% endblock %}
 
 {% block userlinks %}
@@ -32,12 +49,23 @@
 
 {% block footer %}
   {% if not is_popup %}
-    <div id="footer">
-      <img src="{{ MEDIA_URL }}images/logo-interlegis.jpg">
 
-      <p>Copyright &copy; 2008&ndash;2010 Interlegis. Todos os Direitos Reservados.<br />
-        É proibido o uso das informações aqui fornecidas fora do âmbito do Interlegis.
+    <div id="footer">
+        <div class="footernote">
+          <p>Em caso de dúvida no uso do sistema contate o SPDT no ramal 2587.</p>
+          <p>É recomendado o uso das informações aqui fornecidas fora do âmbito do Interlegis.</p>
+          <p>SIGI é um software livre e seus fontes estão disponíveis no <a href="http://colab.interlegis.leg.br/wiki/ProjetoSigi">Colab</a>.</p>
+        </div>
+        <div class="footerlogos">
+            <ul>
+              <li><a href="http://www.senado.leg.br"><img title="Senado Federal" alt="Logotipo do Senado Federal" src="http://www.interlegis.leg.br/++theme++il.portalinterlegis/images/senado.png"></a></li>
+              <li><a href="http://www.camara.leg.br"><img title="Câmara dos Deputados" alt="Logotipo da Câmara dos Deputados" src="http://www.interlegis.leg.br/++theme++il.portalinterlegis/images/camara.png"></a></li>
+              <li><a href="http://www.iadb.org/pt"><img title="Banco Interamericano de Desenvolvimento" alt="Logotipo do Banco Interamericano de Desenvolvimento" src="http://www.interlegis.leg.br/++theme++il.portalinterlegis/images/bid.png"></a></li>
+              <li><a href="http://www.tcu.leg.br"><img title="Tribunal de Contas da União" alt="Logotipo do Tribunal de Contas da União" src="http://www.interlegis.leg.br/++theme++il.portalinterlegis/images/tcu.png"></a></li>
+            </ul>
+        </div>
     </div>
+
   {% endif %}
 {% endblock %}
 

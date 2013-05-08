@@ -144,12 +144,52 @@ img.chart {
 	width: 31%;
 }
 
+div.partners > ul > li {
+    display: inline;
+}
+
+div.utils li {
+  display: inline;
+}
+
 /* FOOTER */
-#footer {
-	color: #555;
-	font-size: 0.9em;
-	text-align: center;
-	margin-top: 40px;
+div#footer {
+    background-color: #25528C;
+    display: table;
+    margin: 4em 0 0;
+    padding: 0.5em 0;
+    vertical-align: middle;
+    width: 100%;
+}
+
+div#footer div.footernote {
+    width: 45%;
+    padding: 0.4em 1em;
+    text-align: left;
+    float: left;
+}
+
+div#footer div.footerlogos {
+    width: 50%;
+    padding: 0.4em 1em;
+    text-align: center;
+    margin-left: 50%;
+    border-left: 1px solid white;
+}
+
+div#footer div.footerlogos li {
+    display: inline;
+    margin-right: 2em;
+}
+
+div#footer p {
+    font-size: 0.7em;
+    font-weight: normal;
+    color: white;
+}
+
+div#footer a {
+    color: white;
 }
 
 /* JQuery */
@@ -199,4 +239,12 @@ img.chart {
 	text-align: center;
 	display: inline-block;
 	float: right;
+}
+
+#branding h1 {
+	float: left;
+}
+
+#user-tools {
+	position: inherit;
 }
