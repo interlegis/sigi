@@ -18,4 +18,4 @@ from sigi import settings
 setup_environ(settings)
 
 from sigi.apps.metas.views import gera_map_data_file
-print gera_map_data_file(get_error=True)
+print gera_map_data_file(cronjob=True)

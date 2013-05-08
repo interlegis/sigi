@@ -191,13 +191,16 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     
     return casas
 
-def gera_map_data_file(get_error=False):
+def gera_map_data_file(cronjob=False):
     ''' Criar um arquivo json em {settings.MEDIA_ROOT}/apps/metas/ com o nome de map_data.json
         Este arquivo será consumido pela view de dados de mapa.
-        Retorna os dados json.
-        Caso get_error seja True e ocorra algum erro na gravação do arquivo,
-        retorna a mensagem do erro que impediu a gravação. 
+        Retorna os dados json caso cronjob seja falso.
+        Caso cronjob seja True, retorna log de tempo gasto na geração ou a mensagem do erro
+        que impediu a gravação do arquivo. 
     ''' 
+    import time
+    start = time.time()
+
     casas = {}
     
     for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
@@ -250,10 +253,13 @@ def gera_map_data_file(get_error=False):
         file.write(json_data)
         file.close()
     except: # A gravação não foi bem sucedida ...
-        if get_error: # ... o chamador deseja a mensagem de erro
+        if cronjob: # ... o chamador deseja a mensagem de erro
             import sys
             return sys.exc_info()[0]
         else:
             pass # ... ou os dados poderão ser usados de qualquer forma
-                
+    
+    if cronjob:
+        return "Arquivo %s gerado em %d segundos" % (JSON_FILE_NAME, time.time() - start)
+
     return json_data
