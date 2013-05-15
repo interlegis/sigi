@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+from django.http import HttpResponse, HttpResponseRedirect
+
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
+from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
 
 class MandatosInline(admin.TabularInline):
     model = Mandato
@@ -23,6 +26,7 @@ class ParlamentarAdmin(admin.ModelAdmin):
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
     list_filter = ('nome_completo', 'nome_parlamentar')
+    actions = ['adiciona_parlamentar',]
     fieldsets = (
         (None, {
             'fields': ('nome_completo', 'nome_parlamentar', 'sexo'),
@@ -38,6 +42,23 @@ class ParlamentarAdmin(admin.ModelAdmin):
 #    raw_id_fields = ('municipio',)
     search_fields = ('nome_completo', 'nome_parlamentar', 'email',
                      'pagina_web',)
+    
+    def adiciona_parlamentar(self, request, queryset):
+        if request.session.has_key('carrinho_parlametar'):
+            q1 = len(request.session['carrinho_parlamentar'])
+        else:
+            q1 = 0        
+        adicionar_parlamentar_carrinho(request,queryset=queryset)
+        q2 = len(request.session['carrinho_parlamentar'])
+        quant = q2 - q1
+        if quant:
+            self.message_user(request,"%s Parlamentares adicionados no carrinho" % (quant) )
+        else:
+            self.message_user(request,"Os parlamentares selecionadas já foram adicionadas anteriormente" )
+        return HttpResponseRedirect('.')
+    
+    adiciona_parlamentar.short_description = u"Armazenar parlamentar no carrinho para exportar"
+        
 
 class MandatoAdmin(admin.ModelAdmin):
     list_display = ('parlamentar', 'legislatura', 'partido',

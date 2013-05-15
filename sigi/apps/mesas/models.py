@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
 from django.db import models
 from sigi.apps.casas.models import CasaLegislativa
 
@@ -6,7 +6,7 @@ class Legislatura(models.Model):
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     numero = models.PositiveSmallIntegerField(u'número legislatura')
     data_inicio = models.DateField(u'início')
-    data_fim = models.DateField('fim')
+    data_fim = models.DateField(u'fim')
     data_eleicao = models.DateField(u'data da eleição')
     total_parlamentares = models.PositiveIntegerField(u"Total de parlamentares")
     

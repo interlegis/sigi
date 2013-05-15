@@ -1,0 +1,78 @@
+{% extends "admin/carrinho.html" %}
+{% load adminmedia admin_list i18n %}
+{% block extrastyle %}
+  {{ block.super }}  
+  {% include "admin/tabs_style.html" %}
+ 
+  
+{% endblock %}
+
+{% block title %}Parlamentares no Carrinho | SIGI{% endblock %}
+{% block content_title %}<h1>Parlamentares no Carrinho</h1>{% endblock %}
+
+{% block mensagem%}
+<ul class="messagelist">
+	{%if carIsEmpty%}
+		<li class="warning">O carrinho está vazio, sendo assim todas as casas entram na lista para exportação de acordo com os filtros aplicados.</li>
+	{%else%}
+		<li>{{paginas.paginator.count}}Parlamentares no carrinho.</li>
+	{%endif%}
+</ul>
+{% endblock %}
+
+{% block action %}deleta_itens_carrinho{% endblock %}
+
+{% block tabela %}
+<table>
+	<thead>
+		<tr>
+			{%if not carIsEmpty%}
+			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
+			</th>
+			{% endif %}
+			<th class="sorted ascending">Nome</th>
+			<th class="sorted ascending">Nome parlamentar</th>
+			<th class="sorted ascending">Sexo</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for parlamentar in paginas.object_list %}
+		<tr class="{% cycle 'row1' 'row2' %}">
+			{%if not carIsEmpty%}
+			<th><input type="checkbox" name="_selected_action"
+				value="{{parlamentar.id}}" class="action-select" /></th>
+			{% endif %}
+			<td style="text-align: left;">{{parlamentar.nome_completo}}</td>
+			<td>{{parlamentar.nome_parlamentar}}</td>
+			<td>{{parlamentar.get_sexo_display}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
+
+{% block botoes %}
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Etiqueta</a></li>
+	</ul>
+	
+	<div id="tabs-1">
+		<form action="../labels/{{query_str}}" method="post">{% csrf_token %}
+        <fieldset><legend>Formato da Etiqueta</legend>
+        <ul class="formato_etiqueta">
+        	<li><input type="radio" name="tamanho_etiqueta"
+            	value="2x5_etiqueta"><label>2x5</label></li>
+           	<li><input type="radio" name="tamanho_etiqueta"
+            	value="3x9_etiqueta" checked="checked"><label>3x9</label></li>
+
+         </ul>
+         </fieldset>
+		<ul class="botoes">
+			<li><input type="submit" value="Gerar Etiqueta" /></li>
+		</ul>
+		</form>
+	
+	</div>
+
+{% endblock %}

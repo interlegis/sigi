@@ -60,7 +60,7 @@
 	<div id="changelist" class="module">		
 		<form action="{% block action %}#{% endblock %}"
 			class="changelist-form" method="post">
-			{%if not carIsEmpty%}
+			{% if not carIsEmpty %}
 			<div class="botoes">
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
@@ -71,7 +71,7 @@
 			<div class="result_list">		
 				{% block tabela %}{% endblock %}			
 			</div>			
-			{%if not carIsEmpty%}
+			{% if not carIsEmpty %}
 			<div class="botoes">
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>

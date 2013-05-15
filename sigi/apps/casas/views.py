@@ -2,8 +2,8 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from geraldo.generators import PDFGenerator
-from sigi.apps.casas.models import CasaLegislativa
 
+from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.casas.reports import CasasLegislativasLabels
 from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
 from sigi.apps.casas.reports import CasasLegislativasReport

@@ -39,9 +39,7 @@ def string_to_cm(texto):
                 tamanho += 0.2                
     return tamanho
 
-
-
-class CasasLegislativasLabels(Report):
+class ParlamentaresLabels(Report):
     """
     Usage example::
 
@@ -53,24 +51,24 @@ class CasasLegislativasLabels(Report):
     """
     formato = ''
     y = 2
-    largura_etiqueta = 6.7
+    largura_etiqueta = 7
     altura_etiqueta = 3.3
-    tamanho_fonte = 6
+    tamanho_fonte = 6.4
     altura_dados = 0.3 #logradouro, bairro, municipio, cep
     delta = start = 0.5
 
     def __init__(self, queryset, formato):	
-        super(CasasLegislativasLabels, self).__init__(queryset=queryset)
+        super(ParlamentaresLabels, self).__init__(queryset=queryset)
         self.formato = formato
         self.page_size = A4
 
         if formato == '3x9_etiqueta':
             self.margin_top = 0.0*cm
             self.margin_bottom = 0.0*cm
-            self.margin_left = 0.0*cm
+            self.margin_left = -1*cm
             self.margin_right = 0.0*cm
-            self.delta = 0.3
-            self.start = 0.2
+            self.delta = 0.4 # espaçamento entre as "strings/linhas" da etiqueta
+            self.start = 0.2 # valor entre a margin top e a etiqueta
         else:
             self.margin_top = 0.8*cm
             self.margin_bottom = 0.8*cm
@@ -88,73 +86,62 @@ class CasasLegislativasLabels(Report):
                 top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
             ),
             ObjectValue(
-                attribute_name='presidente',
+                attribute_name='nome_completo',
                 top=(self.start + 2*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
-                    instance.presidente or ""
+                    instance.nome_completo or ""
             ),
             ObjectValue(
-                attribute_name='tipo',
+                attribute_name='logradouro',
                 top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
-                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
+                    logradouro_parlamentar(instance)
             ),
             ObjectValue(
-                attribute_name='nome',
+                attribute_name='bairro',
                 top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
                 get_value=lambda instance:
-                    instance.municipio.uf.nome
-                        if instance.tipo.nome == u'Assembléia Legislativa'
-                        else instance.municipio.nome
-
+                    bairro_parlamentar(instance)
             ),
-            ManyElements(
-                ObjectValue,
-                count=4,
-                attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+            ObjectValue(
+                attribute_name='municipio',
+                top=(self.start + 5*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                get_value=lambda instance:
+                    municipio_parlamentar(instance)
             ),
-
+            ObjectValue(
+                attribute_name='cep',
+                top=(self.start + 6*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                get_value=lambda instance:
+                    cep_parlamentar(instance)
+            ),
         ]        		   
         self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
-
-class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
-    def __init__(self, queryset, formato):	
-        super(CasasLegislativasLabelsSemPresidente, self).__init__(queryset=queryset, formato=formato)
-
-
-        my_elements = [
-            Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-            ),
-            ObjectValue(
-                attribute_name='tipo',
-                top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
-            ),
-            ObjectValue(
-                attribute_name='nome',
-                top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-                get_value=lambda instance:
-                    instance.municipio.uf.nome
-                        if instance.tipo.nome == u'Assembléia Legislativa'
-                        else instance.municipio.nome
-
-            ),
-            ManyElements(
-                ObjectValue,
-                count=4,
-                attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-            ),
-
-        ]
-
-        self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
-
+def logradouro_parlamentar(instance):
+    try:
+        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.logradouro
+    except:
+        return "<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>"
+    
+def bairro_parlamentar(instance):
+    try:
+        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.bairro
+    except:
+        return "<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>"
+    
+def municipio_parlamentar(instance):
+    try:
+        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.municipio
+    except:
+        return "<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>"
+    
+def cep_parlamentar(instance):
+    try:
+        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.cep
+    except:
+        return "<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>"
+    
 
 class CasasLegislativasReport(ReportDefault):
     title = u'Relatório de Casas Legislativas'
@@ -271,9 +258,6 @@ class CasasLegislativasReport(ReportDefault):
         )
     ]
 
-
-class CasasSemConvenioReport(CasasLegislativasReport):
-    title = u'Relatório de Casas Legislativas sem Convênio'
 
 class InfoCasaLegislativa(ReportDefault):
     title = u'Casa legislativa'

@@ -1,13 +1,16 @@
 #-*- coding:utf-8 -*-
+import sites
+
 from django.conf import settings
 from django.conf.urls.defaults import patterns, include, url
 from django.views.generic.simple import redirect_to, direct_to_template
-import sites
+
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.contatos.models import UnidadeFederativa
 
 # register admin filters
 import admin.filterspecs
+
 
 urlpatterns = patterns(
     '',
@@ -30,6 +33,11 @@ urlpatterns = patterns(
      'sigi.apps.casas.views.labels_report'),
     (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
+    # reports labels parlamentares
+    (r'^sigi/parlamentares/parlamentar/labels/',
+     'sigi.apps.parlamentares.views.labels_report'),
+    (r'^sigi/parlamentares/parlamentar/(?P<id>\w+)/labels/',
+     'sigi.apps.parlamentares.views.labels_report'),
     # reports labels sem presidente
     (r'^sigi/casas/casalegislativa/labels_sem_presidente/',
      'sigi.apps.casas.views.labels_report_sem_presidente'),
@@ -58,6 +66,13 @@ urlpatterns = patterns(
      'sigi.apps.casas.views.excluir_carrinho'),
     (r'^sigi/casas/casalegislativa/carrinho/',
      'sigi.apps.casas.views.visualizar_carrinho'),
+    #Carrinho Parlamentar
+    (r'^sigi/parlamentares/parlamentar/carrinho/deleta_itens_carrinho',
+      'sigi.apps.parlamentares.views.deleta_itens_carrinho'),
+    #(r'^sigi/parlamentares/parlamentar/carrinho/exluir_carrinho',
+    # 'sigi.apps.parlamentares.views.excluir_carrinho'),
+    (r'^sigi/parlamentares/parlamentar/carrinho',
+      'sigi.apps.parlamentares.views.visualizar_carrinho'),
     #Carrinho Convenio
     (r'^sigi/convenios/convenio/carrinho/deleta_itens_carrinho',
      'sigi.apps.convenios.views.deleta_itens_carrinho'),

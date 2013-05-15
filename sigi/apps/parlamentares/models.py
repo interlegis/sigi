@@ -12,6 +12,7 @@ class Partido(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))
 
+
 class Parlamentar(models.Model):
     SEXO_CHOICES = (
         ('M', 'Masculino'),
@@ -38,10 +39,9 @@ class Parlamentar(models.Model):
         null=True,
     )
     email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField(
-        u'página web', blank=True,
-        verify_exists=False
-    )
+    pagina_web = models.URLField(u'página web',
+                                 blank=True,
+                                 verify_exists=False)
 
     class Meta:
         ordering = ('nome_completo',)
@@ -51,19 +51,6 @@ class Parlamentar(models.Model):
         if self.nome_parlamentar:
             return self.nome_parlamentar
         return self.nome_completo
-
-
-#    logradouro = models.CharField(max_length=100, blank=True)
-#    bairro = models.CharField(max_length=40, blank=True)
-#    municipio = models.ForeignKey('contatos.Municipio', blank=True, null=True)
-#    cep = models.CharField(
-#        'CEP',
-#        max_length=9,
-#        blank=True,
-#        help_text="Formato: <em>XXXXX-XXX</em>."
-#    )
-#    telefones = generic.GenericRelation('contatos.Telefone')
-
 
 
 class Mandato(models.Model):

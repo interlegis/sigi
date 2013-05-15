@@ -122,8 +122,9 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         return export_csv(request)        
     relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
     
-    def adicionar_casas(self, request, queryset):        
-        if request.session.has_key('carrinho_casas'):
+    def adicionar_casas(self, request, queryset):
+        if 'carrinho_casas' in request.session:
+        #if request.session.has_key('carrinho_casas'):
             q1 = len(request.session['carrinho_casas'])
         else:
             q1 = 0        
