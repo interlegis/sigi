@@ -127,7 +127,7 @@ class EquipamentoPrevisto(models.Model):
         verbose_name_plural = 'equipamentos previstos'
 
     def __unicode__(self):
-        return '%s %s(s)' % (self.quantidade, self.equipamento)
+        return u'%s %s(s)' % (self.quantidade, self.equipamento)
 
 class Anexo(models.Model):
     """ Modelo para giardar os documentos gerados
@@ -146,7 +146,7 @@ class Anexo(models.Model):
         ordering = ('-data_pub',)
 
     def __unicode__(self):
-        return unicode(self.arquivo.name)
+        return unicode("%s publicado em %s" % (self.descricao, self.data_pub))
 
 class UnidadeAdministrativa(models.Model):
     """ Modelo para representar uma Unidade Administrativa
@@ -178,5 +178,8 @@ class Tramitacao(models.Model):
         verbose_name_plural = u'Tramitações'
 
     def __unicode__(self):
-        return unicode(self.unid_admin)
+        if self.observacao:
+            return unicode("%s em %s (%s)" % (self.unid_admin, self.data, self.observacao))
+        else:
+            return unicode("%s em %s" % (self.unid_admin, self.data))
 

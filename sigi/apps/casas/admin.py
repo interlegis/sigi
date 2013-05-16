@@ -13,6 +13,7 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from sigi.apps.mesas.models import Legislatura
+from sigi.apps.diagnosticos.models import Diagnostico
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -38,10 +39,46 @@ class FuncionariosInline(admin.StackedInline):
     def queryset(self, request):
         return self.model.objects.exclude(cargo="Presidente")
 
-class ConveniosInline(admin.TabularInline):
+class ConveniosInline(admin.StackedInline):
     model = Convenio
-    exclude = ['equipada','conveniada','observacao']
-    extra = 1
+    fieldsets = (
+        (None, {'fields': (('link_convenio', 'num_processo_sf','num_convenio','projeto','observacao'),
+                           ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite', 'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
+                           ('data_devolucao_sem_assinatura','data_retorno_sem_assinatura',),
+                           ('get_tramitacoes', 'get_anexos', 'get_equipamentos',),
+                           )}
+        ),
+    )
+    readonly_fields = ['get_tramitacoes', 'get_anexos', 'get_equipamentos', 'link_convenio',]
+    extra = 0
+    def get_tramitacoes(self, obj):
+        return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
+    get_tramitacoes.short_description = 'Tramitações'
+    get_tramitacoes.allow_tags = True
+
+    def get_anexos(self, obj):
+        return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
+    get_anexos.short_description = 'Anexos'
+    get_anexos.allow_tags = True
+    
+    def get_equipamentos(self, obj):
+        return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
+    get_equipamentos.short_description = 'Equipamentos previstos'
+    get_equipamentos.allow_tags = True
+    
+    def link_convenio(self, obj):
+        if obj.pk is None:
+            return ""
+        from django.core.urlresolvers import reverse
+        url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=[obj.pk] )
+        url = url + '?_popup=1'
+        return """<input id="edit_convenio-%s" type="hidden"/> 
+          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)"> 
+            Editar
+          </a>""" % (obj.pk, obj.pk, url)
+    
+    link_convenio.short_description = 'Editar convenio'
+    link_convenio.allow_tags = True
     
 class LegislaturaInline(admin.TabularInline):
     model = Legislatura
@@ -61,13 +98,35 @@ class LegislaturaInline(admin.TabularInline):
     
     link_parlamentares.short_description = 'Parlamentares'
     link_parlamentares.allow_tags = True
+    
+class DiagnosticoInline(admin.TabularInline):
+    model = Diagnostico
+    fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico',]
+    readonly_fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico',]
+    extra = 0
+    max_num=0
+    can_delete = False
+    
+    def link_diagnostico(self, obj):
+        if obj.pk is None:
+            return ""
+        from django.core.urlresolvers import reverse
+        url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=["%s.pdf" % obj.pk] )
+        return """<input id="edit_diagnostico-%s" type="hidden"/> 
+          <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank"> 
+            Abrir PDF
+          </a>""" % (obj.pk, obj.pk, url)
+    
+    link_diagnostico.short_description = 'Ver PDF'
+    link_diagnostico.allow_tags = True
+
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline, )
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline, DiagnosticoInline, )
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
