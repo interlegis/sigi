@@ -49,7 +49,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     )
     actions = ['adicionar_convenios']
     inlines = (TramitacaoInline, AnexosInline, EquipamentoPrevistoInline)
-    list_display = ('num_convenio', 'casa_legislativa',
+    list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
                     'data_adesao','data_retorno_assinatura','data_pub_diario','data_termo_aceite',
                     'projeto',
                     )
@@ -61,6 +61,11 @@ class ConvenioAdmin(admin.ModelAdmin):
     queryset = queryset_ascii
     search_fields = ('id', 'search_text',#'casa_legislativa__nome',
                      'num_processo_sf','num_convenio')
+    
+    def get_uf(self, obj):
+        return obj.casa_legislativa.municipio.uf.sigla
+    get_uf.short_description = 'UF'
+    get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
 
     def changelist_view(self, request, extra_context=None):
         return super(ConvenioAdmin, self).changelist_view(
