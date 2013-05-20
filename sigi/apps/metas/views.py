@@ -223,7 +223,7 @@ def gera_map_data_file(cronjob=False):
             }
             
             for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='//%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
+                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
                 casa['seit'].append(sv.tipo_servico.sigla)
                 
             for cv in c.convenio_set.all():
