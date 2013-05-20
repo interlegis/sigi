@@ -14,6 +14,9 @@ from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
 from sigi.apps.mesas.models import Legislatura
 from sigi.apps.diagnosticos.models import Diagnostico
+from sigi.apps.inventario.models import Bem
+from sigi.apps.servicos.models import Servico
+from sigi.apps.metas.models import PlanoDiretor
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -104,7 +107,7 @@ class DiagnosticoInline(admin.TabularInline):
     fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico',]
     readonly_fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico',]
     extra = 0
-    max_num=0
+    max_num = 0
     can_delete = False
     
     def link_diagnostico(self, obj):
@@ -120,13 +123,27 @@ class DiagnosticoInline(admin.TabularInline):
     link_diagnostico.short_description = 'Ver PDF'
     link_diagnostico.allow_tags = True
 
+class BemInline(admin.TabularInline):
+    model = Bem
+    
+class ServicoInline(admin.TabularInline):
+    model = Servico
+    fields = ['url', 'contato_tecnico', 'contato_administrativo', 'hospedagem_interlegis', 'data_ativacao', 'data_alteracao', 'data_desativacao']
+    readonly_fields = ['url', 'contato_tecnico', 'contato_administrativo', 'hospedagem_interlegis', 'data_ativacao', 'data_alteracao', 'data_desativacao']
+    extra = 0
+    max_num = 0
+    can_delete = False
 
+class PlanoDiretorInline(admin.TabularInline):
+    model = PlanoDiretor
+    
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline, DiagnosticoInline, )
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
+               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline)
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio')
