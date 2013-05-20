@@ -146,6 +146,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         }),
     )
     raw_id_fields = ('municipio',)
+    readonly_fields = ['num_parlamentares',]
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')

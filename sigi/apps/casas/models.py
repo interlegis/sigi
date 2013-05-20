@@ -38,7 +38,7 @@ class CasaLegislativa(models.Model):
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
-    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
+#    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
     codigo_interlegis.ts_filter = True
 
@@ -80,6 +80,10 @@ class CasaLegislativa(models.Model):
         unique_together = ('municipio', 'tipo')
         verbose_name = 'Casa Legislativa'
         verbose_name_plural = 'Casas Legislativas'
+        
+    @property
+    def num_parlamentares(self):
+        return self.legislatura_set.latest('data_inicio').total_parlamentares
 
     @property
     def telefone(self):
