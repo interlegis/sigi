@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
+from django.core.validators import MaxValueValidator, MinValueValidator
 
 class UnidadeFederativa(models.Model):
     """ Modelo que representa um estado brasileiro
@@ -95,6 +96,10 @@ class Municipio(models.Model):
         blank=True,
         help_text='Exemplo: <em>-45,426</em>.'
     )
+    
+    idh = models.DecimalField(u'IDH', help_text=u'Índice de desenvolvimento Humano', max_digits=4, decimal_places=3, 
+                              validators=[MinValueValidator(0), MaxValueValidator(1)])
+    idh.list_filter_range = [0.500, 0.800]
 
     class Meta:
         ordering = ('nome', 'codigo_ibge')
