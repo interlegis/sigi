@@ -111,7 +111,10 @@ class Convenio(models.Model):
         verbose_name = u'convênio'
 
     def __unicode__(self):
-        return str(self.id)
+        if self.data_retorno_assinatura != None: 
+            return u"Convênio nº %s - projeto %s, em %s" % (self.num_convenio, self.projeto.sigla, self.data_retorno_assinatura)
+        else:
+            return u"Adesão ao projeto %s, em %s" % (self.projeto.sigla, self.data_adesao)
 
 class EquipamentoPrevisto(models.Model):
     """ Modelo utilizado para registrar os equipamentos

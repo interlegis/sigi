@@ -144,9 +144,9 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     actions = ['adicionar_casas',]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline)
-    list_display = ('nome','municipio','logradouro', 'ult_alt_endereco')
+    list_display = ('nome','municipio','logradouro', 'ult_alt_endereco', 'get_convenios')
     list_display_links = ('nome',)
-    list_filter = ('tipo', 'municipio')
+    list_filter = ('tipo', 'municipio', 'search_text')
     ordering = ('nome','municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (
@@ -168,6 +168,11 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
+    def get_convenios(self, obj):
+        return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
+    get_convenios.short_description = u'Convênios'
+    get_convenios.allow_tags= True
+    
     def changelist_view(self, request, extra_context=None):
         return super(CasaLegislativaAdmin, self).changelist_view(
             request,
@@ -176,7 +181,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         
     def lookup_allowed(self, lookup, value):
         return super(CasaLegislativaAdmin, self).lookup_allowed(lookup, value) or \
-            lookup in ['municipio__uf__codigo_ibge__exact']
+            lookup in ['municipio__uf__codigo_ibge__exact', 'convenio__projeto__id__exact']
  
 
     def etiqueta(self,request,queryset):        

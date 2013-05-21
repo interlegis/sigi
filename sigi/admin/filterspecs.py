@@ -5,6 +5,7 @@ from django.utils.translation import ugettext as _
 from sigi.apps.contatos.models import UnidadeFederativa
 from abc import ABCMeta
 from apps.servicos.models import TipoServico
+from apps.convenios.models import Projeto
 
 class IsActiveFilterSpec(BooleanFieldFilterSpec):
     """
@@ -274,3 +275,38 @@ class TipoServicoFilterSpec(ChoicesFilterSpec):
 # registering the filter
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'ts_filter', False),
                              TipoServicoFilterSpec))
+
+class CasaProjetoFilterSpec(ChoicesFilterSpec):
+    """
+    For usage with CasaLegislativa model:
+
+      any_field.projeto_filter = True
+
+    On Django 1.3 you will can specify a lookup on admin filters. Example:
+
+      list_filter = ('convenio_set',)
+
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(CasaProjetoFilterSpec, self).__init__(f, request, params, model,
+                                                    model_admin)
+        self.lookup_kwarg = 'convenio__projeto__id__exact'
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = Projeto.objects.all().order_by('sigla')
+        
+    def choices(self, cl):
+        yield {'selected': self.lookup_val is None,
+                'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
+                'display': _('All')}
+        for val in self.lookup_choices:
+            yield {'selected': smart_unicode(val.id) == self.lookup_val,
+                    'query_string': cl.get_query_string({self.lookup_kwarg: val.id}),
+                    'display': val.sigla}
+        
+    def title(self):
+        return _('Projeto')
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'projeto_filter', False),
+                             CasaProjetoFilterSpec))
