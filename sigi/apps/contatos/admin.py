@@ -14,15 +14,16 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
 
 class MunicipioAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo', 'idh')
+    list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano', 
+                    'pib_total', 'pib_percapita')
     list_display_links = ('codigo_ibge', 'codigo_tse', 'nome')
-    list_filter = ('is_capital', 'is_polo', 'idh', 'populacao', 'uf',)
+    list_filter = ('is_capital', 'is_polo', 'idh', 'populacao', 'uf', )
     queryset = queryset_ascii
     fieldsets = (
         (None, {
             'fields': ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
                        'codigo_microrregiao', 'nome', 'data_criacao', 'uf',
-                       'is_capital', 'populacao', 'is_polo', 'idh')
+                       'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano', 'pib_total', 'pib_percapita')
         }),
         ('Posição geográfica', {
             'fields': ('latitude', 'longitude'),

@@ -100,6 +100,10 @@ class Municipio(models.Model):
     idh = models.DecimalField(u'IDH', help_text=u'Índice de desenvolvimento Humano', max_digits=4, decimal_places=3, 
                               validators=[MinValueValidator(0), MaxValueValidator(1)])
     idh.list_filter_range = [0.500, 0.800]
+    
+    pib_total = models.DecimalField(u'PIB total', max_digits=18, decimal_places=3, blank=True, null=True)
+    pib_percapita = models.DecimalField(u'PIB per capita', max_digits=18, decimal_places=3, blank=True, null=True)
+    pib_ano = models.IntegerField(u'Ano de apuração do PIB', blank=True, null=True)
 
     class Meta:
         ordering = ('nome', 'codigo_ibge')
