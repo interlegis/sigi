@@ -80,6 +80,29 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         return super(DiagnosticoAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
 
+    def changelist_view(self, request, extra_context=None):
+        import re
+        request.GET._mutable=True
+        if 'data_visita_inicio__gte' in request.GET:
+            value = request.GET.get('data_visita_inicio__gte','')
+            if value == '':
+                del request.GET['data_visita_inicio__gte']
+            elif re.match('^\d*$', value): # Year only
+                request.GET['data_visita_inicio__gte'] = "%s-01-01" % value #Complete with january 1st
+            elif re.match('^\d*\D\d*$', value): # Year and month 
+                request.GET['data_visita_inicio__gte'] = '%s-01' % value #Complete with 1st day of month
+        if 'data_visita_inicio__lte' in request.GET:
+            value = request.GET.get('data_visita_inicio__lte','')
+            if value == '':
+                del request.GET['data_visita_inicio__lte']
+            elif re.match('^\d*$', value): # Year only
+                request.GET['data_visita_inicio__lte'] = "%s-01-01" % value #Complete with january 1st
+            elif re.match('^\d*\D\d*$', value): # Year and month 
+                request.GET['data_visita_inicio__lte'] = '%s-01' % value #Complete with 1st day of month
+        request.GET._mutable=False
+        
+        return super(DiagnosticoAdmin, self).changelist_view(request, extra_context)
+
 class EscolhaAdmin(admin.ModelAdmin):
     search_fields = ('title',)
     list_display = ('title', 'schema', 'schema_to_open')
