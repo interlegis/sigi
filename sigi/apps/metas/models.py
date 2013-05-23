@@ -114,6 +114,7 @@ class PlanoDiretor(models.Model):
     )
     projeto = models.ForeignKey(Projeto, verbose_name=u'Projeto')
     casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u'Casa legislativa')
+    casa_legislativa.casa_uf_filter = True
     status = models.CharField(u'Status', max_length=1, choices=STATUS_CHOICE, default='E')
     data_entrega = models.DateField(u'Data de entrega', blank=True, null=True)
     data_implantacao = models.DateField(u'Data de implantação', blank=True, null=True)
