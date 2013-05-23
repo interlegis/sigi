@@ -48,8 +48,8 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     actions = [publicar_diagnostico, despublicar_diagnostico]
     inlines = (EquipeInline, AnexosInline)
     search_fields = ('casa_legislativa__nome',)
-    list_display = ('casa_legislativa','getUf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
-    list_filter  = ('publicado', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
+    list_display = ('casa_legislativa','get_uf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
+    list_filter  = ('publicado', 'casa_legislativa', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
     raw_id_fields = ('casa_legislativa',)
     ordering = ('casa_legislativa',)
 
@@ -71,10 +71,10 @@ class DiagnosticoAdmin(BaseEntityAdmin):
           'classes': ['collapse']
           }))
 
-    def getUf(self, obj):
+    def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)
-
-    getUf.short_description = 'UF'
+    get_uf.short_description = 'UF'
+    get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
 
 class EscolhaAdmin(admin.ModelAdmin):
     search_fields = ('title',)
