@@ -75,6 +75,10 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         return '%s' % (obj.casa_legislativa.municipio.uf)
     get_uf.short_description = 'UF'
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
+    
+    def lookup_allowed(self, lookup, value):
+        return super(DiagnosticoAdmin, self).lookup_allowed(lookup, value) or \
+            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
 
 class EscolhaAdmin(admin.ModelAdmin):
     search_fields = ('title',)
