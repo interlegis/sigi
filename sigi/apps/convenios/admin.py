@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.contrib.admin.views.main import ChangeList
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao, UnidadeAdministrativa
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico
@@ -68,6 +69,26 @@ class ConvenioAdmin(admin.ModelAdmin):
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
 
     def changelist_view(self, request, extra_context=None):
+        import re
+        request.GET._mutable=True
+        if 'data_retorno_assinatura__gte' in request.GET:
+            value = request.GET.get('data_retorno_assinatura__gte','')
+            if value == '':
+                del request.GET['data_retorno_assinatura__gte']
+            elif re.match('^\d*$', value): # Year only
+                request.GET['data_retorno_assinatura__gte'] = "%s-01-01" % value #Complete with january 1st
+            elif re.match('^\d*\D\d*$', value): # Year and month 
+                request.GET['data_retorno_assinatura__gte'] = '%s-01' % value #Complete with 1st day of month
+        if 'data_retorno_assinatura__lte' in request.GET:
+            value = request.GET.get('data_retorno_assinatura__lte','')
+            if value == '':
+                del request.GET['data_retorno_assinatura__lte']
+            elif re.match('^\d*$', value): # Year only
+                request.GET['data_retorno_assinatura__lte'] = "%s-01-01" % value #Complete with january 1st
+            elif re.match('^\d*\D\d*$', value): # Year and month 
+                request.GET['data_retorno_assinatura__lte'] = '%s-01' % value #Complete with 1st day of month
+        request.GET._mutable=False
+        
         return super(ConvenioAdmin, self).changelist_view(
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
@@ -103,7 +124,6 @@ class ConvenioAdmin(admin.ModelAdmin):
     def lookup_allowed(self, lookup, value):
         return super(ConvenioAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
-    
 
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     list_display = ('convenio', 'equipamento', 'quantidade')
