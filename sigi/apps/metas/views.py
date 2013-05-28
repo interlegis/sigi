@@ -41,18 +41,12 @@ def dashboard(request):
     for p in projetos:
         matriz[p.id] = (p.sigla, dados.copy())
         
-    g_desembolsos = {'labels': [], 'legends': [p.sigla for p in projetos], 'data': [], 'max': 0, 'coisa': [] }
     for date in meses:
         mes_ano = '%s/%s' % (date.month, date.year)
-        g_desembolsos['labels'].append(mes_ano)
-        data = {p.id: 0 for p in projetos}
         for d in Desembolso.objects.filter(data__year=date.year, data__month=date.month).values('projeto').annotate(total_dolar=Sum('valor_dolar')):
-            data[d['projeto']] = int(d['total_dolar'])
             if int(d['total_dolar']) > desembolsos_max:
                 desembolsos_max = int(d['total_dolar'])
-            p = Projeto.objects.get(pk=d['projeto'])
             matriz[d['projeto']][1][mes_ano] += int(d['total_dolar'])
-        g_desembolsos['data'].append(data.values())
     
     meses = ["%s/%s" % (m.month, m.year) for m in reversed(meses)]
     extra_context = {'desembolsos': matriz, 'desembolsos_max': desembolsos_max, 'meses': meses, 'colors': ','.join(colors[:len(matriz)])}
