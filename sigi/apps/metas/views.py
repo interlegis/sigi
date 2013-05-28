@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.utils import simplejson
 from django.utils.datastructures import SortedDict
 from django.shortcuts import render_to_response
@@ -12,9 +13,50 @@ from sigi.apps.convenios.models import Projeto, Convenio
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import to_ascii
-
+from apps.financeiro.models import Desembolso
+from django.db.models.aggregates import Sum
+from django.contrib.auth.decorators import user_passes_test, login_required
 from sigi.settings import MEDIA_ROOT
+
 JSON_FILE_NAME = MEDIA_ROOT + 'apps/metas/map_data.json'
+
+@login_required
+
+def dashboard(request):
+    if request.user.groups.filter(name__in=['SPDT-Servidores', 'SSPLF']).count() <= 0:
+        raise PermissionDenied
+
+    desembolsos_max = 0
+    matriz = SortedDict()
+    dados = SortedDict()
+    projetos = Projeto.objects.all()
+    meses = Desembolso.objects.dates('data', 'month', 'DESC')[:6]
+    colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080', 
+              '28d75c', '0000ff', 'fff200']
+        
+    for date in reversed(meses):
+        mes_ano = '%s/%s' % (date.month, date.year)
+        dados[mes_ano] = 0
+
+    for p in projetos:
+        matriz[p.id] = (p.sigla, dados.copy())
+        
+    g_desembolsos = {'labels': [], 'legends': [p.sigla for p in projetos], 'data': [], 'max': 0, 'coisa': [] }
+    for date in meses:
+        mes_ano = '%s/%s' % (date.month, date.year)
+        g_desembolsos['labels'].append(mes_ano)
+        data = {p.id: 0 for p in projetos}
+        for d in Desembolso.objects.filter(data__year=date.year, data__month=date.month).values('projeto').annotate(total_dolar=Sum('valor_dolar')):
+            data[d['projeto']] = int(d['total_dolar'])
+            if int(d['total_dolar']) > desembolsos_max:
+                desembolsos_max = int(d['total_dolar'])
+            p = Projeto.objects.get(pk=d['projeto'])
+            matriz[d['projeto']][1][mes_ano] += int(d['total_dolar'])
+        g_desembolsos['data'].append(data.values())
+    
+    meses = ["%s/%s" % (m.month, m.year) for m in reversed(meses)]
+    extra_context = {'desembolsos': matriz, 'desembolsos_max': desembolsos_max, 'meses': meses, 'colors': ','.join(colors[:len(matriz)])}
+    return render_to_response('metas/dashboard.html', extra_context, context_instance=RequestContext(request))
 
 def mapa(request):
     """
