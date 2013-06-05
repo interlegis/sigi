@@ -9,6 +9,8 @@ from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
 from sigi.apps.casas.reports import CasasLegislativasReport
 from sigi.apps.casas.reports import CasasSemConvenioReport
 from sigi.apps.casas.reports import InfoCasaLegislativa
+from sigi.apps.parlamentares.models import Parlamentar
+from sigi.apps.parlamentares.reports import ParlamentaresLabels
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 

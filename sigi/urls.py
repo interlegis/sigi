@@ -31,6 +31,10 @@ urlpatterns = patterns(
     # reports labels
     (r'^sigi/casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),
+    (r'^sigi/casas/casalegislativa/labels_parlamentar/', # parlamentar
+     'sigi.apps.parlamentares.views.labels_report'),
+     (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels_parlamentar/', # parlamentar
+     'sigi.apps.parlamentares.views.labels_report'),
     (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
     # reports labels parlamentares
@@ -59,31 +63,31 @@ urlpatterns = patterns(
      'sigi.apps.servidores.views.servidores_por_funcao'),
     (r'^sigi/servidores/servidores_por_cargo.pdf',
      'sigi.apps.servidores.views.servidores_por_cargo'),
-    #Carrinho Casa
+    # Carrinho Casa
     (r'^sigi/casas/casalegislativa/carrinho/deleta_itens_carrinho',
      'sigi.apps.casas.views.deleta_itens_carrinho'),
     (r'^sigi/casas/casalegislativa/carrinho/excluir_carrinho',
      'sigi.apps.casas.views.excluir_carrinho'),
     (r'^sigi/casas/casalegislativa/carrinho/',
      'sigi.apps.casas.views.visualizar_carrinho'),
-    #Carrinho Parlamentar
+    # Carrinho Parlamentar
     (r'^sigi/parlamentares/parlamentar/carrinho/deleta_itens_carrinho',
       'sigi.apps.parlamentares.views.deleta_itens_carrinho'),
-    #(r'^sigi/parlamentares/parlamentar/carrinho/exluir_carrinho',
-    # 'sigi.apps.parlamentares.views.excluir_carrinho'),
+    # (r'^sigi/parlamentares/parlamentar/carrinho/exluir_carrinho',
+    #  'sigi.apps.parlamentares.views.excluir_carrinho'),
     (r'^sigi/parlamentares/parlamentar/carrinho',
       'sigi.apps.parlamentares.views.visualizar_carrinho'),
-    #Carrinho Convenio
+    # Carrinho Convenio
     (r'^sigi/convenios/convenio/carrinho/deleta_itens_carrinho',
      'sigi.apps.convenios.views.deleta_itens_carrinho'),
     (r'^sigi/convenios/convenio/carrinho/excluir_carrinho',
      'sigi.apps.convenios.views.excluir_carrinho'),
     (r'^sigi/convenios/convenio/carrinho/',
      'sigi.apps.convenios.views.visualizar_carrinho'),
-    #CSV Casa
+    # CSV Casa
     (r'^sigi/casas/casalegislativa/csv/',
      'sigi.apps.casas.views.export_csv'),
-    #CSV Convenio
+    # CSV Convenio
     (r'^sigi/convenios/convenio/csv/',
     'sigi.apps.convenios.views.export_csv'),
     # Resumo por região PDF     

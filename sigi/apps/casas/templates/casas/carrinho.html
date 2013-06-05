@@ -59,6 +59,7 @@
 		<li><a href="#tabs-1">Etiqueta</a></li>
 		<li><a href="#tabs-2">Relatório</a></li>
 		<li><a href="#tabs-3">Arquivo CSV (Excel, Calc)</a></li>
+		<li><a href="#tabs-4">Etiqueta Parlamentares</a></li>
 	</ul>
 	
 	<div id="tabs-1">
@@ -191,6 +192,22 @@
 				<li><input type="submit" value="Exportar CSV" /></li>
 			</ul>			
 		</form>	
+	</div>
+	<div id="tabs-4">
+		<form action="../labels_parlamentar/{{query_str}}" method="post">
+        <fieldset><legend>Formato da Etiqueta</legend>
+        <ul class="formato_etiqueta">
+        	<li><input type="radio" name="tamanho_etiqueta"
+            	value="2x5_etiqueta"><label>2x5</label></li>
+           	<li><input type="radio" name="tamanho_etiqueta"
+            	value="3x9_etiqueta" checked="checked"><label>3x9</label></li>
+         </ul>
+         </fieldset>
+		<ul class="botoes">
+			<li><input type="submit" value="Gerar Etiqueta" /></li>
+		</ul>
+		</form>
+	
 	</div>
 </div>
 
