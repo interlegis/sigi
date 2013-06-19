@@ -11,6 +11,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.template import RequestContext
 
+from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
 
@@ -67,10 +68,10 @@ def carrinhoOrGet_for_qs(request):
        Verifica se existe parlamentares na sessão se não verifica get e retorna qs correspondente.
     """    
     if request.session.has_key('carrinho_parlamentar'):
-        ids = request.session['carrinho_parlamentar']                
-        qs = Parlamentar.objects.filter(pk__in=ids)    
+        ids = request.session['carrinho_parlamentar']
+        qs = Parlamentar.objects.filter(pk__in=ids)
     else:
-        qs = Parlamentar.objects.all()        
+        qs = Parlamentar.objects.all()
         if request.GET:
             qs = get_for_qs(request.GET,qs)
     return qs
@@ -129,12 +130,11 @@ def labels_report(request, id=None, formato='3x9_etiqueta'):
     if request.POST:
         if request.POST.has_key('tipo_etiqueta'):
             tipo = request.POST['tipo_etiqueta']
-        if request.POST.has_key('tamanho_etiqueta'):
-            formato = request.POST['tamanho_etiqueta']
             
     
     if id:
-        qs = Parlamentar.objects.filter(pk=id)    
+        qs = Parlamentar.objects.filter(pk=id)
+
     else:    
         qs = carrinhoOrGet_for_qs(request)
     

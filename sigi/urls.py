@@ -32,9 +32,9 @@ urlpatterns = patterns(
     (r'^sigi/casas/casalegislativa/labels/',
      'sigi.apps.casas.views.labels_report'),
     (r'^sigi/casas/casalegislativa/labels_parlamentar/', # parlamentar
-     'sigi.apps.parlamentares.views.labels_report'),
+     'sigi.apps.casas.views.labels_report_parlamentar'),
      (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels_parlamentar/', # parlamentar
-     'sigi.apps.parlamentares.views.labels_report'),
+     'sigi.apps.casas.views.labels_report_parlamentar'),
     (r'^sigi/casas/casalegislativa/(?P<id>\w+)/labels/',
      'sigi.apps.casas.views.labels_report'),
     # reports labels parlamentares

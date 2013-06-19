@@ -154,6 +154,53 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
 
     return response
 
+def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
+    """ TODO: adicionar suporte para resultado de pesquisa do admin.
+    """    
+    
+    if request.POST:
+        if request.POST.has_key('tamanho_etiqueta'):
+            formato = request.POST['tamanho_etiqueta']
+            
+    
+    if id:
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=id, legislatura__id__isnull=False).distinct()]
+        mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
+        parlamentares = [m.parlamentar for m in mandatos]
+        qs = parlamentares
+
+    else:    
+        qs = carrinhoOrGet_for_parlamentar_qs(request)
+    
+    if not qs:
+        return HttpResponseRedirect('../')
+
+    response = HttpResponse(mimetype='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
+    report = ParlamentaresLabels(queryset=qs, formato=formato)
+    report.generate_by(PDFGenerator, filename=response)
+
+    return response
+
+def carrinhoOrGet_for_parlamentar_qs(request):
+    """
+       Verifica se existe parlamentares na sessão se não verifica get e retorna qs correspondente.
+    """    
+    if request.session.has_key('carrinho_casas'):
+        ids = request.session['carrinho_casas']
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
+        mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
+        parlamentares = [m.parlamentar for m in mandatos]
+        qs = parlamentares
+    else:
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.all().distinct()]
+        mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
+        parlamentares = [m.parlamentar for m in mandatos]
+        qs = parlamentares
+        if request.GET:
+            qs = get_for_qs(request.GET,qs)
+    return qs
+
 def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
