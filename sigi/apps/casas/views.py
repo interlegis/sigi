@@ -3,7 +3,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.casas.reports import CasasLegislativasLabels
 from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
 from sigi.apps.casas.reports import CasasLegislativasReport
@@ -302,7 +302,8 @@ def export_csv(request):
     response = HttpResponse(mimetype='text/csv')
     response['Content-Disposition'] = 'attachment; filename=casas.csv'
     
-    csv_writer = csv.writer(response)
+    writer = csv.writer(response)
+
     casas = carrinhoOrGet_for_qs(request)
     if not casas or not request.POST:
         return HttpResponseRedirect('../')
@@ -311,11 +312,11 @@ def export_csv(request):
     atributos2 = [s.encode("utf-8") for s in atributos]
 
     try:
-        atributos2.insert(atributos2.index(u'Município'), u'UF')
+        atributos2.insert(atributos2.index('Município'), u'UF')
     except ValueError:
         pass
         
-    csv_writer.writerow(atributos2)
+    writer.writerow(atributos2)
         
     for casa in casas:
         lista = []
@@ -330,7 +331,7 @@ def export_csv(request):
                 lista.append(casa.nome.encode("utf-8"))
             elif u"Município" == atributo:
                 lista.append(unicode(casa.municipio.uf.sigla).encode("utf-8"))
-                lista.append(unicode(casa.municipio.nome).encode("utf-8"))            
+                lista.append(unicode(casa.municipio.nome).encode("utf-8"))
             elif u"Presidente" == atributo:
 		#TODO: Esse encode deu erro em 25/04/2012. Comentei para que o usuário pudesse continuar seu trabalho
                 # É preciso descobrir o porque do erro e fazer a correção definitiva.
@@ -352,9 +353,15 @@ def export_csv(request):
                 lista.append(casa.total_parlamentares)
             elif u"Última alteração de endereco" == atributo:
                 lista.append(casa.ult_alt_endereco)
+            elif u"Nome contato" == atributo:
+                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].nome.encode("utf-8"))
+            elif u"Cargo contato" == atributo:
+                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].cargo.encode("utf-8"))
+            elif u"Email contato" == atributo:
+                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].email.encode("utf-8"))
             else:
                 pass
                                 
-        csv_writer.writerow(lista)
+        writer.writerow(lista)
     
     return response
