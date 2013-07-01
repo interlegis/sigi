@@ -53,8 +53,8 @@ class CasasLegislativasLabels(Report):
     """
     formato = ''
     y = 2
-    largura_etiqueta = 6.7
-    altura_etiqueta = 3.3
+    largura_etiqueta = 7.6
+    altura_etiqueta = 4.1
     tamanho_fonte = 6
     altura_dados = 0.3 #logradouro, bairro, municipio, cep
     delta = start = 0.5
@@ -65,9 +65,9 @@ class CasasLegislativasLabels(Report):
         self.page_size = A4
 
         if formato == '3x9_etiqueta':
-            self.margin_top = 0.0*cm
-            self.margin_bottom = 0.0*cm
-            self.margin_left = 0.0*cm
+            self.margin_top = -1.0*cm
+            self.margin_bottom = -2.5*cm
+            self.margin_left = -2.0*cm
             self.margin_right = 0.0*cm
             self.delta = 0.3
             self.start = 0.2
@@ -116,7 +116,15 @@ class CasasLegislativasLabels(Report):
             ),
 
         ]        		   
-        self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
+        self.band_detail = DetailBand(
+            width=(self.largura_etiqueta)*cm, 
+            height=(self.altura_etiqueta)*cm, 
+            margin_left = 0*cm,
+            margin_top = 0*cm, 
+            margin_bottom= -0.5*cm, 
+            margin_right = 0*cm, 
+            elements=my_elements,display_inline=True, 
+            default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
 
 class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
