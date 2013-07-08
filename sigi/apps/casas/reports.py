@@ -52,11 +52,12 @@ class CasasLegislativasLabels(Report):
 
     """
     formato = ''
-    y = 2
-    largura_etiqueta = 7.6
-    altura_etiqueta = 4.1
+    label_margin_top = 0.6
+    label_margin_left = 0.2
+    label_margin_right = 0.2
+    largura_etiqueta = 6.9
+    altura_etiqueta = 3.25
     tamanho_fonte = 6
-    altura_dados = 0.3 #logradouro, bairro, municipio, cep
     delta = start = 0.5
 
     def __init__(self, queryset, formato):	
@@ -65,12 +66,15 @@ class CasasLegislativasLabels(Report):
         self.page_size = A4
 
         if formato == '3x9_etiqueta':
-            self.margin_top = -1.0*cm
-            self.margin_bottom = -2.5*cm
-            self.margin_left = -2.0*cm
+            self.margin_top = 0.25*cm
+            self.margin_bottom = 0.0*cm
+            self.margin_left = 0.2*cm
             self.margin_right = 0.0*cm
             self.delta = 0.3
-            self.start = 0.2
+            self.start = 0
+            self.label_margin_top = 0.25
+            self.label_margin_left = 0.4
+            self.label_margin_right = 0.2
         else:
             self.margin_top = 0.8*cm
             self.margin_bottom = 0.8*cm
@@ -79,51 +83,51 @@ class CasasLegislativasLabels(Report):
             self.largura_etiqueta = 9.9
             self.altura_etiqueta = 5.6
             self.tamanho_fonte = 11
-            self.altura_dados = 0.5
-            self.y = 0.5
+            self.label_margin_top = 0.5
+            self.label_margin_left = 0.5
+            self.label_margin_right = 0.5
+            
+        calc_width = (self.largura_etiqueta-self.label_margin_left-self.label_margin_right)*cm
+        calc_height = lambda rows: (self.delta*rows)*cm
+        calc_top = lambda row: (self.label_margin_top+row*self.delta)*cm
+        calc_left = self.label_margin_left*cm
 
         my_elements = [
             Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                text='A Sua Excelência o(a) Senhor(a):',
+                top=calc_top(0), left=calc_left, width=calc_width,
             ),
             ObjectValue(
                 attribute_name='presidente',
-                top=(self.start + 2*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                top=calc_top(1), left=calc_left, width=calc_width,
                 get_value=lambda instance:
-                    instance.presidente or ""
-            ),
-            ObjectValue(
-                attribute_name='tipo',
-                top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
+                    unicode(instance.presidente or "").upper()
             ),
             ObjectValue(
                 attribute_name='nome',
-                top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                top=calc_top(2), left=calc_left, width=calc_width, height=calc_height(2),
                 get_value=lambda instance:
-                    instance.municipio.uf.nome
-                        if instance.tipo.nome == u'Assembléia Legislativa'
-                        else instance.municipio.nome
-
+                    ("Presidente da %s" % instance.nome)
             ),
-            ManyElements(
-                ObjectValue,
-                count=4,
-                attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-            ),
+            ObjectValue(
+                attribute_name='logradouro',
+                top=calc_top(4), left=calc_left, width=calc_width, height=calc_height(2),
+                get_value=lambda instance:
+                    "%s - %s - %s." % (instance.logradouro, instance.bairro, instance.municipio),
+                ),
 
+            ObjectValue(
+                attribute_name='cep',
+                top=calc_top(8), left=calc_left, width=calc_width,
+                get_value=lambda instance:
+                    "CEP: %s" % instance.cep
+            ),
         ]        		   
         self.band_detail = DetailBand(
             width=(self.largura_etiqueta)*cm, 
-            height=(self.altura_etiqueta)*cm, 
-            margin_left = 0*cm,
-            margin_top = 0*cm, 
-            margin_bottom= -0.5*cm, 
-            margin_right = 0*cm, 
-            elements=my_elements,display_inline=True, 
+            height=(self.altura_etiqueta)*cm,
+            elements=my_elements,
+            display_inline=True, 
             default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
 
@@ -131,37 +135,42 @@ class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
     def __init__(self, queryset, formato):	
         super(CasasLegislativasLabelsSemPresidente, self).__init__(queryset=queryset, formato=formato)
 
+        calc_width = (self.largura_etiqueta-self.label_margin_left-self.label_margin_right)*cm
+        calc_height = lambda rows: (self.delta*rows)*cm
+        calc_top = lambda row: (self.label_margin_top+row*self.delta)*cm
+        calc_left = self.label_margin_left*cm
 
         my_elements = [
             Label(
-                text='A Sua Excelência o(a) Senhor(a)',
-                top=(self.start + self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-            ),
-            ObjectValue(
-                attribute_name='tipo',
-                top=(self.start + 3*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
-                get_value=lambda instance:
-                    "Presidente da " + instance.tipo.nome +" " +instance.nome.split()[2]
+                text='A Sua Excelência o(a) Senhor(a):',
+                top=calc_top(0), left=calc_left, width=calc_width,
             ),
             ObjectValue(
                 attribute_name='nome',
-                top=(self.start + 4*self.delta)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+                top=calc_top(1), left=calc_left, width=calc_width, height=calc_height(2),
                 get_value=lambda instance:
-                    instance.municipio.uf.nome
-                        if instance.tipo.nome == u'Assembléia Legislativa'
-                        else instance.municipio.nome
-
+                    ("Presidente da %s" % instance.nome)
             ),
-            ManyElements(
-                ObjectValue,
-                count=4,
-                attribute_name=('logradouro','bairro','municipio','cep'),
-                start_top=(self.start + 5*self.delta)*cm, height=(self.altura_dados)*cm, left=self.y*cm, width=(self.largura_etiqueta-self.y)*cm,
+            ObjectValue(
+                attribute_name='logradouro',
+                top=calc_top(3), left=calc_left, width=calc_width, height=calc_height(2),
+                get_value=lambda instance:
+                    "%s - %s - %s." % (instance.logradouro, instance.bairro, instance.municipio),
+                ),
+
+            ObjectValue(
+                attribute_name='cep',
+                top=calc_top(8), left=calc_left, width=calc_width,
+                get_value=lambda instance:
+                    "CEP: %s" % instance.cep
             ),
-
-        ]
-
-        self.band_detail = DetailBand(width=(self.largura_etiqueta)*cm, height=(self.altura_etiqueta)*cm, margin_left = 0, margin_top = 0, margin_bottom=0.0*cm, margin_right = 0, elements=my_elements,display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
+        ]                   
+        self.band_detail = DetailBand(
+            width=(self.largura_etiqueta)*cm, 
+            height=(self.altura_etiqueta)*cm,
+            elements=my_elements,
+            display_inline=True, 
+            default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
 
 class CasasLegislativasReport(ReportDefault):
