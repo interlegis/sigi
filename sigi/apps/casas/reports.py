@@ -72,7 +72,7 @@ class CasasLegislativasLabels(Report):
             self.margin_right = 0.0*cm
             self.delta = 0.3
             self.start = 0
-            self.label_margin_top = 0.25
+            self.label_margin_top = 0.35
             self.label_margin_left = 0.4
             self.label_margin_right = 0.2
         else:
