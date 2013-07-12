@@ -6,7 +6,7 @@ from sigi.apps.utils import SearchField
 from datetime import datetime
 import random
 from unicodedata import normalize
-from apps.contatos.models import Municipio
+from sigi.apps.contatos.models import Municipio
 
 class TipoCasaLegislativa(models.Model):
     """ Modelo para representar o tipo da Casa Legislativa

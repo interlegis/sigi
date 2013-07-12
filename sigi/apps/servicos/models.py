@@ -6,14 +6,16 @@ from django.core.mail import send_mail
 from sigi.settings import DEFAULT_FROM_EMAIL
 
 class TipoServico(models.Model):
-    email_help = '''Use:<br/>
+    email_help = u'''Use:<br/>
                         {url} para incluir a URL do serviço,<br/>
                         {senha} para incluir a senha inicial do serviço'''
-    nome = models.CharField('Nome', max_length=60)
-    sigla = models.CharField('Sigla', max_length='12')
-    template_email_ativa = models.TextField('Template de email de ativação', help_text = email_help, blank=True)
-    template_email_altera = models.TextField('Template de email de alteração', help_text = email_help, blank=True)
-    template_email_desativa = models.TextField('Template de email de desativação', help_text = email_help + '<br/>{motivo} para incluir o motivo da desativação do serviço', blank=True)
+    nome = models.CharField(u'Nome', max_length=60)
+    sigla = models.CharField(u'Sigla', max_length='12')
+    string_pesquisa = models.CharField(u'String de pesquisa', blank=True, max_length=200, 
+        help_text=u'Sufixo para pesquisa RSS para averiguar a data da última atualização do serviço')
+    template_email_ativa = models.TextField(u'Template de email de ativação', help_text = email_help, blank=True)
+    template_email_altera = models.TextField(u'Template de email de alteração', help_text = email_help, blank=True)
+    template_email_desativa = models.TextField(u'Template de email de desativação', help_text = email_help + u'<br/>{motivo} para incluir o motivo da desativação do serviço', blank=True)
     
     @property        
     def qtde_casas_atendidas(self):
@@ -21,28 +23,80 @@ class TipoServico(models.Model):
         return self.servico_set.filter(data_desativacao=None).count()
 
     class Meta:
-        verbose_name = 'Tipo de serviço'
-        verbose_name_plural = 'Tipos de serviço'
+        verbose_name = u'Tipo de serviço'
+        verbose_name_plural = u'Tipos de serviço'
     
     def __unicode__(self):
         return self.nome;
 
 class Servico(models.Model):
-    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name='Casa legislativa')
-    tipo_servico = models.ForeignKey(TipoServico, verbose_name='Tipo de serviço')
-    contato_tecnico = models.ForeignKey(Funcionario, verbose_name='Contato técnico', related_name='contato_tecnico')
-    contato_administrativo = models.ForeignKey(Funcionario, verbose_name='Contato administrativo', related_name='contato_administrativo')
-    url = models.URLField('URL do serviço', verify_exists=False, blank=True)
-    hospedagem_interlegis = models.BooleanField('Hospedagem no Interlegis?')
-    nome_servidor = models.CharField('Hospedado em', max_length=60, blank=True, help_text='Se hospedado no Interlegis, informe o nome do servidor.<br/>Senão, informe o nome do provedor de serviços.')
-    porta_servico = models.PositiveSmallIntegerField('Porta de serviço (instância)', blank=True, null=True)
-    senha_inicial = models.CharField('Senha inicial', max_length=33, blank=True)
-    data_ativacao = models.DateField('Data de ativação', default=date.today)
-    data_alteracao = models.DateField('Data da última alteração', blank=True, null=True, auto_now=True)
-    data_desativacao = models.DateField('Data de desativação', blank=True, null=True)
-    motivo_desativacao = models.TextField('Motivo da desativação', blank=True)
+    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u'Casa legislativa')
+    tipo_servico = models.ForeignKey(TipoServico, verbose_name=u'Tipo de serviço')
+    contato_tecnico = models.ForeignKey(Funcionario, verbose_name=u'Contato técnico', related_name='contato_tecnico')
+    contato_administrativo = models.ForeignKey(Funcionario, verbose_name=u'Contato administrativo', related_name='contato_administrativo')
+    url = models.URLField(u'URL do serviço', verify_exists=False, blank=True)
+    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?')
+    nome_servidor = models.CharField(u'Hospedado em', max_length=60, blank=True,
+                        help_text=u'Se hospedado no Interlegis, informe o nome do servidor.<br/>Senão, informe o nome do provedor de serviços.')
+    porta_servico = models.PositiveSmallIntegerField(u'Porta de serviço (instância)', blank=True, null=True)
+    senha_inicial = models.CharField(u'Senha inicial', max_length=33, blank=True)
+    data_ativacao = models.DateField(u'Data de ativação', default=date.today)
+    data_alteracao = models.DateField(u'Data da última alteração', blank=True, null=True, auto_now=True)
+    data_desativacao = models.DateField(u'Data de desativação', blank=True, null=True)
+    motivo_desativacao = models.TextField(u'Motivo da desativação', blank=True)
+    data_ultimo_uso = models.DateField(u'Data da última utilização', blank=True, null=True, 
+        help_text=u'Data em que o serviço foi utilizado pela Casa Legislativa pela última vez<br/><strong>NÃO É ATUALIZADO AUTOMATICAMENTE!</strong>')
+    erro_atualizacao = models.CharField(u"Erro na atualização", blank=True, max_length=200, 
+                        help_text=u"Erro ocorrido na última tentativa de atualizar a data de último acesso")
     
     casa_legislativa.casa_uf_filter = True
+    
+    def atualiza_data_uso(self):
+        def reset(erro=u""):
+            if self.data_ultimo_uso is None and not erro:
+                return
+            self.data_ultimo_uso = None
+            self.erro_atualizacao = erro
+            self.save()
+            return
+
+        if self.tipo_servico.string_pesquisa == "":
+            reset()
+            return
+            
+        url = self.url
+        
+        if not url:
+            reset()
+            return
+        
+        if url[-1] != '/':
+            url += '/'
+        url += self.tipo_servico.string_pesquisa
+        
+        import urllib2
+        from xml.dom.minidom import parseString
+
+        try:
+            try: # Tentar conxão sem proxy
+                req = urllib2.urlopen(url=url, timeout=5)
+            except: # Tentar com proxy
+                proxy = urllib2.ProxyHandler()
+                opener = urllib2.build_opener(proxy)
+                req = opener.open(fullurl=url, timeout=5)
+
+            rss = req.read()
+            xml = parseString(rss)
+            items = xml.getElementsByTagName('item')
+            first_item = items[0]
+            date_list = first_item.getElementsByTagName('dc:date')
+            date_item = date_list[0]
+            date_text = date_item.firstChild.nodeValue
+            self.data_ultimo_uso = date_text[:10] # Apenas YYYY-MM-DD
+            self.erro_atualizacao = ""
+            self.save()
+        except Exception as e:
+            reset(erro=e.message)
     
     def __unicode__(self):
         return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')

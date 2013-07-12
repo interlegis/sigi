@@ -48,7 +48,9 @@ class TipoServicoAdmin(admin.ModelAdmin):
     
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
-    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao', 'getUrl')
+    actions = ['calcular_data_uso',]
+    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',
+                    'getUrl', 'data_ultimo_uso', 'erro_atualizacao')
     fieldsets = (( None, {
                     'fields': ('casa_legislativa', 'data_ativacao',)
                  }),
@@ -62,10 +64,9 @@ class ServicoAdmin(admin.ModelAdmin):
                     'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
                 }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'casa_legislativa')
+    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa', )
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
-    actions = None
     inlines = (LogServicoInline,)
     
     def getUf(self, obj):
@@ -77,8 +78,22 @@ class ServicoAdmin(admin.ModelAdmin):
         return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
     getUrl.short_description = 'Url'
     getUrl.allow_tags = True
-
     
+    def calcular_data_uso(self, request, queryset):
+        for servico in queryset:
+            servico.atualiza_data_uso()
+        self.message_user(request, "Atualização concluída. Os sites que não responderam foram deixados com a data em branco" )
+        return HttpResponseRedirect('.')
+    calcular_data_uso.short_description = u"Atualizar a data do último uso do(s) serviço(s)"
+    
+    def get_actions(self, request):
+        from django.utils.datastructures import SortedDict
+        actions = [self.get_action(action) for action in self.actions]
+        actions = filter(None, actions)
+        actions.sort(lambda a,b: cmp(a[2].lower(), b[2].lower()))
+        actions = SortedDict([ (name, (func, name, desc)) for func, name, desc in actions ])
+        return actions
+       
     def lookup_allowed(self, lookup, value):
         return super(ServicoAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
