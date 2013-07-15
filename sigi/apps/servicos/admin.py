@@ -50,7 +50,7 @@ class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
     actions = ['calcular_data_uso',]
     list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',
-                    'getUrl', 'data_ultimo_uso', 'erro_atualizacao')
+                    'getUrl', 'data_ultimo_uso', 'get_link_erro')
     fieldsets = (( None, {
                     'fields': ('casa_legislativa', 'data_ativacao',)
                  }),
@@ -68,6 +68,7 @@ class ServicoAdmin(admin.ModelAdmin):
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
+    search_fields = ('casa_legislativa__search_text',)
     
     def getUf(self, obj):
         return u'%s' % (obj.casa_legislativa.municipio.uf)
@@ -78,6 +79,18 @@ class ServicoAdmin(admin.ModelAdmin):
         return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
     getUrl.short_description = 'Url'
     getUrl.allow_tags = True
+    
+    def get_link_erro(self, obj):
+        if not obj.erro_atualizacao:
+            return u""
+        url = obj.url
+        if url[-1] != '/':
+            url += '/'
+        url += obj.tipo_servico.string_pesquisa        
+        return u'<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
+    get_link_erro.allow_tags = True
+    get_link_erro.short_description = u"Erro na atualização"
+    get_link_erro.admin_order_field = 'erro_atualizacao'
     
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
