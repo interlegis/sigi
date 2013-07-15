@@ -96,7 +96,7 @@ class Servico(models.Model):
             self.erro_atualizacao = ""
             self.save()
         except Exception as e:
-            reset(erro=e.message or e.msg)
+            reset(erro=str(e))
     
     def __unicode__(self):
         return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')
