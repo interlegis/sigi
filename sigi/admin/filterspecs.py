@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from django.contrib.admin.filterspecs import FilterSpec, ChoicesFilterSpec, BooleanFieldFilterSpec
 from django.utils.encoding import smart_unicode
 from django.utils.safestring import mark_safe
@@ -345,3 +346,68 @@ class CasaProjetoFilterSpec(ChoicesFilterSpec):
 # registering the filter
 FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'projeto_filter', False),
                              CasaProjetoFilterSpec))
+
+# Filterspec para ocorrencias
+
+class OcorrenciaFilterspec(ChoicesFilterSpec):
+    def __init__(self, f, request, params, model, model_admin):
+        super(OcorrenciaFilterspec, self).__init__(f, request, params, model, model_admin)
+        self.lookup_kwarg = 'grupo'
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+        self.lookup_choices = (('S', u'Atribuídos ao meu setor'), ('M', u'Registrados por mim'),)
+
+    def choices(self, cl):
+        yield {'selected': self.lookup_val is None,
+                'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
+                'display': _('All')}
+        for value, label in self.lookup_choices:
+            yield {'selected': smart_unicode(value) == self.lookup_val,
+                    'query_string': cl.get_query_string({self.lookup_kwarg: value}),
+                    'display': label}
+    def title(self):
+        return u"grupos de ocorrência"
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'grupo_filter', False),
+                                   OcorrenciaFilterspec))
+
+# Multichoices filterspec
+
+class MultichoicesFilterSpec(ChoicesFilterSpec):
+    """
+    my_model_field.multichoices_filter = True
+    """
+
+    def __init__(self, f, request, params, model, model_admin):
+        super(MultichoicesFilterSpec, self).__init__(f, request, params, model,
+                                                   model_admin)
+        self.lookup_kwarg = '%s__in' % f.name
+        self.lookup_val = request.GET.get(self.lookup_kwarg, None)
+
+    def choices(self, cl):
+        lookup_values = map(int, self.lookup_val.split(',')) if self.lookup_val is not None else [] 
+        is_all = (self.lookup_val is None) or (lookup_values == [k for k,v in self.field.flatchoices])
+        if is_all:
+            lookup_values = []
+        yield {'selected': is_all,
+               'query_string': cl.get_query_string({}, [self.lookup_kwarg]),
+               'display': _('All')}
+        for k, v in self.field.flatchoices:
+            selected = k in lookup_values
+            new_values = list(lookup_values)
+            if selected:
+                new_values.remove(k)
+            else:
+                new_values.append(k)
+            new_values.sort()
+            yield {'selected': selected,
+                    'query_string': cl.get_query_string({self.lookup_kwarg: u",".join(map(str, new_values))}),
+                    'display': v}
+
+    def title(self):
+        return _('%(field_name)s in') % \
+            {'field_name': self.field.verbose_name}
+
+# registering the filter
+FilterSpec.filter_specs.insert(0, (lambda f: getattr(f, 'multichoice_filter', False),
+                                   MultichoicesFilterSpec))

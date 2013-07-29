@@ -17,6 +17,7 @@ from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.inventario.models import Bem
 from sigi.apps.servicos.models import Servico
 from sigi.apps.metas.models import PlanoDiretor
+from sigi.apps.ocorrencias.models import Ocorrencia
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -136,6 +137,14 @@ class ServicoInline(admin.TabularInline):
 
 class PlanoDiretorInline(admin.TabularInline):
     model = PlanoDiretor
+
+class OcorrenciaInline(admin.TabularInline):
+    model = Ocorrencia
+    fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
+    readonly_fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
+    extra = 0
+    max_num = 0
+    can_delete = False
     
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
@@ -143,7 +152,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas',]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
-               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline)
+               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco', 'get_convenios')
     list_display_links = ('nome',)
     list_filter = ('tipo', 'municipio', 'search_text')

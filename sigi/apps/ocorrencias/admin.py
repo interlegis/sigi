@@ -1,29 +1,114 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.contrib import admin
+from django.contrib.admin.views.main import ChangeList
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
+from sigi.apps.servidores.models import Servidor
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria
-
-class ComentarioInline(admin.TabularInline):
+    
+class ComentarioViewInline(admin.TabularInline):
     model = Comentario
-    extra = 1
+    extra = 0
+    max_num=0
+    can_delete = False
+    verbose_name, verbose_name_plural = u"Comentário anterior", u"Comentários anteriores"
+    fields = ('usuario', 'data_criacao', 'novo_status', 'encaminhar_setor', 'descricao', )
+    readonly_fields = ('novo_status', 'encaminhar_setor', 'descricao', 'data_criacao', 'usuario',)
+
+class ComentarioInline(admin.StackedInline):
+    model = Comentario
+    extra = 3
+    verbose_name, verbose_name_plural = u"Comentário novo", u"Comentários novos"
+    fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
+    def queryset(self, request):
+        return self.model.objects.get_empty_query_set()
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
-    exclude = ['data_pub',]
+    readonly_fields = ['data_pub',]
 
-class AnexoAdmin(admin.ModelAdmin):
-    date_hierarchy = 'data_pub'
-    exclude = ['data_pub',]
-    list_display = ('arquivo', 'descricao', 'data_pub', 'ocorrencia')
-    raw_id_fields = ('ocorrencia',)
-    search_fields = ('descricao', 'ocorrencia__id', 'arquivo',
-                     'ocorrencia__casa_legislativa__nome')
+class OcorrenciaChangeList(ChangeList):
+    request = None
+    def __init__(self, request, model, list_display, list_display_links, list_filter, date_hierarchy, search_fields,
+                 list_select_related, list_per_page, list_editable, model_admin):
+        self.request = request
+        super(OcorrenciaChangeList, self).__init__(request, model, list_display, list_display_links, list_filter,
+                                                   date_hierarchy, search_fields, list_select_related, list_per_page,
+                                                   list_editable, model_admin) 
+    def get_query_set(self):
+        tmp_params = self.params.copy()
+        grupo = None
+        if 'grupo' in self.params:
+            grupo = self.params['grupo']
+            del self.params['grupo']
+        qs = super(OcorrenciaChangeList, self).get_query_set()
+        self.params = tmp_params.copy()
+        if grupo:
+            servidor = Servidor.objects.get(user=self.request.user)
+            if grupo == 'S': # Apenas do meu setor
+                qs = qs.filter(setor_responsavel=servidor.servico)
+            elif grupo == 'M': # Apenas criados por mim
+                qs = qs.filter(servidor_registro=servidor)
+        return qs
 
-class OcorrenciaAdmin(BaseEntityAdmin):
-    inlines = (ComentarioInline, AnexosInline)
-    raw_id_fields = ('casa_legislativa',)
+class OcorrenciaAdmin(admin.ModelAdmin):
+    list_display = ('data_criacao', 'casa_legislativa', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
+    list_filter = ('assunto', 'status', 'prioridade', 'categoria', 'setor_responsavel', )
+    search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome', )
+    date_hierarchy = 'data_criacao'
+    fields = ('casa_legislativa', 'categoria', 'assunto', 'status', 'prioridade', 'descricao', 'servidor_registro',
+              'setor_responsavel', 'resolucao', )
+    readonly_fields = ('servidor_registro', 'setor_responsavel', )
+    inlines = (ComentarioViewInline, ComentarioInline, AnexosInline, )
+    raw_id_fields = ('casa_legislativa', )
+    
+    def get_changelist(self, request, **kwargs):
+        return OcorrenciaChangeList
+    
+    def get_readonly_fields(self, request, obj=None):
+        fields = list(self.readonly_fields)
+        if obj is not None:
+            fields.extend(['casa_legislativa', 'categoria', 'assunto', 'status', 'descricao', ])
+            if obj.status in [3, 4, 5]: #Fechados
+                fields.append('prioridade')
+        return fields
+    
+    def get_fieldsets(self, request, obj=None):
+        if obj is None:
+            self.fields = ('casa_legislativa', 'categoria', 'assunto', 'prioridade', 'descricao', 'resolucao', )
+        return super(OcorrenciaAdmin, self).get_fieldsets(request, obj)
+    
+    def changelist_view(self, request, *args, **kwargs):
+        try:
+            if len(request.GET) == 0:
+                url = reverse('admin:%s_%s_changelist' % (self.opts.app_label, self.opts.module_name))
+                return HttpResponseRedirect("%s?grupo=S&status__in=1,2" % url)
+        except:
+            pass
+        return super(OcorrenciaAdmin, self).changelist_view(request, *args, **kwargs)    
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.servidor_registro = Servidor.objects.get(user=request.user)
+            obj.setor_responsavel = obj.categoria.setor_responsavel
+        obj.save()
+    
+    def save_formset(self, request, form, formset, change):
+        servidor = Servidor.objects.get(user=request.user)
+        instances = formset.save(commit=False)
+        for instance in instances:
+            instance.usuario = servidor
+            instance.save()
+            if instance.encaminhar_setor and (instance.encaminhar_setor != instance.ocorrencia.setor_responsavel):
+                instance.ocorrencia.setor_responsavel = instance.encaminhar_setor
+                instance.ocorrencia.save()
+            if instance.novo_status and (instance.novo_status != instance.ocorrencia.status):
+                instance.ocorrencia.status = instance.novo_status
+                instance.ocorrencia.save()
+                
+        formset.save_m2m()    
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
-admin.site.register(Anexo, AnexoAdmin)
 admin.site.register(Categoria)
