@@ -42,23 +42,13 @@ class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
 
 class ServidorAdmin(admin.ModelAdmin):
-
     def is_active(self, servidor):
         return servidor.user.is_active
-    is_active.admin_order_field = 'is_active'
+    is_active.admin_order_field = 'user__is_active'
     is_active.boolean = True
     is_active.short_description = 'ativo'
 
-    def queryset(self, request):
-        qs = super(ServidorAdmin, self).queryset(request)
-        qs = qs.extra(select={'is_active': """
-              SELECT auth_user.is_active
-              FROM auth_user
-              WHERE auth_user.id = servidores_servidor.user_id
-            """})
-        return qs
-
-    list_display = ('nome_completo', 'is_active', 'foto', 'servico')
+    list_display = ('nome_completo', 'is_active', 'foto', 'servico', )
     list_filter  = ('user', 'sexo', 'servico',)
     search_fields = ('nome_completo', 'obs', 'apontamentos',
                      'user__email', 'user__first_name',
@@ -72,8 +62,8 @@ class ServidorAdmin(admin.ModelAdmin):
       ('Cadastro', {
         'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
       }),
-      ('Origem', {
-        'fields': ('turno', 'de_fora'),
+      ('Lotação', {
+        'fields': ('servico', 'turno', 'de_fora'),
       }),
       (u'Observações', {
         'fields': ('apontamentos', 'obs'),
