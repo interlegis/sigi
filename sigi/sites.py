@@ -30,11 +30,11 @@ from sigi.apps.diagnosticos.admin import (Diagnostico, DiagnosticoAdmin, Pergunt
                                           CategoriaDiagnostico)
 from sigi.apps.servidores.admin import (Servidor, ServidorAdmin, Funcao, FuncaoAdmin,
                                         Ferias, FeriasAdmin, Licenca, LicencaAdmin)
-from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Anexo as AnexoOcorrencia,
-                                         AnexoAdmin as AnexoOcorrenciaAdmin, Categoria)
+from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Categoria)
 from sigi.apps.eventos.admin import (Recurso, RecursoAdmin)
 from sigi.apps.metas.admin import (Meta, MetaAdmin, PlanoDiretor, PlanoDiretorAdmin)
 from sigi.apps.financeiro.admin import (Desembolso, DesembolsoAdmin)
+from apps.casas.models import TipoCasaLegislativa
 
 class DefaultSite(AdminSite):
     index_template = 'index.html'
@@ -54,6 +54,7 @@ default.register(Site, SiteAdmin)
 default.register(Menu, MenuAdmin)
 
 # sigi.apps.casas
+default.register(TipoCasaLegislativa)
 default.register(CasaLegislativa, CasaLegislativaAdmin)
 
 # sigi.apps.contatos
@@ -112,7 +113,6 @@ default.register(Licenca, LicencaAdmin)
 
 # sigi.apps.ocorrencias
 default.register(Ocorrencia, OcorrenciaAdmin)
-default.register(AnexoOcorrencia, AnexoOcorrenciaAdmin)
 default.register(Categoria)
 
 # sigi.apps.eventos
