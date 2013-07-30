@@ -54,7 +54,7 @@ class Ocorrencia(models.Model):
         ordering = ['prioridade', 'data_modificacao', 'data_criacao', ]
         
     def __unicode__(self):
-        return u"%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': str(self.casa_legislativa)}
+        return u"%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': self.casa_legislativa}
 
 class Comentario(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=u'Ocorrência')
