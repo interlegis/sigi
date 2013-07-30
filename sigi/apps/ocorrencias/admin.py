@@ -80,15 +80,6 @@ class OcorrenciaAdmin(admin.ModelAdmin):
             self.fields = ('casa_legislativa', 'categoria', 'assunto', 'prioridade', 'descricao', 'resolucao', )
         return super(OcorrenciaAdmin, self).get_fieldsets(request, obj)
     
-    def changelist_view(self, request, *args, **kwargs):
-        try:
-            if len(request.GET) == 0:
-                url = reverse('admin:%s_%s_changelist' % (self.opts.app_label, self.opts.module_name))
-                return HttpResponseRedirect("%s?grupo=S&status__in=1,2" % url)
-        except:
-            pass
-        return super(OcorrenciaAdmin, self).changelist_view(request, *args, **kwargs)    
-
     def save_model(self, request, obj, form, change):
         if not change:
             obj.servidor_registro = Servidor.objects.get(user=request.user)
