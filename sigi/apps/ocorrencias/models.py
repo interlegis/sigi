@@ -14,7 +14,7 @@ class Categoria(models.Model):
         verbose_name, verbose_name_plural = u'Categoria', u'Categorias' 
 
     def __unicode__(self):
-        return str(self.nome)
+        return self.nome
 
 class Ocorrencia(models.Model):
     STATUS_CHOICES = (
