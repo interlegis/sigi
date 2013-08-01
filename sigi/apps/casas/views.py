@@ -320,6 +320,7 @@ def export_csv(request):
         
     for casa in casas:
         lista = []
+        contatos = casa.funcionario_set.filter(setor="contato_interlegis")
         for atributo in atributos:
             if u"CNPJ" == atributo:
                 lista.append(casa.cnpj.encode("utf-8"))
@@ -354,11 +355,20 @@ def export_csv(request):
             elif u"Última alteração de endereco" == atributo:
                 lista.append(casa.ult_alt_endereco)
             elif u"Nome contato" == atributo:
-                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].nome.encode("utf-8"))
+                if contatos:
+                    lista.append(contatos[0].nome.encode("utf-8"))
+                else:
+                    lista.append('')
             elif u"Cargo contato" == atributo:
-                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].cargo.encode("utf-8"))
+                if contatos:
+                    lista.append(contatos[0].cargo.encode("utf-8"))
+                else:
+                    lista.append('')
             elif u"Email contato" == atributo:
-                lista.append(casa.funcionario_set.filter(setor="contato_interlegis")[0].email.encode("utf-8"))
+                if contatos:
+                    lista.append(contatos[0].email.encode("utf-8"))
+                else:
+                    lista.append('')
             else:
                 pass
                                 
