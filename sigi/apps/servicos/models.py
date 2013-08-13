@@ -52,11 +52,11 @@ class Servico(models.Model):
     casa_legislativa.casa_uf_filter = True
     
     def atualiza_data_uso(self):
-        def reset(erro=u""):
+        def reset(erro=u"", comment=u""):
             if self.data_ultimo_uso is None and not erro:
                 return
             self.data_ultimo_uso = None
-            self.erro_atualizacao = erro
+            self.erro_atualizacao = comment + '<br/>' + erro
             self.save()
             return
 
@@ -77,15 +77,25 @@ class Servico(models.Model):
         import urllib2
         from xml.dom.minidom import parseString
 
-        try:
+        try: # Captura erros de conexão
             try: # Tentar conxão sem proxy
                 req = urllib2.urlopen(url=url, timeout=5)
             except: # Tentar com proxy
                 proxy = urllib2.ProxyHandler()
                 opener = urllib2.build_opener(proxy)
                 req = opener.open(fullurl=url, timeout=5)
-
+        except Exception as e:
+            reset(erro=str(e), comment=u'Não foi possível conectar com o servidor. Pode estar fora do ar ou não ser um ' + 
+                  self.tipo_servico.nome)
+            return
+        
+        try:
             rss = req.read()
+        except Exception as e:
+            reset(erro=str(e), comment=u'Não foi possível receber os dados do servidor. O acesso pode ter sido negado.')
+            return
+
+        try:            
             xml = parseString(rss)
             items = xml.getElementsByTagName('item')
             first_item = items[0]
@@ -96,7 +106,9 @@ class Servico(models.Model):
             self.erro_atualizacao = ""
             self.save()
         except Exception as e:
-            reset(erro=str(e))
+            reset(erro=str(e), comment=u'A resposta do servidor não é compatível com %s. Pode ser outro software que está sendo usado' %
+                  self.tipo_servico.nome)
+        return
     
     def __unicode__(self):
         return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')

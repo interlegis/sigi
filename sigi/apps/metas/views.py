@@ -288,10 +288,9 @@ def gera_map_data_file(cronjob=False):
         file = open(JSON_FILE_NAME, 'w')
         file.write(json_data)
         file.close()
-    except: # A gravação não foi bem sucedida ...
+    except Exception as e: # A gravação não foi bem sucedida ...
         if cronjob: # ... o chamador deseja a mensagem de erro
-            import sys
-            return sys.exc_info()[0]
+            return str(e)
         else:
             pass # ... ou os dados poderão ser usados de qualquer forma
     
