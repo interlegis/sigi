@@ -49,8 +49,8 @@ class TipoServicoAdmin(admin.ModelAdmin):
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
     actions = ['calcular_data_uso',]
-    list_display = ('casa_legislativa','getUf', 'tipo_servico', 'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',
-                    'getUrl', 'data_ultimo_uso', 'get_link_erro')
+    list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf', 'tipo_servico', 'hospedagem_interlegis',
+                    'data_ativacao', 'data_desativacao', 'getUrl', 'data_ultimo_uso', 'get_link_erro')
     fieldsets = (( None, {
                     'fields': ('casa_legislativa', 'data_ativacao',)
                  }),
@@ -69,11 +69,16 @@ class ServicoAdmin(admin.ModelAdmin):
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
     search_fields = ('casa_legislativa__search_text',)
+
+    def get_codigo_interlegis(self, obj):
+        return obj.casa_legislativa.codigo_interlegis
+    get_codigo_interlegis.short_description = u'Código Interlegis'
+    get_codigo_interlegis.admin_order_field = 'casa_legislativa__codigo_interlegis'
     
-    def getUf(self, obj):
+    def get_uf(self, obj):
         return u'%s' % (obj.casa_legislativa.municipio.uf)
-    getUf.short_description = 'UF'
-    getUf.admin_order_field = 'casa_legislativa__municipio__uf'
+    get_uf.short_description = 'UF'
+    get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
     
     def getUrl(self, obj):
         return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
