@@ -355,17 +355,17 @@ def export_csv(request):
             elif u"Última alteração de endereco" == atributo:
                 lista.append(casa.ult_alt_endereco)
             elif u"Nome contato" == atributo:
-                if contatos:
+                if contatos and contatos[0].nome:
                     lista.append(contatos[0].nome.encode("utf-8"))
                 else:
                     lista.append('')
             elif u"Cargo contato" == atributo:
-                if contatos:
+                if contatos and contatos[0].cargo:
                     lista.append(contatos[0].cargo.encode("utf-8"))
                 else:
                     lista.append('')
             elif u"Email contato" == atributo:
-                if contatos:
+                if contatos and contatos[0].email:
                     lista.append(contatos[0].email.encode("utf-8"))
                 else:
                     lista.append('')
