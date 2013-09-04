@@ -37,9 +37,9 @@ class Convenio(models.Model):
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
         'número do processo SF (Senado Federal)',
-        max_length=11,
+        max_length=20,
         blank=True,
-        help_text='Formato: <em>XXXXXX/XX-X</em>.'
+        help_text='Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>'
     )
     num_convenio = models.CharField(
         'número do convênio',
