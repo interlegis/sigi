@@ -1,0 +1,44 @@
+#globalnavbar {
+  font-family: Tahoma, Arial, sans-serif;
+  font-size: 12pt;
+  background: #fff url(http://www.interlegis.gov.br/globalnav-logo.gif) no-repeat 0.75em 0.5em;
+  border-bottom: 6px solid #b8b8b8;
+  height: 30px;
+  margin: 0 auto;
+  position: relative;
+  text-transform: capitalize;
+  clear: both;
+}
+
+#globalnavbar li {
+  border-right: 2px solid #b8b8b8;
+  float: right;
+  font-size: 0.9em;
+  font-weight: bold;
+  height: 20px;
+  list-style: none;
+  margin-top: 10px;
+  padding: 0 36px;
+  text-align: right;
+  line-height: 1.25em;
+}
+
+#globalnavbar .globalnav-portal { color: #58595b; }
+#globalnavbar .globalnav-intranet { color: #eda406; }
+#globalnavbar .globalnav-colab { color: #007f3e; }
+#globalnavbar .globalnav-saberes { color: #184e82; }
+#globalnavbar li.globalnav-busca { border: 0; padding: 0 0 0 7px; }
+#globalnavbar li a { border: 0; text-decoration: none; }
+#globalnavbar li a:hover { background: none; text-decoration: underline; }
+#globalnavbar input {
+  background: #fff url(http://www.interlegis.gov.br/globalnav-buscar.gif) no-repeat bottom;
+  border: 0;
+  bottom: 0.33em;
+  color: #a6a6a6;
+  font-size: 0.8em;
+  height: 1.4em;
+  margin-left: 1.4em;
+  padding: 0.4em 1em 0 2.5em;
+  position: relative;
+  width: 97px;
+}
