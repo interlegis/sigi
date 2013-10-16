@@ -113,6 +113,7 @@ urlpatterns = patterns(
     # Views dos serviços SEIT
     (r'^sigi/servicos/mapa/(?P<servico>\w+)/$', direct_to_template, {'template': 'servicos/mapa.html', 'extra_context': {'servicos': TipoServico.objects.all()}}),
     (r'^sigi/servicos/munatenjson/(?P<servico>\w+)/$', 'sigi.apps.servicos.views.municipios_atendidos'),
+    (r'^sigi/servicos/manifesta/$', 'sigi.apps.servicos.views.casa_manifesta_view'),
 #    (r'^sigi/servicos/listacasas/(?P<sigla>\w+)',
 #     'sigi.apps.servicos.views.casas_usam_servico'),
     # Views de dashboard
