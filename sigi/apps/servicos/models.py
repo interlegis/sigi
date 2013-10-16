@@ -186,3 +186,19 @@ class CasaAtendida(CasaLegislativa):
             result.append(unicode(servico))
             
         return ", ".join(result)
+
+class CasaManifesta(models.Model):
+    casa_legislativa = models.OneToOneField(CasaLegislativa)
+    data_manifestacao = models.DateTimeField(auto_now_add=True)
+    data_atualizacao = models.DateTimeField(auto_now=True)
+    informante = models.CharField(u'Nome do informante', max_length=100)
+    cargo = models.CharField(u'Cargo do informante', max_length=100)
+    
+class ServicoManifesto(models.Model):
+    casa_manifesta = models.ForeignKey(CasaManifesta)
+    servico = models.ForeignKey(TipoServico)
+    url = models.URLField(blank=True)
+    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?')
+    
+    class Meta:
+        unique_together = ('casa_manifesta', 'servico')
