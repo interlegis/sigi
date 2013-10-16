@@ -69,8 +69,8 @@ def casa_manifesta_view(request):
         fieldsets = ((None, ('informante', 'cargo'),),)
         
         for ts in TipoServico.objects.all():
-            campos['possui_%s' % ts.pk] = forms.BooleanField(label='Possui o serviço de %s' % ts.nome, required=False)
-            campos['url_%s' % ts.pk] = forms.URLField(label='Informe a URL', required=False)
+            campos['possui_%s' % ts.pk] = forms.BooleanField(label=u'Possui o serviço de %s' % ts.nome, required=False)
+            campos['url_%s' % ts.pk] = forms.URLField(label=u'Informe a URL', required=False)
             campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=u'Serviço está hospedado no Interlegis', required=False)
             fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk )),)
             
@@ -84,19 +84,19 @@ def casa_manifesta_view(request):
                 cm.informante = cmf.cleaned_data['informante']
                 cm.cargo = cmf.cleaned_data['cargo']
                 cm.save()
-                thanks.append(('Informante', cmf.cleaned_data['informante']))
-                thanks.append(('Cargo', cmf.cleaned_data['cargo']))
+                thanks.append((u'Informante', cmf.cleaned_data['informante']))
+                thanks.append((u'Cargo', cmf.cleaned_data['cargo']))
                 for ts in TipoServico.objects.all():
                     if cmf.cleaned_data['possui_%s' % ts.pk]:
                         sm, created = ServicoManifesto.objects.get_or_create(casa_manifesta=cm, servico=ts)
                         sm.url = cmf.cleaned_data['url_%s' % ts.pk]
                         sm.hospedagem_interlegis = cmf.cleaned_data['hospedagem_interlegis_%s' % ts.pk]
                         sm.save()
-                        thanks.append((ts.nome, 'Possui o serviço acessível em %s %s' % (sm.url, 'hospedado no Interlegis' if
+                        thanks.append((ts.nome, u'Possui o serviço acessível em %s %s' % (sm.url, u'hospedado no Interlegis' if
                                                                                          sm.hospedagem_interlegis else '')))
                     else:
                         ServicoManifesto.objects.filter(casa_manifesta=cm, servico=ts).delete()
-                        thanks.append((ts.nome, 'Não possui'))
+                        thanks.append((ts.nome, u'Não possui'))
                 extra_context = {'casa': casa, 'thanks': thanks}
             else:
                 extra_context = {'casa': casa, 'cmf': cmf}
@@ -125,23 +125,3 @@ def casa_manifesta_view(request):
         extra_context = {'uf_list': UnidadeFederativa.objects.all()}
 
     return render_to_response('servicos/casa_manifesta.html', extra_context, context_instance=RequestContext(request))
-        
-    # Monta formulário dinâmico dos serviços
-#    campos = {}
-#    for ts in TipoServico.objects.all():
-#        campos['possui_%s' % ts.pk] = forms.BooleanField(label=ts.nome)
-#        campos['url_%s' % ts.pk] = forms.URLField(label='URL do %s' % ts.nome)
-#        campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=u'Hospedado no Interlegis')
-#    ServicoManifestoForm = type('', (forms.Form,), campos)
-#    
-#    if request.method == 'POST':
-#        cm_form = CasaManifestaForm(request.POST)
-#        sm_form = ServicoManifestoForm(request.POST)
-#        
-#        if cm_form.is_valid() and sm_form.is_valid():
-#            return render_to_response('servicos/casa_manifesta.html', {'cm_form': cm_form, 'sm_form': sm_form},
-#                                      context_instance=RequestContext(request))
-#    else:
-#        cm_form = CasaManifestaForm()
-#        sm_form = ServicoManifestoForm()
-    return render_to_response('casa_manifesta.html', {'cm_form': cm_form, 'sm_form': sm_form})
