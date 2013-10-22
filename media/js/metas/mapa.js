@@ -8,6 +8,7 @@
 		$("#closeiwlink").click( closeAllInfowindows );
 		$("#summary_report").click( open_report );
 		$("#list_report").click( open_report );
+		$("#list_csv").click( open_report );
 		var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
 		var myOptions = {
 				zoom: 5,
@@ -181,7 +182,12 @@
 	
 	function open_report(event) {
 		var data = $("#filter_form").serialize();
-		var href = this.href + "?" + data;
+		var href = this.href;
+		if (href.indexOf("?") < 0) {
+			href = href + "?" + data
+		} else {
+			href = href + "&" + data
+		}
 		var win = window.open(href, '', '');
 		win.focus();
 		return false;

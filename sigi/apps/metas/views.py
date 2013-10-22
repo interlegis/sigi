@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import csv
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.utils import simplejson
@@ -7,16 +8,17 @@ from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.db.models import Q
 from django.views.decorators.cache import cache_page
+from django.db.models.aggregates import Sum
+from django.contrib.auth.decorators import user_passes_test, login_required
+from sigi.settings import MEDIA_ROOT
 from sigi.shortcuts import render_to_pdf
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.convenios.models import Projeto, Convenio
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import to_ascii
-from apps.financeiro.models import Desembolso
-from django.db.models.aggregates import Sum
-from django.contrib.auth.decorators import user_passes_test, login_required
-from sigi.settings import MEDIA_ROOT
+from sigi.apps.financeiro.models import Desembolso
+from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
 
 JSON_FILE_NAME = MEDIA_ROOT + 'apps/metas/map_data.json'
 
@@ -188,12 +190,46 @@ def map_sum(request):
     }        
     return render_to_pdf('metas/map_sum.html', extra_context)
 
+@cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
 def map_list(request):
     # Filtrar Casas de acordo com os parâmetros
     param = get_params(request)
+    formato = request.GET.get('fmt', 'pdf')
     casas = filtrar_casas(**param)
     casas = casas.order_by('municipio__uf__regiao', 'municipio__uf__nome', 'nome').distinct()
+
+    if formato == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="maplist.csv"'
+        writer = csv.writer(response)
+
+        srv = {ts.pk: ts.nome for ts in TipoServico.objects.all()}
+        cnv = {pr.id: pr.sigla for pr in Projeto.objects.all()}
+        
+        writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao',] + [x for x in srv.values()] +
+                        reduce(lambda x,y: x+y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
+        
+        for casa in casas:
+            row = [casa.municipio.codigo_ibge, casa.nome, casa.municipio.nome, casa.municipio.uf.sigla, 
+                   casa.municipio.uf.get_regiao_display(),]
+            for id in srv.keys():
+                try:
+                    sv = casa.servico_set.get(tipo_servico__id=id)
+                    row += [sv.data_ativacao,]
+                except:
+                    row += [None,]
+            for id in cnv.keys():
+                try:
+                    cv = casa.convenio_set.get(projeto__id=id)
+                    row += [cv.data_retorno_assinatura, cv.data_termo_aceite if cv.equipada else None,]
+                except:
+                    row += [None, None,]
+                    
+            writer.writerow(row)
+        return response
+
     return render_to_pdf('metas/map_list.html', {'casas': casas})
+        
 
 #----------------------------------------------------------------------------------------------------
 # Funções auxiliares - não são views
@@ -259,24 +295,28 @@ def gera_map_data_file(cronjob=False):
             }
             
             for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y'), sv.url))
+                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='/sigi/media/images/link.gif' alt='link'></a>" % (
+                                        sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else 
+                                        u'<sem data de ativação>', sv.url))
                 casa['seit'].append(sv.tipo_servico.sigla)
                 
             for cv in c.convenio_set.all():
-                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
                     casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
                     casa['equipadas'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
                     casa['info'].append(u"Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
                     casa['convenios'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite.strftime('%d/%m/%Y') is not None):
+                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
                     casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
                     casa['equipadas'].append(cv.projeto.sigla)
                     casa['convenios'].append(cv.projeto.sigla)
                     
             for dg in c.diagnostico_set.all():
                 casa['diagnosticos'].append('P' if dg.publicado else 'A')
-                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y'), dg.data_visita_fim.strftime('%d/%m/%Y')))
+                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y') if
+                                dg.data_visita_inicio is not None else u"<sem data de início>", 
+                                dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else u"<sem data de término>"))
                     
             casa['info'] = "<br/>".join(casa['info'])
                 
