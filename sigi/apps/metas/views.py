@@ -203,8 +203,13 @@ def map_list(request):
         response['Content-Disposition'] = 'attachment; filename="maplist.csv"'
         writer = csv.writer(response)
 
-        srv = {ts.pk: ts.nome for ts in TipoServico.objects.all()}
-        cnv = {pr.id: pr.sigla for pr in Projeto.objects.all()}
+        srv = {}
+        for ts in TipoServico.objects.all():
+            srv[ts.pk] = ts.nome
+            
+        cnv = {}
+        for pr in Projeto.objects.all():
+            cnv[pr.id] = pr.sigla
         
         writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao',] + [x for x in srv.values()] +
                         reduce(lambda x,y: x+y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
