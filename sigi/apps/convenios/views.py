@@ -292,10 +292,17 @@ def export_csv(request):
     if not convenios:
         return HttpResponseRedirect('../')
 
+    atributos = [ u"No. Processo", u"No. Convênio", u"Projeto", u"Casa Legislativa", u"Data de Adesão", u"Data de Convênio", 
+                 u"Data da Publicacao no D.O.", u"Data Equipada", ]
+
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
-	atributos2 = [s.encode("utf-8") for s in atributos]
-        csv_writer.writerow(atributos2)
+        
+    col_titles = atributos
+    if u"Casa Legislativa" in col_titles:
+        pos = col_titles.index(u"Casa Legislativa") + 1
+        col_titles.insert(pos, u"uf") 
+    csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for convenio in convenios:
         lista = []
@@ -308,6 +315,7 @@ def export_csv(request):
                 lista.append(convenio.projeto.nome.encode("utf-8"))
             elif u"Casa Legislativa" == atributo:
                 lista.append(convenio.casa_legislativa.nome.encode("utf-8"))
+                lista.append(convenio.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
             elif u"Data de Adesão" == atributo:
                 data = ''
                 if convenio.data_adesao:
