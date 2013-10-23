@@ -179,14 +179,6 @@ class CasaAtendida(CasaLegislativa):
 
     objects =  CasaAtendidaManager()
     
-    @property        
-    def servicos(self):
-        result = []
-        for servico in self.servico_set.all():
-            result.append(unicode(servico))
-            
-        return ", ".join(result)
-
 class CasaManifesta(models.Model):
     casa_legislativa = models.OneToOneField(CasaLegislativa)
     data_manifestacao = models.DateTimeField(auto_now_add=True)

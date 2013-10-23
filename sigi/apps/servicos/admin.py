@@ -169,7 +169,7 @@ class ContatosInline(FuncionariosInline):
                 
 class CasaAtendidaAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('codigo_interlegis', 'nome', 'servicos',)
+    list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
     ordering = ['nome']
     fieldsets = (
                  ('Casa legislativa', {
@@ -182,6 +182,16 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+
+    def get_servicos(self, obj):
+        result = []
+        for servico in obj.servico_set.all():
+            result.append(u"%s (%s). Contato: %s" % (servico.tipo_servico.nome, 'ativo' if servico.data_desativacao is None 
+                            else 'Desativado', servico.contato_administrativo.nome))
+            
+        return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
+    get_servicos.allow_tags = True
+    get_servicos.short_description = u"Serviços"
     
     def lookup_allowed(self, lookup, value):
         return super(CasaAtendidaAdmin, self).lookup_allowed(lookup, value) or \
