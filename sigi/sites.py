@@ -30,7 +30,7 @@ from sigi.apps.diagnosticos.admin import (Diagnostico, DiagnosticoAdmin, Pergunt
                                           CategoriaDiagnostico)
 from sigi.apps.servidores.admin import (Servidor, ServidorAdmin, Funcao, FuncaoAdmin,
                                         Ferias, FeriasAdmin, Licenca, LicencaAdmin)
-from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Categoria)
+from sigi.apps.ocorrencias.admin import (Ocorrencia, OcorrenciaAdmin, Categoria, TipoContato)
 from sigi.apps.eventos.admin import (Recurso, RecursoAdmin)
 from sigi.apps.metas.admin import (Meta, MetaAdmin, PlanoDiretor, PlanoDiretorAdmin)
 from sigi.apps.financeiro.admin import (Desembolso, DesembolsoAdmin)
@@ -114,6 +114,7 @@ default.register(Licenca, LicencaAdmin)
 # sigi.apps.ocorrencias
 default.register(Ocorrencia, OcorrenciaAdmin)
 default.register(Categoria)
+default.register(TipoContato)
 
 # sigi.apps.eventos
 default.register(Recurso, RecursoAdmin)

@@ -5,7 +5,7 @@ from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria
+from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
     
 class ComentarioViewInline(admin.TabularInline):
     model = Comentario
@@ -58,7 +58,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
     list_filter = ('assunto', 'status', 'prioridade', 'categoria', 'setor_responsavel', )
     search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome', )
     date_hierarchy = 'data_criacao'
-    fields = ('casa_legislativa', 'categoria', 'assunto', 'status', 'prioridade', 'descricao', 'servidor_registro',
+    fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'descricao', 'servidor_registro',
               'setor_responsavel', 'resolucao', )
     readonly_fields = ('servidor_registro', 'setor_responsavel', )
     inlines = (ComentarioViewInline, ComentarioInline, AnexosInline, )
@@ -70,14 +70,18 @@ class OcorrenciaAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, obj=None):
         fields = list(self.readonly_fields)
         if obj is not None:
-            fields.extend(['casa_legislativa', 'categoria', 'assunto', 'status', 'descricao', ])
+            fields.extend(['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'descricao', ])
             if obj.status in [3, 4, 5]: #Fechados
                 fields.append('prioridade')
         return fields
     
     def get_fieldsets(self, request, obj=None):
         if obj is None:
-            self.fields = ('casa_legislativa', 'categoria', 'assunto', 'prioridade', 'descricao', 'resolucao', )
+            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'prioridade', 'descricao', 'resolucao', )
+        else:
+            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'descricao',
+                           'servidor_registro', 'setor_responsavel', 'resolucao', )
+            
         return super(OcorrenciaAdmin, self).get_fieldsets(request, obj)
     
     def save_model(self, request, obj, form, change):
@@ -103,3 +107,4 @@ class OcorrenciaAdmin(admin.ModelAdmin):
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
 admin.site.register(Categoria)
+admin.site.register(TipoContato)

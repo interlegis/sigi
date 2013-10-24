@@ -6,8 +6,8 @@ from sigi.apps.utils import SearchField
 #from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
 class Categoria(models.Model):
-    nome= models.CharField(max_length=50)
-    descricao = models.TextField('descrição', blank=True, null=True)
+    nome= models.CharField(u"Nome", max_length=50)
+    descricao = models.TextField(u'descrição', blank=True, null=True)
     setor_responsavel = models.ForeignKey('servidores.Servico', verbose_name=u"Setor responsável")
     
     class Meta:
@@ -15,6 +15,15 @@ class Categoria(models.Model):
 
     def __unicode__(self):
         return self.nome
+    
+class TipoContato(models.Model):
+    descricao = models.CharField(u"Descrição", max_length=50)
+    
+    class Meta:
+        verbose_name, verbose_name_plural = u"Tipo de contato", u"Tipos de contato"
+        
+    def __unicode__(self):
+        return self.descricao
 
 class Ocorrencia(models.Model):
     STATUS_CHOICES = (
@@ -39,6 +48,7 @@ class Ocorrencia(models.Model):
     data_criacao = models.DateField(u'Data de criação', null=True, blank=True, auto_now_add=True)
     data_modificacao = models.DateField(u'Data de modificação', null=True, blank=True, auto_now=True)
     categoria = models.ForeignKey(Categoria, verbose_name=u'Categoria')
+    tipo_contato = models.ForeignKey(TipoContato, verbose_name=u"Tipo de contato")
     assunto = models.CharField(u'Assunto', max_length=200)
     assunto.grupo_filter = True
     status = models.IntegerField(u'Status', choices=STATUS_CHOICES, default=1,)
