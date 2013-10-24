@@ -18,7 +18,7 @@ class ComentarioViewInline(admin.TabularInline):
 
 class ComentarioInline(admin.StackedInline):
     model = Comentario
-    extra = 3
+    extra = 1
     verbose_name, verbose_name_plural = u"Comentário novo", u"Comentários novos"
     fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
     def queryset(self, request):
@@ -90,16 +90,16 @@ class OcorrenciaAdmin(admin.ModelAdmin):
         servidor = Servidor.objects.get(user=request.user)
         instances = formset.save(commit=False)
         for instance in instances:
-            instance.usuario = servidor
+            if isinstance(instance, Ocorrencia):
+                instance.usuario = servidor
+                if instance.encaminhar_setor and (instance.encaminhar_setor != instance.ocorrencia.setor_responsavel):
+                    instance.ocorrencia.setor_responsavel = instance.encaminhar_setor
+                    instance.ocorrencia.save()
+                if instance.novo_status and (instance.novo_status != instance.ocorrencia.status):
+                    instance.ocorrencia.status = instance.novo_status
+                    instance.ocorrencia.save()
             instance.save()
-            if instance.encaminhar_setor and (instance.encaminhar_setor != instance.ocorrencia.setor_responsavel):
-                instance.ocorrencia.setor_responsavel = instance.encaminhar_setor
-                instance.ocorrencia.save()
-            if instance.novo_status and (instance.novo_status != instance.ocorrencia.status):
-                instance.ocorrencia.status = instance.novo_status
-                instance.ocorrencia.save()
-                
-        formset.save_m2m()    
+        formset.save_m2m()
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
 admin.site.register(Categoria)
