@@ -39,6 +39,7 @@ INSTALLED_APPS = (
 
     # Local apps
     'sigi.apps.contatos',
+    'sigi.apps.servidores',
 )
 
 MIDDLEWARE_CLASSES = (
