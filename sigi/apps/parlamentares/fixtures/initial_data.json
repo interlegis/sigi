@@ -1,0 +1,218 @@
+[
+    {
+        "pk": 5, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "DEM", 
+            "nome": "Democratas"
+        }
+    }, 
+    {
+        "pk": 19, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PCB", 
+            "nome": "Partido Comunista Brasileiro"
+        }
+    }, 
+    {
+        "pk": 6, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PCdoB", 
+            "nome": "Partido Comunista do Brasil"
+        }
+    }, 
+    {
+        "pk": 4, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PDT", 
+            "nome": "Partido Democr\u00e1tico Trabalhista"
+        }
+    }, 
+    {
+        "pk": 20, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PHS", 
+            "nome": "Partido Humanista da Solidariedade"
+        }
+    }, 
+    {
+        "pk": 13, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PPS", 
+            "nome": "Partido Popular Socialista"
+        }
+    }, 
+    {
+        "pk": 17, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PP", 
+            "nome": "Partido Progressista"
+        }
+    }, 
+    {
+        "pk": 16, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PRTB", 
+            "nome": "Partido Renovador Trabalhista Brasileiro"
+        }
+    }, 
+    {
+        "pk": 25, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PRB", 
+            "nome": "Partido Republicano Brasileiro"
+        }
+    }, 
+    {
+        "pk": 12, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PRP", 
+            "nome": "Partido Republicano Progressista"
+        }
+    }, 
+    {
+        "pk": 10, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSC", 
+            "nome": "Partido Social Crist\u00e3o"
+        }
+    }, 
+    {
+        "pk": 21, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSDC", 
+            "nome": "Partido Social Democrata Crist\u00e3o"
+        }
+    }, 
+    {
+        "pk": 24, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSL", 
+            "nome": "Partido Social Liberal"
+        }
+    }, 
+    {
+        "pk": 26, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSOL", 
+            "nome": "Partido Socialismo e Liberdade"
+        }
+    }, 
+    {
+        "pk": 7, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSB", 
+            "nome": "Partido Socialista Brasileiro"
+        }
+    }, 
+    {
+        "pk": 18, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSTU", 
+            "nome": "Partido Socialista dos Trabalhadores Unificado"
+        }
+    }, 
+    {
+        "pk": 3, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PTB", 
+            "nome": "Partido Trabalhista Brasileiro"
+        }
+    }, 
+    {
+        "pk": 9, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PTC", 
+            "nome": "Partido Trabalhista Crist\u00e3o"
+        }
+    }, 
+    {
+        "pk": 23, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PTN", 
+            "nome": "Partido Trabalhista Nacional"
+        }
+    }, 
+    {
+        "pk": 15, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PTdoB", 
+            "nome": "Partido Trabalhista do Brasil"
+        }
+    }, 
+    {
+        "pk": 14, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PV", 
+            "nome": "Partido Verde"
+        }
+    }, 
+    {
+        "pk": 22, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PCO", 
+            "nome": "Partido da Causa Oper\u00e1ria"
+        }
+    }, 
+    {
+        "pk": 11, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PMN", 
+            "nome": "Partido da Mobiliza\u00e7\u00e3o Nacional"
+        }
+    }, 
+    {
+        "pk": 27, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PR", 
+            "nome": "Partido da Rep\u00fablica"
+        }
+    }, 
+    {
+        "pk": 8, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PSDB", 
+            "nome": "Partido da Social Democracia Brasileira"
+        }
+    }, 
+    {
+        "pk": 2, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PMDB", 
+            "nome": "Partido do Movimento Democr\u00e1tico Brasileiro"
+        }
+    }, 
+    {
+        "pk": 1, 
+        "model": "parlamentares.partido", 
+        "fields": {
+            "sigla": "PT", 
+            "nome": "Partido dos Trabalhadores"
+        }
+    }
+]

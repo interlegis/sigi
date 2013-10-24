@@ -40,6 +40,15 @@ INSTALLED_APPS = (
     # Local apps
     'sigi.apps.contatos',
     'sigi.apps.servidores',
+    'sigi.apps.parlamentares',
+    'sigi.apps.mesas',
+    'sigi.apps.casas',
+    'sigi.apps.convenios',
+    'sigi.apps.inventario',
+
+    # Third-party apps
+    'localflavor',
+    'reporting',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -84,3 +93,5 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 
 STATIC_URL = '/static/'
+
+DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'

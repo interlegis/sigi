@@ -1,0 +1,44 @@
+[
+  {
+    "pk": 4, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "1\u00ba Secret\u00e1rio"
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "1\u00ba Vice-Presidente"
+    }
+  }, 
+  {
+    "pk": 5, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "2\u00ba Secret\u00e1rio"
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "2\u00ba Vice-Presidente"
+    }
+  }, 
+  {
+    "pk": 6, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "Corregedor"
+    }
+  }, 
+  {
+    "pk": 1, 
+    "model": "mesas.cargo", 
+    "fields": {
+      "descricao": "Presidente"
+    }
+  }
+]

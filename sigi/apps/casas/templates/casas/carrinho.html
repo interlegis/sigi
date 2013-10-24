@@ -1,0 +1,234 @@
+{% extends "admin/carrinho.html" %}
+{% load admin_list i18n %}
+{% block extrastyle %}
+  {{ block.super }}  
+  {% include "admin/tabs_style.html" %}
+ 
+  
+{% endblock %}
+
+{% block title %}Casas legislativas no Carrinho | SIGI{% endblock %}
+{% block content_title %}<h1>Casas Legislativas no Carrinho</h1>{% endblock %}
+
+{% block mensagem%}
+<ul class="messagelist">
+	{%if carIsEmpty%}
+		<li class="warning">O carrinho está vazio, sendo assim todas as casas entram na lista para exportação de acordo com os filtros aplicados.</li>
+	{%else%}
+		<li>{{paginas.paginator.count}} Casas Legislativas no carrinho.</li>
+	{%endif%}
+</ul>
+{% endblock %}
+
+{% block action %}deleta_itens_carrinho{% endblock %}
+
+{% block tabela %}
+<table>
+	<thead>
+		<tr>
+			{%if not carIsEmpty%}
+			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
+			</th>
+			{% endif %}
+			<th class="sorted ascending">Nome</th>
+			<th class="sorted ascending">Município</th>
+			<th class="sorted ascending">Presidente</th>
+			<th class="sorted ascending">Endereço</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for casa in paginas.object_list %}
+		<tr class="{% cycle 'row1' 'row2' %}">
+			{%if not carIsEmpty%}
+			<th><input type="checkbox" name="_selected_action"
+				value="{{casa.id}}" class="action-select" /></th>
+			{% endif %}
+			<td style="text-align: left;">{{casa.nome}}</td>
+			<td>{{casa.municipio}}</td>
+			<td>{{casa.presidente|default_if_none:""}}</td>
+			<td>{{casa.logradouro}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
+
+{% block botoes %}
+<div id="tabs">
+	<ul>
+		<li><a href="#tabs-1">Etiqueta</a></li>
+		<li><a href="#tabs-2">Relatório</a></li>
+		<li><a href="#tabs-3">Arquivo CSV (Excel, Calc)</a></li>
+		<li><a href="#tabs-4">Etiqueta Parlamentares</a></li>
+	</ul>
+	
+	<div id="tabs-1">
+		<form action="../labels/{{query_str}}" method="post">
+		<fieldset><legend>Tipo de etiqueta</legend>
+		<ul class="tabs-conteudo">
+			<li><input type="radio" name="tipo_etiqueta"
+				value="com_presidente"><label>Com Presidente</label></li>
+			<li><input type="radio" name="tipo_etiqueta"
+				value="sem_presidente" checked="checked">
+				<label>Sem Presidente</label></li>
+		</ul>
+		</fieldset>
+        <fieldset><legend>Formato da Etiqueta</legend>
+        <ul class="formato_etiqueta">
+        	<li><input type="radio" name="tamanho_etiqueta"
+            	value="2x5_etiqueta"><label>2x5</label></li>
+           	<li><input type="radio" name="tamanho_etiqueta"
+            	value="3x9_etiqueta" checked="checked"><label>3x9</label></li>
+
+         </ul>
+         </fieldset>
+		<ul class="botoes">
+			<li><input type="submit" value="Gerar Etiqueta" /></li>
+		</ul>
+		</form>
+	
+	</div>
+	<div id="tabs-2">
+		<form action="../reports/{{query_str}}" method="post">
+			<fieldset><legend>Tipo de relatório</legend>
+			<ul class="tabs-conteudo">
+				<li><input type="radio" name="tipo_relatorio" value="simples"
+					checked="checked"><label>Simples</label></li>
+				<li><input type="radio" name="tipo_relatorio" value="completo"><label>Completo</label></li>
+			</ul>
+			</fieldset>			
+			<ul class="botoes">
+				<li><input type="submit" value="Gerar Relatório" /></li>
+			</ul>
+		</form>
+	</div>
+	<div id="tabs-3">
+		<form action="../csv/{{query_str}}" method="post">
+			<fieldset><legend>Escolha os atributos para exportar</legend>			
+			<ul id="sortable" class="tabs-conteudo">
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="CNPJ"
+						class="action-select" checked="checked" />
+					<label>CNPJ</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Código IBGE" class="action-select" checked="checked" />
+					<label>Código IBGE</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Código TSE" class="action-select" checked="checked" />
+					<label>Código TSE</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Nome"
+						class="action-select" checked="checked" />
+					<label>Nome</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Município" class="action-select" checked="checked" />
+					<label>Município</label></li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Presidente" class="action-select" checked="checked" />
+					<label>Presidente</label></li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Logradouro" class="action-select" checked="checked" />
+					<label>Endereço</label></li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Bairro" class="action-select" checked="checked" />
+					<label>Bairro</label></li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="CEP"
+						class="action-select" checked="checked" />
+					<label>CEP</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Telefone" class="action-select" checked="checked" />
+					<label>Telefone</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Página web" class="action-select" checked="checked" />
+					<label>Página Web</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Email" class="action-select" checked="checked" />
+					<label>Email</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Número de parlamentares" class="action-select" checked="checked" />
+					<label>Número de parlamentares</label>
+				</li>
+				<li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Última alteração de endereco" class="action-select" checked="checked" />
+					<label>Data da última alteração de endereço</label>
+				</li>
+			</ul>
+			</fieldset>
+
+			<fieldset><legend>Contato Interlegis</legend>
+			<ul id="sortable" class="tabs-conteudo">
+				<li><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Nome contato" class="action-select" checked="checked" />
+					<label>Nome</label>
+				</li>
+				<li><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Cargo contato" class="action-select" checked="checked" />
+					<label>Cargo</label>
+				</li>
+				<li><span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected"
+						value="Email contato" class="action-select" checked="checked" />
+					<label>Email</label>
+				</li>
+			</ul>
+			</fieldset>
+			<ul class="botoes">
+				<li><input type="submit" value="Exportar CSV" /></li>
+			</ul>
+		</form>	
+	</div>
+	<div id="tabs-4">
+		<form action="../labels_parlamentar/{{query_str}}" method="post">
+        <fieldset><legend>Formato da Etiqueta</legend>
+        <ul class="formato_etiqueta">
+        	<li><input type="radio" name="tamanho_etiqueta"
+            	value="2x5_etiqueta"><label>2x5</label></li>
+           	<li><input type="radio" name="tamanho_etiqueta"
+            	value="3x9_etiqueta" checked="checked"><label>3x9</label></li>
+         </ul>
+         </fieldset>
+		<ul class="botoes">
+			<li><input type="submit" value="Gerar Etiqueta" /></li>
+		</ul>
+		</form>
+	
+	</div>
+</div>
+
+{% endblock %}

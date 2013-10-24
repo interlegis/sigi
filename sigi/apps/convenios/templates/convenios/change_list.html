@@ -1,0 +1,40 @@
+{% extends "admin/change_list.html" %}
+{% load i18n reporting_tags  admin_list %}
+
+{% block extrastyle %}  
+  {{ block.super }}
+  {% include "admin/tabs_style.html" %}
+  
+{% endblock %}
+
+{% block object-tools %}
+  {% if has_add_permission %}    
+  
+    <ul class="object-tools">
+        <li><a onclick="return showRelatedObjectLookupPopup(this);" href="carrinho/{{query_str}}">Carrinho / Exportar</a></li>        
+        <li>
+            <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+        </li>
+    </ul>
+    
+  {% endif %}
+{% endblock %}
+
+{% block search %}
+<div id="toolbar">
+  <form id="changelist-search" action="" method="get">
+    <div><!-- DIV needed for valid HTML -->
+      <label for="searchbar"><img src="/sigi/admin_media/img/admin/icon_searchbox.png" alt="Search" /></label>
+      <input type="text" size="40" name="q" value="" id="searchbar" />
+      <label for="data_retorno_assinatura__gte">Conveniadas a partir de:</label>
+      <input type="text" size="10" name="data_retorno_assinatura__gte" value="" id="data_retorno_assinatura__gte" class="vDateField"/>
+      <label for="data_retorno_assinatura__lte">até:</label>
+      <input type="text" size="10" name="data_retorno_assinatura__lte" value="" id="data_retorno_assinatura__lte" />
+      <input type="submit" value="Pesquisar" />
+      Datas podem ser: Um ano (aaaa), um mês (aaaa-mm) ou um dia (aaaa-mm-dd)
+    </div>
+  </form>
+</div>
+{% endblock %}

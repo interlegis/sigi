@@ -1,0 +1,158 @@
+{% extends "admin/carrinho.html" %}
+{% load adminmedia admin_list i18n %}
+{% block extrastyle %}
+  {{ block.super }}  
+  {% include "admin/tabs_style.html" %}
+{% endblock %}
+
+{% block title %}Convênios no Carrinho | SIGI{% endblock %}
+{% block content_title %}<h1>Convênios no Carrinho</h1>{% endblock %}
+
+{% block mensagem%} 
+<ul class="messagelist">
+	{%if carIsEmpty%}
+		<li class="warning">O carrinho está vazio, sendo assim todos os convênios entram na lista para exportação de acordo com os filtros aplicados.</li>
+	{%else%}
+		<li>{{paginas.paginator.count}} Convênios no carrinho.</li>
+	{%endif%}
+</ul>
+{% endblock %}
+
+{% block action %}deleta_itens_carrinho{% endblock %}
+
+{% block tabela %}
+<table>
+	<thead>
+		<tr>
+			{%if not carIsEmpty%}
+			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
+			</th>
+			{% endif %}
+			<th class="sorted ascending">Numero do convênio</th>
+			<th class="sorted ascending">Casa Legislativa</th>
+			<th class="sorted ascending">Aderidas</th>
+			<th class="sorted ascending">Convêniadas</th>
+			<th class="sorted ascending">Equipadas</th>
+			<th class="sorted ascending">Projeto</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for convenio in paginas.object_list %}
+		<tr class="{% cycle 'row1' 'row2' %}">
+			{%if not carIsEmpty%}
+			<th><input type="checkbox" name="_selected_action"
+				value="{{convenio.id}}" class="action-select" /></th>
+			{% endif %}
+			<td style="text-align: left;">{{convenio.num_convenio}}</td>
+			<td>{{convenio.casa_legislativa}}</td>
+			<td>{{convenio.data_adesao}}</td>
+			<td>{{convenio.data_retorno_assinatura}}</td>
+			<td>{{convenio.data_termo_aceite}}</td>
+			<td>{{convenio.projeto}}</td>
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
+
+{% block botoes %}
+<div id="tabs">
+        
+    <ul>           
+        <li><a href="#tabs-1">Relatório</a></li>
+        <li><a href="#tabs-2">Arquivo CSV (Excel, Calc)</a></li>
+	</ul>
+	<div id="tabs-1">            
+    	<form action="../reports/{{ query_str }}" method="post">
+        	<fieldset>
+	           		<legend>Relatório por</legend>
+	            	<ul class="tabs-conteudo">	            		
+	            		<li>
+	            			<input type="radio" name="filtro_casa" value="cm" checked="checked"/>
+							<label>Câmara Municipal</label>
+						</li>
+						<li>
+							<input type="radio" name="filtro_casa" value="al" />						
+							<label>Assembléia Legislativa</label>
+						</li>		            	
+	            	</ul>			
+			</fieldset>
+			<fieldset>
+				<legend>Com data de aceite? (Equipada)</legend>
+				<ul class="tabs-conteudo">
+					<li>
+            			<input type="radio" name="data_aceite" value="sim" checked="checked" />
+            			<label>Sim</label>
+            		</li>
+					<li>
+            			<input type="radio" name="data_aceite" value="nao" />
+            			<label>Não</label>
+            		</li>						
+				</ul>						
+			</fieldset>
+			<ul class="botoes">
+				<li><input type="submit" value="Gerar Relatório"></li>
+			</ul>
+        </form>			
+	</div>
+        <div id="tabs-2">
+		<form action="../csv/{{query_str}}" method="post">
+			<fieldset><legend>Escolha os atributos para exportar</legend>
+                            <ul id="sortable" class="tabs-conteudo">
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="No. Processo"
+						class="action-select" checked="checked" />
+					<label>Nº Processo</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="No. Convênio"
+						class="action-select" checked="checked" />
+					<label>Nº Convênio</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Projeto"
+						class="action-select" checked="checked" />
+					<label>Projeto</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Casa Legislativa"
+						class="action-select" checked="checked" />
+					<label>Casa Legislativa</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data de Adesão"
+						class="action-select" checked="checked" />
+					<label>Data de Adesão</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data de Convênio"
+						class="action-select" checked="checked" />
+					<label>Data de Convênio</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data da Publicacao no D.O."
+						class="action-select" checked="checked" />
+					<label>Data da Publicação no Diário Oficial</label>
+				</li>
+                                <li>
+					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+					<input type="checkbox" name="itens_csv_selected" value="Data Equipada"
+						class="action-select" checked="checked" />
+					<label>Data Equipada</label>
+				</li>
+                            </ul>
+                        </fieldset>
+                        <ul class="botoes">
+				<li><input type="submit" value="Exportar CSV" /></li>
+			</ul>
+                </form>
+        </div>
+</div>
+ {% endblock %}

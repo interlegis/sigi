@@ -1,0 +1,15 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list i18n reporting_tags  %}
+
+{% block object-tools %}
+    <ul class="object-tools">        
+        <li><a href="casas_sem_convenio_report/{{query_str}}">Casas sem Processo de Convênio</a></li>
+        <li><a onclick="return showRelatedObjectLookupPopup(this);" href="carrinho/{{query_str}}">Carrinho / Exportar</a></li>
+        <li>
+            <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+                {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+        </li>        
+    </ul>
+      
+{% endblock %}
