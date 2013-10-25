@@ -45,6 +45,11 @@ INSTALLED_APPS = (
     'sigi.apps.casas',
     'sigi.apps.convenios',
     'sigi.apps.inventario',
+    'sigi.apps.servicos',
+    'sigi.apps.metas',
+    'sigi.apps.ocorrencias',
+    'sigi.apps.financeiro',
+    # 'sigi.apps.diagnosticos',
 
     # Third-party apps
     'localflavor',
@@ -94,4 +99,11 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
+
 DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
+
+
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)

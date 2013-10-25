@@ -1,0 +1,26 @@
+
+/* Destacando a ultima categoria visitada */
+.ui-btn-last-c {
+    border: 1px solid #155678;
+    background: #4596CE;
+    font-weight: bold;
+    cursor: pointer;
+    text-shadow: 0 -1px 1px #145072;
+    text-decoration: none;
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#85bae4),to(#5393c5));
+    background-image: -webkit-linear-gradient(#85bae4,#5393c5);
+    background-image: -moz-linear-gradient(#85bae4,#5393c5);
+    background-image: -ms-linear-gradient(#85bae4,#5393c5);
+    background-image: -o-linear-gradient(#85bae4,#5393c5);
+    background-image: linear-gradient(#85bae4,#5393c5);
+    font-family: Helvetica,Arial,sans-serif;
+}
+
+.ui-btn-last-c a.ui-link-inherit {
+    color: white;
+}
+
+/* Definindo as categorias que foram lidas */
+.ui-li-heading-read {
+    font-weight: normal !important;
+}

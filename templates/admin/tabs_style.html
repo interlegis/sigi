@@ -1,0 +1,31 @@
+
+    <!--CSS JQuery-->
+    <link type="text/css" href="{{MEDIA_URL}}css/jquery/smoothness/jquery.ui.all.css" rel="stylesheet" />
+
+    <!--Scripts JQuery-->
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/jquery-1.4.2.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.core.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.widget.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.tabs.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/jquery.ui.mouse.js"></script>
+	<script type="text/javascript" src="{{MEDIA_URL}}js/jquery/ui/	jquery.ui.sortable.js"></script>    
+    <script type="text/javascript">        
+        $(function() {
+        	$( "#tabs" ).tabs({
+    			event: "mouseover"
+    		});
+        });
+    </script>    
+
+	<script>
+		$(function() {
+			$( "#sortable" ).sortable();
+			$( "#sortable" ).disableSelection();
+		});
+	</script>
+	
+	<style>
+	.ui-tabs-nav {
+		background-image: url("{{ADMIN_MEDIA_PREFIX}}img/admin/nav-bg.gif");
+	}	
+	</style>

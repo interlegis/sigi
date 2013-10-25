@@ -1,0 +1,110 @@
+{% extends "admin/change_list.html" %}
+{% load i18n %}
+{% block extrastyle %}
+  {{ block.super }}  
+    <style>   
+    .botoes{
+    	
+    	/*background: url("{{ADMIN_MEDIA_PREFIX}}img/admin/nav-bg.gif");*/
+    	font-weight: bold;
+    	/*color: red;*/
+    }
+    .botoes input{
+    	background: none;
+    	font-weight: bold;
+    	border: none;
+    	color: blue;    
+    }    
+    .botoes li {
+    	background-image: url("{{ADMIN_MEDIA_PREFIX}}img/admin/nav-bg.gif");
+    	display: inline;
+    	border: 1px solid #CCC;    	  	
+    	padding: 5px 10px;
+    	margin: 0px;
+    }
+    .botoes a{
+    	
+    }
+     .botao_excluir input{
+     	color: red;
+    	background: url("{{ADMIN_MEDIA_PREFIX}}img/admin/icon_deletelink.gif") no-repeat scroll 0 50% transparent    
+    }
+    
+    </style>  
+  
+{% endblock %}
+
+
+{% block branding %} {% endblock %}
+{% block userlinks %}  {% endblock %}
+{% block nav-global %}  {% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block title %}Carrinho | SIGI{% endblock %}
+{% block content_title %}<h1>Carrinho</h1>{% endblock %}
+
+{% block content %}
+<div id="content-main">
+
+
+	{% block mensagem %}
+	<ul class="messagelist">
+	{%if carIsEmpty%}
+		<li class="warning">O carrinho está vazio</li>
+	{%else%}
+		<li>{{paginas.paginator.count}} Itens no carrinho.</li>
+	{%endif%}
+	</ul>
+	{% endblock %}
+	
+		
+	<div id="changelist" class="module">		
+		<form action="{% block action %}#{% endblock %}"
+			class="changelist-form" method="post">{% csrf_token %}
+			{%if not carIsEmpty%}
+			<div class="botoes">
+				<ul class="botao_excluir">
+					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
+					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
+				</ul>				
+			</div>
+			{% endif %}		
+			<div class="result_list">		
+				{% block tabela %}{% endblock %}			
+			</div>			
+			{%if not carIsEmpty%}
+			<div class="botoes">
+				<ul class="botao_excluir">
+					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
+					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
+				</ul>				
+			</div>
+			{% endif %}		
+			
+			<div class="paginator">
+			    <span class="step-links">
+			        {% if paginas.has_previous %}
+			            <a href="?page={{ paginas.previous_page_number }}">Anterior</a>
+			        {% endif %}
+			
+			        <span class="this-page">
+			            Página {{ paginas.number }} of {{ paginas.paginator.num_pages }}.
+			        </span>
+			
+			        {% if paginas.has_next %}
+			            <a href="?page={{ paginas.next_page_number }}">Próxima</a>
+			        {% endif %}
+			    </span>		
+			    <span>{{paginas.paginator.count}} itens</span>    
+			</div>				
+		</form>
+	
+	{% block botoes %}{% endblock %}
+			
+	</div>
+	
+</div>
+{% endblock %}
+
+{% block footer %}{% endblock %}
+

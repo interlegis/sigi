@@ -8,7 +8,7 @@ from django.forms.models import ModelForm
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
-from apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa
 
 #---------------- inlines ---------------------
 class LogServicoInline(admin.StackedInline):

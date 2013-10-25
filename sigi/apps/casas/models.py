@@ -8,6 +8,7 @@ import random
 from unicodedata import normalize
 from sigi.apps.contatos.models import Municipio
 
+
 class TipoCasaLegislativa(models.Model):
     """ Modelo para representar o tipo da Casa Legislativa
 
@@ -73,7 +74,6 @@ class CasaLegislativa(models.Model):
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
     data_instalacao = models.DateField(u'Data de instalação da Casa Legislativa', null=True, blank=True)
-
 
     class Meta:
         ordering = ('nome',)

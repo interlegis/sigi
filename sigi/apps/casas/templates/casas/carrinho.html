@@ -63,7 +63,7 @@
 	</ul>
 	
 	<div id="tabs-1">
-		<form action="../labels/{{query_str}}" method="post">
+		<form action="../labels/{{query_str}}" method="post">{% csrf_token %}
 		<fieldset><legend>Tipo de etiqueta</legend>
 		<ul class="tabs-conteudo">
 			<li><input type="radio" name="tipo_etiqueta"
@@ -89,7 +89,7 @@
 	
 	</div>
 	<div id="tabs-2">
-		<form action="../reports/{{query_str}}" method="post">
+		<form action="../reports/{{query_str}}" method="post">{% csrf_token %}
 			<fieldset><legend>Tipo de relatório</legend>
 			<ul class="tabs-conteudo">
 				<li><input type="radio" name="tipo_relatorio" value="simples"
@@ -103,7 +103,7 @@
 		</form>
 	</div>
 	<div id="tabs-3">
-		<form action="../csv/{{query_str}}" method="post">
+		<form action="../csv/{{query_str}}" method="post">{% csrf_token %}
 			<fieldset><legend>Escolha os atributos para exportar</legend>			
 			<ul id="sortable" class="tabs-conteudo">
 				<li>
@@ -214,7 +214,7 @@
 		</form>	
 	</div>
 	<div id="tabs-4">
-		<form action="../labels_parlamentar/{{query_str}}" method="post">
+		<form action="../labels_parlamentar/{{query_str}}" method="post">{% csrf_token %}
         <fieldset><legend>Formato da Etiqueta</legend>
         <ul class="formato_etiqueta">
         	<li><input type="radio" name="tamanho_etiqueta"

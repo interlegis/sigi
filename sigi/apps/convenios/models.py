@@ -4,6 +4,7 @@ from django.db import models
 from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
 
+
 class Projeto(models.Model):
     """ Modelo para representar os projetos do programa
     Interlegis
@@ -13,6 +14,7 @@ class Projeto(models.Model):
 
     def __unicode__(self):
         return self.sigla
+
 
 class Convenio(models.Model):
     """ Modelo que representa um convênio do Interlegis
@@ -31,9 +33,7 @@ class Convenio(models.Model):
     search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
-    projeto = models.ForeignKey(
-        Projeto
-    )
+    projeto = models.ForeignKey('Projeto')
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
         'número do processo SF (Senado Federal)',
@@ -116,6 +116,7 @@ class Convenio(models.Model):
         else:
             return u"Adesão ao projeto %s, em %s" % (self.projeto.sigla, self.data_adesao)
 
+
 class EquipamentoPrevisto(models.Model):
     """ Modelo utilizado para registrar os equipamentos
     disponibilizados para as Casas Legislativas
@@ -131,6 +132,7 @@ class EquipamentoPrevisto(models.Model):
 
     def __unicode__(self):
         return u'%s %s(s)' % (self.quantidade, self.equipamento)
+
 
 class Anexo(models.Model):
     """ Modelo para giardar os documentos gerados

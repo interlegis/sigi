@@ -37,7 +37,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf','num_convenio','projeto','observacao')}
+            {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao')}
         ),
         ('Datas',
             {'fields': ('data_adesao', 'data_retorno_assinatura',
@@ -118,7 +118,8 @@ class ConvenioAdmin(admin.ModelAdmin):
     
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)
-        del actions['delete_selected']
+        if 'delete_selected' in actions:
+            del actions['delete_selected']
         return actions
 
     def lookup_allowed(self, lookup, value):
@@ -133,7 +134,6 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     search_fields = ('convenio__id', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
 
-#admin.site.register(Projeto)
+admin.site.register(Projeto)
 admin.site.register(Convenio, ConvenioAdmin)
-#admin.site.register(CasaLegislativa)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)

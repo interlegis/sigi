@@ -5,7 +5,10 @@ from django.contrib import admin
 admin.autodiscover()
 
 urlpatterns = patterns('',
-	url(r'^$', RedirectView.as_view(url='/sigi/'), name='go-to-sigi'),
+    url(r'^$', RedirectView.as_view(url='/sigi/'), name='go-to-sigi'),
+
+    # url(r'^sigi/servidores/', include('sigi.apps.servidores.urls')),
+    url(r'^sigi/casas/casalegislativa/', include('sigi.apps.casas.urls')),
 
     url(r'^sigi/', include(admin.site.urls)),
 )

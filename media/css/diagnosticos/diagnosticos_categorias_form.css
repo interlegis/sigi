@@ -1,0 +1,15 @@
+.ui-field-contain input.ui-input-text, .ui-field-contain textarea.ui-input-text, .ui-field-contain .ui-input-search {
+    width: 97%;
+    display: inline-block;
+}
+
+.ui-field-contain ul {
+    -webkit-padding-start: 0;
+    padding-left: 0;
+    list-style: none;
+}
+
+span.errors {
+    display: block;
+    color: red;
+}

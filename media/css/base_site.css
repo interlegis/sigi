@@ -1,0 +1,250 @@
+a:link,a:visited {
+	color: #0f3361;
+}
+
+a:hover {
+	color: #11488d;
+}
+
+/* HEADER */
+#header {
+	background: #003351 url(../images/default-bg2.jpg);
+}
+
+#site-name a:hover {
+	text-decoration: none;
+}
+
+#nav-global {
+	border: none;
+	border: 0px;
+	margin: 0px;
+	padding: 0px;
+	font-size: 14px;
+	font-weight: bold;
+}
+
+#nav-global ul { /*background:#222;*/
+	background: #efefef url("../../admin_media/img/admin/nav-bg.gif");
+	/*#9C9C9C;*/
+	height: 25px;
+	margin: 0;
+	padding: 0;
+}
+
+#nav-global li {
+	float: left;
+	list-style: none;
+	padding: 0px;
+}
+
+#nav-global li a {
+	/*background: url("../images/menu/seperator.gif") bottom right no-repeat;*/
+	color: #cccccc;
+	display: block;
+	font-weight: normal;
+	line-height: 25px;
+	margin: 0px;
+	padding: 0px 15px;
+	text-align: center;
+	text-decoration: none;
+	/*font-size: medium;*/
+}
+
+#nav-global li a:link,#nav-global li a:visited {
+	color: black;
+}
+
+#nav-global li a:hover,#nav-global ul li:hover a {
+	background-color: #333;
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+#nav-global li ul {
+	background: #333;
+	display: none;
+	height: auto;
+	padding: 0px;
+	margin: 0px;
+	border: 0px;
+	position: absolute;
+	width: 200px;
+	z-index: 200;
+	/*top:1em;*/ /*left:0;*/
+}
+
+#nav-global li:hover ul {
+	display: block;
+}
+
+#nav-global li li {
+	background: url('../images/menu/sub_sep.gif') bottom left no-repeat;
+	display: block;
+	float: none;
+	margin: 0px;
+	padding: 0px;
+	width: 200px;
+}
+
+#nav-global li:hover li a {
+	background: none;
+}
+
+#nav-global li ul a {
+	display: block;
+	height: 25px;
+	font-style: normal;
+	margin: 0px;
+	padding: 0px 10px 0px 15px;
+	text-align: left;
+}
+
+#nav-global li ul a:hover,#nav-global li ul li:hover a {
+	background-color: #393939;
+	border: 0px;
+	color: #ffffff;
+	text-decoration: none;
+}
+
+#nav-global p {
+	clear: left;
+}
+
+div.breadcrumbs {
+	display: none;
+}
+
+/* CONTENT */
+.module h2,.module caption,.inline-group h2 {
+	background: #00367b url(../images/default-bg.gif);
+}
+
+.row1 {
+	background: #f5f6fc none repeat scroll 0 0;
+}
+
+.align-center {
+	text-align: center;
+}
+
+img.chart {
+	margin: 20px 0;
+	width: 100%;
+	max-width: 250px;
+}
+
+.dashboard #content {
+	width: auto;
+}
+
+.dashboard #content-main .module {
+	float: left;
+	margin-right: 1.5%;
+	width: 31%;
+}
+
+div.partners > ul > li {
+    display: inline;
+}
+
+div.utils li {
+  display: inline;
+}
+
+/* FOOTER */
+div#footer {
+    background-color: #25528C;
+    display: table;
+    margin: 4em 0 0;
+    padding: 0.5em 0;
+    vertical-align: middle;
+    width: 100%;
+}
+
+div#footer div.footernote {
+    width: 45%;
+    padding: 0.4em 1em;
+    text-align: left;
+    float: left;
+}
+
+div#footer div.footerlogos {
+    width: 50%;
+    padding: 0.4em 1em;
+    text-align: center;
+    margin-left: 50%;
+    border-left: 1px solid white;
+}
+
+div#footer div.footerlogos li {
+    display: inline;
+    margin-right: 2em;
+}
+
+div#footer p {
+    font-size: 0.7em;
+    font-weight: normal;
+    color: white;
+}
+
+div#footer a {
+    color: white;
+}
+
+/* JQuery */
+.tabs-conteudo li {
+	border: 1px solid #CCC;
+	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");
+	display: inline;
+	padding: 4px 8px;
+}
+
+.tabs-conteudo a {
+	color: #000;
+}
+
+.conteudo_regiao li{
+	border: 1px solid #CCC;
+	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");	
+	padding: 4px 8px;
+	width: 30%;
+	list-style: none;
+}
+
+#sortable { list-style-type: none;}
+#sortable li { display: block;margin: 0 3px 3px 3px; padding: 0.4em; padding-left: 1.5em;}
+#sortable li span { position: absolute; margin-left: -1.3em; }
+
+.legend {
+	margin: 1em;
+}
+
+.legend span { margin: 0 1em 0 0; }
+
+.legend div {
+    display: inline-block;
+    margin: 0 0.5em 0 0;
+	height: 18px;
+    width: 18px;	
+}
+
+.titlemapbox {
+    display: inline-block;
+    margin-bottom: 0.6em;
+    width: 100%;	
+}
+
+.mapbox {
+	text-align: center;
+	display: inline-block;
+	float: right;
+}
+
+#branding h1 {
+	float: left;
+}
+
+#user-tools {
+	position: inherit;
+}
