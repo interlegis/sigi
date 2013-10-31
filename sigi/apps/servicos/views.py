@@ -41,6 +41,7 @@ class CasaManifestaProtoForm(forms.Form):
     fieldsets = None
     informante = forms.CharField(max_length=100, required=False)
     cargo = forms.CharField(max_length=100, required=False)
+    email = forms.EmailField(required=False)
     
     def set_fieldsets(self, fieldsets):
         result = []
@@ -66,7 +67,7 @@ def casa_manifesta_view(request):
         # Criar um formulário dinâmico
         
         campos = {}
-        fieldsets = ((None, ('informante', 'cargo'),),)
+        fieldsets = ((None, ('informante', 'cargo', 'email'),),)
         
         for ts in TipoServico.objects.all():
             campos['possui_%s' % ts.pk] = forms.BooleanField(label=u'Possui o serviço de %s' % ts.nome, required=False)
@@ -83,9 +84,11 @@ def casa_manifesta_view(request):
                 cm, created = CasaManifesta.objects.get_or_create(casa_legislativa=casa)
                 cm.informante = cmf.cleaned_data['informante']
                 cm.cargo = cmf.cleaned_data['cargo']
+                cm.email = cmf.cleaned_data['email']
                 cm.save()
                 thanks.append((u'Informante', cmf.cleaned_data['informante']))
                 thanks.append((u'Cargo', cmf.cleaned_data['cargo']))
+                thanks.append((u'E-mail', cmf.cleaned_data['email']))
                 for ts in TipoServico.objects.all():
                     if cmf.cleaned_data['possui_%s' % ts.pk]:
                         sm, created = ServicoManifesto.objects.get_or_create(casa_manifesta=cm, servico=ts)
@@ -106,6 +109,7 @@ def casa_manifesta_view(request):
                 values = {
                     'informante': cm.informante,
                     'cargo': cm.cargo,
+                    'email': cm.email,
                 }
                 for sm in cm.servicomanifesto_set.all():
                     values['possui_%s' % sm.servico.pk] = True 
