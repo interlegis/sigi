@@ -14,6 +14,7 @@ from sigi.apps.diagnosticos.widgets import EavCheckboxSelectMultiple, EavRadioSe
 from eav.forms import BaseDynamicEntityForm
 from eav.fields import RangeField
 
+
 class DiagnosticoForm(BaseDynamicEntityForm):
     """Classe responsável por contruir o formulário,
     vinculando ao modelo Diagnostico
@@ -126,6 +127,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
 class CasaLegislativaMobileForm(forms.ModelForm):
     data_instalacao = forms.DateField(label = u'Data de instalação da Casa Legislativa', required=False)
+    data_criacao =  forms.DateField()
 
     class Meta:
         model = CasaLegislativa
@@ -136,8 +138,7 @@ class CasaLegislativaMobileForm(forms.ModelForm):
         self.fields['data_criacao'] = forms.DateField(
               label = u'Data de criação do Município',
               initial = self.instance.municipio.data_criacao,
-              required=False
-            )
+              required=False)
 
     def save(self, commit=True):
         super(CasaLegislativaMobileForm, self).save(commit=True)
@@ -146,11 +147,13 @@ class CasaLegislativaMobileForm(forms.ModelForm):
             self.instance.municipio.save()
         return self.instance
 
+
 class TelefoneMobileForm(forms.ModelForm):
     pass
     class Meta:
         model = Telefone
         fields = ('numero', 'tipo')
+
 
 class FuncionariosMobileForm(forms.ModelForm):
     TelefoneFormSet = generic_inlineformset_factory(Telefone, TelefoneMobileForm, extra=1, can_delete=False)

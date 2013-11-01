@@ -37,6 +37,7 @@ class Servico(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))
 
+
 class Servidor(models.Model):
     """ Modelo para representação de um Servidor.
 

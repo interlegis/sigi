@@ -49,7 +49,7 @@ INSTALLED_APPS = (
     'sigi.apps.metas',
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
-    # 'sigi.apps.diagnosticos',
+    'sigi.apps.diagnosticos',
 
     # Third-party apps
     'localflavor',

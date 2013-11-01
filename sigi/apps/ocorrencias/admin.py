@@ -6,7 +6,8 @@ from django.contrib.admin.views.main import ChangeList
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
-    
+ 
+
 class ComentarioViewInline(admin.TabularInline):
     model = Comentario
     extra = 0
@@ -16,34 +17,37 @@ class ComentarioViewInline(admin.TabularInline):
     fields = ('usuario', 'data_criacao', 'novo_status', 'encaminhar_setor', 'descricao', )
     readonly_fields = ('novo_status', 'encaminhar_setor', 'descricao', 'data_criacao', 'usuario',)
 
+
 class ComentarioInline(admin.StackedInline):
     model = Comentario
     extra = 1
     verbose_name, verbose_name_plural = u"Comentário novo", u"Comentários novos"
     fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
     def queryset(self, request):
-        return self.model.objects.get_empty_query_set()
+        return self.model.objects.get_query_set()
+
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
     readonly_fields = ['data_pub',]
 
+
 class OcorrenciaChangeList(ChangeList):
     request = None
     def __init__(self, request, model, list_display, list_display_links, list_filter, date_hierarchy, search_fields,
-                 list_select_related, list_per_page, list_editable, model_admin):
+                 list_select_related, list_per_page, list_max_show_all, list_editable, model_admin):
         self.request = request
         super(OcorrenciaChangeList, self).__init__(request, model, list_display, list_display_links, list_filter,
                                                    date_hierarchy, search_fields, list_select_related, list_per_page,
-                                                   list_editable, model_admin) 
-    def get_query_set(self):
+                                                   list_max_show_all, list_editable, model_admin) 
+    def get_query_set(self, request):
         tmp_params = self.params.copy()
         grupo = None
         if 'grupo' in self.params:
             grupo = self.params['grupo']
             del self.params['grupo']
-        qs = super(OcorrenciaChangeList, self).get_query_set()
+        qs = super(OcorrenciaChangeList, self).get_query_set(request)
         self.params = tmp_params.copy()
         if grupo:
             servidor = Servidor.objects.get(user=self.request.user)
@@ -52,6 +56,7 @@ class OcorrenciaChangeList(ChangeList):
             elif grupo == 'M': # Apenas criados por mim
                 qs = qs.filter(servidor_registro=servidor)
         return qs
+
 
 class OcorrenciaAdmin(admin.ModelAdmin):
     list_display = ('data_criacao', 'casa_legislativa', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
@@ -104,6 +109,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
                     instance.ocorrencia.save()
             instance.save()
         formset.save_m2m()
+
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
 admin.site.register(Categoria)

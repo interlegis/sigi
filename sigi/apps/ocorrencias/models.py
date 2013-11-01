@@ -5,6 +5,7 @@ from django.db import models
 from sigi.apps.utils import SearchField
 #from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
+
 class Categoria(models.Model):
     nome= models.CharField(u"Nome", max_length=50)
     descricao = models.TextField(u'descrição', blank=True, null=True)
@@ -15,7 +16,8 @@ class Categoria(models.Model):
 
     def __unicode__(self):
         return self.nome
-    
+  
+
 class TipoContato(models.Model):
     descricao = models.CharField(u"Descrição", max_length=50)
     
@@ -24,6 +26,7 @@ class TipoContato(models.Model):
         
     def __unicode__(self):
         return self.descricao
+
 
 class Ocorrencia(models.Model):
     STATUS_CHOICES = (
@@ -66,6 +69,7 @@ class Ocorrencia(models.Model):
     def __unicode__(self):
         return u"%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': self.casa_legislativa}
 
+
 class Comentario(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=u'Ocorrência')
     data_criacao = models.DateTimeField(u'Data de criação', null=True, blank=True, auto_now_add=True)
@@ -73,6 +77,7 @@ class Comentario(models.Model):
     usuario = models.ForeignKey('servidores.Servidor', verbose_name=u'Usuário')
     novo_status = models.IntegerField(u'Novo status', choices=Ocorrencia.STATUS_CHOICES, blank=True, null=True)
     encaminhar_setor = models.ForeignKey('servidores.Servico', verbose_name=u'Encaminhar para setor', blank=True, null=True)
+
 
 class Anexo(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=u'ocorrência')
@@ -86,4 +91,3 @@ class Anexo(models.Model):
 
     def __unicode__(self):
         return u"%(arquivo_name)s: %(descricao)s" % {'arquivo_name': self.arquivo.name, 'descricao': self.descricao}
-

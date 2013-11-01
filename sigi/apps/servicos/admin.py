@@ -212,3 +212,4 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     
     def has_delete_permission(self, request, obj=None):
         return False # Nunca deletar casas por aqui
+
