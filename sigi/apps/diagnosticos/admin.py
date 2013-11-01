@@ -53,11 +53,10 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     raw_id_fields = ('casa_legislativa',)
     ordering = ('casa_legislativa',)
 
-    eav_fieldsets = [
+    eav_fieldsets = (
         (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
         (u'01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
-        (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()})
-      ]
+        (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()}))
 
     # popula o eav fieldsets ordenando as categorias e as perguntas
     # para serem exibidas no admin
