@@ -183,8 +183,9 @@ class CasaManifesta(models.Model):
     casa_legislativa = models.OneToOneField(CasaLegislativa)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
-    informante = models.CharField(u'Nome do informante', max_length=100)
-    cargo = models.CharField(u'Cargo do informante', max_length=100)
+    informante = models.CharField(u'Nome do informante', max_length=100, blank=True)
+    cargo = models.CharField(u'Cargo do informante', max_length=100, blank=True)
+    email = models.EmailField(u'E-mail de contato', blank=True)
     
 class ServicoManifesto(models.Model):
     casa_manifesta = models.ForeignKey(CasaManifesta)

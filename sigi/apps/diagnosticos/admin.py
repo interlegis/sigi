@@ -56,7 +56,8 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     eav_fieldsets = (
         (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
         (u'01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
-        (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()}))
+        (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()})
+      )
 
     # popula o eav fieldsets ordenando as categorias e as perguntas
     # para serem exibidas no admin
@@ -65,10 +66,11 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         perguntas_by_title = [(p.title, p.name) for p in categoria.perguntas.all()]
         perguntas = [pergunta[1] for pergunta in sorted(perguntas_by_title)]
 
-        eav_fieldsets.append((categoria, {
+        eav_fieldsets += ((categoria, {
           'fields': tuple(perguntas),
           'classes': ['collapse']
-          }))
+          }),)
+        
 
     def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)

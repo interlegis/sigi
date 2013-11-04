@@ -344,8 +344,8 @@ def municipios_diagnosticados(self):
     
     for d in Diagnostico.objects.all():
         m = d.casa_legislativa.municipio
-        municipio = {'nome': d.casa_legislativa.nome + ', ' + m.uf.sigla, 'lat': str(m.latitude), 'lng': str(m.longitude), 'inicio': d.data_visita_inicio.strftime('%d/%m/%Y'),
-                     'fim': d.data_visita_fim.strftime('%d/%m/%Y'), 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>",}
+        municipio = {'nome': d.casa_legislativa.nome + ', ' + m.uf.sigla, 'lat': str(m.latitude), 'lng': str(m.longitude), 'inicio': d.data_visita_inicio,
+                     'fim': d.data_visita_fim, 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>",}
         municipios.append(municipio)
         
     return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")

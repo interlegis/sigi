@@ -1,0 +1,233 @@
+{% load smart_if %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Diagnóstico em PDF</title>
+        <style type="text/css">
+            div#capa h3 {
+                text-align: center;
+                margin-top: 5px;
+                margin-bottom: 0px;
+            }
+            div#capa p {
+                text-align: center;
+            }
+            td.logo {
+                text-align: center;
+            }
+            td.header_text p {
+                margin: 0px;
+                font-size: 1.4em;
+            }
+            td.header_text {
+                width: 550px;
+            }
+            ul {
+                list-style-type: none;
+                padding-left: 15px;
+            }
+            li {
+                padding-left: 5px;
+                color: #999;
+            }
+            li.selected {
+                list-style-type: disc;
+                color: #000;
+                font-weight: bold;
+            }
+            p.strong {
+                margin-left: 25px;
+                line-height: 1em;
+            }
+            h1 {
+                font-size: 2em;
+                text-align: center;
+            }
+            h2 {
+                font-size: 1.7em;
+            }
+            h3 {
+                margin-top: 10px;
+                margin-bottom: 0px;
+            }
+            body {
+                font-family: "Helvetica, Arial, sans-serif";
+                font-size: 1.3em;
+                line-height: 1em;
+            }
+
+            div.new_page {
+                page-break-before: always;
+            }
+            div.same_page_ {
+                -pdf-keep-with-next: true;
+            }
+            @page {
+                size: {{ pagesize }};
+                margin: 4cm 1cm 1cm 2cm;
+                font-family: "Helvetica, Arial, sans-serif";
+                font-size: 2em;
+                @frame header {
+                    -pdf-frame-content: header;
+                    top: 1cm;
+                }
+                @frame footer {
+                    -pdf-frame-content: footer;
+                    bottom: 0cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <table>
+                <tr>
+                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-senado.jpg"/></td>
+                    <td class="header_text">
+                        <p><strong>SENADO FEDERAL</strong></p>
+                        <p><strong>SECRETARIA ESPECIAL DO INTERLEGIS – SINTER</strong></p>
+                        <p>SUBSECRETARIA DE PLANEJAMENTO E FOMENTO – SSPLF</p>
+                    </td>
+                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-interlegis.jpg"/></td>
+                </tr>
+            </table>
+        </div>
+        <div id="capa">
+            <center>
+                <img src="{{MEDIA_URL}}images/logo-interlegis-grande.jpg"/>
+            </center>
+            <h1>
+                PROJETO DE MODERNIZAÇÃO DO LEGISLATIVO
+                </br>
+                </br>
+                QUESTIONÁRIO DE DIAGNÓSTICO
+            </h1>
+            <h2 style="text-align: center;">
+                {{ diagnostico.casa_legislativa }} - {{ diagnostico.casa_legislativa.municipio.uf.sigla }}
+            </h2>
+
+            <h3>Data do Questionário:</h3>
+            <p>De {{diagnostico.data_visita_inicio}} à {{diagnostico.data_visita_fim}}</p>
+
+            <h3>Chefe da equipe de diagnóstico:</h3>
+            <p>{{diagnostico.responsavel}}</p>
+            
+            <h3>Membros da equipe de diagnóstico:</h3>
+            {% for membro in diagnostico.equipe_set.all %}
+            <p>{{membro}}</p>
+            {% endfor %}
+            
+            {% for funcionario in funcionarios %}
+            	{% if funcionario.setor == 'contato_interlegis' %}
+            		<h3>Nome do responsável pelas Informações:</h3>
+            		<p>{{funcionario.nome|default_if_none:""}}</p>
+            		<h3>Cargo / função do responsável pelas informações:</h3>
+            		<p>{{funcionario.cargo|default_if_none:""}} / {{funcionario.funcao|default_if_none:""}}</p>
+            		<h3>E-mail do responsável pelas informações:</h3>
+            		<p>{{funcionario.email|default_if_none:""}}</p>
+                	{% for telefone in funcionario.telefones.all %}
+                	<h3>Telefone {{telefone.get_tipo_display}} do responsável pelas informações</h3>
+                	<p>{{telefone}}</p>
+                	{% endfor %}
+            	{% endif %}
+            {% endfor %}
+            </table>
+            
+<!--
+            <h3>Cargo do Responsável pelas Informações:</h3>
+            <p>{{diagnostico.responsavel.cargo|default_if_none:""}}&nbsp;</p>
+
+            <h3>E-mail do Responsável pelas Informações:</h3>
+            <p>{{diagnostico.responsavel.email|default_if_none:""}}&nbsp;</p>
+
+            {% for telefone in diagnostico.responsavel.telefones.all %}
+            <h3>Telefone {{telefone.get_tipo_display}} do Responsável pelas Informações:</h3>
+            <p>{{telefone}}</p>
+            {% endfor %}
+-->
+        </div>
+
+        <div class="new_page">
+            <h2>Bloco 01. Identificação da {{casa_legislativa.tipo}}</h2>
+
+            <h3>01. Municipio - Estado:</h3>
+            <p class="strong">{{casa_legislativa.municipio|default_if_none:""}}&nbsp;</p>
+
+            <h3>02. Data de criação do Município:</h3>
+            <p class="strong">{{casa_legislativa.municipio.data_criacao|default_if_none:""}}&nbsp;</p>
+
+            <h3>03. Nome da {{casa_legislativa.tipo}}</h3>
+            <p class="strong">{{casa_legislativa.municipio.nome|default_if_none:""}}&nbsp;</p>
+
+            <h3>04. Data de instalação da {{casa_legislativa.tipo}}</h3>
+            <p class="strong">{{casa_legislativa.data_instalacao|default_if_none:""}}&nbsp;</p>
+
+            <h3>05. Endereço:</h3>
+            <p class="strong">{{casa_legislativa.logradouro|default_if_none:""}} - {{casa_legislativa.cep|default_if_none:""}}</p>
+
+            <h3>06. CNPJ:</h3>
+            <p class="strong">{{casa_legislativa.cnpj|default_if_none:""}}&nbsp;</p>
+
+            <h3>07. E-mail:</h3>
+            <p class="strong">{{casa_legislativa.email|default_if_none:""}}&nbsp;</p>
+
+            <h3>08. Página web:</h3>
+            <p class="strong">{{casa_legislativa.pagina_web|default_if_none:""}}&nbsp;</p>
+        </div>
+
+        <div class="new_page">
+            <h2>Bloco 02. Identificação de Competências na Câmara Municipal</h2>
+            {% for funcionario in funcionarios %}
+            <div class="same_page">
+                <h3>{{funcionario.get_setor_display}}</h3>
+                <p class="strong">Nome completo: {{funcionario.nome|default_if_none:""}}</p>
+                <p class="strong">E-mail: {{funcionario.email|default_if_none:""}}</p>
+                <p class="strong">Tempo de serviço: {{funcionario.tempo_de_servico|default_if_none:""}}</p>
+
+                {% for telefone in funcionario.telefones.all %}
+                <p class="strong">Telefone {{telefone.get_tipo_display}}: {{telefone}}</p>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        </div>
+
+        {% for categoria, schemas in schemas_by_categoria %}
+        <div class="new_page">
+            <h2>Bloco {{categoria.nome}}</h2>
+            {% for schema in schemas %}
+            <div class="same_page">
+                <h3>{{ schema.title }}</h3>
+                {% if schema.datatype == schema.TYPE_MANY or schema.datatype == schema.TYPE_ONE %}
+                <ul class="{{ schema.datatype }}">
+                    {% for choice in schema.get_choices %}
+                    {% if choice.pk in schema.value %}
+                    <li class="selected"> {{ choice.title }} </li>
+                    {% else %}
+                    <li> {{ choice.title }} </li>
+                    {% endif %}
+                    {% endfor %}
+                </ul>
+                {% else %}
+                	<p class="strong">
+						{% if schema.datatype == schema.TYPE_FLOAT %}
+							{{ schema.value|floatformat|default_if_none:"sem resposta"}}
+						{% else %}
+							{{ schema.value|default_if_none:"sem resposta"}}
+						{% endif %}
+                	&nbsp;</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        {% endfor %}
+        <div id="footer">
+            {%block page_foot%}
+            Página <pdf:pagenumber>
+            {%endblock%}
+        </div>
+    </body>
+</html>

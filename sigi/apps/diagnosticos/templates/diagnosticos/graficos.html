@@ -1,0 +1,61 @@
+{% extends "index.html" %}
+
+{% block content_title %}<h1>Graficos dos Diagnósticos</h1>{% endblock %}
+
+{% block extrahead %}
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+<script language=javascript>
+jQuery(document).ready(function () {
+  jQuery("form#categoria select").change(function () {
+    jQuery("form#categoria").submit()
+  });
+
+  jQuery("#perguntas a").click(function(event){
+    event.preventDefault();
+
+    id = jQuery(this).attr('id')
+    output_id = '#output_'+id
+    jQuery.ajax({
+      url: jQuery(this).attr('href'),
+      success: function(data) {
+          jQuery("img", output_id).attr('src',data['url'])
+          jQuery("img", output_id).slideDown()
+      },
+      error: function(errorSender, errorMsg) {
+          jQuery(output_id).html(errorSender + ' ' + errorMsg);
+      }
+    });
+
+    return false
+  });
+});
+</script>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <form id="categoria" action="." method="POST">
+      <select name="categoria">
+        {% for categoria in categorias %}
+        <option value="{{categoria.id}}" {% if categoria.id == sel_categoria %}selected="selected"{% endif %}>{{categoria.nome}}</option>
+        {% endfor %}
+      </select>
+  </form>
+  <div id="perguntas">
+    <ul>
+      {% for pergunta in perguntas %}
+        <li>
+          {% if pergunta.datatype == 'many' or pergunta.datatype == 'one' %}
+          <a id="{{pergunta.name}}" href="/sigi/api/diagnosticos/?id={{pergunta.name}}"><p>{{pergunta.title}}</p></a>
+          <div id="output_{{pergunta.name}}" class="grafico">
+            <img style="display:none"/>
+          </div>
+          {% else %}
+          <p>{{pergunta.title}}</p>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}

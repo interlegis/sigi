@@ -1,0 +1,51 @@
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>SIGI - Login de Acesso</title>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
+    <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <script language=javascript>
+      $(document).bind("mobileinit", function () {
+        $.mobile.ajaxEnabled = false;
+        $.mobile.loadingMessage = 'salvando';
+      });
+    </script>
+    <script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
+</head>
+<body>
+    <div data-role="header" data-theme="d">
+        <img src="{{ MEDIA_URL }}images/mobile/logointerlegis_mobile.png" alt="Interlegis"/>
+    </div> <!-- header -->
+    {% if form.errors %}
+     <div data-role="header" data-theme="b">
+        <h2>Erro ao logar</h2>
+        <ul>
+            {% for field in form %}
+                {% if field.errors %}
+                    <li>{{ field.errors|striptags }}</li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+        <p>Verifique se seu login e senha foram preenchidos corretamente.</p>
+    </div> <!-- error messages -->
+    {% endif %}
+
+    <div data-role="content">
+        <form action="{% url 'django.contrib.auth.views.login' %}" method="POST">
+            {% csrf_token %}
+            <div data-role="fieldcontain" class="ui-hide-label ui-body">
+                <label for="username">Usuário:</label>
+                <input type="text" name="username" id="id_username" placeholder="Usuário">
+            </div>
+            <div data-role="fieldcontain" class="ui-hide-label">
+                <label for="password">Senha de Acesso:</label>
+                <input type="password" name="password" id="id_password" placeholder="Senha de Acesso">
+            </div>
+            <input type="hidden" name="next" value="{% url 'lista_diagnosticos' %}" />
+            <button type="submit">Entrar</button>
+        </form>
+    </div>
+</body>
+</html>

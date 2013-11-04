@@ -1,3 +1,4 @@
+#-*- coding:utf-8 -*-
 from django.conf.urls import patterns, include, url
 from django.views.generic.base import RedirectView
 
@@ -11,6 +12,7 @@ urlpatterns = patterns('',
     url(r'^sigi/parlamentares/parlamentar/', include('sigi.apps.parlamentares.urls')),
     url(r'^sigi/casas/casalegislativa/', include('sigi.apps.casas.urls')),
     url(r'^sigi/convenios/convenio/', include('sigi.apps.convenios.urls')),
+    url(r'^sigi/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
 
     url(r'^sigi/', include(admin.site.urls)),
 )

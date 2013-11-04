@@ -19,7 +19,7 @@ class Diagnostico(BaseEntity):
     # campo de busca em caixa baixa e sem acento
     search_text = SearchField(field_names=['casa_legislativa'])
     casa_legislativa.casa_uf_filter = True
-#    casa_legislativa.casa_tipo_filter = True
+    # casa_legislativa.casa_tipo_filter = True
     data_visita_inicio = models.DateField(
         u'data inicial da visita',
         null=True,

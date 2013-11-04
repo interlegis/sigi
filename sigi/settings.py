@@ -99,7 +99,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-ADMIN_MEDIA_PREFIX = '/sigi/admin_media/'
+# ADMIN_MEDIA_PREFIX = '/sigi/admin_media/' # Deprecated!
 
 DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
 
@@ -107,3 +107,14 @@ DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
+
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+# STATICFILES_DIRS = (
+#     os.path.join(BASE_DIR, "sitestatic"),
+# )
+
+# STATICFILES_FINDERS = (
+#     "django.contrib.staticfiles.finders.FileSystemFinder",
+#     "django.contrib.staticfiles.finders.AppDirectoriesFinder"
+# )

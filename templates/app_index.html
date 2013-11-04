@@ -1,0 +1,17 @@
+{% extends "admin/app_index.html" %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css"
+      href="{{ MEDIA_URL }}css/base_site.css" />
+<link rel="stylesheet" type="text/css"
+      href="{{ MEDIA_URL }}css/app_index.css" />
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+  {% include "snippets/modules/user.html" %}
+  {% include "snippets/modules/actions.html" %}
+</div>
+{% endblock %}
