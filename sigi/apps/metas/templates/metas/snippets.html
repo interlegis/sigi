@@ -1,0 +1,40 @@
+{% load charts %}
+
+{# ------------- Todas as metas ------------- #} 
+<div style="height: 300px;" class="module">
+  <h2>Todas as metas</h2>
+  <h3>Estado das metas do contrato BID</h3>
+  <table style="margin: auto;">
+  {% for meta in metas %}
+    <tr>
+      <td><strong>{{ meta.titulo }}</strong></td>
+      <td>
+        <img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}&chm=r,00000034,0,{{ meta.percentual_desejado_low|stringformat:'f' }},{{ meta.percentual_desejado_high|stringformat:'f' }},1"
+          width="100%" alt="" />
+      </td>
+      <td style="text-align: center;"><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
+    </tr>
+  {% endfor %}
+  </table>
+  <div class="legend">
+    <span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
+    <span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
+    <span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
+    <span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
+  </div>
+</div>
+
+{# ------------- Evolução dos desembolsos ------------- #}
+<div style="height: 300px;" class="module">
+  <h2>Evolução dos desembolsos</h2>
+  <h3>Desembolsos últimos seis meses</h3>
+  <img src="//chart.googleapis.com/chart?chxr=0,0,{{ desembolsos_max }}&chxl=1:{% for m in meses %}|{{ m }}{% endfor %}&chxt=y,x&chbh=a&chs=400x240&cht=bvg&chd=t:{% for serie in desembolsos.values %}{% for v in serie.1.values %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}{% if not forloop.last %}|{% endif %}{% endfor %}&chdl={% for l in desembolsos.values %}{{ l.0 }}{% if not forloop.last %}|{% endif %}{% endfor %}&chdlp=t&chds={% for d in desembolsos %}0,{{ desembolsos_max }}{% if not forloop.last %},{% endif %}{% endfor %}&chco={{ colors }}" />
+</div>
+
+{% comment %}
+{# ------------- Evolução dos desembolsos ------------- #}
+<div style="height: 300px;" class="module">
+  <h2>Todas as metas</h2>
+  <h3>Estado das metas do contrato BID</h3>  
+</div>
+{% endcomment %}

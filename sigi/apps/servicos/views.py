@@ -13,6 +13,18 @@ from django.forms.forms import BoundField
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 from django.contrib.admin.helpers import AdminForm
+from django.views.generic.base import TemplateView
+
+
+class MapaView(TemplateView):
+    
+    template_name = "servicos/mapa.html"
+
+    def get_context_data(self, **kwargs):
+        context = super(MapaView, self).get_context_data(**kwargs)
+        context['servicos'] = TipoServico.objects.all()
+        return context
+
 
 def municipios_atendidos(self, servico):
     municipios = []

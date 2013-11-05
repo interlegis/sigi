@@ -26,7 +26,10 @@ urlpatterns = patterns('sigi.apps.diagnosticos.views',
         'categoria_detalhes', name='detalhes_categoria'),
 
     url(r'^mapa/$', TemplateView.as_view(template_name="diagnosticos/mapa.html"), name='template-mapa'),
-    url(r'^mundiagjson/$', 'municipios_diagnosticados', name='municipios-diagnosticados')
+    url(r'^mundiagjson/$', 'municipios_diagnosticados', name='municipios-diagnosticados'),
+
+    # Reports diagnosticos
+    url(r'^diagnostico/(?P<id_diagnostico>\w+).pdf$', 'diagnostico_pdf', name='diagnostico-pdf'),
 )
 
 urlpatterns += patterns('django.contrib.auth.views',

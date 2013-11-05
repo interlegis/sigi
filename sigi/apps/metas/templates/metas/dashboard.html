@@ -1,0 +1,41 @@
+{% extends "admin/index.html" %}
+{% load adminmedia %}
+
+{% block title %}SIGI{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% admin_media_prefix %}css/changelists.css" />
+{% endblock %}
+
+{% block content_title %}
+<h1>Triggers e indicadores de progresso</h1>
+{% comment %}
+<div id="changelist">
+  <div id="toolbar">
+    <p></p>
+  </div>
+</div>
+{% endcomment %}
+{% endblock %}
+
+{% block content %}
+<div class="colMS" id="content">
+  <div id="content-main">
+
+    {% include "metas/snippets.html" %}
+    
+  </div>
+</div>
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+{% comment %}
+  <div class="module" id="filters">
+    <h2>Filtros</h2>
+    <h3>Filtro 1</h3>
+  </div>
+{% endcomment %}
+</div>
+{% endblock %}

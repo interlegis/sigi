@@ -1,0 +1,44 @@
+{% extends "base_report.html" %}
+{% load mapa_tags %}
+
+{% block extra_head %}
+<style>
+	table.data, table.data td, table.data th {
+		border: 1px solid #CCCCCC;
+		border-collapse:collapse;
+		font-size: 10px;
+		padding: 2px;
+	}
+	td.qtde, th.qtde {
+		text-align: right;
+	}
+	
+	td.nome_uf {
+		padding: 0 5px !important;
+	}
+</style>
+<title>Lista de Casas atendidas</title>
+{% endblock %}
+
+{% block report %}
+<h1>Lista de Casas atendidas</h1>
+<hr/><br/>
+<table class="data" repeat="1">
+	<tr>
+		<th>Casa Legislativa</th>
+		<th>Estado</th>
+		<th>Região</th>
+		<th>Serviços</th>
+	</tr>
+	{% for casa in casas %}
+	<tr>
+		<td width="35%">{{ casa.nome }}</td>
+		<td>{{ casa.municipio.uf.nome }}</td>
+		<td>{{ casa.municipio.uf.get_regiao_display }}</td>
+		<td width="45%"><ul>{{ casa|map_desc_serv }}</ul></td>
+	</tr>
+	{% endfor %}
+</table>
+{% endblock %}
+</body>
+</html>

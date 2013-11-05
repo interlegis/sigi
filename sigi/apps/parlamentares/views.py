@@ -55,8 +55,7 @@ def visualizar_carrinho(request):
     carrinhoIsEmpty = not(request.session.has_key('carrinho_parlamentares'))
         
     return render_to_response('parlamentares/carrinho.html',
-                              {"ADMIN_MEDIA_PREFIX":settings.ADMIN_MEDIA_PREFIX,
-                              'MEDIA_URL':settings.MEDIA_URL,
+                              {'MEDIA_URL':settings.MEDIA_URL,
                               'carIsEmpty':carrinhoIsEmpty,
                               'paginas':paginas,
                               'query_str':'?'+request.META['QUERY_STRING']},

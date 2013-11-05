@@ -1,0 +1,50 @@
+{% extends "base_report.html" %}
+
+{% block extra_head %}
+<style type="text/css">
+    tr.title {
+        text-align: center;
+        font-size: 1.2em;
+        border-bottom: 2px black solid;
+    }
+    tr.data {
+        padding: 2px 5px;
+        border-bottom: 1px gray solid;
+    }
+    tr.total {
+        font-weight: bold;
+    }
+    td.index {
+        width: 50px;
+    }
+</style>
+{% endblock %}
+
+{% block subsecretaria %}
+SUBSECRETARIA DE ADMINISTRAÇÃO – SSADM
+{% endblock %}
+
+{% block report %}
+<div>
+  <h1>Relatório de Servidores por Cargo</h1>
+  <table class="report">
+    <tr class="title">
+      <td class="index"></td>
+      <td>Cargo</td>
+      <td>Servidores</td>
+    </tr>
+    {% for r in report %}
+    <tr class="data">
+      <td>{{ forloop.counter }}</td>
+      <td>{{ r.cargo }}</td>
+      <td>{{ r.cargo__count }}</td>
+    </tr>
+    {% endfor %}
+    <tr class="data total">
+      <td></td>
+      <td>Total</td>
+      <td>{{ total }}</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}

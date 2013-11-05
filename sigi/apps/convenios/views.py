@@ -126,7 +126,6 @@ def visualizar_carrinho(request):
     return render_to_response(
         'convenios/carrinho.html',
         {
-             "ADMIN_MEDIA_PREFIX":settings.ADMIN_MEDIA_PREFIX,
              'MEDIA_URL':settings.MEDIA_URL,
              'carIsEmpty':carrinhoIsEmpty,
              'paginas':paginas,
