@@ -12,7 +12,6 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/dev/howto/deployment/checklist/
 
@@ -54,6 +53,9 @@ INSTALLED_APPS = (
     # Third-party apps
     'localflavor',
     'reporting',
+    'django_extensions',
+    'googlecharts',
+    'treemenus',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -83,7 +85,7 @@ DATABASES = {
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
 TIME_ZONE = 'UTC'
 

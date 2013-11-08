@@ -36,13 +36,13 @@ class CasaLegislativa(models.Model):
 
     # Guarda um campo para ser usado em buscas em caixa baixa e sem acento
     search_text = SearchField(field_names=['nome'])
-    search_text.projeto_filter = True
+    # search_text.projeto_filter = True
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
 #    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
-    codigo_interlegis.ts_filter = True
+    # codigo_interlegis.ts_filter = True
 
     # Informações de contato
     logradouro = models.CharField(
@@ -50,11 +50,13 @@ class CasaLegislativa(models.Model):
         help_text='Avenida, rua, praça, jardim, parque...'
     )
     bairro = models.CharField(max_length=100, blank=True)
+    
     municipio = models.ForeignKey(
         'contatos.Municipio',
         verbose_name='município'
     )
-    municipio.uf_filter = True
+    # municipio.uf_filter = True
+
     cep = models.CharField(max_length=32)
     email = models.EmailField('e-mail', max_length=128, blank=True)
     pagina_web = models.URLField(
@@ -263,7 +265,7 @@ class Funcionario(models.Model):
     
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     nome = models.CharField('nome completo', max_length=60, blank=False)
-    nome.alphabetic_filter = True
+    # nome.alphabetic_filter = True
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
     nota = models.CharField(max_length=70, null=True, blank=True)
     email = models.CharField('e-mail', max_length=75, blank=True)

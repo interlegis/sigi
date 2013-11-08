@@ -5,6 +5,8 @@ from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
+
+
 class UnidadeFederativa(models.Model):
     """ Modelo que representa um estado brasileiro
     """
@@ -21,7 +23,7 @@ class UnidadeFederativa(models.Model):
         unique=True,
         help_text='Código do estado segundo IBGE.'
     )
-    nome = models.CharField(max_length=25)
+    nome = models.CharField('Nome UF', max_length=25)
     # Campo de busca em caixa baixa sem acento
     search_text = SearchField(field_names=['nome'])
     sigla = models.CharField(

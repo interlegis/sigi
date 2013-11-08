@@ -39,7 +39,7 @@ def get_for_qs(get,qs):
     kwargs = {}
     ids = 0
     for k,v in get.iteritems():
-        if not (k == 'page' or k == 'pop' or k == 'q'):
+        if k not in ['page', 'pop', 'q', '_popup']:
             if not k == 'o':
                 if k == "ot":
                     qs = query_ordena(qs,get["o"],get["ot"])

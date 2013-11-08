@@ -16,7 +16,7 @@ class LegislaturaAdmin(admin.ModelAdmin):
     list_display = ('numero', 'casa_legislativa', 'uf', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares')
     raw_id_fields = ('casa_legislativa',)
     list_display_links = ('numero',)
-    list_filter = ('casa_legislativa', )
+    list_filter = ('casa_legislativa__municipio__uf', )
     search_fields = ('casa_legislativa__nome', 'casa_legislativa__municipio__nome' )
     inlines = (MandatoInline,)
     

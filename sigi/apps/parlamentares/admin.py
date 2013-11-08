@@ -21,6 +21,7 @@ class PartidoAdmin(admin.ModelAdmin):
     list_display_links = ('nome', 'sigla')
     search_fields = ('nome', 'sigla')
 
+
 class ParlamentarAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')

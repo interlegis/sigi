@@ -20,6 +20,8 @@ from sigi.apps.inventario.models import Bem
 from sigi.apps.servicos.models import Servico
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
+from django.utils.translation import ugettext as _
+
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
@@ -157,7 +159,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
     list_display = ('nome','municipio','logradouro', 'ult_alt_endereco', 'get_convenios')
     list_display_links = ('nome',)
-    list_filter = ('tipo', 'municipio', 'search_text')
+    list_filter = ('tipo', 'municipio__uf__nome', 'convenio__projeto')
     ordering = ('nome','municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (

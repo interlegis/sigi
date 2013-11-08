@@ -1,12 +1,12 @@
 {% extends "admin/index.html" %}
-{% load adminmedia %}
 
 {% block title %}SIGI{% endblock %}
 {% block extrahead %}
 	{{ block.super }}
-	<script type="text/javascript" src="{% admin_media_prefix %}js/core.js"></script>
-	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.min.js"></script>
-	<script type="text/javascript" src="{% admin_media_prefix %}js/jquery.init.js"></script>
+	{% load staticfiles %}
+	<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+	<script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
+	<script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
 	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"> </script>
 	<script type="text/javascript">
 	  (function($) {
