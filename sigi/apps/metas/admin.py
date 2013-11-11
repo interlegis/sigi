@@ -11,7 +11,7 @@ class PlanoDiretorAdmin(admin.ModelAdmin):
     list_display = ('projeto', 'casa_legislativa', 'get_uf', 'status', 'data_entrega', 'data_implantacao',)
     fields = ('projeto', 'casa_legislativa', 'status', 'data_entrega', 'data_implantacao',)
     raw_id_fields = ('casa_legislativa',)
-    list_filter = ('projeto', 'status', 'casa_legislativa', )
+    list_filter = ('projeto', 'status', 'casa_legislativa', 'casa_legislativa__municipio__uf__nome')
     
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.nome
@@ -44,3 +44,5 @@ class PlanoDiretorAdmin(admin.ModelAdmin):
         request.GET._mutable=False
         
         return super(PlanoDiretorAdmin, self).changelist_view(request, extra_context)
+
+admin.site.register(PlanoDiretor, PlanoDiretorAdmin)

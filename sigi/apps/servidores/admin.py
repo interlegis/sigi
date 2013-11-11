@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 
 from sigi.apps.utils.admin_widgets import AdminImageWidget
-from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias
+from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
 from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
 
@@ -49,7 +49,7 @@ class ServidorAdmin(admin.ModelAdmin):
     is_active.short_description = 'ativo'
 
     list_display = ('nome_completo', 'is_active', 'foto', 'servico', )
-    list_filter  = ('user', 'sexo', 'servico',)
+    list_filter  = ('user__is_active', 'sexo', 'servico',)
     search_fields = ('nome_completo', 'obs', 'apontamentos',
                      'user__email', 'user__first_name',
                      'user__last_name', 'user__username')
@@ -85,3 +85,5 @@ admin.site.register(Servidor, ServidorAdmin)
 admin.site.register(Funcao, FuncaoAdmin)
 admin.site.register(Ferias, FeriasAdmin)
 admin.site.register(Licenca, LicencaAdmin)
+admin.site.register(Servico)
+admin.site.register(Subsecretaria)

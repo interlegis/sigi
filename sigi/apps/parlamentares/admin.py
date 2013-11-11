@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import string
+
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponse, HttpResponseRedirect
@@ -22,11 +24,48 @@ class PartidoAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'sigla')
 
 
+class AlphabeticFilter(admin.SimpleListFilter):
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    title = ''
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = ''
+
+    alphabetic = string.ascii_uppercase
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+
+        return ((letter, letter,) for letter in self.alphabetic)
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+
+        qs = self.parameter_name + '__istartswith', self.value()
+        return queryset.filter(qs)
+
+
+class ParlamentarNomeCompletoFilter(AlphabeticFilter):
+    title = 'Nome Completo do Parlamentar'
+    parameter_name = 'nome_completo'
+
+
 class ParlamentarAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
-    list_filter = ('nome_completo', 'nome_parlamentar')
+    list_filter = ('nome_parlamentar', ParlamentarNomeCompletoFilter)
     actions = ['adiciona_parlamentar',]
     fieldsets = (
         (None, {
@@ -70,6 +109,7 @@ class MandatoAdmin(admin.ModelAdmin):
                      'partido__sigla')
     raw_id_fields = ('parlamentar', 'legislatura', 'partido')
 #    radio_fields = {'suplencia': admin.VERTICAL}
+
 
 admin.site.register(Partido, PartidoAdmin)
 admin.site.register(Parlamentar, ParlamentarAdmin)

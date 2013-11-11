@@ -7,7 +7,7 @@ from sigi.apps.utils import SearchField
 
 
 class Categoria(models.Model):
-    nome= models.CharField(u"Nome", max_length=50)
+    nome= models.CharField(u"Nome Categoria", max_length=50)
     descricao = models.TextField(u'descrição', blank=True, null=True)
     setor_responsavel = models.ForeignKey('servidores.Servico', verbose_name=u"Setor responsável")
     

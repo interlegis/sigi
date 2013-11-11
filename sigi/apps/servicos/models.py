@@ -49,7 +49,7 @@ class Servico(models.Model):
     erro_atualizacao = models.CharField(u"Erro na atualização", blank=True, max_length=200, 
                         help_text=u"Erro ocorrido na última tentativa de atualizar a data de último acesso")
     
-    casa_legislativa.casa_uf_filter = True
+    # casa_legislativa.casa_uf_filter = True
     
     def atualiza_data_uso(self):
         def reset(erro=u"", comment=u""):

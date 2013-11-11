@@ -29,7 +29,6 @@ class Fabricante(models.Model):
 
 class TipoEquipamento(models.Model):
     tipo = models.CharField(max_length=40)
-    tipo.alphabetic_filter = True
 
     class Meta:
         ordering = ('tipo',)
@@ -45,7 +44,6 @@ class ModeloEquipamento(models.Model):
         verbose_name='tipo de equipamento'
     )
     modelo = models.CharField(max_length=30)
-    modelo.alphabetic_filter = True
 
     class Meta:
         ordering = ('modelo',)

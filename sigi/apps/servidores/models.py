@@ -23,7 +23,7 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(max_length=250, null=True)
+    nome = models.CharField(u'Nome Serviço', max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
@@ -58,9 +58,7 @@ class Servidor(models.Model):
 
     # usuario responsavel pela autenticação do servidor no sistema
     user = models.ForeignKey(User, unique=True)
-    user.is_active__filter = True
     nome_completo = models.CharField(max_length=128)
-    nome_completo.alphabetic_filter = True
     apelido = models.CharField(max_length=50, blank=True)
     # caminho no sistema para arquivo com a imagem
     foto = models.ImageField(

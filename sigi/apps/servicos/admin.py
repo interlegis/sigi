@@ -64,7 +64,7 @@ class ServicoAdmin(admin.ModelAdmin):
                     'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
                 }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa', )
+    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa__municipio__uf', )
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
@@ -178,7 +178,7 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
                 ,)
     readonly_fields = ('nome',  'logradouro', 'bairro', 'municipio', 'cep')
     inlines = (ContatosInline,) 
-    list_filter = ('tipo', 'codigo_interlegis', 'municipio', )
+    list_filter = ('tipo', 'servico__tipo_servico', 'municipio__uf__nome', )
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
@@ -213,3 +213,6 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         return False # Nunca deletar casas por aqui
 
+admin.site.register(Servico, ServicoAdmin)
+admin.site.register(TipoServico, TipoServicoAdmin)
+admin.site.register(CasaAtendida, CasaAtendidaAdmin)

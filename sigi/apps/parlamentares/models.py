@@ -20,7 +20,6 @@ class Parlamentar(models.Model):
         ('F', 'Feminino'),
     )
     nome_completo = models.CharField(max_length=128)
-    nome_completo.alphabetic_filter = True
     nome_parlamentar = models.CharField(max_length=35, blank=True)
     foto = models.ImageField(
         upload_to='fotos/parlamentares',

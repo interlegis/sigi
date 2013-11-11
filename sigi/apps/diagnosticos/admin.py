@@ -49,7 +49,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     inlines = (EquipeInline, AnexosInline)
     search_fields = ('casa_legislativa__nome',)
     list_display = ('casa_legislativa','get_uf', 'data_visita_inicio', 'data_visita_fim', 'responsavel', 'publicado')
-    list_filter  = ('publicado', 'casa_legislativa', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
+    list_filter  = ('publicado', 'casa_legislativa__municipio__uf__nome', 'casa_legislativa', 'data_publicacao', 'data_visita_inicio', 'data_visita_fim')
     raw_id_fields = ('casa_legislativa',)
     ordering = ('casa_legislativa',)
 

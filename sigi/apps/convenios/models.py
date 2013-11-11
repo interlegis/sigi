@@ -31,8 +31,6 @@ class Convenio(models.Model):
     )
     # campo de busca em caixa baixa e sem acentos
     search_text = SearchField(field_names=['casa_legislativa'])
-    casa_legislativa.convenio_uf_filter = True
-    casa_legislativa.convenio_cl_tipo_filter = True
     projeto = models.ForeignKey('Projeto')
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(

@@ -7,3 +7,5 @@ class DesembolsoAdmin(admin.ModelAdmin):
     fields = ('projeto', 'descricao', 'data', 'valor_reais', 'valor_dolar', )    
     list_filter = ('projeto',)
     date_hierarchy = 'data'
+
+admin.site.register(Desembolso, DesembolsoAdmin)
