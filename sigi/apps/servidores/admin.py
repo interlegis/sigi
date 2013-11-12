@@ -6,6 +6,8 @@ from sigi.apps.utils.admin_widgets import AdminImageWidget
 from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
 from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
+from sigi.apps.utils.alphabetic_filter import AlphabeticFilter
+
 
 class FuncaoAdmin(admin.ModelAdmin):
     form = FuncaoForm
@@ -24,22 +26,38 @@ class FeriasAdmin(admin.ModelAdmin):
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
 
+
+from sigi.apps.utils.alphabetic_filter import AlphabeticFilter
+
+
+class ServidorFilter(AlphabeticFilter):
+    title = 'Nome do Servidor'
+    parameter_name = 'servidor__nome_completo'
+
+
 class LicencaAdmin(admin.ModelAdmin):
     form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
-    list_filter  = ('servidor', 'inicio_licenca', 'fim_licenca')
+    list_filter  = (ServidorFilter, 'servidor', 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
+
+    def lookup_allowed(self, lookup, value):
+        return super(LicencaAdmin, self).lookup_allowed(lookup, value) or \
+                  lookup in ['servidor__nome_completo']
+
 
 class EnderecoInline(generic.GenericStackedInline):
     model = Endereco
     extra = 0
     raw_id_fields = ('municipio',)
 
+
 class TelefonesInline(generic.GenericTabularInline):
     extra = 1
     model = Telefone
+
 
 class ServidorAdmin(admin.ModelAdmin):
     def is_active(self, servidor):

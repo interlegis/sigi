@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
+from sigi.apps.utils.alphabetic_filter import AlphabeticFilter
 
 class MandatosInline(admin.TabularInline):
     model = Mandato
@@ -24,41 +25,9 @@ class PartidoAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'sigla')
 
 
-class AlphabeticFilter(admin.SimpleListFilter):
-    # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
-    title = ''
-
-    # Parameter for the filter that will be used in the URL query.
-    parameter_name = ''
-
-    alphabetic = string.ascii_uppercase
-
-    def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
-
-        return ((letter, letter,) for letter in self.alphabetic)
-
-    def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
-
-        qs = self.parameter_name + '__istartswith', self.value()
-        return queryset.filter(qs)
-
-
 class ParlamentarNomeCompletoFilter(AlphabeticFilter):
-    title = 'Nome Completo do Parlamentar'
-    parameter_name = 'nome_completo'
+     title = 'Nome Completo do Parlamentar'
+     parameter_name = 'nome_completo'
 
 
 class ParlamentarAdmin(admin.ModelAdmin):
