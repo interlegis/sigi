@@ -1,0 +1,26 @@
+{% extends "admin/change_list.html" %}
+{% load admin_list i18n admin_urls %}
+
+{% block extrahead %}
+{{ block.super }}
+<script type="text/javascript">
+function dismissRelatedLookupPopup(win, chosenId) {
+    win.close();
+	url = "{% url 'admin:servicos_casaatendida_changelist' %}" +  chosenId;
+//	alert(url);
+	document.location.href = url;
+}
+</script>
+	
+{% endblock %}
+
+{% block object-tools %}
+	<ul class="object-tools">
+    	<li>
+        	<a id="lookup_id_casa_legislativa" onclick="return showRelatedObjectLookupPopup(this);" href="{% url 'admin:casas_casalegislativa_changelist' %}?t=id&codigo_interlegis__exact=" class="addlink">
+            	{% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+            </a>
+		</li>
+	</ul>
+	<input type="hidden" id="id_casa_legislativa" value="nenhum" onchange="alert('Eu mudei')"/>
+{% endblock %}

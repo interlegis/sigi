@@ -18,6 +18,7 @@ class FuncaoAdmin(admin.ModelAdmin):
                      'servidor__user__email', 'servidor__user__first_name',
                      'servidor__user__last_name', 'servidor__user__username')
 
+
 class FeriasAdmin(admin.ModelAdmin):
     form = FeriasForm
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
@@ -25,9 +26,6 @@ class FeriasAdmin(admin.ModelAdmin):
     search_fields = ('obs',
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
-
-
-from sigi.apps.utils.alphabetic_filter import AlphabeticFilter
 
 
 class ServidorFilter(AlphabeticFilter):
@@ -92,12 +90,16 @@ class ServidorAdmin(admin.ModelAdmin):
         return super(ServidorAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['user__is_active__exact']
 
+    def has_add_permission(self, request):
+        return False
+
     def formfield_for_dbfield(self, db_field, **kwargs):
         if db_field.name == 'foto':
             request = kwargs.pop("request", None)
             kwargs['widget'] = AdminImageWidget
             return db_field.formfield(**kwargs)
         return super(ServidorAdmin,self).formfield_for_dbfield(db_field, **kwargs)
+
 
 admin.site.register(Servidor, ServidorAdmin)
 admin.site.register(Funcao, FuncaoAdmin)

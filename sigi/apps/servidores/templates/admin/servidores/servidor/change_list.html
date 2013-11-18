@@ -1,0 +1,20 @@
+{% extends 'admin/change_list.html' %}
+{% load i18n reporting_tags %}
+
+{% block object-tools %}
+<ul class="object-tools">
+  <li>
+    <a href="/sigi/servidores/servidores_por_cargo.pdf" class="historylink">Relatório por cargo</a>
+  </li>
+  <li>
+    <a href="/sigi/servidores/servidores_por_funcao.pdf" class="historylink">Relatório por função</a>
+  </li>
+  {% if has_add_permission %}
+  <li>
+    <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
+      {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
+    </a>
+  </li>
+  {% endif %}
+</ul>
+{% endblock %}

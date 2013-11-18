@@ -1,0 +1,27 @@
+{% extends 'admin/change_form.html' %}
+
+{% block form_top %}
+{% if adminform.form.instance.user %}
+<fieldset class="module aligned">
+    <h2>Dados do servidor LDAP</h2>
+    <div class="form-row">
+        <div>
+            <label>Primeiro Nome:</label>
+            <p>{{adminform.form.instance.user.first_name}}</p>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label>Último Nome:</label>
+            <p>{{adminform.form.instance.user.last_name}}</p>
+        </div>
+    </div>
+    <div class="form-row">
+        <div>
+            <label>Email Principal:</label>
+            <p>{{adminform.form.instance.user.email}}</p>
+        </div>
+    </div>
+</fieldset>
+{% endif %}
+{% endblock %}
