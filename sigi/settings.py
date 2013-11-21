@@ -10,6 +10,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
+import django.conf.global_settings as DEFAULT_SETTINGS
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
@@ -24,6 +25,25 @@ DEBUG = True
 TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
+
+# TEMPLATE_CONTEXT_PROCESSORS = (
+#     "django.contrib.auth.context_processors.auth",
+#     "django.core.context_processors.debug",
+#     "django.core.context_processors.i18n",
+#     "django.core.context_processors.media",
+#     "django.core.context_processors.static",
+#     "django.core.context_processors.tz",
+#     "django.contrib.messages.context_processors.messages",
+#     'sigi.context_processors.charts_data',
+# )
+
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+    'sigi.context_processors.charts_data',
+)
+# List of callables that know how to import templates from various sources.
+TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+ )
 
 
 # Application definition
@@ -122,4 +142,3 @@ MEDIA_URL = '/media/'
 #     "django.contrib.staticfiles.finders.FileSystemFinder",
 #     "django.contrib.staticfiles.finders.AppDirectoriesFinder"
 # )
-

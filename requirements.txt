@@ -1,0 +1,14 @@
+Django==1.6
+Geraldo==0.4.17
+PIL==1.1.7
+distribute==0.6.8
+django-autoslug==1.7.1
+django-extensions==1.2.5
+django-googlecharts==1.0-alpha-1
+django-localflavor==1.0
+django-treemenus==0.8.8-pre
+eav-django==1.4.4
+html5lib==1.0b3
+pisa==3.0.33
+reportlab==2.7
+six==1.4.1
