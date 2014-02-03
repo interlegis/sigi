@@ -3,12 +3,14 @@ from django.contrib import admin
 from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.contatos.filters import PopulationFilter
+
 
 class UnidadeFederativaAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
     list_display_links = ('codigo_ibge', 'nome')
-    list_filter = ('regiao', 'populacao')
+    list_filter = ('regiao', 'populacao', PopulationFilter,)
     search_fields = ('search_text', 'codigo_ibge',  'sigla', 'regiao')
     queryset = queryset_ascii
 

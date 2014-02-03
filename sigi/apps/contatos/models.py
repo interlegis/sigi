@@ -33,7 +33,6 @@ class UnidadeFederativa(models.Model):
     )
     regiao = models.CharField('região', max_length=2, choices=REGIAO_CHOICES)
     populacao = models.PositiveIntegerField('população')
-    populacao.list_filter_range = [100000, 1000000, 10000000]
 
     class Meta:
         ordering = ('nome',)

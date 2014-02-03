@@ -36,7 +36,7 @@ class ServidorFilter(AlphabeticFilter):
 class LicencaAdmin(admin.ModelAdmin):
     form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
-    list_filter  = (ServidorFilter, 'servidor', 'inicio_licenca', 'fim_licenca')
+    list_filter  = (ServidorFilter, 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')

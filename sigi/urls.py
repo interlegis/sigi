@@ -5,6 +5,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 from django.contrib import admin
+admin.site.index_template = 'index.html'
 admin.autodiscover()
 
 urlpatterns = patterns('',

@@ -25,7 +25,7 @@ a:hover {
 }
 
 #nav-global ul { /*background:#222;*/
-	background: #efefef url("../../admin_media/img/admin/nav-bg.gif");
+	background: #efefef url("../../static/admin/img/nav-bg.gif");
 	/*#9C9C9C;*/
 	height: 25px;
 	margin: 0;
@@ -195,7 +195,7 @@ div#footer a {
 /* JQuery */
 .tabs-conteudo li {
 	border: 1px solid #CCC;
-	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");
+	background-image: url("../../static/admin/img/nav-bg.gif");
 	display: inline;
 	padding: 4px 8px;
 }
@@ -206,7 +206,7 @@ div#footer a {
 
 .conteudo_regiao li{
 	border: 1px solid #CCC;
-	background-image: url("/sigi/admin_media/img/admin/nav-bg.gif");	
+	background-image: url("../../static/admin/img/nav-bg.gif");	
 	padding: 4px 8px;
 	width: 30%;
 	list-style: none;
