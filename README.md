@@ -1,40 +1,55 @@
+Sistema de Informações Gerenciais
+==========================
+
 SIGI é um projeto para um Sistema de Informações Gerenciais do
 Interlegis, escrito na linguagem de programação Python com o framework
 para desenvolvimento web Django.
 
-Para instalá-lo, veja o arquivo ``docs/instalacao.txt``. Maiores
-informações em ``docs/visaogeral.txt``.
+Maiores informações em ``docs/visaogeral.txt``.
 
+Installation
+---------------
+Faça o checkout do projeto
+ 
+        $ git clone https://github.com/BrenoTeixeira/SIGI-1.6.git
+
+Instalando as dependências do arquivo `requirements.txt`
+
+        $ pip install -r requirements.txt
+
+Install django-googlecharts
+
+        $ git clone git clone git://github.com/jacobian/django-googlecharts.git
+        $ cd django-googlecharts
+        $ python setup.py instal
+
+Install a app de reports generator
+
+        $ git clone https://github.com/marinho/geraldo.git
+        $ cd geraldo
+        $ python setup.py install
+        $ cp -Rvf reporting geraldo /usr/local/lib/python2.7/site-packages
+
+Se você estiver suando virtualenv use
+
+        $ cp -Rvf reporting geraldo $WORKON_HOME/virtualenv_name/lib/python2.7/site-packages
+
+
+
+Getting Help
+-----------------
+Existe uma lista de email ([http://groups.google.com/group/sigi][2]) disponível para discussão geral.
+
+Contributing
+-----------------
+1. Fork it.
+2. Create a branch (`git checkout -b my_sigi`)
+3. Commit your changes (`git commit -am "Added new feature"`)
+4. Push to the branch (`git push origin my_sigi`)
+5. Open a [Pull Request] [1]
+
+[1]:https://github.com/BrenoTeixeira/SIGI-1.6/pulls 
+[2]:http://groups.google.com/group/sigi
 
 
 Copyright (c) 2008 Interlegis
-
-SIGI é um software livre; você pode redistribuí-lo e/ou modifica-lo
-dentro dos termos da Licença Pública Geral GNU como publicada pela
-Fundação do Software Livre (FSF); na versão 3 da Licença, ou (na sua
-opinião) em qualquer versão mais recente.
-
-SIGI é distribuido na esperança que possa ser útil, mas SEM NENHUMA
-GARANTIA; sem uma garantia implícita de ADEQUAÇÃO a qualquer MERCADO
-ou APLICAÇÃO EM PARTICULAR. Veja a Licença Pública Geral GNU para
-maiores detalhes.
-
-Você deve ter recebido uma cópia da Licença Pública Geral GNU junto
-com este programa; veja o arquivo COPYING. Se não, veja
-<http://www.gnu.org/licenses/>.
-
-. . .
-
-SIGI is free software; you can redistribute it and/or modify it under
-the terms of the GNU General Public License as published by the Free
-Software Foundation; either version 3 of the License, or (at your
-option) any later version.
-
-SIGI is distributed in the hope that it will be useful, but WITHOUT
-ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License
-for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; see the file COPYING. If not, see
-<http://www.gnu.org/licenses/>.
