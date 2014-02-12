@@ -36,4 +36,5 @@ nosetests.xml
 .pydevproject
 .gitignore
 fotos
-sigi.db
+*.db
+media/

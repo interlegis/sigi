@@ -26,17 +26,6 @@ TEMPLATE_DEBUG = True
 
 ALLOWED_HOSTS = []
 
-# TEMPLATE_CONTEXT_PROCESSORS = (
-#     "django.contrib.auth.context_processors.auth",
-#     "django.core.context_processors.debug",
-#     "django.core.context_processors.i18n",
-#     "django.core.context_processors.media",
-#     "django.core.context_processors.static",
-#     "django.core.context_processors.tz",
-#     "django.contrib.messages.context_processors.messages",
-#     'sigi.context_processors.charts_data',
-# )
-
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'sigi.context_processors.charts_data',
 )
@@ -118,8 +107,13 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 STATIC_URL = '/static/'
+
+STATICFILES_DIRS = (
+    os.path.join(BASE_DIR, 'sigiStatic'),
+)
 
 # ADMIN_MEDIA_PREFIX = '/sigi/admin_media/' # Deprecated!
 
@@ -131,14 +125,3 @@ TEMPLATE_DIRS = (
 )
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
-
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
-# STATICFILES_DIRS = (
-#     os.path.join(BASE_DIR, "sitestatic"),
-# )
-
-# STATICFILES_FINDERS = (
-#     "django.contrib.staticfiles.finders.FileSystemFinder",
-#     "django.contrib.staticfiles.finders.AppDirectoriesFinder"
-# )
