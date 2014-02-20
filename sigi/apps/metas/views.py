@@ -343,3 +343,28 @@ def gera_map_data_file(cronjob=False):
         return "Arquivo %s gerado em %d segundos" % (JSON_FILE_NAME, time.time() - start)
 
     return json_data
+
+def saberes(request):
+    extra_context = {'total_cadastros': 0, 'novos_cadastros': 0, 'total_cursos': 0, 'total_matriculas': 0,
+        'media_alunos_curso': 0, 'cursos': {}}
+
+    try:
+        import psycopg2
+        cd  = {'host': 'bdinterlegis.interlegis.leg.br', 'dbname': 'moodle', 'user': 'saberes', 'password': 'Goo!gu1a'}
+        cs  = "host='%(host)s' dbname='%(dbname)s' user='%(user)s' password='%(password)s'" % cd
+        con = psycopg2.connect(cs)
+        cursor = con.cursor()
+        cursor.execute('select count(*) from mdl_user;')
+        extra_context['total_cadastros'] = cursor.fetchone()[0]
+        cursor.execute('select count(*) from mdl_user where firstaccess >= 1392326052')
+        extra_context['novos_cadastros'] = cursor.fetchone()[0]
+        cursor.execute("select c.fullname, count(*) from mdl_user_enrolments ue inner join mdl_enrol e on e.id = ue.enrolid inner join mdl_course c on c.id = e.courseid where e.enrol = 'ilbead' and c.visible = 1 group by c.fullname")
+        extra_context['cursos'] = cursor.fetchall()
+        extra_context['total_cursos'] = len(extra_context['cursos'])
+        extra_context['total_matriculas'] = reduce(lambda x,y: x+y[1], extra_context['cursos'], 0)
+        extra_context['media_alunos_curso'] = extra_context['total_matriculas'] / extra_context['total_cursos']
+
+    except:
+        pass
+
+    return render_to_response('saberes/dashboard.html', extra_context, context_instance=RequestContext(request))

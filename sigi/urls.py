@@ -122,6 +122,7 @@ urlpatterns = patterns(
     (r'^sigi/dashboard/mapsearch/$', 'sigi.apps.metas.views.map_search'),
     (r'^sigi/dashboard/mapsum/$', 'sigi.apps.metas.views.map_sum'),
     (r'^sigi/dashboard/maplist/$', 'sigi.apps.metas.views.map_list'),
+    (r'^sigi/dashboard/saberes/', 'sigi.apps.metas.views.saberes'),
     (r'^sigi/dashboard/$', 'sigi.apps.metas.views.dashboard'),
     # automatic interface based on admin
     #(r'^sigi/(.*)', sites.default.root),

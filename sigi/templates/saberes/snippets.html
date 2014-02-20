@@ -1,0 +1,46 @@
+{% load charts %}
+
+{# ------------- Totais ------------- #} 
+<div style="height: 300px;" class="module">
+  <h2>Totais</h2>
+  <h3>Uso do Saberes</h3>
+  <table style="margin: auto;">
+    <tr>
+      <th>Total de usuários cadastrados</th>
+      <td>{{ total_cadastros }}</td>
+    </tr>
+    <tr>
+      <th>Novos usuários cadastrados</th>
+      <td>{{ novos_cadastros }}</td>
+    </tr>
+    <tr>
+      <th>Total de turmas EAD</th>
+      <td>{{ total_cursos }}</td>
+    </tr>
+    <tr>
+      <th>Total de alunos matriculados</th>
+      <td>{{ total_matriculas }}</td>
+    </tr>
+    <tr>
+      <th>Média de alunos por curso</th>
+      <td>{{ media_alunos_curso }}</td>
+    </tr>
+  </table>
+</div>
+{# ------------- Turmas ------------- #}
+<div style="height: 300px;" class="module">
+  <h2>Turmas</h2>
+  <h3>Alunos matriculados por turma</h3>
+  <div style="height: 250px; overflow: auto;">
+    <table style="margin: auto;">
+      {% for curso in cursos %}
+      <tr>
+        <th>{{ curso.0 }}</th>
+        <td>{{ curso.1 }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+
+
