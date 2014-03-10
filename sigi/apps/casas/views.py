@@ -18,14 +18,22 @@ from django.conf import settings
 
 import csv
 
-def query_ordena(qs,o,ot):
-    list_display = ('nome','municipio','logradouro')
+# @param qs: queryset
+# @param o: (int) number of order field
+def query_ordena(qs, o):
+    from sigi.apps.casas.admin import CasaLegislativaAdmin
+    list_display = CasaLegislativaAdmin.list_display
+    order_fields = []
 
-    aux = list_display[(int(o)-1)]
-    if ot =='asc':
-        qs = qs.order_by(aux)
-    else:
-        qs = qs.order_by("-"+aux)
+    for order_number in o.split('.'):
+        order_number = int(order_number)
+        order = ''
+        if order_number != abs(order_number):
+            order_number = abs(order_number)
+            order = '-'
+        order_fields.append(order + list_display[order_number - 1])
+
+    qs = qs.order_by(*order_fields)
     return qs
 
 def get_for_qs(get,qs):
@@ -34,13 +42,13 @@ def get_for_qs(get,qs):
     """
     kwargs = {}
     for k,v in get.iteritems():
-        if not (k == 'page' or k == 'pop' or k == 'q'):            
-            if not k == 'o':
-                if k == "ot":
-                    qs = query_ordena(qs,get["o"],get["ot"])
-                else:
-                    kwargs[str(k)] = v
-                    qs = qs.filter(**kwargs)
+        if str(k) not in ('page', 'pop', 'q', '_popup', 'o', 'ot'):
+            kwargs[str(k)] = v
+
+    qs = qs.filter(**kwargs)
+    if 'o' in get:
+        qs = query_ordena(qs,get['o'])
+
     return qs
 
 def carrinhoOrGet_for_qs(request):
