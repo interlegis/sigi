@@ -35,6 +35,7 @@ jQuery(document).ready(function () {
 {% block content %}
 <div id="content-main">
   <form id="categoria" action="." method="POST">
+    {% csrf_token %}
       <select name="categoria">
         {% for categoria in categorias %}
         <option value="{{ categoria.id }}" {% if categoria.id == sel_categoria %}selected="selected"{% endif %}>{{ categoria.nome }}</option>
