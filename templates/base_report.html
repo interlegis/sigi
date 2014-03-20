@@ -63,13 +63,13 @@
         <div id="header">
             <table>
                 <tr>
-                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-senado.jpg"/></td>
+                    <td class="logo"><img src="{{ STATIC_URL }}img/logo-senado.jpg"/></td>
                     <td class="header_text">
                         <p><strong>SENADO FEDERAL</strong></p>
                         <p><strong>SECRETARIA ESPECIAL DO INTERLEGIS – SINTER</strong></p>
                         <p>{% block subsecretaria %}{% endblock %}</p>
                     </td>
-                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-interlegis.jpg"/></td>
+                    <td class="logo"><img src="{{ STATIC_URL }}img/logo-interlegis.jpg"/></td>
                 </tr>
             </table>
         </div>

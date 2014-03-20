@@ -8,7 +8,7 @@ a:hover {
 
 /* HEADER */
 #header {
-	background: #003351 url(../images/default-bg2.jpg);
+	background: #003351 url(../img/default-bg2.jpg);
 }
 
 #site-name a:hover {
@@ -39,7 +39,7 @@ a:hover {
 }
 
 #nav-global li a {
-	/*background: url("../images/menu/seperator.gif") bottom right no-repeat;*/
+	/*background: url("../img/menu/seperator.gif") bottom right no-repeat;*/
 	color: #cccccc;
 	display: block;
 	font-weight: normal;
@@ -79,7 +79,7 @@ a:hover {
 }
 
 #nav-global li li {
-	background: url('../images/menu/sub_sep.gif') bottom left no-repeat;
+	background: url('../img/menu/sub_sep.gif') bottom left no-repeat;
 	display: block;
 	float: none;
 	margin: 0px;
@@ -117,7 +117,7 @@ div.breadcrumbs {
 
 /* CONTENT */
 .module h2,.module caption,.inline-group h2 {
-	background: #00367b url(../images/default-bg.gif);
+	background: #00367b url(../img/default-bg.gif);
 }
 
 .row1 {

@@ -10,7 +10,7 @@
 	<script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
 	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="{{ MEDIA_URL }}js/metas/mapa.js"></script>
+	<script type="text/javascript" src="{{ STATIC_URL }}js/metas/mapa.js"></script>
 	<style>
 	  .totalizador { float:right; }
 	</style>
@@ -22,7 +22,7 @@
 	<div id="toolbar">
 		<form method="get" action="" id="changelist-search">
 			<div><!-- DIV needed for valid HTML -->
-				<label for="searchbar"><img alt="Search" src="/sigi/admin_media/img/admin/icon_searchbox.png"></label>
+				<label for="searchbar"><img alt="Search" src="{{ STATIC_URL }}admin/img/icon_searchbox.png"></label>
 				<input type="text" id="searchbar" value="" name="q" size="40">
 				<input type="submit" value="Pesquisar">
 				<span id="search-panel" class="small quiet">&nbsp;</span>
