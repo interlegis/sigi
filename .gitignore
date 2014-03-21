@@ -32,9 +32,14 @@ nosetests.xml
 
 # Mr Developer
 .mr.developer.cfg
-.project
-.pydevproject
 .gitignore
 fotos
 *.db
+db.*
 media/
+
+# Ignoring IDE's files
+.idea/
+.project
+.pydevproject
+
