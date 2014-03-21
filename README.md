@@ -28,11 +28,7 @@ Install a app de reports generator
         $ git clone https://github.com/marinho/geraldo.git
         $ cd geraldo
         $ python setup.py install
-        $ cp -Rvf reporting geraldo /usr/local/lib/python2.7/site-packages
-
-Se você estiver suando virtualenv use
-
-        $ cp -Rvf reporting geraldo $WORKON_HOME/virtualenv_name/lib/python2.7/site-packages
+        $ cp -Rfv reporting geraldo `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
 
 
 
