@@ -115,7 +115,6 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'sigiStatic'),
 )
 
-# ADMIN_MEDIA_PREFIX = '/sigi/admin_media/' # Deprecated!
 
 DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
 

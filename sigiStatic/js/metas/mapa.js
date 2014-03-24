@@ -22,7 +22,7 @@
     
 	function ajax_submit(event) {
 		$.ajax({
-			url: "/sigi/dashboard/mapdata/",
+			url: "/dashboard/mapdata/",
 			type: 'GET',
 			cache: true,
 			success: function(return_data) {
@@ -39,7 +39,7 @@
 						map: null, // Just create the mark, dont plot it
 						position: new google.maps.LatLng(parseFloat(municipio.lat), parseFloat(municipio.lng)),
 						title: municipio.nome,
-						icon: '/sigi/media/images/' + municipio.icone + '.png'
+						icon: '/media/images/' + municipio.icone + '.png'
 				}
 				var mark = new google.maps.Marker(markData);
 				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
@@ -141,7 +141,7 @@
 	
 	function search(event) {
 		$.ajax({
-			url: "/sigi/dashboard/mapsearch/",
+			url: "/dashboard/mapsearch/",
 			type: 'GET',
 			data: $("#changelist-search").serializeArray(),
 			cache: true,

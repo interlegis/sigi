@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 from django.conf.urls import patterns, include, url
-from django.views.generic.base import RedirectView, TemplateView
+from django.views.generic.base import TemplateView
 from django.conf import settings
 from django.conf.urls.static import static
 
@@ -9,18 +9,17 @@ admin.site.index_template = 'index.html'
 admin.autodiscover()
 
 urlpatterns = patterns('',
-    url(r'^$', RedirectView.as_view(url='/sigi/'), name='go-to-sigi'),
 
-    url(r'^sigi/parlamentares/parlamentar/', include('sigi.apps.parlamentares.urls')),
-    url(r'^sigi/casas/casalegislativa/', include('sigi.apps.casas.urls')),
-    url(r'^sigi/convenios/convenio/', include('sigi.apps.convenios.urls')),
-    url(r'^sigi/diagnosticos/', include('sigi.apps.diagnosticos.urls')),
-    url(r'^sigi/servidores/', include('sigi.apps.servidores.urls')),
-    url(r'^sigi/servicos/', include('sigi.apps.servicos.urls')),
-    url(r'^sigi/dashboard/', include('sigi.apps.metas.urls')),
+    url(r'^parlamentares/parlamentar/', include('sigi.apps.parlamentares.urls')),
+    url(r'^casas/casalegislativa/', include('sigi.apps.casas.urls')),
+    url(r'^convenios/convenio/', include('sigi.apps.convenios.urls')),
+    url(r'^diagnosticos/', include('sigi.apps.diagnosticos.urls')),
+    url(r'^servidores/', include('sigi.apps.servidores.urls')),
+    url(r'^servicos/', include('sigi.apps.servicos.urls')),
+    url(r'^dashboard/', include('sigi.apps.metas.urls')),
     
 
-    url(r'^sigi/', include(admin.site.urls)),
+    url(r'^', include(admin.site.urls)),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

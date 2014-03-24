@@ -22,14 +22,14 @@
 	    	var map = new google.maps.Map(document.getElementById("map"),
 	        	myOptions);
 
-			$.get("/sigi/diagnosticos/mundiagjson/", function(municipios) {
+			$.get("/diagnosticos/mundiagjson/", function(municipios) {
 		    	for (var i in municipios) {
 		    		var municipio = municipios[i];
 			    	var markData = {
 			    			map: map,
 		    				position: new google.maps.LatLng(municipio.lat, municipio.lng),
 		    				title: municipio.nome,
-		    				icon: '{{ MEDIA_URL }}images/mapmarker.png' //'/sigi/media/images/mapmarker.png'
+		    				icon: '{{ MEDIA_URL }}images/mapmarker.png'
 			    		}
 			    	var mark = new google.maps.Marker(markData);
 		    		var infoWin = new google.maps.InfoWindow({content:

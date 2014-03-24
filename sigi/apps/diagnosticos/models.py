@@ -132,7 +132,7 @@ class Diagnostico(BaseEntity):
         return str(self.casa_legislativa).decode('utf8')
 
     def get_absolute_url(self):
-        return "/sigi/diagnosticos/diagnostico/%i.pdf" % (self.id, )
+        return "/diagnosticos/diagnostico/%i.pdf" % (self.id, )
 
 
 class Categoria(models.Model):
