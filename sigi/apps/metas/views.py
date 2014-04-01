@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import csv
+import os
+
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
 from django.utils import simplejson
@@ -20,7 +22,7 @@ from sigi.apps.utils import to_ascii
 from sigi.apps.financeiro.models import Desembolso
 from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
 
-JSON_FILE_NAME = MEDIA_ROOT + 'apps/metas/map_data.json'
+JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 
 @login_required
 
