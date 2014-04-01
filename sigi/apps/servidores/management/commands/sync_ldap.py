@@ -1,4 +1,4 @@
-# coding= utf-8
+# coding: utf-8
 import ldap
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User, Group
@@ -6,7 +6,7 @@ from sigi.settings import *
 from sigi.apps.servidores.models import Servidor
 
 class Command(BaseCommand):
-    help = 'Sincroniza Usuários e Servidores com o LDAP'
+    help = u'Sincroniza Usuários e Servidores com o LDAP'
 
     def handle(self, *args, **options):
         self.sync_groups()
