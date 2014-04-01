@@ -39,7 +39,7 @@
 						map: null, // Just create the mark, dont plot it
 						position: new google.maps.LatLng(parseFloat(municipio.lat), parseFloat(municipio.lng)),
 						title: municipio.nome,
-						icon: '/media/images/' + municipio.icone + '.png'
+						icon: municipio.icone
 				}
 				var mark = new google.maps.Marker(markData);
 				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
