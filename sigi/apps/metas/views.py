@@ -12,7 +12,7 @@ from django.db.models import Q
 from django.views.decorators.cache import cache_page
 from django.db.models.aggregates import Sum
 from django.contrib.auth.decorators import user_passes_test, login_required
-from sigi.settings import MEDIA_ROOT
+from sigi.settings import MEDIA_ROOT, STATIC_URL
 from sigi.shortcuts import render_to_pdf
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.convenios.models import Projeto, Convenio
@@ -302,9 +302,9 @@ def gera_map_data_file(cronjob=False):
             }
             
             for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='{{ STATIC_URL }}img/link.gif' alt='link'></a>" % (
+                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (
                                         sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else 
-                                        u'<sem data de ativação>', sv.url))
+                                        u'<sem data de ativação>', sv.url, STATIC_URL))
                 casa['seit'].append(sv.tipo_servico.sigla)
                 
             for cv in c.convenio_set.all():
