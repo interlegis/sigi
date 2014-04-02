@@ -302,7 +302,7 @@ def gera_map_data_file(cronjob=False):
             }
             
             for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='/media/images/link.gif' alt='link'></a>" % (
+                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='/static/img/link.gif' alt='link'></a>" % (
                                         sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else 
                                         u'<sem data de ativação>', sv.url))
                 casa['seit'].append(sv.tipo_servico.sigla)
