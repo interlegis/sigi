@@ -1,0 +1,17 @@
+NameVirtualHost 10.1.2.126:80
+<VirtualHost 10.1.2.126:80>
+  ServerName sigi01h.interlegis.leg.br
+
+  WSGIScriptAlias /sigi /var/aplicacoes/sigi/sigi/wsgi.py
+  Alias /sigi/static /var/aplicacoes/sigi/static
+  Alias /sigi/sigiStatic /var/aplicacoes/sigi/sigiStatic 
+
+  ErrorLog /var/log/apache2/sigi-error.log
+
+  # Possible values include: debug, info, notice, warn, error, crit,
+  # alert, emerg.
+  LogLevel warn
+
+  CustomLog /var/log/apache2/sigi-access.log combined
+  ServerSignature Off
+</VirtualHost>

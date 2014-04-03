@@ -1,0 +1,3 @@
+#!/bin/bash
+cd /var/aplicacoes/django/sigi/sigi
+python manage.py gera_map_data

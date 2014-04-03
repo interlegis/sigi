@@ -1,0 +1,4 @@
+#!/bin/bash
+cd /var/aplicacoes/django/sigi/sigi/
+python manage.py atualiza_uso_servico -v 0
+python manage.py clearsessions -v 0
