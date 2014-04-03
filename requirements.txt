@@ -6,6 +6,8 @@ django-localflavor==1.0
 django-treemenus==0.9.0
 eav-django==1.4.4
 html5lib==1.0b3
-pisa==3.0.33
 reportlab==2.7
-
+pisa==3.0.33
+django-auth-ldap==1.1.8
+gunicorn==18.0
+python-memcached==1.53

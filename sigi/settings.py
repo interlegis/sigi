@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/dev/ref/settings/
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
 import django.conf.global_settings as DEFAULT_SETTINGS
+
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
 # Quick-start development settings - unsuitable for production
@@ -21,10 +22,16 @@ SECRET_KEY = '0$ip1fb5xtq%a=)-k_4r^(#jn0t^@+*^kihkxkozg-mip7+w3+'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
-
-TEMPLATE_DEBUG = True
-
+TEMPLATE_DEBUG = DEBUG
 ALLOWED_HOSTS = []
+
+ADMINS = (
+    # ('Your Name', 'your_email@example.com'),
+)
+
+MANAGERS = ADMINS
+
+SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'sigi.context_processors.charts_data',
@@ -36,7 +43,6 @@ TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
 
 
 # Application definition
-
 INSTALLED_APPS = (
     'django.contrib.admin',
     'django.contrib.auth',
@@ -77,9 +83,7 @@ MIDDLEWARE_CLASSES = (
 )
 
 ROOT_URLCONF = 'sigi.urls'
-
 WSGI_APPLICATION = 'sigi.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/dev/ref/settings/#databases
@@ -93,34 +97,44 @@ DATABASES = {
 
 # Internationalization
 # https://docs.djangoproject.com/en/dev/topics/i18n/
-
 LANGUAGE_CODE = 'pt-br'
-
-TIME_ZONE = 'UTC'
-
 USE_I18N = True
-
 USE_L10N = True
-
-USE_TZ = True
-
+USE_THOUSAND_SEPARATOR = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-
 STATIC_URL = '/static/'
-
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'sigiStatic'),
 )
 
-
-DEFAULT_FROM_EMAIL = 'sesostris@interlegis.leg.br'
-
+SERVER_EMAIL = 'sigi@interlegis.leg.br'
+DEFAULT_FROM_EMAIL = 'spdt@interlegis.leg.br'
+EMAIL_SUBJECT_PREFIX = u'[SIGI]'
 
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+try:
+    from local_settings import *
+except ImportError:
+    from warnings import warn
+    msg = "You don't have local_settings.py file, using defaults settings."
+    try:
+        # don't work in Python 2.4 or before
+        warn(msg, category=ImportWarning)
+    except NameError:
+        warn(msg)
