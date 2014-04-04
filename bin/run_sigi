@@ -1,0 +1,26 @@
+#!/bin/bash
+ 
+NAME="sigi"
+DJANGODIR=/var/aplicacoes/sigi
+SOCKFILE=/var/run/sigi/sigi.sock
+USER=sigi
+GROUP=sigi
+NUM_WORKERS=3 # = 2 * CPUs + 1
+DJANGO_SETTINGS_MODULE=sigi.settings
+DJANGO_WSGI_MODULE=sigi.wsgi
+
+echo "Starting $NAME as `whoami`"
+ 
+cd $DJANGODIR
+export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
+export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+ 
+RUNDIR=$(dirname $SOCKFILE)
+test -d $RUNDIR || mkdir -p $RUNDIR
+ 
+exec gunicorn ${DJANGO_WSGI_MODULE}:application \
+--name $NAME \
+--workers $NUM_WORKERS \
+--user=$USER --group=$GROUP \
+--log-level=debug \
+--bind=unix:$SOCKFILE
