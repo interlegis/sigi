@@ -52,7 +52,11 @@
     <h2>Convênios</h2>
     <h3>Convênios assinados por projeto</h3>
     <div class="align-center">
-        <img src="{{ convenios_assinados.url }}&chdlp=b" class="chart" />
+        {% if g_convassinado_proj.convenios %}
+          <img src="{{ convenios_assinados.url }}&chdlp=b" class="chart" />
+        {% else %}
+          <p>Nenhum dado para exibir</p>
+        {% endif %}
     </div>
 </div>
 
@@ -109,7 +113,11 @@
     <h2>Convênios</h2>
     <h3>Processos de convênios por projeto</h3>
     <div class="align-center">
-        <img src="{{ processos.url }}&chdlp=b" class="chart" />
+        {% if g_conv_proj.convenios %}
+          <img src="{{ processos.url }}&chdlp=b" class="chart" />
+        {% else %}
+          <p>Nenhum dado para exibir</p>
+        {% endif %}
     </div>
 </div>
 
