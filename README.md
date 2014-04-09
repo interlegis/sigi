@@ -11,7 +11,7 @@ Installation
 ---------------
 Faça o checkout do projeto
  
-        $ git clone https://github.com/BrenoTeixeira/SIGI-1.6.git
+        $ git clone https://github.com/interlegis/sigi.git 
 
 Instalando as dependências do arquivo `requirements.txt`
 
