@@ -19,7 +19,7 @@ Instalando as dependências do arquivo `requirements.txt`
 
 Install django-googlecharts
 
-        $ clone git://github.com/jacobian/django-googlecharts.git
+        $ git clone git://github.com/jacobian/django-googlecharts.git
         $ cd django-googlecharts
         $ python setup.py install
 
