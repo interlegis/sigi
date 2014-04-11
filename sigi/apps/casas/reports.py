@@ -6,6 +6,8 @@ from geraldo import Report, DetailBand, Label, ObjectValue, ManyElements, \
                     ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH,SystemField
 
 from sigi.apps.relatorios.reports import ReportDefault
+from sigi.settings import STATICFILES_DIRS 
+
 
 from geraldo.graphics import Image
 
@@ -185,11 +187,11 @@ class CasasLegislativasReport(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements = [
-            Image(filename= ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-interlegis.jpg',
+            Image(filename= '%s/img/logo-interlegis.jpg' % STATICFILES_DIRS,
                 left=23.5*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
                 width=4.2*cm,height=3*cm,
             ),
-            Image(filename=  ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-senado.png',
+            Image(filename=  '%s/img/logo-senado.png' % STATICFILES_DIRS,
                 left=1*cm,right=1*cm,top=0.1*cm,bottom=1*cm,
                 width=3*cm,height=3*cm,
             ),
