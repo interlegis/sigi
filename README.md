@@ -19,9 +19,9 @@ Instalando as dependências do arquivo `requirements.txt`
 
 Install django-googlecharts
 
-        $ git clone git clone git://github.com/jacobian/django-googlecharts.git
+        $ clone git://github.com/jacobian/django-googlecharts.git
         $ cd django-googlecharts
-        $ python setup.py instal
+        $ python setup.py install
 
 Install a app de reports generator
 
