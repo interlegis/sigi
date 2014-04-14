@@ -50,11 +50,13 @@ INSTALLED_APPS = (
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
 
     # Local apps
     'sigi.apps.contatos',
     'sigi.apps.servidores',
     'sigi.apps.parlamentares',
+    'sigi.apps.pesquisas',
     'sigi.apps.mesas',
     'sigi.apps.casas',
     'sigi.apps.convenios',
