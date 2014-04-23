@@ -1,0 +1,28 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
+<script>
+    $(function () {
+        $('#chart').highcharts({
+            chart: {
+                type: 'pie'
+            },
+            title: {
+                text: 'Grafico'
+            },
+            series: [{
+                data: [
+                    {% for serie in dados %}
+                        ['{{ serie.value }}', {{ serie.total }}],
+                    {% endfor %}
+                ]
+            }]
+        });
+    });
+</script>
+</head>
+<body>
+<div id="chart" style="width:100%; height:400px;"></div>
+</body>
+</html>

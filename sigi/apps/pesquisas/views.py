@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sigi.forms_builder.forms.views import FormDetail, FormSent
+from forms_builder.forms.views import FormDetail, FormSent
 from sigi.apps.pesquisas.models import Pesquisa
 from sigi.apps.pesquisas.forms import PesquisaForm
 

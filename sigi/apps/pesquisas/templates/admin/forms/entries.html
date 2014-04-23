@@ -26,6 +26,7 @@ td.include, th.include-all, td.include-all {text-align:center; width:10px;}
 .button {float:left !important; margin-right:10px; cursor:pointer;}
 </style>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7/jquery.min.js"></script>
+<script type="text/javascript" src="{{ STATIC_URL }}admin/js/admin/RelatedObjectLookups.js"></script>
 <script>
 $(function() {
     // Show the filter criteria fields when a filter option is selected.
@@ -87,19 +88,23 @@ $(function() {
         <tr>
             <th>{% trans "Field" %}</th>
             <th>{% trans "Include" %}</th>
-            <th class="last" colspan="2">{% trans "Filter by" %}</th>
+            <th colspan="2">{% trans "Filter by" %}</th>
+            <th class="last">{% trans "Graphic" %}</th>
         </tr>
-        {% for include_field, filter_field, filter_option_fields in entries_form %}
+        {% for include_field, graphic_field, filter_field, filter_option_fields in entries_form %}
         <tr class="{% cycle on,off as row %}">
-            <td class="field">{{ include_field.label_tag }}</td>
+            <td class="field">{{ include_field.label_tag }}<br>{{ include_field.id }}</td>
             <td class="include">{{ include_field }}</td>
-            <td class="filter last">{{ filter_field }}</td>
-            <td class="options last">
+            <td class="filter">{{ filter_field }}</td>
+            <td class="options">
                 <div class="options-div">
                     {% for option_field in filter_option_fields %}
                     {{ option_field.label_tag }} {{ option_field }}
                     {% endfor %}
                 </div>
+            </td>
+            <td class="last">
+                <a href="{{ graphic_field.value }}" onclick="return showAddAnotherPopup(this);">{{ graphic_field.label }}</a>
             </td>
         </tr>
         {% endfor %}
@@ -110,7 +115,7 @@ $(function() {
             <td class="include-all">
                 <input type="checkbox" id="include-all" class="include-all" checked="checked">
             </td>
-            <td class="last" colspan="2">&nbsp;</td>
+            <td class="last" colspan="3">&nbsp;</td>
         </tr>
     </table>
     <input type="submit" name="back" class="button" value="{% trans "Back to form" %}">

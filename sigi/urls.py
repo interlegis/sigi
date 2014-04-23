@@ -18,6 +18,8 @@ urlpatterns = patterns('',
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
     url(r'^pesquisas/formulario/', include('sigi.apps.pesquisas.urls')),
+
+    url(r'^pesquisas/chart/(?P<field_id>\d+)/$', 'sigi.apps.pesquisas.views.chart_view'),
     
 
     url(r'^', include(admin.site.urls)),
