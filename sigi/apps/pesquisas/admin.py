@@ -1,11 +1,13 @@
-# -*- coding: utf-8 -*-
-
+# coding: utf-8
 from django.contrib import admin
-from sigi.forms_builder.forms.admin import FieldAdmin, FormAdmin
 from sigi.apps.pesquisas.models import Pesquisa, Pergunta, Formulario, Resposta
+
+from forms_builder.forms.admin import FieldAdmin, FormAdmin
+
 
 class PerguntaAdmin(FieldAdmin):
     model = Pergunta
+
 
 class PesquisaAdmin(FormAdmin):
     formentry_model = Formulario

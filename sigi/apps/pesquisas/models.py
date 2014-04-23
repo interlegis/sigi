@@ -2,7 +2,7 @@
 
 from django.db import models
 from django.utils.translation import ungettext, ugettext_lazy as _
-from sigi.forms_builder.forms.models import AbstractForm, AbstractField, AbstractFormEntry, AbstractFieldEntry
+from forms_builder.forms.models import AbstractForm, AbstractField, AbstractFormEntry, AbstractFieldEntry
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servidores.models import Servidor
 
@@ -32,6 +32,7 @@ class Pergunta(AbstractField):
         fields_after.update(order=models.F("order") - 1)
         super(Pergunta, self).delete(*args, **kwargs)
 
+
 class Formulario(AbstractFormEntry):
     form = models.ForeignKey("Pesquisa", related_name="entries")
     casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u"Casa legislativa")
@@ -39,6 +40,7 @@ class Formulario(AbstractFormEntry):
     
     class Meta(AbstractFormEntry.Meta):
         unique_together = ('form', 'casa_legislativa')
-    
+
+
 class Resposta(AbstractFieldEntry):
     entry = models.ForeignKey("Formulario", related_name="fields")

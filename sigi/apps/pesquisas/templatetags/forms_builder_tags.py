@@ -1,5 +1,5 @@
 from django import template
-from sigi.forms_builder.forms.templatetags.forms_builder_tags import BuiltFormNode
+from forms_builder.forms.templatetags.forms_builder_tags import BuiltFormNode
 from sigi.apps.pesquisas.models import Pesquisa
 from sigi.apps.pesquisas.forms import PesquisaForm
 

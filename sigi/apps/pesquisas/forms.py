@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from sigi.forms_builder.forms.forms import FormForForm
+from forms_builder.forms.forms import FormForForm
 from sigi.apps.pesquisas.models import Formulario, Resposta
 
 class PesquisaForm(FormForForm):
