@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
-#from sigi.apps.casas.models import Funcionario
 from sigi.apps.casas.admin import FuncionariosInline
 from django.http import Http404, HttpResponseRedirect
 from django.forms.models import ModelForm
@@ -10,13 +9,13 @@ from django.utils.translation import ugettext as _
 from django.core.urlresolvers import reverse
 from sigi.apps.casas.models import CasaLegislativa
 
-#---------------- inlines ---------------------
+
 class LogServicoInline(admin.StackedInline):
     model = LogServico
     Fieldset = ((None, {'fields': (('data', 'descricao'), 'log')}))
     extra = 1
 
-# --------------- forms -----------------------
+
 class ServicoFormAdmin(ModelForm):
     class Meta:
         model = Servico
@@ -41,12 +40,13 @@ class ServicoFormAdmin(ModelForm):
             contatos = [(f.id, unicode(f)) for f in casa.funcionario_set.all()] 
             self.fields['contato_tecnico'].choices = contatos
             self.fields['contato_administrativo'].choices = contatos
-        
-#---------------- admins ----------------------
+
+
 class TipoServicoAdmin(admin.ModelAdmin):
     list_display = ('id', 'sigla', 'nome', 'qtde_casas_atendidas', )
     ordering = ['id']
-    
+
+
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
     actions = ['calcular_data_uso',]
@@ -165,9 +165,11 @@ class ServicoAdmin(admin.ModelAdmin):
 
         return obj
 
+
 class ContatosInline(FuncionariosInline):
     can_delete = False # Equipe do SEIT não pode excluir pessoas de contato
-                
+
+
 class CasaAtendidaAdmin(admin.ModelAdmin):
     actions = None
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
@@ -179,7 +181,8 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
                 ,)
     readonly_fields = ('nome',  'logradouro', 'bairro', 'municipio', 'cep')
     inlines = (ContatosInline,) 
-    list_filter = ('tipo', 'servico__tipo_servico', 'municipio__uf__nome', )
+    list_filter = ('tipo', 'servico__tipo_servico', 'municipio__uf__nome',
+                   'servico__casa_legislativa__convenio__projeto')
     search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
