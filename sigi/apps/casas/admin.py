@@ -1,32 +1,30 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
-from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoCasaLegislativa
-from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasReport
 from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
                                     labels_report_sem_presidente, report, \
                                     adicionar_casas_carrinho
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.contatos.models import Telefone
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo
+from sigi.apps.convenios.models import Convenio
 from sigi.apps.mesas.models import Legislatura
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.inventario.models import Bem
 from sigi.apps.servicos.models import Servico
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
-from django.utils.translation import ugettext as _
 
 
 class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
     readonly_fields = ('ult_alteracao',)
     extra = 1
+
 
 class PresidenteInline(admin.StackedInline):
     model = Presidente
@@ -35,6 +33,7 @@ class PresidenteInline(admin.StackedInline):
     extra = 1
     max_num = 1
     inlines = (TelefonesInline)
+
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
@@ -46,6 +45,7 @@ class FuncionariosInline(admin.StackedInline):
     inlines = (TelefonesInline,)
     def queryset(self, request):
         return self.model.objects.exclude(cargo="Presidente")
+
 
 class ConveniosInline(admin.StackedInline):
     model = Convenio
@@ -87,7 +87,8 @@ class ConveniosInline(admin.StackedInline):
     
     link_convenio.short_description = 'Editar convenio'
     link_convenio.allow_tags = True
-    
+
+
 class LegislaturaInline(admin.TabularInline):
     model = Legislatura
     fields = ['numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares', 'link_parlamentares',]
@@ -106,7 +107,8 @@ class LegislaturaInline(admin.TabularInline):
     
     link_parlamentares.short_description = 'Parlamentares'
     link_parlamentares.allow_tags = True
-    
+
+
 class DiagnosticoInline(admin.TabularInline):
     model = Diagnostico
     fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico',]
@@ -128,9 +130,11 @@ class DiagnosticoInline(admin.TabularInline):
     link_diagnostico.short_description = 'Ver PDF'
     link_diagnostico.allow_tags = True
 
+
 class BemInline(admin.TabularInline):
     model = Bem
-    
+
+
 class ServicoInline(admin.TabularInline):
     model = Servico
     fields = ['url', 'contato_tecnico', 'contato_administrativo', 'hospedagem_interlegis', 'data_ativacao', 'data_alteracao', 'data_desativacao']
@@ -139,8 +143,10 @@ class ServicoInline(admin.TabularInline):
     max_num = 0
     can_delete = False
 
+
 class PlanoDiretorInline(admin.TabularInline):
     model = PlanoDiretor
+
 
 class OcorrenciaInline(admin.TabularInline):
     model = Ocorrencia
@@ -149,7 +155,8 @@ class OcorrenciaInline(admin.TabularInline):
     extra = 0
     max_num = 0
     can_delete = False
-    
+
+
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
     change_form_template = 'casas/change_form.html'
@@ -164,7 +171,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
     queyrset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares')
+            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares', 'gerente_contas')
         }),
         ('Endereço', {
             'fields': ('data_instalacao', 'logradouro', 'bairro',

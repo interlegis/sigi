@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from django.contrib.contenttypes import generic
-from sigi.apps.parlamentares.models import Parlamentar
-from sigi.apps.utils import SearchField
-from datetime import datetime
 import random
 from unicodedata import normalize
-from sigi.apps.contatos.models import Municipio
+from datetime import datetime
 
+from django.db import models
+from django.contrib.contenttypes import generic
+
+from sigi.apps.utils import SearchField
+from sigi.apps.servidores.models import Servidor
 
 class TipoCasaLegislativa(models.Model):
     """ Modelo para representar o tipo da Casa Legislativa
@@ -43,6 +43,8 @@ class CasaLegislativa(models.Model):
 #    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
     # codigo_interlegis.ts_filter = True
+
+    gerente_contas = models.ForeignKey(Servidor, verbose_name="Gerente de contas")
 
     # Informações de contato
     logradouro = models.CharField(
