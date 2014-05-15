@@ -195,3 +195,13 @@ class ServicoManifesto(models.Model):
     
     class Meta:
         unique_together = ('casa_manifesta', 'servico')
+
+
+class RegistroServico(models.Model):
+    produto = models.CharField(max_length=50)
+    versao = models.CharField(max_length=30)
+    url = models.URLField()
+    data_registro = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = u'Registro de serviços'
