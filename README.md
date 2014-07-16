@@ -13,7 +13,12 @@ Faça o checkout do projeto
  
         $ git clone https://github.com/interlegis/sigi.git 
 
-Instalando as dependências do arquivo `requirements.txt`
+Instale as bibliotecas de sistema necessárias para usar o python-ldap
+(vide http://www.python-ldap.org/doc/html/installing.html#prerequisites)
+
+        $ sudo apt-get install python-dev libldap2-dev libssl-dev libsasl2-dev
+
+Instale as dependências do arquivo `requirements.txt`
 
         $ pip install -r requirements.txt
 
