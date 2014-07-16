@@ -23,13 +23,6 @@ source ./env/bin/activate
 echo "Isolando arquivos temporários..."
 mkdir tmp
 
-echo "Instalando django-googlecharts..."
-cd tmp/
-git clone git://github.com/jacobian/django-googlecharts.git
-cd django-googlecharts
-python setup.py install
-cd ..
-
 echo "Instalando geraldo reports..."
 git clone https://github.com/marinho/geraldo.git
 cd geraldo
