@@ -1,9 +1,5 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from datetime import datetime
-from django.db import models
-from sigi.apps.utils import SearchField
-#from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
 
 class Categoria(models.Model):
