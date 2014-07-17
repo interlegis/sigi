@@ -24,7 +24,7 @@ echo "Isolando arquivos temporários..."
 mkdir tmp
 
 echo "Instalando geraldo reports..."
-git clone https://github.com/marinho/geraldo.git
+git clone git@github.com:marinho/geraldo.git
 cd geraldo
 python setup.py install
 cp -Rfv reporting geraldo `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`

@@ -11,7 +11,7 @@ Installation
 ---------------
 Faça o checkout do projeto
  
-        $ git clone https://github.com/interlegis/sigi.git 
+        $ git clone git@github.com:interlegis/sigi.git
 
 Instale as bibliotecas de sistema necessárias para usar o python-ldap
 (vide http://www.python-ldap.org/doc/html/installing.html#prerequisites)
@@ -24,7 +24,7 @@ Instale as dependências do arquivo `requirements.txt`
 
 Install a app de reports generator
 
-        $ git clone https://github.com/marinho/geraldo.git
+        $ git clone git@github.com:marinho/geraldo.git
         $ cd geraldo
         $ python setup.py install
         $ cp -Rfv reporting geraldo `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
