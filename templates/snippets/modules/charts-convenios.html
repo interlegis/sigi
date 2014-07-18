@@ -1,133 +1,109 @@
-{% load charts %}
-
-{% chart as convenios_assinados %}
-  {% chart-size   250 160 %}
-  {% chart-type   "pie-3d" %}
-  {% chart-labels g_convassinado_proj.convenios %}
-  {% chart-data g_convassinado_proj.convenios %}
-  {% chart-legend g_convassinado_proj.projetos %}
-  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
-  {% chart-title g_convassinado_proj.total_convenios %}  
-{% endchart %}
-
-{% chart as processos %}
-  {% chart-size   250 160 %}
-  {% chart-type   "pie-3d" %}
-  {% chart-labels g_conv_proj.convenios %}
-  {% chart-data g_conv_proj.convenios %}
-  {% chart-legend g_conv_proj.projetos %}
-  {% chart-colors "A2CD5A,FFB90F,6CA6CD" %}
-  {% chart-title g_conv_proj.total_convenios %}  
-{% endchart %}
-
 <div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
     <!-- h3>Câmaras municipais por projeto</h3 -->
     <div class="align-center">
-        <table>            
+        <table>
             <tr>
                 {% for item in tabela_resumo_camara.cabecalho_topo %}
-                <th>{{item}}</th>
+                    <th>{{item}}</th>
                 {% endfor %}
             </tr>
 
             {% for cabecalho,lista in tabela_resumo_camara.lista_zip %}
-            <tr>
-                <th>{{cabecalho}}</th>
-                {% for item in lista %}
-                <td>{{item}}</td>
-                {% endfor %}
-            </tr>
+                <tr>
+                    <th>{{cabecalho}}</th>
+                    {% for item in lista %}
+                        <td>{{item}}</td>
+                    {% endfor %}
+                </tr>
             {% endfor %}
-            
+
         </table>
     </div>
-	<ul>
-		<li>Câmaras sem processo: {{tabela_resumo_camara.camaras_sem_processo}}</li>
-		<li>Total de câmaras: {{tabela_resumo_camara.total_camaras}}</li>
-	</ul>        
+    <ul>
+        <li>Câmaras sem processo: {{tabela_resumo_camara.camaras_sem_processo}}</li>
+        <li>Total de câmaras: {{tabela_resumo_camara.total_camaras}}</li>
+    </ul>
 </div>
 
 <div class="module" style="height: 300px;">
     <h2>Convênios</h2>
-    <h3>Convênios assinados por projeto</h3>
-    <div class="align-center">
+    <div id="processos_conv_ass" class="align-center" style="height: 280px;">
         {% if g_convassinado_proj.convenios %}
-          <img src="{{ convenios_assinados.url }}&chdlp=b" class="chart" />
+            <img src="{{ convenios_assinados.url }}&chdlp=b" class="chart" />
         {% else %}
-          <p>Nenhum dado para exibir</p>
+            <p>Nenhum dado para exibir</p>
         {% endif %}
     </div>
 </div>
 
 <div class="module" style="height: 300px;">
-	<h2>Serviços</h2>
-	<div class="titlemapbox">
-	<div class="mapbox"><a href="/dashboard/mapa/"><img src="{{ STATIC_URL }}img/mapicon.png"/><br/>Ver mapa</a></div>
-	<h3>Serviços hospedados no Interlegis (SEIT)</h3>
-	</div>
+    <h2>Serviços</h2>
+    <div class="titlemapbox">
+        <div class="mapbox"><a href="/dashboard/mapa/"><img src="{{ STATIC_URL }}img/mapicon.png"/><br/>Ver mapa</a></div>
+        <h3>Serviços hospedados no Interlegis (SEIT)</h3>
+    </div>
 
-    <table>            
-    	<tr>
-    	</tr>
-	
-	{% for servico in tabela_resumo_seit %}
-		<tr>
-		{% if forloop.first %}
-    		<th style="width: 40%; vertical-align:bottom;">{{ servico.nome }}</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.total }}</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_anterior }}</th>
-    		<th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_atual }}</th>
-    	{% else %}
-			<th style="width: 40%;">{{ servico.nome }}</th>
-			<td style="text-align: right;">{{ servico.total }}</td>
-			<td style="text-align: right;">{{ servico.novos_mes_anterior }}</td>
-			<td style="text-align: right;">{{ servico.novos_mes_atual }}</td>
-		{% endif %}
-		</tr>
-	{% endfor %}
-	</table>
+    <table>
+        <tr>
+        </tr>
+
+        {% for servico in tabela_resumo_seit %}
+            <tr>
+                {% if forloop.first %}
+                    <th style="width: 40%; vertical-align:bottom;">{{ servico.nome }}</th>
+                    <th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.total }}</th>
+                    <th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_anterior }}</th>
+                    <th style="width: 20%; vertical-align:bottom; text-align: right;">{{ servico.novos_mes_atual }}</th>
+                {% else %}
+                    <th style="width: 40%;">{{ servico.nome }}</th>
+                    <td style="text-align: right;">{{ servico.total }}</td>
+                    <td style="text-align: right;">{{ servico.novos_mes_anterior }}</td>
+                    <td style="text-align: right;">{{ servico.novos_mes_atual }}</td>
+                {% endif %}
+            </tr>
+        {% endfor %}
+    </table>
 </div>
 
 <div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
     <h3>Resumo de informações por região</h3>
     <div >
-    	<p style="text-align: justify">
-    		Resumo de informações de Câmaras Municipais por região levando em conta
-    		apenas o Projeto Interlegis. Demais projetos como PPM e PML não estão inclusos. 
-    	</p>
-        		
+        <p style="text-align: justify">
+            Resumo de informações de Câmaras Municipais por região levando em conta
+            apenas o Projeto Interlegis. Demais projetos como PPM e PML não estão inclusos.
+        </p>
+
         <ul class="conteudo_regiao">
-	        <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
-	        <li><a href="reportsRegiao/NE">Nordeste</a></li>
-	        <li><a href="reportsRegiao/NO">Norte</a></li>
-	        <li><a href="reportsRegiao/SD">Sudeste</a></li>
-	        <li><a href="reportsRegiao/SL">Sul</a></li>
+            <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
+            <li><a href="reportsRegiao/NE">Nordeste</a></li>
+            <li><a href="reportsRegiao/NO">Norte</a></li>
+            <li><a href="reportsRegiao/SD">Sudeste</a></li>
+            <li><a href="reportsRegiao/SL">Sul</a></li>
         </ul>
-    
+
     </div>
 </div>
 
 <div class="module" style="height: 300px;">
     <h2>Convênios</h2>
-    <h3>Processos de convênios por projeto</h3>
-    <div class="align-center">
+    <div id="processos_conv" class="align-center"  style="height: 280px;">
         {% if g_conv_proj.convenios %}
-          <img src="{{ processos.url }}&chdlp=b" class="chart" />
+            <img src="{{ processos.url }}&chdlp=b" class="chart" />
         {% else %}
-          <p>Nenhum dado para exibir</p>
+            <p>Nenhum dado para exibir</p>
         {% endif %}
     </div>
 </div>
 
 <div class="module" style="height: 300px;">
-	<h2>Atendimentos</h2>
-	<h3>Mapa de atuação do Interlegis</h3>
-	<div class="align-center">
-		<a href="/dashboard/mapa/"> <img src="{{ STATIC_URL }}img/mapicon-large.png" style="width: 60%;"/> </a>
-	</div>
-{% comment %}
+    <h2>Atendimentos</h2>
+    <h3>Mapa de atuação do Interlegis</h3>
+    <div class="align-center">
+        <a href="/dashboard/mapa/"> <img src="{{ STATIC_URL }}img/mapicon-large.png" style="width: 60%;"/> </a>
+    </div>
+    {% comment %}
 	<h2>Metas BID</h2>
 	<h3>Estado das metas do contrato BID</h3>
 	<table style="margin: auto;">

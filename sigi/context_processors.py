@@ -2,17 +2,16 @@
 import datetime
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
 
-def charts_data(request):
-    '''
-        Busca informacoes para a criacao dos graficos e resumos
-    '''
 
-    projetos = Projeto.objects.all()
+def charts_data(request):
+    """
+    Busca informacoes para a criacao dos graficos e resumos
+    """
+
     convenios = Convenio.objects.all()
     convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
 
@@ -23,19 +22,20 @@ def charts_data(request):
     g_convassinado_proj = grafico_convenio_projeto(convenios_assinados)
 
     return {        
-        'tabela_resumo_camara' : tabela_resumo_camara,
-        'tabela_resumo_seit' : tabela_resumo_seit,
+        'tabela_resumo_camara': tabela_resumo_camara,
+        'tabela_resumo_seit': tabela_resumo_seit,
         'tabela_resumo_diagnostico': tabela_resumo_diagnostico,
         'g_conv_proj': g_conv_proj,
-        "g_convassinado_proj":g_convassinado_proj,
+        "g_convassinado_proj": g_convassinado_proj,
         'metas': Meta.objects.all(),
     }
 
+
 def busca_informacoes_camara():
-    '''
-        Busca informacoes no banco para montar tabela de resumo de camaras por projeto
-        Retorna um dicionario de listas
-    '''    
+    """
+    Busca informacoes no banco para montar tabela de resumo de camaras por projeto
+    Retorna um dicionario de listas
+    """
     camaras = CasaLegislativa.objects.filter(tipo__sigla='CM')
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     projetos = Projeto.objects.all()
@@ -52,10 +52,10 @@ def busca_informacoes_camara():
 
     # Criacao das listas para o resumo de camaras por projeto
 
-    cabecalho_topo = ['',] # Cabecalho superior da tabela
+    cabecalho_topo = ['', ]  # Cabecalho superior da tabela
 
     lista_total = []
-    lista_nao_aderidas =  []
+    lista_nao_aderidas = []
     lista_aderidas = []
     lista_convenios_assinados = []
     lista_convenios_em_andamento = []
@@ -63,7 +63,7 @@ def busca_informacoes_camara():
     for projeto in projetos:
         conv_sem_adesao_proj = convenios_sem_adesao.filter(projeto=projeto)
         conv_com_adesao_proj = convenios_com_adesao.filter(projeto=projeto)
-        conv_assinados_proj  = convenios_assinados.filter(projeto=projeto)
+        conv_assinados_proj = convenios_assinados.filter(projeto=projeto)
         conv_em_andamento_proj = convenios_em_andamento.filter(projeto=projeto)
         conv_equipadas_proj = convenios_com_aceite.filter(projeto=projeto)
 
@@ -111,23 +111,24 @@ def busca_informacoes_camara():
     return {        
         u'cabecalho_topo': cabecalho_topo,
         u'lista_zip': lista_zip,
-        u'total_camaras' : camaras.count(),
+        u'total_camaras': camaras.count(),
         u'camaras_sem_processo': camaras_sem_processo.count(),
     }
+
 
 def grafico_convenio_projeto(convenios):    
     projetos = Projeto.objects.all()
 
-    lista_convenios = []
+    lista_projetos = []
     for projeto in projetos:
-        lista_convenios.append(convenios.filter(projeto=projeto).count())
+        lista_projetos.append((projeto.nome, convenios.filter(projeto=projeto).count()))
 
-    dic = {
-        "total_convenios":("Total: " + str(convenios.count())),
-        "convenios":lista_convenios,
-        "projetos":projetos
-    }
-    return dic
+    total_convenios = "Total: " + str(convenios.count())
+
+    lista_projetos.insert(0, total_convenios)
+
+    return lista_projetos
+
 
 def busca_informacoes_seit():
     mes_atual = datetime.date.today().replace(day=1)
@@ -148,6 +149,7 @@ def busca_informacoes_seit():
         )
 
     return result
+
 
 def busca_informacoes_diagnostico():
     return [

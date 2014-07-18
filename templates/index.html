@@ -10,43 +10,127 @@
     <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.init.js"></script>
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"> </script>
     <script type="text/javascript">
-      (function($) {
-        $(document).ready(function($) {
-        var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
-        var myOptions = {
-          zoom: 3,
-          center: latlng,
-          mapTypeId: google.maps.MapTypeId.ROADMAP
-        };
-        var map = new google.maps.Map(document.getElementById("map_canvas"),
-            myOptions);
+        (function($) {
+            $(document).ready(function($) {
+                var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
+                var myOptions = {
+                    zoom: 3,
+                    center: latlng,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                };
+                var map = new google.maps.Map(document.getElementById("map_canvas"),
+                        myOptions);
 
-        $.get("/diagnosticos/mundiagjson/", function(municipios) {
-            for (var i in municipios) {
-                var municipio = municipios[i];
-                var markData = {
-                        map: map,
-                        position: new google.maps.LatLng(municipio.lat, municipio.lng),
-                        title: municipio.nome,
-                        icon: '{{ STATIC_URL }}img/mapmarker.png'
+                $.get("/diagnosticos/mundiagjson/", function(municipios) {
+                    for (var i in municipios) {
+                        var municipio = municipios[i];
+                        var markData = {
+                            map: map,
+                            position: new google.maps.LatLng(municipio.lat, municipio.lng),
+                            title: municipio.nome,
+                            icon: '{{ STATIC_URL }}img/mapmarker.png'
+                        }
+                        var mark = new google.maps.Marker(markData);
+                        var infoWin = new google.maps.InfoWindow({content:
+                                '<strong>' + municipio.nome + '</strong><br/>' +
+                                        '<strong>Início da visita:</strong><br/>' + municipio.inicio + '<br/>' +
+                                        '<strong>Término da visita:</strong><br/>' + municipio.fim + '<br/>' +
+                                        '<strong>Equipe:</trong><br/>' + municipio.equipe });
+                        linkMarkMessage(mark, infoWin, map);
                     }
-                var mark = new google.maps.Marker(markData);
-                var infoWin = new google.maps.InfoWindow({content:
-                    '<strong>' + municipio.nome + '</strong><br/>' +
-                    '<strong>Início da visita:</strong><br/>' + municipio.inicio + '<br/>' +
-                    '<strong>Término da visita:</strong><br/>' + municipio.fim + '<br/>' +
-                    '<strong>Equipe:</trong><br/>' + municipio.equipe });
-                linkMarkMessage(mark, infoWin, map);
-            }
-        });
+                });
 
-        function linkMarkMessage(mark, infoWin, map) {
-            google.maps.event.addListener(mark, 'click', function() {   
-                infoWin.open(map, mark);});
-        }
-      })
-      })(django.jQuery);        
+                function linkMarkMessage(mark, infoWin, map) {
+                    google.maps.event.addListener(mark, 'click', function() {
+                        infoWin.open(map, mark);});
+                }
+            })
+        })(django.jQuery);
     </script>
+    {# Highcharts scripts #}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+
+    <script type="text/javascript">
+        $(function () {
+            var chart;
+
+            $(document).ready(function () {
+
+                // Build the chart
+                $('#processos_conv').highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
+                    },
+                    title: {
+                        text: 'Processos de convênios por projeto <br/> {{ g_conv_proj.0 }}'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        name: 'Browser share',
+                        data: [
+                            {% for k, v in g_conv_proj %}
+                                {% if not  forloop.first %}
+                                    ['{{ k }}', {{ v }}],
+                                {% endif %}
+                            {% endfor %}
+                        ]
+                    }]
+                });
+                $('#processos_conv_ass').highcharts({
+                    chart: {
+                        plotBackgroundColor: null,
+                        plotBorderWidth: null,
+                        plotShadow: false
+                    },
+                    title: {
+                        text: 'Convênios assinados por projeto <br/> {{ g_convassinado_proj.0 }}'
+                    },
+                    tooltip: {
+                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'
+                    },
+                    plotOptions: {
+                        pie: {
+                            allowPointSelect: true,
+                            cursor: 'pointer',
+                            dataLabels: {
+                                enabled: false
+                            },
+                            showInLegend: true
+                        }
+                    },
+                    series: [{
+                        type: 'pie',
+                        name: 'Browser share',
+                        data: [
+                            {% for k, v in g_convassinado_proj %}
+                                {% if not  forloop.first %}
+                                    ['{{ k }}', {{ v }}],
+                                {% endif %}
+                            {% endfor %}
+                        ]
+                    }]
+                });
+            });
+
+        });
+    </script>
+    {# end highcharts scripts #}
 {% endblock %}
 
 {% block content_title %}<h1>Dashboard</h1>{% endblock %}
@@ -60,14 +144,14 @@
 {% block breadcrumbs %}{% endblock %}
 
 {% block content %}
-<div id="content-main">
-  {% include "snippets/modules/charts-convenios.html" %}
-</div>
+    <div id="content-main">
+        {% include "snippets/modules/charts-convenios.html" %}
+    </div>
 {% endblock %}
 
 {% block sidebar %}
-<div id="content-related">
-  {% include "snippets/modules/user.html" %}
-  {% include "snippets/modules/actions.html" %}
-</div>
+    <div id="content-related">
+        {% include "snippets/modules/user.html" %}
+        {% include "snippets/modules/actions.html" %}
+    </div>
 {% endblock %}
