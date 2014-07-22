@@ -28,13 +28,10 @@
 
 <div class="module" style="height: 300px;">
     <h2>Convênios</h2>
-    <div id="processos_conv_ass" class="align-center" style="height: 280px;">
-        {% if g_convassinado_proj.convenios %}
-            <img src="{{ convenios_assinados.url }}&chdlp=b" class="chart" />
-        {% else %}
-            <p>Nenhum dado para exibir</p>
-        {% endif %}
+    <div id="canvas-holder" class="align-center" style="margin-top: 55px">
+        <canvas id="chart-area-1" width="220" height="220" />
     </div>
+    <ul class="pie-legend"></ul>
 </div>
 
 <div class="module" style="height: 300px;">
@@ -88,12 +85,8 @@
 
 <div class="module" style="height: 300px;">
     <h2>Convênios</h2>
-    <div id="processos_conv" class="align-center"  style="height: 280px;">
-        {% if g_conv_proj.convenios %}
-            <img src="{{ processos.url }}&chdlp=b" class="chart" />
-        {% else %}
-            <p>Nenhum dado para exibir</p>
-        {% endif %}
+    <div id="canvas-holder" class="align-center" style="margin-top: 55px">
+        <canvas id="chart-area-2" width="220" height="220" />
     </div>
 </div>
 
