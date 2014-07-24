@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#style="list-style-type: noneo -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes import generic

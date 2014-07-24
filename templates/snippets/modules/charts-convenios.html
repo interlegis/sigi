@@ -26,12 +26,21 @@
     </ul>
 </div>
 
-<div class="module" style="height: 300px;">
+<div class="module " style="height: 300px;">
     <h2>Convênios</h2>
-    <div id="canvas-holder" class="align-center" style="margin-top: 55px">
-        <canvas id="chart-area-1" width="220" height="220" />
+    <div id="canvas-holder">
+        <canvas id="chart-area-1" width="120" height="120" />
     </div>
-    <ul class="pie-legend"></ul>
+{#    <div style="float: left">#}
+{#      <ul>#}
+{#        {% for num, dados in dados_graficos_convenio_projeto %}#}
+{#          {% for label, value, color in dados %}#}
+{#            <li style="list-style-type: none"><span style="background-color: {{ color }}; border-radius: 3px;">&nbsp&nbsp&nbsp</span> {{ label }}</li>#}
+{#          {% endfor %}#}
+{#        {% endfor %}#}
+{#      </ul>#}
+{#    </div>#}
+{#    <ul class="pie-legend"></ul>#}
 </div>
 
 <div class="module" style="height: 300px;">

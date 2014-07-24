@@ -5,6 +5,8 @@
 
 {% block extrahead %}
     {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css">
+
     <script type="text/javascript" src="{{ STATIC_URL }}admin/js/core.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.min.js"></script>
     <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.init.js"></script>
@@ -34,9 +36,9 @@
                         var mark = new google.maps.Marker(markData);
                         var infoWin = new google.maps.InfoWindow({content:
                                 '<strong>' + municipio.nome + '</strong><br/>' +
-                                        '<strong>Início da visita:</strong><br/>' + municipio.inicio + '<br/>' +
-                                        '<strong>Término da visita:</strong><br/>' + municipio.fim + '<br/>' +
-                                        '<strong>Equipe:</trong><br/>' + municipio.equipe });
+                                '<strong>Início da visita:</strong><br/>' + municipio.inicio + '<br/>' +
+                                '<strong>Término da visita:</strong><br/>' + municipio.fim + '<br/>' +
+                                '<strong>Equipe:</trong><br/>' + municipio.equipe });
                         linkMarkMessage(mark, infoWin, map);
                     }
                 });
@@ -52,107 +54,124 @@
         {% for num, dados in dados_graficos_convenio_projeto %}
             var pieData{{ num }} = [
                 {% for label, value, color, highlight in dados %}
-                    {#                {% if not forloop.first %}#}
                     {
                         label: "{{ label }}",
                         value: {{ value }},
                         color:"{{ color }}",
                         highlight: "{{ highlight }}"
                     },
-                    {#                {% endif %}#}
                 {% endfor %}
             ]
             window.onload = function(){
+                var canvas = document.getElementById("canvas-holder");
                 var ctx = document.getElementById("chart-area-1").getContext("2d");
-                window.myPie = new Chart(ctx).Pie(pieData1).generateLegend();
+                window.myPie = new Chart(ctx).Pie(pieData1);
                 var ctx = document.getElementById("chart-area-2").getContext("2d");
-                window.myPie = new Chart(ctx).Pie(pieData2).generateLegend();
+                window.myPie = new Chart(ctx).Pie(pieData2);
+
+                var legendHolder = document.createElement('div');
+                legendHolder.innerHTML = myPie.generateLegend();
+                // Include a html legend template after the module doughnut itself
+{#                var helpers = Chart.helpers;#}
+{#                helpers.each(legendHolder.firstChild.childNodes, function(legendNode, index){#}
+{#                    helpers.addEvent(legendNode, 'mouseover', function(){#}
+{#                        var activeSegment = myPie.segments[index];#}
+{#                        activeSegment.save();#}
+{#                        activeSegment.fillColor = activeSegment.highlightColor;#}
+{#                        myPie.showTooltip([activeSegment]);#}
+{#                        activeSegment.restore();#}
+{#                    });#}
+{#                });#}
+{#                helpers.addEvent(legendHolder.firstChild, 'mouseout', function(){#}
+{#                    myPie.draw();#}
+{#                });#}
+                canvas.appendChild(legendHolder.firstChild);
             };
         {% endfor %}
     </script>
     {# Highcharts scripts #}
-{#    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>#}
-{#    <script src="http://code.highcharts.com/highcharts.js"></script>#}
-{##}
-{#    <script type="text/javascript">#}
-{#        $(function () {#}
-{#            var chart;#}
-{##}
-{#            $(document).ready(function () {#}
-{##}
-{#                // Build the chart#}
-{#                $('#processos_conv').highcharts({#}
-{#                    chart: {#}
-{#                        plotBackgroundColor: null,#}
-{#                        plotBorderWidth: null,#}
-{#                        plotShadow: false#}
-{#                    },#}
-{#                    title: {#}
-{#                        text: 'Processos de convênios por projeto <br/> {{ g_conv_proj.0 }}'#}
-{#                    },#}
-{#                    tooltip: {#}
-{#                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'#}
-{#                    },#}
-{#                    plotOptions: {#}
-{#                        pie: {#}
-{#                            allowPointSelect: true,#}
-{#                            cursor: 'pointer',#}
-{#                            dataLabels: {#}
-{#                                enabled: false#}
-{#                            },#}
-{#                            showInLegend: true#}
-{#                        }#}
-{#                    },#}
-{#                    series: [{#}
-{#                        type: 'pie',#}
-{#                        name: 'Browser share',#}
-{#                        data: [#}
-{#                            {% for k, v in g_conv_proj %}#}
-{#                                {% if not  forloop.first %}#}
-{#                                    ['{{ k }}', {{ v }}],#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        ]#}
-{#                    }]#}
-{#                });#}
-{#                $('#processos_conv_ass').highcharts({#}
-{#                    chart: {#}
-{#                        plotBackgroundColor: null,#}
-{#                        plotBorderWidth: null,#}
-{#                        plotShadow: false#}
-{#                    },#}
-{#                    title: {#}
-{#                        text: 'Convênios assinados por projeto <br/> {{ g_convassinado_proj.0 }}'#}
-{#                    },#}
-{#                    tooltip: {#}
-{#                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'#}
-{#                    },#}
-{#                    plotOptions: {#}
-{#                        pie: {#}
-{#                            allowPointSelect: true,#}
-{#                            cursor: 'pointer',#}
-{#                            dataLabels: {#}
-{#                                enabled: false#}
-{#                            },#}
-{#                            showInLegend: true#}
-{#                        }#}
-{#                    },#}
-{#                    series: [{#}
-{#                        type: 'pie',#}
-{#                        name: 'Browser share',#}
-{#                        data: [#}
-{#                            {% for k, v in g_convassinado_proj %}#}
-{#                                {% if not  forloop.first %}#}
-{#                                    ['{{ k }}', {{ v }}],#}
-{#                                {% endif %}#}
-{#                            {% endfor %}#}
-{#                        ]#}
-{#                    }]#}
-{#                });#}
-{#            });#}
-{##}
-{#        });#}
-{#    </script>#}
+    {#    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>#}
+    {#    <script src="http://code.highcharts.com/highcharts.js"></script>#}
+    {##}
+    {#    <script type="text/javascript">#}
+    {#        $(function () {#}
+    {#            var chart;#}
+    {##}
+    {#            $(document).ready(function () {#}
+    {##}
+    {#                // Build the chart#}
+    {#                $('#processos_conv').highcharts({#}
+    {#                    chart: {#}
+    {#                        plotBackgroundColor: null,#}
+    {#                        plotBorderWidth: null,#}
+    {#                        plotShadow: false#}
+    {#                    },#}
+    {#                    title: {#}
+    {#                        text: 'Processos de convênios por projeto <br/> {{ g_conv_proj.0 }}'#}
+    {#                    },#}
+    {#                    tooltip: {#}
+    {#                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'#}
+    {#                    },#}
+    {#                    plotOptions: {#}
+    {#                        pie: {#}
+    {#                            allowPointSelect: true,#}
+    {#                            cursor: 'pointer',#}
+    {#                            dataLabels: {#}
+    {#                                enabled: false#}
+    {#                            },#}
+    {#                            showInLegend: true#}
+    {#                        }#}
+    {#                    },#}
+    {#                    series: [{#}
+    {#                        type: 'pie',#}
+    {#                        name: 'Browser share',#}
+    {#                        data: [#}
+    {#                            {% for k, v in g_conv_proj %}#}
+    {#                                {% if not  forloop.first %}#}
+    {#                                    ['{{ k }}', {{ v }}],#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        ]#}
+    {#                    }]#}
+    {#                });#}
+    {#                $('#processos_conv_ass').highcharts({#}
+    {#                    chart: {#}
+    {#                        plotBackgroundColor: null,#}
+    {#                        plotBorderWidth: null,#}
+    {#                        plotShadow: false#}
+    {#                    },#}
+    {#                    title: {#}
+    {#                        text: 'Convênios assinados por projeto <br/> {{ g_convassinado_proj.0 }}'#}
+    {#                    },#}
+    {#                    tooltip: {#}
+    {#                        pointFormat: '{series.name}: <b>{point.percentage:.1f}%</b>'#}
+    {#                    },#}
+    {#                    plotOptions: {#}
+    {#                        pie: {#}
+    {#                            allowPointSelect: true,#}
+    {#                            cursor: 'pointer',#}
+    {#                            dataLabels: {#}
+    {#                                enabled: false#}
+    {#                            },#}
+    {#                            showInLegend: true#}
+    {#                        }#}
+    {#                    },#}
+    {#                    series: [{#}
+    {#                        type: 'pie',#}
+    {#                        name: 'Browser share',#}
+    {#                        data: [#}
+    {#                            {% for k, v in g_convassinado_proj %}#}
+    {#                                {% if not  forloop.first %}#}
+    {#                                    ['{{ k }}', {{ v }}],#}
+    {#                                {% endif %}#}
+    {#                            {% endfor %}#}
+    {#                        ]#}
+    {#                    }]#}
+    {#                });#}
+    {#            });#}
+    {##}
+    {#        });#}
+    {#    </script>#}
     {# end highcharts scripts #}
 {% endblock %}
 

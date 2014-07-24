@@ -8,6 +8,7 @@ from sigi.apps.servicos.models import TipoServico
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
 
+
 def charts_data(request):
     """
     Busca informacoes para a criacao dos graficos e resumos
@@ -65,7 +66,6 @@ def busca_informacoes_camara():
         conv_assinados_proj = convenios_assinados.filter(projeto=projeto)
         conv_em_andamento_proj = convenios_em_andamento.filter(projeto=projeto)
         conv_equipadas_proj = convenios_com_aceite.filter(projeto=projeto)
-
 
         cabecalho_topo.append(projeto.sigla)
         lista_total.append(camaras.filter(convenio__projeto=projeto).count())
@@ -142,7 +142,7 @@ def grafico_convenio_projeto(convenios):
 
     projetos = Projeto.objects.all()
 
-    lista_projetos = [(projeto.nome,
+    lista_projetos = [(projeto.sigla,
                        convenios.filter(projeto=projeto).count(),
                        colors.next(),
                        highlights.next())
