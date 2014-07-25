@@ -128,7 +128,6 @@ def grafico_convenio_projeto(convenios):
                    '#8d4653',
                    '#91e8e1', ])
 
-    # colors = cycle(base_colors)
     highlights = cycle(['#B0D3F4',
                         '#8E8E91',
                         '#BCF4B1',
@@ -147,6 +146,9 @@ def grafico_convenio_projeto(convenios):
                        colors.next(),
                        highlights.next())
                       for projeto in projetos]
+    # remove projetos sem convenio
+    lista_projetos = [x for x in lista_projetos if x[1] > 0]
+
     # print lista_projetos
     # total_convenios = "Total: " + str(convenios.count())
     # lista_projetos.insert(0, total_convenios)

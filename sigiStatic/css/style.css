@@ -1,13 +1,14 @@
-#canvas-holder {
+#canvas-holder-1, #canvas-holder-2 {
     padding: 20px 20px 20px 20px;
     min-height: 180px;
     position: relative;
-    margin-top: 110px;
+    margin-top: 47px;
+    margin-left: 20px;
 }
 .pie-legend {
     list-style: none;
     position: absolute;
-    right: 8px;
+    right: 50px;
     top: 18px;
 }
 .pie-legend li span {

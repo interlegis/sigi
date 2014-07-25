@@ -28,19 +28,10 @@
 
 <div class="module " style="height: 300px;">
     <h2>Convênios</h2>
-    <div id="canvas-holder">
-        <canvas id="chart-area-1" width="120" height="120" />
+    <h3>Convênios assinados por projeto</h3>
+    <div id="canvas-holder-1">
+        <canvas id="chart-area-1" width="150" height="150" />
     </div>
-{#    <div style="float: left">#}
-{#      <ul>#}
-{#        {% for num, dados in dados_graficos_convenio_projeto %}#}
-{#          {% for label, value, color in dados %}#}
-{#            <li style="list-style-type: none"><span style="background-color: {{ color }}; border-radius: 3px;">&nbsp&nbsp&nbsp</span> {{ label }}</li>#}
-{#          {% endfor %}#}
-{#        {% endfor %}#}
-{#      </ul>#}
-{#    </div>#}
-{#    <ul class="pie-legend"></ul>#}
 </div>
 
 <div class="module" style="height: 300px;">
@@ -94,8 +85,9 @@
 
 <div class="module" style="height: 300px;">
     <h2>Convênios</h2>
-    <div id="canvas-holder" class="align-center" style="margin-top: 55px">
-        <canvas id="chart-area-2" width="220" height="220" />
+    <h3>Processos de convênios por projeto</h3>
+    <div id="canvas-holder-2" style="margin-top: 55px">
+        <canvas id="chart-area-2" width="150" height="150" />
     </div>
 </div>
 
@@ -105,45 +97,5 @@
     <div class="align-center">
         <a href="/dashboard/mapa/"> <img src="{{ STATIC_URL }}img/mapicon-large.png" style="width: 60%;"/> </a>
     </div>
-    {% comment %}
-	<h2>Metas BID</h2>
-	<h3>Estado das metas do contrato BID</h3>
-	<table style="margin: auto;">
-	{% for meta in metas %}
-	  	<tr>
-	  		<td><strong>{{ meta.titulo }}</strong></td>
-	  		<td>
-	  			<img src="//chart.googleapis.com/chart?chf=c,s,CDCDCD&chbh=a&chs=250x18&cht=bhs&chco={{ meta.saude }}&chd=t:{{ meta.percentual_concluido|stringformat:'d' }}&chm=r,00000034,0,{{ meta.percentual_desejado_low|stringformat:'f' }},{{ meta.percentual_desejado_high|stringformat:'f' }},1"
-	  				width="100%" alt="" />
-	  		</td>
-	  		<td style="text-align: center;"><font color="{{ meta.saude }}">{{ meta.percentual_concluido }}%</font></td>
-	  	</tr>
-	  {% endfor %}
-	</table>
-	<div class="legend">
-		<span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
-		<span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
-		<span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
-		<span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
-	</div>
-{% endcomment %}
 </div>
-{% comment %}
-<div class="module" style="height: 300px;">
-    <h2>Diagnósticos</h2>
-    <h3>Resumo dos diagnósticos</h3>
-    
-    <table style="display: block; float: left;">            
-	{% for data in tabela_resumo_diagnostico %}
-		<tr>
-			<th>{{ data.title }}</th>
-			<td style="text-align: right;">{{ data.count }}</td>
-		</tr>
-	{% endfor %}
-      <tr><td colspan="2"><a href="/diagnosticos/mapa/">Ver mapa ampliado</a></td></tr>
-	</table>
-	
-	<div id="map_canvas" style="float: left;  height: 80%; width: 300px;">
-	</div>
-</div>
-{% endcomment %}
+

@@ -63,29 +63,21 @@
                 {% endfor %}
             ]
             window.onload = function(){
-                var canvas = document.getElementById("canvas-holder");
+                var canvas1 = document.getElementById("canvas-holder-1");
                 var ctx = document.getElementById("chart-area-1").getContext("2d");
-                window.myPie = new Chart(ctx).Pie(pieData1);
-                var ctx = document.getElementById("chart-area-2").getContext("2d");
-                window.myPie = new Chart(ctx).Pie(pieData2);
+                window.myPie = new Chart(ctx).Pie(pieData1).generateLegend();
 
                 var legendHolder = document.createElement('div');
-                legendHolder.innerHTML = myPie.generateLegend();
-                // Include a html legend template after the module doughnut itself
-{#                var helpers = Chart.helpers;#}
-{#                helpers.each(legendHolder.firstChild.childNodes, function(legendNode, index){#}
-{#                    helpers.addEvent(legendNode, 'mouseover', function(){#}
-{#                        var activeSegment = myPie.segments[index];#}
-{#                        activeSegment.save();#}
-{#                        activeSegment.fillColor = activeSegment.highlightColor;#}
-{#                        myPie.showTooltip([activeSegment]);#}
-{#                        activeSegment.restore();#}
-{#                    });#}
-{#                });#}
-{#                helpers.addEvent(legendHolder.firstChild, 'mouseout', function(){#}
-{#                    myPie.draw();#}
-{#                });#}
-                canvas.appendChild(legendHolder.firstChild);
+                legendHolder.innerHTML = myPie;
+                canvas1.appendChild(legendHolder.firstChild);
+
+                var canvas2 = document.getElementById("canvas-holder-2");
+                var ctx2 = document.getElementById("chart-area-2").getContext("2d");
+                window.myPie2 = new Chart(ctx2).Pie(pieData2);
+
+                var legendHolder2 = document.createElement('div');
+                legendHolder2.innerHTML = myPie2.generateLegend();
+                canvas2.appendChild(legendHolder2.firstChild);
             };
         {% endfor %}
     </script>
