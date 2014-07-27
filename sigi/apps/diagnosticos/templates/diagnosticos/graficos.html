@@ -20,10 +20,11 @@ jQuery(document).ready(function () {
     var output_id = 'output_'+id
     jQuery.ajax({
       url: jQuery(this).attr('href'),
-      data: output_id,
       success: function(data) {
-          var ctx = document.getElementById("myChart").getContext("2d");
+          var ctx = document.getElementById(output_id).getContext("2d");
           var myNewChart = new Chart(ctx).Pie(data);
+
+          $('#canvas_' + id).toggle();
       },
 
       error: function(errorSender, errorMsg) {
@@ -50,12 +51,11 @@ jQuery(document).ready(function () {
   <div id="perguntas">
     <ul>
       {% for pergunta in perguntas %}
-      {{ pergunta }}
-        <li>
+        <li style="list-style: none">
           {% if pergunta.datatype == 'many' or pergunta.datatype == 'one' %}
           <a id="{{ pergunta.name }}" href="/diagnosticos/api/?id={{ pergunta.name }}"><p>{{ pergunta.title }}</p></a>
-          <div id="output_{{ pergunta.name }}">
-          <canvas id="myChart" width="400" height="400"></canvas>
+          <div id="canvas_{{ pergunta.name }}" style="display: none">
+              <canvas id="output_{{ pergunta.name }}" width="220" height="220"></canvas>
           </div>
           {% else %}
           <p>{{ pergunta.title }}</p>
