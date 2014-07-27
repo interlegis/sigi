@@ -4,8 +4,11 @@
 
 {% block extrahead %}
 <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+<script  type="text/javascript" src="{{ STATIC_URL }}js/Chart.min.js"></script>
+<script src="http://code.highcharts.com/highcharts.js"></script>
 <script language=javascript>
 jQuery(document).ready(function () {
+
   jQuery("form#categoria select").change(function () {
     jQuery("form#categoria").submit()
   });
@@ -13,14 +16,16 @@ jQuery(document).ready(function () {
   jQuery("#perguntas a").click(function(event){
     event.preventDefault();
 
-    id = jQuery(this).attr('id')
-    output_id = '#output_'+id
+    var id = jQuery(this).attr('id')
+    var output_id = 'output_'+id
     jQuery.ajax({
       url: jQuery(this).attr('href'),
+      data: output_id,
       success: function(data) {
-          jQuery("img", output_id).attr('src',data['url'])
-          jQuery("img", output_id).slideDown()
+          var ctx = document.getElementById("myChart").getContext("2d");
+          var myNewChart = new Chart(ctx).Pie(data);
       },
+
       error: function(errorSender, errorMsg) {
           jQuery(output_id).html(errorSender + ' ' + errorMsg);
       }
@@ -49,8 +54,8 @@ jQuery(document).ready(function () {
         <li>
           {% if pergunta.datatype == 'many' or pergunta.datatype == 'one' %}
           <a id="{{ pergunta.name }}" href="/diagnosticos/api/?id={{ pergunta.name }}"><p>{{ pergunta.title }}</p></a>
-          <div id="output_{{ pergunta.name }}" class="grafico">
-            <img style="display:none"/>
+          <div id="output_{{ pergunta.name }}">
+          <canvas id="myChart" width="400" height="400"></canvas>
           </div>
           {% else %}
           <p>{{ pergunta.title }}</p>

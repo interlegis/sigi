@@ -1,12 +1,13 @@
 # -*- coding: utf8 -*-
 
-import new
-from django.http import HttpResponse, QueryDict
+import json
+from itertools import cycle
+
+from django.http import HttpResponse
 from django.utils import simplejson
-from django.shortcuts import render_to_response, get_object_or_404, redirect
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
-from geraldo.generators import PDFGenerator
 
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
@@ -14,7 +15,7 @@ from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
-        CasaLegislativaMobileForm, FuncionariosMobileForm)
+                                          CasaLegislativaMobileForm, FuncionariosMobileForm)
 from sigi.apps.contatos.models import Telefone
 from sigi.shortcuts import render_to_pdf
 
@@ -47,9 +48,9 @@ def categorias(request, id_diagnostico):
     ultima_categoria = request.session.get('ultima_categoria', 0)
 
     context = RequestContext(request, {'categorias': categorias,
-        'diagnostico': diagnostico, 'ultima_categoria': ultima_categoria})
+                                       'diagnostico': diagnostico, 'ultima_categoria': ultima_categoria})
     return render_to_response('diagnosticos/diagnosticos_categorias_list.html',
-        context)
+                              context)
 
 
 @never_cache
@@ -80,7 +81,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 
     if request.method == "POST":
         form = DiagnosticoMobileForm(request.POST,
-            instance=diagnostico, category=id_categoria)
+                                     instance=diagnostico, category=id_categoria)
         if form.is_valid():
             form.save()
             resposta = {
@@ -96,12 +97,12 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
         return HttpResponse(json, mimetype="application/json")
     else:
         form = DiagnosticoMobileForm(instance=diagnostico,
-            category=id_categoria)
+                                     category=id_categoria)
 
     context = RequestContext(request, {'form': form, 'categoria': categoria,
-        'diagnostico': diagnostico})
+                                       'diagnostico': diagnostico})
     return render_to_response('diagnosticos/diagnosticos_categorias_form.html',
-        context)
+                              context)
 
 
 @never_cache
@@ -118,7 +119,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
 
     if request.method == "POST":
         form = CasaLegislativaMobileForm(request.POST,
-            instance=casa_legislativa)
+                                         instance=casa_legislativa)
         if form.is_valid():
             form.save()
             resposta = {
@@ -136,7 +137,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
         form = CasaLegislativaMobileForm(instance=casa_legislativa)
 
     context = RequestContext(request, {'form': form,
-        'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
+                                       'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
     return render_to_response(
         'diagnosticos/diagnosticos_categoria_casa_legislativa_form.html',
         context)
@@ -153,16 +154,16 @@ def categoria_contatos(request, id_diagnostico):
 
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     casa_legislativa = diagnostico.casa_legislativa
-    
+
     funcionarios = []
-    
+
     for n, l in Funcionario.SETOR_CHOICES:
         if casa_legislativa.funcionario_set.filter(setor=n).count() <= 1:
             funcionarios.append(casa_legislativa.funcionario_set.get_or_create(setor=n))
         else:
             for f in casa_legislativa.funcionario_set.filter(setor=n):
                 funcionarios.append((f, False))
-            
+
     if request.method == "POST":
         forms = []
         for f, c in funcionarios:
@@ -176,7 +177,7 @@ def categoria_contatos(request, id_diagnostico):
             'erros' : {},
             'fones' : {},
             'clean' : (),
-        }
+            }
 
         # valida e salva um formulario por vez
         for form in forms:
@@ -199,15 +200,15 @@ def categoria_contatos(request, id_diagnostico):
                 for form_telefones in form.telefones.forms:
                     if not form_telefones.is_valid():
                         if (form_telefones.fields['id'].initial is not None
-                          and form_telefones.fields['tipo'].initial == 'I'
-                          and form_telefones.fields['numero'].initial is None):
+                            and form_telefones.fields['tipo'].initial == 'I'
+                            and form_telefones.fields['numero'].initial is None):
                             if Telefone.objects.filter(pk=form_telefones.fields['id'].initial).exists():
                                 Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
                                 if not resposta['fones'].has_key(form.prefix):
                                     resposta['fones'][form.prefix] = ''
                                 resposta['fones'][form.prefix] += u'<p>O telefone %s %s foi excluído da base de dados</p>' % (
                                     form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)
-                        else:  
+                        else:
                             for key, value in form_telefones.errors.iteritems():
                                 key = form_telefones.prefix + "-id-errors"
                                 resposta['erros'][key] = value
@@ -216,12 +217,13 @@ def categoria_contatos(request, id_diagnostico):
         return HttpResponse(json, mimetype="application/json")
     else:
         forms = [FuncionariosMobileForm(prefix=f.setor, instance=f)
-            for f, c in funcionarios]
+                 for f, c in funcionarios]
 
     context = RequestContext(request, {'forms': forms,
-        'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
+                                       'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})
     return render_to_response('diagnosticos/diagnosticos_categoria_contatos_form.html',
-        context)
+                              context)
+
 
 def diagnostico_pdf(request, id_diagnostico):
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
@@ -253,15 +255,16 @@ def diagnostico_pdf(request, id_diagnostico):
         schemas_by_categoria.append((categoria,schemas))
 
     context = RequestContext(request, {
-          'pagesize':'A4',
-          'casa_legislativa': casa_legislativa,
-          'funcionarios': funcionarios,
-          'diagnostico': diagnostico,
-          'schemas_by_categoria': schemas_by_categoria,
+        'pagesize':'A4',
+        'casa_legislativa': casa_legislativa,
+        'funcionarios': funcionarios,
+        'diagnostico': diagnostico,
+        'schemas_by_categoria': schemas_by_categoria,
         })
 
     return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
     #return render_to_response('diagnosticos/diagnostico_pdf.html', context)
+
 
 def graficos(request):
     categorias = Categoria.objects.all()
@@ -275,7 +278,8 @@ def graficos(request):
         'perguntas': perguntas,
         })
     return render_to_response('diagnosticos/graficos.html',
-        context)
+                              context)
+
 
 def percentage(fraction, population):
     try:
@@ -283,69 +287,58 @@ def percentage(fraction, population):
     except ValueError:
         return ''
 
-def grafico_api(request):
-    colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080', 
-              '28d75c', '0000ff', 'fff200']
-    graph_url = "http://chart.apis.google.com/chart"
-    #graph_params = QueryDict("chxt=y&chbh=a&chco=A2C180,3D7930")
-    graph_params = QueryDict("")
-    graph_params = graph_params.copy() # to make it mutable
 
-    width = request.REQUEST.get('width', '800')
-    height = request.REQUEST.get('height', '300')
-    graph_params.update({'chs': width + 'x' + height})
+def grafico_api(request):
+
+    colors = cycle(['#7cb5ec',
+                    '#434348',
+                    '#90ed7d',
+                    '#f7a35c',
+                    '#8085e9',
+                    '#f15c80',
+                    '#e4d354',
+                    '#8085e8',
+                    '#8d4653',
+                    '#91e8e1', ])
+
+    highlights = cycle(['#B0D3F4',
+                        '#8E8E91',
+                        '#BCF4B1',
+                        '#FAC89D',
+                        '#B3B6F2',
+                        '#F79DB3',
+                        '#EFE598',
+                        '#B3B6F1',
+                        '#BB9098',
+                        '#BDF1ED', ])
 
     pergunta_slug = request.REQUEST.get('id', None)
     pergunta = get_object_or_404(Pergunta, name=pergunta_slug)
 
     if pergunta.datatype == 'one':
-      total = sum([r[1] for r in pergunta.group_choices()])
-      choices = [str(r[1]) for r in pergunta.group_choices()]
-      legend = [percentage(r[1],total) + " " + str(r[0]) for r in pergunta.group_choices()]
-      colors = ['ff0000', 'fff200', '0000ff', '28d75c'] + ["%0.6x" % (0x48d1 + (0xda74 * c)) 
-                                                           for c in range(0,len(pergunta.group_choices()))]
-      graph_params.update({
-        'cht': 'p',
-        'chd': 't:' + ",".join(choices),
-        'chdl': '' + "|".join(legend),
-        'chco': '' + '|'.join(colors[:len(pergunta.group_choices())])
-        })
-    elif pergunta.datatype == 'many':
-      total = sum([r[1] for r in pergunta.group_choices()])
-      percent = [str(float(r[1])*100/total) for r in pergunta.group_choices()]
-      choices = [str(r[1]) for r in pergunta.group_choices()]
-      legend = [str(r[0]) for r in pergunta.group_choices()]
-      colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080'] + \
-               ["%0.6x" % (0x48d1 + (0xda74 * c)) for c in range(0,len(pergunta.group_choices()))]      
-      graph_params.update({
-        'cht': 'bvg',
-        'chxt': 'y',
-        'chd': 't:' + ",".join(percent),
-        'chdl': '' + "|".join(legend),
-        'chl': '' + "|".join(choices),
-        'chco': '' + '|'.join(colors[:len(pergunta.group_choices())])
-        })
 
-    response = {
-        "type": "photo",
-        "width": width,
-        "height": height,
-        "title": pergunta.title,
-        "url": graph_url + "?" + graph_params.urlencode(),
-        "provider_name": "SIGI",
-        "provider_url": "https://intranet.interlegis.gov.br/sigi/"
-    }
+        list_perguntas = pergunta.group_choices()
+        list_perguntas = [{'label': k.title,
+                           'value': v,
+                           'color': colors.next(),
+                           'highlight': highlights.next()}
+                          for k, v in list_perguntas]
 
-    json = simplejson.dumps(response)
-    return HttpResponse(json, mimetype="application/json")
+        # list_perguntas = [[k.title, v, colors.next(), highlights.next()] for k, v in list_perguntas]
+
+    # elif pergunta.datatype == 'many':
+
+    jsonn = json.dumps(list_perguntas, sort_keys=True, indent=4, separators=(',', ': '))
+    return HttpResponse(jsonn, content_type="application/json")
+
 
 def municipios_diagnosticados(self):
     municipios = []
-    
+
     for d in Diagnostico.objects.all():
         m = d.casa_legislativa.municipio
         municipio = {'nome': d.casa_legislativa.nome + ', ' + m.uf.sigla, 'lat': str(m.latitude), 'lng': str(m.longitude), 'inicio': d.data_visita_inicio,
                      'fim': d.data_visita_fim, 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>",}
         municipios.append(municipio)
-        
+
     return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")
