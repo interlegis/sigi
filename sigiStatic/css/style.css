@@ -1,4 +1,4 @@
-#canvas-holder-1, #canvas-holder-2 {
+div[id^=canvas] {
     padding: 20px 20px 20px 20px;
     min-height: 180px;
     position: relative;
