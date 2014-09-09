@@ -1,5 +1,4 @@
 Django==1.6.6
-Geraldo==0.4.17
 Pillow==2.5.3
 django-auth-ldap==1.2.1
 django-autoslug==1.7.2
@@ -8,6 +7,7 @@ git+git://github.com/jacobian/django-googlecharts.git@c542996cf9a7a097b447e1ce5a
 django-localflavor==1.0
 django-treemenus==0.9.1
 eav-django==1.4.6
+git+git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=Geraldo
 html5lib==0.999
 pisa==3.0.33
 reportlab==2.7
