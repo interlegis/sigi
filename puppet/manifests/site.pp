@@ -84,6 +84,16 @@ file { "${sigi_venv_dir}/lib/python2.7/site-packages/reporting":
 }
 
 ###########################################################################
+# DJANGO
+
+exec { 'collectstatic':
+  command => "${sigi_venv_dir}/bin/python manage.py collectstatic --noinput",
+  cwd     => $sigi_dir,
+}
+
+# TODO local_settings.py ...
+
+###########################################################################
 # NGINX
 
 class { 'nginx': }
