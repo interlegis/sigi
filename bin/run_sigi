@@ -2,6 +2,7 @@
 
 NAME="sigi"
 DJANGODIR=/srv/sigi
+VENVDIR=/srv/.virtualenvs/sigi/bin
 SOCKFILE=/var/run/sigi/sigi.sock
 USER=sigi
 GROUP=sigi
@@ -18,7 +19,7 @@ export PYTHONPATH=$DJANGODIR:$PYTHONPATH
 RUNDIR=$(dirname $SOCKFILE)
 test -d $RUNDIR || mkdir -p $RUNDIR
 
-exec gunicorn ${DJANGO_WSGI_MODULE}:application \
+exec ${VENVDIR}/gunicorn ${DJANGO_WSGI_MODULE}:application \
 --name $NAME \
 --workers $NUM_WORKERS \
 --user=$USER --group=$GROUP \

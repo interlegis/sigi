@@ -1,3 +1,7 @@
+Exec {
+  path => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
+}
+
 group { 'sigi':
   ensure => 'present',
 }
@@ -97,6 +101,26 @@ exec { 'collectstatic':
 # TODO local_settings.py ...
 
 
+###########################################################################
+# SUPERVISOR
+
+# XXX trocar isso por algum plugin do puppet?
+
+$supervisor_conf = '/etc/supervisor/conf.d/sigi.conf'
+
+file { $supervisor_conf:
+  ensure  => link,
+  target  => "${sigi_dir}/etc/supervisor/conf.d/sigi.conf",
+  require => [
+    Vcsrepo[$sigi_dir],
+    Package['supervisor'] ]
+}
+
+exec { 'supervisor_update':
+  command     => 'supervisorctl reread && supervisorctl update',
+  refreshonly => true,
+  subscribe   => [ File[$supervisor_conf], Vcsrepo[$sigi_dir]],
+}
 
 ###########################################################################
 # NGINX
