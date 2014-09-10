@@ -9,7 +9,8 @@ user { 'sigi':
   require => Group['sigi']
 }
 
-package { [ 'git', 'tree', 'python-psycopg2', 'supervisor', 'memcached', ]: }
+package { [ 'git', 'python-psycopg2', 'supervisor', 'memcached',
+            ]: }
 
 $sigi_dir = '/srv/sigi'
 
@@ -63,10 +64,23 @@ file { ['/srv/.virtualenvs',]:
 }
 
 python::virtualenv { $sigi_venv_dir :
-  requirements => "${sigi_dir}/requirements/producao.txt",
-  require      => [ File['/srv/.virtualenvs'],
-                    Vcsrepo[$sigi_dir],
-                    Package[$python_ldap_deps] ]
+  require => File['/srv/.virtualenvs'],
+}
+
+python::requirements { "${sigi_dir}/requirements/producao.txt":
+  virtualenv  => $sigi_venv_dir,
+  forceupdate => true,
+  require     => [
+    Python::Virtualenv[$sigi_venv_dir],
+    Vcsrepo[$sigi_dir],
+    Package[$python_ldap_deps] ]
+}
+
+###########################################################################
+# GERALDO (reporting)
+file { "${sigi_venv_dir}/lib/python2.7/site-packages/reporting":
+  ensure => link,
+  target => "${sigi_venv_dir}/src/geraldo/reporting",
 }
 
 ###########################################################################
