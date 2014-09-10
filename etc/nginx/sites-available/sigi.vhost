@@ -1,24 +1,24 @@
 upstream sigi_app_server {
     server unix:/var/run/sigi/sigi.sock fail_timeout=0;
 }
- 
+
 server {
     listen 80;
     server_name sigi01h.interlegis.leg.br;
- 
+
     client_max_body_size 4G;
- 
+
     access_log /var/log/sigi/sigi-access.log;
     error_log /var/log/sigi/sigi-error.log;
 
     location /static/ {
-        alias /var/aplicacoes/sigi/static/;
+        alias /srv/sigi/static/;
     }
 
     location /media/ {
-        alias /var/aplicacoes/sigi/media/;
+        alias /srv/sigi/media/;
     }
- 
+
     location / {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
