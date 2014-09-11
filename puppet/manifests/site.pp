@@ -125,9 +125,31 @@ exec { 'supervisor_update':
 ###########################################################################
 # NGINX
 
-class { 'nginx': }
+package { 'nginx': }
 
-nginx::resource::vhost { 'localhost':
-  www_root => '/vagrant/www_temp',
+file { '/etc/nginx/sites-available/sigi.vhost':
+  ensure  => link,
+  target  => "${sigi_dir}/etc/nginx/sites-available/sigi.vhost",
+  require => [
+    Vcsrepo[$sigi_dir],
+    Package['nginx'] ]
+}
+
+file { '/etc/nginx/sites-enabled/sigi.vhost':
+  ensure  => link,
+  target  => '/etc/nginx/sites-available/sigi.vhost',
+  require => Package['nginx'],
+}
+
+exec { 'nginx_restart':
+  command     => 'service nginx restart',
+  refreshonly => true,
+  subscribe   => [
+    File['/etc/nginx/sites-enabled/sigi.vhost'],
+    Vcsrepo[$sigi_dir]],
+}
+
+file { '/etc/nginx/sites-enabled/default':
+  ensure => absent,
 }
 
