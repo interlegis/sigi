@@ -45,3 +45,4 @@ static
 .pydevproject
 
 .vagrant
+sigi/local_settings.py
