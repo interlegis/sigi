@@ -125,31 +125,45 @@ exec { 'supervisor_update':
 ###########################################################################
 # NGINX
 
-package { 'nginx': }
+class { 'nginx': }
 
-file { '/etc/nginx/sites-available/sigi.vhost':
-  ensure  => link,
-  target  => "${sigi_dir}/etc/nginx/sites-available/sigi.vhost",
-  require => [
-    Vcsrepo[$sigi_dir],
-    Package['nginx'] ]
+nginx::resource::upstream { 'sigi_app_server':
+  members               => [ 'unix:/var/run/sigi/sigi.sock' ],
+  upstream_fail_timeout => 0
 }
 
-file { '/etc/nginx/sites-enabled/sigi.vhost':
-  ensure  => link,
-  target  => '/etc/nginx/sites-available/sigi.vhost',
-  require => Package['nginx'],
+# XXX trocar nome para server_name, p.ex. sigi01h.interlegis.leg.br
+$sigi_vhost = 'localhost'
+
+nginx::resource::vhost { $sigi_vhost:
+  client_max_body_size => '4G',
+  access_log           => '/var/log/sigi/sigi-access.log',
+  error_log            => '/var/log/sigi/sigi-error.log',
+  use_default_location => false,
+  require              => Vcsrepo[$sigi_dir],
+
+  # TODO tentar usar try_files ao inves desse "if"
+  #      vide http://stackoverflow.com/questions/19845566/in-nginxs-configuration-could-if-f-request-filename-cause-a-performan
+  # XXX este raw_append foi uma apelacao devido a limitacoes do modulo nginx
+  raw_append           => '
+  location / {
+      proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+      proxy_set_header Host $http_host;
+      proxy_redirect off;
+      if (!-f $request_filename) {
+          proxy_pass http://sigi_app_server;
+          break;
+      }
+  }
+'
 }
 
-exec { 'nginx_restart':
-  command     => 'service nginx restart',
-  refreshonly => true,
-  subscribe   => [
-    File['/etc/nginx/sites-enabled/sigi.vhost'],
-    Vcsrepo[$sigi_dir]],
+nginx::resource::location { '/static/':
+  vhost          => $sigi_vhost,
+  location_alias => '/srv/sigi/static/',
 }
 
-file { '/etc/nginx/sites-enabled/default':
-  ensure => absent,
+nginx::resource::location { '/media/':
+  vhost          => $sigi_vhost,
+  location_alias => '/srv/sigi/media/',
 }
-

@@ -6,3 +6,8 @@ puppet_install () {
 
 puppet_install puppetlabs-vcsrepo
 puppet_install stankevich-python
+
+# XXX Usando provisoriamente o modulo oficial ate que sincronizemos nosso repo
+# XXX retirar esta linha entao
+puppet_install jfryman-nginx
+
