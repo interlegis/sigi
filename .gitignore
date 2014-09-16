@@ -45,4 +45,4 @@ static
 .pydevproject
 
 .vagrant
-sigi/local_settings.py
+sigi/settings/prod.py
