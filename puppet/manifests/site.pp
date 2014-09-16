@@ -13,8 +13,17 @@ user { 'sigi':
   require => Group['sigi']
 }
 
-package { [ 'git', 'python-psycopg2', 'supervisor', 'memcached',
-            ]: }
+$package_deps = [
+  # gerais
+  'git', 'supervisor', 'memcached',
+
+  # para psycopg ('python-dev' ja eh instalado pelo modulo python)
+  'libpq-dev',
+
+  # para ldap
+  'libldap2-dev', 'libsasl2-dev', 'libssl-dev']
+
+package { $package_deps: }
 
 $sigi_dir = '/srv/sigi'
 
@@ -57,10 +66,6 @@ if !defined(Class['python']) {
   }
 }
 
-$python_ldap_deps = ['libldap2-dev', 'libsasl2-dev', 'libssl-dev']
-
-package { $python_ldap_deps: }
-
 $sigi_venv_dir = '/srv/.virtualenvs/sigi'
 
 file { ['/srv/.virtualenvs',]:
@@ -77,7 +82,7 @@ python::requirements { "${sigi_dir}/requirements/producao.txt":
   require     => [
     Python::Virtualenv[$sigi_venv_dir],
     Vcsrepo[$sigi_dir],
-    Package[$python_ldap_deps] ]
+    Package[$package_deps] ]
 }
 
 ###########################################################################
@@ -95,7 +100,9 @@ exec { 'collectstatic':
   cwd     => $sigi_dir,
   require => [
     Python::Virtualenv[$sigi_venv_dir],
-    Vcsrepo[$sigi_dir], ]
+    Vcsrepo[$sigi_dir],
+    Python::Requirements["${sigi_dir}/requirements/producao.txt"],
+    ]
 }
 
 # TODO local_settings.py ...

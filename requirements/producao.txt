@@ -9,6 +9,7 @@ django-treemenus==0.9.1
 eav-django==1.4.6
 html5lib==0.999
 pisa==3.0.33
+psycopg2==2.5.4
 reportlab==2.7
 six==1.7.3
 
