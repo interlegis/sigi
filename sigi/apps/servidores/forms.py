@@ -10,6 +10,7 @@ from sigi.apps.servidores.models import Ferias, Licenca, Funcao, Servidor
 class FeriasForm(forms.ModelForm):
     class Meta:
         model = Ferias
+        fields = '__all__'
 
     def clean(self):
         data = self.cleaned_data
@@ -22,6 +23,7 @@ class FeriasForm(forms.ModelForm):
 class LicencaForm(forms.ModelForm):
     class Meta:
         model = Licenca
+        fields = '__all__'
 
     def clean(self):
         data = self.cleaned_data
@@ -34,6 +36,7 @@ class LicencaForm(forms.ModelForm):
 class FuncaoForm(forms.ModelForm):
     class Meta:
         model = Funcao
+        fields = '__all__'
 
     def clean(self):
         data = self.cleaned_data

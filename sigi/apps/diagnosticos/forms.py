@@ -64,6 +64,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
     }
     class Meta:
         model = Diagnostico
+        fields = '__all__'
 
     def __init__(self, data=None, category=None, *args, **kwargs):
         super(BaseDynamicEntityForm, self).__init__(data, *args, **kwargs)

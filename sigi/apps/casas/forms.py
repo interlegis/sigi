@@ -15,3 +15,4 @@ class CasaLegislativaForm(forms.ModelForm):
 
     class Meta:
         model = CasaLegislativa
+        fields = '__all__'
