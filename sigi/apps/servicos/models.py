@@ -11,13 +11,13 @@ class TipoServico(models.Model):
                         {senha} para incluir a senha inicial do serviço'''
     nome = models.CharField(u'Nome', max_length=60)
     sigla = models.CharField(u'Sigla', max_length='12')
-    string_pesquisa = models.CharField(u'String de pesquisa', blank=True, max_length=200, 
+    string_pesquisa = models.CharField(u'String de pesquisa', blank=True, max_length=200,
         help_text=u'Sufixo para pesquisa RSS para averiguar a data da última atualização do serviço')
     template_email_ativa = models.TextField(u'Template de email de ativação', help_text = email_help, blank=True)
     template_email_altera = models.TextField(u'Template de email de alteração', help_text = email_help, blank=True)
     template_email_desativa = models.TextField(u'Template de email de desativação', help_text = email_help + u'<br/>{motivo} para incluir o motivo da desativação do serviço', blank=True)
-    
-    @property        
+
+    @property
     def qtde_casas_atendidas(self):
         u"""Quantidade de casas atendidas"""
         return self.servico_set.filter(data_desativacao=None).count()
@@ -25,7 +25,7 @@ class TipoServico(models.Model):
     class Meta:
         verbose_name = u'Tipo de serviço'
         verbose_name_plural = u'Tipos de serviço'
-    
+
     def __unicode__(self):
         return self.nome;
 
@@ -44,13 +44,13 @@ class Servico(models.Model):
     data_alteracao = models.DateField(u'Data da última alteração', blank=True, null=True, auto_now=True)
     data_desativacao = models.DateField(u'Data de desativação', blank=True, null=True)
     motivo_desativacao = models.TextField(u'Motivo da desativação', blank=True)
-    data_ultimo_uso = models.DateField(u'Data da última utilização', blank=True, null=True, 
+    data_ultimo_uso = models.DateField(u'Data da última utilização', blank=True, null=True,
         help_text=u'Data em que o serviço foi utilizado pela Casa Legislativa pela última vez<br/><strong>NÃO É ATUALIZADO AUTOMATICAMENTE!</strong>')
-    erro_atualizacao = models.CharField(u"Erro na atualização", blank=True, max_length=200, 
+    erro_atualizacao = models.CharField(u"Erro na atualização", blank=True, max_length=200,
                         help_text=u"Erro ocorrido na última tentativa de atualizar a data de último acesso")
-    
+
     # casa_legislativa.casa_uf_filter = True
-    
+
     def atualiza_data_uso(self):
         def reset(erro=u"", comment=u""):
             if self.data_ultimo_uso is None and not erro:
@@ -63,17 +63,17 @@ class Servico(models.Model):
         if self.tipo_servico.string_pesquisa == "":
             reset()
             return
-            
+
         url = self.url
-        
+
         if not url:
             reset()
             return
-        
+
         if url[-1] != '/':
             url += '/'
         url += self.tipo_servico.string_pesquisa
-        
+
         import urllib2
         from xml.dom.minidom import parseString
 
@@ -85,17 +85,17 @@ class Servico(models.Model):
                 opener = urllib2.build_opener(proxy)
                 req = opener.open(fullurl=url, timeout=5)
         except Exception as e:
-            reset(erro=str(e), comment=u'Não foi possível conectar com o servidor. Pode estar fora do ar ou não ser um ' + 
+            reset(erro=str(e), comment=u'Não foi possível conectar com o servidor. Pode estar fora do ar ou não ser um ' +
                   self.tipo_servico.nome)
             return
-        
+
         try:
             rss = req.read()
         except Exception as e:
             reset(erro=str(e), comment=u'Não foi possível receber os dados do servidor. O acesso pode ter sido negado.')
             return
 
-        try:            
+        try:
             xml = parseString(rss)
             items = xml.getElementsByTagName('item')
             first_item = items[0]
@@ -109,13 +109,13 @@ class Servico(models.Model):
             reset(erro=str(e), comment=u'A resposta do servidor não é compatível com %s. Pode ser outro software que está sendo usado' %
                   self.tipo_servico.nome)
         return
-    
+
     def __unicode__(self):
         return "%s (%s)" % (self.tipo_servico.nome, 'ativo' if self.data_desativacao is None else 'Desativado')
-    
+
     def save(self, *args, **kwargs):
         # Reter o objeto original para verificar mudanças
-        
+
         if self.id is not None:
             original = Servico.objects.get(id=self.id)
 
@@ -139,36 +139,36 @@ class Servico(models.Model):
             # Salvar o Servico
             super(Servico, self).save(*args, **kwargs)
             return # sem enviar email
-        
+
         # Prepara e envia o email
         body = body.replace('{url}', self.url) \
             .replace('{senha}', self.senha_inicial) \
             .replace('{motivo}', self.motivo_desativacao)
-            
+
 #        send_mail(subject, body, DEFAULT_FROM_EMAIL, \
 #                  (self.contato_tecnico.email,), fail_silently=False)
-        
+
         # Salvar o Servico
         super(Servico, self).save(*args, **kwargs)
 
         return
-    
+
 class LogServico(models.Model):
     servico = models.ForeignKey(Servico, verbose_name='Serviço')
     descricao = models.CharField('Breve descrição da ação', max_length=60)
     data = models.DateField('Data da ação', default=date.today)
     log = models.TextField('Log da ação')
-    
+
     def __unicode__(self):
         return "%s (%s)" % (self.descricao, self.data)
-    
+
     class Meta:
         verbose_name = 'Log do serviço'
-        verbose_name_plural = 'Logs do serviço'    
+        verbose_name_plural = 'Logs do serviço'
 
 class CasaAtendidaManager(models.Manager):
-    def get_query_set(self):
-        qs = super(CasaAtendidaManager, self).get_query_set()
+    def get_queryset(self):
+        qs = super(CasaAtendidaManager, self).get_queryset()
         qs = qs.exclude(codigo_interlegis='')
         return qs
 
@@ -178,7 +178,7 @@ class CasaAtendida(CasaLegislativa):
         verbose_name_plural = 'Casas atendidas'
 
     objects =  CasaAtendidaManager()
-    
+
 class CasaManifesta(models.Model):
     casa_legislativa = models.OneToOneField(CasaLegislativa)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
@@ -186,13 +186,13 @@ class CasaManifesta(models.Model):
     informante = models.CharField(u'Nome do informante', max_length=100, blank=True)
     cargo = models.CharField(u'Cargo do informante', max_length=100, blank=True)
     email = models.EmailField(u'E-mail de contato', blank=True)
-    
+
 class ServicoManifesto(models.Model):
     casa_manifesta = models.ForeignKey(CasaManifesta)
     servico = models.ForeignKey(TipoServico)
     url = models.URLField(blank=True)
     hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?')
-    
+
     class Meta:
         unique_together = ('casa_manifesta', 'servico')
 

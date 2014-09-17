@@ -59,10 +59,10 @@ class ConvenioAdmin(admin.ModelAdmin):
     #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa__tipo__sigla','casa_legislativa__municipio__uf','casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
-    queryset = queryset_ascii
+    get_queryset = queryset_ascii
     search_fields = ('id', 'search_text',#'casa_legislativa__nome',
                      'num_processo_sf','num_convenio')
-    
+
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
     get_uf.short_description = 'UF'
@@ -77,7 +77,7 @@ class ConvenioAdmin(admin.ModelAdmin):
                 del request.GET['data_retorno_assinatura__gte']
             elif re.match('^\d*$', value): # Year only
                 request.GET['data_retorno_assinatura__gte'] = "%s-01-01" % value #Complete with january 1st
-            elif re.match('^\d*\D\d*$', value): # Year and month 
+            elif re.match('^\d*\D\d*$', value): # Year and month
                 request.GET['data_retorno_assinatura__gte'] = '%s-01' % value #Complete with 1st day of month
         if 'data_retorno_assinatura__lte' in request.GET:
             value = request.GET.get('data_retorno_assinatura__lte','')
@@ -85,27 +85,27 @@ class ConvenioAdmin(admin.ModelAdmin):
                 del request.GET['data_retorno_assinatura__lte']
             elif re.match('^\d*$', value): # Year only
                 request.GET['data_retorno_assinatura__lte'] = "%s-01-01" % value #Complete with january 1st
-            elif re.match('^\d*\D\d*$', value): # Year and month 
+            elif re.match('^\d*\D\d*$', value): # Year and month
                 request.GET['data_retorno_assinatura__lte'] = '%s-01' % value #Complete with 1st day of month
         request.GET._mutable=False
-        
+
         return super(ConvenioAdmin, self).changelist_view(
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
     def relatorio(self, request, queryset):
-        #queryset.order_by('casa_legislativa__municipio__uf')        
+        #queryset.order_by('casa_legislativa__municipio__uf')
         response = HttpResponse(mimetype='application/pdf')
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
-        return response                
+        return response
     relatorio.short_description = u'Exportar convênios selecionados para PDF'
-    
-    def adicionar_convenios(self, request, queryset):        
+
+    def adicionar_convenios(self, request, queryset):
         if request.session.has_key('carrinho_convenios'):
             q1 = len(request.session['carrinho_convenios'])
         else:
-            q1 = 0        
+            q1 = 0
         adicionar_convenios_carrinho(request,queryset=queryset)
         q2 = len(request.session['carrinho_convenios'])
         quant = q2 - q1
@@ -115,7 +115,7 @@ class ConvenioAdmin(admin.ModelAdmin):
             self.message_user(request,"Os Convênios selecionados já foram adicionadas anteriormente" )
         return HttpResponseRedirect('.')
     adicionar_convenios.short_description = u"Armazenar convênios no carrinho para exportar"
-    
+
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)
         if 'delete_selected' in actions:

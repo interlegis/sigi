@@ -12,15 +12,15 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
     list_display_links = ('codigo_ibge', 'nome')
     list_filter = ('regiao', 'populacao', PopulationFilter,)
     search_fields = ('search_text', 'codigo_ibge',  'sigla', 'regiao')
-    queryset = queryset_ascii
+    get_queryset = queryset_ascii
 
 class MunicipioAdmin(admin.ModelAdmin):
     actions = None
-    list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano', 
+    list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano',
                     'pib_total', 'pib_percapita')
     list_display_links = ('codigo_ibge', 'codigo_tse', 'nome')
     list_filter = ('is_capital', 'is_polo', 'idh', 'populacao', 'uf', )
-    queryset = queryset_ascii
+    get_queryset = queryset_ascii
     fieldsets = (
         (None, {
             'fields': ('codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',

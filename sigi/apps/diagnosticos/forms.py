@@ -20,10 +20,10 @@ class DiagnosticoForm(BaseDynamicEntityForm):
     vinculando ao modelo Diagnostico
     """
     model = Diagnostico
-    
+
     def __init__(self, *args, **kwargs):
         super(DiagnosticoForm, self).__init__(*args, **kwargs)
-                
+
         for k, f in self.fields.iteritems():
             if isinstance(f, CharField):
                 f.widget = forms.widgets.Textarea(attrs={'cols':'80'})

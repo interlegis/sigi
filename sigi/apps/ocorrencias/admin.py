@@ -22,7 +22,7 @@ class ComentarioInline(admin.StackedInline):
     verbose_name, verbose_name_plural = u"Comentário novo", u"Comentários novos"
     fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
 
-    def queryset(self, queryset):
+    def get_queryset(self, queryset):
         return self.model.objects.get_query_set()
 
 
@@ -42,7 +42,7 @@ class OcorrenciaChangeList(ChangeList):
                                                    date_hierarchy, search_fields, list_select_related, list_per_page,
                                                    list_max_show_all, list_editable, model_admin)
 
-    def get_query_set(self, request):
+    def get_queryset(self, request):
         tmp_params = self.params.copy()
         grupo = None
         if 'grupo' in self.params:

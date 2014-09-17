@@ -38,12 +38,12 @@ class PresidenteInline(admin.StackedInline):
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
     fieldsets = ((None, {
-                    'fields': (('nome', 'sexo', 'nota', 'email'), ('cargo', 'funcao', 'setor', 'tempo_de_servico'), 'ult_alteracao') 
+                    'fields': (('nome', 'sexo', 'nota', 'email'), ('cargo', 'funcao', 'setor', 'tempo_de_servico'), 'ult_alteracao')
                 }),)
-    readonly_fields = ('ult_alteracao',)				
+    readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
-    def queryset(self, request):
+    def get_queryset(self, request):
         return self.model.objects.exclude(cargo="Presidente")
 
 
@@ -68,23 +68,23 @@ class ConveniosInline(admin.StackedInline):
         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
     get_anexos.short_description = 'Anexos'
     get_anexos.allow_tags = True
-    
+
     def get_equipamentos(self, obj):
         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
     get_equipamentos.short_description = 'Equipamentos previstos'
     get_equipamentos.allow_tags = True
-    
+
     def link_convenio(self, obj):
         if obj.pk is None:
             return ""
         from django.core.urlresolvers import reverse
         url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=[obj.pk] )
         url = url + '?_popup=1'
-        return """<input id="edit_convenio-%s" type="hidden"/> 
-          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)"> 
+        return """<input id="edit_convenio-%s" type="hidden"/>
+          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
             Editar
           </a>""" % (obj.pk, obj.pk, url)
-    
+
     link_convenio.short_description = 'Editar convenio'
     link_convenio.allow_tags = True
 
@@ -93,18 +93,18 @@ class LegislaturaInline(admin.TabularInline):
     model = Legislatura
     fields = ['numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares', 'link_parlamentares',]
     readonly_fields = ['link_parlamentares',]
-    
+
     def link_parlamentares(self, obj):
         if obj.pk is None:
             return ""
         from django.core.urlresolvers import reverse
         url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=[obj.pk] )
         url = url + '?_popup=1'
-        return """<input id="edit_legislatura-%s" type="hidden"/> 
-          <a id="lookup_edit_legislatura-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)"> 
+        return """<input id="edit_legislatura-%s" type="hidden"/>
+          <a id="lookup_edit_legislatura-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
             Editar
           </a>""" % (obj.pk, obj.pk, url)
-    
+
     link_parlamentares.short_description = 'Parlamentares'
     link_parlamentares.allow_tags = True
 
@@ -116,17 +116,17 @@ class DiagnosticoInline(admin.TabularInline):
     extra = 0
     max_num = 0
     can_delete = False
-    
+
     def link_diagnostico(self, obj):
         if obj.pk is None:
             return ""
         from django.core.urlresolvers import reverse
         url = reverse('admin:%s_%s_change' %(obj._meta.app_label,  obj._meta.module_name),  args=["%s.pdf" % obj.pk] )
-        return """<input id="edit_diagnostico-%s" type="hidden"/> 
-          <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank"> 
+        return """<input id="edit_diagnostico-%s" type="hidden"/>
+          <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank">
             Abrir PDF
           </a>""" % (obj.pk, obj.pk, url)
-    
+
     link_diagnostico.short_description = 'Ver PDF'
     link_diagnostico.allow_tags = True
 
@@ -192,44 +192,44 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
     get_convenios.short_description = u'Convênios'
     get_convenios.allow_tags= True
-    
+
     def changelist_view(self, request, extra_context=None):
         return super(CasaLegislativaAdmin, self).changelist_view(
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
-        
+
     def lookup_allowed(self, lookup, value):
         return super(CasaLegislativaAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['municipio__uf__codigo_ibge__exact', 'convenio__projeto__id__exact']
- 
 
-    def etiqueta(self,request,queryset):        
+
+    def etiqueta(self,request,queryset):
         return labels_report(request,queryset=queryset)
     etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
 
-    def etiqueta_sem_presidente(self,request,queryset):        
+    def etiqueta_sem_presidente(self,request,queryset):
         return labels_report_sem_presidente(request,queryset=queryset)
     etiqueta_sem_presidente.short_description = "Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)"
 
-    def relatorio(self,request,queryset):        
+    def relatorio(self,request,queryset):
         return report(request,queryset=queryset)
     relatorio.short_description = u"Exportar a(s) casa(s) selecionada(s) para PDF"
 
-    def relatorio_completo(self,request,queryset):        
+    def relatorio_completo(self,request,queryset):
         return report_complete(request,queryset=queryset)
     relatorio_completo.short_description = u"Gerar relatório completo da(s) casa(s) selecionada(s)"
 
-    def relatorio_csv(self,request,queryset):        
-        return export_csv(request)        
+    def relatorio_csv(self,request,queryset):
+        return export_csv(request)
     relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
-    
+
     def adicionar_casas(self, request, queryset):
         if 'carrinho_casas' in request.session:
         #if request.session.has_key('carrinho_casas'):
             q1 = len(request.session['carrinho_casas'])
         else:
-            q1 = 0        
+            q1 = 0
         response = adicionar_casas_carrinho(request,queryset=queryset)
         q2 = len(request.session['carrinho_casas'])
         quant = q2 - q1
@@ -238,10 +238,10 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
         else:
             self.message_user(request,"As Casas Legislativas selecionadas já foram adicionadas anteriormente" )
         return HttpResponseRedirect('.')
-    
+
     adicionar_casas.short_description = u"Armazenar casas no carrinho para exportar"
-        
-    
+
+
     def get_actions(self, request):
         actions = super(CasaLegislativaAdmin, self).get_actions(request)
         if 'delete_selected' in actions:
