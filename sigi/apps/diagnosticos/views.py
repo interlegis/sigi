@@ -1,10 +1,9 @@
 # -*- coding: utf8 -*-
 
-import json
 from itertools import cycle
 
 from django.http import HttpResponse
-from django.utils import simplejson
+import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache

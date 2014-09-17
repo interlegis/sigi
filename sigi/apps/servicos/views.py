@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.http import HttpResponse
-from django.utils import simplejson
+import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.shortcuts import render_to_response, get_object_or_404
 from django.db.models import Q
-from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto 
+from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.casas.models import CasaLegislativa
 from django.template.context import RequestContext
@@ -17,7 +17,7 @@ from django.views.generic.base import TemplateView
 
 
 class MapaView(TemplateView):
-    
+
     template_name = "servicos/mapa.html"
 
     def get_context_data(self, **kwargs):
@@ -29,15 +29,15 @@ class MapaView(TemplateView):
 def municipios_atendidos(self, servico):
     municipios = []
     servico = servico.upper()
-    
+
     query = Q()
-    
+
     if servico != 'ALL':
         for sigla in servico.split('_'):
             query = query | Q(tipo_servico__sigla=sigla)
-            
+
     query = Q(data_desativacao=None) & query
-    
+
     for casa in CasaAtendida.objects.all():
         if casa.servico_set.filter(query).exists():
             m = casa.municipio
@@ -69,15 +69,15 @@ class CasaManifestaProtoForm(forms.Form):
                     field_line.append(bf)
                 field_lines.append(field_line)
             result.append({'name': name, 'lines': field_lines},)
-        self.fieldsets = result  
+        self.fieldsets = result
 
 def casa_manifesta_view(request):
     if 'casa_id' in request.GET:
         casa_id = request.GET.get('casa_id')
         casa = get_object_or_404(CasaLegislativa, pk=casa_id)
-        
+
         # Criar um formulário dinâmico
-        
+
         campos = {}
         fieldsets = ((None, ('informante', 'cargo', 'email'),),)
 
@@ -86,9 +86,9 @@ def casa_manifesta_view(request):
             campos['url_%s' % ts.pk] = forms.URLField(label=u'Informe a URL', required=False)
             campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=u'Serviço está hospedado no Interlegis', required=False)
             fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk )),)
-            
+
         CasaManifestaForm = type('', (CasaManifestaProtoForm,), campos)
-        
+
         if request.method == 'POST':
             cmf = CasaManifestaForm(request.POST)
             if cmf.is_valid():
@@ -124,15 +124,15 @@ def casa_manifesta_view(request):
                     'email': cm.email,
                 }
                 for sm in cm.servicomanifesto_set.all():
-                    values['possui_%s' % sm.servico.pk] = True 
+                    values['possui_%s' % sm.servico.pk] = True
                     values['url_%s' % sm.servico.pk] = sm.url
                     values['hospedagem_interlegis_%s' % sm.servico.pk] = sm.hospedagem_interlegis
                 cmf = CasaManifestaForm(values)
             except:
                 cmf = CasaManifestaForm()
-    
+
             cmf.set_fieldsets(fieldsets)
-    
+
             extra_context = {'casa': casa, 'cmf': cmf}
     elif 'uf' in request.GET:
         uf = request.GET.get('uf')

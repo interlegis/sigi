@@ -4,7 +4,7 @@ import os
 
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-from django.utils import simplejson
+import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.utils.datastructures import SortedDict
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -35,23 +35,23 @@ def dashboard(request):
     dados = SortedDict()
     projetos = Projeto.objects.all()
     meses = Desembolso.objects.dates('data', 'month', 'DESC')[:6]
-    colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080', 
+    colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080',
               '28d75c', '0000ff', 'fff200']
-        
+
     for date in reversed(meses):
         mes_ano = '%s/%s' % (date.month, date.year)
         dados[mes_ano] = 0
 
     for p in projetos:
         matriz[p.id] = (p.sigla, dados.copy())
-        
+
     for date in meses:
         mes_ano = '%s/%s' % (date.month, date.year)
         for d in Desembolso.objects.filter(data__year=date.year, data__month=date.month).values('projeto').annotate(total_dolar=Sum('valor_dolar')):
             if int(d['total_dolar']) > desembolsos_max:
                 desembolsos_max = int(d['total_dolar'])
             matriz[d['projeto']][1][mes_ano] += int(d['total_dolar'])
-    
+
     meses = ["%s/%s" % (m.month, m.year) for m in reversed(meses)]
     extra_context = {'desembolsos': matriz, 'desembolsos_max': desembolsos_max, 'meses': meses, 'colors': ','.join(colors[:len(matriz)])}
     return render_to_response('metas/dashboard.html', extra_context, context_instance=RequestContext(request))
@@ -60,19 +60,19 @@ def mapa(request):
     """
     Mostra o mapa com filtros carregados com valores default
     """
-    
+
     regiao_choices = UnidadeFederativa.REGIAO_CHOICES
     estado_choices = UnidadeFederativa.objects.all()
     servico_choices = TipoServico.objects.all()
     projeto_choices = Projeto.objects.all()
-    
+
     seit         = [ ts.sigla for ts in servico_choices]
     convenios    = ['PML'] # Apenas o ultimo #hardcoded #fixme
     equipadas    = [] #[p.sigla for p in projeto_choices]
-    diagnosticos = ['P'] # choices: ["A", "P"] 
+    diagnosticos = ['P'] # choices: ["A", "P"]
     regioes      = [r[0] for r in regiao_choices]
     estados      = []
-    
+
     extra_context = {
         'seit': seit,
         'convenios': convenios,
@@ -85,7 +85,7 @@ def mapa(request):
         'servico_choices': servico_choices,
         'projeto_choices': projeto_choices,
     }
-    
+
     return render_to_response('metas/mapa.html', extra_context, context_instance=RequestContext(request))
 
 
@@ -96,13 +96,13 @@ def map_data(request):
     Tenta ler esse json do arquivo JSON_FILE_NAME. Se não encontrar, chama a rotina
     gera_map_data_file().
     """
-    
+
     try:
         file = open(JSON_FILE_NAME, 'r')
         json = file.read()
     except:
         json = gera_map_data_file()
-        
+
     return HttpResponse(json, mimetype="application/json")
 
 def map_search(request):
@@ -116,7 +116,7 @@ def map_search(request):
             casas = CasaLegislativa.objects.filter(search_text__icontains=to_ascii(q))
         if casas.count() > 0:
             response = {'result': 'FOUND', 'ids': [c.pk for c in casas]}
-    
+
     return HttpResponse(simplejson.dumps(response), mimetype="application/json")
 
 @cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
@@ -124,7 +124,7 @@ def map_sum(request):
     # Filtrar Casas de acordo com os parâmetros
     param = get_params(request)
     casas = filtrar_casas(**param)
-    
+
     # Montar registros de totalização
     tot_servicos = SortedDict()
     tot_projetos = SortedDict()
@@ -134,17 +134,17 @@ def map_sum(request):
         tot_servicos[ts.sigla] = 0
 
     for pr in Projeto.objects.all():
-        tot_projetos[pr.sigla] = 0 
+        tot_projetos[pr.sigla] = 0
 
     tot_convenios = tot_projetos.copy()
-    tot_equipadas = tot_projetos.copy() 
+    tot_equipadas = tot_projetos.copy()
 
     tot_diagnosticos['A'] = 0
     tot_diagnosticos['P'] = 0
-    
+
     # Montar as linhas do array de resultados com as regiões e os estados
     result = {}
-    
+
     for uf in UnidadeFederativa.objects.filter(Q(regiao__in=param['regioes']) | Q(sigla__in=param['estados'])).order_by('regiao', 'nome'):
         if not result.has_key(uf.regiao):
             result[uf.regiao] = {'nome': uf.get_regiao_display(), 'ufs': {}, 'servicos': tot_servicos.copy(),
@@ -154,7 +154,7 @@ def map_sum(request):
                                                     'convenios': tot_projetos.copy(), 'equipadas': tot_projetos.copy(),
                                                     'diagnosticos': tot_diagnosticos.copy()}
 
-    
+
     # Processar as casas filtradas
     for casa in casas.distinct():
         uf = casa.municipio.uf
@@ -179,7 +179,7 @@ def map_sum(request):
                 tot_diagnosticos['A'] += 1
                 result[uf.regiao]['diagnosticos']['A'] += 1
                 result[uf.regiao]['ufs'][uf.codigo_ibge]['diagnosticos']['A'] += 1
-            
+
     extra_context = {
         'pagesize': 'a4 landscape',
         'servicos': TipoServico.objects.all(),
@@ -189,7 +189,7 @@ def map_sum(request):
         'tot_convenios': tot_convenios,
         'tot_equipadas': tot_equipadas,
         'tot_diagnosticos': tot_diagnosticos,
-    }        
+    }
     return render_to_pdf('metas/map_sum.html', extra_context)
 
 @cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
@@ -208,16 +208,16 @@ def map_list(request):
         srv = {}
         for ts in TipoServico.objects.all():
             srv[ts.pk] = ts.nome
-            
+
         cnv = {}
         for pr in Projeto.objects.all():
             cnv[pr.id] = pr.sigla
-        
+
         writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao',] + [x for x in srv.values()] +
                         reduce(lambda x,y: x+y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
-        
+
         for casa in casas:
-            row = [casa.municipio.codigo_ibge, casa.nome, casa.municipio.nome, casa.municipio.uf.sigla, 
+            row = [casa.municipio.codigo_ibge, casa.nome, casa.municipio.nome, casa.municipio.uf.sigla,
                    casa.municipio.uf.get_regiao_display(),]
             for id in srv.keys():
                 try:
@@ -231,16 +231,16 @@ def map_list(request):
                     row += [cv.data_retorno_assinatura, cv.data_termo_aceite if cv.equipada else None,]
                 except:
                     row += [None, None,]
-                    
+
             writer.writerow(row)
         return response
 
     return render_to_pdf('metas/map_list.html', {'casas': casas})
-        
+
 
 #----------------------------------------------------------------------------------------------------
 # Funções auxiliares - não são views
-#---------------------------------------------------------------------------------------------------- 
+#----------------------------------------------------------------------------------------------------
 
 def get_params(request):
     ''' Pegar parâmetros da pesquisa '''
@@ -248,7 +248,7 @@ def get_params(request):
         'seit'         : request.GET.getlist('seit'),
         'convenios'    : request.GET.getlist('convenios'),
         'equipadas'    : request.GET.getlist('equipadas'),
-        'diagnosticos' : request.GET.getlist('diagnosticos'), 
+        'diagnosticos' : request.GET.getlist('diagnosticos'),
         'regioes'      : request.GET.getlist('regioes'),
         'estados'      : request.GET.getlist('estados'),
     }
@@ -260,14 +260,14 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
     qRegiao   = Q(municipio__uf__regiao__in=regioes)
     qEstado   = Q(municipio__uf__sigla__in=estados)
-    
+
     if diagnosticos:
         qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' for p in diagnosticos])
     else:
         qDiagnostico = Q()
-        
+
     casas = CasaLegislativa.objects.filter(qServico | qConvenio | qEquipada | qDiagnostico).filter(qRegiao | qEstado)
-    
+
     return casas
 
 def gera_map_data_file(cronjob=False):
@@ -275,17 +275,17 @@ def gera_map_data_file(cronjob=False):
         Este arquivo será consumido pela view de dados de mapa.
         Retorna os dados json caso cronjob seja falso.
         Caso cronjob seja True, retorna log de tempo gasto na geração ou a mensagem do erro
-        que impediu a gravação do arquivo. 
-    ''' 
+        que impediu a gravação do arquivo.
+    '''
     import time
     start = time.time()
 
     casas = {}
-    
+
     for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
         if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
             continue; # Salta essa casa, pois ela não tem nada com o Interlegis
-        
+
         if not casas.has_key(c.pk):
             casa = {
                 'nome': c.nome + ', ' + c.municipio.uf.sigla,
@@ -294,19 +294,19 @@ def gera_map_data_file(cronjob=False):
                 'lng': str(c.municipio.longitude),
                 'estado': c.municipio.uf.sigla,
                 'regiao': c.municipio.uf.regiao,
-                'diagnosticos': [], 
+                'diagnosticos': [],
                 'seit': [],
                 'convenios': [],
                 'equipadas': [],
                 'info': []
             }
-            
+
             for sv in c.servico_set.all():
                 casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (
-                                        sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else 
+                                        sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else
                                         u'<sem data de ativação>', sv.url, STATIC_URL))
                 casa['seit'].append(sv.tipo_servico.sigla)
-                
+
             for cv in c.convenio_set.all():
                 if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
                     casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
@@ -318,19 +318,19 @@ def gera_map_data_file(cronjob=False):
                     casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
                     casa['equipadas'].append(cv.projeto.sigla)
                     casa['convenios'].append(cv.projeto.sigla)
-                    
+
             for dg in c.diagnostico_set.all():
                 casa['diagnosticos'].append('P' if dg.publicado else 'A')
                 casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y') if
-                                dg.data_visita_inicio is not None else u"<sem data de início>", 
+                                dg.data_visita_inicio is not None else u"<sem data de início>",
                                 dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else u"<sem data de término>"))
-                    
+
             casa['info'] = "<br/>".join(casa['info'])
-                
+
             casas[c.pk] = casa
-    
+
     json_data = simplejson.dumps(casas)
-    
+
     try:
         file = open(JSON_FILE_NAME, 'w')
         file.write(json_data)
@@ -340,7 +340,7 @@ def gera_map_data_file(cronjob=False):
             return str(e)
         else:
             pass # ... ou os dados poderão ser usados de qualquer forma
-    
+
     if cronjob:
         return "Arquivo %s gerado em %d segundos" % (JSON_FILE_NAME, time.time() - start)
 
