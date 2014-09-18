@@ -79,7 +79,7 @@ def adicionar_casas_carrinho(request, queryset=None, id=None):
             lista = request.session['carrinho_casas']
             # Verifica se id já não está adicionado
             for id in ids_selecionados:
-                if not id in lista:
+                if id not in lista:
                     lista.append(id)
             request.session['carrinho_casas'] = lista
 
