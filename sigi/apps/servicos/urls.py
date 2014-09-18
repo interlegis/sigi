@@ -6,8 +6,8 @@ from .views import MapaView
 
 
 urlpatterns = patterns('sigi.apps.servicos.views',
-	url(r'^manifesta/$', 'casa_manifesta_view', name="casa-manifesta-view"),
-	url(r'^munatenjson/(?P<servico>\w+)/$', 'municipios_atendidos', name="municipios-atendidos"),
-	url(r'^mapa/(?P<servico>\w+)/$', MapaView.as_view(), name="servicos-mapa"),
-	# url(r'^listacasas/(?P<sigla>\w+)', 'casas_usam_servico', name="casas-usam-servico"),
+    url(r'^manifesta/$', 'casa_manifesta_view', name="casa-manifesta-view"),
+    url(r'^munatenjson/(?P<servico>\w+)/$', 'municipios_atendidos', name="municipios-atendidos"),
+    url(r'^mapa/(?P<servico>\w+)/$', MapaView.as_view(), name="servicos-mapa"),
+    # url(r'^listacasas/(?P<sigla>\w+)', 'casas_usam_servico', name="casas-usam-servico"),
 )

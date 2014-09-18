@@ -17,7 +17,7 @@ urlpatterns = patterns('',
     url(r'^servidores/', include('sigi.apps.servidores.urls')),
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
-    
+
 
     url(r'^', include(admin.site.urls)),
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

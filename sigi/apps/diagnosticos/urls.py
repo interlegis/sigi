@@ -32,8 +32,8 @@ urlpatterns = patterns('sigi.apps.diagnosticos.views',
     url(r'^diagnostico/(?P<id_diagnostico>\w+).pdf$', 'diagnostico_pdf', name='diagnostico-pdf'),
 
     # Graficos de perguntas
-    url(r'^graficos/$', 'graficos', name="diagnosticos-graficos"),  #tagerror
-    url(r'^api/$', 'grafico_api', name="diagnosticos-grafico-api"), #tagerror
+    url(r'^graficos/$', 'graficos', name="diagnosticos-graficos"),  # tagerror
+    url(r'^api/$', 'grafico_api', name="diagnosticos-grafico-api"),  # tagerror
 
 )
 
@@ -44,5 +44,5 @@ urlpatterns += patterns('django.contrib.auth.views',
 
     # Logout do Diagnóstico
     url(r'^mobile/logout/$', 'logout',
-          {'next_page': LOGIN_REDIRECT_URL}, name='logout'),
+        {'next_page': LOGIN_REDIRECT_URL}, name='logout'),
 )
