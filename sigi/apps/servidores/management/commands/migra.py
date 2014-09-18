@@ -8,15 +8,17 @@ from django.contrib.auth.models import User
 from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria, Funcao, Ferias, Licenca
 from sigi.apps.contatos.models import Municipio
 
-#Funcao.objects.all().delete()
-#Ferias.objects.all().delete()
-#Licenca.objects.all().delete()
-#for u in User.objects.filter(date_joined__gte=datetime(2011, 12, 9, 10, 58, 49, 83734)).all():
+# Funcao.objects.all().delete()
+# Ferias.objects.all().delete()
+# Licenca.objects.all().delete()
+# for u in User.objects.filter(date_joined__gte=datetime(2011, 12, 9, 10, 58, 49, 83734)).all():
 #    u.servidor_set.all().delete()
 #    u.delete()
 
+
 class MigrationError(Exception):
     pass
+
 
 class Command(BaseCommand):
     help = 'Migra usuários do antigo Sistema de RH'
@@ -40,12 +42,12 @@ class Command(BaseCommand):
 
             user = None
             if not p['email']:
-                username = '' 
+                username = ''
                 email = ''
-	    elif not ('@interlegis' in p['email']):
+            elif not ('@interlegis' in p['email']):
                 username = p['email'].split('@')[0].strip().lower()
                 email = ''
-	    else:
+            else:
                 username = p['email'].split('@')[0].strip().lower()
                 email = username + '@interlegis.gov.br'
 
@@ -53,17 +55,23 @@ class Command(BaseCommand):
             try:
                 # procuro o usuario por email do interlegis
                 if email:
-                    try: user = User.objects.get(email=email)
+                    try:
+                        user = User.objects.get(email=email)
                     except User.DoesNotExist:
-                	email = username + '@interlegis.leg.br'
-                    	try: user = User.objects.get(email=email)
-                    	except User.DoesNotExist: pass
+                        email = username + '@interlegis.leg.br'
+                        try:
+                            user = User.objects.get(email=email)
+                        except User.DoesNotExist:
+                            pass
 
                 if not user and username:
-                    try: user = User.objects.get(username=username)
-                    except User.DoesNotExist: 
-                    	try: user = User.objects.get(username=username + "__")
-                    	except User.DoesNotExist: pass
+                    try:
+                        user = User.objects.get(username=username)
+                    except User.DoesNotExist:
+                        try:
+                            user = User.objects.get(username=username + "__")
+                        except User.DoesNotExist:
+                            pass
 
                 if not user:
                     if not username:
@@ -79,18 +87,18 @@ class Command(BaseCommand):
                     last_name = " ".join(names[1:])
 
                     user = User.objects.create(
-                            username = username,
-                            email = email,
-                            first_name = first_name,
-                            last_name = last_name[:30],
-                            is_active= False
-                        )
+                        username=username,
+                        email=email,
+                        first_name=first_name,
+                        last_name=last_name[:30],
+                        is_active=False
+                    )
 
                 servidor = user.servidor
             except Servidor.DoesNotExist:
                 servidor = Servidor.objects.create(
                     user=user,
-                    nome_completo= "%s %s" % (user.first_name, user.last_name)
+                    nome_completo="%s %s" % (user.first_name, user.last_name)
                 )
             except MigrationError, e:
                 print ", ".join(row)
@@ -107,15 +115,15 @@ class Command(BaseCommand):
             servidor.ramal = p['ramal']
 
             if p['email'] and not '@interlegis' in p['email']:
-                servidor.email_pessoal= p['email']
+                servidor.email_pessoal = p['email']
 
-            if p['inativo']=="-1":
+            if p['inativo'] == "-1":
                 servidor.user.is_active = False
             else:
                 servidor.user.is_active = True
             servidor.user.save()
 
-            if p['de_fora']=="-1":
+            if p['de_fora'] == "-1":
                 servidor.de_fora = True
             else:
                 servidor.de_fora = False
@@ -125,11 +133,11 @@ class Command(BaseCommand):
             elif p['sexo'].upper() == 'F':
                 servidor.sexo = 'F'
 
-            if p['turno']=="1":
+            if p['turno'] == "1":
                 servidor.turno = 'M'
-            elif p['turno']=="2":
+            elif p['turno'] == "2":
                 servidor.turno = 'T'
-            elif p['turno']=="3":
+            elif p['turno'] == "3":
                 servidor.turno = 'N'
 
             if p['aniversario']:
@@ -145,9 +153,9 @@ class Command(BaseCommand):
                     secretaria_nome = p['secretaria_nome']
 
                 secretaria = Subsecretaria.objects.get_or_create(
-                        sigla = p['secretaria_sigla'],
-                        nome = secretaria_nome
-                    )[0]
+                    sigla=p['secretaria_sigla'],
+                    nome=secretaria_nome
+                )[0]
 
                 if ' - ' in p['servico_nome']:
                     servico_nome = p['servico_nome'].split(' - ')[1]
@@ -155,48 +163,48 @@ class Command(BaseCommand):
                     servico_nome = p['servico_nome']
 
                 servico = Servico.objects.get_or_create(
-                        sigla = p['servico_sigla'],
-                        nome = servico_nome
-                    )[0]
+                    sigla=p['servico_sigla'],
+                    nome=servico_nome
+                )[0]
 
                 servico.subsecretaria = secretaria
                 servico.save()
                 servidor.servico = servico
 
             if p['telefone']:
-              try:
-                t = servidor.telefones.get(numero=p['telefone'])
-              except:
-                t = servidor.telefones.create(numero=p['telefone'])
-              t.tipo = 'F'
-              t.save()
+                try:
+                    t = servidor.telefones.get(numero=p['telefone'])
+                except:
+                    t = servidor.telefones.create(numero=p['telefone'])
+                t.tipo = 'F'
+                t.save()
 
             if p['celular']:
-              try:
-                t = servidor.telefones.get(numero=p['celular'])
-              except:
-                t = servidor.telefones.create(numero=p['celular'])
-              t.tipo = 'M'
-              t.save()
+                try:
+                    t = servidor.telefones.get(numero=p['celular'])
+                except:
+                    t = servidor.telefones.create(numero=p['celular'])
+                t.tipo = 'M'
+                t.save()
 
             if p['endereco']:
-              try:
-                e = servidor.endereco.get(logradouro=p['endereco'])
-              except:
-                e = servidor.endereco.create(logradouro=p['endereco'])
-              e.municipio = BRASILIA
-              e.bairro = p['cidade'] # bizarro mas é isso mesmo
-              e.cep = re.sub("\D", "", p['cep'])
-              e.save()
+                try:
+                    e = servidor.endereco.get(logradouro=p['endereco'])
+                except:
+                    e = servidor.endereco.create(logradouro=p['endereco'])
+                e.municipio = BRASILIA
+                e.bairro = p['cidade']  # bizarro mas é isso mesmo
+                e.cep = re.sub("\D", "", p['cep'])
+                e.save()
 
             servidor.apontamentos = p['apontamentos']
             servidor.obs = p['obs']
 
             if p['cargo'] or p['funcao']:
                 funcao = servidor.funcao_set.get_or_create(
-                        funcao = p['funcao'],
-                        cargo = p['cargo'],
-                    )[0]
+                    funcao=p['funcao'],
+                    cargo=p['cargo'],
+                )[0]
 
                 if p['data_bap_entrada']:
                     funcao.data_bap_entrada = self.to_date(p['data_bap_entrada'])
@@ -214,23 +222,22 @@ class Command(BaseCommand):
                 funcao.bap_saida = p['bap_saida']
                 funcao.save()
 
-                if re.search(r'estagi.ri[o|a]',p['cargo'],re.I):
-                    #TODO inserir dados de estagio
+                if re.search(r'estagi.ri[o|a]', p['cargo'], re.I):
+                    # TODO inserir dados de estagio
                     pass
 
             if p['inicio_ferias'] and p['final_ferias']:
                 servidor.ferias_set.get_or_create(
-                        inicio_ferias = self.to_date(p['inicio_ferias']),
-                        fim_ferias = self.to_date(p['final_ferias']),
-                        obs = p['obs_ferias']
-                    )
+                    inicio_ferias=self.to_date(p['inicio_ferias']),
+                    fim_ferias=self.to_date(p['final_ferias']),
+                    obs=p['obs_ferias']
+                )
 
             if p['inicio_licenca'] and p['fim_licenca']:
                 servidor.licenca_set.get_or_create(
-                        inicio_licenca = self.to_date(p['inicio_licenca']),
-                        fim_licenca = self.to_date(p['fim_licenca']),
-                        obs = p['obs_licenca']
-                    )
+                    inicio_licenca=self.to_date(p['inicio_licenca']),
+                    fim_licenca=self.to_date(p['fim_licenca']),
+                    obs=p['obs_licenca']
+                )
 
             servidor.save()
-

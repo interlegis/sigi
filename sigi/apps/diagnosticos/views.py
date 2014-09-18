@@ -3,7 +3,7 @@
 from itertools import cycle
 
 from django.http import HttpResponse
-import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
+import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
 from django.views.decorators.cache import never_cache
@@ -173,10 +173,10 @@ def categoria_contatos(request, id_diagnostico):
 
         resposta = {
             'mensagem': 'sucesso',
-            'erros' : {},
-            'fones' : {},
-            'clean' : (),
-            }
+            'erros': {},
+            'fones': {},
+            'clean': (),
+        }
 
         # valida e salva um formulario por vez
         for form in forms:
@@ -199,8 +199,8 @@ def categoria_contatos(request, id_diagnostico):
                 for form_telefones in form.telefones.forms:
                     if not form_telefones.is_valid():
                         if (form_telefones.fields['id'].initial is not None
-                            and form_telefones.fields['tipo'].initial == 'I'
-                            and form_telefones.fields['numero'].initial is None):
+                                and form_telefones.fields['tipo'].initial == 'I'
+                                and form_telefones.fields['numero'].initial is None):
                             if Telefone.objects.filter(pk=form_telefones.fields['id'].initial).exists():
                                 Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
                                 if not resposta['fones'].has_key(form.prefix):
@@ -251,31 +251,31 @@ def diagnostico_pdf(request, id_diagnostico):
                 schema.value = data
             schemas.append(schema)
 
-        schemas_by_categoria.append((categoria,schemas))
+        schemas_by_categoria.append((categoria, schemas))
 
     context = RequestContext(request, {
-        'pagesize':'A4',
+        'pagesize': 'A4',
         'casa_legislativa': casa_legislativa,
         'funcionarios': funcionarios,
         'diagnostico': diagnostico,
         'schemas_by_categoria': schemas_by_categoria,
-        })
+    })
 
     return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
-    #return render_to_response('diagnosticos/diagnostico_pdf.html', context)
+    # return render_to_response('diagnosticos/diagnostico_pdf.html', context)
 
 
 def graficos(request):
     categorias = Categoria.objects.all()
 
-    sel_categoria = int(request.REQUEST.get("categoria","3"))
+    sel_categoria = int(request.REQUEST.get("categoria", "3"))
     perguntas = Pergunta.objects.filter(categoria=sel_categoria).all()
 
     context = RequestContext(request, {
         'categorias': categorias,
         'sel_categoria': sel_categoria,
         'perguntas': perguntas,
-        })
+    })
     return render_to_response('diagnosticos/graficos.html',
                               context)
 
@@ -337,7 +337,7 @@ def municipios_diagnosticados(self):
     for d in Diagnostico.objects.all():
         m = d.casa_legislativa.municipio
         municipio = {'nome': d.casa_legislativa.nome + ', ' + m.uf.sigla, 'lat': str(m.latitude), 'lng': str(m.longitude), 'inicio': d.data_visita_inicio,
-                     'fim': d.data_visita_fim, 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>",}
+                     'fim': d.data_visita_fim, 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>", }
         municipios.append(municipio)
 
     return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")

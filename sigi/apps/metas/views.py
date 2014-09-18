@@ -4,7 +4,7 @@ import os
 
 from django.http import HttpResponse
 from django.core.exceptions import PermissionDenied
-import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
+import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.utils.datastructures import SortedDict
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -24,8 +24,8 @@ from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 
-@login_required
 
+@login_required
 def dashboard(request):
     if request.user.groups.filter(name__in=['SPDT-Servidores', 'SSPLF']).count() <= 0:
         raise PermissionDenied
@@ -56,6 +56,7 @@ def dashboard(request):
     extra_context = {'desembolsos': matriz, 'desembolsos_max': desembolsos_max, 'meses': meses, 'colors': ','.join(colors[:len(matriz)])}
     return render_to_response('metas/dashboard.html', extra_context, context_instance=RequestContext(request))
 
+
 def mapa(request):
     """
     Mostra o mapa com filtros carregados com valores default
@@ -66,12 +67,12 @@ def mapa(request):
     servico_choices = TipoServico.objects.all()
     projeto_choices = Projeto.objects.all()
 
-    seit         = [ ts.sigla for ts in servico_choices]
-    convenios    = ['PML'] # Apenas o ultimo #hardcoded #fixme
-    equipadas    = [] #[p.sigla for p in projeto_choices]
-    diagnosticos = ['P'] # choices: ["A", "P"]
-    regioes      = [r[0] for r in regiao_choices]
-    estados      = []
+    seit = [ts.sigla for ts in servico_choices]
+    convenios = ['PML']  # Apenas o ultimo #hardcoded #fixme
+    equipadas = []  # [p.sigla for p in projeto_choices]
+    diagnosticos = ['P']  # choices: ["A", "P"]
+    regioes = [r[0] for r in regiao_choices]
+    estados = []
 
     extra_context = {
         'seit': seit,
@@ -89,7 +90,7 @@ def mapa(request):
     return render_to_response('metas/mapa.html', extra_context, context_instance=RequestContext(request))
 
 
-@cache_page(1800) # Cache de 30min
+@cache_page(1800)  # Cache de 30min
 def map_data(request):
     """
     Retorna json com todos os dados dos municípios que têm relação com o Interlegis
@@ -105,6 +106,7 @@ def map_data(request):
 
     return HttpResponse(json, mimetype="application/json")
 
+
 def map_search(request):
     response = {'result': 'NOT_FOUND'}
     if 'q' in request.GET:
@@ -119,7 +121,8 @@ def map_search(request):
 
     return HttpResponse(simplejson.dumps(response), mimetype="application/json")
 
-@cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
+
+@cache_page(86400)  # Cache de um dia (24 horas = 86400 segundos)
 def map_sum(request):
     # Filtrar Casas de acordo com os parâmetros
     param = get_params(request)
@@ -153,7 +156,6 @@ def map_sum(request):
         result[uf.regiao]['ufs'][uf.codigo_ibge] = {'nome': uf.nome, 'servicos': tot_servicos.copy(),
                                                     'convenios': tot_projetos.copy(), 'equipadas': tot_projetos.copy(),
                                                     'diagnosticos': tot_diagnosticos.copy()}
-
 
     # Processar as casas filtradas
     for casa in casas.distinct():
@@ -192,7 +194,8 @@ def map_sum(request):
     }
     return render_to_pdf('metas/map_sum.html', extra_context)
 
-@cache_page(86400) # Cache de um dia (24 horas = 86400 segundos)
+
+@cache_page(86400)  # Cache de um dia (24 horas = 86400 segundos)
 def map_list(request):
     # Filtrar Casas de acordo com os parâmetros
     param = get_params(request)
@@ -213,24 +216,24 @@ def map_list(request):
         for pr in Projeto.objects.all():
             cnv[pr.id] = pr.sigla
 
-        writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao',] + [x for x in srv.values()] +
-                        reduce(lambda x,y: x+y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
+        writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao', ] + [x for x in srv.values()] +
+                        reduce(lambda x, y: x + y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
 
         for casa in casas:
             row = [casa.municipio.codigo_ibge, casa.nome, casa.municipio.nome, casa.municipio.uf.sigla,
-                   casa.municipio.uf.get_regiao_display(),]
+                   casa.municipio.uf.get_regiao_display(), ]
             for id in srv.keys():
                 try:
                     sv = casa.servico_set.get(tipo_servico__id=id)
-                    row += [sv.data_ativacao,]
+                    row += [sv.data_ativacao, ]
                 except:
-                    row += [None,]
+                    row += [None, ]
             for id in cnv.keys():
                 try:
                     cv = casa.convenio_set.get(projeto__id=id)
-                    row += [cv.data_retorno_assinatura, cv.data_termo_aceite if cv.equipada else None,]
+                    row += [cv.data_retorno_assinatura, cv.data_termo_aceite if cv.equipada else None, ]
                 except:
-                    row += [None, None,]
+                    row += [None, None, ]
 
             writer.writerow(row)
         return response
@@ -245,21 +248,22 @@ def map_list(request):
 def get_params(request):
     ''' Pegar parâmetros da pesquisa '''
     return {
-        'seit'         : request.GET.getlist('seit'),
-        'convenios'    : request.GET.getlist('convenios'),
-        'equipadas'    : request.GET.getlist('equipadas'),
-        'diagnosticos' : request.GET.getlist('diagnosticos'),
-        'regioes'      : request.GET.getlist('regioes'),
-        'estados'      : request.GET.getlist('estados'),
+        'seit': request.GET.getlist('seit'),
+        'convenios': request.GET.getlist('convenios'),
+        'equipadas': request.GET.getlist('equipadas'),
+        'diagnosticos': request.GET.getlist('diagnosticos'),
+        'regioes': request.GET.getlist('regioes'),
+        'estados': request.GET.getlist('estados'),
     }
+
 
 def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     ''' Filtrar Casas que atendem aos parâmetros de pesquisa '''
-    qServico  = Q(servico__tipo_servico__sigla__in=seit)
+    qServico = Q(servico__tipo_servico__sigla__in=seit)
     qConvenio = Q(convenio__projeto__sigla__in=convenios)
     qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
-    qRegiao   = Q(municipio__uf__regiao__in=regioes)
-    qEstado   = Q(municipio__uf__sigla__in=estados)
+    qRegiao = Q(municipio__uf__regiao__in=regioes)
+    qEstado = Q(municipio__uf__sigla__in=estados)
 
     if diagnosticos:
         qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' for p in diagnosticos])
@@ -269,6 +273,7 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
     casas = CasaLegislativa.objects.filter(qServico | qConvenio | qEquipada | qDiagnostico).filter(qRegiao | qEstado)
 
     return casas
+
 
 def gera_map_data_file(cronjob=False):
     ''' Criar um arquivo json em {settings.MEDIA_ROOT}/apps/metas/ com o nome de map_data.json
@@ -284,7 +289,8 @@ def gera_map_data_file(cronjob=False):
 
     for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
         if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
-            continue; # Salta essa casa, pois ela não tem nada com o Interlegis
+            continue
+            # Salta essa casa, pois ela não tem nada com o Interlegis
 
         if not casas.has_key(c.pk):
             casa = {
@@ -303,8 +309,8 @@ def gera_map_data_file(cronjob=False):
 
             for sv in c.servico_set.all():
                 casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (
-                                        sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else
-                                        u'<sem data de ativação>', sv.url, STATIC_URL))
+                    sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else
+                    u'<sem data de ativação>', sv.url, STATIC_URL))
                 casa['seit'].append(sv.tipo_servico.sigla)
 
             for cv in c.convenio_set.all():
@@ -322,8 +328,8 @@ def gera_map_data_file(cronjob=False):
             for dg in c.diagnostico_set.all():
                 casa['diagnosticos'].append('P' if dg.publicado else 'A')
                 casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y') if
-                                dg.data_visita_inicio is not None else u"<sem data de início>",
-                                dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else u"<sem data de término>"))
+                                                                              dg.data_visita_inicio is not None else u"<sem data de início>",
+                                                                              dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else u"<sem data de término>"))
 
             casa['info'] = "<br/>".join(casa['info'])
 
@@ -335,11 +341,11 @@ def gera_map_data_file(cronjob=False):
         file = open(JSON_FILE_NAME, 'w')
         file.write(json_data)
         file.close()
-    except Exception as e: # A gravação não foi bem sucedida ...
-        if cronjob: # ... o chamador deseja a mensagem de erro
+    except Exception as e:  # A gravação não foi bem sucedida ...
+        if cronjob:  # ... o chamador deseja a mensagem de erro
             return str(e)
         else:
-            pass # ... ou os dados poderão ser usados de qualquer forma
+            pass  # ... ou os dados poderão ser usados de qualquer forma
 
     if cronjob:
         return "Arquivo %s gerado em %d segundos" % (JSON_FILE_NAME, time.time() - start)

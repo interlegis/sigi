@@ -1,4 +1,4 @@
-#style="list-style-type: noneo -*- coding: utf-8 -*-
+# style="list-style-type: noneo -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
 from django.contrib.contenttypes import generic
@@ -6,6 +6,7 @@ from sigi.apps.utils import SearchField
 
 
 class Projeto(models.Model):
+
     """ Modelo para representar os projetos do programa
     Interlegis
     """
@@ -17,6 +18,7 @@ class Projeto(models.Model):
 
 
 class Convenio(models.Model):
+
     """ Modelo que representa um convênio do Interlegis
     com uma Casa Legislativa.
 
@@ -90,7 +92,7 @@ class Convenio(models.Model):
         help_text=u'Data do retorno do convênio sem assinatura',
     )
     observacao = models.CharField(
-        null=True, 
+        null=True,
         blank=True,
         max_length=100,
     )
@@ -98,10 +100,9 @@ class Convenio(models.Model):
     equipada = models.BooleanField()
 
     def save(self, *args, **kwargs):
-        self.conveniada = self.data_retorno_assinatura!=None
-        self.equipada = self.data_termo_aceite!=None
+        self.conveniada = self.data_retorno_assinatura != None
+        self.equipada = self.data_termo_aceite != None
         super(Convenio, self).save(*args, **kwargs)
-
 
     class Meta:
         get_latest_by = 'id'
@@ -109,13 +110,14 @@ class Convenio(models.Model):
         verbose_name = u'convênio'
 
     def __unicode__(self):
-        if self.data_retorno_assinatura != None: 
+        if self.data_retorno_assinatura != None:
             return u"Convênio nº %s - projeto %s, em %s" % (self.num_convenio, self.projeto.sigla, self.data_retorno_assinatura)
         else:
             return u"Adesão ao projeto %s, em %s" % (self.projeto.sigla, self.data_adesao)
 
 
 class EquipamentoPrevisto(models.Model):
+
     """ Modelo utilizado para registrar os equipamentos
     disponibilizados para as Casas Legislativas
     (foi usado na prmeira etapa do programa)
@@ -133,6 +135,7 @@ class EquipamentoPrevisto(models.Model):
 
 
 class Anexo(models.Model):
+
     """ Modelo para giardar os documentos gerados
     no processo de convênio
     """
@@ -151,7 +154,9 @@ class Anexo(models.Model):
     def __unicode__(self):
         return unicode("%s publicado em %s" % (self.descricao, self.data_pub))
 
+
 class UnidadeAdministrativa(models.Model):
+
     """ Modelo para representar uma Unidade Administrativa
     que pode ser um servivo do próprio Interlegis, assim como
     uma unidade do Senado Federal
@@ -164,6 +169,7 @@ class UnidadeAdministrativa(models.Model):
 
 
 class Tramitacao(models.Model):
+
     """ Modelo para registrar as vias do processo de convênio e a Unidade
     responsável pelo tramite (ex. colher assinaturas do secretário do senado)
     """
@@ -185,4 +191,3 @@ class Tramitacao(models.Model):
             return unicode("%s em %s (%s)" % (self.unid_admin, self.data, self.observacao))
         else:
             return unicode("%s em %s" % (self.unid_admin, self.data))
-

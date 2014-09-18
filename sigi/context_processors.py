@@ -28,7 +28,7 @@ def charts_data(request):
         'tabela_resumo_diagnostico': tabela_resumo_diagnostico,
         'dados_graficos_convenio_projeto': dados_graficos_convenio_projeto,
         'metas': Meta.objects.all(),
-        }
+    }
 
 
 def busca_informacoes_camara():
@@ -69,7 +69,7 @@ def busca_informacoes_camara():
 
         cabecalho_topo.append(projeto.sigla)
         lista_total.append(camaras.filter(convenio__projeto=projeto).count())
-        lista_nao_aderidas.append(camaras.filter(convenio__in=conv_sem_adesao_proj).count() )
+        lista_nao_aderidas.append(camaras.filter(convenio__in=conv_sem_adesao_proj).count())
         lista_aderidas.append(camaras.filter(convenio__in=conv_com_adesao_proj).count())
         lista_convenios_assinados.append(camaras.filter(convenio__in=conv_assinados_proj).count())
         lista_convenios_em_andamento.append(camaras.filter(convenio__in=conv_em_andamento_proj).count())
@@ -104,7 +104,7 @@ def busca_informacoes_camara():
 
     # Unindo as duas listass para que o cabecalho da esquerda fique junto com sua
     # respectiva linha
-    lista_zip = zip(cabecalho_esquerda,linhas)
+    lista_zip = zip(cabecalho_esquerda, linhas)
 
     # Retornando listas em forma de dicionario
     return {
@@ -112,21 +112,21 @@ def busca_informacoes_camara():
         u'lista_zip': lista_zip,
         u'total_camaras': camaras.count(),
         u'camaras_sem_processo': camaras_sem_processo.count(),
-        }
+    }
 
 
 def grafico_convenio_projeto(convenios):
 
     colors = cycle(['#7cb5ec',
-                   '#434348',
-                   '#90ed7d',
-                   '#f7a35c',
-                   '#8085e9',
-                   '#f15c80',
-                   '#e4d354',
-                   '#8085e8',
-                   '#8d4653',
-                   '#91e8e1', ])
+                    '#434348',
+                    '#90ed7d',
+                    '#f7a35c',
+                    '#8085e9',
+                    '#f15c80',
+                    '#e4d354',
+                    '#8085e8',
+                    '#8d4653',
+                    '#91e8e1', ])
 
     highlights = cycle(['#B0D3F4',
                         '#8E8E91',
@@ -180,4 +180,4 @@ def busca_informacoes_diagnostico():
     return [
         {'title': 'Diagnósticos digitados', 'count': Diagnostico.objects.count()},
         {'title': 'Diagnósticos publicados', 'count': Diagnostico.objects.filter(publicado=True).count()},
-        ]
+    ]

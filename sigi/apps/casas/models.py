@@ -9,7 +9,9 @@ from django.contrib.contenttypes import generic
 from sigi.apps.utils import SearchField
 from sigi.apps.servidores.models import Servidor
 
+
 class TipoCasaLegislativa(models.Model):
+
     """ Modelo para representar o tipo da Casa Legislativa
 
     Geralmente: Câmara Municipal, Assembléia Legislativa,
@@ -22,11 +24,13 @@ class TipoCasaLegislativa(models.Model):
     nome = models.CharField(
         max_length=100
     )
+
     def __unicode__(self):
         return self.nome
 
 
 class CasaLegislativa(models.Model):
+
     """ Modelo para representar uma Casa Legislativa
     """
     nome = models.CharField(
@@ -135,7 +139,7 @@ class CasaLegislativa(models.Model):
         codigo = self.codigo_interlegis
 
         if codigo == '':
-            if self.tipo.sigla == 'AL': # Assembléias são tratadas a parte
+            if self.tipo.sigla == 'AL':  # Assembléias são tratadas a parte
                 codigo = 'A' + self.municipio.uf.sigla
                 if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() <= 0:
                     # Só grava o código se ele for inédito
@@ -144,23 +148,23 @@ class CasaLegislativa(models.Model):
                     return codigo
                 # Se já existe, então trata a Assembleia como uma Casa qualquer.
 
-            cityName = normalize('NFKD', unicode(self.municipio.nome)).encode('ascii','ignore')
+            cityName = normalize('NFKD', unicode(self.municipio.nome)).encode('ascii', 'ignore')
             cityName = cityName.upper().strip()
-            cityName = cityName.replace(' DA ',' ')
-            cityName = cityName.replace(' DE ',' ')
-            cityName = cityName.replace(' DO ',' ')
+            cityName = cityName.replace(' DA ', ' ')
+            cityName = cityName.replace(' DE ', ' ')
+            cityName = cityName.replace(' DO ', ' ')
 
             # estratégia 1 - Pegar as 1ª letra de cada nome da cidade
-            codigo =  ''.join([x[0] for x in cityName.split(' ')[:3]])
+            codigo = ''.join([x[0] for x in cityName.split(' ')[:3]])
 
             # Se o código ficou com menos que três letras, pegar as 2 primeiras
             if len(codigo) < 3:
-                codigo =  ''.join([x[0:2] for x in cityName.split(' ')[:3]])[:3]
+                codigo = ''.join([x[0:2] for x in cityName.split(' ')[:3]])[:3]
 
             # Se ainda ficou com menos de três letras, então o nome da cidade só
             # tem uma palavra. Pegue as três primeiras letras da palavra
             if len(codigo) < 3:
-                codigo =  cityName[:3]
+                codigo = cityName[:3]
 
             # Se o código já existir, substituir a última letra do código pela
             # última letra do nome da cidade, e ir recuando, letra a letra,
@@ -170,7 +174,7 @@ class CasaLegislativa(models.Model):
             ultima = len(cityName)
 
             while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
-            count() > 0 and ultima > 0:
+                    count() > 0 and ultima > 0:
                 codigo = codigo[:2] + cityName[ultima - 1: ultima]
                 ultima -= 1
 
@@ -179,10 +183,10 @@ class CasaLegislativa(models.Model):
             # três primeiras consoantes.
 
             if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
-                codigo_cons = cityName.replace('A','').replace('E','').\
-                    replace('I','').replace('O','').replace('U','')[:3]
+                codigo_cons = cityName.replace('A', '').replace('E', '').\
+                    replace('I', '').replace('O', '').replace('U', '')[:3]
                 if len(codigo_cons) == 3 and \
-                  CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
+                        CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
                     codigo = codigo_cons
 
             # Se ainda não gerou um nome único, vamos colocar dígitos no
@@ -191,7 +195,7 @@ class CasaLegislativa(models.Model):
             i = 'A'
 
             while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
-            count() > 0 and i <= 'Z':
+                    count() > 0 and i <= 'Z':
                 codigo = codigo[:2] + str(i)
                 i = chr(ord(i) + 1)
 
@@ -202,7 +206,7 @@ class CasaLegislativa(models.Model):
             i = 0
 
             while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
-            count() > 0 and i < 100:
+                    count() > 0 and i < 100:
                 codigo = random.choice(cityName) + random.choice(cityName) + \
                     random.choice(cityName)
                 i += 1
@@ -213,7 +217,7 @@ class CasaLegislativa(models.Model):
             i = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
             while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
-            count() > 0:
+                    count() > 0:
                 codigo = random.choice(i) + random.choice(i) + \
                     random.choice(i)
 
@@ -231,9 +235,9 @@ class CasaLegislativa(models.Model):
         if self.pk is not None:
             original = CasaLegislativa.objects.get(pk=self.pk)
             if (self.logradouro != original.logradouro or
-                self.bairro != original.bairro or
-                self.municipio != original.municipio or
-                self.cep != original.cep):
+                    self.bairro != original.bairro or
+                    self.municipio != original.municipio or
+                    self.cep != original.cep):
                 address_changed = True
         else:
             address_changed = True
@@ -243,27 +247,29 @@ class CasaLegislativa(models.Model):
 
         return super(CasaLegislativa, self).save(*args, **kwargs)
 
+
 class Funcionario(models.Model):
+
     """ Modelo para registrar contatos vinculados às
     Casas Legislativas
     """
 
     SETOR_CHOICES = [
-        ("presidente","Presidente"),
-        ("contato_interlegis","Contato Interlegis"),
-        ("infraestrutura_fisica","Infraestrutura Física"),
-        ("estrutura_de_ti","Estrutura de TI"),
-        ("organizacao_do_processo_legislativo","Organização do Processo Legislativo"),
-        ("producao_legislativa","Produção Legislativa"),
-        ("estrutura_de_comunicacao_social","Estrutura de Comunicação Social"),
-        ("estrutura_de_recursos_humanos","Estrutura de Recursos Humanos"),
-        ("gestao","Gestão"),
-        ("outros","Outros"),
-        ]
+        ("presidente", "Presidente"),
+        ("contato_interlegis", "Contato Interlegis"),
+        ("infraestrutura_fisica", "Infraestrutura Física"),
+        ("estrutura_de_ti", "Estrutura de TI"),
+        ("organizacao_do_processo_legislativo", "Organização do Processo Legislativo"),
+        ("producao_legislativa", "Produção Legislativa"),
+        ("estrutura_de_comunicacao_social", "Estrutura de Comunicação Social"),
+        ("estrutura_de_recursos_humanos", "Estrutura de Recursos Humanos"),
+        ("gestao", "Gestão"),
+        ("outros", "Outros"),
+    ]
     SEXO_CHOICES = [
         ("M", "Masculino"),
         ("F", "Feminino")
-        ]
+    ]
 
     casa_legislativa = models.ForeignKey(CasaLegislativa)
     nome = models.CharField('nome completo', max_length=60, blank=False)
@@ -275,7 +281,7 @@ class Funcionario(models.Model):
     endereco = generic.GenericRelation('contatos.Endereco')
     cargo = models.CharField(max_length=100, null=True, blank=True)
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
-    setor = models.CharField(max_length=100, choices = SETOR_CHOICES, default="outros")
+    setor = models.CharField(max_length=100, choices=SETOR_CHOICES, default="outros")
     tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
     ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=True, auto_now=False)
 
@@ -287,21 +293,24 @@ class Funcionario(models.Model):
     def __unicode__(self):
         return self.nome
 
+
 class PresidenteManager(models.Manager):
+
     def get_queryset(self):
         qs = super(PresidenteManager, self).get_queryset()
         qs = qs.filter(setor='presidente')
         return qs
 
+
 class Presidente(Funcionario):
+
     class Meta:
         proxy = True
 
-    objects =  PresidenteManager()
+    objects = PresidenteManager()
 
     def save(self, *args, **kwargs):
         self.setor = 'presidente'
         self.cargo = 'Presidente'
         self.funcao = 'Presidente'
         return super(Presidente, self).save(*args, **kwargs)
-

@@ -29,5 +29,5 @@ def enviar_email(from_email, subject, template, tags):
 
     # Enviando a mensagem
     email = EmailMessage(settings.EMAIL_SUBJECT_PREFIX + " " + subject, mensagem,
-        from_email, [from_email])
+                         from_email, [from_email])
     email.send()

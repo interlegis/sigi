@@ -29,7 +29,7 @@ class ComentarioInline(admin.StackedInline):
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
-    readonly_fields = ['data_pub',]
+    readonly_fields = ['data_pub', ]
 
 
 class OcorrenciaChangeList(ChangeList):
@@ -77,7 +77,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
         fields = list(self.readonly_fields)
         if obj is not None:
             fields.extend(['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'descricao', ])
-            if obj.status in [3, 4, 5]: #Fechados
+            if obj.status in [3, 4, 5]:  # Fechados
                 fields.append('prioridade')
         return fields
 

@@ -11,8 +11,9 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
     list_display_links = ('codigo_ibge', 'nome')
     list_filter = ('regiao', 'populacao', PopulationFilter,)
-    search_fields = ('search_text', 'codigo_ibge',  'sigla', 'regiao')
+    search_fields = ('search_text', 'codigo_ibge', 'sigla', 'regiao')
     get_queryset = queryset_ascii
+
 
 class MunicipioAdmin(admin.ModelAdmin):
     actions = None
@@ -34,12 +35,14 @@ class MunicipioAdmin(admin.ModelAdmin):
     search_fields = ('search_text', 'codigo_ibge', 'codigo_tse', 'codigo_mesorregiao',
                      'codigo_microrregiao', 'uf__sigla')
 
+
 class TelefoneAdmin(admin.ModelAdmin):
     list_display = ('numero', 'tipo', 'nota')
     list_display_links = ('numero',)
     list_filter = ('tipo',)
     radio_fields = {'tipo': admin.VERTICAL}
     search_fields = ('numero', 'tipo', 'nota')
+
 
 class ContatoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'nota', 'email', 'municipio')

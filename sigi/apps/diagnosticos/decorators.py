@@ -4,6 +4,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from sigi.apps.diagnosticos.models import Diagnostico
 
+
 def validate_diagnostico(func):
     def decorator(request, id_diagnostico, *args, **kwargs):
         """ Retorna 404 caso o diagnostico esteja publicado

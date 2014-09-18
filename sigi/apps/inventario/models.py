@@ -2,6 +2,7 @@
 from django.db import models
 from django.contrib.contenttypes import generic
 
+
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
     nome.alphabetic_filter = True
@@ -17,6 +18,7 @@ class Fornecedor(models.Model):
     def __unicode__(self):
         return self.nome
 
+
 class Fabricante(models.Model):
     nome = models.CharField(max_length=40, unique=True)
     nome.alphabetic_filter = True
@@ -26,6 +28,7 @@ class Fabricante(models.Model):
 
     def __unicode__(self):
         return self.nome
+
 
 class TipoEquipamento(models.Model):
     tipo = models.CharField(max_length=40)
@@ -37,6 +40,7 @@ class TipoEquipamento(models.Model):
 
     def __unicode__(self):
         return self.tipo
+
 
 class ModeloEquipamento(models.Model):
     tipo = models.ForeignKey(
@@ -53,6 +57,7 @@ class ModeloEquipamento(models.Model):
     def __unicode__(self):
         return self.modelo
 
+
 class Equipamento(models.Model):
     fabricante = models.ForeignKey(Fabricante)
     modelo = models.ForeignKey(ModeloEquipamento)
@@ -63,6 +68,7 @@ class Equipamento(models.Model):
     def __unicode__(self):
         return unicode('%s %s %s' % (self.modelo.tipo, self.fabricante.nome,
                                      self.modelo.modelo))
+
 
 class Bem(models.Model):
     casa_legislativa = models.ForeignKey('casas.CasaLegislativa')

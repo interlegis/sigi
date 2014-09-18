@@ -11,8 +11,8 @@ from sigi.apps.utils.alphabetic_filter import AlphabeticFilter
 
 class FuncaoAdmin(admin.ModelAdmin):
     form = FuncaoForm
-    list_display = ('servidor', 'funcao', 'cargo','inicio_funcao', 'fim_funcao')
-    list_filter  = ('inicio_funcao', 'fim_funcao')
+    list_display = ('servidor', 'funcao', 'cargo', 'inicio_funcao', 'fim_funcao')
+    list_filter = ('inicio_funcao', 'fim_funcao')
     search_fields = ('funcao', 'cargo', 'descricao',
                      'servidor__nome_completo', 'servidor__obs', 'servidor__apontamentos',
                      'servidor__user__email', 'servidor__user__first_name',
@@ -22,7 +22,7 @@ class FuncaoAdmin(admin.ModelAdmin):
 class FeriasAdmin(admin.ModelAdmin):
     form = FeriasForm
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
-    list_filter  = ('inicio_ferias', 'fim_ferias')
+    list_filter = ('inicio_ferias', 'fim_ferias')
     search_fields = ('obs',
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
@@ -36,14 +36,14 @@ class ServidorFilter(AlphabeticFilter):
 class LicencaAdmin(admin.ModelAdmin):
     form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
-    list_filter  = (ServidorFilter, 'inicio_licenca', 'fim_licenca')
+    list_filter = (ServidorFilter, 'inicio_licenca', 'fim_licenca')
     search_fields = ('obs',
                      'servidor__nome_completo', 'servidor__email_pessoal',
                      'servidor__user__email', 'servidor__user__username')
 
     def lookup_allowed(self, lookup, value):
         return super(LicencaAdmin, self).lookup_allowed(lookup, value) or \
-                  lookup in ['servidor__nome_completo']
+            lookup in ['servidor__nome_completo']
 
 
 class EnderecoInline(generic.GenericStackedInline):
@@ -58,6 +58,7 @@ class TelefonesInline(generic.GenericTabularInline):
 
 
 class ServidorAdmin(admin.ModelAdmin):
+
     def is_active(self, servidor):
         return servidor.user.is_active
     is_active.admin_order_field = 'user__is_active'
@@ -65,25 +66,25 @@ class ServidorAdmin(admin.ModelAdmin):
     is_active.short_description = 'ativo'
 
     list_display = ('nome_completo', 'is_active', 'foto', 'servico', )
-    list_filter  = ('user__is_active', 'sexo', 'servico',)
+    list_filter = ('user__is_active', 'sexo', 'servico',)
     search_fields = ('nome_completo', 'obs', 'apontamentos',
                      'user__email', 'user__first_name',
                      'user__last_name', 'user__username')
     raw_id_fields = ('user',)
-    inlines= (TelefonesInline,EnderecoInline)
+    inlines = (TelefonesInline, EnderecoInline)
     fieldsets = (
-      (u'Autenticação', {
-        'fields': ('user',),
-      }),
-      ('Cadastro', {
-        'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
-      }),
-      ('Lotação', {
-        'fields': ('servico', 'turno', 'de_fora'),
-      }),
-      (u'Observações', {
-        'fields': ('apontamentos', 'obs'),
-      }),
+        (u'Autenticação', {
+            'fields': ('user',),
+        }),
+        ('Cadastro', {
+            'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
+        }),
+        ('Lotação', {
+            'fields': ('servico', 'turno', 'de_fora'),
+        }),
+        (u'Observações', {
+            'fields': ('apontamentos', 'obs'),
+        }),
     )
 
     def lookup_allowed(self, lookup, value):
@@ -98,7 +99,7 @@ class ServidorAdmin(admin.ModelAdmin):
             request = kwargs.pop("request", None)
             kwargs['widget'] = AdminImageWidget
             return db_field.formfield(**kwargs)
-        return super(ServidorAdmin,self).formfield_for_dbfield(db_field, **kwargs)
+        return super(ServidorAdmin, self).formfield_for_dbfield(db_field, **kwargs)
 
 
 admin.site.register(Servidor, ServidorAdmin)

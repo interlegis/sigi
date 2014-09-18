@@ -8,6 +8,7 @@ from sigi.apps.servidores.models import Ferias, Licenca, Funcao, Servidor
 
 
 class FeriasForm(forms.ModelForm):
+
     class Meta:
         model = Ferias
         fields = '__all__'
@@ -21,6 +22,7 @@ class FeriasForm(forms.ModelForm):
 
 
 class LicencaForm(forms.ModelForm):
+
     class Meta:
         model = Licenca
         fields = '__all__'
@@ -34,6 +36,7 @@ class LicencaForm(forms.ModelForm):
 
 
 class FuncaoForm(forms.ModelForm):
+
     class Meta:
         model = Funcao
         fields = '__all__'
@@ -55,8 +58,8 @@ class FuncaoForm(forms.ModelForm):
                 funcao_anterior = servidor.funcao_set.all()[0]
 
             if valida_periodo_data(funcao_anterior.inicio_funcao,
-                funcao_anterior.fim_funcao, data.get('inicio_funcao'),
-                data.get('fim_funcao')):
+                                   funcao_anterior.fim_funcao, data.get('inicio_funcao'),
+                                   data.get('fim_funcao')):
                 raise forms.ValidationError(u"""Você não pode exercer
                 uma função no mesmo período que a anterior, como também,
                 não pode ser entre o período da mesma.""")

@@ -19,10 +19,10 @@ class PopulationFilter(admin.SimpleListFilter):
         in the right sidebar.
         """
         return (
-            ( '1', '< 100 Mil'),
-            ( '2', '100 Mil a 1 Milhão'),
-            ( '3', '1 Milhão a 100 Milhões'),
-            ( '4', '> 100 Milhões'),
+            ('1', '< 100 Mil'),
+            ('2', '100 Mil a 1 Milhão'),
+            ('3', '1 Milhão a 100 Milhões'),
+            ('4', '> 100 Milhões'),
         )
 
     def queryset(self, request, queryset):

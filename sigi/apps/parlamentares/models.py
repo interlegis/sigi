@@ -75,6 +75,5 @@ class Mandato(models.Model):
 #        choices=SUPLENCIA_CHOICES,
 #    )
 
-
     def __unicode__(self):
         return str(self.id)

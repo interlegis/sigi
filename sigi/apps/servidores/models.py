@@ -4,7 +4,9 @@ from django.db.models.signals import post_save
 from django.contrib.contenttypes import generic
 from django.contrib.auth.models import User
 
+
 class Subsecretaria(models.Model):
+
     """ Modelo para representação das Subsecretarias do Interlegis
     """
 
@@ -19,7 +21,9 @@ class Subsecretaria(models.Model):
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))
 
+
 class Servico(models.Model):
+
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
@@ -39,6 +43,7 @@ class Servico(models.Model):
 
 
 class Servidor(models.Model):
+
     """ Modelo para representação de um Servidor.
 
     Um servidor pertence a um Serviço e uma Subsecretaria os campos
@@ -82,7 +87,7 @@ class Servidor(models.Model):
     )
     servico = models.ForeignKey('servidores.Servico', blank=True, null=True)
     matricula = models.CharField(u'matrícula', max_length=25, blank=True, null=True)
-    turno= models.CharField(
+    turno = models.CharField(
         max_length=1,
         choices=TURNO_CHOICES,
         blank=True,
@@ -90,8 +95,8 @@ class Servidor(models.Model):
     )
     de_fora = models.BooleanField(default=False)
     data_nomeacao = models.DateField(u'data de nomeação', blank=True, null=True)
-    ato_exoneracao = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
-    ato_numero = models.CharField(u'ato de exoneração',max_length=150, blank=True, null=True)
+    ato_exoneracao = models.CharField(u'ato de exoneração', max_length=150, blank=True, null=True)
+    ato_numero = models.CharField(u'ato de exoneração', max_length=150, blank=True, null=True)
     cpf = models.CharField('CPF', max_length=11, blank=True, null=True)
     rg = models.CharField('RG', max_length=25, blank=True, null=True)
     obs = models.TextField(u'observação', blank=True, null=True)
@@ -108,22 +113,22 @@ class Servidor(models.Model):
         verbose_name_plural = 'servidores'
 
     def is_chefe(self):
-      """ Verifica se o servidor é chefe ou diretor
-      """
-      pass
+        """ Verifica se o servidor é chefe ou diretor
+        """
+        pass
 
     def data_entrada(self):
-      """ Verifica a data de entrada da função mais antiga
-      """
-      pass
+        """ Verifica a data de entrada da função mais antiga
+        """
+        pass
 
     def data_saida(self):
-      """ Verifica a data de saída da função mais recente
-      de um servidor desativado
+        """ Verifica a data de saída da função mais recente
+        de um servidor desativado
 
-      Caso o usuário esteja ativo retorna None
-      """
-      pass
+        Caso o usuário esteja ativo retorna None
+        """
+        pass
 
     @property
     def diagnosticos(self):
@@ -147,16 +152,20 @@ User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 # Sinal para ao criar um usuário criar um servidor
 # baseado no nome contino no LDAP
+
+
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Servidor.objects.create(
-              user=instance,
-              nome_completo= "%s %s" % (instance.first_name, instance.last_name)
-            )
+            user=instance,
+            nome_completo="%s %s" % (instance.first_name, instance.last_name)
+        )
 
 post_save.connect(create_user_profile, sender=User)
 
+
 class Funcao(models.Model):
+
     """ Modelo para guardar o histórico de funções dos
     servidores no Interlegis
     """
@@ -167,10 +176,10 @@ class Funcao(models.Model):
     fim_funcao = models.DateField(u'fim da função', blank=True, null=True)
     descricao = models.TextField(u'descrição', blank=True, null=True)
 
-    bap_entrada = models.CharField('BAP de entrada',max_length=50, blank=True, null=True)
+    bap_entrada = models.CharField('BAP de entrada', max_length=50, blank=True, null=True)
     data_bap_entrada = models.DateField('data BAP de entrada', blank=True, null=True)
 
-    bap_saida = models.CharField(u'BAP de saída',max_length=50, blank=True, null=True)
+    bap_saida = models.CharField(u'BAP de saída', max_length=50, blank=True, null=True)
     data_bap_saida = models.DateField(u'data BAP de saída', blank=True, null=True)
 
     class Meta:
@@ -182,6 +191,7 @@ class Funcao(models.Model):
 
 
 class Licenca(models.Model):
+
     """ Modelo que representa as licenças tiradas pelos servidores
     """
     servidor = models.ForeignKey(Servidor)
@@ -194,14 +204,16 @@ class Licenca(models.Model):
         verbose_name_plural = u'licenças'
 
     def days():
-      """ Calcula a quantidade de dias da licença
-      """
-      pass
+        """ Calcula a quantidade de dias da licença
+        """
+        pass
 
     def __unicode__(self):
         return str(self.id)
 
+
 class Ferias(models.Model):
+
     """ Modelo que representa as férias tiradas pelos servidores
     """
     servidor = models.ForeignKey(Servidor)
@@ -214,9 +226,9 @@ class Ferias(models.Model):
         verbose_name_plural = u'férias'
 
     def days():
-      """ Calcula a quantidade de dias das férias
-      """
-      pass
+        """ Calcula a quantidade de dias das férias
+        """
+        pass
 
     def __unicode__(self):
         return str(self.id)

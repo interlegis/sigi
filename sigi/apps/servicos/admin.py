@@ -17,6 +17,7 @@ class LogServicoInline(admin.StackedInline):
 
 
 class ServicoFormAdmin(ModelForm):
+
     class Meta:
         model = Servico
         fields = '__all__'
@@ -50,21 +51,21 @@ class TipoServicoAdmin(admin.ModelAdmin):
 
 class ServicoAdmin(admin.ModelAdmin):
     form = ServicoFormAdmin
-    actions = ['calcular_data_uso',]
+    actions = ['calcular_data_uso', ]
     list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf', 'tipo_servico', 'hospedagem_interlegis',
                     'data_ativacao', 'data_desativacao', 'getUrl', 'data_ultimo_uso', 'get_link_erro')
-    fieldsets = (( None, {
-                    'fields': ('casa_legislativa', 'data_ativacao',)
-                 }),
-                 ( 'Serviço', {
-                    'fields': ('tipo_servico', ('url', 'hospedagem_interlegis'), ('nome_servidor', 'porta_servico', 'senha_inicial'),)
-                 }),
-                 ( 'Contatos', {
-                    'fields': ('contato_tecnico', 'contato_administrativo',)
-                 }),
-                 ( 'Alterações', {
-                    'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
-                }))
+    fieldsets = ((None, {
+        'fields': ('casa_legislativa', 'data_ativacao',)
+    }),
+        ('Serviço', {
+            'fields': ('tipo_servico', ('url', 'hospedagem_interlegis'), ('nome_servidor', 'porta_servico', 'senha_inicial'),)
+        }),
+        ('Contatos', {
+            'fields': ('contato_tecnico', 'contato_administrativo',)
+        }),
+        ('Alterações', {
+            'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
+        }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
     list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa__municipio__uf', )
     list_display_links = []
@@ -102,7 +103,7 @@ class ServicoAdmin(admin.ModelAdmin):
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
-        self.message_user(request, "Atualização concluída. Os sites que não responderam foram deixados com a data em branco" )
+        self.message_user(request, "Atualização concluída. Os sites que não responderam foram deixados com a data em branco")
         return HttpResponseRedirect('.')
     calcular_data_uso.short_description = u"Atualizar a data do último uso do(s) serviço(s)"
 
@@ -110,14 +111,13 @@ class ServicoAdmin(admin.ModelAdmin):
         from django.utils.datastructures import SortedDict
         actions = [self.get_action(action) for action in self.actions]
         actions = filter(None, actions)
-        actions.sort(lambda a,b: cmp(a[2].lower(), b[2].lower()))
-        actions = SortedDict([ (name, (func, name, desc)) for func, name, desc in actions ])
+        actions.sort(lambda a, b: cmp(a[2].lower(), b[2].lower()))
+        actions = SortedDict([(name, (func, name, desc)) for func, name, desc in actions])
         return actions
 
     def lookup_allowed(self, lookup, value):
         return super(ServicoAdmin, self).lookup_allowed(lookup, value) or \
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
-
 
     def add_view(self, request, form_url='', extra_context=None):
         id_casa = request.GET.get('id_casa', None)
@@ -154,7 +154,7 @@ class ServicoAdmin(admin.ModelAdmin):
         return super(ServicoAdmin, self).response_change(request, obj)
 
     def save_form(self, request, form, change):
-        obj = super( ServicoAdmin, self).save_form(request, form, change)
+        obj = super(ServicoAdmin, self).save_form(request, form, change)
 
         if not change:
             id_casa = request.GET.get('id_casa', None)
@@ -168,7 +168,7 @@ class ServicoAdmin(admin.ModelAdmin):
 
 
 class ContatosInline(FuncionariosInline):
-    can_delete = False # Equipe do SEIT não pode excluir pessoas de contato
+    can_delete = False  # Equipe do SEIT não pode excluir pessoas de contato
 
 
 class CasaAtendidaAdmin(admin.ModelAdmin):
@@ -176,15 +176,14 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
     ordering = ['nome']
     fieldsets = (
-                 ('Casa legislativa', {
-                    'fields': (('codigo_interlegis', 'nome'),  ('logradouro', 'bairro', 'municipio', 'cep'), ('email', 'pagina_web'))
-                    })
-                ,)
-    readonly_fields = ('nome',  'logradouro', 'bairro', 'municipio', 'cep')
+        ('Casa legislativa', {
+            'fields': (('codigo_interlegis', 'nome'), ('logradouro', 'bairro', 'municipio', 'cep'), ('email', 'pagina_web'))
+        }),)
+    readonly_fields = ('nome', 'logradouro', 'bairro', 'municipio', 'cep')
     inlines = (ContatosInline,)
     list_filter = ('tipo', 'servico__tipo_servico', 'municipio__uf__nome',
                    'servico__casa_legislativa__convenio__projeto')
-    search_fields = ('search_text','cnpj', 'bairro', 'logradouro',
+    search_fields = ('search_text', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
 
@@ -192,7 +191,7 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
         result = []
         for servico in obj.servico_set.all():
             result.append(u"%s (%s). Contato: %s" % (servico.tipo_servico.nome, 'ativo' if servico.data_desativacao is None
-                            else 'Desativado', servico.contato_administrativo.nome))
+                                                     else 'Desativado', servico.contato_administrativo.nome))
 
         return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
     get_servicos.allow_tags = True
@@ -213,10 +212,10 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
         return super(CasaAtendidaAdmin, self).change_view(request, object_id, extra_context=extra_context)
 
     def has_add_permission(self, request):
-        return False # Nunca é permitido inserir uma nova Casa Legislativa por aqui
+        return False  # Nunca é permitido inserir uma nova Casa Legislativa por aqui
 
     def has_delete_permission(self, request, obj=None):
-        return False # Nunca deletar casas por aqui
+        return False  # Nunca deletar casas por aqui
 
 admin.site.register(Servico, ServicoAdmin)
 admin.site.register(TipoServico, TipoServicoAdmin)

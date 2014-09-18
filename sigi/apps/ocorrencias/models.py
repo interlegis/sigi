@@ -3,23 +3,23 @@ from django.db import models
 
 
 class Categoria(models.Model):
-    nome= models.CharField(u"Nome Categoria", max_length=50)
+    nome = models.CharField(u"Nome Categoria", max_length=50)
     descricao = models.TextField(u'descrição', blank=True, null=True)
     setor_responsavel = models.ForeignKey('servidores.Servico', verbose_name=u"Setor responsável")
-    
+
     class Meta:
-        verbose_name, verbose_name_plural = u'Categoria', u'Categorias' 
+        verbose_name, verbose_name_plural = u'Categoria', u'Categorias'
 
     def __unicode__(self):
         return self.nome
-  
+
 
 class TipoContato(models.Model):
     descricao = models.CharField(u"Descrição", max_length=50)
-    
+
     class Meta:
         verbose_name, verbose_name_plural = u"Tipo de contato", u"Tipos de contato"
-        
+
     def __unicode__(self):
         return self.descricao
 
@@ -61,7 +61,7 @@ class Ocorrencia(models.Model):
     class Meta:
         verbose_name, verbose_name_plural = u'ocorrência', u'ocorrências'
         ordering = ['prioridade', 'data_modificacao', 'data_criacao', ]
-        
+
     def __unicode__(self):
         return u"%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': self.casa_legislativa}
 
@@ -79,11 +79,11 @@ class Anexo(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=u'ocorrência')
     arquivo = models.FileField(u'Arquivo anexado', upload_to='apps/ocorrencia/anexo/arquivo',)
     descricao = models.CharField(u'descrição do anexo', max_length='70')
-    data_pub = models.DateTimeField( u'data da publicação do anexo', null=True, blank=True, auto_now_add=True)
+    data_pub = models.DateTimeField(u'data da publicação do anexo', null=True, blank=True, auto_now_add=True)
 
     class Meta:
         ordering = ('-data_pub',)
-        verbose_name, verbose_name_plural = u'Anexo', u'Anexos' 
+        verbose_name, verbose_name_plural = u'Anexo', u'Anexos'
 
     def __unicode__(self):
         return u"%(arquivo_name)s: %(descricao)s" % {'arquivo_name': self.arquivo.name, 'descricao': self.descricao}

@@ -24,8 +24,10 @@
 from django.core.management.base import BaseCommand
 from sigi.apps.metas.views import gera_map_data_file
 
+
 class Command(BaseCommand):
     help = u'Gera arquivo de dados de plotagem do mapa de atuação do Interlegis.'
+
     def handle(self, *args, **options):
         result = gera_map_data_file(cronjob=True)
-        self.stdout.write(result+"\n")
+        self.stdout.write(result + "\n")

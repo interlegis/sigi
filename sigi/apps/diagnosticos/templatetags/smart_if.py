@@ -19,6 +19,7 @@ register = template.Library()
 #==============================================================================
 
 class BaseCalc(object):
+
     def __init__(self, var1, var2=None, negate=False):
         self.var1 = var1
         self.var2 = var2
@@ -43,31 +44,37 @@ class BaseCalc(object):
 
 
 class Or(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 or var2
 
 
 class And(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 and var2
 
 
 class Equals(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 == var2
 
 
 class Greater(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 > var2
 
 
 class GreaterOrEqual(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 >= var2
 
 
 class In(BaseCalc):
+
     def calculate(self, var1, var2):
         return var1 in var2
 
@@ -77,10 +84,12 @@ class In(BaseCalc):
 #==============================================================================
 
 class TestVar(object):
+
     """
     A basic self-resolvable object similar to a Django template variable. Used
     to assist with tests.
     """
+
     def __init__(self, value):
         self.value = value
 
@@ -89,6 +98,7 @@ class TestVar(object):
 
 
 class SmartIfTests(unittest.TestCase):
+
     def setUp(self):
         self.true = TestVar(True)
         self.false = TestVar(False)
@@ -142,7 +152,7 @@ class SmartIfTests(unittest.TestCase):
         self.assertCalcFalse(GreaterOrEqual(self.low, self.high))
 
     def test_in(self):
-        list_ = TestVar([1,2,3])
+        list_ = TestVar([1, 2, 3])
         invalid_list = TestVar(None)
         self.assertCalc(In(self.low, list_))
         self.assertCalcFalse(In(self.low, invalid_list))
@@ -337,6 +347,7 @@ class TemplateIfParser(IfParser):
 
 
 class SmartIfNode(template.Node):
+
     def __init__(self, var, nodelist_true, nodelist_false=None):
         self.nodelist_true, self.nodelist_false = nodelist_true, nodelist_false
         self.var = var

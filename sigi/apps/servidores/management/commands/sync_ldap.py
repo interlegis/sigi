@@ -5,6 +5,7 @@ from django.contrib.auth.models import User, Group
 from sigi.settings import *
 from sigi.apps.servidores.models import Servidor
 
+
 class Command(BaseCommand):
     help = u'Sincroniza Usuários e Servidores com o LDAP'
 
@@ -14,10 +15,10 @@ class Command(BaseCommand):
 
     def get_ldap_groups(self):
         filter = "(&(objectclass=Group))"
-        values = ['cn',]
+        values = ['cn', ]
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
         l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'),AUTH_LDAP_BIND_PASSWORD)
+        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'), AUTH_LDAP_BIND_PASSWORD)
         result_id = l.search(AUTH_LDAP_GROUP, ldap.SCOPE_SUBTREE, filter, values)
         result_type, result_data = l.result(result_id, 1)
         l.unbind()
@@ -25,10 +26,10 @@ class Command(BaseCommand):
 
     def get_ldap_users(self):
         filter = "(&(objectclass=user))"
-        values = ['sAMAccountName', 'userPrincipalName', 'givenName', 'sn', 'cn' ]
+        values = ['sAMAccountName', 'userPrincipalName', 'givenName', 'sn', 'cn']
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
         l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'),AUTH_LDAP_BIND_PASSWORD)
+        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'), AUTH_LDAP_BIND_PASSWORD)
         result_id = l.search(AUTH_LDAP_USER.encode('utf-8'), ldap.SCOPE_SUBTREE, filter, values)
         result_type, result_data = l.result(result_id, 1)
         l.unbind()
@@ -37,10 +38,13 @@ class Command(BaseCommand):
     def sync_groups(self):
         ldap_groups = self.get_ldap_groups()
         for ldap_group in ldap_groups:
-            try: group_name = ldap_group[1]['cn'][0]
-            except: pass
+            try:
+                group_name = ldap_group[1]['cn'][0]
+            except:
+                pass
             else:
-                try: group = Group.objects.get(name=group_name)
+                try:
+                    group = Group.objects.get(name=group_name)
                 except Group.DoesNotExist:
                     group = Group(name=group_name)
                     group.save()
@@ -50,37 +54,49 @@ class Command(BaseCommand):
     def sync_users(self):
         ldap_users = self.get_ldap_users()
         for ldap_user in ldap_users:
-            try: username = ldap_user[1]['sAMAccountName'][0]
-            except: pass
+            try:
+                username = ldap_user[1]['sAMAccountName'][0]
+            except:
+                pass
             else:
-                try: email = ldap_user[1]['userPrincipalName'][0]
-                except: email = ''
-                try: first_name = ldap_user[1]['givenName'][0]
-                except: first_name = username
-                try: last_name = ldap_user[1]['sn'][0][:30]
-                except: last_name = ''
-                try: user = User.objects.get(username=username)
+                try:
+                    email = ldap_user[1]['userPrincipalName'][0]
+                except:
+                    email = ''
+                try:
+                    first_name = ldap_user[1]['givenName'][0]
+                except:
+                    first_name = username
+                try:
+                    last_name = ldap_user[1]['sn'][0][:30]
+                except:
+                    last_name = ''
+                try:
+                    user = User.objects.get(username=username)
                 except User.DoesNotExist:
                     try:
                         user = User.objects.get(email=email)
                         user.username = username
                     except User.DoesNotExist:
                         user = User.objects.create_user(
-                            username = username,
-                            email = email
+                            username=username,
+                            email=email
                         )
                         user.first_name = first_name
                         user.last_name = last_name
                         print "User '%s' created." % username
-                try: nome_completo = ldap_user[1]['cn'][0]
-                except: nome_completo = ''
-                try: 
+                try:
+                    nome_completo = ldap_user[1]['cn'][0]
+                except:
+                    nome_completo = ''
+                try:
                     servidor = user.servidor
                     if not servidor.nome_completo == nome_completo.decode('utf8'):
-                    	servidor.nome_completo = nome_completo
+                        servidor.nome_completo = nome_completo
                         print "Servidor '%s' updated." % nome_completo
                 except Servidor.DoesNotExist:
-                    try: servidor = Servidor.objects.get(nome_completo=nome_completo)
+                    try:
+                        servidor = Servidor.objects.get(nome_completo=nome_completo)
                     except Servidor.DoesNotExist:
                         servidor = user.servidor_set.create(nome_completo=nome_completo)
                         print "Servidor '%s' created." % nome_completo
@@ -94,7 +110,7 @@ class Command(BaseCommand):
                         if not user.last_name == last_name.decode('utf8'):
                             user.last_name = last_name
                             print "User '%s' last name updated." % username
-		servidor.user = user
+                servidor.user = user
                 servidor.save()
                 user.save()
         print "Users are synchronized."

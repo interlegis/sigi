@@ -16,6 +16,7 @@ from eav.fields import RangeField
 
 
 class DiagnosticoForm(BaseDynamicEntityForm):
+
     """Classe responsável por contruir o formulário,
     vinculando ao modelo Diagnostico
     """
@@ -26,9 +27,11 @@ class DiagnosticoForm(BaseDynamicEntityForm):
 
         for k, f in self.fields.iteritems():
             if isinstance(f, CharField):
-                f.widget = forms.widgets.Textarea(attrs={'cols':'80'})
+                f.widget = forms.widgets.Textarea(attrs={'cols': '80'})
+
 
 class DiagnosticoMobileForm(BaseDynamicEntityForm):
+
     """Classe responsável por construir o formulário
     para ser usado no ambiente mobile, a partir do
     do modelo Diagnostico, como também organizar sua
@@ -51,17 +54,18 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
     }
 
     FIELD_WIDGET = {
-        'consideracoes_gerais' : {'widget': Textarea},
-        'descreva_5_cursos_prioritarios_para_treinamento_de_parlamentares_da_camara_municipal' : {'widget': Textarea},
-        'descreva_5_cursos_prioritarios_para_treinamento_de_servidores_da_camara_municipal' : {'widget': Textarea},
-        'sugestoes_para_a_area_de_capacitacao' : {'widget': Textarea},
-        'sugestoes_para_a_area_de_comunicacao' : {'widget': Textarea},
-        'sugestoes_para_a_area_de_informacao' : {'widget': Textarea},
-        'sugestoes_para_a_area_de_ti' : {'widget': Textarea},
-        'inscricoes_para_lista_gitec' : {'widget': Textarea},
-        'inscricoes_para_lista_gial' : {'widget': Textarea},
-        'inscricoes_para_lista_gicom' : {'widget': Textarea},
+        'consideracoes_gerais': {'widget': Textarea},
+        'descreva_5_cursos_prioritarios_para_treinamento_de_parlamentares_da_camara_municipal': {'widget': Textarea},
+        'descreva_5_cursos_prioritarios_para_treinamento_de_servidores_da_camara_municipal': {'widget': Textarea},
+        'sugestoes_para_a_area_de_capacitacao': {'widget': Textarea},
+        'sugestoes_para_a_area_de_comunicacao': {'widget': Textarea},
+        'sugestoes_para_a_area_de_informacao': {'widget': Textarea},
+        'sugestoes_para_a_area_de_ti': {'widget': Textarea},
+        'inscricoes_para_lista_gitec': {'widget': Textarea},
+        'inscricoes_para_lista_gial': {'widget': Textarea},
+        'inscricoes_para_lista_gicom': {'widget': Textarea},
     }
+
     class Meta:
         model = Diagnostico
         fields = '__all__'
@@ -94,8 +98,8 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         for schema in self.instance.get_schemata(int(category)):
 
             defaults = {
-                'label':     schema.title,
-                'required':  schema.required,
+                'label': schema.title,
+                'required': schema.required,
                 'help_text': schema.help_text,
             }
 
@@ -127,8 +131,8 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
 
 class CasaLegislativaMobileForm(forms.ModelForm):
-    data_instalacao = forms.DateField(label = u'Data de instalação da Casa Legislativa', required=False)
-    data_criacao =  forms.DateField()
+    data_instalacao = forms.DateField(label=u'Data de instalação da Casa Legislativa', required=False)
+    data_criacao = forms.DateField()
 
     class Meta:
         model = CasaLegislativa
@@ -137,9 +141,9 @@ class CasaLegislativaMobileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CasaLegislativaMobileForm, self).__init__(*args, **kwargs)
         self.fields['data_criacao'] = forms.DateField(
-              label = u'Data de criação do Município',
-              initial = self.instance.municipio.data_criacao,
-              required=False)
+            label=u'Data de criação do Município',
+            initial=self.instance.municipio.data_criacao,
+            required=False)
 
     def save(self, commit=True):
         super(CasaLegislativaMobileForm, self).save(commit=True)
@@ -151,6 +155,7 @@ class CasaLegislativaMobileForm(forms.ModelForm):
 
 class TelefoneMobileForm(forms.ModelForm):
     pass
+
     class Meta:
         model = Telefone
         fields = ('numero', 'tipo')

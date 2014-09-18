@@ -24,12 +24,14 @@
 from django.core.management.base import BaseCommand
 from sigi.apps.servicos.models import Servico
 
+
 class Command(BaseCommand):
     help = u'Atualiza a informação de data de último serviço dos serviços SEIT hospedados no Interlegis.'
+
     def handle(self, *args, **options):
         verbosity = int(options['verbosity'])
         queryset = Servico.objects.exclude(url="").exclude(tipo_servico__string_pesquisa="")
-        for obj in queryset: 
+        for obj in queryset:
             obj.atualiza_data_uso()
             if ((verbosity == 1) and (obj.data_ultimo_uso is None)) or (verbosity > 1):
                 self.stdout.write(u"%s \t %s \t %s\n" % (obj.url, obj.data_ultimo_uso, obj.erro_atualizacao))

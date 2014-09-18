@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
 from django.http import HttpResponse
-import json as simplejson # XXX trocar isso por simplesmente import json e refatorar o codigo
+import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.shortcuts import render_to_response, get_object_or_404
 from django.db.models import Q
 from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
@@ -44,10 +44,11 @@ def municipios_atendidos(self, servico):
             municipio = {'nome': casa.nome + ', ' + m.uf.sigla,
                          'lat': str(m.latitude),
                          'lng': str(m.longitude),
-                         'servicos': "<ul><li>" + "</li><li>".join([s.tipo_servico.nome for s in casa.servico_set.filter(query)]) + "</li></ul>",}
+                         'servicos': "<ul><li>" + "</li><li>".join([s.tipo_servico.nome for s in casa.servico_set.filter(query)]) + "</li></ul>", }
             municipios.append(municipio)
 
     return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")
+
 
 class CasaManifestaProtoForm(forms.Form):
     fieldsets = None
@@ -71,6 +72,7 @@ class CasaManifestaProtoForm(forms.Form):
             result.append({'name': name, 'lines': field_lines},)
         self.fieldsets = result
 
+
 def casa_manifesta_view(request):
     if 'casa_id' in request.GET:
         casa_id = request.GET.get('casa_id')
@@ -85,7 +87,7 @@ def casa_manifesta_view(request):
             campos['possui_%s' % ts.pk] = forms.BooleanField(label=u'Possui o serviço de %s' % ts.nome, required=False)
             campos['url_%s' % ts.pk] = forms.URLField(label=u'Informe a URL', required=False)
             campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=u'Serviço está hospedado no Interlegis', required=False)
-            fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk )),)
+            fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk)),)
 
         CasaManifestaForm = type('', (CasaManifestaProtoForm,), campos)
 
@@ -108,7 +110,7 @@ def casa_manifesta_view(request):
                         sm.hospedagem_interlegis = cmf.cleaned_data['hospedagem_interlegis_%s' % ts.pk]
                         sm.save()
                         thanks.append((ts.nome, u'Possui o serviço acessível em %s %s' % (sm.url, u'hospedado no Interlegis' if
-                                                                                         sm.hospedagem_interlegis else '')))
+                                                                                          sm.hospedagem_interlegis else '')))
                     else:
                         ServicoManifesto.objects.filter(casa_manifesta=cm, servico=ts).delete()
                         thanks.append((ts.nome, u'Não possui'))

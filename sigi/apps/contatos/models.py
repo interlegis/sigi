@@ -6,8 +6,8 @@ from sigi.apps.utils import SearchField
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
-
 class UnidadeFederativa(models.Model):
+
     """ Modelo que representa um estado brasileiro
     """
     REGIAO_CHOICES = (
@@ -42,7 +42,9 @@ class UnidadeFederativa(models.Model):
     def __unicode__(self):
         return self.nome
 
+
 class Municipio(models.Model):
+
     """ Modelo para representar as cidades brasileiras
     """
     codigo_ibge = models.PositiveIntegerField(
@@ -97,11 +99,11 @@ class Municipio(models.Model):
         blank=True,
         help_text='Exemplo: <em>-45,426</em>.'
     )
-    
-    idh = models.DecimalField(u'IDH', help_text=u'Índice de desenvolvimento Humano', max_digits=4, decimal_places=3, 
+
+    idh = models.DecimalField(u'IDH', help_text=u'Índice de desenvolvimento Humano', max_digits=4, decimal_places=3,
                               validators=[MinValueValidator(0), MaxValueValidator(1)])
     idh.list_filter_range = [0.500, 0.800]
-    
+
     pib_total = models.DecimalField(u'PIB total', max_digits=18, decimal_places=3, blank=True, null=True)
     pib_percapita = models.DecimalField(u'PIB per capita', max_digits=18, decimal_places=3, blank=True, null=True)
     pib_ano = models.IntegerField(u'Ano de apuração do PIB', blank=True, null=True)
@@ -118,7 +120,9 @@ class Municipio(models.Model):
         return "http://maps.google.com.br/maps/mm?ie=UTF8&hl=pt-BR&t=h&ll=%s,%s&spn=1.61886,1.812744&z=9&source=embed" % \
             (self.latitude, self.longitude)
 
+
 class Telefone(models.Model):
+
     """ Modelo genérico para agrupar telefones dos modulos do sistema
     """
     TELEFONE_CHOICES = (
@@ -129,16 +133,16 @@ class Telefone(models.Model):
     )
     numero = models.CharField(
         'número',
-        max_length=64, # TODO: diminuir tamanho de campo após migração de dados
+        max_length=64,  # TODO: diminuir tamanho de campo após migração de dados
         help_text='Exemplo: <em>(31)8851-9898</em>.',
     )
     tipo = models.CharField(
         max_length=1,
         choices=TELEFONE_CHOICES,
-        default= 'I' 
+        default='I'
     )
     nota = models.CharField(max_length=70, null=True, blank=True)
-    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True) 
+    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
@@ -153,7 +157,9 @@ class Telefone(models.Model):
     def __unicode__(self):
         return unicode(self.numero)
 
+
 class Contato(models.Model):
+
     """ Modelo generico para registrar contatos vinculados aos
     modulos do sistema
     """
@@ -185,63 +191,64 @@ class Contato(models.Model):
     def __unicode__(self):
         return self.nome
 
+
 class Endereco(models.Model):
     TIPO_CHOICES = (
-      ('aeroporto','Aeroporto'),
-      ('alameda','Alameda'),
-      ('area',u'Área'),
-      ('avenida','Avenida'),
-      ('campo','Campo'),
-      ('chacara',u'Chácara'),
-      ('colonia',u'Colônia'),
-      ('condominio',u'Condomínio'),
-      ('conjunto','Conjunto'),
-      ('distrito','Distrito'),
-      ('esplanada','Esplanada'),
-      ('estacao',u'Estação'),
-      ('estrada','Estrada'),
-      ('favela','Favela'),
-      ('fazenda','Fazenda'),
-      ('feira','Feira'),
-      ('jardim','Jardim'),
-      ('ladeira','Ladeira'),
-      ('lago','Lago'),
-      ('lagoa','Lagoa'),
-      ('largo','Largo'),
-      ('loteamento','Loteamento'),
-      ('morro','Morro'),
-      ('nucleo',u'Núcleo'),
-      ('parque','Parque'),
-      ('passarela','Passarela'),
-      ('patio',u'Pátio'),
-      ('praca',u'Praça'),
-      ('quadra','Quadra'),
-      ('recanto','Recanto'),
-      ('residencial','Residencial'),
-      ('rodovia','Rodovia'),
-      ('rua','Rua'),
-      ('setor','Setor'),
-      ('sitio',u'Sítio'),
-      ('travessa','Travessa'),
-      ('trecho','Trecho'),
-      ('trevo','Trevo'),
-      ('vale','Vale'),
-      ('vereda','Vereda'),
-      ('via','Via'),
-      ('viaduto','Viaduto'),
-      ('viela','Viela'),
-      ('vila','Vila'),
-      ('outro','Outro'),
+        ('aeroporto', 'Aeroporto'),
+        ('alameda', 'Alameda'),
+        ('area', u'Área'),
+        ('avenida', 'Avenida'),
+        ('campo', 'Campo'),
+        ('chacara', u'Chácara'),
+        ('colonia', u'Colônia'),
+        ('condominio', u'Condomínio'),
+        ('conjunto', 'Conjunto'),
+        ('distrito', 'Distrito'),
+        ('esplanada', 'Esplanada'),
+        ('estacao', u'Estação'),
+        ('estrada', 'Estrada'),
+        ('favela', 'Favela'),
+        ('fazenda', 'Fazenda'),
+        ('feira', 'Feira'),
+        ('jardim', 'Jardim'),
+        ('ladeira', 'Ladeira'),
+        ('lago', 'Lago'),
+        ('lagoa', 'Lagoa'),
+        ('largo', 'Largo'),
+        ('loteamento', 'Loteamento'),
+        ('morro', 'Morro'),
+        ('nucleo', u'Núcleo'),
+        ('parque', 'Parque'),
+        ('passarela', 'Passarela'),
+        ('patio', u'Pátio'),
+        ('praca', u'Praça'),
+        ('quadra', 'Quadra'),
+        ('recanto', 'Recanto'),
+        ('residencial', 'Residencial'),
+        ('rodovia', 'Rodovia'),
+        ('rua', 'Rua'),
+        ('setor', 'Setor'),
+        ('sitio', u'Sítio'),
+        ('travessa', 'Travessa'),
+        ('trecho', 'Trecho'),
+        ('trevo', 'Trevo'),
+        ('vale', 'Vale'),
+        ('vereda', 'Vereda'),
+        ('via', 'Via'),
+        ('viaduto', 'Viaduto'),
+        ('viela', 'Viela'),
+        ('vila', 'Vila'),
+        ('outro', 'Outro'),
     )
 
     # tipo do endereço obtido no site dos correios
-    tipo = models.CharField(max_length=15,choices=TIPO_CHOICES)
+    tipo = models.CharField(max_length=15, choices=TIPO_CHOICES)
     logradouro = models.CharField(
         max_length=100,
     )
     logradouro.alphabetic_filter = True
-    numero= models.CharField(max_length=15, blank=True)
-    complemento= models.CharField(max_length=15, blank=True)
+    numero = models.CharField(max_length=15, blank=True)
+    complemento = models.CharField(max_length=15, blank=True)
     # campo de texto livre
     referencia = models.CharField(max_length=100, blank=True)
     bairro = models.CharField(max_length=100, blank=True)
@@ -275,5 +282,4 @@ class Endereco(models.Model):
 
     def __unicode__(self):
         return self.tipo + ' ' + self.logradouro + ', ' + self.numero \
-               + ' ' + self.complemento + ' - ' + self.bairro
-
+            + ' ' + self.complemento + ' - ' + self.bairro

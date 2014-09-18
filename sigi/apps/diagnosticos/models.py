@@ -9,6 +9,7 @@ from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
 
 class Diagnostico(BaseEntity):
+
     """ Modelo para representar unm diagnostico realizado
     em uma Casa Legislativa
     """
@@ -38,7 +39,7 @@ class Diagnostico(BaseEntity):
     )
 
     responsavel = models.ForeignKey('servidores.Servidor',
-        verbose_name=u'responsável')
+                                    verbose_name=u'responsável')
 
     class Meta:
         verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
@@ -85,15 +86,15 @@ class Diagnostico(BaseEntity):
             construção do endereço do diagnóstico
         """
         enviar_email(from_email, u"Diagnóstico publicado",
-            'diagnosticos/email_diagnostico_publicado.txt',
-            {
-                'responsavel': self.responsavel.nome_completo,
-                'casa_legislativa': self.casa_legislativa,
-                'data_diagnostico': self.data_visita_inicio,
-                'host': host,
-                'url_diagnostico': self.get_absolute_url(),
-                'status': u"Publicado",
-            })
+                     'diagnosticos/email_diagnostico_publicado.txt',
+                     {
+                         'responsavel': self.responsavel.nome_completo,
+                         'casa_legislativa': self.casa_legislativa,
+                         'data_diagnostico': self.data_visita_inicio,
+                         'host': host,
+                         'url_diagnostico': self.get_absolute_url(),
+                         'status': u"Publicado",
+                     })
 
     def email_diagnostico_alterado(self, from_email, host):
         """Enviando email quando o status do diagnóstico
@@ -103,24 +104,23 @@ class Diagnostico(BaseEntity):
             construção do endereço do diagnóstico
         """
         enviar_email(from_email, u"Diagnóstico alterado",
-            'diagnosticos/email_diagnostico_alterado.txt',
-            {
-                'servidor': self.responsavel.nome_completo,
-                'casa_legislativa': self.casa_legislativa,
-                'data_diagnostico': self.data_visita_inicio,
-                'host': host,
-                'url_diagnostico': self.get_absolute_url(),
-                'status': "Alterado",
-            })
-
+                     'diagnosticos/email_diagnostico_alterado.txt',
+                     {
+                         'servidor': self.responsavel.nome_completo,
+                         'casa_legislativa': self.casa_legislativa,
+                         'data_diagnostico': self.data_visita_inicio,
+                         'host': host,
+                         'url_diagnostico': self.get_absolute_url(),
+                         'status': "Alterado",
+                     })
 
     def get_schemata(self, category=None, *args, **kwargs):
         """ Se existir uma categoria retorna apenas as questões dessa.
         """
-        schemas = super(Diagnostico,self).get_schemata(*args, **kwargs)
+        schemas = super(Diagnostico, self).get_schemata(*args, **kwargs)
         if category:
-          schemas = [s for s in schemas if s.categoria_id == category]
-          schemas= sorted(schemas, lambda x,y: cmp(x.title, y.title))
+            schemas = [s for s in schemas if s.categoria_id == category]
+            schemas = sorted(schemas, lambda x, y: cmp(x.title, y.title))
 
         return schemas
 
@@ -136,6 +136,7 @@ class Diagnostico(BaseEntity):
 
 
 class Categoria(models.Model):
+
     """ Modelo para representar a categoria de uma pergunta
     e sua ordem na hora de exibir no formulário
     """
@@ -149,6 +150,7 @@ class Categoria(models.Model):
 
 
 class Pergunta(BaseSchema):
+
     """ Modelo que representa uma pergunta no questionário
     e sua ordem dentro da categoria
 
@@ -168,8 +170,8 @@ class Pergunta(BaseSchema):
         """, [self.id])
 
         return [
-          (Escolha.objects.get(id=int(row[0])), row[1])
-          for row in cursor.fetchall()
+            (Escolha.objects.get(id=int(row[0])), row[1])
+            for row in cursor.fetchall()
         ]
 
     def total_anwsers(self):
@@ -190,34 +192,37 @@ class Pergunta(BaseSchema):
 
 
 class Escolha(BaseChoice):
+
     """ Perguntas de multiplas escolhas tem as opções
     cadastradas neste modelo
     """
     schema = models.ForeignKey(Pergunta,
-        related_name='choices', verbose_name='pergunta')
+                               related_name='choices', verbose_name='pergunta')
     schema_to_open = models.ForeignKey(Pergunta, related_name='',
-        verbose_name='pergunta para abrir', blank=True, null=True)
+                                       verbose_name='pergunta para abrir', blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
-        ordering = ('schema','ordem')
+        ordering = ('schema', 'ordem')
         verbose_name, verbose_name_plural = 'escolha', 'escolhas'
 
 
 class Resposta(BaseAttribute):
+
     """ Modelo para guardar as respostas das perguntas
     de um diagnosico
     """
     schema = models.ForeignKey(Pergunta, related_name='attrs',
-        verbose_name='pergunta')
+                               verbose_name='pergunta')
     choice = models.ForeignKey(Escolha, verbose_name='escolha',
-        blank=True, null=True)
+                               blank=True, null=True)
 
     class Meta:
         verbose_name, verbose_name_plural = 'resposta', 'respostas'
 
 
 class Equipe(models.Model):
+
     """ Modelo que representa a equipe de um diagnóstico
     """
     diagnostico = models.ForeignKey(Diagnostico)
@@ -231,6 +236,7 @@ class Equipe(models.Model):
 
 
 class Anexo(models.Model):
+
     """ Modelo para representar os documentos levantados
     no processo de diagnóstico. Podem ser fotos, contratos, etc.
     """
@@ -238,7 +244,7 @@ class Anexo(models.Model):
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo',)
     descricao = models.CharField('descrição', max_length='70')
     data_pub = models.DateTimeField('data da publicação do anexo',
-        default=datetime.now)
+                                    default=datetime.now)
 
     class Meta:
         ordering = ('-data_pub',)

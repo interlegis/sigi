@@ -5,9 +5,12 @@ from django.utils.encoding import force_unicode
 from django.utils.safestring import mark_safe
 from sigi.apps.diagnosticos.models import Escolha
 
+
 class EavCheckboxSelectMultiple(CheckboxSelectMultiple):
+
     def render(self, name, value, attrs=None, choices=()):
-        if value is None: value = []
+        if value is None:
+            value = []
         final_attrs = self.build_attrs(attrs, name=name)
         output = [u'<ul>']
         str_values = set([force_unicode(v) for v in value])
@@ -29,7 +32,9 @@ class EavCheckboxSelectMultiple(CheckboxSelectMultiple):
         output.append(u'</ul>')
         return mark_safe(u'\n'.join(output))
 
+
 class EavRadioFieldRenderer(RadioFieldRenderer):
+
     def __iter__(self):
         for i, choice in enumerate(self.choices):
             final_attrs = self.attrs.copy()
@@ -54,8 +59,8 @@ class EavRadioFieldRenderer(RadioFieldRenderer):
         if schema_to_open:
             final_attrs['schema_to_open'] = schema_to_open.name
 
-        return RadioInput(self.name, self.value,final_attrs, choice, idx)
+        return RadioInput(self.name, self.value, final_attrs, choice, idx)
+
 
 class EavRadioSelect(RadioSelect):
     renderer = EavRadioFieldRenderer
-
