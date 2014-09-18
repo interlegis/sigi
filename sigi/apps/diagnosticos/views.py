@@ -203,7 +203,7 @@ def categoria_contatos(request, id_diagnostico):
                                 and form_telefones.fields['numero'].initial is None):
                             if Telefone.objects.filter(pk=form_telefones.fields['id'].initial).exists():
                                 Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
-                                if not resposta['fones'].has_key(form.prefix):
+                                if form.prefix not in resposta['fones']:
                                     resposta['fones'][form.prefix] = ''
                                 resposta['fones'][form.prefix] += u'<p>O telefone %s %s foi excluído da base de dados</p>' % (
                                     form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)

@@ -33,7 +33,7 @@ class LegislaturaAdmin(admin.ModelAdmin):
 
     def response_change(self, request, obj):
         response = super(LegislaturaAdmin, self).response_change(request, obj)
-        if request.POST.has_key("_popup"):
+        if "_popup" in request.POST:
             response = HttpResponse('<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script>' %
                                     # escape() calls force_unicode.
                                     (escape(obj.pk), escapejs(obj)))

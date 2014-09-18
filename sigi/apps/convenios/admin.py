@@ -108,7 +108,7 @@ class ConvenioAdmin(admin.ModelAdmin):
     relatorio.short_description = u'Exportar convênios selecionados para PDF'
 
     def adicionar_convenios(self, request, queryset):
-        if request.session.has_key('carrinho_convenios'):
+        if 'carrinho_convenios' in request.session:
             q1 = len(request.session['carrinho_convenios'])
         else:
             q1 = 0

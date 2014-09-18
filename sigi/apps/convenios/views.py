@@ -62,7 +62,7 @@ def carrinhoOrGet_for_qs(request):
     """
        Verifica se existe convênios na sessão se não verifica get e retorna qs correspondente.
     """
-    if request.session.has_key('carrinho_convenios'):
+    if 'carrinho_convenios' in request.session:
         ids = request.session['carrinho_convenios']
         qs = Convenio.objects.filter(pk__in=ids)
     else:
@@ -76,7 +76,7 @@ def carrinhoOrGet_for_qs(request):
 def adicionar_convenios_carrinho(request, queryset=None, id=None):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-        if not request.session.has_key('carrinho_convenios'):
+        if 'carrinho_convenios' not in request.session:
             request.session['carrinho_convenios'] = ids_selecionados
         else:
             lista = request.session['carrinho_convenios']
@@ -88,7 +88,7 @@ def adicionar_convenios_carrinho(request, queryset=None, id=None):
 
 
 def excluir_carrinho(request):
-    if request.session.has_key('carrinho_convenios'):
+    if 'carrinho_convenios' in request.session:
         del request.session['carrinho_convenios']
     return HttpResponseRedirect('.')
 
@@ -96,7 +96,7 @@ def excluir_carrinho(request):
 def deleta_itens_carrinho(request):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-        if request.session.has_key('carrinho_convenios'):
+        if 'carrinho_convenios' in request.session:
             lista = request.session['carrinho_convenios']
             for item in ids_selecionados:
                 lista.remove(item)
@@ -128,7 +128,7 @@ def visualizar_carrinho(request):
     except (EmptyPage, InvalidPage):
         paginas = paginator.page(paginator.num_pages)
 
-    carrinhoIsEmpty = not(request.session.has_key('carrinho_convenios'))
+    carrinhoIsEmpty = not('carrinho_convenios' in request.session)
 
     return render_to_response(
         'convenios/carrinho.html',
@@ -155,9 +155,9 @@ def report(request, id=None):
     data_aceite_has = ''
     report = None
     if request.POST:
-        if request.POST.has_key('filtro_casa'):
+        if 'filtro_casa' in request.POST:
             tipo = request.POST['filtro_casa']
-        if request.POST.has_key('data_aceite'):
+        if 'data_aceite' in request.POST:
             data_aceite_has = request.POST['data_aceite']
         # Verifica filtro se é por Assembleia
         if tipo == 'al':
@@ -247,7 +247,7 @@ def casas_estado_to_tabela(casas, convenios, regiao):
 def report_regiao(request, regiao='NE'):
 
     if request.POST:
-        if request.POST.has_key('regiao'):
+        if 'regiao' in request.POST:
             regiao = request.POST['regiao']
 
     REGIAO_CHOICES = {

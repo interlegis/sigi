@@ -313,7 +313,7 @@ def migra_convenios_casas(filename):
         ###Relatório###
         if((projeto or line[DATA_TERMO_ACEITE_COL]) and line[NUM_PROCESSO_SF_COL].__len__() == 0):
             f1.write(casa.nome + "," + casa.municipio.uf.sigla + "\n")
-        if(projeto == None and line[DATA_TERMO_ACEITE_COL].__len__() != 0):
+        if(projeto is None and line[DATA_TERMO_ACEITE_COL].__len__() != 0):
             f2.write(casa.nome + "," + casa.municipio.uf.sigla + "\n")
         ######
         projeto = None

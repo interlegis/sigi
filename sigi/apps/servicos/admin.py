@@ -30,7 +30,7 @@ class ServicoFormAdmin(ModelForm):
 
         if self.instance.casa_legislativa_id:
             id_casa = self.instance.casa_legislativa_id
-        elif kwargs.has_key('initial') and kwargs['initial'].has_key('id_casa'):
+        elif 'initial' in kwargs and 'id_casa' in kwargs['initial']:
             id_casa = kwargs['initial']['id_casa']
             self.instance.casa_legislativa_id = id_casa
         else:
@@ -131,10 +131,10 @@ class ServicoAdmin(admin.ModelAdmin):
         opts = obj._meta
         msg = _('The %(name)s "%(obj)s" was added successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
-        if request.POST.has_key("_addanother"):
+        if "_addanother" in request.POST:
             self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect(request.path + '?id_casa=%s' % (obj.casa_legislativa.id,))
-        elif request.POST.has_key("_save"):
+        elif "_save" in request.POST:
             self.message_user(request, msg)
             return HttpResponseRedirect(reverse('admin:servicos_casaatendida_change', args=[obj.casa_legislativa.id]))
 
@@ -144,10 +144,10 @@ class ServicoAdmin(admin.ModelAdmin):
         opts = obj._meta
         msg = _('The %(name)s "%(obj)s" was changed successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
-        if request.POST.has_key("_addanother"):
+        if "_addanother" in request.POST:
             self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect("../add/?id_casa=%s" % (obj.casa_legislativa.id,))
-        elif request.POST.has_key("_save"):
+        elif "_save" in request.POST:
             self.message_user(request, msg)
             return HttpResponseRedirect(reverse('admin:servicos_casaatendida_change', args=[obj.casa_legislativa.id]))
 

@@ -1,4 +1,4 @@
-from base import *
+from .base import *
 
 
 # SECURITY WARNING: keep the secret key used in production secret!

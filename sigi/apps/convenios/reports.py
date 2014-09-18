@@ -111,7 +111,7 @@ class ConvenioReport(ReportDefault):
                 attribute_name='data_adesao',
                 left=label_left[2] * cm,
                 get_value=lambda instance:
-                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao != None else '-'
+                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao is not None else '-'
             ),
             ObjectValue(
                 attribute_name='num_convenio',
@@ -121,19 +121,19 @@ class ConvenioReport(ReportDefault):
                 attribute_name='data_retorno_assinatura',
                 left=label_left[4] * cm,
                 get_value=lambda instance:
-                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura != None else '-'
+                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
             ),
             ObjectValue(
                 attribute_name='data_pub_diario',
                 left=label_left[5] * cm,
                 get_value=lambda instance:
-                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
+                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
             ),
             ObjectValue(
                 attribute_name='data_termo_aceite',
                 left=label_left[6] * cm,
                 get_value=lambda instance:
-                    instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite != None else '-'
+                    instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite is not None else '-'
             ),
             ObjectValue(
                 attribute_name='projeto.sigla',
@@ -225,7 +225,7 @@ class ConvenioReportSemAceite(ConvenioReport):
                 attribute_name='data_adesao',
                 left=label_left[3] * cm,
                 get_value=lambda instance:
-                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao != None else '-'
+                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao is not None else '-'
             ),
             ObjectValue(
                 attribute_name='num_convenio',
@@ -235,13 +235,13 @@ class ConvenioReportSemAceite(ConvenioReport):
                 attribute_name='data_retorno_assinatura',
                 left=label_left[5] * cm,
                 get_value=lambda instance:
-                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura != None else '-'
+                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
             ),
             ObjectValue(
                 attribute_name='data_pub_diario',
                 left=label_left[6] * cm,
                 get_value=lambda instance:
-                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario != None else '-'
+                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
             ),
             ObjectValue(
                 attribute_name='projeto.sigla',

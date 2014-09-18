@@ -22,7 +22,7 @@ class Convenio(models.Model):
     """ Modelo que representa um convênio do Interlegis
     com uma Casa Legislativa.
 
-    Uma Casa Legislativa pode não ter um convênio e sim 
+    Uma Casa Legislativa pode não ter um convênio e sim
     apenas uma adesão com o Interlegis, isto é,
     não tem compromissos direto com o Interlegis apenas
     um pacto de colaboração entre as partes
@@ -100,8 +100,8 @@ class Convenio(models.Model):
     equipada = models.BooleanField()
 
     def save(self, *args, **kwargs):
-        self.conveniada = self.data_retorno_assinatura != None
-        self.equipada = self.data_termo_aceite != None
+        self.conveniada = self.data_retorno_assinatura is not None
+        self.equipada = self.data_termo_aceite is not None
         super(Convenio, self).save(*args, **kwargs)
 
     class Meta:
@@ -110,7 +110,7 @@ class Convenio(models.Model):
         verbose_name = u'convênio'
 
     def __unicode__(self):
-        if self.data_retorno_assinatura != None:
+        if self.data_retorno_assinatura is not None:
             return u"Convênio nº %s - projeto %s, em %s" % (self.num_convenio, self.projeto.sigla, self.data_retorno_assinatura)
         else:
             return u"Adesão ao projeto %s, em %s" % (self.projeto.sigla, self.data_adesao)

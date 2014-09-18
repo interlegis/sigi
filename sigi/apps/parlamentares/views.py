@@ -21,7 +21,7 @@ from geraldo.generators import PDFGenerator
 def adicionar_parlamentar_carrinho(request, queryset=None, id=None):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-        if not request.session.has_key('carrinho_parlametar'):
+        if 'carrinho_parlametar' not in request.session:
             request.session['carrinho_parlamentar'] = ids_selecionados
         else:
             lista = request.session['carrinho_parlamentar']
@@ -52,7 +52,7 @@ def visualizar_carrinho(request):
     except (EmptyPage, InvalidPage):
         paginas = paginator.page(paginator.num_pages)
 
-    carrinhoIsEmpty = not(request.session.has_key('carrinho_parlamentares'))
+    carrinhoIsEmpty = not('carrinho_parlamentares' in request.session)
 
     return render_to_response('parlamentares/carrinho.html',
                               {'MEDIA_URL': settings.MEDIA_URL,
@@ -66,7 +66,7 @@ def carrinhoOrGet_for_qs(request):
     """
        Verifica se existe parlamentares na sessão se não verifica get e retorna qs correspondente.
     """
-    if request.session.has_key('carrinho_parlamentar'):
+    if 'carrinho_parlamentar' in request.session:
         ids = request.session['carrinho_parlamentar']
         qs = Parlamentar.objects.filter(pk__in=ids)
     else:
@@ -109,7 +109,7 @@ def deleta_itens_carrinho(request):
     """
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-    if request.session.has_key('carrinho_parlamentar'):
+    if 'carrinho_parlamentar' in request.session:
         lista = request.session['carrinho_parlamentar']
         for item in ids_selecionados:
             lista.remove(item)
@@ -127,7 +127,7 @@ def labels_report(request, id=None, formato='3x9_etiqueta'):
     """
 
     if request.POST:
-        if request.POST.has_key('tipo_etiqueta'):
+        if 'tipo_etiqueta' in request.POST:
             tipo = request.POST['tipo_etiqueta']
 
     if id:

@@ -17,6 +17,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.conf import settings
 
 import csv
+from functools import reduce
 
 # @param qs: queryset
 # @param o: (int) number of order field
@@ -59,7 +60,7 @@ def carrinhoOrGet_for_qs(request):
     """
        Verifica se existe casas na sessão se não verifica get e retorna qs correspondente.
     """
-    if request.session.has_key('carrinho_casas'):
+    if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
         qs = CasaLegislativa.objects.filter(pk__in=ids)
     else:
@@ -72,7 +73,7 @@ def carrinhoOrGet_for_qs(request):
 def adicionar_casas_carrinho(request, queryset=None, id=None):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-        if not request.session.has_key('carrinho_casas'):
+        if 'carrinho_casas' not in request.session:
             request.session['carrinho_casas'] = ids_selecionados
         else:
             lista = request.session['carrinho_casas']
@@ -102,7 +103,7 @@ def visualizar_carrinho(request):
     except (EmptyPage, InvalidPage):
         paginas = paginator.page(paginator.num_pages)
 
-    carrinhoIsEmpty = not(request.session.has_key('carrinho_casas'))
+    carrinhoIsEmpty = not('carrinho_casas' in request.session)
 
     return render_to_response(
         'casas/carrinho.html',
@@ -116,7 +117,7 @@ def visualizar_carrinho(request):
 
 
 def excluir_carrinho(request):
-    if request.session.has_key('carrinho_casas'):
+    if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
     return HttpResponseRedirect('.')
 
@@ -124,7 +125,7 @@ def excluir_carrinho(request):
 def deleta_itens_carrinho(request):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
-        if request.session.has_key('carrinho_casas'):
+        if 'carrinho_casas' in request.session:
             lista = request.session['carrinho_casas']
             for item in ids_selecionados:
                 lista.remove(item)
@@ -142,9 +143,9 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     """
 
     if request.POST:
-        if request.POST.has_key('tipo_etiqueta'):
+        if 'tipo_etiqueta' in request.POST:
             tipo = request.POST['tipo_etiqueta']
-        if request.POST.has_key('tamanho_etiqueta'):
+        if 'tamanho_etiqueta' in request.POST:
             formato = request.POST['tamanho_etiqueta']
 
     if tipo == 'sem_presidente':
@@ -171,7 +172,7 @@ def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
     """
 
     if request.POST:
-        if request.POST.has_key('tamanho_etiqueta'):
+        if 'tamanho_etiqueta' in request.POST:
             formato = request.POST['tamanho_etiqueta']
 
     if id:
@@ -198,7 +199,7 @@ def carrinhoOrGet_for_parlamentar_qs(request):
     """
        Verifica se existe parlamentares na sessão se não verifica get e retorna qs correspondente.
     """
-    if request.session.has_key('carrinho_casas'):
+    if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
         legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
@@ -237,7 +238,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
 def report(request, id=None, tipo=None):
 
     if request.POST:
-        if request.POST.has_key('tipo_relatorio'):
+        if 'tipo_relatorio' in request.POST:
             tipo = request.POST['tipo_relatorio']
 
     if tipo == 'completo':

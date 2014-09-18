@@ -56,7 +56,7 @@ class ParlamentarAdmin(admin.ModelAdmin):
                      'pagina_web',)
 
     def adiciona_parlamentar(self, request, queryset):
-        if request.session.has_key('carrinho_parlametar'):
+        if 'carrinho_parlametar' in request.session:
             q1 = len(request.session['carrinho_parlamentar'])
         else:
             q1 = 0

@@ -21,6 +21,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import to_ascii
 from sigi.apps.financeiro.models import Desembolso
 from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
+from functools import reduce
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 
@@ -149,7 +150,7 @@ def map_sum(request):
     result = {}
 
     for uf in UnidadeFederativa.objects.filter(Q(regiao__in=param['regioes']) | Q(sigla__in=param['estados'])).order_by('regiao', 'nome'):
-        if not result.has_key(uf.regiao):
+        if uf.regiao not in result:
             result[uf.regiao] = {'nome': uf.get_regiao_display(), 'ufs': {}, 'servicos': tot_servicos.copy(),
                                  'convenios': tot_projetos.copy(), 'equipadas': tot_projetos.copy(),
                                  'diagnosticos': tot_diagnosticos.copy()}
@@ -292,7 +293,7 @@ def gera_map_data_file(cronjob=False):
             continue
             # Salta essa casa, pois ela não tem nada com o Interlegis
 
-        if not casas.has_key(c.pk):
+        if c.pk not in casas:
             casa = {
                 'nome': c.nome + ', ' + c.municipio.uf.sigla,
                 'icone': '/static/img/' + 'mapmarker' + '.png',

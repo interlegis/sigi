@@ -100,7 +100,7 @@ class Command(BaseCommand):
                     user=user,
                     nome_completo="%s %s" % (user.first_name, user.last_name)
                 )
-            except MigrationError, e:
+            except MigrationError as e:
                 print ", ".join(row)
                 continue
 
