@@ -20,6 +20,10 @@ class SearchField(models.TextField):
         kwargs['editable'] = False
         super(self.__class__, self).__init__(*args, **kwargs)
 
+    def deconstruct(self):
+        name, path, args, kwargs = super(SearchField, self).deconstruct()
+        kwargs['field_names'] = self.field_names
+        return name, path, args, kwargs
 
 def to_ascii(txt, codif='utf-8'):
     if not isinstance(txt, basestring):
