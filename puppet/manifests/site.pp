@@ -174,3 +174,24 @@ nginx::resource::location { '/media/':
   vhost          => $sigi_vhost,
   location_alias => '/srv/sigi/media/',
 }
+
+###########################################################################
+# CRON
+
+cron { 'atualiza_uso_servico':
+  command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py atualiza_uso_servico -v 0",
+  user    => 'sigi',
+  hour    => [0,]
+}
+
+cron { 'clearsessions':
+  command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py clearsessions -v 0",
+  user    => 'sigi',
+  hour    => [0,]
+}
+
+cron { 'gera_map_data':
+  command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py gera_map_data",
+  user    => 'sigi',
+  hour    => "*/1",
+}
