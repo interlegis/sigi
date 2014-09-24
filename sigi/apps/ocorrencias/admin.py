@@ -100,7 +100,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
         servidor = Servidor.objects.get(user=request.user)
         instances = formset.save(commit=False)
         for instance in instances:
-            if isinstance(instance, Ocorrencia):
+            if isinstance(instance, Comentario):
                 instance.usuario = servidor
                 if instance.encaminhar_setor and (instance.encaminhar_setor != instance.ocorrencia.setor_responsavel):
                     instance.ocorrencia.setor_responsavel = instance.encaminhar_setor
@@ -109,7 +109,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
                     instance.ocorrencia.status = instance.novo_status
                     instance.ocorrencia.save()
             instance.save()
-        formset.save_m2m()
+        super(OcorrenciaAdmin, self).save_formset(request, form, formset, change)
 
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
