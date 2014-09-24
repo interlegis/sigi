@@ -48,7 +48,7 @@ class CasaLegislativa(models.Model):
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
     # codigo_interlegis.ts_filter = True
 
-    gerente_contas = models.ForeignKey(Servidor, verbose_name="Gerente de contas", null=True)
+    gerente_contas = models.ForeignKey(Servidor, verbose_name="Gerente de contas", null=True, blank=True)
 
     # Informações de contato
     logradouro = models.CharField(
