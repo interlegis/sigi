@@ -36,8 +36,8 @@ nosetests.xml
 fotos
 *.db
 db.*
-media/
-static
+/media/
+/static/
 
 # Ignoring IDE's files
 .idea/

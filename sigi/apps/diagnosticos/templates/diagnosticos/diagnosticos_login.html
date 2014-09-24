@@ -4,19 +4,19 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>SIGI - Login de Acesso</title>
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.css" />
-    <script src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
+    <link rel="stylesheet" href="{{ STATIC_URL }}jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css" />
+    <script src="{{ STATIC_URL }}/js/jquery/jquery-1.6.4.min.js"></script>
     <script language=javascript>
       $(document).bind("mobileinit", function () {
         $.mobile.ajaxEnabled = false;
         $.mobile.loadingMessage = 'salvando';
       });
     </script>
-    <script src="http://code.jquery.com/mobile/1.0/jquery.mobile-1.0.min.js"></script>
+    <script type="text/javascript" src="{{ STATIC_URL }}jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.js"></script>
 </head>
 <body>
     <div data-role="header" data-theme="d">
-        <img src="{{ MEDIA_URL }}images/mobile/logointerlegis_mobile.png" alt="Interlegis"/>
+        <img src="{{ STATIC_URL }}img/mobile/logointerlegis_mobile.png" alt="Interlegis"/>
     </div> <!-- header -->
     {% if form.errors %}
      <div data-role="header" data-theme="b">
