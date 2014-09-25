@@ -1,14 +1,14 @@
 {% extends "admin/carrinho.html" %}
 {% load admin_list i18n %}
 {% block extrastyle %}
-  {{ block.super }}  
+  {{ block.super }}
   {% include "admin/tabs_style.html" %}
 {% endblock %}
 
 {% block title %}Convênios no Carrinho | SIGI{% endblock %}
 {% block content_title %}<h1>Convênios no Carrinho</h1>{% endblock %}
 
-{% block mensagem%} 
+{% block mensagem%}
 <ul class="messagelist">
 	{%if carIsEmpty%}
 		<li class="warning">O carrinho está vazio, sendo assim todos os convênios entram na lista para exportação de acordo com os filtros aplicados.</li>
@@ -41,7 +41,7 @@
 		<tr class="{% cycle 'row1' 'row2' %}">
 			{%if not carIsEmpty%}
 			<th><input type="checkbox" name="_selected_action"
-				value="{{convenio.id}}" class="action-select" /></th>
+				value="{{convenio.id|safe}}" class="action-select" /></th>
 			{% endif %}
 			<td style="text-align: left;">{{convenio.num_convenio}}</td>
 			<td>{{convenio.casa_legislativa}}</td>
@@ -57,25 +57,25 @@
 
 {% block botoes %}
 <div id="tabs">
-        
-    <ul>           
+
+    <ul>
         <li><a href="#tabs-1">Relatório</a></li>
         <li><a href="#tabs-2">Arquivo CSV (Excel, Calc)</a></li>
 	</ul>
-	<div id="tabs-1">            
+	<div id="tabs-1">
     	<form action="../reports/{{ query_str }}" method="post">
         	<fieldset>
 	           		<legend>Relatório por</legend>
-	            	<ul class="tabs-conteudo">	            		
+	            	<ul class="tabs-conteudo">
 	            		<li>
 	            			<input type="radio" name="filtro_casa" value="cm" checked="checked"/>
 							<label>Câmara Municipal</label>
 						</li>
 						<li>
-							<input type="radio" name="filtro_casa" value="al" />						
+							<input type="radio" name="filtro_casa" value="al" />
 							<label>Assembléia Legislativa</label>
-						</li>		            	
-	            	</ul>			
+						</li>
+	            	</ul>
 			</fieldset>
 			<fieldset>
 				<legend>Com data de aceite? (Equipada)</legend>
@@ -87,13 +87,13 @@
 					<li>
             			<input type="radio" name="data_aceite" value="nao" />
             			<label>Não</label>
-            		</li>						
-				</ul>						
+            		</li>
+				</ul>
 			</fieldset>
 			<ul class="botoes">
 				<li><input type="submit" value="Gerar Relatório"></li>
 			</ul>
-        </form>			
+        </form>
 	</div>
         <div id="tabs-2">
 		<form action="../csv/{{query_str}}" method="post">

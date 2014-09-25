@@ -1,10 +1,10 @@
 {% extends "admin/carrinho.html" %}
 {% load admin_list i18n %}
 {% block extrastyle %}
-  {{ block.super }}  
+  {{ block.super }}
   {% include "admin/tabs_style.html" %}
- 
-  
+
+
 {% endblock %}
 
 {% block title %}Casas legislativas no Carrinho | SIGI{% endblock %}
@@ -41,7 +41,7 @@
 		<tr class="{% cycle 'row1' 'row2' %}">
 			{%if not carIsEmpty%}
 			<th><input type="checkbox" name="_selected_action"
-				value="{{casa.id}}" class="action-select" /></th>
+				value="{{casa.id|safe}}" class="action-select" /></th>
 			{% endif %}
 			<td style="text-align: left;">{{casa.nome}}</td>
 			<td>{{casa.municipio}}</td>
@@ -61,7 +61,7 @@
 		<li><a href="#tabs-3">Arquivo CSV (Excel, Calc)</a></li>
 		<li><a href="#tabs-4">Etiqueta Parlamentares</a></li>
 	</ul>
-	
+
 	<div id="tabs-1">
 		<form action="../labels/{{query_str}}" method="post">{% csrf_token %}
 		<fieldset><legend>Tipo de etiqueta</legend>
@@ -86,7 +86,7 @@
 			<li><input type="submit" value="Gerar Etiqueta" /></li>
 		</ul>
 		</form>
-	
+
 	</div>
 	<div id="tabs-2">
 		<form action="../reports/{{query_str}}" method="post">{% csrf_token %}
@@ -96,7 +96,7 @@
 					checked="checked"><label>Simples</label></li>
 				<li><input type="radio" name="tipo_relatorio" value="completo"><label>Completo</label></li>
 			</ul>
-			</fieldset>			
+			</fieldset>
 			<ul class="botoes">
 				<li><input type="submit" value="Gerar Relatório" /></li>
 			</ul>
@@ -104,7 +104,7 @@
 	</div>
 	<div id="tabs-3">
 		<form action="../csv/{{query_str}}" method="post">{% csrf_token %}
-			<fieldset><legend>Escolha os atributos para exportar</legend>			
+			<fieldset><legend>Escolha os atributos para exportar</legend>
 			<ul id="sortable" class="tabs-conteudo">
 				<li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
@@ -211,7 +211,7 @@
 			<ul class="botoes">
 				<li><input type="submit" value="Exportar CSV" /></li>
 			</ul>
-		</form>	
+		</form>
 	</div>
 	<div id="tabs-4">
 		<form action="../labels_parlamentar/{{query_str}}" method="post">{% csrf_token %}
@@ -227,7 +227,7 @@
 			<li><input type="submit" value="Gerar Etiqueta" /></li>
 		</ul>
 		</form>
-	
+
 	</div>
 </div>
 

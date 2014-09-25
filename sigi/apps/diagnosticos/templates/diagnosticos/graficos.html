@@ -52,7 +52,7 @@
             {% csrf_token %}
             <select name="categoria">
                 {% for categoria in categorias %}
-                    <option value="{{ categoria.id }}" {% if categoria.id == sel_categoria %}selected="selected"{% endif %}>{{ categoria.nome }}</option>
+                    <option value="{{ categoria.id|safe }}" {% if categoria.id == sel_categoria %}selected="selected"{% endif %}>{{ categoria.nome }}</option>
                 {% endfor %}
             </select>
         </form>
