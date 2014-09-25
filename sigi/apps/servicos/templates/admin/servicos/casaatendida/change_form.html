@@ -32,8 +32,8 @@
 				<tr> <td colspan="6">Nenhum serviço cadastrado para esta Casa Legislativa</td> </tr>
 			{% endfor %}
 				<tr class="add-row">
-					<td colspan="6"><a href="{% url 'admin:servicos_servico_add' %}?id_casa={{ original.id }}">Adicionar outro Servico</a></td>
-				</tr>			
+					<td colspan="6"><a href="{% url 'admin:servicos_servico_add' %}?id_casa={{ original.id | safe }}">Adicionar outro Servico</a></td>
+				</tr>
 			</tbody>
 			</table>
 		</fieldset>
