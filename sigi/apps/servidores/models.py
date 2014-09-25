@@ -27,7 +27,7 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(u'Nome Serviço', max_length=250, null=True)
+    nome = models.CharField(u'Setor', max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
