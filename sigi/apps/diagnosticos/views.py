@@ -93,7 +93,7 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
                 'erros': form.errors
             }
         json = simplejson.dumps(resposta)
-        return HttpResponse(json, mimetype="application/json")
+        return HttpResponse(json, content_type='application/json')
     else:
         form = DiagnosticoMobileForm(instance=diagnostico,
                                      category=id_categoria)
@@ -131,7 +131,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
                 'erros': form.errors
             }
         json = simplejson.dumps(resposta)
-        return HttpResponse(json, mimetype="application/json")
+        return HttpResponse(json, content_type='application/json')
     else:
         form = CasaLegislativaMobileForm(instance=casa_legislativa)
 
@@ -213,7 +213,7 @@ def categoria_contatos(request, id_diagnostico):
                                 resposta['erros'][key] = value
 
         json = simplejson.dumps(resposta)
-        return HttpResponse(json, mimetype="application/json")
+        return HttpResponse(json, content_type='application/json')
     else:
         forms = [FuncionariosMobileForm(prefix=f.setor, instance=f)
                  for f, c in funcionarios]
@@ -340,4 +340,4 @@ def municipios_diagnosticados(self):
                      'fim': d.data_visita_fim, 'equipe': "<ul><li>" + "</li><li>".join([m.user.get_full_name() for m in d.membros]) + "</li></ul>", }
         municipios.append(municipio)
 
-    return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")
+    return HttpResponse(simplejson.dumps(municipios), content_type='application/json')

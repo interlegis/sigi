@@ -98,14 +98,13 @@ def map_data(request):
     Tenta ler esse json do arquivo JSON_FILE_NAME. Se não encontrar, chama a rotina
     gera_map_data_file().
     """
-
     try:
         file = open(JSON_FILE_NAME, 'r')
         json = file.read()
     except:
         json = gera_map_data_file()
 
-    return HttpResponse(json, mimetype="application/json")
+    return HttpResponse(json, content_type='application/json')
 
 
 def map_search(request):
@@ -120,7 +119,7 @@ def map_search(request):
         if casas.count() > 0:
             response = {'result': 'FOUND', 'ids': [c.pk for c in casas]}
 
-    return HttpResponse(simplejson.dumps(response), mimetype="application/json")
+    return HttpResponse(simplejson.dumps(response), content_type='application/json')
 
 
 @cache_page(86400)  # Cache de um dia (24 horas = 86400 segundos)

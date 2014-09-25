@@ -159,7 +159,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasLabels(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)
@@ -187,7 +187,7 @@ def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = ParlamentaresLabels(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)
@@ -227,7 +227,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasLabelsSemPresidente(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)
@@ -253,7 +253,7 @@ def report(request, id=None, tipo=None):
         return HttpResponseRedirect('../')
 
     # qs.order_by('municipio__uf','nome')
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = CasasLegislativasReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
@@ -270,7 +270,7 @@ def report_complete(request, id=None):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
 
     # Gera um relatorio para cada casa e concatena os relatorios
@@ -306,14 +306,14 @@ def casas_sem_convenio_report(request):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     report = CasasSemConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
 
 
 def export_csv(request):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=casas.csv'
 
     writer = csv.writer(response)

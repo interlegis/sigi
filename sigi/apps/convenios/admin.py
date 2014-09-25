@@ -101,7 +101,7 @@ class ConvenioAdmin(admin.ModelAdmin):
 
     def relatorio(self, request, queryset):
         # queryset.order_by('casa_legislativa__municipio__uf')
-        response = HttpResponse(mimetype='application/pdf')
+        response = HttpResponse(content_type='application/pdf')
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
         return response

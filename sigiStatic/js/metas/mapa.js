@@ -19,7 +19,7 @@
 		map = new google.maps.Map(document.getElementById("map"), myOptions);
 	    ajax_submit();
     })
-    
+
 	function ajax_submit(event) {
 		$.ajax({
 			url: "/dashboard/mapdata/",
@@ -31,7 +31,7 @@
 				municipiosArray[i].setMap(null);
 			}
 			municipiosArray = {}
-			
+
 			// Create new markers
 			for (var i in return_data) {
 				var municipio = return_data[i];
@@ -39,7 +39,7 @@
 						map: null, // Just create the mark, dont plot it
 						position: new google.maps.LatLng(parseFloat(municipio.lat), parseFloat(municipio.lng)),
 						title: municipio.nome,
-						icon: municipio.icone
+						icon: '/static/img/mapmarker.png'
 				}
 				var mark = new google.maps.Marker(markData);
 				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
@@ -56,20 +56,20 @@
 	function linkMarkMessage(mark, infoWin, map) {
 		google.maps.event.addListener(mark, 'click', function() {infoWin.open(map, mark);});
 	}
-	
+
 	function closeAllInfowindows() {
 		for (var i in municipiosArray) {
 			municipiosArray[i]['infowindow'].close();
 		}
 	}
-	
+
 	function filter(event) {
 		var data = $("#filter_form").serializeArray();
 		var estados = [];
 		var regioes = [];
-		
+
 		$(".totalizador").text("0");
-		
+
 		for (var i in data) {
 			var name = data[i].name, value = data[i].value;
 			if (name == 'estados') {
@@ -80,14 +80,14 @@
 				delete data[i];
 			}
 		}
-		
+
 		for (var i in municipiosArray) {
 			var municipio = municipiosArray[i];
 			municipio['infowindow'].close();
 			var aparece = false;
 
 			if (regioes.indexOf(municipio.regiao) == -1 && estados.indexOf(municipio.estado) == -1) {
-				aparece = false; 
+				aparece = false;
 			} else {
 				for (var j in data) {
 					if (data[j]) {
@@ -108,10 +108,10 @@
 				qtde = parseInt(qtde);
 				qtde++;
 				$("#" + municipio.regiao + ".totalizador").text(qtde);
-				
+
 				qtde = parseInt($("#" + municipio.estado + ".totalizador").text());
 				$("#" + municipio.estado + ".totalizador").text(++qtde);
-				
+
 				for (var j in municipio.seit) {
 					qtde = parseInt($("#" + municipio.seit[j] + ".totalizador").text());
 					$("#" + municipio.seit[j] + ".totalizador").text(++qtde);
@@ -126,7 +126,7 @@
 					qtde = parseInt($("#equip_" + municipio.equipadas[j] + ".totalizador").text());
 					$("#equip_" + municipio.equipadas[j] + ".totalizador").text(++qtde);
 				}
-				
+
 				for (var j in municipio.diagnosticos) {
 					qtde = parseInt($("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text());
 					$("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text(++qtde);
@@ -138,7 +138,7 @@
 			}
 		}
 	}
-	
+
 	function search(event) {
 		$.ajax({
 			url: "/dashboard/mapsearch/",
@@ -179,7 +179,7 @@
 			}});
 		return false;
 	}
-	
+
 	function open_report(event) {
 		var data = $("#filter_form").serialize();
 		var href = this.href;
@@ -192,5 +192,5 @@
 		win.focus();
 		return false;
 	}
-	
+
 })(django.jQuery);

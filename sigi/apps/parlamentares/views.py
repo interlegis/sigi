@@ -139,7 +139,7 @@ def labels_report(request, id=None, formato='3x9_etiqueta'):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=casas.pdf'
     report = ParlamentaresLabels(queryset=qs, formato=formato)
     report.generate_by(PDFGenerator, filename=response)

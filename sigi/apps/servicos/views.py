@@ -47,7 +47,7 @@ def municipios_atendidos(self, servico):
                          'servicos': "<ul><li>" + "</li><li>".join([s.tipo_servico.nome for s in casa.servico_set.filter(query)]) + "</li></ul>", }
             municipios.append(municipio)
 
-    return HttpResponse(simplejson.dumps(municipios), mimetype="application/json")
+    return HttpResponse(simplejson.dumps(municipios), content_type='application/json')
 
 
 class CasaManifestaProtoForm(forms.Form):

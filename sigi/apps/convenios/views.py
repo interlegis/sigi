@@ -174,7 +174,7 @@ def report(request, id=None):
             else:
                 report = ConvenioPorCMReport(queryset=qs)
 
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     if report:
         report.generate_by(PDFGenerator, filename=response)
     else:
@@ -279,7 +279,7 @@ def report_regiao(request, regiao='NE'):
     data = datetime.datetime.now().strftime('%d/%m/%Y')
     hora = datetime.datetime.now().strftime('%H:%M')
     pisa.showLogging()
-    response = HttpResponse(mimetype='application/pdf')
+    response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename=RelatorioRegiao_' + regiao + '.pdf'
     #tabelas = ({'projeto':"PI"},{'projeto':"PML"},)
     t = loader.get_template('convenios/tabela_regiao.html')
@@ -292,7 +292,7 @@ def report_regiao(request, regiao='NE'):
 
 
 def export_csv(request):
-    response = HttpResponse(mimetype='text/csv')
+    response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=convenios.csv'
 
     csv_writer = csv.writer(response)
