@@ -296,7 +296,7 @@ class CasasSemConvenioReport(CasasLegislativasReport):
 
 
 class InfoCasaLegislativa(ReportDefault):
-    title = u'Casa legislativa'
+    title = u'Casa Legislativa'
 
     class band_summary(ReportBand):
         pass

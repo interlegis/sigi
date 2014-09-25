@@ -32,7 +32,7 @@ class TipoServico(models.Model):
 
 
 class Servico(models.Model):
-    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u'Casa legislativa')
+    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=u'Casa Legislativa')
     tipo_servico = models.ForeignKey(TipoServico, verbose_name=u'Tipo de serviço')
     contato_tecnico = models.ForeignKey(Funcionario, verbose_name=u'Contato técnico', related_name='contato_tecnico')
     contato_administrativo = models.ForeignKey(Funcionario, verbose_name=u'Contato administrativo', related_name='contato_administrativo')

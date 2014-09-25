@@ -287,8 +287,8 @@ class Funcionario(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = 'contato Casa Legislativa'
-        verbose_name_plural = 'contatos Casas Legislativa'
+        verbose_name = 'contato da Casa Legislativa'
+        verbose_name_plural = 'contatos da Casa Legislativa'
 
     def __unicode__(self):
         return self.nome

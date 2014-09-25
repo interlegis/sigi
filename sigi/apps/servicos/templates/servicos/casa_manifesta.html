@@ -23,11 +23,11 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 {% if casa_list %}
-  <a href="./">Unidade da Federação</a> &rsaquo; Casa legislativa
+  <a href="./">Unidade da Federação</a> &rsaquo; Casa Legislativa
 {% else %}
   {% if casa %}
     <a href="./">Unidade da Federação</a> &rsaquo;
-    <a href="./?uf={{ casa.municipio.uf.sigla }}">Casa legislativa</a> &rsaquo;
+    <a href="./?uf={{ casa.municipio.uf.sigla }}">Casa Legislativa</a> &rsaquo;
     {{ casa.nome }}
   {% else %}
     Unidade da Federação

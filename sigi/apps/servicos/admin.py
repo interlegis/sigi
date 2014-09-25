@@ -176,7 +176,7 @@ class CasaAtendidaAdmin(admin.ModelAdmin):
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
     ordering = ['nome']
     fieldsets = (
-        ('Casa legislativa', {
+        ('Casa Legislativa', {
             'fields': (('codigo_interlegis', 'nome'), ('logradouro', 'bairro', 'municipio', 'cep'), ('email', 'pagina_web'))
         }),)
     readonly_fields = ('nome', 'logradouro', 'bairro', 'municipio', 'cep')
