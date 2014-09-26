@@ -60,7 +60,7 @@ class OcorrenciaChangeList(ChangeList):
         return qs
 
 class OcorrenciaAdmin(admin.ModelAdmin):
-    list_display = ('data_criacao', 'casa_legislativa', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
+    list_display = ('data_criacao', 'casa_legislativa', 'get_municipio', 'get_uf', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
     list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', )
     search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', )
     date_hierarchy = 'data_criacao'
@@ -110,6 +110,16 @@ class OcorrenciaAdmin(admin.ModelAdmin):
                     instance.ocorrencia.save()
             instance.save()
         super(OcorrenciaAdmin, self).save_formset(request, form, formset, change)
+
+    def get_uf(self, obj):
+        return obj.casa_legislativa.municipio.uf
+    get_uf.short_description = u'UF'
+    get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
+
+    def get_municipio(self, obj):
+        return obj.casa_legislativa.municipio.nome
+    get_municipio.short_description = u'Município'
+    get_municipio.admin_order_field = 'casa_legislativa__municipio__nome'
 
 
 admin.site.register(Ocorrencia, OcorrenciaAdmin)
