@@ -1,3 +1,4 @@
+{% load static from staticfiles %}
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
@@ -7,23 +8,23 @@
     <title>SIGI - Diagnósticos</title>
     {% endblock titulo %}
     {% block media %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css" />
-    <script type="text/javascript" src="{{ STATIC_URL }}/js/jquery/jquery-1.6.4.min.js"></script>
+    <link rel="stylesheet" href="{% static 'jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css' %}"  />
+    <script type="text/javascript" src="{% static '/js/jquery/jquery-1.6.4.min.js' %}" ></script>
     <script language=javascript>
       $(document).bind("mobileinit", function () {
         $.mobile.ajaxEnabled = false;
         $.mobile.loadingMessage = 'salvando';
       });
     </script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery.maskedinput-1.1.3.min.js"/></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/diagnosticos/diagnosticos_categorias_form.js"></script>
+    <script type="text/javascript" src="{% static 'js/jquery/jquery.maskedinput-1.1.3.min.js' %}" /></script>
+    <script type="text/javascript" src="{% static 'jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/diagnosticos/diagnosticos_categorias_form.js' %}" ></script>
     {% endblock media %}
   </head>
   <body>
     <div data-role="page" id="page" class="type-interior">
       <div data-role="header" data-position="fixed">
-        <img id="working" src="{{ STATIC_URL }}img/loader.gif" class="ui-btn-right"/>
+        <img id="working" src="{% static 'img/loader.gif' %}"  class="ui-btn-right"/>
         {% block cabecalho %}{% endblock cabecalho %}
       </div> <!-- header -->
       <div data-role="content"  class="content-primary">

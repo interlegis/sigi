@@ -1,10 +1,10 @@
 {% extends "admin/change_list.html" %}
 {% load i18n %}
 {% block extrastyle %}
-  {{ block.super }}  
-    <style>   
+  {{ block.super }}
+    <style>
     .botoes{
-    	
+
     	/*background: url("../../static/admin/img/nav-bg.gif");*/
     	font-weight: bold;
     	/*color: red;*/
@@ -13,25 +13,25 @@
     	background: none;
     	font-weight: bold;
     	border: none;
-    	color: blue;    
-    }    
+    	color: blue;
+    }
     .botoes li {
     	background-image: url("../../static/admin/img/nav-bg.gif");
     	display: inline;
-    	border: 1px solid #CCC;    	  	
+    	border: 1px solid #CCC;
     	padding: 5px 10px;
     	margin: 0px;
     }
     .botoes a{
-    	
+
     }
      .botao_excluir input{
      	color: red;
-    	background: url("../../static/admin/img/icon_deletelink.gif") no-repeat scroll 0 50% transparent    
+    	background: url("../../static/admin/img/icon_deletelink.gif") no-repeat scroll 0 50% transparent
     }
-    
-    </style>  
-  
+
+    </style>
+
 {% endblock %}
 
 
@@ -56,9 +56,9 @@
 	{%endif%}
 	</ul>
 	{% endblock %}
-	
-		
-	<div id="changelist" class="module">		
+
+
+	<div id="changelist" class="module">
 		<form action="{% block action %}#{% endblock %}"
 			class="changelist-form" method="post">{% csrf_token %}
 			{%if not carIsEmpty%}
@@ -66,43 +66,43 @@
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
 					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
-				</ul>				
+				</ul>
 			</div>
-			{% endif %}		
-			<div class="result_list">		
-				{% block tabela %}{% endblock %}			
-			</div>			
+			{% endif %}
+			<div class="result_list">
+				{% block tabela %}{% endblock %}
+			</div>
 			{%if not carIsEmpty%}
 			<div class="botoes">
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
 					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
-				</ul>				
+				</ul>
 			</div>
-			{% endif %}		
-			
+			{% endif %}
+
 			<div class="paginator">
 			    <span class="step-links">
 			        {% if paginas.has_previous %}
 			            <a href="?page={{ paginas.previous_page_number }}">Anterior</a>
 			        {% endif %}
-			
+
 			        <span class="this-page">
 			            Página {{ paginas.number }} of {{ paginas.paginator.num_pages }}.
 			        </span>
-			
+
 			        {% if paginas.has_next %}
 			            <a href="?page={{ paginas.next_page_number }}">Próxima</a>
 			        {% endif %}
-			    </span>		
-			    <span>{{paginas.paginator.count}} itens</span>    
-			</div>				
+			    </span>
+			    <span>{{paginas.paginator.count}} itens</span>
+			</div>
 		</form>
-	
+
 	{% block botoes %}{% endblock %}
-			
+
 	</div>
-	
+
 </div>
 {% endblock %}
 

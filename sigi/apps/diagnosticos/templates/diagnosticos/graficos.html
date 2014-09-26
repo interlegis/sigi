@@ -1,11 +1,12 @@
 {% extends "admin/index.html" %}
+{% load static from staticfiles %}
 
 {% block content_title %}<h1>Graficos dos Diagnósticos</h1>{% endblock %}
 
 {% block extrahead %}
-    <link rel="stylesheet" href="{{ STATIC_URL }}css/style.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" >
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.4.min.js"></script>
-    <script  type="text/javascript" src="{{ STATIC_URL }}js/Chart.min.js"></script>
+    <script  type="text/javascript" src="{% static 'js/Chart.min.js' %}" ></script>
     <script src="http://code.highcharts.com/highcharts.js"></script>
     <script language=javascript>
         jQuery(document).ready(function () {

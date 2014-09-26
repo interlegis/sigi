@@ -1,9 +1,10 @@
 {% extends "admin/index.html" %}
+{% load static from staticfiles %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/globalnav-estilos.css" />
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base_site.css" />
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/app_index.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/globalnav-estilos.css' %}"  />
+<link rel="stylesheet" type="text/css" href="{% static 'css/base_site.css' %}"  />
+<link rel="stylesheet" type="text/css" href="{% static 'css/app_index.css' %}"  />
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}

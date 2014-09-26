@@ -1,11 +1,12 @@
 {% extends "admin/change_list.html" %}
 {% load i18n reporting_tags  admin_list %}
+{% load static from staticfiles %}
 
 {% block search %}
 <div id="toolbar">
   <form id="changelist-search" action="" method="get">
     <div><!-- DIV needed for valid HTML -->
-      <label for="searchbar"><img src="{{ STATIC_URL }}admin/img/icon_searchbox.png" alt="Search" /></label>
+      <label for="searchbar"><img src="{% static 'admin/img/icon_searchbox.png' %}"  alt="Search" /></label>
       <input type="text" size="40" name="q" value="" id="searchbar" />
       <label for="data_visita_inicio__gte">Visitados a partir de:</label>
       <input type="text" size="10" name="data_visita_inicio__gte" value="" id="data_visita_inicio__gte" class="vDateField"/>

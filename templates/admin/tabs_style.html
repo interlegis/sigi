@@ -1,21 +1,22 @@
+{% load static from staticfiles %}
 
     <!--CSS JQuery-->
-    <link type="text/css" href="{{ STATIC_URL }}css/jquery/smoothness/jquery.ui.all.css" rel="stylesheet" />
+    <link type="text/css" href="{% static 'css/jquery/smoothness/jquery.ui.all.css' %}"  rel="stylesheet" />
 
     <!--Scripts JQuery-->
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/jquery-1.4.2.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/ui/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/ui/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/ui/jquery.ui.tabs.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/jquery/ui/jquery.ui.mouse.js"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/jquery/ui/jquery.ui.sortable.js"></script>    
-    <script type="text/javascript">        
+    <script type="text/javascript" src="{% static 'js/jquery/jquery-1.4.2.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/jquery/ui/jquery.ui.core.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/jquery/ui/jquery.ui.widget.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/jquery/ui/jquery.ui.tabs.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/jquery/ui/jquery.ui.mouse.js' %}" ></script>
+	<script type="text/javascript" src="{% static 'js/jquery/ui/jquery.ui.sortable.js' %}" ></script>
+    <script type="text/javascript">
         $(function() {
         	$( "#tabs" ).tabs({
     			event: "mouseover"
     		});
         });
-    </script>    
+    </script>
 
 	<script>
 		$(function() {
@@ -23,9 +24,9 @@
 			$( "#sortable" ).disableSelection();
 		});
 	</script>
-	
+
 	<style>
 	.ui-tabs-nav {
-		background-image: url("{{ STATIC_URL }}admin/img/nav-bg.gif");
-	}	
+		background-image: url("{% static 'admin/img/nav-bg.gif' %}" );
+	}
 	</style>

@@ -1,11 +1,12 @@
 {% extends "admin/base.html" %}
 {% load tree_menu_tags %}
+{% load static from staticfiles %}
 
 {% block title %}{{ title }} | SIGI{% endblock %}
 
 {% block extrastyle %}
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/globalnav-estilos.css" />
-<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/base_site.css" />
+<link rel="stylesheet" type="text/css" href="{% static 'css/globalnav-estilos.css' %}"  />
+<link rel="stylesheet" type="text/css" href="{% static 'css/base_site.css' %}"  />
 {% endblock %}
 
 {% block extrahead %}

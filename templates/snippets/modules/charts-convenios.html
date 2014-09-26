@@ -1,3 +1,4 @@
+{% load static from staticfiles %}
 <div class="module" style="height: 300px;">
     <h2>Resumo de informações</h2>
     <!-- h3>Câmaras municipais por projeto</h3 -->
@@ -37,7 +38,7 @@
 <div class="module" style="height: 300px;">
     <h2>Serviços</h2>
     <div class="titlemapbox">
-        <div class="mapbox"><a href="/dashboard/mapa/"><img src="{{ STATIC_URL }}img/mapicon.png"/><br/>Ver mapa</a></div>
+        <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>Ver mapa</a></div>
         <h3>Serviços hospedados no Interlegis (SEIT)</h3>
     </div>
 
@@ -95,7 +96,7 @@
     <h2>Atendimentos</h2>
     <h3>Mapa de atuação do Interlegis</h3>
     <div class="align-center">
-        <a href="/dashboard/mapa/"> <img src="{{ STATIC_URL }}img/mapicon-large.png" style="width: 60%;"/> </a>
+        <a href="/dashboard/mapa/"> <img src="{% static 'img/mapicon-large.png' %}"  style="width: 60%;"/> </a>
     </div>
 </div>
 

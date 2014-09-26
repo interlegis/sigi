@@ -4,7 +4,7 @@
 
 {% block extrahead %}
 	{{ block.super }}
-	{% load staticfiles %}
+	{% load static from staticfiles %}
 	<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
 	<script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
@@ -18,7 +18,7 @@
 	      		center: latlng,
 	      		mapTypeId: google.maps.MapTypeId.ROADMAP
 	    	};
-	    	
+
 	    	var map = new google.maps.Map(document.getElementById("map"),
 	        	myOptions);
 
@@ -40,12 +40,12 @@
 			    	linkMarkMessage(mark, infoWin, map);
 			    }
 			});
-			
+
 		    function linkMarkMessage(mark, infoWin, map) {
-		        google.maps.event.addListener(mark, 'click', function() {	
+		        google.maps.event.addListener(mark, 'click', function() {
 		        	infoWin.open(map, mark);});
 		    }
-	    })})(django.jQuery);    	
+	    })})(django.jQuery);
 	</script>
 {% endblock %}
 

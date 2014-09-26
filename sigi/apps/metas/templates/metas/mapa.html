@@ -1,16 +1,16 @@
 {% extends "admin/index.html" %}
+{% load static from staticfiles %}
 
 {% block title %}SIGI{% endblock %}
 
 {% block extrahead %}
 	{{ block.super }}
-	{% load staticfiles %}
 	<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
 	<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
 	<script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
 	<script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
 	<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"></script>
-	<script type="text/javascript" src="{{ STATIC_URL }}js/metas/mapa.js"></script>
+	<script type="text/javascript" src="{% static 'js/metas/mapa.js' %}" ></script>
 	<style>
 	  .totalizador { float:right; }
 	</style>
@@ -22,7 +22,7 @@
 	<div id="toolbar">
 		<form method="get" action="" id="changelist-search">
 			<div><!-- DIV needed for valid HTML -->
-				<label for="searchbar"><img alt="Search" src="{{ STATIC_URL }}admin/img/icon_searchbox.png"></label>
+				<label for="searchbar"><img alt="Search" src="{% static 'admin/img/icon_searchbox.png' %}" ></label>
 				<input type="text" id="searchbar" value="" name="q" size="40">
 				<input type="submit" value="Pesquisar">
 				<span id="search-panel" class="small quiet">&nbsp;</span>
@@ -33,7 +33,7 @@
 			<li> <a href="/dashboard/maplist/" id="list_report" onclick="return false;">Listagem das Casas</a> </li>
             <li> <a href="/dashboard/maplist/?fmt=csv" id="list_csv" onclick="return false;">Exportar Casas</a> </li>
 			<li> <a href="#" id="closeiwlink">Fechar todas as janelas de informação</a> </li>
-		</ul>	
+		</ul>
 	</div>
 </div>
 {% endblock %}
@@ -46,7 +46,7 @@
 {% block sidebar %}
 <form id="filter_form" method="get" action="">
 	<div id="content-related">
-	<div class="module" id="filters"> {% comment %} Adicione style="overflow: auto; height: 800px;" para rolar apenas na caixa de filtros {% endcomment %} 
+	<div class="module" id="filters"> {% comment %} Adicione style="overflow: auto; height: 800px;" para rolar apenas na caixa de filtros {% endcomment %}
 	  <h2>Filtros</h2>
 	  <h3>Por Serviços SEIT</h3>
 	    <ul>
@@ -85,11 +85,11 @@
 	    <li><input type="checkbox" name="regioes" value="{{ r.0 }}" {% if r.0  in regioes %}checked="checked"{% endif %}/> {{ r.1 }}
 	        <span id="{{ r.0 }}" class="totalizador">&nbsp;(1)</span></li>
 	  {% endfor %}
-	  </ul>  
+	  </ul>
 	  <h3>Por Estado</h3>
 	    <ul>
 	    {% for e in estado_choices %}
-	      <li><input type="checkbox" name="estados" value="{{ e.sigla }}" 
+	      <li><input type="checkbox" name="estados" value="{{ e.sigla }}"
 	              {% if e.sigla in estados %} checked="checked" {% endif %}/>
 	        {{ e.nome }}
 	        <span id="{{ e.sigla }}" class="totalizador">&nbsp;(1)</span>
@@ -98,5 +98,5 @@
 	    </ul>
 	  </div>
 	</div>
-</form>	
+</form>
 {% endblock %}

@@ -1,16 +1,17 @@
 {% extends "admin/base_site.html" %}
 {% load i18n admin_static %}
+{% load static from staticfiles %}
 
 {% block title %}SIGI{% endblock %}
 
 {% block extrahead %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/style.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/style.css' %}" >
 
-    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/core.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.min.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}admin/js/jquery.init.js"></script>
-    <script type="text/javascript" src="{{ STATIC_URL }}js/Chart.min.js"></script>
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'js/Chart.min.js' %}" ></script>
     <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=false"> </script>
     <script type="text/javascript">
         (function($) {
