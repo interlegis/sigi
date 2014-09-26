@@ -295,7 +295,7 @@ def gera_map_data_file(cronjob=False):
         if c.pk not in casas:
             casa = {
                 'nome': c.nome + ', ' + c.municipio.uf.sigla,
-                'icone': '/static/img/' + 'mapmarker' + '.png',
+                'icone': '/static/img/mapmarker.png',
                 'lat': str(c.municipio.latitude),
                 'lng': str(c.municipio.longitude),
                 'estado': c.municipio.uf.sigla,

@@ -32,7 +32,7 @@
                             map: map,
                             position: new google.maps.LatLng(municipio.lat, municipio.lng),
                             title: municipio.nome,
-                            icon: '{{ STATIC_URL }}img/mapmarker.png'
+                            icon: "{% static 'img/mapmarker.png' %}"
                         }
                         var mark = new google.maps.Marker(markData);
                         var infoWin = new google.maps.InfoWindow({content:
