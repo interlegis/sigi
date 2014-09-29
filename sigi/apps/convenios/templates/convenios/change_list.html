@@ -1,24 +1,18 @@
 {% extends "admin/change_list.html" %}
 {% load i18n reporting_tags  admin_list %}
 
-{% block extrastyle %}  
-  {{ block.super }}
-  {% include "admin/tabs_style.html" %}
-  
-{% endblock %}
-
 {% block object-tools %}
-  {% if has_add_permission %}    
-  
+  {% if has_add_permission %}
+
     <ul class="object-tools">
-        <li><a onclick="return showRelatedObjectLookupPopup(this);" href="carrinho/{{query_str}}">Carrinho / Exportar</a></li>        
+        <li><a onclick="return showRelatedObjectLookupPopup(this);" href="carrinho/{{query_str}}">Carrinho / Exportar</a></li>
         <li>
             <a href="add/{% if is_popup %}?_popup=1{% endif %}" class="addlink">
                 {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
             </a>
         </li>
     </ul>
-    
+
   {% endif %}
 {% endblock %}
 
