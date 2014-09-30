@@ -29,7 +29,7 @@ class PartidoAdmin(admin.ModelAdmin):
 
 
 class ParlamentarNomeCompletoFilter(AlphabeticFilter):
-    title = 'Nome Completo do Parlamentar'
+    title = 'Inicial do Nome Completo'
     parameter_name = 'nome_completo'
 
 
@@ -37,7 +37,7 @@ class ParlamentarAdmin(admin.ModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')
-    list_filter = ('nome_parlamentar', ParlamentarNomeCompletoFilter)
+    list_filter = (ParlamentarNomeCompletoFilter, )
     actions = ['adiciona_parlamentar', ]
     fieldsets = (
         (None, {
