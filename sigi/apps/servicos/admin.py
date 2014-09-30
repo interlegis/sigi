@@ -37,7 +37,6 @@ class ServicoFormAdmin(ModelForm):
             id_casa = None
 
         if id_casa:
-            print id_casa
             casa = CasaAtendida.objects.get(pk=id_casa)
             contatos = [(f.id, unicode(f)) for f in casa.funcionario_set.all()]
             self.fields['contato_tecnico'].choices = contatos
