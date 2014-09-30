@@ -2,16 +2,16 @@
 
 {% ifequal menu_type "unordered-list" %}
   {% if menu_item.has_children %}
-    <li>
+    <li class="dropdown">
       {% if menu_item.url %}
-        <a href="{{ menu_item.url }}">{{ menu_item.caption }}</a>
+        <a href="{{ menu_item.url }}" class="dropdown-toggle" data-toggle="dropdown">{{ menu_item.caption }} <span class="caret"></span></a>
       {% else %}
-        {{ menu_item.caption }}
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ menu_item.caption }} <span class="caret"></span></a>
       {% endif %}
-      <ul>
-	{% for child in menu_item.children %}
-	  {% show_menu_item child %}
-	{% endfor %}
+      <ul class="dropdown-menu" role="menu">
+    	{% for child in menu_item.children %}
+    	  {% show_menu_item child %}
+    	{% endfor %}
       </ul>
     </li>
   {% else %}

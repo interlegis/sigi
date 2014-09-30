@@ -1,4 +1,5 @@
 {% extends "admin/base.html" %}
+{% load i18n %}{% load admin_static bootstrapped_goodies_tags %}
 {% load tree_menu_tags %}
 {% load static from staticfiles %}
 
@@ -32,21 +33,8 @@
 {% endblock %}
 
 {% block branding %}
-	<h1 id="site-name">
-		<a href="/">Sistema de Informações Gerenciais do Interlegis</a>
-	</h1>
+	<a class="navbar-brand" href="/">Sistema de Informações Gerenciais do Interlegis</a>
 {% endblock %}
-
-{% block userlinks %}
-  <a href="{% url 'admin:logout' %}">Encerrar sessão</a>
-{% endblock %}
-
-{% block nav-global %}
-<div id="nav-global">
-  {% show_menu "Barra de navegação" "unordered-list" %}
-</div>
-{% endblock %}
-
 
 {% block footer %}
   {% if not is_popup %}
