@@ -18,11 +18,8 @@
 {% block container-top %}
     <ul id="globalnavbar">
         <li class="globalnav-busca">
-            <form action="http://www.interlegis.leg.br/pesquisa">
-                <input type="hidden" name="cx" value="005989114056755709513:jxifhn8vsyw" />
-                <input type="hidden" name="cof" value="FORID:10" />
-                <input type="hidden" name="ie" value="UTF-8" />
-                <input type="text" name="q" size="8" maxlength="255" value="Pesquisar" onBlur="if (this.value == '') { this.value = 'Pesquisar'; }" onFocus="if (this.value == 'Pesquisar') { this.value = ''; }" />
+            <form action="http://www.interlegis.leg.br/search">
+                <input type="text" name="SearchableText" size="8" placeholder="Pesquisar" />
             </form>
         </li>
         <li><a href="http://saberes.interlegis.leg.br/" title="Saberes - Ambiente de Aprendizagem a Distância" class="globalnav-saberes">Saberes</a></li>

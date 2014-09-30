@@ -2,9 +2,9 @@
   font-family: Tahoma, Arial, sans-serif;
   font-size: 12pt;
   background: #fff url(http://www.interlegis.gov.br/globalnav-logo.gif) no-repeat 0.75em 0.5em;
-  border-bottom: 6px solid #b8b8b8;
-  height: 30px;
-  margin: 0 auto;
+  border-bottom: 4px solid #b8b8b8;
+  height: 40px;
+  margin: 0 auto 10px;
   position: relative;
   text-transform: capitalize;
   clear: both;
@@ -36,9 +36,8 @@
   bottom: 0.33em;
   color: #a6a6a6;
   font-size: 0.8em;
-  height: 1.4em;
-  margin-left: 1.4em;
+  height: 2em;
   padding: 0.4em 1em 0 2.5em;
   position: relative;
-  width: 97px;
+  width: 140px;
 }
