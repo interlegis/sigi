@@ -207,7 +207,7 @@ div#footer a {
 
 .conteudo_regiao li{
 	border: 1px solid #CCC;
-	background-image: url("../../static/admin/img/nav-bg.gif");	
+	background-image: url("../../static/admin/img/nav-bg.gif");
 	padding: 4px 8px;
 	width: 30%;
 	list-style: none;
@@ -227,13 +227,13 @@ div#footer a {
     display: inline-block;
     margin: 0 0.5em 0 0;
 	height: 18px;
-    width: 18px;	
+    width: 18px;
 }
 
 .titlemapbox {
     display: inline-block;
     margin-bottom: 0.6em;
-    width: 100%;	
+    width: 100%;
 }
 
 .mapbox {
@@ -248,4 +248,8 @@ div#footer a {
 
 #user-tools {
 	position: inherit;
+}
+
+.actions {
+    padding: 0 0 10px 16px;
 }
