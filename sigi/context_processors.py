@@ -76,8 +76,8 @@ def busca_informacoes_camara():
         lista_camaras_equipadas.append(camaras.filter(convenio__in=conv_equipadas_proj).count())
 
     # Monta linhas de diagnosticos
-    lista_diagnosticos_digitados = ['', '', Diagnostico.objects.count()]
-    lista_diagnosticos_publicados = ['', '', Diagnostico.objects.filter(publicado=True).count()]
+    lista_diagnosticos_digitados = ['', '', Diagnostico.objects.count(), '', '', '']
+    lista_diagnosticos_publicados = ['', '', Diagnostico.objects.filter(publicado=True).count(), '', '', '']
 
     # Cabecalho da esquerda na tabela
     cabecalho_esquerda = (
