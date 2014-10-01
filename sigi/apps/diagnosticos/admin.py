@@ -5,6 +5,7 @@ from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
 from sigi.apps.contatos.models import UnidadeFederativa
+from django.db.utils import OperationalError
 
 
 def publicar_diagnostico(self, request, queryset):
@@ -66,15 +67,18 @@ class DiagnosticoAdmin(BaseEntityAdmin):
 
     # popula o eav fieldsets ordenando as categorias e as perguntas
     # para serem exibidas no admin
-    for categoria in Categoria.objects.all():
-        # ordena as perguntas pelo title e utiliza o name no fieldset
-        perguntas_by_title = [(p.title, p.name) for p in categoria.perguntas.all()]
-        perguntas = [pergunta[1] for pergunta in sorted(perguntas_by_title)]
+    try:
+        for categoria in Categoria.objects.all():
+            # ordena as perguntas pelo title e utiliza o name no fieldset
+            perguntas_by_title = [(p.title, p.name) for p in categoria.perguntas.all()]
+            perguntas = [pergunta[1] for pergunta in sorted(perguntas_by_title)]
 
-        eav_fieldsets += ((categoria, {
-            'fields': tuple(perguntas),
-            'classes': ['collapse']
-        }),)
+            eav_fieldsets += ((categoria, {
+                'fields': tuple(perguntas),
+                'classes': ['collapse']
+            }),)
+    except OperationalError:
+        pass # Hack to prevent Django.db.OperationalError on migrate/syncdb at creating new database
 
     def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)
