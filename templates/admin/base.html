@@ -12,8 +12,7 @@
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet"/>
     <style type="text/css">
       body {
-        padding-top: 10px;
-        padding-bottom: 40px;
+        padding: 10px 20px 40px;
       }
     </style>
     <link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet"/>
@@ -48,7 +47,7 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
 <!-- Container -->
-<div class="container">
+<div class="container-fluid">
 
     {% if not is_popup %}
 
@@ -57,7 +56,7 @@
     <!-- Header -->
     <div class="navbar navbar-static-top">
         <div class="navbar-inner">
-            <div class="container">
+            <div class="container-fluid">
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                         <span class="icon-bar"></span>
