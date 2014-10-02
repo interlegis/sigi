@@ -12,7 +12,7 @@ pisa==3.0.33
 psycopg2==2.5.4
 reportlab==2.7
 six==1.8.0
-git+https://github.com/interlegis/django-admin-bootstrapped.git
+git+https://github.com/django-admin-bootstrapped/django-admin-bootstrapped.git
 
 # eh importante usar -e pois precisamos do modulo reporting do fonte que nao eh instalado
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
