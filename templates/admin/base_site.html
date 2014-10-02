@@ -33,6 +33,20 @@
 	<a class="navbar-brand" href="/">Sistema de Informações Gerenciais do Interlegis</a>
 {% endblock %}
 
+{% block nav-global %}
+{% if user.is_superuser %}
+    <li class="dropdown">
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">Administração <b class="caret"></b></a>
+        <ul class="dropdown-menu">
+            <li><a href="/auth/">Usuários &amp; Grupos</a></li>
+            <li><a href="/treemenus/menu/">Menus</a></li>
+            <li><a href="/sites/site/">Sites</a></li>
+            <li><a href="/diagnosticos/">Diagnósticos</a></li>
+        </ul>
+    </li>
+{% endif %}
+{% endblock %}
+
 {% block footer %}
   {% if not is_popup %}
 
