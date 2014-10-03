@@ -19,25 +19,31 @@ from sigi.apps.servidores.models import Servidor
 
 def print_table(msg, relacao):
     print "\n%s:\n" % msg
-    table = AsciiTable(relacao)
+    table = AsciiTable([[c for c in r if isinstance(c, basestring)] for r in relacao])
     print table.table
+
+
+def url(obj):
+    content_type = ContentType.objects.get_for_model(obj.__class__)
+    url_base = "admin:%s_%s_change" % (content_type.app_label, content_type.model)
+    return reverse(url_base, args=(obj.pk,))
 
 
 # IMAGENS FALTANDO
 imagens_faltando = [[u"SITUAÇÃO DO ARQUIVO DA FOTO  ", "URL", "OBJETO"]]
 for cl in (CasaLegislativa, Parlamentar, Servidor):
-    content_type = ContentType.objects.get_for_model(cl)
-    url_base = "admin:%s_%s_change" % (content_type.app_label, content_type.model)
     for a in cl.objects.all():
         if a.foto:
-            url = reverse(url_base, args=(a.pk,))
             imagens_faltando.append([
+                a,
                 "PRESENTE" if isfile(a.foto.path) else "FALTANDO",
-                url,
+                url(a),
                 unicode(a)])
 
 print_table(u"Relação de todas as fotos de Casas Legislativas, Parlamentares e Servidores", imagens_faltando)
 
+
+# ANEXOS FALTANDO
 
 novos_faltando = []
 antigos_faltando = []
@@ -50,17 +56,20 @@ for cl in (AnexoConvenios, AnexoOcorrencias, AnexoDiagnosticos):
             if a.data_pub > inicio:
                 # NOVO (só ocorrencias)
                 novos_faltando.append([
+                    a,
+                    url(a.ocorrencia),
                     a.ocorrencia.casa_legislativa.municipio.uf.sigla,
                     nome, ])
             else:
                 # ANTIGO (só convenios)
                 antigos_faltando.append([
-                    "https://sigi.interlegis.leg.br/convenios/convenio/%s" % a.convenio.id,
+                    a,
+                    url(a.convenio),
                     a.arquivo.name.split('/')[-1],
                     str(a.data_pub.date())])
 
-novos_faltando = [["UF", "Arquivo"]] + sorted(novos_faltando)
-antigos_faltando = [['URL DO CONVENIO', 'NOME DO ARQUIVO', 'DATA']] + sorted(antigos_faltando)
+novos_faltando = [[u"URL DA OCORRÊNCIA", "UF", "NOME DO ARQUIVO"]] + sorted(novos_faltando)
+antigos_faltando = [[u'URL DO CONVÊNIO', 'NOME DO ARQUIVO', 'DATA']] + sorted(antigos_faltando)
 
 print_table(u'Anexos de Novas Ocorrências faltando (desde %s)' % inicio, novos_faltando)
 print_table(u'Anexos de Convênios Antigos faltando (até %s)' % inicio, antigos_faltando)
