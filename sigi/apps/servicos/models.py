@@ -37,7 +37,7 @@ class Servico(models.Model):
     contato_tecnico = models.ForeignKey(Funcionario, verbose_name=u'Contato técnico', related_name='contato_tecnico')
     contato_administrativo = models.ForeignKey(Funcionario, verbose_name=u'Contato administrativo', related_name='contato_administrativo')
     url = models.URLField(u'URL do serviço', blank=True)
-    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?')
+    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?', default=False)
     nome_servidor = models.CharField(u'Hospedado em', max_length=60, blank=True,
                                      help_text=u'Se hospedado no Interlegis, informe o nome do servidor.<br/>Senão, informe o nome do provedor de serviços.')
     porta_servico = models.PositiveSmallIntegerField(u'Porta de serviço (instância)', blank=True, null=True)
@@ -200,7 +200,7 @@ class ServicoManifesto(models.Model):
     casa_manifesta = models.ForeignKey(CasaManifesta)
     servico = models.ForeignKey(TipoServico)
     url = models.URLField(blank=True)
-    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?')
+    hospedagem_interlegis = models.BooleanField(u'Hospedagem no Interlegis?', default=False)
 
     class Meta:
         unique_together = ('casa_manifesta', 'servico')

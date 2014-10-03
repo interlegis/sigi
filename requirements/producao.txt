@@ -6,13 +6,17 @@ django-extensions==1.4.0
 git+git://github.com/jacobian/django-googlecharts.git@c542996cf9a7a097b447e1ce5a1a6b66bdad254f#egg=django_googlecharts
 django-localflavor==1.0
 django-treemenus==0.9.1
-eav-django==1.4.6
 html5lib==0.999
 pisa==3.0.33
 psycopg2==2.5.4
 reportlab==2.7
 six==1.8.0
+
+# retornar para ultima release assim que incluir nosso pull request (que ja foi aceito)
 git+https://github.com/django-admin-bootstrapped/django-admin-bootstrapped.git
+
+# retornar para ultima release assim que incluir nosso pull request
+hg+ssh://hg@bitbucket.org/interlegis/eav-django
 
 # eh importante usar -e pois precisamos do modulo reporting do fonte que nao eh instalado
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo

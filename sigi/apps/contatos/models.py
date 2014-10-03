@@ -78,10 +78,10 @@ class Municipio(models.Model):
     search_text = SearchField(field_names=['nome', 'uf'])
     uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
     # verdadeiro se o município é capital do estado
-    is_capital = models.BooleanField('capital')
+    is_capital = models.BooleanField('capital', default=False)
     populacao = models.PositiveIntegerField(u'população')
     populacao.list_filter_range = [10000, 100000, 1000000]
-    is_polo = models.BooleanField(u'pólo')
+    is_polo = models.BooleanField(u'pólo', default=False)
     data_criacao = models.DateField(u'data de criação do município', null=True, blank=True)
 
     # posição geográfica do município

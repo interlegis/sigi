@@ -96,8 +96,8 @@ class Convenio(models.Model):
         blank=True,
         max_length=100,
     )
-    conveniada = models.BooleanField()
-    equipada = models.BooleanField()
+    conveniada = models.BooleanField(default=False)
+    equipada = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None
