@@ -5,7 +5,7 @@ from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
 from sigi.apps.contatos.models import UnidadeFederativa
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 
 
 def publicar_diagnostico(self, request, queryset):
@@ -78,7 +78,9 @@ class DiagnosticoAdmin(BaseEntityAdmin):
                 'classes': ['collapse']
             }),)
     except OperationalError:
-        pass # Hack to prevent Django.db.OperationalError on migrate/syncdb at creating new database
+        pass  # Hack to prevent Django.db.OperationalError on migrate/syncdb at creating new database
+    except ProgrammingError:
+        pass  # Hack to prevent Django.db.OperationalError on migrate/syncdb at creating new database
 
     def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)
