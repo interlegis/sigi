@@ -43,6 +43,7 @@ db.*
 .idea/
 .project
 .pydevproject
+.settings
 
 .vagrant
 sigi/settings/prod.py
