@@ -1,6 +1,6 @@
 #-*- coding:utf-8 -*-
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response, get_list_or_404
+from django.shortcuts import render, get_list_or_404
 from geraldo.generators import PDFGenerator
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.convenios.reports import ConvenioReport      \
@@ -130,7 +130,8 @@ def visualizar_carrinho(request):
 
     carrinhoIsEmpty = not('carrinho_convenios' in request.session)
 
-    return render_to_response(
+    return render(
+        request,
         'convenios/carrinho.html',
         {
             'MEDIA_URL': settings.MEDIA_URL,

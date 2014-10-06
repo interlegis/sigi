@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
@@ -105,7 +105,8 @@ def visualizar_carrinho(request):
 
     carrinhoIsEmpty = not('carrinho_casas' in request.session)
 
-    return render_to_response(
+    return render(
+        request,
         'casas/carrinho.html',
         {
             'MEDIA_URL': settings.MEDIA_URL,

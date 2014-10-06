@@ -6,7 +6,7 @@ import ho.pisa as pisa
 from django.template import Context, loader
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.conf import settings
-from django.shortcuts import render_to_response, get_list_or_404
+from django.shortcuts import render, get_list_or_404
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.decorators.csrf import csrf_protect
 from django.template import RequestContext
@@ -54,12 +54,16 @@ def visualizar_carrinho(request):
 
     carrinhoIsEmpty = not('carrinho_parlamentares' in request.session)
 
-    return render_to_response('parlamentares/carrinho.html',
-                              {'MEDIA_URL': settings.MEDIA_URL,
-                               'carIsEmpty': carrinhoIsEmpty,
-                               'paginas': paginas,
-                               'query_str': '?' + request.META['QUERY_STRING']},
-                              context_instance=RequestContext(request))
+    return render(
+        request,
+        'parlamentares/carrinho.html',
+        {
+            'MEDIA_URL': settings.MEDIA_URL,
+            'carIsEmpty': carrinhoIsEmpty,
+            'paginas': paginas,
+            'query_str': '?' + request.META['QUERY_STRING']
+        }
+    )
 
 
 def carrinhoOrGet_for_qs(request):
