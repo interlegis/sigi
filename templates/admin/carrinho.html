@@ -1,4 +1,4 @@
-{% extends "admin/change_list.html" %}
+{% extends "admin/base_site.html" %}
 {% load i18n %}
 {% block extrastyle %}
   {{ block.super }}
@@ -23,21 +23,13 @@
     	margin: 0px;
     }
     .botoes a{
-
     }
      .botao_excluir input{
      	color: red;
     	background: url("../../static/admin/img/icon_deletelink.gif") no-repeat scroll 0 50% transparent
     }
-
     </style>
-
 {% endblock %}
-
-
-{% block branding %}{% endblock %}
-{% block menu-principal %}{% endblock %}
-{% block breadcrumbs %}{% endblock %}
 
 {% block title %}Carrinho | SIGI{% endblock %}
 {% block content_title %}<h1>Carrinho</h1>{% endblock %}
@@ -104,6 +96,3 @@
 
 </div>
 {% endblock %}
-
-{% block footer %}{% endblock %}
-
