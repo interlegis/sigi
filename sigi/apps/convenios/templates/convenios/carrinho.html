@@ -63,7 +63,7 @@
         <li><a href="#tabs-2">Arquivo CSV (Excel, Calc)</a></li>
 	</ul>
 	<div id="tabs-1">
-    	<form action="../reports/{{ query_str }}" method="post">
+    	<form action="../reports/{{ query_str }}" method="post">{% csrf_token %}
         	<fieldset>
 	           		<legend>Relatório por</legend>
 	            	<ul class="tabs-conteudo">
@@ -96,7 +96,7 @@
         </form>
 	</div>
         <div id="tabs-2">
-		<form action="../csv/{{query_str}}" method="post">
+		<form action="../csv/{{query_str}}" method="post">{% csrf_token %}
 			<fieldset><legend>Escolha os atributos para exportar</legend>
                             <ul id="sortable" class="tabs-conteudo">
                                 <li>
