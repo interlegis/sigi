@@ -11,6 +11,7 @@
 		$("#list_csv").click( open_report );
 		var latlng = new google.maps.LatLng(-14.2350040, -51.925280);
 		var myOptions = {
+				scrollwheel: false,
 				zoom: 5,
 				center: latlng,
 				mapTypeId: google.maps.MapTypeId.ROADMAP
