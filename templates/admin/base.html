@@ -143,9 +143,14 @@
 
     <!-- Content -->
     <div id="content" class="{% block coltype %}colM{% endblock %}">
+
+        {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+
         {% block navbar %}
+        <div class="nav">
             {% block pretitle %}{% endblock %}
             {% block object-tools %}{% endblock %}
+        </div>
         {% endblock navbar %}
 
         {% block messages %}
