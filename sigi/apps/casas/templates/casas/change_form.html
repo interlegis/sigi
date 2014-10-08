@@ -1,18 +1,1 @@
-{% extends "base_change_form.html" %}
-{% load i18n %}
-
-{% block object-tools-items %}
-    <li><a href="report_complete/">
-        <span class="glyphicon glyphicon-list-alt"></span>
-        Relatório
-    </a></li>
-    <li><a href="labels/">
-        <span class="glyphicon glyphicon-th"></span>
-        Etiqueta
-    </a></li>
-    <li><a href="labels_sem_presidente/">
-        <span class="glyphicon glyphicon-th-large"></span>
-        Etiqueta sem presidente
-    </a></li>
-    {{ block.super }}
-{% endblock %}
+{% extends "change_form_with_report_and_labels.html" %}
