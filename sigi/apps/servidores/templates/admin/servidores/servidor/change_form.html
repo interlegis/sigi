@@ -2,25 +2,41 @@
 
 {% block form_top %}
 {% if adminform.form.instance.user %}
-<fieldset class="module aligned">
-    <h2>Dados do servidor LDAP</h2>
-    <div class="form-row">
-        <div>
-            <label>Primeiro Nome:</label>
-            <p>{{adminform.form.instance.user.first_name}}</p>
-        </div>
-    </div>
-    <div class="form-row">
-        <div>
-            <label>Último Nome:</label>
-            <p>{{adminform.form.instance.user.last_name}}</p>
-        </div>
-    </div>
-    <div class="form-row">
-        <div>
-            <label>Email Principal:</label>
-            <p>{{adminform.form.instance.user.email}}</p>
-        </div>
+<fieldset style="background:transparent" id="fieldset-2" class="_module _aligned">
+    <legend>
+        Dados do LDAP
+    </legend>
+    <div class="fields">
+        <div class="row"><div class="control-group">
+                <div class="col-md-12 form-group ">
+                        <div class="control-label col-md-3">
+                            <label>Primeiro Nome:</label>
+                        </div>
+                        <div class="controls col-md-9">
+                            <p class="form-control-static">{{adminform.form.instance.user.first_name}}</p>
+                        </div>
+                </div>
+        </div></div>
+        <div class="row"><div class="control-group">
+                <div class="col-md-12 form-group ">
+                        <div class="control-label col-md-3">
+                            <label>Último Nome:</label>
+                        </div>
+                        <div class="controls col-md-9">
+                            <p class="form-control-static">{{adminform.form.instance.user.last_name}}</p>
+                        </div>
+                </div>
+        </div></div>
+        <div class="row"><div class="control-group">
+                <div class="col-md-12 form-group ">
+                        <div class="control-label col-md-3">
+                            <label>Email Principal:</label>
+                        </div>
+                        <div class="controls col-md-9">
+                            <p class="form-control-static">{{adminform.form.instance.user.email}}</p>
+                        </div>
+                </div>
+        </div></div>
     </div>
 </fieldset>
 {% endif %}
