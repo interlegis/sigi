@@ -1,14 +1,18 @@
-{% extends "admin/change_form.html" %}
-{% load i18n reporting_tags %}
+{% extends "base_change_form.html" %}
+{% load i18n %}
 
-{% block object-tools %}
-{% if change %}{% if not is_popup %}
-  <ul class="object-tools">
-      <li><a href="report_complete/">Relatório</a></li>
-      <li><a href="labels/">Etiqueta</a></li>
-      <li><a href="labels_sem_presidente/">Etiqueta sem presidente</a></li>
-      <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
-  {% if has_absolute_url %}<li><a href="../../../r/{{ content_type_id }}/{{ object_id }}/" class="viewsitelink">{% trans "View on site" %}</a></li>{% endif%}
-  </ul>
-{% endif %}{% endif %}
+{% block object-tools-items %}
+    <li><a href="report_complete/">
+        <span class="glyphicon glyphicon-list-alt"></span>
+        Relatório
+    </a></li>
+    <li><a href="labels/">
+        <span class="glyphicon glyphicon-th"></span>
+        Etiqueta
+    </a></li>
+    <li><a href="labels_sem_presidente/">
+        <span class="glyphicon glyphicon-th-large"></span>
+        Etiqueta sem presidente
+    </a></li>
+    {{ block.super }}
 {% endblock %}
