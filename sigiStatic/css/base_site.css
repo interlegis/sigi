@@ -208,3 +208,13 @@ div#footer a {
 h1 {
     margin-bottom: 20px;
 }
+
+.form-group button {
+    /* TODO:
+    consider undoing change done to '.form-group input[type="text"]'
+    in dajngo_admin_bootstraped overrides.css
+    instead of adujsting this */
+
+    height: 28px;
+    padding-top: 4px;
+}
