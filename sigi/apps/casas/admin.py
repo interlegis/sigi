@@ -161,8 +161,6 @@ class OcorrenciaInline(admin.TabularInline):
 
 class CasaLegislativaAdmin(admin.ModelAdmin):
     form = CasaLegislativaForm
-    change_form_template = 'casas/change_form.html'
-    change_list_template = 'casas/change_list.html'
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
