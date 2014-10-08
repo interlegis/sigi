@@ -1,5 +1,6 @@
 {% extends "admin/base_site.html" %}
 {% load static from staticfiles %}
+{% load i18n %}
 
 {% block title %}SIGI{% endblock %}
 
@@ -23,24 +24,41 @@
 
 {% block content_title %}
 <h1>Mapa de atuação do Interlegis</h1>
-<div id="changelist">
-	<div id="toolbar">
-		<form method="get" action="" id="changelist-search">
-			<div><!-- DIV needed for valid HTML -->
-				<label for="searchbar"><img alt="Search" src="{% static 'admin/img/icon_searchbox.png' %}" ></label>
-				<input type="text" id="searchbar" value="" name="q" size="40">
-				<input type="submit" value="Pesquisar">
-				<span id="search-panel" class="small quiet">&nbsp;</span>
-			</div>
-		</form>
-		<ul class="object-tools">
-			<li> <a href="/dashboard/mapsum/" id="summary_report" onclick="return false;">Relatório resumo</a> </li>
-			<li> <a href="/dashboard/maplist/" id="list_report" onclick="return false;">Listagem das Casas</a> </li>
-            <li> <a href="/dashboard/maplist/?fmt=csv" id="list_csv" onclick="return false;">Exportar Casas</a> </li>
-			<li> <a href="#" id="closeiwlink">Fechar todas as janelas de informação</a> </li>
-		</ul>
-	</div>
-</div>
+{% endblock %}
+
+{% block object-tools %}
+	{{ block.super }}
+	<form class="navbar-form navbar-right" role="search" id="changelist-search" action="" method="get">
+		<div class="form-group"><!-- DIV needed for valid HTML -->
+		    <div class="input-group">
+		        <input type="text" class="form-control search-query" placeholder="{% trans 'Search' %}" size="40" name="q" value="" id="searchbar" />
+		        <span class="input-group-btn">
+		            <button class="btn btn-default" type="submit">
+		                <span class="glyphicon glyphicon-search"></span>
+		            </button>
+		        </span>
+		    </div>
+		</div>
+	</form>
+{% endblock %}
+
+{% block object-tools-items %}
+	<li><a href="/dashboard/mapsum/" id="summary_report" onclick="return false;">
+        <span class="glyphicon glyphicon-th-large"></span>
+		Relatório resumo
+	</a></li>
+	<li><a href="/dashboard/maplist/" id="list_report" onclick="return false;">
+        <span class="glyphicon glyphicon-list"></span>
+		Listagem das Casas
+	</a></li>
+    <li><a href="/dashboard/maplist/?fmt=csv" id="list_csv" onclick="return false;">
+        <span class="glyphicon glyphicon-export"></span>
+    	Exportar Casas
+    </a></li>
+	<li><a href="#" id="closeiwlink">
+        <span class="glyphicon glyphicon-remove"></span>
+		Fechar todas as janelas de informação
+	</a></li>
 {% endblock %}
 
 {% block content %}

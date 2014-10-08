@@ -209,6 +209,10 @@ h1 {
     margin-bottom: 20px;
 }
 
+#navbar-object-tools {
+    margin-bottom: 10px;
+}
+
 .form-group button {
     /* TODO:
     consider undoing change done to '.form-group input[type="text"]'

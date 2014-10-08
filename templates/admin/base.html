@@ -147,9 +147,12 @@
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
 
         {% block navbar %}
-        <div class="nav">
-            {% block pretitle %}{% endblock %}
-            {% block object-tools %}{% endblock %}
+        <div id="navbar-object-tools" class="nav">
+            {% block object-tools %}
+                <ul class="object-tools pull-left nav nav-pills">
+                    {% block object-tools-items %}{% endblock %}
+                </ul>
+            {% endblock %}
         </div>
         {% endblock navbar %}
 
