@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 import random
 from unicodedata import normalize
+
 from datetime import datetime
-
-from django.db import models
 from django.contrib.contenttypes import generic
+from django.db import models
+from image_cropping import ImageRatioField
 
-from sigi.apps.utils import SearchField
 from sigi.apps.servidores.models import Servidor
+from sigi.apps.utils import SearchField
 
 
 class TipoCasaLegislativa(models.Model):
@@ -79,6 +80,7 @@ class CasaLegislativa(models.Model):
         height_field='foto_altura',
         blank=True
     )
+    recorte = ImageRatioField('foto', '400x300', verbose_name="Recorte", )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
     data_instalacao = models.DateField(u'Data de instalação da Casa Legislativa', null=True, blank=True)

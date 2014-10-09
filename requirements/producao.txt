@@ -16,6 +16,8 @@ six==1.8.0
 # retornar para ultima release assim que incluir nosso pull request (que ja foi aceito)
 git+https://github.com/django-admin-bootstrapped/django-admin-bootstrapped.git
 
+django-image-cropping==0.9
+easy-thumbnails==2.2
 
 # eh importante usar -e pois precisamos do modulo reporting do fonte que nao eh instalado
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo

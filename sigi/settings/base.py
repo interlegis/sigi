@@ -71,6 +71,9 @@ INSTALLED_APPS = (
     'django_extensions',
     'googlecharts',
     'treemenus',
+    'easy_thumbnails',
+    'image_cropping',
+
 )
 
 MIDDLEWARE_CLASSES = (
@@ -118,3 +121,11 @@ TEST_RUNNER = None
 # Validate arguments in django-dynamic-fixture
 # http://django-dynamic-fixture.readthedocs.org/en/latest/more.html?highlight=ddf_validate_args#validate-arguments-new-in-1-5-0
 DDF_VALIDATE_ARGS = True
+
+from easy_thumbnails.conf import Settings as thumbnail_settings
+THUMBNAIL_PROCESSORS = (
+    'image_cropping.thumbnail_processors.crop_corners',
+) + thumbnail_settings.THUMBNAIL_PROCESSORS
+
+IMAGE_CROPPING_SIZE_WARNING = True
+IMAGE_CROPPING_THUMB_SIZE = (800, 600)

@@ -2,22 +2,22 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponseRedirect
-
+from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import CasaLegislativaForm
 from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoCasaLegislativa
 from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
     labels_report_sem_presidente, report, \
     adicionar_casas_carrinho
-from sigi.apps.utils import queryset_ascii
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio
-from sigi.apps.mesas.models import Legislatura
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.inventario.models import Bem
-from sigi.apps.servicos.models import Servico
+from sigi.apps.mesas.models import Legislatura
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.servicos.models import Servico
+from sigi.apps.utils import queryset_ascii
 
 
 class TelefonesInline(generic.GenericTabularInline):
@@ -159,7 +159,7 @@ class OcorrenciaInline(admin.TabularInline):
     can_delete = False
 
 
-class CasaLegislativaAdmin(admin.ModelAdmin):
+class CasaLegislativaAdmin(ImageCroppingMixin, admin.ModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
@@ -178,8 +178,7 @@ class CasaLegislativaAdmin(admin.ModelAdmin):
                        'municipio', 'cep', 'pagina_web', 'email', 'ult_alt_endereco'),
         }),
         ('Outras informações', {
-            'classes': ('collapse',),
-            'fields': ('observacoes', 'foto'),
+            'fields': ('observacoes', 'foto', 'recorte'),
         }),
     )
     raw_id_fields = ('municipio',)
