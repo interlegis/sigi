@@ -13,8 +13,8 @@ psycopg2==2.5.4
 reportlab==2.7
 six==1.8.0
 
-# retornar para ultima release assim que incluir nosso pull request (que ja foi aceito)
-git+https://github.com/django-admin-bootstrapped/django-admin-bootstrapped.git
+# retornar para ultima release assim que incluir nosso pull request
+git+https://github.com/interlegis/django-admin-bootstrapped.git
 
 django-image-cropping==0.9
 easy-thumbnails==2.2
