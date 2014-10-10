@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-
 from sigi.apps.contatos.filters import PopulationFilter
 from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
-class UnidadeFederativaAdmin(admin.ModelAdmin):
+class UnidadeFederativaAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
     list_display_links = ('codigo_ibge', 'nome')
@@ -16,7 +16,7 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
     get_queryset = queryset_ascii
 
 
-class MunicipioAdmin(admin.ModelAdmin):
+class MunicipioAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'codigo_tse', 'nome', 'uf', 'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano',
                     'pib_total', 'pib_percapita')
@@ -37,7 +37,7 @@ class MunicipioAdmin(admin.ModelAdmin):
                      'codigo_microrregiao', 'uf__sigla')
 
 
-class TelefoneAdmin(admin.ModelAdmin):
+class TelefoneAdmin(BaseModelAdmin):
     list_display = ('numero', 'tipo', 'nota')
     list_display_links = ('numero',)
     list_filter = ('tipo',)
@@ -45,7 +45,7 @@ class TelefoneAdmin(admin.ModelAdmin):
     search_fields = ('numero', 'tipo', 'nota')
 
 
-class ContatoAdmin(admin.ModelAdmin):
+class ContatoAdmin(BaseModelAdmin):
     list_display = ('nome', 'nota', 'email', 'municipio')
     list_display_links = ('nome',)
     list_filter = ('nome',)

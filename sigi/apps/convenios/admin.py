@@ -7,6 +7,7 @@ from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, A
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class TramitacaoInline(admin.TabularInline):
@@ -26,7 +27,7 @@ class EquipamentoPrevistoInline(admin.TabularInline):
     raw_id_fields = ('equipamento',)
 
 
-class AnexoAdmin(admin.ModelAdmin):
+class AnexoAdmin(BaseModelAdmin):
     date_hierarchy = 'data_pub'
     exclude = ['data_pub', ]
     list_display = ('arquivo', 'descricao', 'data_pub', 'convenio')
@@ -35,7 +36,7 @@ class AnexoAdmin(admin.ModelAdmin):
                      'convenio__casa_legislativa__nome')
 
 
-class ConvenioAdmin(admin.ModelAdmin):
+class ConvenioAdmin(BaseModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
@@ -130,7 +131,7 @@ class ConvenioAdmin(admin.ModelAdmin):
             lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
 
 
-class EquipamentoPrevistoAdmin(admin.ModelAdmin):
+class EquipamentoPrevistoAdmin(BaseModelAdmin):
     list_display = ('convenio', 'equipamento', 'quantidade')
     list_display_links = ('convenio', 'equipamento')
     ordering = ('convenio', 'equipamento')

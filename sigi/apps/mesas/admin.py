@@ -7,6 +7,7 @@ from sigi.apps.mesas.models import (Legislatura, Coligacao, ComposicaoColigacao,
                                     SessaoLegislativa, MesaDiretora, Cargo,
                                     MembroMesaDiretora)
 from sigi.apps.parlamentares.models import Mandato
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class MandatoInline(admin.TabularInline):
@@ -14,7 +15,7 @@ class MandatoInline(admin.TabularInline):
     raw_id_fields = ['parlamentar', ]
 
 
-class LegislaturaAdmin(admin.ModelAdmin):
+class LegislaturaAdmin(BaseModelAdmin):
     date_hierarchy = 'data_inicio'
     list_display = ('numero', 'casa_legislativa', 'uf', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares')
     raw_id_fields = ('casa_legislativa',)
@@ -41,14 +42,14 @@ class LegislaturaAdmin(admin.ModelAdmin):
         return response
 
 
-class ColigacaoAdmin(admin.ModelAdmin):
+class ColigacaoAdmin(BaseModelAdmin):
     list_display = ('nome', 'legislatura', 'numero_votos')
     list_display_links = ('nome',)
     raw_id_fields = ('legislatura',)
     search_fields = ('nome', 'legislatura__numero')
 
 
-class ComposicaoColigacaoAdmin(admin.ModelAdmin):
+class ComposicaoColigacaoAdmin(BaseModelAdmin):
     list_display = ('coligacao', 'partido')
     list_display_links = ('coligacao', 'partido')
     list_filter = ('partido',)
@@ -56,7 +57,7 @@ class ComposicaoColigacaoAdmin(admin.ModelAdmin):
     search_fields = ('coligacao__nome', 'partido__nome', 'partido__sigla')
 
 
-class SessaoLegislativaAdmin(admin.ModelAdmin):
+class SessaoLegislativaAdmin(BaseModelAdmin):
     list_display = ('numero', 'mesa_diretora', 'legislatura', 'tipo',
                     'data_inicio', 'data_fim')
     list_display_links = ('numero',)
@@ -75,7 +76,7 @@ class SessaoLegislativaAdmin(admin.ModelAdmin):
     search_fields = ('numero', 'mesa_diretora__casa_legislativa__nome')
 
 
-class CargoAdmin(admin.ModelAdmin):
+class CargoAdmin(BaseModelAdmin):
     list_display = ('descricao',)
     search_fields = ('descricao',)
 
@@ -87,7 +88,7 @@ class MembroMesaDiretoraInline(admin.TabularInline):
     raw_id_fields = ('parlamentar', 'cargo')
 
 
-class MembroMesaDiretoraAdmin(admin.ModelAdmin):
+class MembroMesaDiretoraAdmin(BaseModelAdmin):
     list_display = ('parlamentar', 'cargo', 'mesa_diretora')
     list_display_links = ('parlamentar',)
     list_filter = ('cargo',)
@@ -97,7 +98,7 @@ class MembroMesaDiretoraAdmin(admin.ModelAdmin):
                      'mesa_diretora__casa_legislativa__nome')
 
 
-class MesaDiretoraAdmin(admin.ModelAdmin):
+class MesaDiretoraAdmin(BaseModelAdmin):
     inlines = (MembroMesaDiretoraInline,)
     raw_id_fields = ('casa_legislativa',)
     list_display = ('id', 'casa_legislativa')

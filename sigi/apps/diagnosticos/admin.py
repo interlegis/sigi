@@ -3,9 +3,9 @@ from datetime import datetime
 from django.contrib import admin
 from django.db.utils import OperationalError, ProgrammingError
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
-
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 def publicar_diagnostico(self, request, queryset):
@@ -40,7 +40,7 @@ class AnexosInline(admin.TabularInline):
     exclude = ['data_pub', ]
 
 
-class AnexoAdmin(admin.ModelAdmin):
+class AnexoAdmin(BaseModelAdmin):
     date_hierarchy = 'data_pub'
     exclude = ['data_pub', ]
     list_display = ('arquivo', 'descricao', 'data_pub', 'diagnostico')
@@ -115,7 +115,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
         return super(DiagnosticoAdmin, self).changelist_view(request, extra_context)
 
 
-class EscolhaAdmin(admin.ModelAdmin):
+class EscolhaAdmin(BaseModelAdmin):
     search_fields = ('title',)
     list_display = ('title', 'schema', 'schema_to_open')
     raw_id_fields = ('schema', 'schema_to_open')

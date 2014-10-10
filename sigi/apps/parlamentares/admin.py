@@ -21,7 +21,7 @@ class TelefonesInline(generic.GenericTabularInline):
     extra = 2
 
 
-class PartidoAdmin(admin.ModelAdmin):
+class PartidoAdmin(BaseModelAdmin):
     list_display = ('nome', 'sigla')
     list_display_links = ('nome', 'sigla')
     search_fields = ('nome', 'sigla')
@@ -71,7 +71,7 @@ class ParlamentarAdmin(BaseModelAdmin):
     adiciona_parlamentar.short_description = u"Armazenar parlamentar no carrinho para exportar"
 
 
-class MandatoAdmin(admin.ModelAdmin):
+class MandatoAdmin(BaseModelAdmin):
     list_display = ('parlamentar', 'legislatura', 'partido',
                     'inicio_mandato', 'fim_mandato', 'is_afastado')
     list_filter = ('is_afastado', 'partido')

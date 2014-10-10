@@ -9,6 +9,7 @@ from django.utils.translation import ugettext as _
 from sigi.apps.casas.admin import FuncionariosInline
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class LogServicoInline(admin.StackedInline):
@@ -44,12 +45,12 @@ class ServicoFormAdmin(ModelForm):
             self.fields['contato_administrativo'].choices = contatos
 
 
-class TipoServicoAdmin(admin.ModelAdmin):
+class TipoServicoAdmin(BaseModelAdmin):
     list_display = ('id', 'sigla', 'nome', 'qtde_casas_atendidas', )
     ordering = ['id']
 
 
-class ServicoAdmin(admin.ModelAdmin):
+class ServicoAdmin(BaseModelAdmin):
     form = ServicoFormAdmin
     actions = ['calcular_data_uso', ]
     list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf', 'tipo_servico', 'hospedagem_interlegis',
@@ -171,7 +172,7 @@ class ContatosInline(FuncionariosInline):
     can_delete = False  # Equipe do SEIT não pode excluir pessoas de contato
 
 
-class CasaAtendidaAdmin(admin.ModelAdmin):
+class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
     ordering = ['nome']

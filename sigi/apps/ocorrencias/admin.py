@@ -5,6 +5,7 @@ from django.contrib.admin.views.main import ChangeList
 from filters import OcorrenciaListFilter
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
 from sigi.apps.servidores.models import Servidor
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class ComentarioViewInline(admin.TabularInline):
@@ -59,7 +60,7 @@ class OcorrenciaChangeList(ChangeList):
                 qs = qs.filter(servidor_registro=servidor)
         return qs
 
-class OcorrenciaAdmin(admin.ModelAdmin):
+class OcorrenciaAdmin(BaseModelAdmin):
     list_display = ('data_criacao', 'casa_legislativa', 'get_municipio', 'get_uf', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
     list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', )
     search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', )

@@ -18,6 +18,7 @@ from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
 from sigi.apps.servicos.models import Servico
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class TelefonesInline(generic.GenericTabularInline):
@@ -159,7 +160,7 @@ class OcorrenciaInline(admin.TabularInline):
     can_delete = False
 
 
-class CasaLegislativaAdmin(ImageCroppingMixin, admin.ModelAdmin):
+class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,

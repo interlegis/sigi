@@ -6,6 +6,7 @@ from sigi.apps.contatos.models import Contato, Telefone
 from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
                                          TipoEquipamento, ModeloEquipamento,
                                          Bem)
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class ContatosInline(generic.GenericTabularInline):
@@ -19,7 +20,7 @@ class TelefonesInline(generic.GenericTabularInline):
     extra = 2
 
 
-class FornecedorAdmin(admin.ModelAdmin):
+class FornecedorAdmin(BaseModelAdmin):
     inlines = (TelefonesInline, ContatosInline)
     list_display = ('id', 'nome', 'email', 'pagina_web')
     list_display_links = ('id', 'nome')
@@ -27,21 +28,21 @@ class FornecedorAdmin(admin.ModelAdmin):
     search_fields = ('id', 'nome', 'email', 'pagina_web')
 
 
-class FabricanteAdmin(admin.ModelAdmin):
+class FabricanteAdmin(BaseModelAdmin):
     list_display = ('id', 'nome')
     list_display_links = list_display
     list_filter = ('nome',)
     search_fields = ('id', 'nome')
 
 
-class TipoEquipamentoAdmin(admin.ModelAdmin):
+class TipoEquipamentoAdmin(BaseModelAdmin):
     list_display = ('id', 'tipo')
     list_display_links = list_display
     list_filter = ('tipo',)
     search_fields = ('id', 'tipo')
 
 
-class ModeloEquipamentoAdmin(admin.ModelAdmin):
+class ModeloEquipamentoAdmin(BaseModelAdmin):
     list_display = ('id', 'tipo', 'modelo')
     list_filter = ('tipo', 'modelo')
     ordering = ('tipo', 'modelo')
@@ -49,7 +50,7 @@ class ModeloEquipamentoAdmin(admin.ModelAdmin):
     raw_id_fields = ('tipo',)
 
 
-class EquipamentoAdmin(admin.ModelAdmin):
+class EquipamentoAdmin(BaseModelAdmin):
     list_display = ('id', 'fabricante', 'modelo', 'get_tipo')
     list_display_links = ('id',)
     list_filter = ('fabricante',)
@@ -62,7 +63,7 @@ class EquipamentoAdmin(admin.ModelAdmin):
     get_tipo.short_description = 'tipo'
 
 
-class BemAdmin(admin.ModelAdmin):
+class BemAdmin(BaseModelAdmin):
     list_display = ('equipamento', 'fornecedor', 'num_serie',
                     'casa_legislativa')
     list_filter = ('fornecedor',)

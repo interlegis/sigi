@@ -6,10 +6,11 @@ from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
 from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
 from sigi.apps.utils.admin_widgets import AdminImageWidget
+from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.utils.filters import AlphabeticFilter
 
 
-class FuncaoAdmin(admin.ModelAdmin):
+class FuncaoAdmin(BaseModelAdmin):
     form = FuncaoForm
     list_display = ('servidor', 'funcao', 'cargo', 'inicio_funcao', 'fim_funcao')
     list_filter = ('inicio_funcao', 'fim_funcao')
@@ -19,7 +20,7 @@ class FuncaoAdmin(admin.ModelAdmin):
                      'servidor__user__last_name', 'servidor__user__username')
 
 
-class FeriasAdmin(admin.ModelAdmin):
+class FeriasAdmin(BaseModelAdmin):
     form = FeriasForm
     list_display = ('servidor', 'inicio_ferias', 'fim_ferias')
     list_filter = ('inicio_ferias', 'fim_ferias')
@@ -33,7 +34,7 @@ class ServidorFilter(AlphabeticFilter):
     parameter_name = 'servidor__nome_completo'
 
 
-class LicencaAdmin(admin.ModelAdmin):
+class LicencaAdmin(BaseModelAdmin):
     form = LicencaForm
     list_display = ('servidor', 'inicio_licenca', 'fim_licenca')
     list_filter = (ServidorFilter, 'inicio_licenca', 'fim_licenca')
@@ -57,7 +58,7 @@ class TelefonesInline(generic.GenericTabularInline):
     model = Telefone
 
 
-class ServidorAdmin(admin.ModelAdmin):
+class ServidorAdmin(BaseModelAdmin):
 
     def is_active(self, servidor):
         return servidor.user.is_active
