@@ -1,4 +1,4 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
 
 """
 Script baseado no arquivo decorators.py do django 1.3.
