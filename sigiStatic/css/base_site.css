@@ -230,3 +230,7 @@ h1 {
 #changelist-search span.small {
     margin-left: 10px;
 }
+
+.dropdown-menu .clear-all-filter a {
+    color: #357ebd;
+}

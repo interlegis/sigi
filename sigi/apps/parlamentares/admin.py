@@ -9,6 +9,7 @@ from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
 from sigi.apps.utils.filters import AlphabeticFilter
+from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
 class MandatosInline(admin.TabularInline):
@@ -33,7 +34,7 @@ class ParlamentarNomeCompletoFilter(AlphabeticFilter):
     parameter_name = 'nome_completo'
 
 
-class ParlamentarAdmin(admin.ModelAdmin):
+class ParlamentarAdmin(BaseModelAdmin):
     inlines = (TelefonesInline, MandatosInline)
     list_display = ('nome_completo', 'nome_parlamentar', 'sexo')
     list_display_links = ('nome_completo', 'nome_parlamentar')

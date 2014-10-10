@@ -1,0 +1,5 @@
+{% load i18n %}
+
+  {% with choices|first as disabled %}
+    <li class="clear-all-filter{% if disabled %} disabled{% endif %}"><a href="?">{% trans 'Clear All Filters' %}</a></li>
+  {% endwith %}
