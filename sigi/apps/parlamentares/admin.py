@@ -1,15 +1,13 @@
 # -*- coding: utf-8 -*-
-import string
-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect
 
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
 from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
-from sigi.apps.utils.filters import AlphabeticFilter
 from sigi.apps.utils.base_admin import BaseModelAdmin
+from sigi.apps.utils.filters import AlphabeticFilter
 
 
 class MandatosInline(admin.TabularInline):

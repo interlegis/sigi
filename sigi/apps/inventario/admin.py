@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+
 from sigi.apps.contatos.models import Contato, Telefone
 from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
                                          TipoEquipamento, ModeloEquipamento,

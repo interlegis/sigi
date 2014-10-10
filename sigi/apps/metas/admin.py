@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from sigi.apps.metas.models import Meta, PlanoDiretor
+
+from sigi.apps.metas.models import PlanoDiretor
 
 
 class MetaAdmin(admin.ModelAdmin):

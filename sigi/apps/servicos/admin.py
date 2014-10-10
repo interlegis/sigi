@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
-from sigi.apps.casas.admin import FuncionariosInline
-from django.http import Http404, HttpResponseRedirect
+from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
+from django.http import Http404, HttpResponseRedirect
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
-from django.core.urlresolvers import reverse
+
+from sigi.apps.casas.admin import FuncionariosInline
 from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
 
 
 class LogServicoInline(admin.StackedInline):

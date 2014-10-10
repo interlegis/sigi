@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
+from unicodedata import normalize
+
 from django.contrib import admin
 from django.db import models
-from unicodedata import normalize
 
 
 class SearchField(models.TextField):

@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.contrib import admin
-from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
-from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
-from sigi.apps.diagnosticos.forms import DiagnosticoForm
-from sigi.apps.contatos.models import UnidadeFederativa
 from django.db.utils import OperationalError, ProgrammingError
+from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
+
+from sigi.apps.diagnosticos.forms import DiagnosticoForm
+from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
 
 
 def publicar_diagnostico(self, request, queryset):

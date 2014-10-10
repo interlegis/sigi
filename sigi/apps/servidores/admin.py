@@ -2,10 +2,10 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 
-from sigi.apps.utils.admin_widgets import AdminImageWidget
-from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
 from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
+from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
+from sigi.apps.utils.admin_widgets import AdminImageWidget
 from sigi.apps.utils.filters import AlphabeticFilter
 
 

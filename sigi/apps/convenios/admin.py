@@ -1,15 +1,12 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.admin.views.main import ChangeList
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao, UnidadeAdministrativa
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico
 from django.http import HttpResponse, HttpResponseRedirect
-from sigi.apps.convenios.reports import ConvenioReport
-from sigi.apps.utils import queryset_ascii
 from geraldo.generators import PDFGenerator
 
+from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao
+from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
+from sigi.apps.utils import queryset_ascii
 
 
 class TramitacaoInline(admin.TabularInline):

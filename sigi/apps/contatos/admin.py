@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+
+from sigi.apps.contatos.filters import PopulationFilter
 from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
 from sigi.apps.utils import queryset_ascii
-from sigi.apps.contatos.filters import PopulationFilter
 
 
 class UnidadeFederativaAdmin(admin.ModelAdmin):
