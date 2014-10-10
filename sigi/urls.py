@@ -18,8 +18,11 @@ urlpatterns = patterns('',
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
 
-
     url(r'^', include(admin.site.urls)),
+
+    # to enable language selection
+    url(r'^i18n/', include('django.conf.urls.i18n')),
+
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:

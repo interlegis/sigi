@@ -14,7 +14,6 @@ from os.path import dirname
 
 import django.conf.global_settings as DEFAULT_SETTINGS
 
-
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
 # Quick-start development settings - unsuitable for production
@@ -94,6 +93,12 @@ LANGUAGE_CODE = 'pt-br'
 USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
+
+gettext_noop = lambda s: s  # for gettext discovery
+LANGUAGES = (
+    ('en', gettext_noop('English')),
+    ('pt-br', gettext_noop('Brazilian Portuguese')),
+)
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/dev/howto/static-files/
