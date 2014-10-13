@@ -22,11 +22,13 @@
 # 02110-1301, USA.
 #
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext as _
+
 from sigi.apps.servicos.models import Servico
 
 
 class Command(BaseCommand):
-    help = u'Atualiza a informação de data de último serviço dos serviços SEIT hospedados no Interlegis.'
+    help = _(u'Atualiza a informação de data de último serviço dos serviços SEIT hospedados no Interlegis.')
 
     def handle(self, *args, **options):
         verbosity = int(options['verbosity'])

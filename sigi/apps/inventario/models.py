@@ -1,19 +1,20 @@
 # -*- coding: utf-8 -*-
-from django.db import models
 from django.contrib.contenttypes import generic
+from django.db import models
+from django.utils.translation import ugettext as _
 
 
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
     nome.alphabetic_filter = True
-    email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField('página web', blank=True)
+    email = models.EmailField(_('e-mail'), blank=True)
+    pagina_web = models.URLField(_('página web'), blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')
     contatos = generic.GenericRelation('contatos.Contato')
 
     class Meta:
         ordering = ('nome',)
-        verbose_name_plural = 'fornecedores'
+        verbose_name_plural = _('fornecedores')
 
     def __unicode__(self):
         return self.nome
@@ -35,8 +36,8 @@ class TipoEquipamento(models.Model):
 
     class Meta:
         ordering = ('tipo',)
-        verbose_name = 'tipo de equipamento'
-        verbose_name_plural = 'tipos de equipamentos'
+        verbose_name = _('tipo de equipamento')
+        verbose_name_plural = _('tipos de equipamentos')
 
     def __unicode__(self):
         return self.tipo
@@ -45,14 +46,14 @@ class TipoEquipamento(models.Model):
 class ModeloEquipamento(models.Model):
     tipo = models.ForeignKey(
         TipoEquipamento,
-        verbose_name='tipo de equipamento'
+        verbose_name=_('tipo de equipamento')
     )
     modelo = models.CharField(max_length=30)
 
     class Meta:
         ordering = ('modelo',)
-        verbose_name = 'modelo de equipamento'
-        verbose_name_plural = 'modelos de equipamentos'
+        verbose_name = _('modelo de equipamento')
+        verbose_name_plural = _('modelos de equipamentos')
 
     def __unicode__(self):
         return self.modelo
@@ -75,20 +76,20 @@ class Bem(models.Model):
     equipamento = models.ForeignKey(Equipamento)
     fornecedor = models.ForeignKey(Fornecedor)
     num_serie = models.CharField(
-        'número de série',
+        _('número de série'),
         max_length=64,
-        help_text='Número fornecido pelo fabricante.',
+        help_text=_('Número fornecido pelo fabricante.'),
         unique=True
     )
     recebido_por = models.CharField(
         max_length=64,
         blank=True,
-        help_text='Nome de quem recebeu o equipamento.'
+        help_text=_('Nome de quem recebeu o equipamento.')
     )
-    observacoes = models.TextField('observações', blank=True)
+    observacoes = models.TextField(_('observações'), blank=True)
 
     class Meta:
-        verbose_name_plural = 'bens'
+        verbose_name_plural = _('bens')
 
     def __unicode__(self):
         return unicode('%s (%s)') % (self.equipamento, self.casa_legislativa)

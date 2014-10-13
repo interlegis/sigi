@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.db import models
-from django.contrib.contenttypes import generic
+from django.utils.translation import ugettext as _
 
 
 class Partido(models.Model):
@@ -16,8 +16,8 @@ class Partido(models.Model):
 
 class Parlamentar(models.Model):
     SEXO_CHOICES = (
-        ('M', 'Masculino'),
-        ('F', 'Feminino'),
+        ('M', _('Masculino')),
+        ('F', _('Feminino')),
     )
     nome_completo = models.CharField(max_length=128)
     nome_parlamentar = models.CharField(max_length=35, blank=True)
@@ -34,17 +34,17 @@ class Parlamentar(models.Model):
         choices=SEXO_CHOICES,
     )
     data_nascimento = models.DateField(
-        'data de nascimento',
+        _('data de nascimento'),
         blank=True,
         null=True,
     )
-    email = models.EmailField('e-mail', blank=True)
-    pagina_web = models.URLField(u'página web',
+    email = models.EmailField(_('e-mail'), blank=True)
+    pagina_web = models.URLField(_(u'página web'),
                                  blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
-        verbose_name_plural = 'parlamentares'
+        verbose_name_plural = _('parlamentares')
 
     def __unicode__(self):
         if self.nome_parlamentar:
@@ -54,23 +54,23 @@ class Parlamentar(models.Model):
 
 class Mandato(models.Model):
     SUPLENCIA_CHOICES = (
-        ('T', 'Titular'),
-        ('S', 'Suplente'),
+        ('T', _('Titular')),
+        ('S', _('Suplente')),
     )
     parlamentar = models.ForeignKey(Parlamentar)
     legislatura = models.ForeignKey('mesas.Legislatura')
     partido = models.ForeignKey(Partido)
     cargo = models.ForeignKey('mesas.Cargo')
-    inicio_mandato = models.DateField(u'início de mandato')
-    fim_mandato = models.DateField('fim de mandato')
+    inicio_mandato = models.DateField(_(u'início de mandato'))
+    fim_mandato = models.DateField(_('fim de mandato'))
     is_afastado = models.BooleanField(
-        'afastado',
+        _('afastado'),
         default=False,
-        help_text=u'Marque caso parlamentar não esteja ativo.'
+        help_text=_(u'Marque caso parlamentar não esteja ativo.')
     )
 
 #    suplencia = models.CharField(
-#        u'suplência',
+#        _(u'suplência'),
 #        max_length=1,
 #        choices=SUPLENCIA_CHOICES,
 #    )

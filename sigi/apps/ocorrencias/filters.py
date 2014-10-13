@@ -1,17 +1,19 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.utils.translation import ugettext as _
+
 from sigi.apps.servidores.models import Servidor
 
 
 class OcorrenciaListFilter(admin.SimpleListFilter):
 
-    title = u'Relacionadas a Mim'
+    title = _(u'Relacionadas a Mim')
     parameter_name = 'minhas'
 
     def lookups(self, request, model_admin):
         return (
-            ('S', u'Atribuídos ao meu setor'),
-            ('M', u'Registrados por mim'),
+            ('S', _(u'Atribuídos ao meu setor')),
+            ('M', _(u'Registrados por mim')),
         )
 
     def queryset(self, request, queryset):

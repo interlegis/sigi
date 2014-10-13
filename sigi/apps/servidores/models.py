@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
+from django.contrib.auth.models import User
+from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models.signals import post_save
-from django.contrib.contenttypes import generic
-from django.contrib.auth.models import User
+from django.utils.translation import ugettext as _
 
 
 class Subsecretaria(models.Model):
@@ -27,7 +28,7 @@ class Servico(models.Model):
     """ Modelo para representação dos Serviços de uma Subsecretaria
     """
 
-    nome = models.CharField(u'Setor', max_length=250, null=True)
+    nome = models.CharField(_(u'Setor'), max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subsecretaria = models.ForeignKey(Subsecretaria, null=True)
     # servidor responsavel por chefiar o serviço
@@ -35,8 +36,8 @@ class Servico(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = 'serviço'
-        verbose_name_plural = 'serviços'
+        verbose_name = _('serviço')
+        verbose_name_plural = _('serviços')
 
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))

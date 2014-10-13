@@ -58,13 +58,13 @@ class ServicoAdmin(BaseModelAdmin):
     fieldsets = ((None, {
         'fields': ('casa_legislativa', 'data_ativacao',)
     }),
-        ('Serviço', {
+        (_('Serviço'), {
             'fields': ('tipo_servico', ('url', 'hospedagem_interlegis'), ('nome_servidor', 'porta_servico', 'senha_inicial'),)
         }),
-        ('Contatos', {
+        (_('Contatos'), {
             'fields': ('contato_tecnico', 'contato_administrativo',)
         }),
-        ('Alterações', {
+        (_('Alterações'), {
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
@@ -76,17 +76,17 @@ class ServicoAdmin(BaseModelAdmin):
 
     def get_codigo_interlegis(self, obj):
         return obj.casa_legislativa.codigo_interlegis
-    get_codigo_interlegis.short_description = u'Código Interlegis'
+    get_codigo_interlegis.short_description = _(u'Código Interlegis')
     get_codigo_interlegis.admin_order_field = 'casa_legislativa__codigo_interlegis'
 
     def get_uf(self, obj):
         return u'%s' % (obj.casa_legislativa.municipio.uf)
-    get_uf.short_description = 'UF'
+    get_uf.short_description = _('UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def getUrl(self, obj):
         return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
-    getUrl.short_description = 'Url'
+    getUrl.short_description = _('Url')
     getUrl.allow_tags = True
 
     def get_link_erro(self, obj):
@@ -98,15 +98,15 @@ class ServicoAdmin(BaseModelAdmin):
         url += obj.tipo_servico.string_pesquisa
         return u'<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
     get_link_erro.allow_tags = True
-    get_link_erro.short_description = u"Erro na atualização"
+    get_link_erro.short_description = _(u"Erro na atualização")
     get_link_erro.admin_order_field = 'erro_atualizacao'
 
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
-        self.message_user(request, "Atualização concluída. Os sites que não responderam foram deixados com a data em branco")
+        self.message_user(request, _("Atualização concluída. Os sites que não responderam foram deixados com a data em branco"))
         return HttpResponseRedirect('.')
-    calcular_data_uso.short_description = u"Atualizar a data do último uso do(s) serviço(s)"
+    calcular_data_uso.short_description = _(u"Atualizar a data do último uso do(s) serviço(s)")
 
     def get_actions(self, request):
         from django.utils.datastructures import SortedDict
@@ -191,12 +191,12 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def get_servicos(self, obj):
         result = []
         for servico in obj.servico_set.all():
-            result.append(u"%s (%s). Contato: %s" % (servico.tipo_servico.nome, 'ativo' if servico.data_desativacao is None
-                                                     else 'Desativado', servico.contato_administrativo.nome))
+            result.append(_(u"%s (%s). Contato: %s") % (servico.tipo_servico.nome, _('ativo') if servico.data_desativacao is None
+                                                     else _('Desativado'), servico.contato_administrativo.nome))
 
         return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
     get_servicos.allow_tags = True
-    get_servicos.short_description = u"Serviços"
+    get_servicos.short_description = _(u"Serviços")
 
     def lookup_allowed(self, lookup, value):
         return super(CasaAtendidaAdmin, self).lookup_allowed(lookup, value) or \

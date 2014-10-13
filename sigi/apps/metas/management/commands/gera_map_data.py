@@ -22,11 +22,13 @@
 # 02110-1301, USA.
 #
 from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext as _
+
 from sigi.apps.metas.views import gera_map_data_file
 
 
 class Command(BaseCommand):
-    help = u'Gera arquivo de dados de plotagem do mapa de atuação do Interlegis.'
+    help = _(u'Gera arquivo de dados de plotagem do mapa de atuação do Interlegis.')
 
     def handle(self, *args, **options):
         result = gera_map_data_file(cronjob=True)

@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
-
 from django import forms
-
-from sigi.apps.utils.validators import valida_data, valida_periodo_data
+from django.utils.translation import ugettext as _
 
 from sigi.apps.servidores.models import Ferias, Licenca, Funcao, Servidor
+from sigi.apps.utils.validators import valida_data, valida_periodo_data
 
 
 class FeriasForm(forms.ModelForm):
@@ -16,8 +15,8 @@ class FeriasForm(forms.ModelForm):
     def clean(self):
         data = self.cleaned_data
         if valida_data(data.get('inicio_ferias'), data.get('fim_ferias')):
-            raise forms.ValidationError(u"""A data de início deve ser menor
-                que a data final. Verifique novamente""")
+            raise forms.ValidationError(_(u"""A data de início deve ser menor
+                que a data final. Verifique novamente"""))
         return data
 
 
@@ -30,8 +29,8 @@ class LicencaForm(forms.ModelForm):
     def clean(self):
         data = self.cleaned_data
         if valida_data(data.get('inicio_licenca'), data.get('fim_licenca')):
-            raise forms.ValidationError(u"""A data de início deve ser menor
-            que a data final. Verifique novamente""")
+            raise forms.ValidationError(_(u"""A data de início deve ser menor
+            que a data final. Verifique novamente"""))
         return data
 
 
@@ -44,9 +43,9 @@ class FuncaoForm(forms.ModelForm):
     def clean(self):
         data = self.cleaned_data
         if valida_data(data.get('inicio_funcao'), data.get('fim_funcao')):
-            raise forms.ValidationError(u"""A data de início deve ser menor
+            raise forms.ValidationError(_(u"""A data de início deve ser menor
             que a data final. Verifique
-            novamente""")
+            novamente"""))
 
         # Verifica na função anterior, se o seu período é igual
         # ou está entre o período da função atual.
@@ -60,7 +59,7 @@ class FuncaoForm(forms.ModelForm):
             if valida_periodo_data(funcao_anterior.inicio_funcao,
                                    funcao_anterior.fim_funcao, data.get('inicio_funcao'),
                                    data.get('fim_funcao')):
-                raise forms.ValidationError(u"""Você não pode exercer
+                raise forms.ValidationError(_(u"""Você não pode exercer
                 uma função no mesmo período que a anterior, como também,
-                não pode ser entre o período da mesma.""")
+                não pode ser entre o período da mesma."""))
         return data

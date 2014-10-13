@@ -1,12 +1,15 @@
 # coding= utf-8
-import sys
 import csv
 import re
+
 from datetime import datetime
-from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User
-from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria, Funcao, Ferias, Licenca
+from django.core.management.base import BaseCommand
+from django.utils.translation import ugettext as _
+
 from sigi.apps.contatos.models import Municipio
+from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria
+
 
 # Funcao.objects.all().delete()
 # Ferias.objects.all().delete()
@@ -21,7 +24,7 @@ class MigrationError(Exception):
 
 
 class Command(BaseCommand):
-    help = 'Migra usuários do antigo Sistema de RH'
+    help = _('Migra usuários do antigo Sistema de RH')
 
     def to_date(self, data):
         return datetime.strptime(data, "%Y-%m-%d 00:00:00")
@@ -222,7 +225,7 @@ class Command(BaseCommand):
                 funcao.bap_saida = p['bap_saida']
                 funcao.save()
 
-                if re.search(r'estagi.ri[o|a]', p['cargo'], re.I):
+                if re.search(r'estagi.ri[o|a]', p['cargo'], re.I):  # XXX i18n
                     # TODO inserir dados de estagio
                     pass
 

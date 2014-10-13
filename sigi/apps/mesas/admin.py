@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.http import HttpResponse
 from django.utils.html import escape
+from django.utils.translation import ugettext as _
 
 from sigi.apps.mesas.models import (Legislatura, Coligacao, ComposicaoColigacao,
                                     SessaoLegislativa, MesaDiretora, Cargo,
@@ -26,7 +27,7 @@ class LegislaturaAdmin(BaseModelAdmin):
 
     def uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
-    uf.short_description = 'UF'
+    uf.short_description = _('UF')
     uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def lookup_allowed(self, lookup, value):

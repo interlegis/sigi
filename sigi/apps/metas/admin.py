@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.utils.translation import ugettext as _
 
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.utils.base_admin import BaseModelAdmin
+
 
 class MetaAdmin(BaseModelAdmin):
     list_display = ('projeto', 'titulo', 'data_inicio', 'data_fim', 'valor_meta', 'valor_executado', 'percentual_concluido',)
@@ -18,7 +20,7 @@ class PlanoDiretorAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.nome
-    get_uf.short_description = u"UF"
+    get_uf.short_description = _(u"UF")
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
 
     def lookup_allowed(self, lookup, value):

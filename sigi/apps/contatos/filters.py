@@ -1,11 +1,12 @@
 # coding: utf-8
 from django.contrib import admin
+from django.utils.translation import ugettext as _
 
 
 class PopulationFilter(admin.SimpleListFilter):
     # Human-readable title which will be displayed in the
     # right admin sidebar just above the filter options.
-    title = 'População'
+    title = _('População')
 
     # Parameter for the filter that will be used in the URL query.
     parameter_name = 'faixa'
@@ -19,10 +20,10 @@ class PopulationFilter(admin.SimpleListFilter):
         in the right sidebar.
         """
         return (
-            ('1', '< 100 Mil'),
-            ('2', '100 Mil a 1 Milhão'),
-            ('3', '1 Milhão a 100 Milhões'),
-            ('4', '> 100 Milhões'),
+            ('1', _('< 100 Mil')),
+            ('2', _('100 Mil a 1 Milhão')),
+            ('3', _('1 Milhão a 100 Milhões')),
+            ('4', _('> 100 Milhões')),
         )
 
     def queryset(self, request, queryset):

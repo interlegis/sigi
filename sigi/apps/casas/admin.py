@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import CasaLegislativaForm
@@ -46,7 +47,7 @@ class FuncionariosInline(admin.StackedInline):
     inlines = (TelefonesInline,)
 
     def get_queryset(self, request):
-        return self.model.objects.exclude(cargo="Presidente")
+        return self.model.objects.exclude(cargo=_("Presidente"))
 
 
 class ConveniosInline(admin.StackedInline):
@@ -64,17 +65,17 @@ class ConveniosInline(admin.StackedInline):
 
     def get_tramitacoes(self, obj):
         return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
-    get_tramitacoes.short_description = 'Tramitações'
+    get_tramitacoes.short_description = _('Tramitações')
     get_tramitacoes.allow_tags = True
 
     def get_anexos(self, obj):
         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
-    get_anexos.short_description = 'Anexos'
+    get_anexos.short_description = _('Anexos')
     get_anexos.allow_tags = True
 
     def get_equipamentos(self, obj):
         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
-    get_equipamentos.short_description = 'Equipamentos previstos'
+    get_equipamentos.short_description = _('Equipamentos previstos')
     get_equipamentos.allow_tags = True
 
     def link_convenio(self, obj):
@@ -88,7 +89,7 @@ class ConveniosInline(admin.StackedInline):
             Editar
           </a>""" % (obj.pk, obj.pk, url)
 
-    link_convenio.short_description = 'Editar convenio'
+    link_convenio.short_description = _('Editar convenio')
     link_convenio.allow_tags = True
 
 
@@ -108,7 +109,7 @@ class LegislaturaInline(admin.TabularInline):
             Editar
           </a>""" % (obj.pk, obj.pk, url)
 
-    link_parlamentares.short_description = 'Parlamentares'
+    link_parlamentares.short_description = _('Parlamentares')
     link_parlamentares.allow_tags = True
 
 
@@ -130,7 +131,7 @@ class DiagnosticoInline(admin.TabularInline):
             Abrir PDF
           </a>""" % (obj.pk, obj.pk, url)
 
-    link_diagnostico.short_description = 'Ver PDF'
+    link_diagnostico.short_description = _('Ver PDF')
     link_diagnostico.allow_tags = True
 
 
@@ -174,11 +175,11 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         (None, {
             'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares', 'gerente_contas')
         }),
-        ('Endereço', {
+        (_(u'Endereço'), {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
                        'municipio', 'cep', 'pagina_web', 'email', 'ult_alt_endereco'),
         }),
-        ('Outras informações', {
+        (_(u'Outras informações'), {
             'fields': ('observacoes', 'foto', 'recorte'),
         }),
     )
@@ -190,7 +191,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def get_convenios(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
-    get_convenios.short_description = u'Convênios'
+    get_convenios.short_description = _(u'Convênios')
     get_convenios.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
@@ -205,23 +206,23 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def etiqueta(self, request, queryset):
         return labels_report(request, queryset=queryset)
-    etiqueta.short_description = "Gerar etiqueta(s) da(s) casa(s) selecionada(s)"
+    etiqueta.short_description = _("Gerar etiqueta(s) da(s) casa(s) selecionada(s)")
 
     def etiqueta_sem_presidente(self, request, queryset):
         return labels_report_sem_presidente(request, queryset=queryset)
-    etiqueta_sem_presidente.short_description = "Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)"
+    etiqueta_sem_presidente.short_description = _("Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)")
 
     def relatorio(self, request, queryset):
         return report(request, queryset=queryset)
-    relatorio.short_description = u"Exportar a(s) casa(s) selecionada(s) para PDF"
+    relatorio.short_description = _(u"Exportar a(s) casa(s) selecionada(s) para PDF")
 
     def relatorio_completo(self, request, queryset):
         return report_complete(request, queryset=queryset)
-    relatorio_completo.short_description = u"Gerar relatório completo da(s) casa(s) selecionada(s)"
+    relatorio_completo.short_description = _(u"Gerar relatório completo da(s) casa(s) selecionada(s)")
 
     def relatorio_csv(self, request, queryset):
         return export_csv(request)
-    relatorio_csv.short_description = u"Exportar casa(s) selecionada(s) para CSV"
+    relatorio_csv.short_description = _(u"Exportar casa(s) selecionada(s) para CSV")
 
     def adicionar_casas(self, request, queryset):
         if 'carrinho_casas' in request.session:
@@ -233,12 +234,12 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         q2 = len(request.session['carrinho_casas'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + " Casas Legislativas adicionadas no carrinho")
+            self.message_user(request, str(q2 - q1) + " " + _("Casas Legislativas adicionadas no carrinho"))
         else:
-            self.message_user(request, "As Casas Legislativas selecionadas já foram adicionadas anteriormente")
+            self.message_user(request, _("As Casas Legislativas selecionadas já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
 
-    adicionar_casas.short_description = u"Armazenar casas no carrinho para exportar"
+    adicionar_casas.short_description = _(u"Armazenar casas no carrinho para exportar")
 
     def get_actions(self, request):
         actions = super(CasaLegislativaAdmin, self).get_actions(request)

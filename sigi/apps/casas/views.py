@@ -1,23 +1,18 @@
 # -*- coding: utf-8 -*-
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from geraldo.generators import PDFGenerator
-
-from sigi.apps.casas.models import CasaLegislativa, Funcionario
-from sigi.apps.casas.reports import CasasLegislativasLabels
-from sigi.apps.casas.reports import CasasLegislativasLabelsSemPresidente
-from sigi.apps.casas.reports import CasasLegislativasReport
-from sigi.apps.casas.reports import CasasSemConvenioReport
-from sigi.apps.casas.reports import InfoCasaLegislativa
-from sigi.apps.parlamentares.models import Parlamentar
-from sigi.apps.parlamentares.reports import ParlamentaresLabels
-
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-
-from django.conf import settings
-
 import csv
 from functools import reduce
+
+from django.conf import settings
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render
+from django.utils.translation import ugettext as _
+from geraldo.generators import PDFGenerator
+
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLabelsSemPresidente, CasasLegislativasReport, CasasSemConvenioReport, InfoCasaLegislativa
+from sigi.apps.parlamentares.reports import ParlamentaresLabels
+
 
 # @param qs: queryset
 # @param o: (int) number of order field
@@ -327,7 +322,7 @@ def export_csv(request):
     atributos2 = [s.encode("utf-8") for s in atributos]
 
     try:
-        atributos2.insert(atributos2.index('Município'), u'UF')
+        atributos2.insert(atributos2.index(_(u'Município')), _(u'UF'))
     except ValueError:
         pass
 
@@ -337,49 +332,49 @@ def export_csv(request):
         lista = []
         contatos = casa.funcionario_set.filter(setor="contato_interlegis")
         for atributo in atributos:
-            if u"CNPJ" == atributo:
+            if _(u"CNPJ") == atributo:
                 lista.append(casa.cnpj.encode("utf-8"))
-            elif u"Código IBGE" == atributo:
+            elif _(u"Código IBGE") == atributo:
                 lista.append(str(casa.municipio.codigo_ibge).encode("utf-8"))
-            elif u"Código TSE" == atributo:
+            elif _(u"Código TSE") == atributo:
                 lista.append(str(casa.municipio.codigo_tse).encode("utf-8"))
-            elif u"Nome" == atributo:
+            elif _(u"Nome") == atributo:
                 lista.append(casa.nome.encode("utf-8"))
-            elif u"Município" == atributo:
+            elif _(u"Município") == atributo:
                 lista.append(unicode(casa.municipio.uf.sigla).encode("utf-8"))
                 lista.append(unicode(casa.municipio.nome).encode("utf-8"))
-            elif u"Presidente" == atributo:
+            elif _(u"Presidente") == atributo:
                 # TODO: Esse encode deu erro em 25/04/2012. Comentei para que o usuário pudesse continuar seu trabalho
                 # É preciso descobrir o porque do erro e fazer a correção definitiva.
                 #                lista.append(str(casa.presidente or "").encode("utf-8"))
                 lista.append(str(casa.presidente or ""))
-            elif u"Logradouro" == atributo:
+            elif _(u"Logradouro") == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
-            elif u"Bairro" == atributo:
+            elif _(u"Bairro") == atributo:
                 lista.append(casa.bairro.encode("utf-8"))
-            elif u"CEP" == atributo:
+            elif _(u"CEP") == atributo:
                 lista.append(casa.cep.encode("utf-8"))
-            elif u"Telefone" == atributo:
+            elif _(u"Telefone") == atributo:
                 lista.append(str(casa.telefone or ""))
-            elif u"Página web" == atributo:
+            elif _(u"Página web") == atributo:
                 lista.append(casa.pagina_web.encode("utf-8"))
-            elif u"Email" == atributo:
+            elif _(u"Email") == atributo:
                 lista.append(casa.email.encode("utf-8"))
-            elif u"Número de parlamentares" == atributo:
+            elif _(u"Número de parlamentares") == atributo:
                 lista.append(casa.total_parlamentares)
-            elif u"Última alteração de endereco" == atributo:
+            elif _(u"Última alteração de endereco") == atributo:
                 lista.append(casa.ult_alt_endereco)
-            elif u"Nome contato" == atributo:
+            elif _(u"Nome contato") == atributo:
                 if contatos and contatos[0].nome:
                     lista.append(contatos[0].nome.encode("utf-8"))
                 else:
                     lista.append('')
-            elif u"Cargo contato" == atributo:
+            elif _(u"Cargo contato") == atributo:
                 if contatos and contatos[0].cargo:
                     lista.append(contatos[0].cargo.encode("utf-8"))
                 else:
                     lista.append('')
-            elif u"Email contato" == atributo:
+            elif _(u"Email contato") == atributo:
                 if contatos and contatos[0].email:
                     lista.append(contatos[0].email.encode("utf-8"))
                 else:

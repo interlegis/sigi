@@ -1,17 +1,10 @@
 # -*- coding: utf-8 -*-
-import os
-from ctypes import alignment
-from operator import attrgetter
-from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, \
-    landscape, SystemField, BAND_WIDTH, ReportGroup, \
-    FIELD_ACTION_SUM, FIELD_ACTION_COUNT, FIELD_ACTION_AVG
-from geraldo.graphics import Image
-
+from django.utils.translation import ugettext as _
+from geraldo import ReportBand, ObjectValue, Label, ReportGroup, FIELD_ACTION_SUM
 from reportlab.lib.units import cm
-from reportlab.lib.pagesizes import A4
-from reportlab.lib.enums import TA_CENTER, TA_RIGHT
 
 from sigi.apps.relatorios.reports import ReportDefault
+
 
 #from abc import ABCMeta
 
@@ -33,7 +26,7 @@ class SemEquipamentosReport(object):
 
 
 class ConvenioReport(ReportDefault):
-    title = u'Relatório de Convênios'
+    title = _(u'Relatório de Convênios')
 
     class band_page_header(ReportDefault.band_page_header):
 
@@ -44,47 +37,47 @@ class ConvenioReport(ReportDefault):
 
         elements += [
             Label(
-                text="UF",
+                text=_("UF"),
                 left=label_left[0] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text="Municipio",
+                text=_("Municipio"),
                 left=label_left[1] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text="Data de Adesão",
+                text=_("Data de Adesão"),
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Número do Convênio",
+                text=_("Número do Convênio"),
                 left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Data do Convênio",
+                text=_("Data do Convênio"),
                 left=label_left[4] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Data de Publicação",
+                text=_("Data de Publicação"),
                 left=label_left[5] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Data de Aceite",
+                text=_("Data de Aceite"),
                 left=label_left[6] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Projeto",
+                text=_("Projeto"),
                 left=label_left[7] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
@@ -147,7 +140,7 @@ class ConvenioReport(ReportDefault):
                         height=0.7 * cm,
                         elements=[
                             ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-                                        get_Value=lambda instance: 'CasaLegislativa: ' + (instance.casa_legislativa.uf)
+                                        get_Value=lambda instance: _('CasaLegislativa: ') + (instance.casa_legislativa.uf)
                                         )
                         ],
                         borders={'top': True},
@@ -167,41 +160,41 @@ class ConvenioReportSemAceite(ConvenioReport):
 
         elements += [
             Label(
-                text="UF",
+                text=_("UF"),
                 left=label_left[0] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text="Município",
+                text=_("Município"),
                 left=label_left[1] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text="Data de Adesão",
+                text=_("Data de Adesão"),
                 left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Número do Convênio",
+                text=_("Número do Convênio"),
                 left=label_left[4] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Data do Convênio",
+                text=_("Data do Convênio"),
                 left=label_left[5] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Data de Publicação",
+                text=_("Data de Publicação"),
                 left=label_left[6] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text="Projeto",
+                text=_("Projeto"),
                 left=label_left[7] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
@@ -254,7 +247,7 @@ float_duas_casas = lambda instance: '%.2f' % (instance)
 
 
 class ConvenioReportRegiao(ReportDefault):
-    title = u'Relatório de Convênios por Região'
+    title = _(u'Relatório de Convênios por Região')
 
     class band_page_header(ReportDefault.band_page_header):
         label_top = ReportDefault.band_page_header.label_top
@@ -264,11 +257,11 @@ class ConvenioReportRegiao(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements += [
-            Label(text="UF", left=label_left[0] * cm, top=label_top,),
-            Label(text="Total", left=label_left[1] * cm, top=label_top,),
-            Label(text="Aderidas", left=label_left[2] * cm, top=label_top,),
+            Label(text=_("UF"), left=label_left[0] * cm, top=label_top,),
+            Label(text=_("Total"), left=label_left[1] * cm, top=label_top,),
+            Label(text=_("Aderidas"), left=label_left[2] * cm, top=label_top,),
             Label(text="%", left=label_left[3] * cm, top=label_top),
-            Label(text="Ñ Aderidas", left=label_left[4] * cm, top=label_top,),
+            Label(text=_("Ñ Aderidas"), left=label_left[4] * cm, top=label_top,),
             Label(text="%", left=label_left[5] * cm, top=label_top),
         ]
 
@@ -290,7 +283,7 @@ class ConvenioReportRegiao(ReportDefault):
     class band_summary(ReportBand):
         label_left = [0.5, 6, 8, 10, 12, 14]
         elements = [
-            Label(text="Total", top=0.1 * cm, left=label_left[0] * cm),
+            Label(text=_("Total"), top=0.1 * cm, left=label_left[0] * cm),
             ObjectValue(attribute_name='quant_casas', action=FIELD_ACTION_SUM, left=label_left[1] * cm, ),
             ObjectValue(attribute_name='quant_casas_aderidas', action=FIELD_ACTION_SUM, left=label_left[2] * cm),
             #            ObjectValue(attribute_name='porc_casas_aderidas', action=FIELD_ACTION_AVG, left=label_left[3]*cm,
@@ -305,16 +298,16 @@ class ConvenioReportRegiao(ReportDefault):
 
 
 class ConvenioPorCMReport(ConvenioReport):
-    title = u'Relatório de Convênios por Câmara Municipal'
+    title = _(u'Relatório de Convênios por Câmara Municipal')
 
 
 class ConvenioPorALReport(ConvenioReport):
-    title = u'Relatório de Convênios por Assembléia Legislativa'
+    title = _(u'Relatório de Convênios por Assembléia Legislativa')
 
 
 class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
-    title = u'Relatório de Convênios por Câmara Municipal'
+    title = _(u'Relatório de Convênios por Câmara Municipal')
 
 
 class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
-    title = u'Relatório de Convênios por Assembléia Legislativa'
+    title = _(u'Relatório de Convênios por Assembléia Legislativa')

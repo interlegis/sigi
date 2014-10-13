@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from django.db import models
-from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes import generic
-from sigi.apps.utils import SearchField
+from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
+from django.db import models
+from django.utils.translation import ugettext as _
+
+from sigi.apps.utils import SearchField
 
 
 class UnidadeFederativa(models.Model):
@@ -11,33 +13,33 @@ class UnidadeFederativa(models.Model):
     """ Modelo que representa um estado brasileiro
     """
     REGIAO_CHOICES = (
-        ('SL', 'Sul'),
-        ('SD', 'Sudeste'),
-        ('CO', 'Centro-Oeste'),
-        ('NE', 'Nordeste'),
-        ('NO', 'Norte'),
+        ('SL', _('Sul')),
+        ('SD', _('Sudeste')),
+        ('CO', _('Centro-Oeste')),
+        ('NE', _('Nordeste')),
+        ('NO', _('Norte')),
     )
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
         primary_key=True,
         unique=True,
-        help_text='Código do estado segundo IBGE.'
+        help_text=_('Código do estado segundo IBGE.')
     )
-    nome = models.CharField('Nome UF', max_length=25)
+    nome = models.CharField(_('Nome UF'), max_length=25)
     # Campo de busca em caixa baixa sem acento
     search_text = SearchField(field_names=['nome'])
     sigla = models.CharField(
         max_length=2,
         unique=True,
-        help_text="Exemplo: <em>MG</em>.",
+        help_text=_("Exemplo: <em>MG</em>."),
     )
-    regiao = models.CharField('região', max_length=2, choices=REGIAO_CHOICES)
-    populacao = models.PositiveIntegerField('população')
+    regiao = models.CharField(_('região'), max_length=2, choices=REGIAO_CHOICES)
+    populacao = models.PositiveIntegerField(_('população'))
 
     class Meta:
-        ordering = ('nome',)
-        verbose_name = 'Unidade Federativa'
-        verbose_name_plural = 'Unidades Federativas'
+        ordering = (_('nome'),)
+        verbose_name = _('Unidade Federativa')
+        verbose_name_plural = _('Unidades Federativas')
 
     def __unicode__(self):
         return self.nome
@@ -48,41 +50,41 @@ class Municipio(models.Model):
     """ Modelo para representar as cidades brasileiras
     """
     codigo_ibge = models.PositiveIntegerField(
-        u'código IBGE',
+        _(u'código IBGE'),
         primary_key=True,
         unique=True,
-        help_text='Código do município segundo IBGE.'
+        help_text=_('Código do município segundo IBGE.')
     )
 
     # agrupamento baseado em similaridades econômicas e sociais
     codigo_mesorregiao = models.PositiveIntegerField(
-        u'código mesorregião',
+        _(u'código mesorregião'),
         blank=True,
         null=True
     )
     # agrupamento baseado em similaridades econômicas e sociais
     codigo_microrregiao = models.PositiveIntegerField(
-        u'código microrregião',
+        _(u'código microrregião'),
         blank=True,
         null=True
     )
 
     # codio designado pelo Tribunal Superior Eleitoral
     codigo_tse = models.PositiveIntegerField(
-        u'código TSE',
+        _(u'código TSE'),
         unique=True,
         null=True,
-        help_text='Código do município segundo TSE.'
+        help_text=_('Código do município segundo TSE.')
     )
     nome = models.CharField(max_length=50)
-    search_text = SearchField(field_names=['nome', 'uf'])
-    uf = models.ForeignKey(UnidadeFederativa, verbose_name='UF')
+    search_text = SearchField(field_names=[_('nome'), _('uf')])
+    uf = models.ForeignKey(UnidadeFederativa, verbose_name=_('UF'))
     # verdadeiro se o município é capital do estado
-    is_capital = models.BooleanField('capital', default=False)
-    populacao = models.PositiveIntegerField(u'população')
+    is_capital = models.BooleanField(_('capital'), default=False)
+    populacao = models.PositiveIntegerField(_(u'população'))
     populacao.list_filter_range = [10000, 100000, 1000000]
-    is_polo = models.BooleanField(u'pólo', default=False)
-    data_criacao = models.DateField(u'data de criação do município', null=True, blank=True)
+    is_polo = models.BooleanField(_(u'pólo'), default=False)
+    data_criacao = models.DateField(_(u'data de criação do município'), null=True, blank=True)
 
     # posição geográfica do município
     latitude = models.DecimalField(
@@ -90,28 +92,28 @@ class Municipio(models.Model):
         decimal_places=8,
         null=True,
         blank=True,
-        help_text='Exemplo: <em>-20,464</em>.'
+        help_text=_('Exemplo: <em>-20,464</em>.')
     )
     longitude = models.DecimalField(
         max_digits=11,
         decimal_places=8,
         null=True,
         blank=True,
-        help_text='Exemplo: <em>-45,426</em>.'
+        help_text=_('Exemplo: <em>-45,426</em>.')
     )
 
-    idh = models.DecimalField(u'IDH', help_text=u'Índice de desenvolvimento Humano', max_digits=4, decimal_places=3,
+    idh = models.DecimalField(_(u'IDH'), help_text=_(u'Índice de desenvolvimento Humano'), max_digits=4, decimal_places=3,
                               validators=[MinValueValidator(0), MaxValueValidator(1)])
     idh.list_filter_range = [0.500, 0.800]
 
-    pib_total = models.DecimalField(u'PIB total', max_digits=18, decimal_places=3, blank=True, null=True)
-    pib_percapita = models.DecimalField(u'PIB per capita', max_digits=18, decimal_places=3, blank=True, null=True)
-    pib_ano = models.IntegerField(u'Ano de apuração do PIB', blank=True, null=True)
+    pib_total = models.DecimalField(_(u'PIB total'), max_digits=18, decimal_places=3, blank=True, null=True)
+    pib_percapita = models.DecimalField(_(u'PIB per capita'), max_digits=18, decimal_places=3, blank=True, null=True)
+    pib_ano = models.IntegerField(_(u'Ano de apuração do PIB'), blank=True, null=True)
 
     class Meta:
-        ordering = ('nome', 'codigo_ibge')
-        verbose_name = 'município'
-        verbose_name_plural = 'municípios'
+        ordering = (_('nome'), _('codigo_ibge'))
+        verbose_name = _('município')
+        verbose_name_plural = _('municípios')
 
     def __unicode__(self):
         return "%s - %s" % (self.nome, self.uf)
@@ -126,15 +128,15 @@ class Telefone(models.Model):
     """ Modelo genérico para agrupar telefones dos modulos do sistema
     """
     TELEFONE_CHOICES = (
-        ('F', 'Fixo'),
-        ('M', 'Móvel'),
-        ('X', 'Fax'),
-        ('I', 'Indefinido'),
+        ('F', _('Fixo')),
+        ('M', _('Móvel')),
+        ('X', _('Fax')),
+        ('I', _('Indefinido')),
     )
     numero = models.CharField(
-        'número',
+        _('número'),
         max_length=64,  # TODO: diminuir tamanho de campo após migração de dados
-        help_text='Exemplo: <em>(31)8851-9898</em>.',
+        help_text=_('Exemplo: <em>(31)8851-9898</em>.'),
     )
     tipo = models.CharField(
         max_length=1,
@@ -142,7 +144,7 @@ class Telefone(models.Model):
         default='I'
     )
     nota = models.CharField(max_length=70, null=True, blank=True)
-    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=False, auto_now=True)
+    ult_alteracao = models.DateTimeField(_(u'Última alteração'), null=True, blank=True, editable=False, auto_now=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
     content_type = models.ForeignKey(ContentType)
@@ -163,16 +165,16 @@ class Contato(models.Model):
     """ Modelo generico para registrar contatos vinculados aos
     modulos do sistema
     """
-    nome = models.CharField('nome completo', max_length=120)
+    nome = models.CharField(_('nome completo'), max_length=120)
     nome.alphabetic_filter = True
     nota = models.CharField(max_length=70, blank=True)
 
-    email = models.EmailField('e-mail', blank=True)
+    email = models.EmailField(_('e-mail'), blank=True)
     telefones = generic.GenericRelation(Telefone)
 
     municipio = models.ForeignKey(
         Municipio,
-        verbose_name='município',
+        verbose_name=_('município'),
         blank=True,
         null=True,
     )
@@ -185,8 +187,8 @@ class Contato(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = 'contato Interlegis'
-        verbose_name_plural = 'contatos Interlegis'
+        verbose_name = _('contato Interlegis')
+        verbose_name_plural = _('contatos Interlegis')
 
     def __unicode__(self):
         return self.nome
@@ -194,51 +196,51 @@ class Contato(models.Model):
 
 class Endereco(models.Model):
     TIPO_CHOICES = (
-        ('aeroporto', 'Aeroporto'),
-        ('alameda', 'Alameda'),
-        ('area', u'Área'),
-        ('avenida', 'Avenida'),
-        ('campo', 'Campo'),
-        ('chacara', u'Chácara'),
-        ('colonia', u'Colônia'),
-        ('condominio', u'Condomínio'),
-        ('conjunto', 'Conjunto'),
-        ('distrito', 'Distrito'),
-        ('esplanada', 'Esplanada'),
-        ('estacao', u'Estação'),
-        ('estrada', 'Estrada'),
-        ('favela', 'Favela'),
-        ('fazenda', 'Fazenda'),
-        ('feira', 'Feira'),
-        ('jardim', 'Jardim'),
-        ('ladeira', 'Ladeira'),
-        ('lago', 'Lago'),
-        ('lagoa', 'Lagoa'),
-        ('largo', 'Largo'),
-        ('loteamento', 'Loteamento'),
-        ('morro', 'Morro'),
-        ('nucleo', u'Núcleo'),
-        ('parque', 'Parque'),
-        ('passarela', 'Passarela'),
-        ('patio', u'Pátio'),
-        ('praca', u'Praça'),
-        ('quadra', 'Quadra'),
-        ('recanto', 'Recanto'),
-        ('residencial', 'Residencial'),
-        ('rodovia', 'Rodovia'),
-        ('rua', 'Rua'),
-        ('setor', 'Setor'),
-        ('sitio', u'Sítio'),
-        ('travessa', 'Travessa'),
-        ('trecho', 'Trecho'),
-        ('trevo', 'Trevo'),
-        ('vale', 'Vale'),
-        ('vereda', 'Vereda'),
-        ('via', 'Via'),
-        ('viaduto', 'Viaduto'),
-        ('viela', 'Viela'),
-        ('vila', 'Vila'),
-        ('outro', 'Outro'),
+        ('aeroporto', _('Aeroporto')),
+        ('alameda', _('Alameda')),
+        ('area', _(u'Área')),
+        ('avenida', _('Avenida')),
+        ('campo', _('Campo')),
+        ('chacara', _(u'Chácara')),
+        ('colonia', _(u'Colônia')),
+        ('condominio', _(u'Condomínio')),
+        ('conjunto', _('Conjunto')),
+        ('distrito', _('Distrito')),
+        ('esplanada', _('Esplanada')),
+        ('estacao', _(u'Estação')),
+        ('estrada', _('Estrada')),
+        ('favela', _('Favela')),
+        ('fazenda', _('Fazenda')),
+        ('feira', _('Feira')),
+        ('jardim', _('Jardim')),
+        ('ladeira', _('Ladeira')),
+        ('lago', _('Lago')),
+        ('lagoa', _('Lagoa')),
+        ('largo', _('Largo')),
+        ('loteamento', _('Loteamento')),
+        ('morro', _('Morro')),
+        ('nucleo', _(u'Núcleo')),
+        ('parque', _('Parque')),
+        ('passarela', _('Passarela')),
+        ('patio', _(u'Pátio')),
+        ('praca', _(u'Praça')),
+        ('quadra', _('Quadra')),
+        ('recanto', _('Recanto')),
+        ('residencial', _('Residencial')),
+        ('rodovia', _('Rodovia')),
+        ('rua', _('Rua')),
+        ('setor', _('Setor')),
+        ('sitio', _(u'Sítio')),
+        ('travessa', _('Travessa')),
+        ('trecho', _('Trecho')),
+        ('trevo', _('Trevo')),
+        ('vale', _('Vale')),
+        ('vereda', _('Vereda')),
+        ('via', _('Via')),
+        ('viaduto', _('Viaduto')),
+        ('viela', _('Viela')),
+        ('vila', _('Vila')),
+        ('outro', _('Outro')),
     )
 
     # tipo do endereço obtido no site dos correios
@@ -254,16 +256,16 @@ class Endereco(models.Model):
     bairro = models.CharField(max_length=100, blank=True)
 
     cep = models.CharField(
-        'CEP',
+        _('CEP'),
         max_length=9,
         blank=True,
         null=True,
-        help_text="Formato: <em>XXXXX-XXX</em>."
+        help_text=_("Formato: <em>XXXXX-XXX</em>.")
     )
 
     municipio = models.ForeignKey(
         Municipio,
-        verbose_name='município',
+        verbose_name=_(u'município'),
         blank=True,
         null=True,
     )
@@ -277,8 +279,8 @@ class Endereco(models.Model):
 
     class Meta:
         ordering = ('logradouro', 'numero')
-        verbose_name = u'endereço'
-        verbose_name_plural = u'endereços'
+        verbose_name = _(u'endereço')
+        verbose_name_plural = _(u'endereços')
 
     def __unicode__(self):
         return self.tipo + ' ' + self.logradouro + ', ' + self.numero \

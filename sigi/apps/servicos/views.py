@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
-from django import forms
-from django.http import HttpResponse
 import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
-from django.shortcuts import render_to_response, get_object_or_404
+
+from django import forms
 from django.db.models import Q
-from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
-from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.casas.models import CasaLegislativa
-from django.template.context import RequestContext
-from django.utils.encoding import force_unicode
 from django.forms.forms import BoundField
-from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe
-from django.contrib.admin.helpers import AdminForm
+from django.http import HttpResponse
+from django.shortcuts import render_to_response, get_object_or_404
+from django.template.context import RequestContext
+from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
+
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
 
 
 class MapaView(TemplateView):
@@ -84,9 +83,9 @@ def casa_manifesta_view(request):
         fieldsets = ((None, ('informante', 'cargo', 'email'),),)
 
         for ts in TipoServico.objects.all():
-            campos['possui_%s' % ts.pk] = forms.BooleanField(label=u'Possui o serviço de %s' % ts.nome, required=False)
-            campos['url_%s' % ts.pk] = forms.URLField(label=u'Informe a URL', required=False)
-            campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=u'Serviço está hospedado no Interlegis', required=False)
+            campos['possui_%s' % ts.pk] = forms.BooleanField(label=_(u'Possui o serviço de %s') % ts.nome, required=False)
+            campos['url_%s' % ts.pk] = forms.URLField(label=_(u'Informe a URL'), required=False)
+            campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=_(u'Serviço está hospedado no Interlegis'), required=False)
             fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk)),)
 
         CasaManifestaForm = type('', (CasaManifestaProtoForm,), campos)
@@ -100,20 +99,20 @@ def casa_manifesta_view(request):
                 cm.cargo = cmf.cleaned_data['cargo']
                 cm.email = cmf.cleaned_data['email']
                 cm.save()
-                thanks.append((u'Informante', cmf.cleaned_data['informante']))
-                thanks.append((u'Cargo', cmf.cleaned_data['cargo']))
-                thanks.append((u'E-mail', cmf.cleaned_data['email']))
+                thanks.append((_(u'Informante'), cmf.cleaned_data['informante']))
+                thanks.append((_(u'Cargo'), cmf.cleaned_data['cargo']))
+                thanks.append((_(u'E-mail'), cmf.cleaned_data['email']))
                 for ts in TipoServico.objects.all():
                     if cmf.cleaned_data['possui_%s' % ts.pk]:
                         sm, created = ServicoManifesto.objects.get_or_create(casa_manifesta=cm, servico=ts)
                         sm.url = cmf.cleaned_data['url_%s' % ts.pk]
                         sm.hospedagem_interlegis = cmf.cleaned_data['hospedagem_interlegis_%s' % ts.pk]
                         sm.save()
-                        thanks.append((ts.nome, u'Possui o serviço acessível em %s %s' % (sm.url, u'hospedado no Interlegis' if
-                                                                                          sm.hospedagem_interlegis else '')))
+                        thanks.append((ts.nome, _(u'Possui o serviço acessível em %s %s') % (sm.url, u'hospedado no Interlegis' if
+                                                                                             sm.hospedagem_interlegis else '')))
                     else:
                         ServicoManifesto.objects.filter(casa_manifesta=cm, servico=ts).delete()
-                        thanks.append((ts.nome, u'Não possui'))
+                        thanks.append((ts.nome, _(u'Não possui')))
                 extra_context = {'casa': casa, 'thanks': thanks}
             else:
                 extra_context = {'casa': casa, 'cmf': cmf}

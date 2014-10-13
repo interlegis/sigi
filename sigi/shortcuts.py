@@ -1,11 +1,13 @@
 import cStringIO as StringIO
-import ho.pisa as pisa
-from django.template.loader import get_template
-from django.template import Context
-from django.http import HttpResponse
-from django.conf import settings
-from cgi import escape
 import os
+from cgi import escape
+
+import ho.pisa as pisa
+from django.conf import settings
+from django.http import HttpResponse
+from django.template import Context
+from django.template.loader import get_template
+from django.utils.translation import ugettext as _
 
 
 def fetch_resources(uri, rel):
@@ -22,4 +24,4 @@ def render_to_pdf(template_src, context_dict):
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode('utf-8')), result, link_callback=fetch_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse('We had some errors<pre>%s</pre>' % escape(html))
+    return HttpResponse(_('We had some errors<pre>%s</pre>') % escape(html))
