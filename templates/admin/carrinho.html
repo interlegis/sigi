@@ -31,8 +31,8 @@
     </style>
 {% endblock %}
 
-{% block title %}Carrinho | SIGI{% endblock %}
-{% block content_title %}<h1>Carrinho</h1>{% endblock %}
+{% block title %}{% trans 'Carrinho | SIGI' %}{% endblock %}
+{% block content_title %}<h1>{% trans 'Carrinho' %}</h1>{% endblock %}
 
 {% block content %}
 <div id="content-main">
@@ -41,9 +41,9 @@
 	{% block mensagem %}
 	<ul class="messagelist">
 	{%if carIsEmpty%}
-		<li class="warning">O carrinho está vazio</li>
+		<li class="warning">{% trans 'O carrinho está vazio' %}</li>
 	{%else%}
-		<li>{{paginas.paginator.count}} Itens no carrinho.</li>
+		<li>{{paginas.paginator.count}} {% trans 'Itens no carrinho' %}.</li>
 	{%endif%}
 	</ul>
 	{% endblock %}
@@ -56,7 +56,7 @@
 			<div class="botoes">
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
-					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
+					<li><a href="excluir_carrinho">{% trans 'Esvaziar carrinho' %}</a></li>
 				</ul>
 			</div>
 			{% endif %}
@@ -67,7 +67,7 @@
 			<div class="botoes">
 				<ul class="botao_excluir">
 					<li><input class="botao_excluir" type="submit" value="  Excluir do carrinho os itens selecionados" /></li>
-					<li><a href="excluir_carrinho">Esvaziar carrinho</a></li>
+					<li><a href="excluir_carrinho">{% trans 'Esvaziar carrinho' %}</a></li>
 				</ul>
 			</div>
 			{% endif %}
@@ -75,7 +75,7 @@
 			<div class="paginator">
 			    <span class="step-links">
 			        {% if paginas.has_previous %}
-			            <a href="?page={{ paginas.previous_page_number }}">Anterior</a>
+			            <a href="?page={{ paginas.previous_page_number }}">{% trans 'Anterior' %}</a>
 			        {% endif %}
 
 			        <span class="this-page">
@@ -83,10 +83,10 @@
 			        </span>
 
 			        {% if paginas.has_next %}
-			            <a href="?page={{ paginas.next_page_number }}">Próxima</a>
+			            <a href="?page={{ paginas.next_page_number }}">{% trans 'Próxima' %}</a>
 			        {% endif %}
 			    </span>
-			    <span>{{paginas.paginator.count}} itens</span>
+			    <span>{{paginas.paginator.count}} {% trans 'itens' %}</span>
 			</div>
 		</form>
 

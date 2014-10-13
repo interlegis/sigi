@@ -4,7 +4,7 @@
 
   <div class="col-md-5">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Resumo de informações</div>
+      <div class="panel-heading">{% trans 'Resumo de informações' %}</div>
       <table class="table table-condensed numeros">
           <tr>
               {% for item in tabela_resumo_camara.cabecalho_topo %}
@@ -23,11 +23,11 @@
       </table>
       <div class="panel-footer">
         <dl class="dl-horizontal">
-          <dt>Câmaras sem processo</dt>
+          <dt>{% trans 'Câmaras sem processo' %}</dt>
           <dd>{{tabela_resumo_camara.camaras_sem_processo}}</dd>
         </dl>
         <dl class="dl-horizontal">
-          <dt>Total de câmaras</dt>
+          <dt>{% trans 'Total de câmaras' %}</dt>
           <dd>{{tabela_resumo_camara.total_camaras}}</dd>
         </dl>
       </div>
@@ -36,7 +36,7 @@
 
   <div class="col-md-3">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Convênios assinados por projeto</div>
+      <div class="panel-heading">{% trans 'Convênios assinados por projeto' %}</div>
       <div class="panel-body">
         <div id="canvas-holder-1">
             <canvas id="chart-area-1" width="150" height="150" />
@@ -47,10 +47,10 @@
 
   <div class="col-md-4">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Serviços hospedados no Interlegis (SEIT)</div>
+      <div class="panel-heading">{% trans 'Serviços hospedados no Interlegis (SEIT)' %}</div>
       <div class="panel-body">
         <div class="titlemapbox">
-            <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>Ver mapa</a></div>
+            <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>{% trans 'Ver mapa' %}</a></div>
         </div>
       </div>
 
@@ -79,11 +79,11 @@
 <div class="row row-flex row-flex-wrap">
   <div class="col-md-5">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Resumo de informações por região</div>
+      <div class="panel-heading">{% trans 'Resumo de informações por região' %}</div>
       <div class="panel-body">
         <p>
-            Resumo de informações de Câmaras Municipais por região levando em conta
-            apenas o Projeto Interlegis. Demais projetos como PPM e PML não estão inclusos.
+            {% trans 'Resumo de informações de Câmaras Municipais por região levando em conta apenas o Projeto Interlegis' %}.
+            {% trans 'Demais projetos como PPM e PML não estão inclusos' %}.
         </p>
         <ul class="conteudo_regiao">
             <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
@@ -98,7 +98,7 @@
 
   <div class="col-md-3">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Processos de convênios por projeto</div>
+      <div class="panel-heading">{% trans 'Processos de convênios por projeto' %}</div>
       <div class="panel-body">
         <div id="canvas-holder-2">
             <canvas id="chart-area-2" width="150" height="150" />
@@ -108,7 +108,7 @@
   </div>
   <div class="col-md-4">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">Mapa de atuação do Interlegis</div>
+      <div class="panel-heading">{% trans 'Mapa de atuação do Interlegis' %}</div>
       <div class="panel-body">
         <div id="dashboard-mapa" class="align-center">
             <a href="/dashboard/mapa/"> <img src="{% static 'img/mapicon-large.png' %}"/> </a>

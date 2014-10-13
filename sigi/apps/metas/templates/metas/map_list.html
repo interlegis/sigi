@@ -12,23 +12,23 @@
 	td.qtde, th.qtde {
 		text-align: right;
 	}
-	
+
 	td.nome_uf {
 		padding: 0 5px !important;
 	}
 </style>
-<title>Lista de Casas atendidas</title>
+<title>{% trans 'Lista de Casas atendidas' %}</title>
 {% endblock %}
 
 {% block report %}
-<h1>Lista de Casas atendidas</h1>
+<h1>{% trans 'Lista de Casas atendidas' %}</h1>
 <hr/><br/>
 <table class="data" repeat="1">
 	<tr>
-		<th>Casa Legislativa</th>
-		<th>Estado</th>
-		<th>Região</th>
-		<th>Serviços</th>
+		<th>{% trans 'Casa Legislativa' %}</th>
+		<th>{% trans 'Estado' %}</th>
+		<th>{% trans 'Região' %}</th>
+		<th>{% trans 'Serviços' %}</th>
 	</tr>
 	{% for casa in casas %}
 	<tr>

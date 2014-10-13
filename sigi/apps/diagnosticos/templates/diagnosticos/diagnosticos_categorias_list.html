@@ -19,7 +19,7 @@
                 <li>
             {% endif %}
                 <a href="{% url 'detalhes_categoria_casa_legislativa' diagnostico.id %}">
-                    <h4 class="ui-li-heading-read">01. Identificação da Casa Legislativa</h4>
+                    <h4 class="ui-li-heading-read">01. {% trans 'Identificação da Casa Legislativa' %}</h4>
                 </a>
             </li>
             {% if ultima_categoria == 2 %}
@@ -29,9 +29,9 @@
             {% endif %}
                 <a href="{% url 'detalhes_categoria_contatos' diagnostico.id %}">
                     {% if diagnostico.contatos_respondidos %}
-                        <h4 class="ui-li-heading-read">02. Identificação de Competências</h4>
+                        <h4 class="ui-li-heading-read">02. {% trans 'Identificação de Competências' %}</h4>
                     {% else %}
-                        <h4>02. Identificação de Competências</h4>
+                        <h4>02. {% trans 'Identificação de Competências' %}</h4>
                     {% endif %}
                 </a>
             </li>
@@ -52,12 +52,12 @@
             {% endfor %}
         </ul>
     {% else %}
-        <h2>Nenhuma categoria existente.</h2>
+        <h2>{% trans 'Nenhuma categoria existente.' %}</h2>
     {% endif %}
 {% endblock corpo %}
 <ul>
     {% block rodape %}
         {{ block.super }}
-        <li><a href="{% url 'logout' %}" data-icon="delete">Sair</a></li>
+        <li><a href="{% url 'logout' %}" data-icon="delete">{% trans 'Sair' %}</a></li>
     {% endblock rodape %}
 </ul>

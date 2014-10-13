@@ -88,9 +88,9 @@
                 <tr>
                     <td class="logo"><img src="{{MEDIA_URL}}images/logo-senado.jpg"/></td>
                     <td class="header_text">
-                        <p><strong>SENADO FEDERAL</strong></p>
-                        <p><strong>SECRETARIA ESPECIAL DO INTERLEGIS – SINTER</strong></p>
-                        <p>SUBSECRETARIA DE PLANEJAMENTO E FOMENTO – SSPLF</p>
+                        <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
+                        <p><strong>{% trans 'SECRETARIA ESPECIAL DO INTERLEGIS – SINTER' %}</strong></p>
+                        <p>{% trans 'SUBSECRETARIA DE PLANEJAMENTO E FOMENTO – SSPLF' %}</p>
                     </td>
                     <td class="logo"><img src="{{MEDIA_URL}}images/logo-interlegis.jpg"/></td>
                 </tr>
@@ -101,42 +101,42 @@
                 <img src="{{MEDIA_URL}}images/logo-interlegis-grande.jpg"/>
             </center>
             <h1>
-                PROJETO DE MODERNIZAÇÃO DO LEGISLATIVO
+                {% trans 'PROJETO DE MODERNIZAÇÃO DO LEGISLATIVO' %}
                 </br>
                 </br>
-                QUESTIONÁRIO DE DIAGNÓSTICO
+                {% trans 'QUESTIONÁRIO DE DIAGNÓSTICO' %}
             </h1>
             <h2 style="text-align: center;">
                 {{ diagnostico.casa_legislativa }} - {{ diagnostico.casa_legislativa.municipio.uf.sigla }}
             </h2>
 
-            <h3>Data do Questionário:</h3>
+            <h3>{% trans 'Data do Questionário:' %}</h3>
             <p>De {{diagnostico.data_visita_inicio}} à {{diagnostico.data_visita_fim}}</p>
 
-            <h3>Chefe da equipe de diagnóstico:</h3>
+            <h3>{% trans 'Chefe da equipe de diagnóstico:' %}</h3>
             <p>{{diagnostico.responsavel}}</p>
-            
-            <h3>Membros da equipe de diagnóstico:</h3>
+
+            <h3>{% trans 'Membros da equipe de diagnóstico:' %}</h3>
             {% for membro in diagnostico.equipe_set.all %}
             <p>{{membro}}</p>
             {% endfor %}
-            
+
             {% for funcionario in funcionarios %}
             	{% if funcionario.setor == 'contato_interlegis' %}
-            		<h3>Nome do responsável pelas Informações:</h3>
+            		<h3>{% trans 'Nome do responsável pelas Informações:' %}</h3>
             		<p>{{funcionario.nome|default_if_none:""}}</p>
-            		<h3>Cargo / função do responsável pelas informações:</h3>
+            		<h3>{% trans 'Cargo / função do responsável pelas informações:' %}</h3>
             		<p>{{funcionario.cargo|default_if_none:""}} / {{funcionario.funcao|default_if_none:""}}</p>
-            		<h3>E-mail do responsável pelas informações:</h3>
+            		<h3>{% trans 'E-mail do responsável pelas informações:' %}</h3>
             		<p>{{funcionario.email|default_if_none:""}}</p>
                 	{% for telefone in funcionario.telefones.all %}
-                	<h3>Telefone {{telefone.get_tipo_display}} do responsável pelas informações</h3>
+                	<h3>{% blocktrans %}Telefone {{telefone.get_tipo_display}} do responsável pelas informações{% endblocktrans %}</h3>
                 	<p>{{telefone}}</p>
                 	{% endfor %}
             	{% endif %}
             {% endfor %}
             </table>
-            
+
 <!--
             <h3>Cargo do Responsável pelas Informações:</h3>
             <p>{{diagnostico.responsavel.cargo|default_if_none:""}}&nbsp;</p>
@@ -152,44 +152,44 @@
         </div>
 
         <div class="new_page">
-            <h2>Bloco 01. Identificação da {{casa_legislativa.tipo}}</h2>
+            <h2>{% blocktrans %}Bloco 01. Identificação da {{casa_legislativa.tipo}}{% endblocktrans %}</h2>
 
-            <h3>01. Municipio - Estado:</h3>
+            <h3>01. {% trans 'Municipio - Estado' %}:</h3>
             <p class="strong">{{casa_legislativa.municipio|default_if_none:""}}&nbsp;</p>
 
-            <h3>02. Data de criação do Município:</h3>
+            <h3>02. {% trans 'Data de criação do Município' %}:</h3>
             <p class="strong">{{casa_legislativa.municipio.data_criacao|default_if_none:""}}&nbsp;</p>
 
-            <h3>03. Nome da {{casa_legislativa.tipo}}</h3>
+            <h3>03. {% blocktrans %}Nome da {{casa_legislativa.tipo}}{% endblocktrans %}</h3>
             <p class="strong">{{casa_legislativa.municipio.nome|default_if_none:""}}&nbsp;</p>
 
-            <h3>04. Data de instalação da {{casa_legislativa.tipo}}</h3>
+            <h3>04. {% blocktrans %}Data de instalação da {{casa_legislativa.tipo}}{% endblocktrans %}</h3>
             <p class="strong">{{casa_legislativa.data_instalacao|default_if_none:""}}&nbsp;</p>
 
-            <h3>05. Endereço:</h3>
+            <h3>05. {% trans 'Endereço' %}:</h3>
             <p class="strong">{{casa_legislativa.logradouro|default_if_none:""}} - {{casa_legislativa.cep|default_if_none:""}}</p>
 
-            <h3>06. CNPJ:</h3>
+            <h3>06. {% trans 'CNPJ' %}:</h3>
             <p class="strong">{{casa_legislativa.cnpj|default_if_none:""}}&nbsp;</p>
 
-            <h3>07. E-mail:</h3>
+            <h3>07. {% trans 'E-mail' %}:</h3>
             <p class="strong">{{casa_legislativa.email|default_if_none:""}}&nbsp;</p>
 
-            <h3>08. Página web:</h3>
+            <h3>08. {% trans 'Página web' %}:</h3>
             <p class="strong">{{casa_legislativa.pagina_web|default_if_none:""}}&nbsp;</p>
         </div>
 
         <div class="new_page">
-            <h2>Bloco 02. Identificação de Competências na Câmara Municipal</h2>
+            <h2>{% trans 'Bloco 02. Identificação de Competências na Câmara Municipal' %}</h2>
             {% for funcionario in funcionarios %}
             <div class="same_page">
                 <h3>{{funcionario.get_setor_display}}</h3>
-                <p class="strong">Nome completo: {{funcionario.nome|default_if_none:""}}</p>
-                <p class="strong">E-mail: {{funcionario.email|default_if_none:""}}</p>
-                <p class="strong">Tempo de serviço: {{funcionario.tempo_de_servico|default_if_none:""}}</p>
+                <p class="strong">{% blocktrans %}Nome completo: {{funcionario.nome|default_if_none:""}}{% endblocktrans %}</p>
+                <p class="strong">{% blocktrans %}E-mail: {{funcionario.email|default_if_none:""}}{% endblocktrans %}</p>
+                <p class="strong">{% blocktrans %}Tempo de serviço: {{funcionario.tempo_de_servico|default_if_none:""}}{% endblocktrans %}</p>
 
                 {% for telefone in funcionario.telefones.all %}
-                <p class="strong">Telefone {{telefone.get_tipo_display}}: {{telefone}}</p>
+                <p class="strong">{% blocktrans %}Telefone {{telefone.get_tipo_display}}: {{telefone}}{% endblocktrans %}</p>
                 {% endfor %}
             </div>
             {% endfor %}
@@ -197,7 +197,7 @@
 
         {% for categoria, schemas in schemas_by_categoria %}
         <div class="new_page">
-            <h2>Bloco {{categoria.nome}}</h2>
+            <h2>{% blocktrans %}Bloco {{categoria.nome}}{% endblocktrans %}</h2>
             {% for schema in schemas %}
             <div class="same_page">
                 <h3>{{ schema.title }}</h3>
@@ -214,9 +214,9 @@
                 {% else %}
                 	<p class="strong">
 						{% if schema.datatype == schema.TYPE_FLOAT %}
-							{{ schema.value|floatformat|default_if_none:"sem resposta"}}
+							{{ schema.value|floatformat|default_if_none:_("sem resposta")}}
 						{% else %}
-							{{ schema.value|default_if_none:"sem resposta"}}
+							{{ schema.value|default_if_none:_("sem resposta")}}
 						{% endif %}
                 	&nbsp;</p>
                 {% endif %}
@@ -226,7 +226,7 @@
         {% endfor %}
         <div id="footer">
             {%block page_foot%}
-            Página <pdf:pagenumber>
+            {% trans 'Página' %} <pdf:pagenumber>
             {%endblock%}
         </div>
     </body>

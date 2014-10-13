@@ -1,13 +1,13 @@
 {% extends "base_mobile.html" %}
 
 {% block cabecalho %}
-    <h1>Ocorreu um erro</h1>
+    <h1>{% trans 'Ocorreu um erro' %}</h1>
 {% endblock cabecalho %}
 {% block corpo %}
-    <p>A página que está procurando não existe. </p>
-    <p>Verifique se o diagnóstico, categoria ou pergunta está cadastrado no sistema.</p>
-    <a href="{% url 'lista_diagnosticos' %}" data-icon="arrow-l" 
-    data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">Voltar</a>
+    <p>{% trans 'A página que está procurando não existe.' %} </p>
+    <p>{% trans 'Verifique se o diagnóstico, categoria ou pergunta está cadastrado no sistema.' %}</p>
+    <a href="{% url 'lista_diagnosticos' %}" data-icon="arrow-l"
+    data-direction="reverse" data-role="button" data-theme="c" class="ui-btn-left">{% trans 'Voltar' %}</a>
 {% endblock corpo %}
 
 {% block rodape %}

@@ -10,7 +10,7 @@
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
       <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
-      <li><a href="{{adminform.form.instance.get_absolute_url }}" class="viewsitelink">Ver em PDF</a></li>
+      <li><a href="{{adminform.form.instance.get_absolute_url }}" class="viewsitelink">{% trans 'Ver em PDF' %}</a></li>
   </ul>
 {% endif %}{% endif %}
 {% endblock %}

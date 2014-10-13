@@ -4,7 +4,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>My Title</title>
+        <title>{% trans 'Relatório' %}</title>
         <style type="text/css">
             td.logo {
                 text-align: center;
@@ -66,8 +66,8 @@
                 <tr>
                     <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}" /></td>
                     <td class="header_text">
-                        <p><strong>SENADO FEDERAL</strong></p>
-                        <p><strong>SECRETARIA ESPECIAL DO INTERLEGIS – SINTER</strong></p>
+                        <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
+                        <p><strong>{% trans 'SECRETARIA ESPECIAL DO INTERLEGIS – SINTER' %}</strong></p>
                         <p>{% block subsecretaria %}{% endblock %}</p>
                     </td>
                     <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}" /></td>
@@ -78,7 +78,7 @@
         {% endblock %}
         <div id="footer">
             {%block page_foot%}
-            Página <pdf:pagenumber>
+            {% trans 'Página' %} <pdf:pagenumber>
             {%endblock%}
         </div>
     </body>

@@ -28,11 +28,11 @@
                 margin-right: 1cm;
                 height: 1cm;
             }
-        }        
+        }
         body{
             font-family: 'Helvetica';
             font-size: 9pt;
-        }        
+        }
         #corpo h1{
             text-align: center;
         }
@@ -52,13 +52,13 @@
             padding-top: 0.15cm;
         }
         #footerContent #esquerda{
-            text-align: left;            
+            text-align: left;
         }
         #footerContent #direita{
             text-align: right;
             background-image: url("/media/images/logo-senado.png");
-        }        
-        .tabela {            
+        }
+        .tabela {
             padding-top: 0.1cm;
             padding-left: 0.1cm;
             border: black solid;
@@ -70,7 +70,7 @@
             font-weight: bold;
             font-size: 11pt;
         }
-        .tabela th{            
+        .tabela th{
             background-color: #CFCFCF;
             text-align: left;
         }
@@ -80,13 +80,13 @@
         .tabela .sumario{
             font-weight: bold;
             background-color: #CFCFCF;
-        }        
+        }
         .tabela .cabecalho_esquerda{
             background-color: #E8E8E8;
             font-weight: bold;
         }
 
-        
+
     </style>
 
 </head>
@@ -95,12 +95,12 @@
         <table>
             <tr>
                 <td id="imagem1"><img src="../media/images/logo-senado.png" width="80" height="80" alt="Logo Senado"/></td>
-                <td id="centro" colspan="3">SENADO FEDERAL<br/><span class="item2">SINTER - Secretaria Especial do Interlegis</span></td>
+                <td id="centro" colspan="3">{% trans 'SENADO FEDERAL' %}<br/><span class="item2">{% trans 'SINTER - Secretaria Especial do Interlegis' %}</span></td>
                 <td id="imagem2"><img src="../media/images/logo-interlegis.jpg" width="90" height="65" alt="Logo Interlegis"/></td>
-            </tr>            
+            </tr>
         </table>
-        <h1 class="titulo">{{regiao}}</h1>        
-    </div>    
+        <h1 class="titulo">{{regiao}}</h1>
+    </div>
     <div id="midle">
         {% for tabela in tabelas %}
         <table class="tabela" repeat="1">
@@ -112,7 +112,7 @@
                     {%endfor%}
                 </tr>
             </thead>
-            <tbody>                                
+            <tbody>
             {% for linha in tabela.linhas %}
             <tr class="conteudo">
                 <th class="cabecalho_esquerda">{{linha.estado}}</th>
@@ -131,15 +131,15 @@
         </table>
         <br />
         {% endfor %}
-    </div>    
+    </div>
     <div id="footerContent">
         <table>
             <tr>
                 <td id="esquerda">{{data}} às {{hora}}</td>
-                <td id="direita">Página <pdf:pagenumber /> </td>
+                <td id="direita">{% trans 'Página' %} <pdf:pagenumber /> </td>
             </tr>
         </table>
     </div>
-    
+
 </body>
 </html>

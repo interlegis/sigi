@@ -8,12 +8,12 @@
     <div><!-- DIV needed for valid HTML -->
       <label for="searchbar"><img src="{% static 'admin/img/icon_searchbox.png' %}"  alt="Search" /></label>
       <input type="text" size="40" name="q" value="" id="searchbar" />
-      <label for="data_visita_inicio__gte">Visitados a partir de:</label>
+      <label for="data_visita_inicio__gte">{% trans 'Visitados a partir de' %}:</label>
       <input type="text" size="10" name="data_visita_inicio__gte" value="" id="data_visita_inicio__gte" class="vDateField"/>
-      <label for="data_visita_inicio__lte">até:</label>
+      <label for="data_visita_inicio__lte">{% trans 'até' %}:</label>
       <input type="text" size="10" name="data_visita_inicio__lte" value="" id="data_visita_inicio__lte" />
       <input type="submit" value="Pesquisar" />
-      Datas podem ser: Um ano (aaaa), um mês (aaaa-mm) ou um dia (aaaa-mm-dd)
+      {% trans 'Datas podem ser: Um ano (aaaa), um mês (aaaa-mm) ou um dia (aaaa-mm-dd)' %}
     </div>
   </form>
 </div>

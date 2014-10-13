@@ -11,11 +11,11 @@
 			<table>
 			<thead>
      			<tr>
-        			<th colspan="2">Tipo de serviço</th>
-					<th>Hospedagem no Interlegis?</th>
-					<th>Data de ativação</th>
-					<th>Data da última alteração</th>
-					<th>Data de desativação</th>
+        			<th colspan="2">{% trans 'Tipo de serviço' %}</th>
+					<th>{% trans 'Hospedagem no Interlegis?' %}</th>
+					<th>{% trans 'Data de ativação' %}</th>
+					<th>{% trans 'Data da última alteração' %}</th>
+					<th>{% trans 'Data de desativação' %}</th>
 				</tr>
 			</thead>
 			<tbody>
@@ -29,10 +29,10 @@
 					<td>{{ srv.data_desativacao|date:'SHORT_DATE_FORMAT' }}</td>
 				</tr>
 			{% empty %}
-				<tr> <td colspan="6">Nenhum serviço cadastrado para esta Casa Legislativa</td> </tr>
+				<tr> <td colspan="6">{% trans 'Nenhum serviço cadastrado para esta Casa Legislativa' %}</td> </tr>
 			{% endfor %}
 				<tr class="add-row">
-					<td colspan="6"><a href="{% url 'admin:servicos_servico_add' %}?id_casa={{ original.id|safe }}">Adicionar outro Servico</a></td>
+					<td colspan="6"><a href="{% url 'admin:servicos_servico_add' %}?id_casa={{ original.id|safe }}">{% trans 'Adicionar outro Servico' %}</a></td>
 				</tr>
 			</tbody>
 			</table>

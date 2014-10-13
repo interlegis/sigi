@@ -11,24 +11,24 @@
 	td.qtde, th.qtde {
 		text-align: right;
 	}
-	
+
 	td.nome_uf {
 		padding: 0 5px !important;
 	}
 </style>
-<title>Sumário da atuação do Interlegis</title>
+<title>{% trans 'Sumário da atuação do Interlegis' %}</title>
 {% endblock %}
 
 {% block report %}
-<h1>Sumário da atuação do Interlegis</h1>
+<h1>{% trans 'Sumário da atuação do Interlegis' %}</h1>
 <hr/><br/>
 <table class="data" repeat="2">
 	<tr>
-		<th rowspan="2">Região / Estado</th>
-		<th colspan="{{ servicos.count }}">Serviços SEIT</th>
-		<th colspan="{{ projetos.count }}">Conveniadas</th>
-		<th colspan="{{ projetos.count }}">Equipadas</th>
-		<th colspan="2">Diagnósticos</th>
+		<th rowspan="2">{% trans 'Região / Estado' %}</th>
+		<th colspan="{{ servicos.count }}">{% trans 'Serviços SEIT' %}</th>
+		<th colspan="{{ projetos.count }}">{% trans 'Conveniadas' %}</th>
+		<th colspan="{{ projetos.count }}">{% trans 'Equipadas' %}</th>
+		<th colspan="2">{% trans 'Diagnósticos' %}</th>
 	</tr>
 	<tr>
 	{% for servico in servicos %}
@@ -40,8 +40,8 @@
 	{% for projeto in projetos %}
 		<th>{{ projeto.sigla }}</th>
 	{% endfor %}
-		<th>Em andamento</th>
-		<th>Publicados</th>
+		<th>{% trans 'Em andamento' %}</th>
+		<th>{% trans 'Publicados' %}</th>
 	</tr>
 	{% for r_sigla, regiao in result.iteritems %}
 	<tr>

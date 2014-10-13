@@ -4,13 +4,13 @@
 {% if adminform.form.instance.user %}
 <fieldset style="background:transparent" id="fieldset-2" class="_module _aligned">
     <legend>
-        Dados do LDAP
+        {% trans 'Dados do LDAP' %}
     </legend>
     <div class="fields">
         <div class="row"><div class="control-group">
                 <div class="col-md-12 form-group ">
                         <div class="control-label col-md-3">
-                            <label>Primeiro Nome:</label>
+                            <label>{% trans 'Primeiro Nome' %}:</label>
                         </div>
                         <div class="controls col-md-9">
                             <p class="form-control-static">{{adminform.form.instance.user.first_name}}</p>
@@ -20,7 +20,7 @@
         <div class="row"><div class="control-group">
                 <div class="col-md-12 form-group ">
                         <div class="control-label col-md-3">
-                            <label>Último Nome:</label>
+                            <label>{% trans 'Último Nome' %}:</label>
                         </div>
                         <div class="controls col-md-9">
                             <p class="form-control-static">{{adminform.form.instance.user.last_name}}</p>
@@ -30,7 +30,7 @@
         <div class="row"><div class="control-group">
                 <div class="col-md-12 form-group ">
                         <div class="control-label col-md-3">
-                            <label>Email Principal:</label>
+                            <label>{% trans 'Email Principal' %}:</label>
                         </div>
                         <div class="controls col-md-9">
                             <p class="form-control-static">{{adminform.form.instance.user.email}}</p>

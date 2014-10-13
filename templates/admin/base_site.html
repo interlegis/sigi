@@ -30,18 +30,18 @@
 {% endblock %}
 
 {% block branding %}
-	<a class="navbar-brand" href="/">Sistema de Informações Gerenciais do Interlegis</a>
+	<a class="navbar-brand" href="/">{% trans 'Sistema de Informações Gerenciais do Interlegis' %}</a>
 {% endblock %}
 
 {% block nav-global %}
 {% if user.is_superuser %}
     <li class="dropdown">
-        <a data-toggle="dropdown" class="dropdown-toggle" href="#">Administração <b class="caret"></b></a>
+        <a data-toggle="dropdown" class="dropdown-toggle" href="#">{% trans 'Administração' %} <b class="caret"></b></a>
         <ul class="dropdown-menu">
-            <li><a href="/auth/">Usuários &amp; Grupos</a></li>
-            <li><a href="/treemenus/menu/">Menus</a></li>
-            <li><a href="/sites/site/">Sites</a></li>
-            <li><a href="/diagnosticos/">Diagnósticos</a></li>
+            <li><a href="/auth/">{% trans 'Usuários' %} &amp; {% trans 'Grupos' %}</a></li>
+            <li><a href="/treemenus/menu/">{% trans 'Menus' %}</a></li>
+            <li><a href="/sites/site/">{% trans 'Sites' %}</a></li>
+            <li><a href="/diagnosticos/">{% trans 'Diagnósticos' %}</a></li>
         </ul>
     </li>
 {% endif %}
@@ -52,9 +52,9 @@
 
     <div id="footer">
         <div class="footernote">
-          <p>Em caso de dúvida no uso do sistema contate o SPDT no ramal 2587.</p>
-          <p>É recomendado o uso das informações aqui fornecidas fora do âmbito do Interlegis.</p>
-          <p>SIGI é um software livre e seus fontes estão disponíveis no <a href="http://colab.interlegis.leg.br/wiki/ProjetoSigi">Colab</a>.</p>
+          <p>{% trans 'Em caso de dúvida no uso do sistema contate o SPDT no ramal 2587' %}.</p>
+          <p>{% trans 'É recomendado o uso das informações aqui fornecidas fora do âmbito do Interlegis' %}.</p>
+          <p>{% trans 'SIGI é um software livre e seus fontes estão disponíveis no' %} <a href="http://colab.interlegis.leg.br/wiki/ProjetoSigi">Colab</a>.</p>
         </div>
         <div class="footerlogos">
             <ul>

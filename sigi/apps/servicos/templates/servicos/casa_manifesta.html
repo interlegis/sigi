@@ -20,14 +20,14 @@
 {% block breadcrumbs %}
 <div class="breadcrumbs">
 {% if casa_list %}
-  <a href="./">Unidade da Federação</a> &rsaquo; Casa Legislativa
+  <a href="./">{% trans 'Unidade da Federação' %}</a> &rsaquo; {% trans 'Casa Legislativa' %}
 {% else %}
   {% if casa %}
-    <a href="./">Unidade da Federação</a> &rsaquo;
-    <a href="./?uf={{ casa.municipio.uf.sigla }}">Casa Legislativa</a> &rsaquo;
+    <a href="./">{% trans 'Unidade da Federação' %}</a> &rsaquo;
+    <a href="./?uf={{ casa.municipio.uf.sigla }}">{% trans 'Casa Legislativa' %}</a> &rsaquo;
     {{ casa.nome }}
   {% else %}
-    Unidade da Federação
+    {% trans 'Unidade da Federação' %}
   {% endif %}
 {% endif %}
 </div>
@@ -36,7 +36,7 @@
 {% block content %}
 <div id="content-main">
 {% if uf_list %}
-  <h3>1. Informe a Unidade da Federação onde se localiza sua Casa Legislativa</h3>
+  <h3>1. {% trans 'Informe a Unidade da Federação onde se localiza sua Casa Legislativa' %}</h3>
   <ul>
   {% for uf in uf_list %}
     <li><a href="./?uf={{ uf.sigla }}">{{ uf.nome }}</a></li>
@@ -45,7 +45,7 @@
 {% endif %}
 
 {% if casa_list %}
-  <h3>2. Identifique sua Casa Legislativa</h3>
+  <h3>2. {% trans 'Identifique sua Casa Legislativa' %}</h3>
   <br/>
   <ul>
   {% for casa in casa_list %}
@@ -55,7 +55,7 @@
 {% endif %}
 
 {% if cmf %}
-  <h3>3. Informe os dados para a {{ casa.nome }} - {{ casa.municipio.uf }}</h3>
+  <h3>3. {% trans 'Informe os dados para a' %} {{ casa.nome }} - {{ casa.municipio.uf }}</h3>
   <form action="" method="post" id="manifesta_form">{% csrf_token %}
   {% for fieldset in cmf.fieldsets %}
   {% if forloop.first %}
@@ -85,13 +85,13 @@
       {% endfor %}
     </fieldset>
     <fieldset class="module aligned {{ fieldset.classes }}">
-      <h2>Serviços e produtos Interlegis</h2>
+      <h2>{% trans 'Serviços e produtos Interlegis' %}</h2>
       <table>
         <tr>
-          <th>Nome do serviço ou produto</th>
-          <th>Marque se a Casa utiliza este serviço ou produto</th>
-          <th>Informe a URL onde se localiza o serviço ou produto</th>
-          <th>Marque se o serviço ou produto está hospedado no Interlegis</th>
+          <th>{% trans 'Nome do serviço ou produto' %}</th>
+          <th>{% trans 'Marque se a Casa utiliza este serviço ou produto' %}</th>
+          <th>{% trans 'Informe a URL onde se localiza o serviço ou produto' %}</th>
+          <th>{% trans 'Marque se o serviço ou produto está hospedado no Interlegis' %}</th>
         </tr>
   {% else %}
     <tr>
@@ -113,14 +113,14 @@
 {% endif %}
 
 {% if thanks %}
-  <h1>Obrigado por responder à nossa pesquisa!</h1>
-  <h3>Quadro resumo das informações prestadas:</h3>
+  <h1>{% trans 'Obrigado por responder à nossa pesquisa' %}!</h1>
+  <h3>{% trans 'Quadro resumo das informações prestadas' %}:</h3>
   <table>
     {% for row in thanks %}
-      <tr><th>{{ row.0 }}</th><td>{{ row.1|default:"Não informado" }}</td></tr>
+      <tr><th>{{ row.0 }}</th><td>{{ row.1|default:_("Não informado") }}</td></tr>
     {% endfor %}
   </table>
-  <p>Se desejar, você poderá alterar esses dados repetindo o processo</p>
+  <p>{% trans 'Se desejar, você poderá alterar esses dados repetindo o processo' %}</p>
 {% endif %}
 
 {% endblock %}

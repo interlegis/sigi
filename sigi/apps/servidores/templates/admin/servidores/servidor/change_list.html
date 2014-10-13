@@ -4,11 +4,11 @@
 {% block object-tools-items %}
   <li><a href="/servidores/servidores_por_cargo.pdf" class="historylink">
     <span class="glyphicon glyphicon-list-alt"></span>
-    Relatório por cargo
+    {% trans 'Relatório por cargo' %}
   </a></li>
   <li><a href="/servidores/servidores_por_funcao.pdf" class="historylink">
     <span class="glyphicon glyphicon-list-alt"></span>
-    Relatório por função
+    {% trans 'Relatório por função' %}
   </a></li>
   {{ block.super }}
 {% endblock %}
