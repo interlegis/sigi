@@ -34,10 +34,10 @@ class ReportDefault(Report):
                   left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=3 * cm, height=3 * cm,
                   ),
-            Label(text=_("SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_(u"SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
                   ),
-            Label(text=_("SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_(u"SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 13, 'alignment': TA_CENTER}
                   ),
             SystemField(
@@ -66,7 +66,7 @@ class ReportDefault(Report):
     class band_summary(ReportBand):
         height = 0.8 * cm
         elements = [
-            Label(text=_("Total:"), top=0.1 * cm, left=0),
+            Label(text=_(u"Total:"), top=0.1 * cm, left=0),
             ObjectValue(attribute_name='id', top=0.1 * cm, left=1 * cm,
                         action=FIELD_ACTION_COUNT, display_format='%s'),
         ]

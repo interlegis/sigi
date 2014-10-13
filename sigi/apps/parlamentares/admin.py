@@ -29,7 +29,7 @@ class PartidoAdmin(BaseModelAdmin):
 
 
 class ParlamentarNomeCompletoFilter(AlphabeticFilter):
-    title = _('Inicial do Nome Completo')
+    title = _(u'Inicial do Nome Completo')
     parameter_name = 'nome_completo'
 
 
@@ -43,10 +43,10 @@ class ParlamentarAdmin(BaseModelAdmin):
         (None, {
             'fields': ('nome_completo', 'nome_parlamentar', 'sexo'),
         }),
-        #        (_('Endereço'), {
+        #        (_(u'Endereço'), {
         #            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
         #        }),
-        (_('Outras informações'), {
+        (_(u'Outras informações'), {
             'fields': ('data_nascimento', 'email', 'pagina_web', 'foto'),
         }),
     )
@@ -64,9 +64,9 @@ class ParlamentarAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_parlamentar'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, _("%s Parlamentares adicionados no carrinho") % (quant))
+            self.message_user(request, _(u"%s Parlamentares adicionados no carrinho") % (quant))
         else:
-            self.message_user(request, _("Os parlamentares selecionadas já foram adicionadas anteriormente"))
+            self.message_user(request, _(u"Os parlamentares selecionadas já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
 
     adiciona_parlamentar.short_description = _(u"Armazenar parlamentar no carrinho para exportar")

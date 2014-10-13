@@ -31,7 +31,7 @@ class FeriasAdmin(BaseModelAdmin):
 
 
 class ServidorFilter(AlphabeticFilter):
-    title = _('Nome do Servidor')
+    title = _(u'Nome do Servidor')
     parameter_name = 'servidor__nome_completo'
 
 
@@ -65,7 +65,7 @@ class ServidorAdmin(BaseModelAdmin):
         return servidor.user.is_active
     is_active.admin_order_field = 'user__is_active'
     is_active.boolean = True
-    is_active.short_description = _('ativo')
+    is_active.short_description = _(u'ativo')
 
     list_display = ('nome_completo', 'is_active', 'foto', 'servico', )
     list_filter = ('user__is_active', 'sexo', 'servico',)
@@ -78,10 +78,10 @@ class ServidorAdmin(BaseModelAdmin):
         (_(u'Autenticação'), {
             'fields': ('user',),
         }),
-        (_('Cadastro'), {
+        (_(u'Cadastro'), {
             'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
         }),
-        (_('Lotação'), {
+        (_(u'Lotação'), {
             'fields': ('servico', 'turno', 'de_fora'),
         }),
         (_(u'Observações'), {

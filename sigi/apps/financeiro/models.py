@@ -13,8 +13,8 @@ class Desembolso(models.Model):
     valor_dolar = models.DecimalField(_(u'Valor em US$'), max_digits=18, decimal_places=2)
 
     class Meta:
-        verbose_name = _('Desembolso')
-        verbose_name_plural = _('Desembolsos')
+        verbose_name = _(u'Desembolso')
+        verbose_name_plural = _(u'Desembolsos')
 
     def __unicode__(self):
         return u"%s (US$ %s)" % (self.descricao, self.valor_dolar)

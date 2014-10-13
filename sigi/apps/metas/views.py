@@ -352,6 +352,6 @@ def gera_map_data_file(cronjob=False):
             pass  # ... ou os dados poderão ser usados de qualquer forma
 
     if cronjob:
-        return _("Arquivo %s gerado em %d segundos") % (JSON_FILE_NAME, time.time() - start)
+        return _(u"Arquivo %s gerado em %d segundos") % (JSON_FILE_NAME, time.time() - start)
 
     return json_data

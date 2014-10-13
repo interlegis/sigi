@@ -16,8 +16,8 @@ class Partido(models.Model):
 
 class Parlamentar(models.Model):
     SEXO_CHOICES = (
-        ('M', _('Masculino')),
-        ('F', _('Feminino')),
+        ('M', _(u'Masculino')),
+        ('F', _(u'Feminino')),
     )
     nome_completo = models.CharField(max_length=128)
     nome_parlamentar = models.CharField(max_length=35, blank=True)
@@ -34,17 +34,17 @@ class Parlamentar(models.Model):
         choices=SEXO_CHOICES,
     )
     data_nascimento = models.DateField(
-        _('data de nascimento'),
+        _(u'data de nascimento'),
         blank=True,
         null=True,
     )
-    email = models.EmailField(_('e-mail'), blank=True)
+    email = models.EmailField(_(u'e-mail'), blank=True)
     pagina_web = models.URLField(_(u'página web'),
                                  blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
-        verbose_name_plural = _('parlamentares')
+        verbose_name_plural = _(u'parlamentares')
 
     def __unicode__(self):
         if self.nome_parlamentar:
@@ -54,17 +54,17 @@ class Parlamentar(models.Model):
 
 class Mandato(models.Model):
     SUPLENCIA_CHOICES = (
-        ('T', _('Titular')),
-        ('S', _('Suplente')),
+        ('T', _(u'Titular')),
+        ('S', _(u'Suplente')),
     )
     parlamentar = models.ForeignKey(Parlamentar)
     legislatura = models.ForeignKey('mesas.Legislatura')
     partido = models.ForeignKey(Partido)
     cargo = models.ForeignKey('mesas.Cargo')
     inicio_mandato = models.DateField(_(u'início de mandato'))
-    fim_mandato = models.DateField(_('fim de mandato'))
+    fim_mandato = models.DateField(_(u'fim de mandato'))
     is_afastado = models.BooleanField(
-        _('afastado'),
+        _(u'afastado'),
         default=False,
         help_text=_(u'Marque caso parlamentar não esteja ativo.')
     )

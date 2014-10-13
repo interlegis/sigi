@@ -8,11 +8,11 @@ from sigi.apps.casas.models import CasaLegislativa
 
 class CasaLegislativaForm(forms.ModelForm):
     # cnpj = BRCNPJField(
-    #    label=_('CNPJ'),
+    #    label=_(u'CNPJ'),
     #    required=False,
-    #    help_text=_('Utilize o formato <em>XX.XXX.XXX/XXXX-XX</em> ou insira apenas os dígitos.')
+    #    help_text=_(u'Utilize o formato <em>XX.XXX.XXX/XXXX-XX</em> ou insira apenas os dígitos.')
     #)
-    cep = BRZipCodeField(label=_('CEP'), help_text=_('Formato: <em>XXXXX-XXX</em>.'))
+    cep = BRZipCodeField(label=_(u'CEP'), help_text=_(u'Formato: <em>XXXXX-XXX</em>.'))
 
     class Meta:
         model = CasaLegislativa

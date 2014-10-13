@@ -35,20 +35,20 @@ class Coligacao(models.Model):
 
     class Meta:
         ordering = ('legislatura', 'nome')
-        verbose_name = _('coligação')
-        verbose_name_plural = _('coligações')
+        verbose_name = _(u'coligação')
+        verbose_name_plural = _(u'coligações')
 
     def __unicode__(self):
         return self.nome
 
 
 class ComposicaoColigacao(models.Model):
-    coligacao = models.ForeignKey(Coligacao, verbose_name=_('coligação'))
+    coligacao = models.ForeignKey(Coligacao, verbose_name=_(u'coligação'))
     partido = models.ForeignKey('parlamentares.Partido')
 
     class Meta:
-        verbose_name = _('composição da coligação')
-        verbose_name_plural = _('composições das coligações')
+        verbose_name = _(u'composição da coligação')
+        verbose_name_plural = _(u'composições das coligações')
 
     def __unicode__(self):
         return str(self.id)
@@ -56,13 +56,13 @@ class ComposicaoColigacao(models.Model):
 
 class SessaoLegislativa(models.Model):
     SESSAO_CHOICES = (
-        ('O', _('Ordinária')),
-        ('E', _('Extraordinária')),
+        ('O', _(u'Ordinária')),
+        ('E', _(u'Extraordinária')),
     )
     numero = models.PositiveSmallIntegerField(_(u'número da sessão'), unique=True)
     mesa_diretora = models.ForeignKey(
         'MesaDiretora',
-        verbose_name=_('Mesa Diretora')
+        verbose_name=_(u'Mesa Diretora')
     )
     legislatura = models.ForeignKey(Legislatura)
     tipo = models.CharField(
@@ -71,22 +71,22 @@ class SessaoLegislativa(models.Model):
         default='O'
     )
     data_inicio = models.DateField(_(u'início'))
-    data_fim = models.DateField(_('fim'))
+    data_fim = models.DateField(_(u'fim'))
     data_inicio_intervalo = models.DateField(
         _(u'início de intervalo'),
         blank=True,
         null=True
     )
     data_fim_intervalo = models.DateField(
-        _('fim de intervalo'),
+        _(u'fim de intervalo'),
         blank=True,
         null=True
     )
 
     class Meta:
         ordering = ('legislatura', 'numero')
-        verbose_name = _('Sessão Legislativa')
-        verbose_name_plural = _('Sessões Legislativas')
+        verbose_name = _(u'Sessão Legislativa')
+        verbose_name_plural = _(u'Sessões Legislativas')
 
     def __unicode__(self):
         return str(self.numero)
@@ -95,15 +95,15 @@ class SessaoLegislativa(models.Model):
 class MesaDiretora(models.Model):
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
-        verbose_name=_('Casa Legislativa')
+        verbose_name=_(u'Casa Legislativa')
     )
 
     class Meta:
-        verbose_name = _('Mesa Diretora')
-        verbose_name_plural = _('Mesas Diretoras')
+        verbose_name = _(u'Mesa Diretora')
+        verbose_name_plural = _(u'Mesas Diretoras')
 
     def __unicode__(self):
-        return _('Mesa Diretora da %s') % unicode(self.casa_legislativa)
+        return _(u'Mesa Diretora da %s') % unicode(self.casa_legislativa)
 
 
 class Cargo(models.Model):
@@ -124,8 +124,8 @@ class MembroMesaDiretora(models.Model):
     class Meta:
         ordering = ('parlamentar',)
         unique_together = ('cargo', 'mesa_diretora')
-        verbose_name = _('membro de Mesa Diretora')
-        verbose_name_plural = _('membros de Mesas Diretora')
+        verbose_name = _(u'membro de Mesa Diretora')
+        verbose_name_plural = _(u'membros de Mesas Diretora')
 
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.parlamentar), unicode(self.cargo))

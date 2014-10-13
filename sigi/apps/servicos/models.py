@@ -113,7 +113,7 @@ class Servico(models.Model):
         return
 
     def __unicode__(self):
-        return "%s (%s)" % (self.tipo_servico.nome, _('ativo') if self.data_desativacao is None else _('Desativado'))
+        return "%s (%s)" % (self.tipo_servico.nome, _(u'ativo') if self.data_desativacao is None else _(u'Desativado'))
 
     def save(self, *args, **kwargs):
         # Reter o objeto original para verificar mudanças
@@ -157,17 +157,17 @@ class Servico(models.Model):
 
 
 class LogServico(models.Model):
-    servico = models.ForeignKey(Servico, verbose_name=_('Serviço'))
-    descricao = models.CharField(_('Breve descrição da ação'), max_length=60)
-    data = models.DateField(_('Data da ação'), default=date.today)
-    log = models.TextField(_('Log da ação'))
+    servico = models.ForeignKey(Servico, verbose_name=_(u'Serviço'))
+    descricao = models.CharField(_(u'Breve descrição da ação'), max_length=60)
+    data = models.DateField(_(u'Data da ação'), default=date.today)
+    log = models.TextField(_(u'Log da ação'))
 
     def __unicode__(self):
         return "%s (%s)" % (self.descricao, self.data)
 
     class Meta:
-        verbose_name = _('Log do serviço')
-        verbose_name_plural = _('Logs do serviço')
+        verbose_name = _(u'Log do serviço')
+        verbose_name_plural = _(u'Logs do serviço')
 
 
 class CasaAtendidaManager(models.Manager):
@@ -182,7 +182,7 @@ class CasaAtendida(CasaLegislativa):
 
     class Meta:
         proxy = True
-        verbose_name_plural = _('Casas atendidas')
+        verbose_name_plural = _(u'Casas atendidas')
 
     objects = CasaAtendidaManager()
 

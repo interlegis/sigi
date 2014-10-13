@@ -246,11 +246,11 @@ def report_regiao(request, regiao='NE'):
             regiao = request.POST['regiao']
 
     REGIAO_CHOICES = {
-        'SL': _('Sul'),
-        'SD': _('Sudeste'),
-        'CO': _('Centro-Oeste'),
-        'NE': _('Nordeste'),
-        'NO': _('Norte'),
+        'SL': _(u'Sul'),
+        'SD': _(u'Sudeste'),
+        'CO': _(u'Centro-Oeste'),
+        'NE': _(u'Nordeste'),
+        'NO': _(u'Norte'),
     }
 
     projetos = Projeto.objects.all()
@@ -261,7 +261,7 @@ def report_regiao(request, regiao='NE'):
     # Geral
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     tabela = casas_estado_to_tabela(camaras, convenios, regiao)
-    tabela["projeto"] = _("Geral")
+    tabela["projeto"] = _(u"Geral")
 
     tabelas.append(tabela)
 

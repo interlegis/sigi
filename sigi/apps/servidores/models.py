@@ -36,8 +36,8 @@ class Servico(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _('serviço')
-        verbose_name_plural = _('serviços')
+        verbose_name = _(u'serviço')
+        verbose_name_plural = _(u'serviços')
 
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.nome), unicode(self.sigla))

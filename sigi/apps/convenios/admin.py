@@ -43,12 +43,12 @@ class ConvenioAdmin(BaseModelAdmin):
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao')}
          ),
-        (_('Datas'),
+        (_(u'Datas'),
             {'fields': ('data_adesao', 'data_retorno_assinatura',
                         'data_termo_aceite', 'data_pub_diario',
                         'data_devolucao_via', 'data_postagem_correio')}
          ),
-        (_('Datas - Convenio sem assinatura'),
+        (_(u'Datas - Convenio sem assinatura'),
             {'fields': ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',)}
          ),
     )
@@ -69,7 +69,7 @@ class ConvenioAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
-    get_uf.short_description = _('UF')
+    get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
 
     def changelist_view(self, request, extra_context=None):
@@ -115,9 +115,9 @@ class ConvenioAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_convenios'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
+            self.message_user(request, str(q2 - q1) + _(u" Convênios adicionados no carrinho"))
         else:
-            self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
+            self.message_user(request, _(u"Os Convênios selecionados já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
     adicionar_convenios.short_description = _(u"Armazenar convênios no carrinho para exportar")
 

@@ -15,7 +15,7 @@ class Diagnostico(BaseEntity):
     """
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
-        verbose_name=_('Casa Legislativa'))
+        verbose_name=_(u'Casa Legislativa'))
 
     # campo de busca em caixa baixa e sem acento
     search_text = SearchField(field_names=['casa_legislativa'])
@@ -111,7 +111,7 @@ class Diagnostico(BaseEntity):
                          'data_diagnostico': self.data_visita_inicio,
                          'host': host,
                          'url_diagnostico': self.get_absolute_url(),
-                         'status': _("Alterado"),
+                         'status': _(u"Alterado"),
                      })
 
     def get_schemata(self, category=None, *args, **kwargs):
@@ -188,7 +188,7 @@ class Pergunta(BaseSchema):
 
     class Meta:
         ordering = ('title',)
-        verbose_name, verbose_name_plural = _('pergunta'), _('perguntas')
+        verbose_name, verbose_name_plural = _(u'pergunta'), _(u'perguntas')
 
 
 class Escolha(BaseChoice):
@@ -197,14 +197,14 @@ class Escolha(BaseChoice):
     cadastradas neste modelo
     """
     schema = models.ForeignKey(Pergunta,
-                               related_name='choices', verbose_name=_('pergunta'))
+                               related_name='choices', verbose_name=_(u'pergunta'))
     schema_to_open = models.ForeignKey(Pergunta, related_name='',
-                                       verbose_name=_('pergunta para abrir'), blank=True, null=True)
+                                       verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ('schema', 'ordem')
-        verbose_name, verbose_name_plural = _('escolha'), _('escolhas')
+        verbose_name, verbose_name_plural = _(u'escolha'), _(u'escolhas')
 
 
 class Resposta(BaseAttribute):
@@ -213,12 +213,12 @@ class Resposta(BaseAttribute):
     de um diagnosico
     """
     schema = models.ForeignKey(Pergunta, related_name='attrs',
-                               verbose_name=_('pergunta'))
-    choice = models.ForeignKey(Escolha, verbose_name=_('escolha'),
+                               verbose_name=_(u'pergunta'))
+    choice = models.ForeignKey(Escolha, verbose_name=_(u'escolha'),
                                blank=True, null=True)
 
     class Meta:
-        verbose_name, verbose_name_plural = _('resposta'), _('respostas')
+        verbose_name, verbose_name_plural = _(u'resposta'), _(u'respostas')
 
 
 class Equipe(models.Model):
@@ -242,8 +242,8 @@ class Anexo(models.Model):
     """
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo',)
-    descricao = models.CharField(_('descrição'), max_length='70')
-    data_pub = models.DateTimeField(_('data da publicação do anexo'),
+    descricao = models.CharField(_(u'descrição'), max_length='70')
+    data_pub = models.DateTimeField(_(u'data da publicação do anexo'),
                                     default=datetime.now)
 
     class Meta:

@@ -27,8 +27,8 @@ class Meta(models.Model):
     valor_meta = models.FloatField(_(u'Valor da meta'), help_text=_(u'Valor que deve ser atingido até o prazo final da meta'))
 
     class Meta:
-        verbose_name = _('Meta BID')
-        verbose_name_plural = _('Metas BID')
+        verbose_name = _(u'Meta BID')
+        verbose_name_plural = _(u'Metas BID')
 
     def __unicode__(self):
         return self.titulo
@@ -122,8 +122,8 @@ class PlanoDiretor(models.Model):
     data_implantacao = models.DateField(_(u'Data de implantação'), blank=True, null=True)
 
     class Meta:
-        verbose_name = _('Plano Diretor')
-        verbose_name_plural = _('Planos Diretores')
+        verbose_name = _(u'Plano Diretor')
+        verbose_name_plural = _(u'Planos Diretores')
 
     def __unicode__(self):
         return self.casa_legislativa.nome

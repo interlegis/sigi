@@ -180,6 +180,6 @@ def busca_informacoes_seit():
 
 def busca_informacoes_diagnostico():
     return [
-        {'title': _('Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
-        {'title': _('Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
+        {'title': _(u'Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
+        {'title': _(u'Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
     ]

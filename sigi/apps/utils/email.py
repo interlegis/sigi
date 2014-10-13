@@ -16,13 +16,13 @@ def enviar_email(from_email, subject, template, tags):
         template.
     """
     if from_email is None:
-        raise ValueError(_("Insira o email do remetente."))
+        raise ValueError(_(u"Insira o email do remetente."))
     elif subject is None:
-        raise ValueError(_("Insira o assunto da mensagem."))
+        raise ValueError(_(u"Insira o assunto da mensagem."))
     elif template is None:
         raise ValueError(_(u"Template da mensagem não encontrado"))
     elif tags is None:
-        raise ValueError(_("Insira o conteúdo da mensagem."))
+        raise ValueError(_(u"Insira o conteúdo da mensagem."))
 
     # Gerando a mensagem
     mensagem = render_to_string(template, tags)

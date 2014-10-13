@@ -27,7 +27,7 @@ class LegislaturaAdmin(BaseModelAdmin):
 
     def uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
-    uf.short_description = _('UF')
+    uf.short_description = _(u'UF')
     uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def lookup_allowed(self, lookup, value):

@@ -24,4 +24,4 @@ def render_to_pdf(template_src, context_dict):
     pdf = pisa.pisaDocument(StringIO.StringIO(html.encode('utf-8')), result, link_callback=fetch_resources)
     if not pdf.err:
         return HttpResponse(result.getvalue(), content_type='application/pdf')
-    return HttpResponse(_('We had some errors<pre>%s</pre>') % escape(html))
+    return HttpResponse(_(u'We had some errors<pre>%s</pre>') % escape(html))

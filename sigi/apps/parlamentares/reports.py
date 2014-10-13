@@ -331,7 +331,7 @@ class InfoCasaLegislativa(ReportDefault):
                 left=posicao_left[3] * cm,
                 top=posicao_top[1] * cm,
                 get_value=lambda instance:
-                {'SL': _('Sul'), 'SD': _('Sudeste'), 'CO': _('Centro-Oeste'), 'NE': _('Nordeste'), 'NO': _('Norte'), }
+                {'SL': _(u'Sul'), 'SD': _(u'Sudeste'), 'CO': _(u'Centro-Oeste'), 'NE': _(u'Nordeste'), 'NO': _(u'Norte'), }
                 [instance.municipio.uf.regiao]
             ),
             Label(
@@ -455,7 +455,7 @@ class InfoCasaLegislativa(ReportDefault):
                     ObjectValue(attribute_name='__unicode__', left=tel_left[0] * cm),
                     ObjectValue(attribute_name='tipo', left=tel_left[1] * cm,
                                 get_value=lambda instance:
-                                {'F': _('Fixo'), 'M': _(u'Móvel'), 'X': _('Fax'), 'I': _('Indefinido')}[instance.tipo],
+                                {'F': _(u'Fixo'), 'M': _(u'Móvel'), 'X': _(u'Fax'), 'I': _(u'Indefinido')}[instance.tipo],
                                 ),
                     ObjectValue(attribute_name='nota', left=tel_left[2] * cm),
                 ],

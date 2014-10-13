@@ -186,7 +186,7 @@ def categoria_contatos(request, id_diagnostico):
                 for form_telefones in form.telefones.forms:
                     tel = form_telefones.instance
                     if tel._state.adding and tel.numero != '':
-                        s += _('<p>Novo telefone %(type)s: %(number)s</p>') % dict(
+                        s += _(u'<p>Novo telefone %(type)s: %(number)s</p>') % dict(
                             type=form_telefones.instance.get_tipo_display(),
                             number=form_telefones.instance.numero)
                         resposta['clean'] += ('id_' + form_telefones.prefix + '-numero',)

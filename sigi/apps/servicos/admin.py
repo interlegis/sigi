@@ -58,13 +58,13 @@ class ServicoAdmin(BaseModelAdmin):
     fieldsets = ((None, {
         'fields': ('casa_legislativa', 'data_ativacao',)
     }),
-        (_('Serviço'), {
+        (_(u'Serviço'), {
             'fields': ('tipo_servico', ('url', 'hospedagem_interlegis'), ('nome_servidor', 'porta_servico', 'senha_inicial'),)
         }),
-        (_('Contatos'), {
+        (_(u'Contatos'), {
             'fields': ('contato_tecnico', 'contato_administrativo',)
         }),
-        (_('Alterações'), {
+        (_(u'Alterações'), {
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
@@ -81,12 +81,12 @@ class ServicoAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return u'%s' % (obj.casa_legislativa.municipio.uf)
-    get_uf.short_description = _('UF')
+    get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def getUrl(self, obj):
         return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
-    getUrl.short_description = _('Url')
+    getUrl.short_description = _(u'Url')
     getUrl.allow_tags = True
 
     def get_link_erro(self, obj):
@@ -104,7 +104,7 @@ class ServicoAdmin(BaseModelAdmin):
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
-        self.message_user(request, _("Atualização concluída. Os sites que não responderam foram deixados com a data em branco"))
+        self.message_user(request, _(u"Atualização concluída. Os sites que não responderam foram deixados com a data em branco"))
         return HttpResponseRedirect('.')
     calcular_data_uso.short_description = _(u"Atualizar a data do último uso do(s) serviço(s)")
 
@@ -130,10 +130,10 @@ class ServicoAdmin(BaseModelAdmin):
 
     def response_add(self, request, obj):
         opts = obj._meta
-        msg = _('The %(name)s "%(obj)s" was added successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
+        msg = _(u'The %(name)s "%(obj)s" was added successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
         if "_addanother" in request.POST:
-            self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
+            self.message_user(request, msg + ' ' + (_(u"You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect(request.path + '?id_casa=%s' % (obj.casa_legislativa.id,))
         elif "_save" in request.POST:
             self.message_user(request, msg)
@@ -143,10 +143,10 @@ class ServicoAdmin(BaseModelAdmin):
 
     def response_change(self, request, obj):
         opts = obj._meta
-        msg = _('The %(name)s "%(obj)s" was changed successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
+        msg = _(u'The %(name)s "%(obj)s" was changed successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
         if "_addanother" in request.POST:
-            self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
+            self.message_user(request, msg + ' ' + (_(u"You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect("../add/?id_casa=%s" % (obj.casa_legislativa.id,))
         elif "_save" in request.POST:
             self.message_user(request, msg)
@@ -191,8 +191,8 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def get_servicos(self, obj):
         result = []
         for servico in obj.servico_set.all():
-            result.append(_(u"%s (%s). Contato: %s") % (servico.tipo_servico.nome, _('ativo') if servico.data_desativacao is None
-                                                     else _('Desativado'), servico.contato_administrativo.nome))
+            result.append(_(u"%s (%s). Contato: %s") % (servico.tipo_servico.nome, _(u'ativo') if servico.data_desativacao is None
+                                                     else _(u'Desativado'), servico.contato_administrativo.nome))
 
         return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
     get_servicos.allow_tags = True

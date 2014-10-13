@@ -30,64 +30,64 @@ class Convenio(models.Model):
     """
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
-        verbose_name=_('Casa Legislativa')
+        verbose_name=_(u'Casa Legislativa')
     )
     # campo de busca em caixa baixa e sem acentos
     search_text = SearchField(field_names=['casa_legislativa'])
-    projeto = models.ForeignKey(_('Projeto'))
+    projeto = models.ForeignKey(_(u'Projeto'))
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
-        _('número do processo SF (Senado Federal)'),
+        _(u'número do processo SF (Senado Federal)'),
         max_length=20,
         blank=True,
-        help_text=_('Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
+        help_text=_(u'Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
     )
     num_convenio = models.CharField(
-        _('número do convênio'),
+        _(u'número do convênio'),
         max_length=10,
         blank=True
     )
     data_adesao = models.DateField(
-        _('Aderidas'),
+        _(u'Aderidas'),
         null=True,
         blank=True,
     )
     data_retorno_assinatura = models.DateField(
-        _('Conveniadas'),
+        _(u'Conveniadas'),
         null=True,
         blank=True,
-        help_text=_('Convênio firmado.')
+        help_text=_(u'Convênio firmado.')
     )
     data_pub_diario = models.DateField(
-        _('data da publicação no Diário Oficial'),
+        _(u'data da publicação no Diário Oficial'),
         null=True,
         blank=True
     )
     data_termo_aceite = models.DateField(
-        _('Equipadas'),
+        _(u'Equipadas'),
         null=True,
         blank=True,
-        help_text=_('Equipamentos recebidos.')
+        help_text=_(u'Equipamentos recebidos.')
     )
     data_devolucao_via = models.DateField(
-        _('data de devolução da via'),
+        _(u'data de devolução da via'),
         null=True,
         blank=True,
         help_text=_(u'Data de devolução da via do convênio à Câmara Municipal.')
     )
     data_postagem_correio = models.DateField(
-        _('data postagem correio'),
+        _(u'data postagem correio'),
         null=True,
         blank=True,
     )
     data_devolucao_sem_assinatura = models.DateField(
-        _('data de devolução por falta de assinatura'),
+        _(u'data de devolução por falta de assinatura'),
         null=True,
         blank=True,
         help_text=_(u'Data de devolução por falta de assinatura'),
     )
     data_retorno_sem_assinatura = models.DateField(
-        _('data do retorno sem assinatura'),
+        _(u'data do retorno sem assinatura'),
         null=True,
         blank=True,
         help_text=_(u'Data do retorno do convênio sem assinatura'),
@@ -128,8 +128,8 @@ class EquipamentoPrevisto(models.Model):
     quantidade = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        verbose_name = _('equipamento previsto')
-        verbose_name_plural = _('equipamentos previstos')
+        verbose_name = _(u'equipamento previsto')
+        verbose_name_plural = _(u'equipamentos previstos')
 
     def __unicode__(self):
         return u'%s %s(s)' % (self.quantidade, self.equipamento)
@@ -143,9 +143,9 @@ class Anexo(models.Model):
     convenio = models.ForeignKey(Convenio, verbose_name=_(u'convênio'))
     # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo',)
-    descricao = models.CharField(_('descrição'), max_length='70')
+    descricao = models.CharField(_(u'descrição'), max_length='70')
     data_pub = models.DateTimeField(
-        _('data da publicação do anexo'),
+        _(u'data da publicação do anexo'),
         default=datetime.now
     )
 
@@ -178,7 +178,7 @@ class Tramitacao(models.Model):
     unid_admin = models.ForeignKey(UnidadeAdministrativa, verbose_name=_(u'Unidade Administrativa'))
     data = models.DateField()
     observacao = models.CharField(
-        _('observação'),
+        _(u'observação'),
         max_length='512',
         null=True,
         blank=True,
@@ -189,6 +189,6 @@ class Tramitacao(models.Model):
 
     def __unicode__(self):
         if self.observacao:
-            return unicode(_("%s em %s (%s)") % (self.unid_admin, self.data, self.observacao))
+            return unicode(_(u"%s em %s (%s)") % (self.unid_admin, self.data, self.observacao))
         else:
-            return unicode(_("%s em %s") % (self.unid_admin, self.data))
+            return unicode(_(u"%s em %s") % (self.unid_admin, self.data))
