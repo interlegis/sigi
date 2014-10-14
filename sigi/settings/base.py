@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for sigi project.
 
@@ -66,6 +67,10 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
+    
+    # Integração com Saberes (moodle)
+    'sigi.apps.mdl',
+    'sigi.apps.saberes',
 
     # Third-party apps
     'localflavor',
