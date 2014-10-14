@@ -1,0 +1,22 @@
+{% load charts %}
+
+<div class="row row-flex row-flex-wrap">
+  {% for painel in paineis %}
+  <div class="col-md-4">
+    <div class="panel panel-primary flex-col">
+      <div class="panel-heading">{{ painel.titulo }}</div>
+      <div class="panel-body">
+	    <table class='table'>
+	    {% for linha in painel.dados %}
+	      <tr>
+	        <th>{{ linha.descricao }}</th>
+	        <td class='number'>{{ linha.valor }}</td>
+	      </tr>
+	    {% endfor %}
+	    </table>
+      </div>
+    </div>
+  </div>
+  {% cycle '' '' '</div><div class="row">' %}
+  {% endfor %}
+</div>

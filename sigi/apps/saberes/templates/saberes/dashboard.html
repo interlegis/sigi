@@ -1,0 +1,20 @@
+{% extends "admin/base_site.html" %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    td.number {
+      text-align: right;
+    }
+    .panel-body {
+      max-height: 400px;
+      overflow: auto;    
+    }
+  </style>
+{% endblock %}
+
+{% block content %}
+    <div id="content-main">
+      {% include "saberes/snippets.html" %}
+    </div>
+{% endblock %}
