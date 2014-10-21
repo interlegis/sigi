@@ -43,7 +43,12 @@
 						icon: '/static/img/mapmarker.png'
 				}
 				var mark = new google.maps.Marker(markData);
-				var infoWin = new google.maps.InfoWindow({content: '<strong>' + municipio.nome + '</strong><br/><br/>' + municipio.info });
+				var infoWin = new google.maps.InfoWindow({content: 
+				  '<strong>' + municipio.nome + '</strong><br/><br/>' + 
+				  municipio.info + '<br/><br/>' +
+				  '<a href="' + municipio.foto + '" target="_blank">' +
+				    '<img src="' + municipio.thumb + '">' +
+				  '</a>' });
 				linkMarkMessage(mark, infoWin, map);
 				municipio['mapmark'] = mark;
 				municipio['infowindow'] = infoWin;

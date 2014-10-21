@@ -140,5 +140,10 @@ THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
 
+THUMBNAIL_ALIASES = {
+    '': {
+        'small': {'size': (300, 225), 'crop': True,},
+    },
+}
 IMAGE_CROPPING_SIZE_WARNING = True
 IMAGE_CROPPING_THUMB_SIZE = (800, 600)

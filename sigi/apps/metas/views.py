@@ -22,6 +22,8 @@ from sigi.apps.utils import to_ascii
 from sigi.apps.financeiro.models import Desembolso
 from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
 from functools import reduce
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
+import time
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 
@@ -282,7 +284,6 @@ def gera_map_data_file(cronjob=False):
         Caso cronjob seja True, retorna log de tempo gasto na geração ou a mensagem do erro
         que impediu a gravação do arquivo.
     '''
-    import time
     start = time.time()
 
     casas = {}
@@ -296,6 +297,8 @@ def gera_map_data_file(cronjob=False):
             casa = {
                 'nome': c.nome + ', ' + c.municipio.uf.sigla,
                 'icone': '/static/img/mapmarker.png',
+                'thumb': thumbnail_url(c.foto, 'small'),
+                'foto': (c.foto.url if c.foto else ''),
                 'lat': str(c.municipio.latitude),
                 'lng': str(c.municipio.longitude),
                 'estado': c.municipio.uf.sigla,
