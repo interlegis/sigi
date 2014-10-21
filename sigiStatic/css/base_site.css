@@ -234,3 +234,7 @@ h1 {
 .dropdown-menu .clear-all-filter a {
     color: #357ebd;
 }
+/*Fixing Google Maps API conflict with bootstrap. */
+.container-flex > div[class*='col-'] #map div, .row-flex > div[class*='col-'] #map div {
+    width: initial;
+}
