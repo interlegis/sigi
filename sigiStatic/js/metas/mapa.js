@@ -43,12 +43,16 @@
 						icon: '/static/img/mapmarker.png'
 				}
 				var mark = new google.maps.Marker(markData);
-				var infoWin = new google.maps.InfoWindow({content: 
-				  '<strong>' + municipio.nome + '</strong><br/><br/>' + 
-				  municipio.info + '<br/><br/>' +
-				  '<a href="' + municipio.foto + '" target="_blank">' +
-				    '<img src="' + municipio.thumb + '">' +
-				  '</a>' });
+				var iwcontent = '<strong>' + municipio.nome + '</strong><br/><br/>' + 
+				                municipio.info;
+				
+				if (municipio.thumb != '') {
+					iwcontent = iwcontent + '<br/><br/>' +
+                                '<a href="' + municipio.foto + '" target="_blank">' +
+				                '<img src="' + municipio.thumb + '"></a>';
+				}
+
+				var infoWin = new google.maps.InfoWindow({content: iwcontent });
 				linkMarkMessage(mark, infoWin, map);
 				municipio['mapmark'] = mark;
 				municipio['infowindow'] = infoWin;
