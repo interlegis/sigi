@@ -64,7 +64,16 @@
                     <th>{{ servico.novos_mes_anterior }}</th>
                     <th>{{ servico.novos_mes_atual }}</th>
                 {% else %}
-                    <th>{{ servico.nome }}</th>
+                    <th class="dropdown">
+                      <span id="ddm-{{ servico.nome }}" data-toggle="dropdown">
+                        {{ servico.nome }}
+                      </span>
+                        <table class="dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
+                        {% for mes in servico.novos_por_mes %}
+                          <tr role="presentation"><th role="menuitem" tabindex="-1" href="#">{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
+                        {% endfor %}
+                        </table>
+                    </th>
                     <td>{{ servico.total }}</td>
                     <td>{{ servico.novos_mes_anterior }}</td>
                     <td>{{ servico.novos_mes_atual }}</td>
