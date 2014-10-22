@@ -167,7 +167,7 @@ def busca_informacoes_seit():
     for tipo_servico in TipoServico.objects.all():
         por_mes = []
         for mes in range(1,13):
-            por_mes.append({'mes': '%s/%s' % (mes,datetime.date.today().year), 
+            por_mes.append({'mes': '%02d/%s' % (mes,datetime.date.today().year), 
                             'total': tipo_servico.servico_set.filter(data_desativacao=None, data_ativacao__year=mes_atual.year, data_ativacao__month=mes).count()})
             
         result.append(

@@ -65,12 +65,12 @@
                     <th>{{ servico.novos_mes_atual }}</th>
                 {% else %}
                     <th class="dropdown">
-                      <span id="ddm-{{ servico.nome }}" data-toggle="dropdown">
+                      <a id="ddm-{{ servico.nome }}" data-toggle="dropdown" href="#">
                         {{ servico.nome }}
-                      </span>
-                        <table class="dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
+                      </a>
+                        <table class="table table-condensed numeros servicos dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
                         {% for mes in servico.novos_por_mes %}
-                          <tr role="presentation"><th role="menuitem" tabindex="-1" href="#">{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
+                          <tr><th>{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
                         {% endfor %}
                         </table>
                     </th>
