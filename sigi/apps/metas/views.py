@@ -2,6 +2,7 @@
 import csv
 import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 import os
+import time
 from functools import reduce
 
 from django.contrib.auth.decorators import login_required
@@ -12,8 +13,8 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
-from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
@@ -284,7 +285,6 @@ def gera_map_data_file(cronjob=False):
         Caso cronjob seja True, retorna log de tempo gasto na geração ou a mensagem do erro
         que impediu a gravação do arquivo.
     '''
-    import time
     start = time.time()
 
     casas = {}
@@ -298,6 +298,8 @@ def gera_map_data_file(cronjob=False):
             casa = {
                 'nome': c.nome + ', ' + c.municipio.uf.sigla,
                 'icone': '/static/img/mapmarker.png',
+                'thumb': thumbnail_url(c.foto, 'small'),
+                'foto': (c.foto.url if c.foto else ''),
                 'lat': str(c.municipio.latitude),
                 'lng': str(c.municipio.longitude),
                 'estado': c.municipio.uf.sigla,

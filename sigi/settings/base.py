@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Django settings for sigi project.
 
@@ -37,6 +38,9 @@ TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
                     )
 
+# Database routers
+DATABASE_ROUTERS = ['moodlerouter.MoodleRouter',]
+
 # Application definition
 INSTALLED_APPS = (
 
@@ -63,6 +67,10 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
+    
+    # Integração com Saberes (moodle)
+    'sigi.apps.mdl',
+    'sigi.apps.saberes',
 
     # Third-party apps
     'localflavor',
@@ -132,5 +140,10 @@ THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
 
+THUMBNAIL_ALIASES = {
+    '': {
+        'small': {'size': (300, 225), 'crop': True,},
+    },
+}
 IMAGE_CROPPING_SIZE_WARNING = True
 IMAGE_CROPPING_THUMB_SIZE = (800, 600)
