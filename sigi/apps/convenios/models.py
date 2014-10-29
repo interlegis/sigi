@@ -112,9 +112,14 @@ class Convenio(models.Model):
 
     def __unicode__(self):
         if self.data_retorno_assinatura is not None:
-            return _(u"Convênio nº %s - projeto %s, em %s") % (self.num_convenio, self.projeto.sigla, self.data_retorno_assinatura)
+            return _(u"Convênio nº %(number)s - projeto %(project)s, em %(date)s") % dict(
+                number=self.num_convenio,
+                project=self.projeto.sigla,
+                date=self.data_retorno_assinatura)
         else:
-            return _(u"Adesão ao projeto %s, em %s") % (self.projeto.sigla, self.data_adesao)
+            return _(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
+                project=self.projeto.sigla,
+                date=self.data_adesao)
 
 
 class EquipamentoPrevisto(models.Model):
@@ -188,7 +193,8 @@ class Tramitacao(models.Model):
         verbose_name_plural = _(u'Tramitações')
 
     def __unicode__(self):
+        in_date = _(u"em %(date)s") % dict(date=self.data)  # for focused translation
+        result = u"%s %s" % (self.unid_admin, in_date)
         if self.observacao:
-            return unicode(_(u"%s em %s (%s)") % (self.unid_admin, self.data, self.observacao))
-        else:
-            return unicode(_(u"%s em %s") % (self.unid_admin, self.data))
+            result = result + u" (%s)" % (self.observacao)
+        return unicode(result)  # XXX is this unicode(...) really necessary???

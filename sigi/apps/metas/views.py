@@ -313,7 +313,9 @@ def gera_map_data_file(cronjob=False):
             pass  # ... ou os dados poderão ser usados de qualquer forma
 
     if cronjob:
-        return _(u"Arquivo %s gerado em %d segundos") % (JSON_FILE_NAME, time.time() - start)
+        return _(u"Arquivo %(filename)s gerado em %(seconds)d segundos") % dict(
+            filename=JSON_FILE_NAME,
+            seconds=time.time() - start)
 
     return json_data
 
@@ -345,20 +347,27 @@ def parliament_summary(parliament):
 
     for cv in parliament.convenio_set.all():
         if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Equipada em %s pelo %s") % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
+            summary['info'].append(_(u"Equipada em %(date)s pelo %(project)s") % dict(
+                date=cv.data_termo_aceite.strftime('%d/%m/%Y'),
+                project=cv.projeto.sigla))
             summary['equipadas'].append(cv.projeto.sigla)
         if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Conveniada ao %s em %s") % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
+            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s") % dict(
+                project=cv.projeto.sigla,
+                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
             summary['convenios'].append(cv.projeto.sigla)
         if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Conveniada ao %s em %s e equipada em %s") % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
+            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s e equipada em %(equipped_date)s") % dict(
+                project=cv.projeto.sigla,
+                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y'),
+                equipped_date=cv.data_termo_aceite.strftime('%d/%m/%Y')))
             summary['equipadas'].append(cv.projeto.sigla)
             summary['convenios'].append(cv.projeto.sigla)
 
     for dg in parliament.diagnostico_set.all():
         summary['diagnosticos'].append('P' if dg.publicado else 'A')
-        summary['info'].append(_(u'Diagnosticada no período de %s a %s') % (dg.data_visita_inicio.strftime('%d/%m/%Y') if
-                                                                      dg.data_visita_inicio is not None else _(u"<sem data de início>"),
-                                                                      dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else _(u"<sem data de término>")))
+        summary['info'].append(_(u'Diagnosticada no período de %(initial_date)s a %(final_date)s') % dict(
+            initial_date=dg.data_visita_inicio.strftime('%d/%m/%Y') if dg.data_visita_inicio is not None else _(u"<sem data de início>"),
+            final_date=dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else _(u"<sem data de término>")))
 
     return summary

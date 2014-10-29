@@ -21,7 +21,11 @@ class Legislatura(models.Model):
         ordering = ['casa_legislativa__municipio__uf__sigla', '-data_inicio']
 
     def __unicode__(self):
-        return _(u"%sª legislatura da %s (%s-%s)") % (self.numero, self.casa_legislativa.__unicode__(), self.data_inicio.year, self.data_fim.year)
+        return _(u"%(number)sª legislatura da %(parliament)s (%(initial_year)s-%(final_year)s)") % dict(
+            number=self.numero,
+            parliament=self.casa_legislativa.__unicode__(),
+            initial_year=self.data_inicio.year,
+            final_year=self.data_fim.year)
 
 
 class Coligacao(models.Model):

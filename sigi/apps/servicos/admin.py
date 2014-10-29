@@ -191,8 +191,11 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def get_servicos(self, obj):
         result = []
         for servico in obj.servico_set.all():
-            result.append(_(u"%s (%s). Contato: %s") % (servico.tipo_servico.nome, _(u'ativo') if servico.data_desativacao is None
-                                                     else _(u'Desativado'), servico.contato_administrativo.nome))
+            result.append(u"%s (%s). %s: %s" % (
+                servico.tipo_servico.nome,
+                _(u'ativo') if servico.data_desativacao is None else _(u'desativado'),
+                _(u'Contato'),
+                servico.contato_administrativo.nome))
 
         return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
     get_servicos.allow_tags = True

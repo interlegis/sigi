@@ -108,8 +108,9 @@ def casa_manifesta_view(request):
                         sm.url = cmf.cleaned_data['url_%s' % ts.pk]
                         sm.hospedagem_interlegis = cmf.cleaned_data['hospedagem_interlegis_%s' % ts.pk]
                         sm.save()
-                        thanks.append((ts.nome, _(u'Possui o serviço acessível em %s %s') % (sm.url, u'hospedado no Interlegis' if
-                                                                                             sm.hospedagem_interlegis else '')))
+                        thanks.append((ts.nome, _(u'Possui o serviço acessível em %(url)s %(obs)s') % dict(
+                            url=sm.url,
+                            obs=_(u'hospedado no Interlegis') if sm.hospedagem_interlegis else '')))
                     else:
                         ServicoManifesto.objects.filter(casa_manifesta=cm, servico=ts).delete()
                         thanks.append((ts.nome, _(u'Não possui')))
