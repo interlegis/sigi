@@ -111,7 +111,7 @@ class Municipio(models.Model):
     pib_ano = models.IntegerField(_(u'Ano de apuração do PIB'), blank=True, null=True)
 
     class Meta:
-        ordering = (_(u'nome'), _(u'codigo_ibge'))
+        ordering = ('nome', 'codigo_ibge')
         verbose_name = _(u'município')
         verbose_name_plural = _(u'municípios')
 
