@@ -1,9 +1,10 @@
 {% extends "base_mobile.html" %}
+{% load static from staticfiles %}
 {% load i18n %}
 
 {% block media %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{MEDIA_URL}}css/diagnosticos/diagnosticos_categoria_model_form.css" />
+    <link rel="stylesheet" href="{% static 'css/diagnosticos/diagnosticos_categoria_model_form.css' %}" />
 {% endblock %}
 
 {% block cabecalho %}

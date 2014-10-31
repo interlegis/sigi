@@ -1,4 +1,5 @@
 {% extends "base_mobile.html" %}
+{% load static from staticfiles %}
 {% load i18n %}
 
 {% block cabecalho %}
@@ -8,7 +9,7 @@
 
 {% block media %}
     {{ block.super }}
-    <link href="{{ MEDIA_URL }}css/diagnosticos/diagnosticos_categorias.css" rel="stylesheet" />
+    <link href="{% static 'css/diagnosticos/diagnosticos_categorias.css' %}" rel="stylesheet" />
 {% endblock media %}
 
 {% block corpo %}

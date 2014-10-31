@@ -1,4 +1,5 @@
 {% load smart_if %}
+{% load static from staticfiles %}
 {% load i18n %}
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
@@ -87,19 +88,19 @@
         <div id="header">
             <table>
                 <tr>
-                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-senado.jpg"/></td>
+                    <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}"/></td>
                     <td class="header_text">
                         <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
                         <p><strong>{% trans 'SECRETARIA ESPECIAL DO INTERLEGIS – SINTER' %}</strong></p>
                         <p>{% trans 'SUBSECRETARIA DE PLANEJAMENTO E FOMENTO – SSPLF' %}</p>
                     </td>
-                    <td class="logo"><img src="{{MEDIA_URL}}images/logo-interlegis.jpg"/></td>
+                    <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}"/></td>
                 </tr>
             </table>
         </div>
         <div id="capa">
             <center>
-                <img src="{{MEDIA_URL}}images/logo-interlegis-grande.jpg"/>
+                <img src="{% static 'img/logo-interlegis-grande.jpg' %}"/>
             </center>
             <h1>
                 {% trans 'PROJETO DE MODERNIZAÇÃO DO LEGISLATIVO' %}
@@ -116,12 +117,12 @@
 
             <h3>{% trans 'Chefe da equipe de diagnóstico:' %}</h3>
             <p>{{diagnostico.responsavel}}</p>
-
+            
             <h3>{% trans 'Membros da equipe de diagnóstico:' %}</h3>
             {% for membro in diagnostico.equipe_set.all %}
             <p>{{membro}}</p>
             {% endfor %}
-
+            
             {% for funcionario in funcionarios %}
             	{% if funcionario.setor == 'contato_interlegis' %}
             		<h3>{% trans 'Nome do responsável pelas Informações:' %}</h3>
@@ -137,7 +138,7 @@
             	{% endif %}
             {% endfor %}
             </table>
-
+            
 <!--
             <h3>Cargo do Responsável pelas Informações:</h3>
             <p>{{diagnostico.responsavel.cargo|default_if_none:""}}&nbsp;</p>

@@ -104,7 +104,6 @@ def visualizar_carrinho(request):
         request,
         'casas/carrinho.html',
         {
-            'MEDIA_URL': settings.MEDIA_URL,
             'carIsEmpty': carrinhoIsEmpty,
             'paginas': paginas,
             'query_str': '?' + request.META['QUERY_STRING']

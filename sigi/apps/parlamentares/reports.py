@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.templatetags.static import static
 from django.utils.translation import ugettext as _
 from geraldo import Report, DetailBand, Label, ObjectValue, ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH, SystemField
 from geraldo.graphics import Image
@@ -7,6 +8,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
 
 from sigi.apps.relatorios.reports import ReportDefault
+
 
 
 def string_to_cm(texto):
@@ -161,11 +163,11 @@ class CasasLegislativasReport(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements = [
-            Image(filename=ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-interlegis.jpg',
+            Image(filename=ReportDefault.band_page_header.BASE_DIR + static('img/logo-interlegis.jpg'),
                   left=23.5 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=4.2 * cm, height=3 * cm,
                   ),
-            Image(filename=ReportDefault.band_page_header.BASE_DIR + '/media/images/logo-senado.png',
+            Image(filename=ReportDefault.band_page_header.BASE_DIR + static('img/logo-senado.png'),
                   left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=3 * cm, height=3 * cm,
                   ),

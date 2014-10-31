@@ -1,6 +1,7 @@
 #-*- coding:utf-8 -*-
 import os
 
+from django.templatetags.static import static
 from django.utils.translation import ugettext as _
 from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, SystemField, BAND_WIDTH, FIELD_ACTION_COUNT, Line
 from geraldo.graphics import Image
@@ -26,11 +27,11 @@ class ReportDefault(Report):
         #BASE_DIR = os.path.abspath(os.getcwd() + '../..')
 
         elements = [
-            Image(filename=BASE_DIR + '/media/images/logo-interlegis.jpg',
+            Image(filename=BASE_DIR + static('img/logo-interlegis.jpg'),
                   left=15.5 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=4.2 * cm, height=3 * cm,
                   ),
-            Image(filename=BASE_DIR + '/media/images/logo-senado.png',
+            Image(filename=BASE_DIR + static('img/logo-senado.png'),
                   left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=3 * cm, height=3 * cm,
                   ),
