@@ -24,4 +24,6 @@ exec ${VENVDIR}/gunicorn ${DJANGO_WSGI_MODULE}:application \
 --workers $NUM_WORKERS \
 --user=$USER --group=$GROUP \
 --log-level=debug \
+--timeout=180 \
+--graceful-timeout=180 \
 --bind=unix:$SOCKFILE
