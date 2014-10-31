@@ -117,12 +117,12 @@
 
             <h3>{% trans 'Chefe da equipe de diagnóstico:' %}</h3>
             <p>{{diagnostico.responsavel}}</p>
-            
+
             <h3>{% trans 'Membros da equipe de diagnóstico:' %}</h3>
             {% for membro in diagnostico.equipe_set.all %}
             <p>{{membro}}</p>
             {% endfor %}
-            
+
             {% for funcionario in funcionarios %}
             	{% if funcionario.setor == 'contato_interlegis' %}
             		<h3>{% trans 'Nome do responsável pelas Informações:' %}</h3>
@@ -138,7 +138,7 @@
             	{% endif %}
             {% endfor %}
             </table>
-            
+
 <!--
             <h3>Cargo do Responsável pelas Informações:</h3>
             <p>{{diagnostico.responsavel.cargo|default_if_none:""}}&nbsp;</p>
@@ -186,12 +186,12 @@
             {% for funcionario in funcionarios %}
             <div class="same_page">
                 <h3>{{funcionario.get_setor_display}}</h3>
-                <p class="strong">{% blocktrans %}Nome completo: {{funcionario.nome|default_if_none:""}}{% endblocktrans %}</p>
-                <p class="strong">{% blocktrans %}E-mail: {{funcionario.email|default_if_none:""}}{% endblocktrans %}</p>
-                <p class="strong">{% blocktrans %}Tempo de serviço: {{funcionario.tempo_de_servico|default_if_none:""}}{% endblocktrans %}</p>
+                <p class="strong">{% trans 'Nome completo' %}: {{funcionario.nome|default_if_none:""}}</p>
+                <p class="strong">{% trans 'E-mail' %}: {{funcionario.email|default_if_none:""}}</p>
+                <p class="strong">{% trans 'Tempo de serviço' %}: {{funcionario.tempo_de_servico|default_if_none:""}}</p>
 
                 {% for telefone in funcionario.telefones.all %}
-                <p class="strong">{% blocktrans %}Telefone {{telefone.get_tipo_display}}: {{telefone}}{% endblocktrans %}</p>
+                <p class="strong">{% blocktrans %}Telefone {{telefone.get_tipo_display}}{% endblocktrans %}: {{telefone}}</p>
                 {% endfor %}
             </div>
             {% endfor %}
@@ -199,7 +199,7 @@
 
         {% for categoria, schemas in schemas_by_categoria %}
         <div class="new_page">
-            <h2>{% blocktrans %}Bloco {{categoria.nome}}{% endblocktrans %}</h2>
+            <h2>{% trans 'Bloco' %} {{categoria.nome}}</h2>
             {% for schema in schemas %}
             <div class="same_page">
                 <h3>{{ schema.title }}</h3>
