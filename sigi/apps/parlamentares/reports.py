@@ -265,6 +265,10 @@ class CasasLegislativasReport(ReportDefault):
     ]
 
 
+def label_text(text):
+    return "%s: " % text
+
+
 class InfoCasaLegislativa(ReportDefault):
     title = _(u'Casa Legislativa')
 
@@ -313,7 +317,7 @@ class InfoCasaLegislativa(ReportDefault):
         elements = [
 
             Label(
-                text=_(u"Tipo: "),
+                text=label_text(_(u"Tipo")),
                 left=posicao_left[0] * cm,
                 top=posicao_top[0] * cm,
             ),
@@ -324,7 +328,7 @@ class InfoCasaLegislativa(ReportDefault):
                 width=6 * cm,
             ),
             Label(
-                text=_(u"Região: "),
+                text=label_text(_(u"Região")),
                 left=posicao_left[2] * cm,
                 top=posicao_top[1] * cm,
             ),
@@ -337,7 +341,7 @@ class InfoCasaLegislativa(ReportDefault):
                 [instance.municipio.uf.regiao]
             ),
             Label(
-                text=_(u"U.F.: "),
+                text=label_text(_(u"UF")),
                 left=posicao_left[4] * cm,
                 top=posicao_top[2] * cm,
             ),
@@ -347,7 +351,7 @@ class InfoCasaLegislativa(ReportDefault):
                 top=posicao_top[2] * cm,
             ),
             Label(
-                text=_(u"Município: "),
+                text=label_text(_(u"Município")),
                 left=posicao_left[6] * cm,
                 top=posicao_top[3] * cm,
             ),
@@ -359,7 +363,7 @@ class InfoCasaLegislativa(ReportDefault):
             ),
             # Linha 3
             Label(
-                text=_(u"Endereço: "),
+                text=label_text(_(u"Endereço")),
                 left=posicao_left[8] * cm,
                 top=posicao_top[4] * cm,
             ),
@@ -370,7 +374,7 @@ class InfoCasaLegislativa(ReportDefault):
                 width=20 * cm,
             ),
             Label(
-                text=_(u"Bairro: "),
+                text=label_text(_(u"Bairro")),
                 left=posicao_left[10] * cm,
                 top=posicao_top[5] * cm,
             ),
@@ -380,7 +384,7 @@ class InfoCasaLegislativa(ReportDefault):
                 top=posicao_top[5] * cm,
             ),
             Label(
-                text=_(u"CEP: "),
+                text=label_text(_(u"CEP")),
                 left=posicao_left[12] * cm,
                 top=posicao_top[6] * cm,
             ),
@@ -390,7 +394,7 @@ class InfoCasaLegislativa(ReportDefault):
                 top=posicao_top[6] * cm,
             ),
             Label(
-                text=_(u"CNPJ: "),
+                text=label_text(_(u"CNPJ")),
                 left=posicao_left[14] * cm,
                 top=posicao_top[7] * cm,
             ),
@@ -400,7 +404,7 @@ class InfoCasaLegislativa(ReportDefault):
                 top=posicao_top[7] * cm,
             ),
             Label(
-                text=_(u"Telefone: "),
+                text=label_text(_(u"Telefone")),
                 left=posicao_left[16] * cm,
                 top=posicao_top[8] * cm,
             ),
@@ -410,7 +414,7 @@ class InfoCasaLegislativa(ReportDefault):
                 top=posicao_top[8] * cm,
             ),
             Label(
-                text=_(u"Presidente: "),
+                text=label_text(_(u"Presidente")),
                 left=posicao_left[18] * cm,
                 top=posicao_top[9] * cm,
             ),

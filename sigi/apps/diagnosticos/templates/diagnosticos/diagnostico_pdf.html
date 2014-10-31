@@ -112,24 +112,24 @@
                 {{ diagnostico.casa_legislativa }} - {{ diagnostico.casa_legislativa.municipio.uf.sigla }}
             </h2>
 
-            <h3>{% trans 'Data do Questionário:' %}</h3>
+            <h3>{% trans 'Data do Questionário' %}:</h3>
             <p>De {{diagnostico.data_visita_inicio}} à {{diagnostico.data_visita_fim}}</p>
 
-            <h3>{% trans 'Chefe da equipe de diagnóstico:' %}</h3>
+            <h3>{% trans 'Chefe da equipe de diagnóstico' %}:</h3>
             <p>{{diagnostico.responsavel}}</p>
 
-            <h3>{% trans 'Membros da equipe de diagnóstico:' %}</h3>
+            <h3>{% trans 'Membros da equipe de diagnóstico' %}:</h3>
             {% for membro in diagnostico.equipe_set.all %}
             <p>{{membro}}</p>
             {% endfor %}
 
             {% for funcionario in funcionarios %}
             	{% if funcionario.setor == 'contato_interlegis' %}
-            		<h3>{% trans 'Nome do responsável pelas Informações:' %}</h3>
+            		<h3>{% trans 'Nome do responsável pelas Informações' %}:</h3>
             		<p>{{funcionario.nome|default_if_none:""}}</p>
-            		<h3>{% trans 'Cargo / função do responsável pelas informações:' %}</h3>
+            		<h3>{% trans 'Cargo / função do responsável pelas informações' %}:</h3>
             		<p>{{funcionario.cargo|default_if_none:""}} / {{funcionario.funcao|default_if_none:""}}</p>
-            		<h3>{% trans 'E-mail do responsável pelas informações:' %}</h3>
+            		<h3>{% trans 'E-mail do responsável pelas informações' %}:</h3>
             		<p>{{funcionario.email|default_if_none:""}}</p>
                 	{% for telefone in funcionario.telefones.all %}
                 	<h3>{% blocktrans %}Telefone {{telefone.get_tipo_display}} do responsável pelas informações{% endblocktrans %}</h3>

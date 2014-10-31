@@ -140,7 +140,7 @@ class ConvenioReport(ReportDefault):
                         height=0.7 * cm,
                         elements=[
                             ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-                                        get_Value=lambda instance: _(u'CasaLegislativa: ') + (instance.casa_legislativa.uf)
+                                        get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
                                         )
                         ],
                         borders={'top': True},

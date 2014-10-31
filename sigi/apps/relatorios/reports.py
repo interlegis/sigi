@@ -67,7 +67,7 @@ class ReportDefault(Report):
     class band_summary(ReportBand):
         height = 0.8 * cm
         elements = [
-            Label(text=_(u"Total:"), top=0.1 * cm, left=0),
+            Label(text=_(u"Total") + ":", top=0.1 * cm, left=0),
             ObjectValue(attribute_name='id', top=0.1 * cm, left=1 * cm,
                         action=FIELD_ACTION_COUNT, display_format='%s'),
         ]

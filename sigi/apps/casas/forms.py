@@ -12,7 +12,7 @@ class CasaLegislativaForm(forms.ModelForm):
     #    required=False,
     #    help_text=_(u'Utilize o formato <em>XX.XXX.XXX/XXXX-XX</em> ou insira apenas os dígitos.')
     #)
-    cep = BRZipCodeField(label=_(u'CEP'), help_text=_(u'Formato: <em>XXXXX-XXX</em>.'))
+    cep = BRZipCodeField(label=_(u'CEP'), help_text=_(u'Formato') + ': <em>XXXXX-XXX</em>.')
 
     class Meta:
         model = CasaLegislativa

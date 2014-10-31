@@ -31,7 +31,7 @@ class UnidadeFederativa(models.Model):
     sigla = models.CharField(
         max_length=2,
         unique=True,
-        help_text=_(u"Exemplo: <em>MG</em>."),
+        help_text=_(u"Exemplo") + ": <em>MG</em>.",
     )
     regiao = models.CharField(_(u'região'), max_length=2, choices=REGIAO_CHOICES)
     populacao = models.PositiveIntegerField(_(u'população'))
@@ -92,14 +92,14 @@ class Municipio(models.Model):
         decimal_places=8,
         null=True,
         blank=True,
-        help_text=_(u'Exemplo: <em>-20,464</em>.')
+        help_text=_(u'Exemplo') + ': <em>-20,464</em>.'
     )
     longitude = models.DecimalField(
         max_digits=11,
         decimal_places=8,
         null=True,
         blank=True,
-        help_text=_(u'Exemplo: <em>-45,426</em>.')
+        help_text=_(u'Exemplo') + ': <em>-45,426</em>.'
     )
 
     idh = models.DecimalField(_(u'IDH'), help_text=_(u'Índice de desenvolvimento Humano'), max_digits=4, decimal_places=3,
@@ -136,7 +136,7 @@ class Telefone(models.Model):
     numero = models.CharField(
         _(u'número'),
         max_length=64,  # TODO: diminuir tamanho de campo após migração de dados
-        help_text=_(u'Exemplo: <em>(31)8851-9898</em>.'),
+        help_text=_(u'Exemplo') + ': <em>(31)8851-9898</em>.',
     )
     tipo = models.CharField(
         max_length=1,
@@ -260,7 +260,7 @@ class Endereco(models.Model):
         max_length=9,
         blank=True,
         null=True,
-        help_text=_(u"Formato: <em>XXXXX-XXX</em>.")
+        help_text=_(u"Formato") + ": <em>XXXXX-XXX</em>."
     )
 
     municipio = models.ForeignKey(
