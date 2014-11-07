@@ -17,16 +17,16 @@ def some_parlamentarians():
     return a, b, c
 
 
-def test_list_all(some_parlamentarians, admin_user, app):
-    response = app.get('/parlamentares/parlamentar/', auto_follow=True, user=admin_user.username)
+def test_list_all(some_parlamentarians, app):
+    response = app.get('/parlamentares/parlamentar/')
     assert response.status_code == 200
 
     for x in some_parlamentarians:
         assert x.nome_completo in response.content
 
 
-def test_list_filtered_by_capital_letter(some_parlamentarians, admin_client):
-    response = admin_client.get('/parlamentares/parlamentar/?nome_completo=B', follow=True)
+def test_list_filtered_by_capital_letter(some_parlamentarians, app):
+    response = app.get('/parlamentares/parlamentar/?nome_completo=B')
     assert response.status_code == 200
 
     decoded_content = response.content.decode('utf-8')
@@ -36,8 +36,8 @@ def test_list_filtered_by_capital_letter(some_parlamentarians, admin_client):
     assert c.nome_completo not in decoded_content
 
 
-def test_add_to_cart(some_parlamentarians, admin_user, app):
-    res = app.get('/parlamentares/parlamentar/', auto_follow=True, user=admin_user.username)
+def test_add_to_cart(some_parlamentarians, app):
+    res = app.get('/parlamentares/parlamentar/')
     assert res.status_code == 200
 
     a, b, c = some_parlamentarians
@@ -47,7 +47,7 @@ def test_add_to_cart(some_parlamentarians, admin_user, app):
     form['action'] = 'adiciona_parlamentar'
     res = form.submit()
     "2 Parlamentares adicionados" in res.content
-    res = app.get('/parlamentares/parlamentar/carrinho/', auto_follow=True, user=admin_user.username)
+    res = app.get('/parlamentares/parlamentar/carrinho/')
 
     def right_people_present(content):
         assert a.nome_completo in content
