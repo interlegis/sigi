@@ -1,15 +1,23 @@
 # -*- coding: utf-8 -*-
 
 
-def test_clear_all_filters_is_disabled_if_no_filter_was_used(admin_client):
-    response = admin_client.get('/parlamentares/parlamentar', follow=True)
-    assert response.status_code == 200
-    assert '<li class="clear-all-filter disabled"><a href="?">Clear All Filters</a></li>' in response.content
+def get_li_clear_all_filters(res):
+    text = res.html.find(text='Clear All Filters')
+    li = text.find_parent('li')
+    assert li
+    return li
 
 
-def test_clear_all_filters_is_enabled_if_some_filter_was_used(admin_client):
+def test_clear_all_filters_is_disabled_if_no_filter_was_used(app):
+    res = app.get('/parlamentares/parlamentar/')
+    assert res.status_code == 200
+    li = get_li_clear_all_filters(res)
+    assert 'disabled' in li.attrs['class']
+
+
+def test_clear_all_filters_is_enabled_if_some_filter_was_used(app):
     # now we filter by capital letter
-    response = admin_client.get('/parlamentares/parlamentar/?nome_completo=B', follow=True)
-    assert response.status_code == 200
-    # and there is no "disabled" css class
-    assert '<li class="clear-all-filter"><a href="?">Clear All Filters</a></li>' in response.content
+    res = app.get('/parlamentares/parlamentar/?nome_completo=B')
+    assert res.status_code == 200
+    li = get_li_clear_all_filters(res)
+    assert 'disabled' not in li.attrs['class']
