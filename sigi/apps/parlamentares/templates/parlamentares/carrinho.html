@@ -58,7 +58,7 @@
 	</ul>
 
 	<div id="tabs-1">
-		<form action="../labels/{{query_str}}" method="post">{% csrf_token %}
+		<form id="generate_labels" action="../labels/{{query_str}}" method="post">{% csrf_token %}
         <fieldset><legend>{% trans 'Formato da Etiqueta' %}</legend>
         <ul class="formato_etiqueta">
         	<li><input type="radio" name="tamanho_etiqueta"
