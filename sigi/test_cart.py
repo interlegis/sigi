@@ -1,15 +1,15 @@
 import pytest
 
 from sigi.apps.casas.test_casas import some_parliaments
-from sigi.apps.parlamentares.test_parlamentares import some_parlamentarians
+from sigi.apps.parlamentares.test_parlamentares import some_parliamentarians
 from sigi.testutils import pdf_text
 
 
 @pytest.mark.parametrize("url, some_entries, form_action, name_attr, verbose_name_plural", [
-    ('/parlamentares/parlamentar/', some_parlamentarians, 'adiciona_parlamentar', 'nome_completo', 'Parlamentares'),
+    ('/parlamentares/parlamentar/', some_parliamentarians, 'adiciona_parlamentar', 'nome_completo', 'Parlamentares'),
     ('/casas/casalegislativa/',     some_parliaments,     'adicionar_casas',      'nome',          'Casas Legislativas'),
 ])
-def test_add_to_cart(url, some_entries, form_action, name_attr, verbose_name_plural, app, live_server):
+def test_add_to_cart(url, some_entries, form_action, name_attr, verbose_name_plural, app):
 
     a, b, c = some_entries()
 

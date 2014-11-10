@@ -2,7 +2,6 @@
 import csv
 from functools import reduce
 
-from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
