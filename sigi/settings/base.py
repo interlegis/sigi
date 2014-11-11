@@ -67,7 +67,7 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
-    
+
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
     'sigi.apps.saberes',
@@ -131,10 +131,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Using pytest directly (without a test runner)
 TEST_RUNNER = None
 
-# Validate arguments in django-dynamic-fixture
-# http://django-dynamic-fixture.readthedocs.org/en/latest/more.html?highlight=ddf_validate_args#validate-arguments-new-in-1-5-0
-DDF_VALIDATE_ARGS = True
-
 from easy_thumbnails.conf import Settings as thumbnail_settings
 THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
@@ -142,7 +138,7 @@ THUMBNAIL_PROCESSORS = (
 
 THUMBNAIL_ALIASES = {
     '': {
-        'small': {'size': (300, 225), 'crop': True,},
+        'small': {'size': (300, 225), 'crop': True, },
     },
 }
 IMAGE_CROPPING_SIZE_WARNING = True
