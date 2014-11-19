@@ -1,0 +1,97 @@
+main_menu:
+  - title: Gráficos
+    url: ''
+  - title: Municípios
+    url: admin:contatos/municipio/
+    children:
+    - title: Municípios
+      url: contatos/municipio/
+    - title: Unidades Federativas
+      url: contatos/unidadefederativa/
+  - title: Casas Legislativas
+    url: casas/casalegislativa/
+    children:
+    - title: Todas
+      url: casas/casalegislativa/
+    - title: Câmaras Municipais
+      url: casas/casalegislativa/?tipo__id__exact=1
+    - title: Assembléias Legislativas
+      url: casas/casalegislativa/?tipo__id__exact=2
+  - title: Legislaturas
+    url: mesas/legislatura/
+    children:
+    - title: Todas
+      url: mesas/legislatura/
+    - title: Parlamentares
+      url: parlamentares/parlamentar/
+    - title: Tabela de cargos
+      url: mesas/cargo/
+    - title: Tabela de partidos
+      url: parlamentares/partido/
+  - title: Diagnósticos
+    url: diagnosticos/diagnostico/
+    children:
+    - title: Administração
+      url: diagnosticos/diagnostico/
+    - title: Coleta de dados
+      url: diagnosticos/mobile/
+    - title: Gráficos e estatísticas
+      url: diagnosticos-graficos
+  - title: Convênios
+    url: convenios/convenio/
+    children:
+    - title: Convênios
+      url: convenios/convenio/
+    - title: Planos diretores
+      url: metas/planodiretor/
+  - title: Inventário
+    url: inventario/bem/
+    children:
+    - title: Bens
+      url: inventario/bem/
+    - title: Fornecedores
+      url: inventario/fornecedor/
+    - title: Equipamentos
+      url: inventario/equipamento/
+    - title: Fabricantes
+      url: inventario/fabricante/
+    - title: Tipos de equipamentos
+      url: inventario/tipoequipamento/
+    - title: Modelos de equipamentos
+      url: inventario/modeloequipamento/
+  - title: Servidores
+    url: servidores/servidor/?user__is_active__exact=1
+    children:
+    - title: Pessoal
+      url: servidores/servidor/?user__is_active__exact=1
+    - title: Funções
+      url: servidores/funcao
+    - title: Férias
+      url: servidores/ferias/
+    - title: Licenças
+      url: servidores/licenca/
+  - title: Serviços SEIT
+    url: servicos/casaatendida/
+    children:
+    - title: Tipos de serviço
+      url: servicos/tiposervico/
+    - title: Casas atendidas
+      url: servicos/casaatendida/
+    - title: Lista de serviços
+      url: servicos/servico/
+  - title: Ocorrências
+    url: ocorrencias/ocorrencia/?grupo=S&status__in=1,2
+    children:
+    - title: Registro de ocorrências
+      url: ocorrencias/ocorrencia/?grupo=S&status__in=1,2
+    - title: Tabela de categorias
+      url: ocorrencias/categoria/
+    - title: Tipos de contato
+      url: ocorrencias/tipocontato/
+  - title: Financeiro
+    url: financeiro/desembolso/
+    children:
+    - title: Desembolsos
+      url: financeiro/desembolso/
+    - title: Dashboard
+      url: metas-dashboardsss

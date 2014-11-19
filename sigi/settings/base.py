@@ -32,6 +32,7 @@ SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'sigi.context_processors.charts_data',
+    'django.core.context_processors.request',
 )
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
@@ -55,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # Local apps
+    'sigi.apps.home',
     'sigi.apps.contatos',
     'sigi.apps.servidores',
     'sigi.apps.parlamentares',
@@ -77,7 +79,6 @@ INSTALLED_APPS = (
     'reporting',
     'django_extensions',
     'googlecharts',
-    'treemenus',
     'easy_thumbnails',
     'image_cropping',
 

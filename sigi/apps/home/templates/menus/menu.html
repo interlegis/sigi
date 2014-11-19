@@ -1,0 +1,6 @@
+{% load menus %}
+  <ul class="nav navbar-nav">
+    {% for menu_item in menu_items %}
+      {% show_menu_item menu_item base_url %}
+    {% endfor %}
+  </ul>

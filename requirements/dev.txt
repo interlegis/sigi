@@ -8,6 +8,7 @@ django-dynamic-fixture==1.7.0
 coverage==3.7.1
 pytest-cov==1.8.0
 pyPdf==1.13
+pyquery==1.2.9
 
 # para desevolvimento
 django-debug-toolbar==1.2.1

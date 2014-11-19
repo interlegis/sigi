@@ -1,0 +1,17 @@
+{% load menus %}
+  {% if menu_item.children %}
+    <li class="dropdown">
+      {% if menu_item.url %}
+        <a href="{{base_url}}{{ menu_item.url }}" class="dropdown-toggle" data-toggle="dropdown">{{ menu_item.title }}</a>
+      {% else %}
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">{{ menu_item.title }} <span class="caret"></span></a>
+      {% endif %}
+      <ul class="dropdown-menu" role="menu">
+    	{% for child in menu_item.children %}
+    	  {% show_menu_item child base_url %}
+    	{% endfor %}
+      </ul>
+    </li>
+  {% else %}
+    <li><a href="{{base_url}}{{ menu_item.url }}">{{ menu_item.title }}</a></li>
+  {% endif %}
