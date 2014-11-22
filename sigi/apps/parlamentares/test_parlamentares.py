@@ -28,8 +28,7 @@ def test_list_filtered_by_capital_letter(some_parliamentarians, app):
     response = app.get('/parlamentares/parlamentar/?nome_completo=B')
     assert response.status_code == 200
 
-    decoded_content = response.content.decode('utf-8')
     a, b, c = some_parliamentarians
-    assert a.nome_completo not in decoded_content
-    assert b.nome_completo in decoded_content
-    assert c.nome_completo not in decoded_content
+    assert a.nome_completo not in response.content
+    assert b.nome_completo in response.content
+    assert c.nome_completo not in response.content
