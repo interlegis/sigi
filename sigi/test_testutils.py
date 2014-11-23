@@ -1,10 +1,9 @@
+from collections import namedtuple
+
 from sigi.testutils import SigiDataFixture
 
 
-class FieldStub(object):
-
-    def __init__(self, max_length):
-        self.max_length = max_length
+FieldStub = namedtuple('FieldStub', ['max_length'])
 
 
 def test_sigidatafixture():
