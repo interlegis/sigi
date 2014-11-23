@@ -10,10 +10,11 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def some_parliamentarians():
-    a = G(Parlamentar, nome_completo="Andre Silva", foto=None)
-    b = G(Parlamentar, nome_completo="Bartolomeu Gusmao", foto=None)
-    c = G(Parlamentar, nome_completo="Camila Carla", foto=None)
-    return a, b, c
+    return parliamentarians_from_names(["Andre Silva", "Bartolomeu Gusmao", "Camila Carla"])
+
+
+def parliamentarians_from_names(names):
+    return [G(Parlamentar, nome_completo=name, foto=None) for name in names]
 
 
 def test_list_all(some_parliamentarians, app):
