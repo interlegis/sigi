@@ -1,7 +1,7 @@
 {% load charts %}
 
 <div class="row row-flex row-flex-wrap">
-  {% for painel in paineis %}
+  {% for k, painel in paineis.items %}
   <div class="col-md-4">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{{ painel.titulo }}</div>
@@ -9,8 +9,16 @@
 	    <table class='table'>
 	    {% for linha in painel.dados %}
 	      <tr>
-	        <th>{{ linha.descricao }}</th>
-	        <td class='number'>{{ linha.valor }}</td>
+	        <th>
+	        	{{ linha.descricao }}
+	        	{% if linha.help_text %}
+	        	<span class="help-block">{{ linha.help_text }}</span>
+	        	{% endif %} 
+	        </th>
+	        <td class='number' {% if not linha.percentual %}colspan="2"{% endif %}>{{ linha.valor }}</td>
+	        {% if linha.percentual %}
+	        <td class='number'>{{ linha.percentual|floatformat:2 }}%</td>
+	        {% endif %}
 	      </tr>
 	    {% endfor %}
 	    </table>

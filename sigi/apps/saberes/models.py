@@ -23,8 +23,20 @@ class CategoriasInteresse(models.Model):
     def __unicode__(self):
         return self.descricao
     
-    def categorias(self):
-        return CourseCategories.objects.filter(idnumber__startswith=self.prefixo)
+    def categorias(self, subcategorias=False):
+        def get_sub_categorias(categorias):
+            result = CourseCategories.objects.none()
+            for c in categorias:
+                c_children = CourseCategories.objects.filter(parent=c)
+                result = result | c_children | get_sub_categorias(c_children) 
+            return result
+        
+        q = CourseCategories.objects.filter(idnumber__startswith=self.prefixo)
+        
+        if subcategorias:
+            q = q | get_sub_categorias(q)
+            
+        return q
     
     def get_all_courses(self, only_visible=False):
         q = Course.objects.none()
@@ -44,8 +56,16 @@ class CategoriasInteresse(models.Model):
             q = q | c.get_matriculas()
         return q 
     
-    def total_alunos(self):
-        if self.coorte:
-            return sum(c.total_alunos_cohort() for c in self.categorias())
-        else:
-            return sum([c.total_alunos() for c in self.categorias()])
+    def total_alunos_coorte(self):
+        return sum(c.total_alunos_cohort() for c in self.categorias())
+
+# A temporary model to store Moodle processed data by management command (called from CRON)     
+class PainelItem(models.Model):
+    painel = models.CharField(max_length=255)
+    descricao = models.CharField(max_length=255)
+    help_text = models.CharField(max_length=255)
+    valor = models.IntegerField()
+    percentual = models.FloatField(null=True)
+    
+    class Meta:
+        ordering = ['pk']

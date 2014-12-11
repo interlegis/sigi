@@ -3,34 +3,52 @@
 from __future__ import unicode_literals
 from django.db import models
 
-class CourseStatus(models.Model):
+class CourseStats(models.Model):
     # databaseview: (postgresql dialect):
-    #
-    # CREATE OR REPLACE VIEW ilb_course_status AS 
-    #  SELECT DISTINCT u.id AS userid, c.id AS courseid, c.category, 
+    # -- View: sigi_course_stats
+    # 
+    # DROP VIEW sigi_course_stats;
+    # 
+    # CREATE OR REPLACE VIEW sigi_course_stats AS 
+    #  SELECT cc.id AS categoryid, c.id AS courseid,
     #         CASE
-    #             WHEN e.enrol::text = 'ilbeadtutorado'::text AND ue.status = 1::bigint THEN 'Matrícula rejeitada'::text
-    #             WHEN e.enrol::text = 'ilbead'::text AND ue.timeend < date_part('epoch'::text, now())::integer THEN 'Em curso'::text
-    #             WHEN co.timestarted = 0 OR co.timestarted IS NULL THEN 'Abandono'::text
-    #             WHEN co.timestarted > 0 AND co.timecompleted IS NULL THEN 'Reprovado'::text
-    #             WHEN co.timecompleted IS NOT NULL THEN 'Aprovado'::text
-    #             WHEN e.enrol::text <> 'ilbeadtutorado'::text THEN '?'::text
-    #             ELSE ''::text
-    #         END AS status
-    #    FROM mdl_user u
-    #    JOIN mdl_user_enrolments ue ON ue.userid = u.id
-    #    JOIN mdl_enrol e ON e.id = ue.enrolid
-    #    JOIN mdl_course c ON c.id = e.courseid
-    #    LEFT JOIN mdl_course_completions co ON co.userid = u.id AND co.course = c.id;
-
-    userid = models.IntegerField(primary_key=True)
-    courseid = models.IntegerField()
-    category = models.IntegerField()
-    status = models.CharField(max_length=100)
+    #             WHEN e.enrol = 'ilbeadtutorado' AND ue.status = 1 THEN 'N' -- Rejeitada
+    #             WHEN e.enrol = 'ilbead' AND ue.timeend > date_part('epoch', now()) THEN 'C' -- Em curso
+    #             WHEN (co.timestarted = 0 OR co.timestarted IS NULL) AND gg.finalgrade IS NOT NULL THEN 'R' -- Reprovada
+    #             WHEN co.timestarted = 0 OR co.timestarted IS NULL THEN 'L' -- Abandono
+    #             WHEN co.timestarted > 0 AND co.timecompleted IS NULL THEN 'R' -- Reprovado
+    #             WHEN co.timecompleted IS NOT NULL THEN 'A' -- Aprovado
+    #             ELSE 'I' -- Indeterminado
+    #         END AS completionstatus, count(ue.id) AS usercount, avg(gg.finalgrade) as gradeaverage
+    #    FROM mdl_course_categories cc
+    #    JOIN mdl_course c ON c.category = cc.id
+    #    JOIN mdl_enrol e ON e.courseid = c.id
+    #    JOIN mdl_user_enrolments ue ON ue.enrolid = e.id
+    #    JOIN mdl_grade_items gi ON gi.courseid = c.id AND gi.itemtype = 'course'
+    #    LEFT JOIN mdl_grade_grades gg ON gg.itemid = gi.id AND gg.userid = ue.userid
+    #    LEFT JOIN mdl_course_completions co ON co.userid = ue.userid AND co.course = c.id
+    #   GROUP BY cc.id, c.id, completionstatus;
     
+    COMPLETIONSTATUS_CHOICES = (
+        ('N', u'Matrículas rejeitadas'),
+        ('C', u'Em curso'),
+        ('R', u'Reprovação'),
+        ('L', u'Abandono'),
+        ('A', u'Aprovação'),
+        ('I', u'Indeterminado'),)
+    
+    category = models.ForeignKey('CourseCategories', db_column='categoryid', primary_key=True)
+    course = models.ForeignKey('Course', db_column='courseid')
+    completionstatus = models.CharField(max_length=1, choices=COMPLETIONSTATUS_CHOICES)
+    usercount = models.IntegerField()
+    gradeaverage = models.FloatField()
+
     class Meta:
         managed = False
-        db_table = 'ilb_course_status'
+        db_table = 'sigi_course_stats'
+        
+    def __unicode__(self):
+        return '%s - %s: %s' % (self.category.name, self.course.fullname, self.usercount)
 
 class Cohort(models.Model):
     id = models.BigIntegerField(primary_key=True)
