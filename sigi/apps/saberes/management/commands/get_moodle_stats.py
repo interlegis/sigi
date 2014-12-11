@@ -48,7 +48,7 @@ class Command(BaseCommand):
                 total_matriculas = sum(x['total_users'] for k, x in data.items())
             else:
                 total_matriculas = CourseStats.objects.filter(category__in=ci.categorias(subcategorias=True)). \
-                    aggreate(total_users=Sum('usercount'))['total_users']
+                    aggregate(total_users=Sum('usercount'))['total_users']
             
             dados = [{'descricao': _(u'Total de matrículas'), 'valor': total_matriculas}]
         
