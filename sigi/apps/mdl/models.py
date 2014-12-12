@@ -14,6 +14,7 @@ class CourseStats(models.Model):
     #         CASE
     #             WHEN e.enrol = 'ilbeadtutorado' AND ue.status = 1 THEN 'N' -- Rejeitada
     #             WHEN e.enrol = 'ilbead' AND ue.timeend > date_part('epoch', now()) THEN 'C' -- Em curso
+    #             WHEN e.enrol = 'ilbead' and ue.timeend < date_part('epoch', now()) and co.timecompleted is null and gg.finalgrade is null then 'L' -- Abandono
     #             WHEN (co.timestarted = 0 OR co.timestarted IS NULL) AND gg.finalgrade IS NOT NULL THEN 'R' -- Reprovada
     #             WHEN co.timestarted = 0 OR co.timestarted IS NULL THEN 'L' -- Abandono
     #             WHEN co.timestarted > 0 AND co.timecompleted IS NULL THEN 'R' -- Reprovado

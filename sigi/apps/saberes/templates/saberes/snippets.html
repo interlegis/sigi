@@ -4,7 +4,12 @@
   {% for k, painel in paineis.items %}
   <div class="col-md-4">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{{ painel.titulo }}</div>
+      <div class="panel-heading">      	
+      	{{ painel.titulo }}
+		{% if painel.area %}
+			<span class="badge"><a href="{% url "saberes-dashboard-detail" painel.area.id %}">Detalhes</a></span>
+		{% endif %}      	
+      </div>
       <div class="panel-body">
 	    <table class='table'>
 	    {% for linha in painel.dados %}
