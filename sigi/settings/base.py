@@ -60,7 +60,6 @@ INSTALLED_APPS = (
     'sigi.apps.contatos',
     'sigi.apps.servidores',
     'sigi.apps.parlamentares',
-    'sigi.apps.mesas',
     'sigi.apps.casas',
     'sigi.apps.convenios',
     'sigi.apps.inventario',

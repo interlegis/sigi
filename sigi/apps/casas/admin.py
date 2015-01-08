@@ -14,9 +14,9 @@ from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.inventario.models import Bem
-from sigi.apps.mesas.models import Legislatura
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.models import Legislatura
 from sigi.apps.servicos.models import Servico
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin

@@ -30,7 +30,6 @@ from sigi.apps.casas.models import *
 from sigi.apps.contatos.models import *
 from sigi.apps.convenios.models import *
 from sigi.apps.inventario.models import *
-from sigi.apps.mesas.models import *
 from sigi.apps.parlamentares.models import *
 
 ERROR_MSG_0 = ('<ERRO> %s[%s]: erro desconhecido! Possível erro de integridade '

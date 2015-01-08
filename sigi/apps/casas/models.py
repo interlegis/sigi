@@ -124,7 +124,7 @@ class CasaLegislativa(models.Model):
     def total_parlamentares(self):
         """
         Calcula o total de parlamentares atual da Casa:
-        - O total de parlamentares da mesas.legislatura mais recente, ou
+        - O total de parlamentares da legislatura mais recente, ou
         - num_parlamentares ou
         - 0 se não tiver nenhuma das informações
         """

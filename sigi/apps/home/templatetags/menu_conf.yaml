@@ -18,14 +18,14 @@ main_menu:
     - title: Assembléias Legislativas
       url: casas/casalegislativa/?tipo__id__exact=2
   - title: Legislaturas
-    url: mesas/legislatura/
+    url: parlamentares/legislatura/
     children:
     - title: Todas
-      url: mesas/legislatura/
+      url: parlamentares/legislatura/
     - title: Parlamentares
       url: parlamentares/parlamentar/
     - title: Tabela de cargos
-      url: mesas/cargo/
+      url: parlamentares/cargo/
     - title: Tabela de partidos
       url: parlamentares/partido/
   - title: Diagnósticos
