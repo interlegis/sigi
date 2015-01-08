@@ -2,7 +2,9 @@
 from datetime import datetime
 from django.contrib import admin
 from django.db.utils import OperationalError, ProgrammingError
+from django.utils.translation import ugettext as _
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
+
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
 from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
 from sigi.apps.utils.base_admin import BaseModelAdmin
@@ -19,15 +21,15 @@ def publicar_diagnostico(self, request, queryset):
         email = diagnostico.responsavel.user.email
         if email:
             diagnostico.email_diagnostico_publicado(email, request.get_host())
-    self.message_user(request, "Diagnóstico(s) publicado(s) com sucesso!")
-publicar_diagnostico.short_description = u"""
-    Definir diagnósticos como publicado"""
+    self.message_user(request, _(u"Diagnóstico(s) publicado(s) com sucesso!"))
+publicar_diagnostico.short_description = _(u"""
+    Definir diagnósticos como publicado""")
 
 
 def despublicar_diagnostico(self, request, queryset):
     queryset.update(publicado=False)
-despublicar_diagnostico.short_description = u"""
-    Definir diagnósticos como não publicado"""
+despublicar_diagnostico.short_description = _(u"""
+    Definir diagnósticos como não publicado""")
 
 
 class EquipeInline(admin.TabularInline):
@@ -84,7 +86,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
 
     def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)
-    get_uf.short_description = 'UF'
+    get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
 
     def lookup_allowed(self, lookup, value):
@@ -126,7 +128,7 @@ class EscolhaInline(admin.TabularInline):
     model = Escolha
     fk_name = 'schema'
     raw_id_fields = ('schema_to_open',)
-    verbose_name = 'Escolhas (apenas para choices ou multiple choices)'
+    verbose_name = _(u'Escolhas (apenas para choices ou multiple choices)')
     extra = 0
 
 

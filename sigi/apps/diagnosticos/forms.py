@@ -1,18 +1,20 @@
 # -*- coding: utf-8 -*-
-
 from copy import deepcopy
+
 from django import forms
-from django.forms.forms import BoundField
+from django.contrib.contenttypes.generic import generic_inlineformset_factory
 from django.forms import (BooleanField, CharField, DateField,
                           FloatField, ModelChoiceField, Textarea,
                           ModelMultipleChoiceField)
-from django.contrib.contenttypes.generic import generic_inlineformset_factory
+from django.forms.forms import BoundField
+from django.utils.translation import ugettext as _
+from eav.fields import RangeField
+from eav.forms import BaseDynamicEntityForm
+
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.diagnosticos.widgets import EavCheckboxSelectMultiple, EavRadioSelect
-from eav.forms import BaseDynamicEntityForm
-from eav.fields import RangeField
 
 
 class DiagnosticoForm(BaseDynamicEntityForm):
@@ -131,7 +133,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
 
 class CasaLegislativaMobileForm(forms.ModelForm):
-    data_instalacao = forms.DateField(label=u'Data de instalação da Casa Legislativa', required=False)
+    data_instalacao = forms.DateField(label=_(u'Data de instalação da Casa Legislativa'), required=False)
     data_criacao = forms.DateField()
 
     class Meta:
@@ -141,7 +143,7 @@ class CasaLegislativaMobileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(CasaLegislativaMobileForm, self).__init__(*args, **kwargs)
         self.fields['data_criacao'] = forms.DateField(
-            label=u'Data de criação do Município',
+            label=_(u'Data de criação do Município'),
             initial=self.instance.municipio.data_criacao,
             required=False)
 

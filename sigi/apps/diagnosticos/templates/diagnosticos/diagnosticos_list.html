@@ -1,7 +1,8 @@
 {% extends "base_mobile.html" %}
+{% load i18n %}
 
 {% block cabecalho %}
-    <h1>Diagnósticos</h1>
+    <h1>{% trans 'Diagnósticos' %}</h1>
     <a href="{% url 'logout' %}" data-icon="delete" class="ui-btn-left">Sair</a>
 {% endblock cabecalho %}
 
@@ -12,14 +13,14 @@
                 <li>
                     <a href="{% url 'lista_categorias' diagnostico.id %}">
                         <h4>{{ diagnostico.casa_legislativa.nome }}</h4>
-                        <p><strong>Data:</strong> {{ diagnostico.data_visita_inicio|date:"d/m/Y" }} à {{ diagnostico.data_visita_fim|date:"d/m/Y" }} </p>
-                        <p><strong>Responsável:</strong> {{ diagnostico.responsavel.nome_completo }}</p>
+                        <p><strong>{% trans 'Data' %}:</strong> {% blocktrans %}{{ diagnostico.data_visita_inicio|date:"d/m/Y" }} à {{ diagnostico.data_visita_fim|date:"d/m/Y" }}{% endblocktrans %} </p>
+                        <p><strong>{% trans 'Responsável' %}:</strong> {{ diagnostico.responsavel.nome_completo }}</p>
                     </a>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <h2>Nenhum diagnóstico aberto.</h2>
+        <h2>{% trans 'Nenhum diagnóstico aberto.' %}</h2>
     {% endif %}
 {% endblock corpo %}
 

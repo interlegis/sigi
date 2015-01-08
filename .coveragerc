@@ -1,0 +1,7 @@
+[run]
+omit =
+    sigi/wsgi.py
+    manage.py
+    setup.py
+    test_*.py
+    ipython_log.py

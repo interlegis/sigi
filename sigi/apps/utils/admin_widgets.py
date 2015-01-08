@@ -1,6 +1,6 @@
 from django.contrib.admin.widgets import AdminFileWidget
-from django.utils.translation import ugettext as _
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 
 class AdminImageWidget(AdminFileWidget):
@@ -13,6 +13,6 @@ class AdminImageWidget(AdminFileWidget):
             output.append(
                 u''' <a href="%s" target="_blank"><img src="%s" width="100"
                 height="100" alt="%s"/></a> <br/> %s''' %
-                (image_url, image_url, file_name, _('Change:')))
+                (image_url, image_url, file_name, _(u'Change') + ':'))
         output.append(super(AdminFileWidget, self).render(name, value, attrs))
         return mark_safe(u''.join(output))

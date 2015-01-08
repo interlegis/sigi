@@ -1,21 +1,21 @@
 # -*- coding: utf-8 -*-
-
+import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 from itertools import cycle
 
 from django.http import HttpResponse
-import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
+from django.utils.translation import ugettext as _
 from django.views.decorators.cache import never_cache
 
-from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
-from sigi.apps.utils.decorators import login_required
-from sigi.apps.diagnosticos.decorators import validate_diagnostico
-from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
 from sigi.apps.casas.models import Funcionario
+from sigi.apps.contatos.models import Telefone
+from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
                                           CasaLegislativaMobileForm, FuncionariosMobileForm)
-from sigi.apps.contatos.models import Telefone
+from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
+from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
+from sigi.apps.utils.decorators import login_required
 from sigi.shortcuts import render_to_pdf
 
 
@@ -186,7 +186,9 @@ def categoria_contatos(request, id_diagnostico):
                 for form_telefones in form.telefones.forms:
                     tel = form_telefones.instance
                     if tel._state.adding and tel.numero != '':
-                        s += '<p>Novo telefone %s: %s</p>' % (form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)
+                        s += _(u'<p>Novo telefone %(type)s: %(number)s</p>') % dict(
+                            type=form_telefones.instance.get_tipo_display(),
+                            number=form_telefones.instance.numero)
                         resposta['clean'] += ('id_' + form_telefones.prefix + '-numero',)
                 if s != '':
                     resposta['fones'][form.prefix] = s
@@ -205,8 +207,9 @@ def categoria_contatos(request, id_diagnostico):
                                 Telefone.objects.get(pk=form_telefones.fields['id'].initial).delete()
                                 if form.prefix not in resposta['fones']:
                                     resposta['fones'][form.prefix] = ''
-                                resposta['fones'][form.prefix] += u'<p>O telefone %s %s foi excluído da base de dados</p>' % (
-                                    form_telefones.instance.get_tipo_display(), form_telefones.instance.numero)
+                                resposta['fones'][form.prefix] += _(u'<p>O telefone %(type)s %(number)s foi excluído da base de dados</p>') % dict(
+                                    type=form_telefones.instance.get_tipo_display(),
+                                    number=form_telefones.instance.numero)
                         else:
                             for key, value in form_telefones.errors.iteritems():
                                 key = form_telefones.prefix + "-id-errors"

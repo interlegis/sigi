@@ -1,20 +1,20 @@
 #-*- coding:utf-8 -*-
 import os
 
-from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, \
-    landscape, SystemField, BAND_WIDTH, ReportGroup, \
-    FIELD_ACTION_SUM, FIELD_ACTION_COUNT, Line
+from django.templatetags.static import static
+from django.utils.translation import ugettext as _
+from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, SystemField, BAND_WIDTH, FIELD_ACTION_COUNT, Line
 from geraldo.graphics import Image
-from reportlab.lib.units import cm
-from reportlab.lib.pagesizes import A4
+from reportlab.lib.colors import navy
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT
-from reportlab.lib.colors import navy, red
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.units import cm
 
 
 class ReportDefault(Report):
     #__metaclass__ = ABCMeta
-    title = u'Relatório'
-    author = u'Interlegis'
+    title = _(u'Relatório')
+    author = _(u'Interlegis')
     print_if_empty = True
     page_size = A4
 
@@ -27,18 +27,18 @@ class ReportDefault(Report):
         #BASE_DIR = os.path.abspath(os.getcwd() + '../..')
 
         elements = [
-            Image(filename=BASE_DIR + '/media/images/logo-interlegis.jpg',
+            Image(filename=BASE_DIR + static('img/logo-interlegis.jpg'),
                   left=15.5 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=4.2 * cm, height=3 * cm,
                   ),
-            Image(filename=BASE_DIR + '/media/images/logo-senado.png',
+            Image(filename=BASE_DIR + static('img/logo-senado.png'),
                   left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=3 * cm, height=3 * cm,
                   ),
-            Label(text="SENADO FEDERAL", top=1 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_(u"SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
                   ),
-            Label(text="SINTER - Secretaria Especial do Interlegis", top=1.5 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_(u"SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 13, 'alignment': TA_CENTER}
                   ),
             SystemField(
@@ -52,8 +52,8 @@ class ReportDefault(Report):
         height = 1 * cm
 
         elements = [
-            SystemField(expression=u'%(now:%d/%m/%Y)s às %(now:%H:%M)s', top=0.3 * cm),
-            SystemField(expression=u'Página %(page_number)d de %(page_count)d', top=0.3 * cm,
+            SystemField(expression=_(u'%(now:%d/%m/%Y)s às %(now:%H:%M)s'), top=0.3 * cm),
+            SystemField(expression=_(u'Página %(page_number)d de %(page_count)d'), top=0.3 * cm,
                         width=BAND_WIDTH, style={'alignment': TA_RIGHT}
                         ),
         ]
@@ -67,7 +67,7 @@ class ReportDefault(Report):
     class band_summary(ReportBand):
         height = 0.8 * cm
         elements = [
-            Label(text="Total:", top=0.1 * cm, left=0),
+            Label(text=_(u"Total") + ":", top=0.1 * cm, left=0),
             ObjectValue(attribute_name='id', top=0.1 * cm, left=1 * cm,
                         action=FIELD_ACTION_COUNT, display_format='%s'),
         ]

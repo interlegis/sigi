@@ -14,3 +14,9 @@ DATABASES = {
         'PORT': '5432',
     }
 }
+
+# Validate arguments in django-dynamic-fixture
+# http://django-dynamic-fixture.readthedocs.org/en/latest/more.html?highlight=ddf_validate_args#validate-arguments-new-in-1-5-0
+DDF_VALIDATE_ARGS = True
+DDF_DEBUG_MODE = True
+DDF_DEFAULT_DATA_FIXTURE = 'sigi.testutils.SigiDataFixture'

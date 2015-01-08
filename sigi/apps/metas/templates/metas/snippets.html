@@ -1,9 +1,10 @@
 {% load charts %}
+{% load i18n %}
 
-{# ------------- Todas as metas ------------- #} 
+{# ------------- Todas as metas ------------- #}
 <div style="height: 300px;" class="module">
-  <h2>Todas as metas</h2>
-  <h3>Estado das metas do contrato BID</h3>
+  <h2>{% trans 'Todas as metas' %}</h2>
+  <h3>{% trans 'Estado das metas do contrato BID' %}</h3>
   <table style="margin: auto;">
   {% for meta in metas %}
     <tr>
@@ -17,17 +18,17 @@
   {% endfor %}
   </table>
   <div class="legend">
-    <span><div style="background-color: #E74A69;">&nbsp;</div>Ruim</span>
-    <span><div style="background-color: #FFDB6E;">&nbsp;</div>Preocupante</span>
-    <span><div style="background-color: #89D7AF;">&nbsp;</div>Bom</span>
-    <span><div style="background-color: #A2BBED;">&nbsp;</div>Atingido</span>
+    <span><div style="background-color: #E74A69;">&nbsp;</div>{% trans 'Ruim' %}</span>
+    <span><div style="background-color: #FFDB6E;">&nbsp;</div>{% trans 'Preocupante' %}</span>
+    <span><div style="background-color: #89D7AF;">&nbsp;</div>{% trans 'Bom' %}</span>
+    <span><div style="background-color: #A2BBED;">&nbsp;</div>{% trans 'Atingido' %}</span>
   </div>
 </div>
 
 {# ------------- Evolução dos desembolsos ------------- #}
 <div style="height: 300px;" class="module">
-  <h2>Evolução dos desembolsos</h2>
-  <h3>Desembolsos últimos seis meses</h3>
+  <h2>{% trans 'Evolução dos desembolsos' %}</h2>
+  <h3>{% trans 'Desembolsos últimos seis meses' %}</h3>
   <img src="//chart.googleapis.com/chart?chxr=0,0,{{ desembolsos_max }}&chxl=1:{% for m in meses %}|{{ m }}{% endfor %}&chxt=y,x&chbh=a&chs=400x240&cht=bvg&chd=t:{% for serie in desembolsos.values %}{% for v in serie.1.values %}{{ v }}{% if not forloop.last %},{% endif %}{% endfor %}{% if not forloop.last %}|{% endif %}{% endfor %}&chdl={% for l in desembolsos.values %}{{ l.0 }}{% if not forloop.last %}|{% endif %}{% endfor %}&chdlp=t&chds={% for d in desembolsos %}0,{{ desembolsos_max }}{% if not forloop.last %},{% endif %}{% endfor %}&chco={{ colors }}" />
 </div>
 
@@ -35,6 +36,6 @@
 {# ------------- Evolução dos desembolsos ------------- #}
 <div style="height: 300px;" class="module">
   <h2>Todas as metas</h2>
-  <h3>Estado das metas do contrato BID</h3>  
+  <h3>Estado das metas do contrato BID</h3>
 </div>
 {% endcomment %}

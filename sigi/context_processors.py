@@ -1,12 +1,14 @@
 #-*- coding:utf-8 -*-
 from itertools import cycle
+
 import datetime
+from django.utils.translation import ugettext as _
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.servicos.models import TipoServico
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
+from sigi.apps.servicos.models import TipoServico
 
 
 def charts_data(request):
@@ -81,14 +83,14 @@ def busca_informacoes_camara():
 
     # Cabecalho da esquerda na tabela
     cabecalho_esquerda = (
-        u'Câmaras municipais',
-        u'Câmaras municipais não aderidas',
-        u'Câmaras municipais aderidas',
-        u'Câmaras municipais com convênios assinados',
-        u'Câmaras municipais convênios em andamento',
-        u'Câmaras municipais equipadas',
-        u'Diagnósticos digitados',
-        u'Diagnósticos publicados'
+        _(u'Câmaras municipais'),
+        _(u'Câmaras municipais não aderidas'),
+        _(u'Câmaras municipais aderidas'),
+        _(u'Câmaras municipais com convênios assinados'),
+        _(u'Câmaras municipais convênios em andamento'),
+        _(u'Câmaras municipais equipadas'),
+        _(u'Diagnósticos digitados'),
+        _(u'Diagnósticos publicados')
     )
 
     linhas = (
@@ -184,6 +186,6 @@ def busca_informacoes_seit():
 
 def busca_informacoes_diagnostico():
     return [
-        {'title': 'Diagnósticos digitados', 'count': Diagnostico.objects.count()},
-        {'title': 'Diagnósticos publicados', 'count': Diagnostico.objects.filter(publicado=True).count()},
+        {'title': _(u'Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
+        {'title': _(u'Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
     ]

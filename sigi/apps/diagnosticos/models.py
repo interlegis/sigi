@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
 from django.db import models
+from django.utils.translation import ugettext as _
+from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
-from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.utils import SearchField
 from sigi.apps.utils.email import enviar_email
-from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
 
 
 class Diagnostico(BaseEntity):
@@ -15,7 +15,7 @@ class Diagnostico(BaseEntity):
     """
     casa_legislativa = models.ForeignKey(
         'casas.CasaLegislativa',
-        verbose_name='Casa Legislativa')
+        verbose_name=_(u'Casa Legislativa'))
 
     # campo de busca em caixa baixa e sem acento
     search_text = SearchField(field_names=['casa_legislativa'])
@@ -39,10 +39,10 @@ class Diagnostico(BaseEntity):
     )
 
     responsavel = models.ForeignKey('servidores.Servidor',
-                                    verbose_name=u'responsável')
+                                    verbose_name=_(u'responsável'))
 
     class Meta:
-        verbose_name, verbose_name_plural = u'diagnóstico', u'diagnósticos'
+        verbose_name, verbose_name_plural = _(u'diagnóstico'), _(u'diagnósticos')
 
     @property
     def membros(self):
@@ -85,7 +85,7 @@ class Diagnostico(BaseEntity):
             * host - O Host do sistema, para ser usado na
             construção do endereço do diagnóstico
         """
-        enviar_email(from_email, u"Diagnóstico publicado",
+        enviar_email(from_email, _(u"Diagnóstico publicado"),
                      'diagnosticos/email_diagnostico_publicado.txt',
                      {
                          'responsavel': self.responsavel.nome_completo,
@@ -93,7 +93,7 @@ class Diagnostico(BaseEntity):
                          'data_diagnostico': self.data_visita_inicio,
                          'host': host,
                          'url_diagnostico': self.get_absolute_url(),
-                         'status': u"Publicado",
+                         'status': _(u"Publicado"),
                      })
 
     def email_diagnostico_alterado(self, from_email, host):
@@ -103,7 +103,7 @@ class Diagnostico(BaseEntity):
             * host - O Host do sistema, para ser usado na
             construção do endereço do diagnóstico
         """
-        enviar_email(from_email, u"Diagnóstico alterado",
+        enviar_email(from_email, _(u"Diagnóstico alterado"),
                      'diagnosticos/email_diagnostico_alterado.txt',
                      {
                          'servidor': self.responsavel.nome_completo,
@@ -111,7 +111,7 @@ class Diagnostico(BaseEntity):
                          'data_diagnostico': self.data_visita_inicio,
                          'host': host,
                          'url_diagnostico': self.get_absolute_url(),
-                         'status': "Alterado",
+                         'status': _(u"Alterado"),
                      })
 
     def get_schemata(self, category=None, *args, **kwargs):
@@ -188,7 +188,7 @@ class Pergunta(BaseSchema):
 
     class Meta:
         ordering = ('title',)
-        verbose_name, verbose_name_plural = 'pergunta', 'perguntas'
+        verbose_name, verbose_name_plural = _(u'pergunta'), _(u'perguntas')
 
 
 class Escolha(BaseChoice):
@@ -197,14 +197,14 @@ class Escolha(BaseChoice):
     cadastradas neste modelo
     """
     schema = models.ForeignKey(Pergunta,
-                               related_name='choices', verbose_name='pergunta')
+                               related_name='choices', verbose_name=_(u'pergunta'))
     schema_to_open = models.ForeignKey(Pergunta, related_name='',
-                                       verbose_name='pergunta para abrir', blank=True, null=True)
+                                       verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         ordering = ('schema', 'ordem')
-        verbose_name, verbose_name_plural = 'escolha', 'escolhas'
+        verbose_name, verbose_name_plural = _(u'escolha'), _(u'escolhas')
 
 
 class Resposta(BaseAttribute):
@@ -213,12 +213,12 @@ class Resposta(BaseAttribute):
     de um diagnosico
     """
     schema = models.ForeignKey(Pergunta, related_name='attrs',
-                               verbose_name='pergunta')
-    choice = models.ForeignKey(Escolha, verbose_name='escolha',
+                               verbose_name=_(u'pergunta'))
+    choice = models.ForeignKey(Escolha, verbose_name=_(u'escolha'),
                                blank=True, null=True)
 
     class Meta:
-        verbose_name, verbose_name_plural = 'resposta', 'respostas'
+        verbose_name, verbose_name_plural = _(u'resposta'), _(u'respostas')
 
 
 class Equipe(models.Model):
@@ -229,7 +229,7 @@ class Equipe(models.Model):
     membro = models.ForeignKey('servidores.Servidor')
 
     class Meta:
-        verbose_name, verbose_name_plural = u'equipe', u'equipe'
+        verbose_name, verbose_name_plural = _(u'equipe'), _(u'equipe')
 
     def __unicode__(self):
         return self.membro.__unicode__()
@@ -241,9 +241,9 @@ class Anexo(models.Model):
     no processo de diagnóstico. Podem ser fotos, contratos, etc.
     """
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
-    arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo',)
-    descricao = models.CharField('descrição', max_length='70')
-    data_pub = models.DateTimeField('data da publicação do anexo',
+    arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo', max_length=500)
+    descricao = models.CharField(_(u'descrição'), max_length='70')
+    data_pub = models.DateTimeField(_(u'data da publicação do anexo'),
                                     default=datetime.now)
 
     class Meta:

@@ -1,20 +1,22 @@
 {% extends "base_mobile.html" %}
+{% load static from staticfiles %}
+{% load i18n %}
 
 {% block media %}
     {{ block.super }}
-    <link rel="stylesheet" href="{{MEDIA_URL}}css/diagnosticos/diagnosticos_categoria_model_form.css" />
+    <link rel="stylesheet" href="{% static 'css/diagnosticos/diagnosticos_categoria_model_form.css' %}" />
 {% endblock %}
 
 {% block cabecalho %}
-    <h1>02. Identificação de Competências</h1>
-    <a href="{% url 'lista_categorias' diagnostico.id %}?c=2" data-icon="arrow-l" 
+    <h1>02. {% trans 'Identificação de Competências' %}</h1>
+    <a href="{% url 'lista_categorias' diagnostico.id %}?c=2" data-icon="arrow-l"
     data-direction="reverse" data-theme="c" class="ui-btn-left">Voltar</a>
 {% endblock cabecalho %}
 
 {% block corpo %}
       <div id="waiting">
         <!-- Exibe as perguntas apos o carregamento completo do javascript -->
-        <h2>Aguarde carregando perguntas para essa categoria...</h2>
+        <h2>{% trans 'Aguarde carregando perguntas para essa categoria...' %}</h2>
       </div>
       <div id="form" style="display:none;">
         <form id="diagnostico" action="." method="post">
@@ -27,7 +29,7 @@
                     <span id="{{ field.html_name }}-errors" class="errors"></span>
                 </div>
              {% endfor %}
-             <h4>Telefones</h4>
+             <h4>{% trans 'Telefones' %}</h4>
              {% for form in form.telefones.forms %}
                <div class="phone" data-role="fieldcontain">
                   {{ form.tipo }} {{ form.numero }}
@@ -47,6 +49,6 @@
 
 {% block rodape %}
     {{ block.super }}
-    <li><a href="{% url 'lista_categorias' diagnostico.id %}" data-icon="grid" class="ui-state-persist">Listar</a></li>
-    <li><a href="{% url 'logout' %}" data-icon="delete">Sair</a></li>
+    <li><a href="{% url 'lista_categorias' diagnostico.id %}" data-icon="grid" class="ui-state-persist">{% trans 'Listar' %}</a></li>
+    <li><a href="{% url 'logout' %}" data-icon="delete">{% trans 'Sair' %}</a></li>
 {% endblock rodape %}

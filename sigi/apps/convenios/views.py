@@ -1,26 +1,20 @@
 #-*- coding:utf-8 -*-
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_list_or_404
-from geraldo.generators import PDFGenerator
-from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.convenios.reports import ConvenioReport      \
-    , ConvenioPorCMReport      \
-    , ConvenioPorALReport      \
-    , ConvenioReportSemAceiteAL \
-    , ConvenioReportSemAceiteCM
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.contatos.models import UnidadeFederativa
-
-import ho.pisa as pisa
-from django.template import Context, loader
-
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-
-from django.conf import settings
+import csv
 
 import datetime
+import ho.pisa as pisa
+from django.conf import settings
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_list_or_404
+from django.template import Context, loader
+from django.utils.translation import ugettext as _
+from geraldo.generators import PDFGenerator
 
-import csv
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
 
 
 def query_ordena(qs, o, ot):
@@ -134,7 +128,6 @@ def visualizar_carrinho(request):
         request,
         'convenios/carrinho.html',
         {
-            'MEDIA_URL': settings.MEDIA_URL,
             'carIsEmpty': carrinhoIsEmpty,
             'paginas': paginas,
             'query_str': '?' + request.META['QUERY_STRING']
@@ -230,12 +223,12 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     )
 
     cabecalho_topo = (
-        u'UF',
-        u'Câmaras municipais',
-        u'Não Aderidas',
-        u'Aderidas',
-        u'Conveniadas',
-        u'Equipadas'
+        _(u'UF'),
+        _(u'Câmaras municipais'),
+        _(u'Não Aderidas'),
+        _(u'Aderidas'),
+        _(u'Conveniadas'),
+        _(u'Equipadas')
     )
 
     return {
@@ -252,11 +245,11 @@ def report_regiao(request, regiao='NE'):
             regiao = request.POST['regiao']
 
     REGIAO_CHOICES = {
-        'SL': 'Sul',
-        'SD': 'Sudeste',
-        'CO': 'Centro-Oeste',
-        'NE': 'Nordeste',
-        'NO': 'Norte',
+        'SL': _(u'Sul'),
+        'SD': _(u'Sudeste'),
+        'CO': _(u'Centro-Oeste'),
+        'NE': _(u'Nordeste'),
+        'NO': _(u'Norte'),
     }
 
     projetos = Projeto.objects.all()
@@ -267,7 +260,7 @@ def report_regiao(request, regiao='NE'):
     # Geral
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     tabela = casas_estado_to_tabela(camaras, convenios, regiao)
-    tabela["projeto"] = "Geral"
+    tabela["projeto"] = _(u"Geral")
 
     tabelas.append(tabela)
 
@@ -301,47 +294,47 @@ def export_csv(request):
     if not convenios:
         return HttpResponseRedirect('../')
 
-    atributos = [u"No. Processo", u"No. Convênio", u"Projeto", u"Casa Legislativa", u"Data de Adesão", u"Data de Convênio",
-                 u"Data da Publicacao no D.O.", u"Data Equipada", ]
+    atributos = [_(u"No. Processo"), _(u"No. Convênio"), _(u"Projeto"), _(u"Casa Legislativa"), _(u"Data de Adesão"), _(u"Data de Convênio"),
+                 _(u"Data da Publicacao no D.O."), _(u"Data Equipada"), ]
 
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
 
     col_titles = atributos
-    if u"Casa Legislativa" in col_titles:
-        pos = col_titles.index(u"Casa Legislativa") + 1
-        col_titles.insert(pos, u"uf")
+    if _(u"Casa Legislativa") in col_titles:
+        pos = col_titles.index(_(u"Casa Legislativa")) + 1
+        col_titles.insert(pos, _(u"uf"))
     csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for convenio in convenios:
         lista = []
         for atributo in atributos:
-            if u"No. Processo" == atributo:
+            if _(u"No. Processo") == atributo:
                 lista.append(convenio.num_processo_sf.encode("utf-8"))
-            elif u"No. Convênio" == atributo:
+            elif _(u"No. Convênio") == atributo:
                 lista.append(convenio.num_convenio.encode("utf-8"))
-            elif u"Projeto" == atributo:
+            elif _(u"Projeto") == atributo:
                 lista.append(convenio.projeto.nome.encode("utf-8"))
-            elif u"Casa Legislativa" == atributo:
+            elif _(u"Casa Legislativa") == atributo:
                 lista.append(convenio.casa_legislativa.nome.encode("utf-8"))
                 lista.append(convenio.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
-            elif u"Data de Adesão" == atributo:
+            elif _(u"Data de Adesão") == atributo:
                 data = ''
                 if convenio.data_adesao:
                     data = convenio.data_adesao.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
-            elif u"Data de Convênio" == atributo:
+            elif _(u"Data de Convênio") == atributo:
                 data = ''
                 if convenio.data_retorno_assinatura:
                     data = convenio.data_retorno_assinatura.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
-            elif u"Data da Publicacao no D.O." == atributo:
+            elif _(u"Data da Publicacao no D.O.") == atributo:
                 data = ''
                 if convenio.data_pub_diario:
                     data = convenio.data_pub_diario.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
                 data = ''
-            elif u"Data Equipada" == atributo:
+            elif _(u"Data Equipada") == atributo:
                 if convenio.data_termo_aceite:
                     data = convenio.data_termo_aceite.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))

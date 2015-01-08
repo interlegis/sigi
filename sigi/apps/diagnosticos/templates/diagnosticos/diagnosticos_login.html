@@ -1,10 +1,11 @@
 {% load static from staticfiles %}
+{% load i18n %}
 <!DOCTYPE HTML>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SIGI - Login de Acesso</title>
+    <title>{% trans 'SIGI - Login de Acesso' %}</title>
     <link rel="stylesheet" href="{% static 'jquery.mobile-1.0.1/jquery.mobile-1.0.1.min.css' %}"  />
     <script src="{% static '/js/jquery/jquery-1.6.4.min.js' %}" ></script>
     <script language=javascript>
@@ -29,7 +30,7 @@
                 {% endif %}
             {% endfor %}
         </ul>
-        <p>Verifique se seu login e senha foram preenchidos corretamente.</p>
+        <p>{% trans 'Verifique se seu login e senha foram preenchidos corretamente.' %}</p>
     </div> <!-- error messages -->
     {% endif %}
 
@@ -37,15 +38,15 @@
         <form action="{% url 'django.contrib.auth.views.login' %}" method="POST">
             {% csrf_token %}
             <div data-role="fieldcontain" class="ui-hide-label ui-body">
-                <label for="username">Usuário:</label>
+                <label for="username">{% trans 'Usuário' %}:</label>
                 <input type="text" name="username" id="id_username" placeholder="Usuário">
             </div>
             <div data-role="fieldcontain" class="ui-hide-label">
-                <label for="password">Senha de Acesso:</label>
+                <label for="password">{% trans 'Senha de Acesso' %}:</label>
                 <input type="password" name="password" id="id_password" placeholder="Senha de Acesso">
             </div>
             <input type="hidden" name="next" value="{% url 'lista_diagnosticos' %}" />
-            <button type="submit">Entrar</button>
+            <button type="submit">{% trans 'Entrar' %}</button>
         </form>
     </div>
 </body>

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao
@@ -42,12 +43,12 @@ class ConvenioAdmin(BaseModelAdmin):
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao')}
          ),
-        ('Datas',
+        (_(u'Datas'),
             {'fields': ('data_adesao', 'data_retorno_assinatura',
                         'data_termo_aceite', 'data_pub_diario',
                         'data_devolucao_via', 'data_postagem_correio')}
          ),
-        ('Datas - Convenio sem assinatura',
+        (_(u'Datas - Convenio sem assinatura'),
             {'fields': ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',)}
          ),
     )
@@ -68,7 +69,7 @@ class ConvenioAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
-    get_uf.short_description = 'UF'
+    get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
 
     def changelist_view(self, request, extra_context=None):
@@ -103,7 +104,7 @@ class ConvenioAdmin(BaseModelAdmin):
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
         return response
-    relatorio.short_description = u'Exportar convênios selecionados para PDF'
+    relatorio.short_description = _(u'Exportar convênios selecionados para PDF')
 
     def adicionar_convenios(self, request, queryset):
         if 'carrinho_convenios' in request.session:
@@ -114,11 +115,11 @@ class ConvenioAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_convenios'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + " Convênios adicionados no carrinho")
+            self.message_user(request, str(q2 - q1) + _(u" Convênios adicionados no carrinho"))
         else:
-            self.message_user(request, "Os Convênios selecionados já foram adicionadas anteriormente")
+            self.message_user(request, _(u"Os Convênios selecionados já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
-    adicionar_convenios.short_description = u"Armazenar convênios no carrinho para exportar"
+    adicionar_convenios.short_description = _(u"Armazenar convênios no carrinho para exportar")
 
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)

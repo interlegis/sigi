@@ -5,7 +5,6 @@ django-autoslug==1.7.2
 django-extensions==1.4.0
 git+git://github.com/jacobian/django-googlecharts.git@c542996cf9a7a097b447e1ce5a1a6b66bdad254f#egg=django_googlecharts
 django-localflavor==1.0
-django-treemenus==0.9.1
 eav-django==1.4.7
 html5lib==0.999
 pisa==3.0.33

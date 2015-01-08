@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
+from django.utils.translation import ugettext as _
 
 from filters import OcorrenciaListFilter
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
@@ -13,7 +14,7 @@ class ComentarioViewInline(admin.TabularInline):
     extra = 0
     max_num = 0
     can_delete = False
-    verbose_name, verbose_name_plural = u"Comentário anterior", u"Comentários anteriores"
+    verbose_name, verbose_name_plural = _(u"Comentário anterior"), _(u"Comentários anteriores")
     fields = ('usuario', 'data_criacao', 'novo_status', 'encaminhar_setor', 'descricao', )
     readonly_fields = ('novo_status', 'encaminhar_setor', 'descricao', 'data_criacao', 'usuario',)
 
@@ -21,7 +22,7 @@ class ComentarioViewInline(admin.TabularInline):
 class ComentarioInline(admin.StackedInline):
     model = Comentario
     extra = 1
-    verbose_name, verbose_name_plural = u"Comentário novo", u"Comentários novos"
+    verbose_name, verbose_name_plural = _(u"Comentário novo"), _(u"Comentários novos")
     fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
 
     def get_queryset(self, queryset):
@@ -114,12 +115,12 @@ class OcorrenciaAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf
-    get_uf.short_description = u'UF'
+    get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def get_municipio(self, obj):
         return obj.casa_legislativa.municipio.nome
-    get_municipio.short_description = u'Município'
+    get_municipio.short_description = _(u'Município')
     get_municipio.admin_order_field = 'casa_legislativa__municipio__nome'
 
 

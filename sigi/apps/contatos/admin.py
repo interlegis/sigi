@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
+from django.utils.translation import ugettext as _
+
 from sigi.apps.contatos.filters import PopulationFilter
 from sigi.apps.contatos.models import (UnidadeFederativa, Municipio, Telefone,
                                        Contato)
@@ -29,7 +31,7 @@ class MunicipioAdmin(BaseModelAdmin):
                        'codigo_microrregiao', 'nome', 'data_criacao', 'uf',
                        'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano', 'pib_total', 'pib_percapita')
         }),
-        ('Posição geográfica', {
+        (_(u'Posição geográfica'), {
             'fields': ('latitude', 'longitude'),
         }),
     )

@@ -2,6 +2,7 @@
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponseRedirect
+from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Mandato
@@ -28,7 +29,7 @@ class PartidoAdmin(BaseModelAdmin):
 
 
 class ParlamentarNomeCompletoFilter(AlphabeticFilter):
-    title = 'Inicial do Nome Completo'
+    title = _(u'Inicial do Nome Completo')
     parameter_name = 'nome_completo'
 
 
@@ -42,10 +43,10 @@ class ParlamentarAdmin(BaseModelAdmin):
         (None, {
             'fields': ('nome_completo', 'nome_parlamentar', 'sexo'),
         }),
-        #        ('Endereço', {
+        #        (_(u'Endereço'), {
         #            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
         #        }),
-        ('Outras informações', {
+        (_(u'Outras informações'), {
             'fields': ('data_nascimento', 'email', 'pagina_web', 'foto'),
         }),
     )
@@ -63,12 +64,12 @@ class ParlamentarAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_parlamentar'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, "%s Parlamentares adicionados no carrinho" % (quant))
+            self.message_user(request, _(u"%s Parlamentares adicionados no carrinho") % (quant))
         else:
-            self.message_user(request, "Os parlamentares selecionadas já foram adicionadas anteriormente")
+            self.message_user(request, _(u"Os parlamentares selecionadas já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
 
-    adiciona_parlamentar.short_description = u"Armazenar parlamentar no carrinho para exportar"
+    adiciona_parlamentar.short_description = _(u"Armazenar parlamentar no carrinho para exportar")
 
 
 class MandatoAdmin(BaseModelAdmin):

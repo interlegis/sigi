@@ -7,15 +7,15 @@
 
 {% endblock %}
 
-{% block title %}Parlamentares no Carrinho | SIGI{% endblock %}
-{% block content_title %}<h1>Parlamentares no Carrinho</h1>{% endblock %}
+{% block title %}{% trans 'Parlamentares no Carrinho | SIGI' %}{% endblock %}
+{% block content_title %}<h1>{% trans 'Parlamentares no Carrinho' %}</h1>{% endblock %}
 
 {% block mensagem%}
 <ul class="messagelist">
 	{%if carIsEmpty%}
-		<li class="warning">O carrinho está vazio, sendo assim todas as casas entram na lista para exportação de acordo com os filtros aplicados.</li>
+		<li class="warning">{% trans 'O carrinho está vazio, sendo assim todos os parlamentares entram na lista para exportação de acordo com os filtros aplicados.' %}</li>
 	{%else%}
-		<li>{{paginas.paginator.count}}Parlamentares no carrinho.</li>
+		<li>{{paginas.paginator.count}} {% trans 'Parlamentares no carrinho' %}.</li>
 	{%endif%}
 </ul>
 {% endblock %}
@@ -30,9 +30,9 @@
 			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
 			</th>
 			{% endif %}
-			<th class="sorted ascending">Nome</th>
-			<th class="sorted ascending">Nome parlamentar</th>
-			<th class="sorted ascending">Sexo</th>
+			<th class="sorted ascending">{% trans 'Nome' %}</th>
+			<th class="sorted ascending">{% trans 'Nome parlamentar' %}</th>
+			<th class="sorted ascending">{% trans 'Sexo' %}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -54,12 +54,12 @@
 {% block botoes %}
 <div id="tabs">
 	<ul>
-		<li><a href="#tabs-1">Etiqueta</a></li>
+		<li><a href="#tabs-1">{% trans 'Etiqueta' %}</a></li>
 	</ul>
 
 	<div id="tabs-1">
-		<form action="../labels/{{query_str}}" method="post">{% csrf_token %}
-        <fieldset><legend>Formato da Etiqueta</legend>
+		<form id="generate_labels" action="../labels/{{query_str}}" method="post">{% csrf_token %}
+        <fieldset><legend>{% trans 'Formato da Etiqueta' %}</legend>
         <ul class="formato_etiqueta">
         	<li><input type="radio" name="tamanho_etiqueta"
             	value="2x5_etiqueta"><label>2x5</label></li>

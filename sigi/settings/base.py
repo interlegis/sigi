@@ -32,6 +32,7 @@ SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
     'sigi.context_processors.charts_data',
+    'django.core.context_processors.request',
 )
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
@@ -55,6 +56,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     # Local apps
+    'sigi.apps.home',
     'sigi.apps.contatos',
     'sigi.apps.servidores',
     'sigi.apps.parlamentares',
@@ -67,7 +69,7 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
-    
+
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
     'sigi.apps.saberes',
@@ -77,7 +79,6 @@ INSTALLED_APPS = (
     'reporting',
     'django_extensions',
     'googlecharts',
-    'treemenus',
     'easy_thumbnails',
     'image_cropping',
 
@@ -131,10 +132,6 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 # Using pytest directly (without a test runner)
 TEST_RUNNER = None
 
-# Validate arguments in django-dynamic-fixture
-# http://django-dynamic-fixture.readthedocs.org/en/latest/more.html?highlight=ddf_validate_args#validate-arguments-new-in-1-5-0
-DDF_VALIDATE_ARGS = True
-
 from easy_thumbnails.conf import Settings as thumbnail_settings
 THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
@@ -142,8 +139,38 @@ THUMBNAIL_PROCESSORS = (
 
 THUMBNAIL_ALIASES = {
     '': {
-        'small': {'size': (300, 225), 'crop': True,},
+        'small': {'size': (300, 225), 'crop': True, },
     },
 }
 IMAGE_CROPPING_SIZE_WARNING = True
 IMAGE_CROPPING_THUMB_SIZE = (800, 600)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        }
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            'include_html': True,
+            'filters': ['require_debug_false'],
+        },
+        'file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': '/var/log/sigi/application.log',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['mail_admins', 'file'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

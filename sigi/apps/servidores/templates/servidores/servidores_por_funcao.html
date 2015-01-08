@@ -1,4 +1,5 @@
 {% extends "base_report.html" %}
+{% load i18n %}
 
 {% block extra_head %}
 <style type="text/css">
@@ -21,17 +22,17 @@
 {% endblock %}
 
 {% block subsecretaria %}
-SUBSECRETARIA DE ADMINISTRAÇÃO – SSADM
+{% trans 'SUBSECRETARIA DE ADMINISTRAÇÃO – SSADM' %}
 {% endblock %}
 
 {% block report %}
 <div>
-  <h1>Relatório de Servidores por Função</h1>
+  <h1>{% trans 'Relatório de Servidores por Função' %}</h1>
   <table class="report">
     <tr class="title">
       <td class="index"></td>
-      <td>Função</td>
-      <td>Servidores</td>
+      <td>{% trans 'Função' %}</td>
+      <td>{% trans 'Servidores' %}</td>
     </tr>
     {% for r in report %}
     <tr class="data">
@@ -42,7 +43,7 @@ SUBSECRETARIA DE ADMINISTRAÇÃO – SSADM
     {% endfor %}
     <tr class="data total">
       <td></td>
-      <td>Total</td>
+      <td>{% trans 'Total' %}</td>
       <td>{{ total }}</td>
     </tr>
   </table>

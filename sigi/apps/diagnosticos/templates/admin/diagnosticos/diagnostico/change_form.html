@@ -1,16 +1,17 @@
 {% extends "base_change_form.html" %}
+{% load static from staticfiles %}
 {% load i18n reporting_tags %}
 
 {% block extrastyle %}
   {{ block.super }}
-  <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}css/admin/diagnosticos/diagnostico/change_form.css">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/admin/diagnosticos/diagnostico/change_form.css' %}">
 {% endblock %}
 
 {% block object-tools %}
 {% if change %}{% if not is_popup %}
   <ul class="object-tools">
       <li><a href="history/" class="historylink">{% trans "History" %}</a></li>
-      <li><a href="{{adminform.form.instance.get_absolute_url }}" class="viewsitelink">Ver em PDF</a></li>
+      <li><a href="{{adminform.form.instance.get_absolute_url }}" class="viewsitelink">{% trans 'Ver em PDF' %}</a></li>
   </ul>
 {% endif %}{% endif %}
 {% endblock %}

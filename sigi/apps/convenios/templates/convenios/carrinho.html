@@ -5,15 +5,15 @@
   {% include "admin/tabs_style.html" %}
 {% endblock %}
 
-{% block title %}Convênios no Carrinho | SIGI{% endblock %}
-{% block content_title %}<h1>Convênios no Carrinho</h1>{% endblock %}
+{% block title %}{% trans 'Convênios no Carrinho | SIGI' %}{% endblock %}
+{% block content_title %}<h1>{% trans 'Convênios no Carrinho' %}</h1>{% endblock %}
 
 {% block mensagem%}
 <ul class="messagelist">
 	{%if carIsEmpty%}
-		<li class="warning">O carrinho está vazio, sendo assim todos os convênios entram na lista para exportação de acordo com os filtros aplicados.</li>
+		<li class="warning">{% trans 'O carrinho está vazio, sendo assim todos os convênios entram na lista para exportação de acordo com os filtros aplicados.' %}</li>
 	{%else%}
-		<li>{{paginas.paginator.count}} Convênios no carrinho.</li>
+		<li>{{paginas.paginator.count}} {% trans 'Convênios no carrinho' %}.</li>
 	{%endif%}
 </ul>
 {% endblock %}
@@ -28,12 +28,12 @@
 			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
 			</th>
 			{% endif %}
-			<th class="sorted ascending">Numero do convênio</th>
-			<th class="sorted ascending">Casa Legislativa</th>
-			<th class="sorted ascending">Aderidas</th>
-			<th class="sorted ascending">Convêniadas</th>
-			<th class="sorted ascending">Equipadas</th>
-			<th class="sorted ascending">Projeto</th>
+			<th class="sorted ascending">{% trans 'Numero do convênio' %}</th>
+			<th class="sorted ascending">{% trans 'Casa Legislativa' %}</th>
+			<th class="sorted ascending">{% trans 'Aderidas' %}</th>
+			<th class="sorted ascending">{% trans 'Convêniadas' %}</th>
+			<th class="sorted ascending">{% trans 'Equipadas' %}</th>
+			<th class="sorted ascending">{% trans 'Projeto' %}</th>
 		</tr>
 	</thead>
 	<tbody>
@@ -59,34 +59,34 @@
 <div id="tabs">
 
     <ul>
-        <li><a href="#tabs-1">Relatório</a></li>
-        <li><a href="#tabs-2">Arquivo CSV (Excel, Calc)</a></li>
+        <li><a href="#tabs-1">{% trans 'Relatório' %}</a></li>
+        <li><a href="#tabs-2">{% trans 'Arquivo CSV (Excel, Calc)' %}</a></li>
 	</ul>
 	<div id="tabs-1">
     	<form action="../reports/{{ query_str }}" method="post">{% csrf_token %}
         	<fieldset>
-	           		<legend>Relatório por</legend>
+	           		<legend>{% trans 'Relatório por' %}</legend>
 	            	<ul class="tabs-conteudo">
 	            		<li>
 	            			<input type="radio" name="filtro_casa" value="cm" checked="checked"/>
-							<label>Câmara Municipal</label>
+							<label>{% trans 'Câmara Municipal' %}</label>
 						</li>
 						<li>
 							<input type="radio" name="filtro_casa" value="al" />
-							<label>Assembléia Legislativa</label>
+							<label>{% trans 'Assembléia Legislativa' %}</label>
 						</li>
 	            	</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Com data de aceite? (Equipada)</legend>
+				<legend>{% trans 'Com data de aceite? (Equipada)' %}</legend>
 				<ul class="tabs-conteudo">
 					<li>
             			<input type="radio" name="data_aceite" value="sim" checked="checked" />
-            			<label>Sim</label>
+            			<label>{% trans 'Sim' %}</label>
             		</li>
 					<li>
             			<input type="radio" name="data_aceite" value="nao" />
-            			<label>Não</label>
+            			<label>{% trans 'Não' %}</label>
             		</li>
 				</ul>
 			</fieldset>
@@ -97,55 +97,55 @@
 	</div>
         <div id="tabs-2">
 		<form action="../csv/{{query_str}}" method="post">{% csrf_token %}
-			<fieldset><legend>Escolha os atributos para exportar</legend>
+			<fieldset><legend>{% trans 'Escolha os atributos para exportar' %}</legend>
                             <ul id="sortable" class="tabs-conteudo">
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="No. Processo"
 						class="action-select" checked="checked" />
-					<label>Nº Processo</label>
+					<label>{% trans 'Nº Processo' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="No. Convênio"
 						class="action-select" checked="checked" />
-					<label>Nº Convênio</label>
+					<label>{% trans 'Nº Convênio' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Projeto"
 						class="action-select" checked="checked" />
-					<label>Projeto</label>
+					<label>{% trans 'Projeto' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Casa Legislativa"
 						class="action-select" checked="checked" />
-					<label>Casa Legislativa</label>
+					<label>{% trans 'Casa Legislativa' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Data de Adesão"
 						class="action-select" checked="checked" />
-					<label>Data de Adesão</label>
+					<label>{% trans 'Data de Adesão' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Data de Convênio"
 						class="action-select" checked="checked" />
-					<label>Data de Convênio</label>
+					<label>{% trans 'Data de Convênio' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Data da Publicacao no D.O."
 						class="action-select" checked="checked" />
-					<label>Data da Publicação no Diário Oficial</label>
+					<label>{% trans 'Data da Publicação no Diário Oficial' %}</label>
 				</li>
                                 <li>
 					<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
 					<input type="checkbox" name="itens_csv_selected" value="Data Equipada"
 						class="action-select" checked="checked" />
-					<label>Data Equipada</label>
+					<label>{% trans 'Data Equipada' %}</label>
 				</li>
                             </ul>
                         </fieldset>

@@ -1,29 +1,31 @@
 # -*- coding: utf-8 -*-
 import csv
-import os
-
-from django.http import HttpResponse
-from django.core.exceptions import PermissionDenied
 import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
-from django.utils.datastructures import SortedDict
+import os
+import time
+from functools import reduce
+
+from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
+from django.db.models import Q
+from django.db.models.aggregates import Sum
+from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
-from django.db.models import Q
+from django.utils.datastructures import SortedDict
+from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
-from django.db.models.aggregates import Sum
-from django.contrib.auth.decorators import user_passes_test, login_required
+from easy_thumbnails.templatetags.thumbnail import thumbnail_url
+
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.convenios.models import Projeto
+from sigi.apps.financeiro.models import Desembolso
+from sigi.apps.servicos.models import TipoServico
+from sigi.apps.utils import to_ascii
 from sigi.settings import MEDIA_ROOT, STATIC_URL
 from sigi.shortcuts import render_to_pdf
-from sigi.apps.servicos.models import TipoServico, Servico
-from sigi.apps.convenios.models import Projeto, Convenio
-from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.utils import to_ascii
-from sigi.apps.financeiro.models import Desembolso
-from sigi.apps.metas.templatetags.mapa_tags import descricao_servicos
-from functools import reduce
-from easy_thumbnails.templatetags.thumbnail import thumbnail_url
-import time
+
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 
@@ -294,49 +296,9 @@ def gera_map_data_file(cronjob=False):
             # Salta essa casa, pois ela não tem nada com o Interlegis
 
         if c.pk not in casas:
-            casa = {
-                'nome': c.nome + ', ' + c.municipio.uf.sigla,
-                'icone': '/static/img/mapmarker.png',
-                'thumb': thumbnail_url(c.foto, 'small'),
-                'foto': (c.foto.url if c.foto else ''),
-                'lat': str(c.municipio.latitude),
-                'lng': str(c.municipio.longitude),
-                'estado': c.municipio.uf.sigla,
-                'regiao': c.municipio.uf.regiao,
-                'diagnosticos': [],
-                'seit': [],
-                'convenios': [],
-                'equipadas': [],
-                'info': []
-            }
-
-            for sv in c.servico_set.all():
-                casa['info'].append(u"%s ativado em %s <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (
-                    sv.tipo_servico.nome, sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else
-                    u'<sem data de ativação>', sv.url, STATIC_URL))
-                casa['seit'].append(sv.tipo_servico.sigla)
-
-            for cv in c.convenio_set.all():
-                if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append(u"Equipada em %s pelo %s" % (cv.data_termo_aceite.strftime('%d/%m/%Y'), cv.projeto.sigla))
-                    casa['equipadas'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append(u"Conveniada ao %s em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
-                    casa['convenios'].append(cv.projeto.sigla)
-                if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
-                    casa['info'].append(u"Conveniada ao %s em %s e equipada em %s" % (cv.projeto.sigla, cv.data_retorno_assinatura.strftime('%d/%m/%Y'), cv.data_termo_aceite.strftime('%d/%m/%Y')))
-                    casa['equipadas'].append(cv.projeto.sigla)
-                    casa['convenios'].append(cv.projeto.sigla)
-
-            for dg in c.diagnostico_set.all():
-                casa['diagnosticos'].append('P' if dg.publicado else 'A')
-                casa['info'].append(u'Diagnosticada no período de %s a %s' % (dg.data_visita_inicio.strftime('%d/%m/%Y') if
-                                                                              dg.data_visita_inicio is not None else u"<sem data de início>",
-                                                                              dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else u"<sem data de término>"))
-
-            casa['info'] = "<br/>".join(casa['info'])
-
-            casas[c.pk] = casa
+            summary = parliament_summary(c)
+            summary['info'] = "<br/>".join(summary['info'])
+            casas[c.pk] = summary
 
     json_data = simplejson.dumps(casas)
 
@@ -351,6 +313,61 @@ def gera_map_data_file(cronjob=False):
             pass  # ... ou os dados poderão ser usados de qualquer forma
 
     if cronjob:
-        return "Arquivo %s gerado em %d segundos" % (JSON_FILE_NAME, time.time() - start)
+        return _(u"Arquivo %(filename)s gerado em %(seconds)d segundos") % dict(
+            filename=JSON_FILE_NAME,
+            seconds=time.time() - start)
 
     return json_data
+
+
+def parliament_summary(parliament):
+    summary = {
+        'nome': parliament.nome + ', ' + parliament.municipio.uf.sigla,
+        'icone': '/static/img/mapmarker.png',
+        'thumb': thumbnail_url(parliament.foto, 'small'),
+        'foto': (parliament.foto.url if parliament.foto else ''),
+        'lat': str(parliament.municipio.latitude),
+        'lng': str(parliament.municipio.longitude),
+        'estado': parliament.municipio.uf.sigla,
+        'regiao': parliament.municipio.uf.regiao,
+        'diagnosticos': [],
+        'seit': [],
+        'convenios': [],
+        'equipadas': [],
+        'info': []
+    }
+
+    for sv in parliament.servico_set.all():
+        summary['info'].append(
+            _(u"%(name)s ativado em %(date)s") % dict(
+                name=sv.tipo_servico.nome,
+                date=sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else _(u'<sem data de ativação>')) +
+            " <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (sv.url, STATIC_URL))
+        summary['seit'].append(sv.tipo_servico.sigla)
+
+    for cv in parliament.convenio_set.all():
+        if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
+            summary['info'].append(_(u"Equipada em %(date)s pelo %(project)s") % dict(
+                date=cv.data_termo_aceite.strftime('%d/%m/%Y'),
+                project=cv.projeto.sigla))
+            summary['equipadas'].append(cv.projeto.sigla)
+        if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
+            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s") % dict(
+                project=cv.projeto.sigla,
+                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
+            summary['convenios'].append(cv.projeto.sigla)
+        if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
+            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s e equipada em %(equipped_date)s") % dict(
+                project=cv.projeto.sigla,
+                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y'),
+                equipped_date=cv.data_termo_aceite.strftime('%d/%m/%Y')))
+            summary['equipadas'].append(cv.projeto.sigla)
+            summary['convenios'].append(cv.projeto.sigla)
+
+    for dg in parliament.diagnostico_set.all():
+        summary['diagnosticos'].append('P' if dg.publicado else 'A')
+        summary['info'].append(_(u'Diagnosticada no período de %(initial_date)s a %(final_date)s') % dict(
+            initial_date=dg.data_visita_inicio.strftime('%d/%m/%Y') if dg.data_visita_inicio is not None else _(u"<sem data de início>"),
+            final_date=dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else _(u"<sem data de término>")))
+
+    return summary

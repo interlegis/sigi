@@ -2,7 +2,7 @@
 {% load static from staticfiles %}
 {% load i18n %}
 
-{% block title %}SIGI{% endblock %}
+{% block title %}{% trans 'SIGI' %}{% endblock %}
 
 {% block extrahead %}
 	{{ block.super }}
@@ -23,7 +23,7 @@
 {% endblock %}
 
 {% block content_title %}
-<h1>Mapa de atuação do Interlegis</h1>
+<h1>{% trans 'Mapa de atuação do Interlegis' %}</h1>
 {% endblock %}
 
 {% block object-tools %}
@@ -45,19 +45,19 @@
 {% block object-tools-items %}
 	<li><a href="/dashboard/mapsum/" id="summary_report" onclick="return false;">
         <span class="glyphicon glyphicon-list-alt"></span>
-		Relatório resumo
+		{% trans 'Relatório resumo' %}
 	</a></li>
 	<li><a href="/dashboard/maplist/" id="list_report" onclick="return false;">
         <span class="glyphicon glyphicon-list"></span>
-		Listagem das Casas
+		{% trans 'Listagem das Casas' %}
 	</a></li>
     <li><a href="/dashboard/maplist/?fmt=csv" id="list_csv" onclick="return false;">
         <span class="glyphicon glyphicon-export"></span>
-    	Exportar Casas
+    	{% trans 'Exportar Casas' %}
     </a></li>
 	<li><a href="#" id="closeiwlink">
         <span class="glyphicon glyphicon-remove"></span>
-		Fechar todas as janelas de informação
+		{% trans 'Fechar todas as janelas de informação' %}
 	</a></li>
 {% endblock %}
 
@@ -73,10 +73,10 @@
   <div class="col-md-2">
     <div class="panel panel-primary flex-col">
 
-      	<div class="panel-heading">Filtros</div>
+      	<div class="panel-heading">{% trans 'Filtros' %}</div>
 
 		<form id="filter_form" method="get" action="">
-	      <h4>Por Serviços SEIT</h4>
+	      <h4>{% trans 'Por Serviços SEIT' %}</h4>
 	        <ul>
 	        {% for s in servico_choices %}
 	          <li><input type="checkbox" name="seit" value="{{ s.sigla }}"
@@ -86,35 +86,35 @@
 	          </li>
 	        {% endfor %}
 	        </ul>
-	      <h4>Por Casas conveniadas</h4>
+	      <h4>{% trans 'Por Casas conveniadas' %}</h4>
 	        <ul>
 	        {% for p in projeto_choices %}
 	          <li><input type="checkbox" name="convenios" value="{{ p.sigla }}" {% if p.sigla in convenios %}checked="checked" {% endif %}/>
 	            ao {{ p.sigla }} <span id="convenio_{{ p.sigla }}" class="totalizador">&nbsp;</span> </li>
 	        {% endfor %}
 	        </ul>
-	      <h4>Por Casas equipadas</h4>
+	      <h4>{% trans 'Por Casas equipadas' %}</h4>
 	        <ul>
 	          {% for p in projeto_choices %}
 	          <li><input type="checkbox" name="equipadas" value="{{ p.sigla }}" {% if p.sigla in equipadas %}checked="checked"{% endif %} />
 	            pelo {{ p.sigla }}<span id="equip_{{ p.sigla }}" class="totalizador">&nbsp;</span> </li></li>
 	          {% endfor %}
 	        </ul>
-	      <h4>Por Diagnósticos</h4>
+	      <h4>{% trans 'Por Diagnósticos' %}</h4>
 	        <ul>
 	          <li><input type="checkbox" name="diagnosticos" value="A" {% if "A" in diagnosticos %}checked="checked" {% endif %}/>
-	            Em andamento<span id="diagnostico_A" class="totalizador">&nbsp;(1)</span></li>
+	            {% trans 'Em andamento' %}<span id="diagnostico_A" class="totalizador">&nbsp;(1)</span></li>
 	          <li><input type="checkbox" name="diagnosticos" value="P" {% if "P" in diagnosticos %}checked="checked" {% endif %}/>
-	            Publicados<span id="diagnostico_P" class="totalizador">&nbsp;(1)</span></li>
+	            {% trans 'Publicados' %}<span id="diagnostico_P" class="totalizador">&nbsp;(1)</span></li>
 	        </ul>
-	      <h4>Por região</h4>
+	      <h4>{% trans 'Por região' %}</h4>
 	      <ul>
 	      {% for r in regiao_choices %}
 	        <li><input type="checkbox" name="regioes" value="{{ r.0 }}" {% if r.0  in regioes %}checked="checked"{% endif %}/> {{ r.1 }}
 	            <span id="{{ r.0 }}" class="totalizador">&nbsp;(1)</span></li>
 	      {% endfor %}
 	      </ul>
-	      <h4>Por Estado</h4>
+	      <h4>{% trans 'Por Estado' %}</h4>
 	        <ul>
 	        {% for e in estado_choices %}
 	          <li><input type="checkbox" name="estados" value="{{ e.sigla }}"

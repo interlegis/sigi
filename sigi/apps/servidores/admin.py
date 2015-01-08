@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Endereco, Telefone
 from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
@@ -30,7 +31,7 @@ class FeriasAdmin(BaseModelAdmin):
 
 
 class ServidorFilter(AlphabeticFilter):
-    title = 'Nome do Servidor'
+    title = _(u'Nome do Servidor')
     parameter_name = 'servidor__nome_completo'
 
 
@@ -64,7 +65,7 @@ class ServidorAdmin(BaseModelAdmin):
         return servidor.user.is_active
     is_active.admin_order_field = 'user__is_active'
     is_active.boolean = True
-    is_active.short_description = 'ativo'
+    is_active.short_description = _(u'ativo')
 
     list_display = ('nome_completo', 'is_active', 'foto', 'servico', )
     list_filter = ('user__is_active', 'sexo', 'servico',)
@@ -74,16 +75,16 @@ class ServidorAdmin(BaseModelAdmin):
     raw_id_fields = ('user',)
     inlines = (TelefonesInline, EnderecoInline)
     fieldsets = (
-        (u'Autenticação', {
+        (_(u'Autenticação'), {
             'fields': ('user',),
         }),
-        ('Cadastro', {
+        (_(u'Cadastro'), {
             'fields': ('nome_completo', 'foto', 'email_pessoal', 'rg', 'cpf', 'sexo', 'data_nascimento', 'matricula', 'ramal', 'data_nomeacao', 'ato_numero', 'ato_exoneracao')
         }),
-        ('Lotação', {
+        (_(u'Lotação'), {
             'fields': ('servico', 'turno', 'de_fora'),
         }),
-        (u'Observações', {
+        (_(u'Observações'), {
             'fields': ('apontamentos', 'obs'),
         }),
     )

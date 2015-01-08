@@ -1,6 +1,7 @@
 {% extends "admin/index.html" %}
+{% load i18n %}
 
-{% block title %}SIGI{% endblock %}
+{% block title %}{% trans 'SIGI' %}{% endblock %}
 
 {% block extrahead %}
   {{ block.super }}
@@ -9,7 +10,7 @@
 {% endblock %}
 
 {% block content_title %}
-<h1>Triggers e indicadores de progresso</h1>
+<h1>{% trans 'Triggers e indicadores de progresso' %}</h1>
 {% comment %}
 <div id="changelist">
   <div id="toolbar">
@@ -24,7 +25,7 @@
   <div id="content-main">
 
     {% include "metas/snippets.html" %}
-    
+
   </div>
 </div>
 {% endblock %}
