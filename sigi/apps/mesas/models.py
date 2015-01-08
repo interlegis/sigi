@@ -16,7 +16,7 @@ class Legislatura(models.Model):
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
 
-    def meta(self):
+    class Meta:
         unique_together = (('casa_legislativa', 'numero'))
         ordering = ['casa_legislativa__municipio__uf__sigla', '-data_inicio']
 
