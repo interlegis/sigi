@@ -11,6 +11,7 @@ pisa==3.0.33
 psycopg2==2.5.4
 reportlab==2.7
 six==1.8.0
+PyYAML==3.11
 
 # retornar para ultima release assim que incluir nosso pull request
 git+https://github.com/interlegis/django-admin-bootstrapped.git
