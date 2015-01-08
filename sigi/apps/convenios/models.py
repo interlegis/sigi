@@ -147,7 +147,7 @@ class Anexo(models.Model):
     """
     convenio = models.ForeignKey(Convenio, verbose_name=_(u'convênio'))
     # caminho no sistema para o documento anexo
-    arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo',)
+    arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo', max_length=500)
     descricao = models.CharField(_(u'descrição'), max_length='70')
     data_pub = models.DateTimeField(
         _(u'data da publicação do anexo'),

@@ -78,7 +78,7 @@ class Comentario(models.Model):
 
 class Anexo(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=_(u'ocorrência'))
-    arquivo = models.FileField(_(u'Arquivo anexado'), upload_to='apps/ocorrencia/anexo/arquivo',)
+    arquivo = models.FileField(_(u'Arquivo anexado'), upload_to='apps/ocorrencia/anexo/arquivo', max_length=500)
     descricao = models.CharField(_(u'descrição do anexo'), max_length='70')
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'), null=True, blank=True, auto_now_add=True)
 

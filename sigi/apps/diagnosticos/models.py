@@ -241,7 +241,7 @@ class Anexo(models.Model):
     no processo de diagnóstico. Podem ser fotos, contratos, etc.
     """
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
-    arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo',)
+    arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo', max_length=500)
     descricao = models.CharField(_(u'descrição'), max_length='70')
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'),
                                     default=datetime.now)
