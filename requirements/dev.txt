@@ -14,3 +14,4 @@ pyquery==1.2.9
 django-debug-toolbar==1.2.1
 ipdb==0.8
 ipython==2.3.0
+pygraphviz==1.2  # para usar o comando "graph_models" do "django-extensions"
