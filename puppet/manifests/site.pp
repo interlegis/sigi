@@ -190,8 +190,20 @@ cron { 'clearsessions':
   hour    => [0,]
 }
 
+cron { 'sync_ldap':
+  command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py sync_ldap",
+  user    => 'sigi',
+  hour    => [0,]
+}
+
 cron { 'gera_map_data':
   command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py gera_map_data",
+  user    => 'sigi',
+  hour    => "*/1",
+}
+
+cron { 'get_moodle_stats':
+  command => "${sigi_venv_dir}/bin/python ${sigi_dir}/manage.py get_moodle_stats -v 0",
   user    => 'sigi',
   hour    => "*/1",
 }
