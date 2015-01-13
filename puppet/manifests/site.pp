@@ -26,6 +26,7 @@ $package_deps = [
 package { $package_deps: }
 
 $sigi_dir = '/srv/sigi'
+$sigidata_dir = '/srv/sigidata'
 
 vcsrepo { $sigi_dir:
   ensure   => latest,
@@ -38,14 +39,16 @@ vcsrepo { $sigi_dir:
 file { [
   '/var/log/sigi',
   '/var/run/sigi',
-  "${sigi_dir}/media",
-  "${sigi_dir}/media/apps",
-  "${sigi_dir}/media/apps/metas",
   ]:
   ensure  => 'directory',
   owner   => 'sigi',
   group   => 'sigi',
   require => Vcsrepo[$sigi_dir],
+}
+
+file { "${sigi_dir}/media":
+  ensure => link,
+  target => "${sigidata_dir}/media",
 }
 
 # TODO A pasta "${sigi_dir}/media" deve ser compartilhada entre instancias de cluster
