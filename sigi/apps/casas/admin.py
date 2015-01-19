@@ -18,6 +18,7 @@ from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
 from sigi.apps.parlamentares.models import Legislatura
 from sigi.apps.servicos.models import Servico
+from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
@@ -161,6 +162,13 @@ class OcorrenciaInline(admin.TabularInline):
     can_delete = False
 
 
+class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
+    def __init__(self, *args, **kwargs):
+        super(GerentesContasFilter, self).__init__(*args, **kwargs)
+        gerentes = Servidor.objects.filter(casas_que_gerencia__isnull=False).order_by('nome_completo').distinct()
+        self.lookup_choices = [(x.id, x) for x in gerentes]
+
+
 class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
@@ -168,7 +176,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
     list_display = ('nome', 'municipio', 'logradouro', 'ult_alt_endereco', 'get_convenios')
     list_display_links = ('nome',)
-    list_filter = ('tipo', 'municipio__uf__nome', 'convenio__projeto')
+    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter), 'municipio__uf__nome', 'convenio__projeto')
     ordering = ('nome', 'municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (
