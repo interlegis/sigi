@@ -323,7 +323,6 @@ def gera_map_data_file(cronjob=False):
 def parliament_summary(parliament):
     summary = {
         'nome': parliament.nome + ', ' + parliament.municipio.uf.sigla,
-        'icone': '/static/img/mapmarker.png',
         'thumb': thumbnail_url(parliament.foto, 'small'),
         'foto': (parliament.foto.url if parliament.foto else ''),
         'lat': str(parliament.municipio.latitude),
