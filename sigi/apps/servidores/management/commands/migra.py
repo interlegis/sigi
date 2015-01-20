@@ -52,7 +52,7 @@ class Command(BaseCommand):
                 email = ''
             else:
                 username = p['email'].split('@')[0].strip().lower()
-                email = username + '@interlegis.gov.br'
+                email = username + '@interlegis.leg.br'
 
             # buscar usuário e servidor da linha atual
             try:

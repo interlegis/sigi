@@ -1,7 +1,7 @@
 #globalnavbar {
   font-family: Tahoma, Arial, sans-serif;
   font-size: 12pt;
-  background: #fff url(http://www.interlegis.gov.br/globalnav-logo.gif) no-repeat 0.75em 0.5em;
+  background: #fff url(http://www.interlegis.leg.br/globalnav-logo.gif) no-repeat 0.75em 0.5em;
   border-bottom: 4px solid #b8b8b8;
   height: 40px;
   margin: 0 auto 10px;
@@ -31,7 +31,7 @@
 #globalnavbar li a { border: 0; text-decoration: none; }
 #globalnavbar li a:hover { background: none; text-decoration: underline; }
 #globalnavbar input {
-  background: #fff url(http://www.interlegis.gov.br/globalnav-buscar.gif) no-repeat bottom;
+  background: #fff url(http://www.interlegis.leg.br/globalnav-buscar.gif) no-repeat bottom;
   border: 0;
   bottom: 0.33em;
   color: #a6a6a6;
