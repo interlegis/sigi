@@ -76,62 +76,20 @@
       	<div class="panel-heading">{% trans 'Filtros' %}</div>
 
 		<form id="filter_form" method="get" action="">
-	      <h4>{% trans 'Por Serviços SEIT' %}</h4>
+  	    {% for name, heading, choices in filters %}
+	      <h4>{{ heading }}</h4>
 	        <ul>
-	        {% for s in servico_choices %}
-	          <li><input type="checkbox" name="seit" value="{{ s.sigla }}"
-	                  {% if s.sigla in seit %} checked="checked" {% endif %}/>
-	            {{ s.nome }}
-	            <span id="{{ s.sigla }}" class="totalizador">&nbsp;</span>
+	        {% for value, span_id, label, checked in choices %}
+	          <li><input type="checkbox" name="{{ name }}" value="{{ value }}" {% if checked %}checked="checked" {% endif %}/>
+	            {{ label }}
+	            <span id="{{ span_id }}" class="totalizador">&nbsp;</span>
 	          </li>
 	        {% endfor %}
 	        </ul>
-	      <h4>{% trans 'Por Casas conveniadas' %}</h4>
-	        <ul>
-	        {% for p in projeto_choices %}
-	          <li><input type="checkbox" name="convenios" value="{{ p.sigla }}" {% if p.sigla in convenios %}checked="checked" {% endif %}/>
-	            ao {{ p.sigla }} <span id="convenio_{{ p.sigla }}" class="totalizador">&nbsp;</span> </li>
-	        {% endfor %}
-	        </ul>
-	      <h4>{% trans 'Por Casas equipadas' %}</h4>
-	        <ul>
-	          {% for p in projeto_choices %}
-	          <li><input type="checkbox" name="equipadas" value="{{ p.sigla }}" {% if p.sigla in equipadas %}checked="checked"{% endif %} />
-	            pelo {{ p.sigla }}<span id="equip_{{ p.sigla }}" class="totalizador">&nbsp;</span> </li></li>
-	          {% endfor %}
-	        </ul>
-	      <h4>{% trans 'Por Diagnósticos' %}</h4>
-	        <ul>
-	          <li><input type="checkbox" name="diagnosticos" value="A" {% if "A" in diagnosticos %}checked="checked" {% endif %}/>
-	            {% trans 'Em andamento' %}<span id="diagnostico_A" class="totalizador">&nbsp;(1)</span></li>
-	          <li><input type="checkbox" name="diagnosticos" value="P" {% if "P" in diagnosticos %}checked="checked" {% endif %}/>
-	            {% trans 'Publicados' %}<span id="diagnostico_P" class="totalizador">&nbsp;(1)</span></li>
-	        </ul>
-	      <h4>{% trans 'Por região' %}</h4>
-	      <ul>
-	      {% for r in regiao_choices %}
-	        <li><input type="checkbox" name="regioes" value="{{ r.0 }}" {% if r.0  in regioes %}checked="checked"{% endif %}/> {{ r.1 }}
-	            <span id="{{ r.0 }}" class="totalizador">&nbsp;(1)</span></li>
-	      {% endfor %}
-	      </ul>
-	      <h4>{% trans 'Por Estado' %}</h4>
-	        <ul>
-	        {% for e in estado_choices %}
-	          <li><input type="checkbox" name="estados" value="{{ e.sigla }}"
-	                  {% if e.sigla in estados %} checked="checked" {% endif %}/>
-	            {{ e.nome }}
-	            <span id="{{ e.sigla }}" class="totalizador">&nbsp;(1)</span>
-	          </li>
-	        {% endfor %}
-	        </ul>
+	    {% endfor %}
 		</form>
-
-
-
     </div>
   </div>
-
-
 
 {% endblock %}
 

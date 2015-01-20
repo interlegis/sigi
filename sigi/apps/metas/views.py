@@ -10,7 +10,7 @@ from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.models.aggregates import Sum
 from django.http import HttpResponse
-from django.shortcuts import render_to_response
+from django.shortcuts import render, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
@@ -67,32 +67,30 @@ def mapa(request):
     Mostra o mapa com filtros carregados com valores default
     """
 
-    regiao_choices = UnidadeFederativa.REGIAO_CHOICES
-    estado_choices = UnidadeFederativa.objects.all()
-    servico_choices = TipoServico.objects.all()
-    projeto_choices = Projeto.objects.all()
-
-    seit = [ts.sigla for ts in servico_choices]
-    convenios = ['PML']  # Apenas o ultimo #hardcoded #fixme
-    equipadas = []  # [p.sigla for p in projeto_choices]
-    diagnosticos = ['P']  # choices: ["A", "P"]
-    regioes = [r[0] for r in regiao_choices]
-    estados = []
-
-    extra_context = {
-        'seit': seit,
-        'convenios': convenios,
-        'equipadas': equipadas,
-        'diagnosticos': diagnosticos,
-        'regioes': regioes,
-        'estados': estados,
-        'regiao_choices': regiao_choices,
-        'estado_choices': estado_choices,
-        'servico_choices': servico_choices,
-        'projeto_choices': projeto_choices,
-    }
-
-    return render_to_response('metas/mapa.html', extra_context, context_instance=RequestContext(request))
+    projetos = Projeto.objects.all()
+    filters = (
+        # NAME, HEADING,
+        #     [(value, label, checked) ...]
+        ("seit", _(u'Por Serviços SEIT'),
+            [(x.sigla, x.sigla, x.nome, True)
+                for x in TipoServico.objects.all()]),
+        ("convenios", _(u'Por Casas conveniadas'),
+            [(x.sigla, 'convenio_' + x.sigla, _(u'ao %(projeto)s') % {'projeto': x.sigla}, x.sigla == 'PML')
+                for x in projetos]),  # Apenas o ultimo #hardcoded #fixme
+        ("equipadas", _(u'Por Casas equipadas'),
+            [(x.sigla, 'equip_' + x.sigla, _(u'pelo %(projeto)s') % {'projeto': x.sigla}, False)
+                for x in projetos]),
+        ("diagnosticos", _(u'Por Diagnósticos'),
+            [('A', 'diagnostico_A', 'Em andamento', False),
+             ('P', 'diagnostico_P', 'Publicados', True)]),
+        ("regioes", _(u'Por região'),
+            [(x[0], x[0], x[1], True)
+                for x in UnidadeFederativa.REGIAO_CHOICES]),
+        ("estados", _(u'Por Estado'),
+            [(x.sigla, x.sigla, x.nome, False)
+                for x in UnidadeFederativa.objects.all()]),
+    )
+    return render(request, 'metas/mapa.html', {'filters': filters})
 
 
 @cache_page(1800)  # Cache de 30min
