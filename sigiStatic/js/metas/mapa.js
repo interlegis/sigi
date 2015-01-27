@@ -43,9 +43,9 @@
 						icon: '/static/img/mapmarker.png'
 				}
 				var mark = new google.maps.Marker(markData);
-				var iwcontent = '<strong>' + municipio.nome + '</strong><br/><br/>' + 
+				var iwcontent = '<strong>' + municipio.nome + '</strong><br/><br/>' +
 				                municipio.info;
-				
+
 				if (municipio.thumb != '') {
 					iwcontent = iwcontent + '<br/><br/>' +
                                 '<a href="' + municipio.foto + '" target="_blank">' +
@@ -78,8 +78,6 @@
 		var estados = [];
 		var regioes = [];
 
-		$(".totalizador").text("0");
-
 		for (var i in data) {
 			var name = data[i].name, value = data[i].value;
 			if (name == 'estados') {
@@ -90,6 +88,9 @@
 				delete data[i];
 			}
 		}
+
+		var totalizadores = {}; // id => count
+		$(".totalizador").each(function(){ totalizadores[this.id] = 0; });
 
 		for (var i in municipiosArray) {
 			var municipio = municipiosArray[i];
@@ -114,38 +115,33 @@
 				if (municipio.mapmark.map == null) {
 					municipio.mapmark.setMap(map);
 				}
-				var qtde = $("#" + municipio.regiao + ".totalizador").text();
-				qtde = parseInt(qtde);
-				qtde++;
-				$("#" + municipio.regiao + ".totalizador").text(qtde);
+				totalizadores[municipio.regiao]++;
+				totalizadores[municipio.estado]++;
 
-				qtde = parseInt($("#" + municipio.estado + ".totalizador").text());
-				$("#" + municipio.estado + ".totalizador").text(++qtde);
+				// TODO os prefixos dos ids dependem do codigo de
+				// sigi/apps/metas/views.py:65 ... def mapa(...)
+				// => tentar tirar essa dependencia ou sinmplificar
 
 				for (var j in municipio.seit) {
-					qtde = parseInt($("#" + municipio.seit[j] + ".totalizador").text());
-					$("#" + municipio.seit[j] + ".totalizador").text(++qtde);
+					totalizadores[municipio.seit[j]]++
 				}
-
 				for (var j in municipio.convenios) {
-					qtde = parseInt($("#convenio_" + municipio.convenios[j] + ".totalizador").text());
-					$("#convenio_" + municipio.convenios[j] + ".totalizador").text(++qtde);
+					totalizadores["convenio_" + municipio.convenios[j]]++
 				}
-
 				for (var j in municipio.equipadas) {
-					qtde = parseInt($("#equip_" + municipio.equipadas[j] + ".totalizador").text());
-					$("#equip_" + municipio.equipadas[j] + ".totalizador").text(++qtde);
+					totalizadores["equip_" + municipio.equipadas[j]]++
 				}
-
 				for (var j in municipio.diagnosticos) {
-					qtde = parseInt($("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text());
-					$("#diagnostico_" + municipio.diagnosticos[j] + ".totalizador").text(++qtde);
+					totalizadores["diagnostico_" + municipio.diagnosticos[j]]++
 				}
 			} else {
 				if (municipio.mapmark.map != null) {
 					municipio.mapmark.setMap(null);
 				}
 			}
+		}
+		for (var id in totalizadores){
+			$("#" + id).text(totalizadores[id]);
 		}
 	}
 
