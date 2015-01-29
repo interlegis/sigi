@@ -1,17 +1,8 @@
--r requirements.txt
+-r test-requirements.txt
 
-# para testes
-pytest-django==2.7.0
-WebTest==2.0.16
-django-webtest==1.7.7
-django-dynamic-fixture==1.7.0
-coverage==3.7.1
-pytest-cov==1.8.0
-pyPdf==1.13
-pyquery==1.2.9
-
-# para desevolvimento
 django-debug-toolbar==1.2.1
 ipdb==0.8
 ipython==2.3.0
-pygraphviz==1.2  # para usar o comando "graph_models" do "django-extensions"
+
+# para usar o comando "graph_models" do "django-extensions"
+pygraphviz==1.2
