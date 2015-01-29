@@ -1,4 +1,4 @@
--r producao.txt
+-r requirements.txt
 
 # para testes
 pytest-django==2.7.0

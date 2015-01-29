@@ -79,7 +79,7 @@ python::virtualenv { $sigi_venv_dir :
   require => File['/srv/.virtualenvs'],
 }
 
-python::requirements { "${sigi_dir}/requirements/producao.txt":
+python::requirements { "${sigi_dir}/requirements/requirements.txt":
   virtualenv  => $sigi_venv_dir,
   forceupdate => true,
   require     => [
@@ -104,7 +104,7 @@ exec { 'collectstatic':
   require => [
     Python::Virtualenv[$sigi_venv_dir],
     Vcsrepo[$sigi_dir],
-    Python::Requirements["${sigi_dir}/requirements/producao.txt"],
+    Python::Requirements["${sigi_dir}/requirements/requirements.txt"],
     ]
 }
 
