@@ -53,24 +53,17 @@ class Command(BaseCommand):
 
     def sync_users(self):
         ldap_users = self.get_ldap_users()
+
+        def get_ldap_property(ldap_user, property_name, default_value=None):
+            value = ldap_user[1].get(property_name, None)
+            return value[0] if value else default_value
+
         for ldap_user in ldap_users:
-            try:
-                username = ldap_user[1]['sAMAccountName'][0]
-            except:
-                pass
-            else:
-                try:
-                    email = ldap_user[1]['userPrincipalName'][0]
-                except:
-                    email = ''
-                try:
-                    first_name = ldap_user[1]['givenName'][0]
-                except:
-                    first_name = username
-                try:
-                    last_name = ldap_user[1]['sn'][0][:30]
-                except:
-                    last_name = ''
+            username = get_ldap_property(ldap_user, 'sAMAccountName')
+            if username:
+                email = get_ldap_property(ldap_user, 'userPrincipalName', '')
+                first_name = get_ldap_property(ldap_user, 'givenName', username)
+                last_name = get_ldap_property(ldap_user, 'sn', '')[:30]
                 try:
                     user = User.objects.get(username=username)
                 except User.DoesNotExist:
@@ -82,34 +75,34 @@ class Command(BaseCommand):
                             username=username,
                             email=email
                         )
-                        user.first_name = first_name
-                        user.last_name = last_name
                         print "User '%s' created." % username
-                try:
-                    nome_completo = ldap_user[1]['cn'][0]
-                except:
-                    nome_completo = ''
+                user.first_name = first_name
+                user.last_name = last_name
+
+                if not user.email == email:
+                    user.email = email
+                    print "User '%s' email updated." % username
+                if not user.first_name == first_name:
+                    user.first_name = first_name
+                    print "User '%s' first name updated." % username
+                if not user.last_name == last_name:
+                    user.last_name = last_name
+                    print "User '%s' last name updated." % username
+
+                nome_completo = get_ldap_property(ldap_user, 'cn', '').decode('utf8')
                 try:
                     servidor = user.servidor
-                    if not servidor.nome_completo == nome_completo.decode('utf8'):
-                        servidor.nome_completo = nome_completo
-                        print "Servidor '%s' updated." % nome_completo
                 except Servidor.DoesNotExist:
                     try:
                         servidor = Servidor.objects.get(nome_completo=nome_completo)
                     except Servidor.DoesNotExist:
                         servidor = user.servidor_set.create(nome_completo=nome_completo)
                         print "Servidor '%s' created." % nome_completo
-                    else:
-                        if not user.email == email.decode('utf8'):
-                            user.email = email
-                            print "User '%s' email updated." % username
-                        if not user.first_name == first_name.decode('utf8'):
-                            user.first_name = first_name
-                            print "User '%s' first name updated." % username
-                        if not user.last_name == last_name.decode('utf8'):
-                            user.last_name = last_name
-                            print "User '%s' last name updated." % username
+                else:
+                    if not servidor.nome_completo == nome_completo:
+                        servidor.nome_completo = nome_completo
+                        print "Full name of Servidor '%s' updated." % nome_completo
+
                 servidor.user = user
                 servidor.save()
                 user.save()
