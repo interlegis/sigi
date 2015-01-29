@@ -1,5 +1,6 @@
 Django==1.7
 Pillow==2.6.0
+django-admin-bootstrapped==2.3.2
 django-auth-ldap==1.2.2
 django-autoslug==1.7.2
 django-extensions==1.4.0
@@ -11,9 +12,6 @@ psycopg2==2.5.4
 reportlab==2.7
 six==1.8.0
 PyYAML==3.11
-
-# retornar para ultima release assim que incluir nosso pull request
-git+https://github.com/interlegis/django-admin-bootstrapped.git
 
 django-image-cropping==0.9
 easy-thumbnails==2.2
