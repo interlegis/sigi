@@ -1,24 +1,19 @@
-Django==1.7
-Pillow==2.6.0
+-e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
 django-admin-bootstrapped==2.3.2
 django-auth-ldap==1.2.2
 django-autoslug==1.7.2
 django-extensions==1.4.0
+django-image-cropping==0.9
 django-localflavor==1.0
+Django==1.7
+easy-thumbnails==2.2
 eav-django==1.4.7
+gunicorn==19.1.1
 html5lib==0.999
+Pillow==2.6.0
 pisa==3.0.33
 psycopg2==2.5.4
+python-memcached==1.53
+PyYAML==3.11
 reportlab==2.7
 six==1.8.0
-PyYAML==3.11
-
-django-image-cropping==0.9
-easy-thumbnails==2.2
-
-# eh importante usar -e pois precisamos do modulo reporting do fonte que nao eh instalado
--e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
-
-# Dependencias de producao
-gunicorn==19.1.1
-python-memcached==1.53

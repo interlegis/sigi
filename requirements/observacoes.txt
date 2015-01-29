@@ -1,0 +1,7 @@
+Observações sobre as dependências:
+
+Produção:
+    * Geraldo: Eh importante usar "-e" pois precisamos do modulo reporting do fonte que nao eh instalado
+
+Desevenvolvimento:
+    * pygraphviz: para usar o comando "graph_models" do "django-extensions"
