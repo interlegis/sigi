@@ -77,7 +77,6 @@ INSTALLED_APPS = (
     'localflavor',
     'reporting',
     'django_extensions',
-    'googlecharts',
     'easy_thumbnails',
     'image_cropping',
 
