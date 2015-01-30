@@ -1,9 +1,10 @@
 # coding: utf-8
 import ldap
-from django.core.management.base import BaseCommand, CommandError
 from django.contrib.auth.models import User, Group
-from sigi.settings import *
+from django.core.management.base import BaseCommand
+
 from sigi.apps.servidores.models import Servidor
+from sigi.settings import *
 
 
 class Command(BaseCommand):
@@ -56,7 +57,7 @@ class Command(BaseCommand):
 
         def get_ldap_property(ldap_user, property_name, default_value=None):
             value = ldap_user[1].get(property_name, None)
-            return value[0] if value else default_value
+            return value[0].decode('utf8') if value else default_value
 
         for ldap_user in ldap_users:
             username = get_ldap_property(ldap_user, 'sAMAccountName')
@@ -69,27 +70,30 @@ class Command(BaseCommand):
                 except User.DoesNotExist:
                     try:
                         user = User.objects.get(email=email)
+                        old_username = user.username
                         user.username = username
+                        print "User with email '%s' had his/her username updated from [%s] to [%s]." % (
+                            email, old_username, username)
                     except User.DoesNotExist:
                         user = User.objects.create_user(
                             username=username,
-                            email=email
+                            first_name=first_name,
+                            last_name=last_name,
+                            email=email,
                         )
                         print "User '%s' created." % username
-                user.first_name = first_name
-                user.last_name = last_name
 
-                if not user.email == email:
-                    user.email = email
-                    print "User '%s' email updated." % username
                 if not user.first_name == first_name:
                     user.first_name = first_name
                     print "User '%s' first name updated." % username
                 if not user.last_name == last_name:
                     user.last_name = last_name
                     print "User '%s' last name updated." % username
+                if not user.email == email:
+                    user.email = email
+                    print "User '%s' email updated." % username
 
-                nome_completo = get_ldap_property(ldap_user, 'cn', '').decode('utf8')
+                nome_completo = get_ldap_property(ldap_user, 'cn', '')
                 try:
                     servidor = user.servidor
                 except Servidor.DoesNotExist:
