@@ -49,7 +49,7 @@ ALEX_LDAP, BRUNO_LDAP, RITA_LDAP = [
 
 
 @pytest.mark.parametrize("before, ldap_users, after, messages", [
-    # on an empy base a new user is created
+    # new user from ldap is created
     ([],
      [ALEX_LDAP],
      [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br')],
@@ -66,7 +66,7 @@ Users are synchronized.
 Users are synchronized.
      '''),
 
-    # encoding from LDAP data works well
+    # unicode encoding from LDAP data works well
     ([('claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', 'claudia@interlegis.leg.br', )],
      [RITA_LDAP],
      [(u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
@@ -74,7 +74,7 @@ Users are synchronized.
 Users are synchronized.
      '''),
 
-    # update: first name, last name, email
+    # update: full name, first name, last name, email
     ([('alexlima', '___', '___', '___', '___', ),
       ('bruno', 'Bruno Almeida Prado', '___', 'Almeida Prado', '___', ),
       ('claudia', '___', u'Cláudia', '___', 'claudia@interlegis.leg.br', )],
@@ -96,16 +96,27 @@ Users are synchronized.
       '''),
 
     # update username (username from LDAP not in base, so match user by email and update username)
-
-    # create servidor
+    # TODO: is this functionality really necessary? If not remove this and corresponding code
 
     # connect servidor with nome_completo to user
+    # TODO: is this functionality really necessary? If not remove this and corresponding code
 
     # create new servidor with nome_completo and connect to user
+    # TODO: is this functionality really necessary? If not remove this and corresponding code
 
 
-    # delete user not present in ldap ????
-    # TODO not implemented. really implement?? what would be the side effects?
+    # user not present in ldap is NOT deleted
+    ([(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
+      (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
+      (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
+     [ALEX_LDAP, RITA_LDAP],
+     [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
+      (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
+      (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
+     u'''
+Users are synchronized.
+      '''),
+
 
 
 ])
