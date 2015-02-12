@@ -285,7 +285,7 @@ class Funcionario(models.Model):
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
     setor = models.CharField(max_length=100, choices=SETOR_CHOICES, default="outros")
     tempo_de_servico = models.CharField(u'tempo de serviço', max_length=50, null=True, blank=True)
-    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=True, auto_now=False)
+    ult_alteracao = models.DateTimeField(u'Última alteração', null=True, blank=True, editable=True, auto_now=True)
 
     class Meta:
         ordering = ('nome',)
