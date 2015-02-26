@@ -1,14 +1,12 @@
-{% load charts %}
-
 <div class="row row-flex row-flex-wrap">
   {% for k, painel in paineis.items %}
   <div class="col-md-4">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">      	
+      <div class="panel-heading">
       	{{ painel.titulo }}
 		{% if painel.area %}
 			<span class="badge"><a href="{% url "saberes-dashboard-detail" painel.area.id %}">Detalhes</a></span>
-		{% endif %}      	
+		{% endif %}
       </div>
       <div class="panel-body">
 	    <table class='table'>
@@ -18,7 +16,7 @@
 	        	{{ linha.descricao }}
 	        	{% if linha.help_text %}
 	        	<span class="help-block">{{ linha.help_text }}</span>
-	        	{% endif %} 
+	        	{% endif %}
 	        </th>
 	        <td class='number' {% if not linha.percentual %}colspan="2"{% endif %}>{{ linha.valor }}</td>
 	        {% if linha.percentual %}
