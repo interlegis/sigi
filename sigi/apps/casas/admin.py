@@ -160,6 +160,7 @@ class OcorrenciaInline(admin.TabularInline):
     extra = 0
     max_num = 0
     can_delete = False
+    template = 'casas/ocorrencia_inline.html'
 
 
 class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
