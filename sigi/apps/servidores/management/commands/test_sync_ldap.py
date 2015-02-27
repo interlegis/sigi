@@ -116,9 +116,6 @@ Users are synchronized.
      u'''
 Users are synchronized.
       '''),
-
-
-
 ])
 def test_sync_users(before, ldap_users, after, messages, capsys):
 
