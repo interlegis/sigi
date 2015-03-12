@@ -14,11 +14,14 @@ class OcorrenciaListFilter(admin.SimpleListFilter):
         return (
             ('S', _(u'Atribuídos ao meu setor')),
             ('M', _(u'Registrados por mim')),
+            ('G', _(u'Sobre casas que gerencio')),
         )
 
     def queryset(self, request, queryset):
         servidor = Servidor.objects.get(user=request.user)
         if self.value() == 'S':
             return queryset.filter(setor_responsavel=servidor.servico)
-        if self.value() == 'M':
+        elif self.value() == 'M':
             return queryset.filter(servidor_registro=servidor)
+        elif self.value() == 'G':
+            return queryset.filter(casa_legislativa__gerente_contas=servidor)
