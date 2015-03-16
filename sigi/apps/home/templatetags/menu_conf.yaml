@@ -17,6 +17,8 @@ main_menu:
       url: casas/casalegislativa/?tipo__id__exact=1
     - title: Assembléias Legislativas
       url: casas/casalegislativa/?tipo__id__exact=2
+    - title: Tipos de Casas
+      url: casas/tipocasalegislativa/
   - title: Legislaturas
     url: parlamentares/legislatura/
     children:
