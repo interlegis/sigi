@@ -38,7 +38,7 @@ main_menu:
     - title: Coleta de dados
       url: diagnosticos/mobile/
     - title: Gráficos e estatísticas
-      url: diagnosticos-graficos
+      url: diagnosticos/graficos
   - title: Convênios
     url: convenios/convenio/
     children:
