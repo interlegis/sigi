@@ -330,7 +330,7 @@ def grafico_api(request):
 
     # elif pergunta.datatype == 'many':
 
-    jsonn = json.dumps(list_perguntas, sort_keys=True, indent=4, separators=(',', ': '))
+    jsonn = simplejson.dumps(list_perguntas, sort_keys=True, indent=4, separators=(',', ': '))
     return HttpResponse(jsonn, content_type="application/json")
 
 
