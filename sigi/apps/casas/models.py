@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import random
+from string import ascii_uppercase
 from unicodedata import normalize
 
 from datetime import datetime
@@ -155,6 +156,7 @@ class CasaLegislativa(models.Model):
             cityName = cityName.replace(' DA ', ' ')
             cityName = cityName.replace(' DE ', ' ')
             cityName = cityName.replace(' DO ', ' ')
+            cityName = filter(lambda x: x in ascii_uppercase + ' ', cityName)
 
             # estratégia 1 - Pegar as 1ª letra de cada nome da cidade
             codigo = ''.join([x[0] for x in cityName.split(' ')[:3]])
