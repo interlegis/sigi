@@ -95,5 +95,3 @@ main_menu:
     children:
     - title: Desembolsos
       url: financeiro/desembolso/
-    - title: Dashboard
-      url: metas-dashboardsss
