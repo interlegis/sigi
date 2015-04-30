@@ -12,6 +12,7 @@ def valida_data_inicial_menor_que_final(data, chave_ini, chave_fim):
         raise forms.ValidationError(_(
             u"A data de início deve ser menor que a data final. Verifique novamente"))
 
+
 class FeriasForm(forms.ModelForm):
 
     class Meta:

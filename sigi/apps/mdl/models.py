@@ -3,13 +3,14 @@
 from __future__ import unicode_literals
 from django.db import models
 
+
 class CourseStats(models.Model):
     # databaseview: (postgresql dialect):
     # -- View: sigi_course_stats
-    # 
+    #
     # DROP VIEW sigi_course_stats;
-    # 
-    # CREATE OR REPLACE VIEW sigi_course_stats AS 
+    #
+    # CREATE OR REPLACE VIEW sigi_course_stats AS
     #  SELECT cc.id AS categoryid, c.id AS courseid,
     #         CASE
     #             WHEN e.enrol = 'ilbeadtutorado' AND ue.status = 1 THEN 'N' -- Rejeitada
@@ -29,7 +30,7 @@ class CourseStats(models.Model):
     #    LEFT JOIN mdl_grade_grades gg ON gg.itemid = gi.id AND gg.userid = ue.userid
     #    LEFT JOIN mdl_course_completions co ON co.userid = ue.userid AND co.course = c.id
     #   GROUP BY cc.id, c.id, completionstatus;
-    
+
     COMPLETIONSTATUS_CHOICES = (
         ('N', u'Matrículas rejeitadas'),
         ('C', u'Em curso'),
@@ -37,7 +38,7 @@ class CourseStats(models.Model):
         ('L', u'Abandono'),
         ('A', u'Aprovação'),
         ('I', u'Indeterminado'),)
-    
+
     category = models.ForeignKey('CourseCategories', db_column='categoryid', primary_key=True)
     course = models.ForeignKey('Course', db_column='courseid')
     completionstatus = models.CharField(max_length=1, choices=COMPLETIONSTATUS_CHOICES)
@@ -47,9 +48,10 @@ class CourseStats(models.Model):
     class Meta:
         managed = False
         db_table = 'sigi_course_stats'
-        
+
     def __unicode__(self):
         return '%s - %s: %s' % (self.category.name, self.course.fullname, self.usercount)
+
 
 class Cohort(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -71,27 +73,29 @@ class Cohort(models.Model):
 
     def __unicode__(self):
         return self.name
-    
+
+
 class CohortMembers(models.Model):
     id = models.BigIntegerField(primary_key=True)
     cohort = models.ForeignKey('Cohort', db_column='cohortid')
     user = models.ForeignKey('User', db_column='userid')
     timeadded = models.BigIntegerField()
-    
+
     class Meta:
         managed = False
         db_table = 'mdl_cohort_members'
 
+
 class Context(models.Model):
-    CONTEXT_SYSTEM    = 10 # System context level - only one instance in every system
-    CONTEXT_USER      = 30 # User context level - one instance for each user describing what others can do to user
-    CONTEXT_COURSECAT = 40 # Course category context level - one instance for each category
-    CONTEXT_COURSE    = 50 # Course context level - one instances for each course
-    CONTEXT_MODULE    = 70 # Course module context level - one instance for each course module
-    CONTEXT_BLOCK     = 80 # Block context level - one instance for each block, sticky blocks are tricky
-                           # because ppl think they should be able to override them at lower contexts.
-                           # Any other context level instance can be parent of block context.
-    
+    CONTEXT_SYSTEM = 10  # System context level - only one instance in every system
+    CONTEXT_USER = 30  # User context level - one instance for each user describing what others can do to user
+    CONTEXT_COURSECAT = 40  # Course category context level - one instance for each category
+    CONTEXT_COURSE = 50  # Course context level - one instances for each course
+    CONTEXT_MODULE = 70  # Course module context level - one instance for each course module
+    CONTEXT_BLOCK = 80  # Block context level - one instance for each block, sticky blocks are tricky
+    # because ppl think they should be able to override them at lower contexts.
+    # Any other context level instance can be parent of block context.
+
     id = models.BigIntegerField(primary_key=True)
     contextlevel = models.BigIntegerField()
     instanceid = models.BigIntegerField()
@@ -104,7 +108,8 @@ class Context(models.Model):
 
     def __unicode__(self):
         return self.path
-   
+
+
 class Course(models.Model):
     id = models.BigIntegerField(primary_key=True)
     category = models.ForeignKey('CourseCategories', db_column='category', related_name='courses')
@@ -141,22 +146,23 @@ class Course(models.Model):
     class Meta:
         managed = False
         db_table = 'mdl_course'
-        ordering = ['sortorder',]
-    
+        ordering = ['sortorder', ]
+
     def __unicode__(self):
         return self.fullname
-    
+
     def total_alunos(self):
         return sum(e.user_enrolments.count() for e in self.enrols.all())
-    
+
     def total_ativos(self):
         return sum(e.user_enrolments.filter(status=0).count() for e in self.enrols.all())
-    
+
     def get_matriculas(self):
         q = UserEnrolments.objects.none()
         for e in self.enrols.all():
             q = q | e.user_enrolments.all()
         return q
+
 
 class CourseCategories(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -177,32 +183,32 @@ class CourseCategories(models.Model):
     class Meta:
         managed = False
         db_table = 'mdl_course_categories'
-        ordering = ['sortorder',]
-    
+        ordering = ['sortorder', ]
+
     def __unicode__(self):
         return self.name
-    
+
     def context(self):
         return Context.objects.get(instanceid=self.id, contextlevel=Context.CONTEXT_COURSECAT)
-    
+
     def total_turmas(self):
         return self.coursecount + sum([c.coursecount for c in self.children.all()])
-    
+
     def total_alunos(self):
         total = 0
         total = total + sum(c.total_alunos() for c in self.courses.all())
         total = total + sum(c.total_alunos() for c in self.children.all())
         return total
-    
+
     def cohortids(self):
         cids = [c.pk for c in self.context().cohort_set.all()]
         for c in self.children.all():
             cids = cids + c.cohortids()
         return cids
-    
+
     def total_alunos_cohort(self):
         return sum([c.members.distinct().count() for c in Cohort.objects.filter(pk__in=self.cohortids())])
-    
+
     def get_all_courses(self, only_visible=False):
         if only_visible:
             q = self.courses.filter(visible=1)
@@ -211,6 +217,7 @@ class CourseCategories(models.Model):
         for c in self.children.all():
             q = q | c.get_all_courses(only_visible=only_visible)
         return q
+
 
 class CourseCompletions(models.Model):
     id = models.BigIntegerField(primary_key=True)
@@ -224,7 +231,8 @@ class CourseCompletions(models.Model):
     class Meta:
         managed = False
         db_table = 'mdl_course_completions'
-    
+
+
 class Enrol(models.Model):
     id = models.BigIntegerField(primary_key=True)
     enrol = models.CharField(max_length=20)
@@ -265,13 +273,14 @@ class Enrol(models.Model):
     class Meta:
         managed = False
         db_table = 'mdl_enrol'
-        ordering = ['sortorder',]
+        ordering = ['sortorder', ]
 
     def __unicode__(self):
         if not self.name:
             return self.enrol
         return self.name
-    
+
+
 class User(models.Model):
     id = models.BigIntegerField(primary_key=True)
     auth = models.CharField(max_length=20)
@@ -333,8 +342,8 @@ class User(models.Model):
 
     def __unicode__(self):
         return u'%s %s' % (self.firstname, self.lastname)
-    
-    
+
+
 class UserEnrolments(models.Model):
     id = models.BigIntegerField(primary_key=True)
     status = models.BigIntegerField()

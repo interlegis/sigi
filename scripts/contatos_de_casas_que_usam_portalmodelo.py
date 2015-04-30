@@ -16,6 +16,7 @@ ARQUIVO_CSV = '/tmp/contatos_casas_pm.csv'
 
 
 class UnicodeWriter:
+
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.

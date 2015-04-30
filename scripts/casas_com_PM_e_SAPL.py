@@ -32,4 +32,3 @@ escrever_casas(casas, '/tmp/casas_que_usam_PM_ou_SAPL.csv')
 
 
 casas_algum_inativo = casas_todas
-

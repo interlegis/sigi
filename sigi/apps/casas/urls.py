@@ -2,7 +2,8 @@
 from django.conf.urls import patterns, url
 
 
-urlpatterns = patterns('sigi.apps.casas.views',
+urlpatterns = patterns(
+    'sigi.apps.casas.views',
 
     # Informacoes de uma casa legislativa
     url(r'^report_complete/$', 'report_complete', name='report-complete-all'),

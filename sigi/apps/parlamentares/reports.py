@@ -10,7 +10,6 @@ from reportlab.lib.units import cm
 from sigi.apps.relatorios.reports import ReportDefault
 
 
-
 def string_to_cm(texto):
     tamanho = 0
     minEspeciais = {
@@ -120,7 +119,7 @@ class ParlamentaresLabels(Report):
                     cep_parlamentar(instance)
             ),
         ]
-        self.band_detail = DetailBand(width=(self.largura_etiqueta) * cm, height=(self.altura_etiqueta) * cm, margin_left = 0, margin_top = 0, margin_bottom=0.0 * cm, margin_right = 0, elements=my_elements, display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
+        self.band_detail = DetailBand(width=(self.largura_etiqueta) * cm, height=(self.altura_etiqueta) * cm, margin_left=0, margin_top=0, margin_bottom=0.0 * cm, margin_right=0, elements=my_elements, display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
 
 
 def logradouro_parlamentar(instance):

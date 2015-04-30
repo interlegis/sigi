@@ -40,7 +40,7 @@ TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
                     )
 
 # Database routers
-DATABASE_ROUTERS = ['moodlerouter.MoodleRouter',]
+DATABASE_ROUTERS = ['moodlerouter.MoodleRouter', ]
 
 # Application definition
 INSTALLED_APPS = (

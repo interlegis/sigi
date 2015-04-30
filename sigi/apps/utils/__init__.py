@@ -26,6 +26,7 @@ class SearchField(models.TextField):
         kwargs['field_names'] = self.field_names
         return name, path, args, kwargs
 
+
 def to_ascii(txt, codif='utf-8'):
     if not isinstance(txt, basestring):
         txt = unicode(txt)

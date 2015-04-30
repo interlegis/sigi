@@ -2,7 +2,9 @@
 from django.conf.urls import patterns, url
 
 
-urlpatterns = patterns('sigi.apps.metas.views',
+urlpatterns = patterns(
+    'sigi.apps.metas.views',
+
     url(r'^$', 'dashboard', name='metas-dashboardsss'),  # tagerror
     url(r'^mapa/$', 'mapa', name='metas-mapa'),  # tagerror
     url(r'^mapdata/$', 'map_data', name='metas-map_data'),

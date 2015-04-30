@@ -8,7 +8,7 @@ from sigi.testutils import pdf_text
 
 @pytest.mark.parametrize("url, some_entries, form_action, name_attr, verbose_name_plural", [
     ('/parlamentares/parlamentar/', some_parliamentarians, 'adiciona_parlamentar', 'nome_completo', 'Parlamentares'),
-    ('/casas/casalegislativa/',     some_parliaments,     'adicionar_casas',      'nome',          'Casas Legislativas'),
+    ('/casas/casalegislativa/', some_parliaments, 'adicionar_casas', 'nome', 'Casas Legislativas'),
 ])
 def test_add_to_cart(url, some_entries, form_action, name_attr, verbose_name_plural, app):
 
@@ -41,7 +41,7 @@ def test_add_to_cart(url, some_entries, form_action, name_attr, verbose_name_plu
 
 @pytest.mark.parametrize("url, some_entries, all_expression", [
     ('/parlamentares/parlamentar/', some_parliamentarians, 'todos os parlamentares', ),
-    ('/casas/casalegislativa/',     some_parliaments,      'todas as casas', ),
+    ('/casas/casalegislativa/', some_parliaments, 'todas as casas', ),
 ])
 def test_no_selection_brings_everyone_to_the_cart(url, some_entries, all_expression, app):
 
@@ -56,7 +56,7 @@ def test_no_selection_brings_everyone_to_the_cart(url, some_entries, all_express
 
 @pytest.mark.parametrize("url, generate_entries", [
     ('/parlamentares/parlamentar/', parliamentarians_from_names, ),
-    ('/casas/casalegislativa/',     parliaments_from_names, ),
+    ('/casas/casalegislativa/', parliaments_from_names, ),
 ])
 def test_pagination(url, generate_entries, app, live_server):
 

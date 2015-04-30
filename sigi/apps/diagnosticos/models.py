@@ -94,7 +94,7 @@ class Diagnostico(BaseEntity):
                          'host': host,
                          'url_diagnostico': self.get_absolute_url(),
                          'status': _(u"Publicado"),
-                     })
+        })
 
     def email_diagnostico_alterado(self, from_email, host):
         """Enviando email quando o status do diagnóstico
@@ -112,7 +112,7 @@ class Diagnostico(BaseEntity):
                          'host': host,
                          'url_diagnostico': self.get_absolute_url(),
                          'status': _(u"Alterado"),
-                     })
+        })
 
     def get_schemata(self, category=None, *args, **kwargs):
         """ Se existir uma categoria retorna apenas as questões dessa.

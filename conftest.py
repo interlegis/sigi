@@ -21,8 +21,8 @@ class SigiTestApp(DjangoTestApp):
             user = self.default_user
 
         return super(SigiTestApp, self).get(url, params, headers, extra_environ,
-            status, expect_errors, user, auto_follow,
-            content_type, **kwargs)
+                                            status, expect_errors, user, auto_follow,
+                                            content_type, **kwargs)
 
 
 @pytest.fixture(scope='function')

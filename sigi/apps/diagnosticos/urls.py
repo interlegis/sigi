@@ -5,7 +5,9 @@ from django.views.generic import TemplateView
 
 LOGIN_REDIRECT_URL = '/diagnosticos/mobile/login'
 
-urlpatterns = patterns('sigi.apps.diagnosticos.views',
+urlpatterns = patterns(
+    'sigi.apps.diagnosticos.views',
+
     # Lista de Diagnósticos
     url(r'^mobile/$', 'lista', name='lista_diagnosticos'),
 
@@ -37,10 +39,12 @@ urlpatterns = patterns('sigi.apps.diagnosticos.views',
 
 )
 
-urlpatterns += patterns('django.contrib.auth.views',
+urlpatterns += patterns(
+    'django.contrib.auth.views',
+
     # Login do Diagnóstico
     url(r'^mobile/login/$', 'login', {'template_name':
-          'diagnosticos/diagnosticos_login.html'}, name='login'),
+                                      'diagnosticos/diagnosticos_login.html'}, name='login'),
 
     # Logout do Diagnóstico
     url(r'^mobile/logout/$', 'logout',

@@ -164,6 +164,7 @@ class OcorrenciaInline(admin.TabularInline):
 
 
 class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
+
     def __init__(self, *args, **kwargs):
         super(GerentesContasFilter, self).__init__(*args, **kwargs)
         gerentes = Servidor.objects.filter(casas_que_gerencia__isnull=False).order_by('nome_completo').distinct()

@@ -8,7 +8,8 @@ from django.contrib import admin
 admin.site.index_template = 'index.html'
 admin.autodiscover()
 
-urlpatterns = patterns('',
+urlpatterns = patterns(
+    '',
 
     url(r'^parlamentares/parlamentar/', include('sigi.apps.parlamentares.urls')),
     url(r'^casas/casalegislativa/', include('sigi.apps.casas.urls')),
@@ -28,7 +29,9 @@ urlpatterns = patterns('',
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 if settings.DEBUG:
-    urlpatterns = patterns('',
+    urlpatterns = patterns(
+        '',
+
         url(r'^404/$', TemplateView.as_view(template_name='404.html')),
         url(r'^500/$', TemplateView.as_view(template_name='500.html')),
         url(r'^503/$', TemplateView.as_view(template_name='503.html')),

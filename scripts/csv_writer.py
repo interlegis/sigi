@@ -4,6 +4,7 @@ import csv
 
 
 class CsvWriter:
+
     """
     A CSV writer which will write rows to CSV file "f",
     which is encoded in the given encoding.
