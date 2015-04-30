@@ -61,6 +61,7 @@ class Cohort(models.Model):
     component = models.CharField(max_length=100)
     timecreated = models.BigIntegerField()
     timemodified = models.BigIntegerField()
+    visible = models.SmallIntegerField()
     # Manytomany
     members = models.ManyToManyField('User', through='CohortMembers')
 
@@ -114,7 +115,6 @@ class Course(models.Model):
     summary = models.TextField(blank=True)
     format = models.CharField(max_length=21)
     showgrades = models.SmallIntegerField()
-    modinfo = models.TextField(blank=True)
     newsitems = models.IntegerField()
     startdate = models.BigIntegerField()
     marker = models.BigIntegerField()
@@ -135,7 +135,8 @@ class Course(models.Model):
     summaryformat = models.SmallIntegerField()
     completionnotify = models.SmallIntegerField()
     visibleold = models.SmallIntegerField()
-    sectioncache = models.TextField(blank=True)
+    calendartype = models.CharField(max_length=30)
+    cacherev = models.BigIntegerField()
 
     class Meta:
         managed = False
@@ -291,9 +292,9 @@ class User(models.Model):
     msn = models.CharField(max_length=50)
     phone1 = models.CharField(max_length=20)
     phone2 = models.CharField(max_length=20)
-    institution = models.CharField(max_length=40)
-    department = models.CharField(max_length=30)
-    address = models.CharField(max_length=70)
+    institution = models.CharField(max_length=255)
+    department = models.CharField(max_length=255)
+    address = models.CharField(max_length=255)
     city = models.CharField(max_length=120)
     country = models.CharField(max_length=2)
     lang = models.CharField(max_length=30)
@@ -311,7 +312,6 @@ class User(models.Model):
     mailformat = models.SmallIntegerField()
     maildigest = models.SmallIntegerField()
     maildisplay = models.SmallIntegerField()
-    htmleditor = models.SmallIntegerField()
     autosubscribe = models.SmallIntegerField()
     trackforums = models.SmallIntegerField()
     timemodified = models.BigIntegerField()
@@ -321,6 +321,11 @@ class User(models.Model):
     descriptionformat = models.SmallIntegerField()
     timecreated = models.BigIntegerField()
     suspended = models.SmallIntegerField()
+    lastnamephonetic = models.CharField(max_length=255, blank=True)
+    firstnamephonetic = models.CharField(max_length=255, blank=True)
+    middlename = models.CharField(max_length=255, blank=True)
+    alternatename = models.CharField(max_length=255, blank=True)
+    calendartype = models.CharField(max_length=30)
 
     class Meta:
         managed = False
