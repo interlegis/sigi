@@ -1,10 +1,13 @@
 #-*- coding:utf-8 -*-
-from django.conf.urls import patterns, include, url
-from django.views.generic.base import TemplateView
 from django.conf import settings
+from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
-
 from django.contrib import admin
+from django.views.generic.base import TemplateView
+
+from sigi.apps.saberes.views import pentaho_proxy
+
+
 admin.site.index_template = 'index.html'
 admin.autodiscover()
 
@@ -19,6 +22,7 @@ urlpatterns = patterns(
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
     url(r'^saberes/', include('sigi.apps.saberes.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
+    url(r'^pentaho/(?P<path>(plugin|api)/.*)$', pentaho_proxy),
 
     url(r'^', include(admin.site.urls)),
 

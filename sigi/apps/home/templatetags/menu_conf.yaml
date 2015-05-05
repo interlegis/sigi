@@ -1,6 +1,4 @@
 main_menu:
-  - title: Gráficos
-    url: ''
   - title: Municípios
     url: contatos/municipio/
     children:
@@ -95,3 +93,10 @@ main_menu:
     children:
     - title: Desembolsos
       url: financeiro/desembolso/
+  - title: Saberes
+    url: '/'
+    children:
+    - title: Dashboard
+      url: saberes/dashboard/
+    - title: Cursos sem Tutoria
+      url: saberes/dashboard/cursos-sem-turoria/

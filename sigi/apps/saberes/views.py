@@ -1,31 +1,56 @@
 # -*- coding: utf-8 -*-
-
 from collections import OrderedDict
-from django.utils.translation import ugettext as _
-from django.db.models import Sum, Avg
+
+import requests
+from django.http import HttpResponse
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template import RequestContext
-from sigi.apps.mdl.models import User, CourseStats
-from sigi.apps.saberes.models import CategoriasInteresse, PainelItem
+from django.utils.translation import ugettext as _
+from django.views.decorators.csrf import csrf_exempt
+from requests.auth import HTTPBasicAuth
+
+from sigi.apps.mdl.models import CourseStats
+from sigi.apps.saberes.models import CategoriasInteresse
+from sigi.settings import PENTAHO_SERVER, PENTAHO_DASHBOARDS, PENTAHO_USERNAME_PASSWORD
 
 
-def dashboard(request):
-    paineis = OrderedDict()
+PENTAHO_CDF_URL = 'http://%s/pentaho/plugin/pentaho-cdf-dd/api/renderer/' % PENTAHO_SERVER
 
-    for p in PainelItem.objects.all():
-        if p.painel not in paineis:
-            paineis[p.painel] = {'titulo': p.painel, 'dados': []}
-        paineis[p.painel]['dados'].append(p)
 
-    for p in paineis:
-        try:
-            paineis[p]['area'] = CategoriasInteresse.objects.get(descricao=paineis[p]['titulo'])
-        except:
-            pass
+def get_dashboard_parts(dashboard_id, this_host):
+    params = PENTAHO_DASHBOARDS[dashboard_id]
+    params['root'] = this_host
+    return [requests.get(PENTAHO_CDF_URL + method,
+                         params=params, auth=HTTPBasicAuth(*PENTAHO_USERNAME_PASSWORD)).content
+            for method in ('getHeaders', 'getContent')]
 
-    extra_context = {'paineis': paineis}
 
-    return render_to_response('saberes/dashboard.html', extra_context, context_instance=RequestContext(request))
+def make_dashboard(dashboard_id, adjust_content=lambda x: x):
+    def view(request):
+        headers, content = get_dashboard_parts(dashboard_id, request.META['HTTP_HOST'])
+        content = adjust_content(content)
+        return render(request, 'saberes/dashboard.html',
+                      dict(headers=headers, content=content))
+    return view
+
+
+def use_to_container_fluid(content):
+    return content.replace("class='container'", "class='container-fluid'")
+
+
+dashboard = make_dashboard('saberes-geral')
+cursos_sem_tutoria = make_dashboard('saberes-cursos-sem-tutoria', use_to_container_fluid)
+
+
+@csrf_exempt
+def pentaho_proxy(request, path):
+    url = 'http://%s/pentaho/%s' % (PENTAHO_SERVER, path)
+    params = request.GET or request.POST
+    auth = HTTPBasicAuth(*PENTAHO_USERNAME_PASSWORD)
+    response = requests.get(url, params=params, auth=auth)
+    return HttpResponse(response.content,
+                        status=response.status_code,
+                        content_type=response.headers.get('Content-Type'))
 
 
 def detail(request, area):
