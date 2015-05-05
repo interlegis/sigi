@@ -40,6 +40,7 @@ def use_to_container_fluid(content):
 
 dashboard = make_dashboard('saberes-geral')
 cursos_sem_tutoria = make_dashboard('saberes-cursos-sem-tutoria', use_to_container_fluid)
+cursos_com_tutoria = make_dashboard('saberes-cursos-com-tutoria', use_to_container_fluid)
 
 
 @csrf_exempt

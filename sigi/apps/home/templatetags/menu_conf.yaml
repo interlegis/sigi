@@ -100,3 +100,5 @@ main_menu:
       url: saberes/dashboard/
     - title: Cursos sem Tutoria
       url: saberes/dashboard/cursos-sem-turoria/
+    - title: Cursos com Tutoria
+      url: saberes/dashboard/cursos-com-turoria/
