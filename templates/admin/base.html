@@ -26,9 +26,13 @@
         window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
     //]]>
     </script>
+
+    {% block default_javascript %}
+    {# We should be able to turn this off, to avoid conflict in integrated pages like petaho's dashboards #}
     <script src="{% static "admin/js/jquery-1.9.1.min.js" %}"></script>
     <script src="{% static "admin/js/jquery-migrate-1.2.1.min.js" %}"></script>
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+    {% endblock %}
 
     {% block extrahead %}{% endblock %}
 
