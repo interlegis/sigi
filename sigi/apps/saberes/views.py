@@ -28,6 +28,8 @@ def get_dashboard_parts(dashboard_id, this_host):
 def make_dashboard(dashboard_id, adjust_content=lambda x: x):
     def view(request):
         headers, content = get_dashboard_parts(dashboard_id, request.META['HTTP_HOST'])
+        if request.is_secure:
+            headers = headers.replace('http://', 'https://')
         content = adjust_content(content)
         return render(request, 'saberes/dashboard.html',
                       dict(headers=headers, content=content))
