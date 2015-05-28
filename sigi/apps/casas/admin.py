@@ -176,7 +176,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
-    list_display = ('nome', 'municipio', 'logradouro', 'ult_alt_endereco', 'get_convenios')
+    list_display = ('nome', 'municipio', 'gerente_contas', 'get_convenios')
     list_display_links = ('nome',)
     list_filter = ('tipo', ('gerente_contas', GerentesContasFilter), 'municipio__uf__nome', 'convenio__projeto')
     ordering = ('nome', 'municipio__uf')
