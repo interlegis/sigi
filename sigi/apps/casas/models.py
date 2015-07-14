@@ -35,6 +35,14 @@ class CasaLegislativa(models.Model):
 
     """ Modelo para representar uma Casa Legislativa
     """
+    
+    INCLUSAO_DIGITAL_CHOICES = (
+        ('NAO PESQUISADO', u'Não pesquisado'),
+        ('NAO POSSUI PORTAL', u'Não possui portal'),
+        ('PORTAL MODELO', u'Possui Portal Modelo'),
+        ('OUTRO PORTAL', u'Possui outro portal'),
+    )
+    
     nome = models.CharField(
         max_length=60,
         help_text='Exemplo: <em>Câmara Municipal de Pains</em>.'
@@ -72,6 +80,10 @@ class CasaLegislativa(models.Model):
         help_text='Exemplo: <em>http://www.camarapains.mg.gov.br</em>.',
         blank=True,
     )
+    inclusao_digital = models.CharField(max_length=30, choices=INCLUSAO_DIGITAL_CHOICES, default=INCLUSAO_DIGITAL_CHOICES[0][0])
+    data_levantamento = models.DateTimeField(u"Data/hora da pesquisa", null=True, blank=True)
+    pesquisador = models.ForeignKey(Servidor, verbose_name=u"Pesquisador", null=True, blank=True)
+    obs_pesquisa = models.TextField(u"Observações do pesquisador", blank=True)
     ult_alt_endereco = models.DateTimeField(u'Última alteração do endereço', null=True, blank=True, editable=True)
     telefones = generic.GenericRelation('contatos.Telefone')
 

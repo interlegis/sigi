@@ -178,7 +178,8 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
                DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
     list_display = ('nome', 'municipio', 'gerente_contas', 'get_convenios')
     list_display_links = ('nome',)
-    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter), 'municipio__uf__nome', 'convenio__projeto')
+    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter), 'municipio__uf__nome', 'convenio__projeto',
+                   'inclusao_digital',)
     ordering = ('nome', 'municipio__uf')
     queyrset = queryset_ascii
     fieldsets = (
@@ -187,7 +188,10 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         }),
         (_(u'Endereço'), {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
-                       'municipio', 'cep', 'pagina_web', 'email', 'ult_alt_endereco'),
+                       'municipio', 'cep', 'ult_alt_endereco'),
+        }),
+        (_(u'Presença na Internet'), {
+            'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador', 'pagina_web', 'email', 'obs_pesquisa',) 
         }),
         (_(u'Outras informações'), {
             'fields': ('observacoes', 'foto', 'recorte'),

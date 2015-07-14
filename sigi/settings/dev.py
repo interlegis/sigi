@@ -6,8 +6,11 @@ SECRET_KEY = '0$ip1fb5xtq%a=)-k_4r^(#jn0t^@+*^kihkxkozg-mip7+w3+'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'sigi.db'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'sigi',
+        'USER': 'sigi',
+        'PASSWORD': '123456',
+        'HOST': 'localhost',
     },
     'moodle': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -28,3 +31,7 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
+
+PENTAHO_SERVER = 'http://localhost.com/pentaho/'
+PENTAHO_DASHBOARDS = ('saberes',)
+PENTAHO_USERNAME_PASSWORD = 'root@root'
