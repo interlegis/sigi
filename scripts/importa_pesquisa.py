@@ -57,13 +57,13 @@ def importa(file_list):
                 outdata.writerow(head)
         
                 for row in indata:
-                    data = row[0]
-                    pesquisador = row[1]
-                    uf_cidade = row[2]
-                    tem_portal = row[3]
-                    pmodelo = row[4]
-                    url = row[5]
-                    obs = row[6]
+                    data = row[0].strip()
+                    pesquisador = row[1].strip()
+                    uf_cidade = row[2].strip()
+                    tem_portal = row[3].strip()
+                    pmodelo = row[4].strip()
+                    url = row[5].strip()
+                    obs = row[6].strip()
             
                     if data == '':
                         data = None
