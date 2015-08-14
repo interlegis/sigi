@@ -82,6 +82,8 @@ main_menu:
   - title: Ocorrências
     url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
     children:
+    - title: Painel de ocorrências
+      url: ocorrencias/painel/
     - title: Registro de ocorrências
       url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
     - title: Tabela de categorias

@@ -1,0 +1,198 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+{% load thumbnail %}
+
+{% block extrastyle %}
+    {{ block.super }}
+	<link rel="stylesheet" type="text/css" href="{% static 'ocorrencias/css/jquery-ui.min.css' %}"/>
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript" src="{% static 'admin/js/core.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}" ></script>
+    <script type="text/javascript" src="{% static 'ocorrencias/js/jquery-ui.min.js' %}" ></script>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}<h1>{{ panel_title }}</h1>{% endblock %}
+
+{% block content %}
+	{% url 'painel-ocorrencias' as url_painel %}
+    <div id="content-main" class="container-fluid">
+  		<div class="form-group">
+  			<div class="input-group">
+  				<input type="text" class="form-control" id="q" placeholder="{% trans 'Visitar o painel de' %}">
+  				<span class="input-group-btn">
+  					<button class="btn btn-default" type="button" onclick="window.location.href='{{ url_painel }}'">{% trans 'Meu painel' %}</button>
+  				</span>
+  			</div>
+  		</div>
+  		
+  		<div class="nav nav-pills">
+  			<span class="glyphicon glyphicon-plus"></span>
+			<a role="button" data-toggle="collapse" href="#form_ocorrencia_panel" aria-expanded="false" aria-controls="form_ocorrencia_panel">
+				{% trans "Registrar nova ocorrência" %}
+			</a>
+		</div>
+		
+		<div class="collapse panel panel-default" id='form_ocorrencia_panel'>
+			{% include 'ocorrencias/ocorrencia_form.html' %}
+		</div>
+  		
+  		{% if paineis %}
+			<ul class="nav nav-pills">
+			{% for k, v in paineis.iteritems %}
+				<li role="presentation" class="{% if k == painel %}active{% endif %}">
+					<a href="{{ url_painel }}?type=servidor&id={{ servidor.id }}&painel={{ k }}">
+					{{ v }}</a></li>
+			{% endfor %}
+			</ul>  		
+  		{% endif %}
+  		
+    	<div class="row">
+	  		<div id="ocorrencias_display" class="col-md-12">
+	  		{% for ocorrencia in ocorrencias %}
+	  			{% include 'ocorrencias/ocorrencia_snippet.html' %} 
+			{% empty %}
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<p>{% trans 'Nenhuma ocorrência encontrada.' %}</p>
+					</div>
+				</div>
+			{% endfor %}
+	  		</div>
+	  	</div>
+	</div>
+	
+    <script type="text/javascript">
+		$( document ).ready(function() {
+			$.ajaxSetup({
+				beforeSend: function(xhr, settings) {
+    				if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
+	    				var cookieValue = null, name = 'csrftoken';
+	    				if (document.cookie && document.cookie != '') {
+	        				var cookies = document.cookie.split(';');
+	        				for (var i = 0; i < cookies.length; i++) {
+	            				var cookie = jQuery.trim(cookies[i]);
+	            				if (cookie.substring(0, name.length + 1) == (name + '=')) {
+	                				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+	                				break;
+	            				}
+	        				}
+	    				}
+        				xhr.setRequestHeader("X-CSRFToken", cookieValue);
+    				}
+				}
+			});
+		
+			$("#q").autocomplete({
+				source: "{% url 'painel-buscanominal' %}",
+				select: function(event, ui) {
+					window.location.replace("{{ url_painel }}?type="+ui.item.origin+"&id="+ui.item.value);
+					ui.item.value = ui.item.label
+				}
+			})
+			
+			$('input[name^=ocorrencia-]').on('change', function() {
+				var $this = $(this),
+					data = {'id_ocorrencia': $this.attr('name').split('-')[1],
+					        'prioridade': $this.attr('value')};
+				    
+				    $.post('{% url "ocorrencia-mudaprioridade" %}', data, function(result) {
+				    	if (result.result == 'error') {
+				    		alert(result.message);
+				    		$this.reset();
+				    	}
+				    });
+			})
+			
+			function inclui_comentario( event ) {
+				event.preventDefault()
+				
+				var $this = $(this);
+				
+				$.post($this.attr('action'), $this.serialize(), function( result ) {
+					$('div[id=ticket_'+result.ocorrencia_id+']').html(result.ocorrencia_panel);
+					$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
+				});
+			}
+			
+			function inclui_ocorrencia( event ) {
+				event.preventDefault()
+				
+				var $this = $(this);
+				
+				$.post($this.attr('action'), $this.serialize(), function( result ) {
+					$("#form_ocorrencia_panel").html(result.ocorrencia_form);
+					if (result.result == 'success') {
+						$("#form_ocorrencia_panel").collapse('hide');
+						$("#ocorrencias_display").prepend(result.ocorrencia_panel);
+						$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
+					} 
+					$('#form_ocorrencia').on('submit', inclui_ocorrencia);
+				});
+			}
+			
+			$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
+			$('#form_ocorrencia').on('submit', inclui_ocorrencia);  
+		});
+		
+		function remove_anexo(link) {
+			var $this = $(link),
+			    url = $this.attr('href'),
+			    div = $("div#anexos_"+$this.attr('data-ocorrencia-id')),
+			    link = $("a#link_anexos_"+$this.attr('data-ocorrencia-id'));
+			    
+			$( 'body' ).append('<div id="dialog-confirm" title="{% trans "Excluir anexo?" %}"><p><span class="glyphicon glyphicon-alert" style="float:left; margin:0 7px 20px 0;"></span>{% trans "Este anexo será definitivamente excluído e não poderá ser recuperado. Você confirma a exclusão?" %}</p></div>');
+
+			var dialog = $("#dialog-confirm");
+
+			dialog.dialog({
+				resizable: true,
+				modal: true,
+				buttons: {
+					"{% trans 'Excluir' %}": function() {
+						$.get(url, function(result) {
+						    if (result.result == 'error') {
+						    	alert(result.message);
+						    }
+						    if (result.result == 'success') {
+						    	div.html(result.anexos_panel);
+						    	link.html(result.link_label);
+						    }
+						});
+						dialog.dialog( 'destroy' );
+          			},
+          			"{% trans 'Cancelar' %}": function() {
+          				dialog.dialog( 'destroy' );
+        			}
+      			}
+			});
+			return false;
+		}
+		
+		function dismissAddAnexoPopup(win, ocorrencia_id) {
+			var div = $("div#anexos_"+ocorrencia_id),
+				    link = $("a#link_anexos_"+ocorrencia_id);
+				    
+			win.close();
+				    
+			$.get('{% url "ocorrencia-anexosnippet" %}?ocorrencia_id='+ocorrencia_id, function( result ) {
+				div.html(result);
+			});
+		}
+		
+		function showAddAnexoPopup(link) {
+			var $this = $(link),
+			    href = $this.attr('href'),
+			    win = window.open(href, '', 'height=500,width=800,resizable=yes,scrollbars=yes');
+			    win.focus();
+			    return false;
+		}
+	</script>
+	
+{% endblock %}

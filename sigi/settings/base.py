@@ -138,6 +138,9 @@ THUMBNAIL_PROCESSORS = (
 THUMBNAIL_ALIASES = {
     '': {
         'small': {'size': (300, 225), 'crop': True, },
+        'thumb': {'size': (160, 120), 'crop': True, },
+        'portrait': {'size': (73,100), 'crop': True},
+        'icon': {'size': (36,50), 'crop': True},
     },
 }
 IMAGE_CROPPING_SIZE_WARNING = True

@@ -1,0 +1,24 @@
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+
+{% if ocorrencia.anexo_set.exists %}
+	<table class="table">
+		<tr>
+			<th>{% trans "Descrição" %}</th>
+			<th>{% trans "Data de publicação" %}</th>
+			<th>&nbsp;</th>
+		</tr>
+		{% for anexo in ocorrencia.anexo_set.all %}
+		<tr>
+			<td><a href="{{ anexo.arquivo.url }}">{{ anexo.descricao }}</a></td>
+			<td>{{ anexo.data_pub }}</td>
+			<td><a href="{% url "ocorrencia-excluianexo" %}?anexo_id={{ anexo.id|safe }}"
+				data-ocorrencia-id="{{ ocorrencia.id|safe }}" onclick="return remove_anexo(this);">Excluir</a></td>
+		</tr>
+		{% endfor %}
+	</table>
+{% endif %}
+
+<a href="{% url 'ocorrencia-incluianexo' %}?ocorrencia_id={{ ocorrencia.id|safe }}" onclick="return showAddAnexoPopup(this);">
+	{% trans "Anexar novo arquivo" %}
+</a>
