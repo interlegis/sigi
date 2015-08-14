@@ -80,10 +80,10 @@ main_menu:
     - title: Lista de serviços
       url: servicos/servico/
   - title: Ocorrências
-    url: ocorrencias/ocorrencia/?grupo=S&status__in=1,2
+    url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
     children:
     - title: Registro de ocorrências
-      url: ocorrencias/ocorrencia/?grupo=S&status__in=1,2
+      url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
     - title: Tabela de categorias
       url: ocorrencias/categoria/
     - title: Tipos de contato
