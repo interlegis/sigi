@@ -26,7 +26,7 @@ class ComentarioInline(admin.StackedInline):
     fieldsets = ((None, {'fields': (('novo_status', 'encaminhar_setor',), 'descricao', )}),)
 
     def get_queryset(self, queryset):
-        return self.model.objects.get_query_set()
+        return self.model.objects.none()
 
 
 class AnexosInline(admin.TabularInline):
@@ -105,12 +105,6 @@ class OcorrenciaAdmin(BaseModelAdmin):
         for instance in instances:
             if isinstance(instance, Comentario):
                 instance.usuario = servidor
-                if instance.encaminhar_setor and (instance.encaminhar_setor != instance.ocorrencia.setor_responsavel):
-                    instance.ocorrencia.setor_responsavel = instance.encaminhar_setor
-                    instance.ocorrencia.save()
-                if instance.novo_status and (instance.novo_status != instance.ocorrencia.status):
-                    instance.ocorrencia.status = instance.novo_status
-                    instance.ocorrencia.save()
             instance.save()
         super(OcorrenciaAdmin, self).save_formset(request, form, formset, change)
 

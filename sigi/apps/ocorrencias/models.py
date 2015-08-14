@@ -68,12 +68,21 @@ class Ocorrencia(models.Model):
 
 
 class Comentario(models.Model):
-    ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=_(u'Ocorrência'))
+    ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=_(u'Ocorrência'), related_name='comentarios')
     data_criacao = models.DateTimeField(_(u'Data de criação'), null=True, blank=True, auto_now_add=True)
     descricao = models.TextField(_(u'Descrição'), blank=True, null=True)
     usuario = models.ForeignKey('servidores.Servidor', verbose_name=_(u'Usuário'))
     novo_status = models.IntegerField(_(u'Novo status'), choices=Ocorrencia.STATUS_CHOICES, blank=True, null=True)
     encaminhar_setor = models.ForeignKey('servidores.Servico', verbose_name=_(u'Encaminhar para setor'), blank=True, null=True)
+    
+    def save(self, *args, **kwargs):
+        if self.encaminhar_setor and (self.encaminhar_setor != self.ocorrencia.setor_responsavel):
+            self.ocorrencia.setor_responsavel = self.encaminhar_setor
+            self.ocorrencia.save()
+        if self.novo_status and (self.novo_status != self.ocorrencia.status):
+            self.ocorrencia.status = self.novo_status
+            self.ocorrencia.save()
+        super(Comentario, self).save(*args, **kwargs)
 
 
 class Anexo(models.Model):
