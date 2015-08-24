@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from django.core.urlresolvers import reverse
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponseRedirect
@@ -125,7 +126,6 @@ class DiagnosticoInline(admin.TabularInline):
     def link_diagnostico(self, obj):
         if obj.pk is None:
             return ""
-        from django.core.urlresolvers import reverse
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=["%s.pdf" % obj.pk])
         return """<input id="edit_diagnostico-%s" type="hidden"/>
           <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank">
@@ -155,13 +155,23 @@ class PlanoDiretorInline(admin.TabularInline):
 
 class OcorrenciaInline(admin.TabularInline):
     model = Ocorrencia
-    fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
-    readonly_fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
+    fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel', 'link_editar',)
+    readonly_fields = ('data_criacao', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel', 'link_editar',)
     extra = 0
     max_num = 0
     can_delete = False
     template = 'casas/ocorrencia_inline.html'
+    
+    def link_editar(self, obj):
+        if obj.pk is None:
+            return ""
+        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
+        return u"""<input id="edit_ocorrencia-%s" type="hidden"/>
+        <a id="lookup_edit_ocorrencia-%s" href="%s" class="button" target="_blank"
+          onclick="return showRelatedObjectLookupPopup(this);">%s</a>""" % (obj.pk, obj.pk, url, _(u'Editar'))
 
+    link_editar.short_description = _(u'Editar')
+    link_editar.allow_tags = True
 
 class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
 
