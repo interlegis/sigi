@@ -64,7 +64,7 @@ class OcorrenciaChangeList(ChangeList):
 
 class OcorrenciaAdmin(BaseModelAdmin):
     list_display = ('data_criacao', 'casa_legislativa', 'get_municipio', 'get_uf', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
-    list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', )
+    list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', 'casa_legislativa__gerente_contas',)
     search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', )
     date_hierarchy = 'data_criacao'
     fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'descricao', 'servidor_registro',
