@@ -288,7 +288,7 @@ def gera_map_data_file(cronjob=False):
 
     casas = {}
 
-    for c in CasaLegislativa.objects.select_related('servico', 'convenio', 'diagnostico').all().distinct():
+    for c in CasaLegislativa.objects.prefetch_related('servico_set', 'convenio_set', 'diagnostico_set').all().distinct():
         if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
             continue
             # Salta essa casa, pois ela não tem nada com o Interlegis
@@ -334,7 +334,7 @@ def parliament_summary(parliament):
         'info': []
     }
 
-    for sv in parliament.servico_set.all():
+    for sv in parliament.servico_set.filter(data_desativacao=None):
         summary['info'].append(
             _(u"%(name)s ativado em %(date)s") % dict(
                 name=sv.tipo_servico.nome,
