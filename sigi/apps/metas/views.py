@@ -89,6 +89,12 @@ def mapa(request):
         ("estados", _(u'Por Estado'),
             [(x.sigla, x.sigla, x.nome, False)
                 for x in UnidadeFederativa.objects.all()]),
+        ("gerente", _(u'Por gerente de relacionamento'),
+            [("", 'gerente_', _(u"Sem gerente"), False)] +
+            [(x.gerente_contas.id, 'gerente_%s' % (x.gerente_contas.id,),
+              "%s %s" % (x.gerente_contas.nome_completo.split()[0], x.gerente_contas.nome_completo.split()[-1]), False)
+             for x in CasaLegislativa.objects.exclude(gerente_contas=None).select_related(
+                        'gerente_contas').distinct('gerente_contas__nome_completo').order_by('gerente_contas__nome_completo')]),
     )
     return render(request, 'metas/mapa.html', {'filters': filters})
 
@@ -210,26 +216,31 @@ def map_list(request):
         response['Content-Disposition'] = 'attachment; filename="maplist.csv"'
         writer = csv.writer(response)
 
-        srv = {}
-        for ts in TipoServico.objects.all():
-            srv[ts.pk] = ts.nome
+        srv = {x[0]: x[1] for x in TipoServico.objects.values_list('id', 'nome')}
+        cnv = {x[0]: x[1] for x in Projeto.objects.values_list('id', 'sigla')}
+        
+        head = [s.encode('utf-8') for s in 
+                [u'código IBGE', u'nome da casa', u'município', u'UF', u'região', ] +
+                [x for x in srv.values()] +
+                reduce(lambda x, y: x + y, 
+                       [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()])]
 
-        cnv = {}
-        for pr in Projeto.objects.all():
-            cnv[pr.id] = pr.sigla
-
-        writer.writerow([u'codigo_ibge', u'nome_casa', u'municipio', u'uf', u'regiao', ] + [x for x in srv.values()] +
-                        reduce(lambda x, y: x + y, [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()]))
+        writer.writerow(head)
 
         for casa in casas:
-            row = [casa.municipio.codigo_ibge, casa.nome, casa.municipio.nome, casa.municipio.uf.sigla,
-                   casa.municipio.uf.get_regiao_display(), ]
+            row = [casa.municipio.codigo_ibge,
+                   casa.nome.encode('utf-8'),
+                   casa.municipio.nome.encode('utf-8'),
+                   casa.municipio.uf.sigla.encode('utf-8'),
+                   casa.municipio.uf.get_regiao_display().encode('utf-8'), ]
+            
             for id in srv.keys():
                 try:
                     sv = casa.servico_set.get(tipo_servico__id=id)
                     row += [sv.data_ativacao, ]
                 except:
                     row += [None, ]
+
             for id in cnv.keys():
                 try:
                     cv = casa.convenio_set.get(projeto__id=id)
@@ -256,23 +267,36 @@ def get_params(request):
         'diagnosticos': request.GET.getlist('diagnosticos'),
         'regioes': request.GET.getlist('regioes'),
         'estados': request.GET.getlist('estados'),
+        'gerentes': request.GET.getlist('gerente'),
     }
 
 
-def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos):
+def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos, gerentes):
     ''' Filtrar Casas que atendem aos parâmetros de pesquisa '''
-    qServico = Q(servico__tipo_servico__sigla__in=seit)
+
+    qServico  = Q(servico__tipo_servico__sigla__in=seit)
     qConvenio = Q(convenio__projeto__sigla__in=convenios)
     qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
+        
     qRegiao = Q(municipio__uf__regiao__in=regioes)
     qEstado = Q(municipio__uf__sigla__in=estados)
+    
+    if gerentes:
+        qGerente = Q(gerente_contas_id__in=gerentes)
+    else:
+        qGerente = Q()
 
     if diagnosticos:
         qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' for p in diagnosticos])
     else:
         qDiagnostico = Q()
-
-    casas = CasaLegislativa.objects.filter(qServico | qConvenio | qEquipada | qDiagnostico).filter(qRegiao | qEstado)
+        
+    casas = CasaLegislativa.objects.filter(qRegiao | qEstado).filter(qGerente)
+    
+    if seit or convenios or equipadas or diagnosticos:
+        casas = casas.filter(qServico | qConvenio | qEquipada | qDiagnostico)
+    else:
+        casas = casas.filter(Q(servico=None) & Q(convenio=None) & Q(diagnostico=None))
 
     return casas
 
@@ -289,9 +313,9 @@ def gera_map_data_file(cronjob=False):
     casas = {}
 
     for c in CasaLegislativa.objects.prefetch_related('servico_set', 'convenio_set', 'diagnostico_set').all().distinct():
-        if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
-            continue
-            # Salta essa casa, pois ela não tem nada com o Interlegis
+#         if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
+#             continue
+#             # Salta essa casa, pois ela não tem nada com o Interlegis
 
         if c.pk not in casas:
             summary = parliament_summary(c)
@@ -327,12 +351,16 @@ def parliament_summary(parliament):
         'lng': str(parliament.municipio.longitude),
         'estado': parliament.municipio.uf.sigla,
         'regiao': parliament.municipio.uf.regiao,
+        'gerente': (str(parliament.gerente_contas.id) if parliament.gerente_contas else ''),
         'diagnosticos': [],
         'seit': [],
         'convenios': [],
         'equipadas': [],
         'info': []
     }
+    
+    if parliament.gerente_contas:
+        summary['info'].append(_(u"Gerente de relacionamento: %s") % parliament.gerente_contas.nome_completo)
 
     for sv in parliament.servico_set.filter(data_desativacao=None):
         summary['info'].append(
@@ -348,6 +376,11 @@ def parliament_summary(parliament):
                 date=cv.data_termo_aceite.strftime('%d/%m/%Y'),
                 project=cv.projeto.sigla))
             summary['equipadas'].append(cv.projeto.sigla)
+        elif cv.data_retorno_assinatura is None:
+            summary['info'].append(_(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
+                project=cv.projeto.sigla,
+                date=cv.data_adesao))
+            summary['convenios'].append(cv.projeto.sigla)
         if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
             summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s") % dict(
                 project=cv.projeto.sigla,

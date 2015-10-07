@@ -77,6 +77,8 @@
 		var data = $("#filter_form").serializeArray();
 		var estados = [];
 		var regioes = [];
+		var gerentes = [];
+		var mostra_sem_nada = true;
 
 		for (var i in data) {
 			var name = data[i].name, value = data[i].value;
@@ -86,6 +88,11 @@
 			} else if (name == 'regioes') {
 				regioes.push(value);
 				delete data[i];
+			} else if (name == 'gerente') {
+				gerentes.push(value);
+				delete data[i];
+			} else {
+				mostra_sem_nada = false;
 			}
 		}
 
@@ -96,27 +103,34 @@
 			var municipio = municipiosArray[i];
 			municipio['infowindow'].close();
 			var aparece = false;
+			var sem_nada = municipio.seit.length == 0 && municipio.convenios.length == 0 && municipio.equipadas.length == 0 && municipio.diagnosticos.length == 0;
 
 			if (regioes.indexOf(municipio.regiao) == -1 && estados.indexOf(municipio.estado) == -1) {
 				aparece = false;
+				sem_nada = false;
 			} else {
-				for (var j in data) {
-					if (data[j]) {
-						var name = data[j].name, value = data[j].value;
-						idx = municipio[name].indexOf(value);
-						if (idx != -1) {
-							aparece = true;
-							break;
+				if (gerentes.length > 0 && gerentes.indexOf(municipio.gerente) == -1) {
+					aparece = false;
+					sem_nada = false;
+				} else {
+					for (var j in data) {
+						if (data[j]) {
+							var name = data[j].name, value = data[j].value;
+							if (municipio[name].indexOf(value) != -1) {
+								aparece = true;
+								break;
+							}
 						}
 					}
 				}
 			}
-			if (aparece) {
+			if (aparece || (sem_nada && mostra_sem_nada)) {
 				if (municipio.mapmark.map == null) {
 					municipio.mapmark.setMap(map);
 				}
 				totalizadores[municipio.regiao]++;
 				totalizadores[municipio.estado]++;
+				totalizadores["gerente_" + municipio.gerente]++;
 
 				// TODO os prefixos dos ids dependem do codigo de
 				// sigi/apps/metas/views.py:65 ... def mapa(...)
@@ -187,13 +201,17 @@
 	}
 
 	function open_report(event) {
+		event.preventDefault();
+
+		var href = $(this).attr('href');
 		var data = $("#filter_form").serialize();
-		var href = this.href;
+		
 		if (href.indexOf("?") < 0) {
 			href = href + "?" + data
 		} else {
 			href = href + "&" + data
 		}
+		
 		var win = window.open(href, '', '');
 		win.focus();
 		return false;
