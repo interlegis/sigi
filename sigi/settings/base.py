@@ -68,6 +68,7 @@ INSTALLED_APPS = (
     'sigi.apps.ocorrencias',
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
+    'sigi.apps.eventos',
 
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
