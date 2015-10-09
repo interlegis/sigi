@@ -18,11 +18,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from django.utils.translation import ugettext as _
 from django.contrib import admin
 from django.contrib.admin import register
+from django import forms
+from django.utils.translation import ugettext as _
 from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
 
+class EventoAdminForm(forms.ModelForm):
+    class Meta:
+        model = Evento
+    def clean(self):
+        cleaned_data = super(EventoAdminForm, self).clean()
+        data_inicio = cleaned_data.get("data_inicio")
+        data_termino = cleaned_data.get("data_termino")
+        
+        if data_inicio > data_termino:
+            raise forms.ValidationError(_(u"Data término deve ser posterior à data inicio"),
+                                        code="invalid_period" )
+            
 @register(TipoEvento)
 class TipoEventAdmin(admin.ModelAdmin):
     search_fields = ('nome',)
@@ -41,9 +54,11 @@ class ConviteInline(admin.TabularInline):
 
 @register(Evento)
 class EventoAdmin(admin.ModelAdmin):
+    form = EventoAdminForm 
     date_hierarchy = 'data_inicio'
-    list_display = ('nome', 'tipo_evento', 'data_inicio', 'data_termino', 'municipio', 'solicitante')
-    list_filter = ('tipo_evento', 'municipio__uf', 'solicitante')
+    list_display = ('nome', 'tipo_evento', 'status', 'data_inicio', 'data_termino', 'municipio',
+                    'solicitante')
+    list_filter = ('status', 'tipo_evento', 'municipio__uf', 'solicitante')
     raw_id_fields = ('casa_anfitria', 'municipio',)
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')

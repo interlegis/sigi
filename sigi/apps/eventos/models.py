@@ -25,6 +25,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.mdl.models import Course
+from django.core.exceptions import ValidationError
 
 class TipoEvento(models.Model):
     nome = models.CharField(_(u"Nome"), max_length=100)
@@ -37,14 +38,26 @@ class TipoEvento(models.Model):
         return self.nome
     
 class Evento(models.Model):
+    STATUS_CHOICES = (
+        ('P', _(u"Programado")),
+        ('A', _(u"Autorizado")),
+        ('R', _(u"Realizado")),
+        ('C', _(u"Cancelado"))
+    )
+    
     tipo_evento = models.ForeignKey(TipoEvento)
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
+    descricao = models.TextField(_(u"Descrição do evento"))
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
     data_inicio = models.DateField(_(u"Data de início"))
     data_termino = models.DateField(_(u"Data de término"))
     casa_anfitria = models.ForeignKey(CasaLegislativa, verbose_name=_(u"Casa anfitriã"), blank=True, null=True)
     municipio = models.ForeignKey(Municipio)
     local = models.TextField(_(u"Local do evento"), blank=True)
+    publico_alvo = models.TextField(_(u"Público alvo"), blank=True)
+    status = models.CharField(_(u"Status"), max_length=1, choices=STATUS_CHOICES)
+    data_cancelamento = models.DateField(_(u"Data de cancelamento"), blank=True, null=True)
+    motivo_cancelamento = models.TextField(_(u"Motivo do cancelamento"), blank=True)
     curso_moodle_id = models.IntegerField(_(u"Curso saberes"), blank=True, null=True)
     
     class Meta:
@@ -57,6 +70,14 @@ class Evento(models.Model):
                     tipo_evento=unicode(self.tipo_evento),
                     data_inicio=self.data_inicio,
                     data_termino=self.data_termino)
+        
+    def save(self, *args, **kwargs): 
+        if self.status != 'C':
+            self.data_cancelamento = None
+            self.motivo_cancelamento = ""
+        if self.data_inicio > self.data_termino:
+            raise ValidationError(_(u"Data de término deve ser posterior à data de início"))
+        return super(Evento, self).save(*args, **kwargs)
         
     @property
     def curso_moodle(self):
