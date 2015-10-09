@@ -23,6 +23,7 @@ urlpatterns = patterns(
     url(r'^saberes/', include('sigi.apps.saberes.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
     url(r'^ocorrencias/', include('sigi.apps.ocorrencias.urls')),
+    url(r'^eventos/', include('sigi.apps.eventos.urls')),
     url(r'^pentaho/(?P<path>(plugin|api)/.*)$', pentaho_proxy),
 
     url(r'^', include(admin.site.urls)),

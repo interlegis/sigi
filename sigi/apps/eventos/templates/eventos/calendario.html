@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+{% load thumbnail %}
+
+{% block extrastyle %}
+    <style type="text/css">
+		th {
+		    text-align: center !important;
+		    vertical-align: bottom !important;
+		}
+    </style>
+    {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}<h1>{% blocktrans %}Eventos de {{ mes_pesquisa }}/{{ ano_pesquisa }}{% endblocktrans %}</h1>{% endblock %}
+
+{% block object-tools-items %}
+	{% if prev_button %}
+		<li><a href="?mes={{ prev_button.mes|safe }}&ano={{ prev_button.ano|safe }}">{% trans "Mês anterior" %}</a></li>
+	{% endif %}
+	{% if next_button %}
+		<li><a href="?mes={{ next_button.mes|safe }}&ano={{ next_button.ano|safe }}">{% trans "Próximo mês" %}</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+	<table class="table table-condensed table-bordered">
+		<tr>
+		{% for d in dates %}
+			<th>{{ d|date:'D' }}</th>
+		{% endfor %}
+		</tr>
+		{% for d in dates %}
+			<th>{% ifchanged d|date:'b' %}{{ d|date:'b' }}<br/>{% endifchanged %}{{ d|date:'j' }}</th>
+		{% endfor %}
+		</tr>
+		{% for linha in linhas %}
+		<tr>
+			{% for evento in linha %}
+				{% if evento.start > 0 %}
+					<td colspan="{{ evento.start }}">&nbsp;</td>
+				{% endif %}
+				
+				<td colspan="{{ evento.duration }}" class="{% if evento.evento.status == 'P' %}active{% endif %}{% if evento.evento.status == 'A' %}success{% endif %}{% if evento.evento.status == 'R' %}info{% endif %}{% if evento.evento.status == 'C' %}danger{% endif %}">
+					<h5><a href="{% url 'admin:eventos_evento_change' evento.evento.pk %}">{{ evento.evento.nome }}</a></h5>
+					<h6>({{ evento.evento.tipo_evento }})</h6>
+					<dl class="dl-horizontal">
+					{% if evento.evento.solicitante %}
+						<dt>{% trans "Solicitante" %}:</dt>
+						<dd>{{ evento.evento.solicitante }}</dd>
+					{% endif %}
+				
+					{% if evento.evento.casa_anfitria %}
+						<dt>{% trans "Casa anfitriã" %}:</dt>
+						<dd>{{ evento.evento.casa_anfitria }}<dd>
+					{% endif %}
+				
+					<dt>{% trans "Município" %}:</dt>
+					<dd>{{ evento.evento.municipio }}<dd>
+					<dt>{% trans "Status" %}:</dt>
+					<dd>{{ evento.evento.get_status_display }}<dd>
+					
+					{% if evento.evento.data_cancelamento %}
+						<dt>{% trans "Data de cancelamento" %}:</dt>
+						<dd>{{ evento.evento.data_cancelamento }}<dd>
+					{% endif %}
+				
+					{% if evento.evento.equipe_set.count > 0 %}
+						<dt>{% trans "Equipe" %}:</dt>
+						<dd><ul class="list-unstyled">
+							{% for m in evento.evento.equipe_set.all %}
+								<li>{{ m.membro }} ({{ m.funcao }})</li>
+							{% endfor %}
+						<ul><dd>
+					{% endif %}
+					</dl>
+				</td>
+
+				{% if evento.close > 0 %}
+					<td colspan="{{ evento.close }}">&nbsp;</td>
+				{% endif %}
+				
+			{% endfor %}
+		</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}
