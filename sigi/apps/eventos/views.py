@@ -20,9 +20,13 @@
 
 import calendar
 import datetime
+import locale
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
+from django.utils import translation
+from django.utils.translation import ungettext, ugettext as _
 from sigi.apps.eventos.models import Evento
+from sigi.apps.servidores.models import Servidor
 
 @login_required
 def calendario(request):
@@ -104,3 +108,57 @@ def calendario(request):
     data['linhas'] = linhas
     
     return render(request, 'eventos/calendario.html', data)
+
+def alocacao_equipe(request):
+    ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
+    
+    data = {'ano_pesquisa': ano_pesquisa}
+    
+    if Evento.objects.filter(data_inicio__year=ano_pesquisa-1).exists():
+        data['prev_button'] = {'ano': ano_pesquisa - 1 }
+        
+    if Evento.objects.filter(data_inicio__year=ano_pesquisa+1).exists():
+        data['next_button'] = {'ano': ano_pesquisa + 1 }
+        
+    dados = []
+    
+    for evento in Evento.objects.filter(data_inicio__year=ano_pesquisa).exclude(status='C').prefetch_related('equipe_set'):
+        for p in evento.equipe_set.all():
+            registro = None
+            for r in dados:
+                if r[0] == p.membro.pk:
+                    registro = r
+                    break
+            if not registro:
+                registro = [p.membro.pk, p.membro.nome_completo, [{'dias': 0, 'eventos': 0} for x in range(1,13)]]
+                dados.append(registro)
+                
+            registro[2][evento.data_inicio.month-1]['dias'] += (evento.data_termino - evento.data_inicio).days + 1
+            registro[2][evento.data_inicio.month-1]['eventos'] += 1
+            
+    dados.sort(lambda x, y: cmp(x[1], y[1]))
+          
+    lang = (translation.to_locale(translation.get_language())+'.utf8').encode()
+    locale.setlocale(locale.LC_ALL, lang)
+    
+    linhas = [[_(u"Servidor")] + [calendar.month_name[m] for m in range(1,13)] + ['total']]
+    
+    for r in dados:
+        r[2].append(reduce(lambda x,y:{'dias': x['dias'] + y['dias'],
+                                    'eventos': x['eventos'] + y['eventos']}, r[2]))
+        linhas.append([r[1]] + 
+                       [_(ungettext(u"%(dias)s dia", u"%(dias)s dias", d['dias']) + " em " +
+                          ungettext(u"%(eventos)s evento", u"%(eventos)s eventos", d['eventos'])
+                        ) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in r[2]])
+    
+#     for registro in Servidor.objects.filter(equipe_evento__evento__data_inicio__year=ano_pesquisa).exclude(equipe_evento__evento__status='C').distinct():
+#         dados = [{'dias': 0, 'eventos': 0} for x in range(1,13)]
+#         for part in registro.equipe_evento.filter(evento__data_inicio__year=ano_pesquisa).exclude(evento__status='C'):
+#             dados[part.evento.data_inicio.month-1]['dias'] +=  (part.evento.data_termino - 
+#                                                                 part.evento.data_inicio).days + 1
+#             dados[part.evento.data_inicio.month-1]['eventos'] += 1
+#         dados.append([registro.nome_completo] + [_(ungettext(u"%(dias)s dia", u"%(dias)s dias", d['dias']) + " em " + ungettext(u"%(eventos)s evento", u"%(eventos)s eventos", d['eventos'])) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in dados])
+        
+    data['linhas'] = linhas
+    
+    return render(request, 'eventos/alocacao_equipe.html', data)

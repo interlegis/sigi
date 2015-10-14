@@ -1,0 +1,51 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+{% load thumbnail %}
+
+{% block extrastyle %}
+    <style type="text/css">
+		th { vertical-align: bottom !important; text-align: center !important; background-color: #f1f1f1; }
+		td { width: 6%; vertical-align: bottom !important; }
+		td:first-child { width: 22%; font-weight: bolder; }		
+		td:last-child { font-weight: bolder; }
+    </style>
+    {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}<h1>{% blocktrans %}Alocação de equipe em {{ ano_pesquisa }}{% endblocktrans %}</h1>{% endblock %}
+
+{% block object-tools-items %}
+	{% if prev_button %}
+		<li><a href="?ano={{ prev_button.ano|safe }}">{% trans "Ano anterior" %}</a></li>
+	{% endif %}
+	{% if next_button %}
+		<li><a href="?ano={{ next_button.ano|safe }}">{% trans "Próximo ano" %}</a></li>
+	{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="table-responsive">
+	<table class="table table-condensed table-bordered">
+		{% for linha in linhas %}
+			<tr>
+				{% if forloop.first %}
+					{% for coluna in linha %}
+						<th>{{ coluna }}</th>
+					{% endfor %}
+				{% else %}
+					{% for coluna in linha %}
+						<td>{{ coluna }}</td>
+					{% endfor %}
+				{% endif %}
+			</tr>
+		{% endfor %}
+	</table>
+</div>
+{% endblock %}
