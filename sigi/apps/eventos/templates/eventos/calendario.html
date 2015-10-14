@@ -9,6 +9,13 @@
 		    text-align: center !important;
 		    vertical-align: bottom !important;
 		}
+		
+		.status-P { background-color: #ffffb0}
+        .status-A { background-color: #a6ebff}
+        .status-O { background-color: #c2ffc2}
+        .status-R { background-color: #ffdaa6}
+        .status-C { background-color: #d98f8d}
+		
     </style>
     {{ block.super }}
 {% endblock %}
@@ -49,7 +56,7 @@
 					<td colspan="{{ evento.start }}">&nbsp;</td>
 				{% endif %}
 				
-				<td colspan="{{ evento.duration }}" class="{% if evento.evento.status == 'P' %}active{% endif %}{% if evento.evento.status == 'A' %}success{% endif %}{% if evento.evento.status == 'R' %}info{% endif %}{% if evento.evento.status == 'C' %}danger{% endif %}">
+				<td colspan="{{ evento.duration }}" class="status-{{ evento.evento.status }}">
 					<h5><a href="{% url 'admin:eventos_evento_change' evento.evento.pk %}">{{ evento.evento.nome }}</a></h5>
 					<h6>({{ evento.evento.tipo_evento }})</h6>
 					<dl class="dl-horizontal">

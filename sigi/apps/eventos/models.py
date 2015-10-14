@@ -39,12 +39,13 @@ class TipoEvento(models.Model):
     
 class Evento(models.Model):
     STATUS_CHOICES = (
-        ('P', _(u"Programado")),
-        ('A', _(u"Autorizado")),
+        ('P', _(u"Previsão")),
+        ('A', _(u"A confirmar")),
+        ('O', _(u"Confirmado")),
         ('R', _(u"Realizado")),
         ('C', _(u"Cancelado"))
     )
-    
+
     tipo_evento = models.ForeignKey(TipoEvento)
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
     descricao = models.TextField(_(u"Descrição do evento"))
