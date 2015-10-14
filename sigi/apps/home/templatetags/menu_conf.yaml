@@ -90,6 +90,19 @@ main_menu:
       url: ocorrencias/categoria/
     - title: Tipos de contato
       url: ocorrencias/tipocontato/
+  - title: Eventos
+    url: eventos/evento
+    children:
+    - title: Eventos
+      url: eventos/evento/
+    - title: Calendário mensal
+      url: eventos/calendario
+    - title: Alocação de equipe
+      url: eventos/alocacaoequipe/
+    - title: Tipos de evento
+      url: eventos/tipoevento/
+    - title: Funções na equipe
+      url: eventos/funcao/
   - title: Financeiro
     url: financeiro/desembolso/
     children:
