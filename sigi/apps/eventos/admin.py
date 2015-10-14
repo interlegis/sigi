@@ -27,6 +27,10 @@ from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
 class EventoAdminForm(forms.ModelForm):
     class Meta:
         model = Evento
+        fields = ('tipo_evento', 'nome', 'descricao', 'solicitante', 'data_inicio', 'data_termino', 
+                  'casa_anfitria', 'municipio', 'local', 'publico_alvo', 'status',
+                  'data_cancelamento', 'motivo_cancelamento', 'curso_moodle_id',
+                  )
     def clean(self):
         cleaned_data = super(EventoAdminForm, self).clean()
         data_inicio = cleaned_data.get("data_inicio")
