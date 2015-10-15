@@ -28,24 +28,11 @@
 	{% if next_button %}
 		<li><a href="?ano={{ next_button.ano|safe }}">{% trans "Próximo ano" %}</a></li>
 	{% endif %}
+	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=pdf" target="_blank">{% trans "Exportar para PDF" %}</a></li>
+	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=csv">{% trans "Exportar para CSV" %}</a></li>
+	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=json" target="_blank">{% trans "Exportar para Json" %}</a></li>
 {% endblock %}
 
 {% block content %}
-<div class="table-responsive">
-	<table class="table table-condensed table-bordered">
-		{% for linha in linhas %}
-			<tr>
-				{% if forloop.first %}
-					{% for coluna in linha %}
-						<th>{{ coluna }}</th>
-					{% endfor %}
-				{% else %}
-					{% for coluna in linha %}
-						<td>{{ coluna }}</td>
-					{% endfor %}
-				{% endif %}
-			</tr>
-		{% endfor %}
-	</table>
-</div>
+	{% include "eventos/alocacao_equipe_snippet.html" %}
 {% endblock %}

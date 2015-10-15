@@ -1,0 +1,17 @@
+<div class="table-responsive">
+	<table class="table table-condensed table-bordered" repeat="1">
+		{% for linha in linhas %}
+			<tr>
+				{% if forloop.first %}
+					{% for coluna in linha %}
+						<th>{{ coluna }}</th>
+					{% endfor %}
+				{% else %}
+					{% for coluna in linha %}
+						<td>{{ coluna }}</td>
+					{% endfor %}
+				{% endif %}
+			</tr>
+		{% endfor %}
+	</table>
+</div>

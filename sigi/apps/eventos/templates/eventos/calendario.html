@@ -35,69 +35,9 @@
 	{% if next_button %}
 		<li><a href="?mes={{ next_button.mes|safe }}&ano={{ next_button.ano|safe }}">{% trans "Próximo mês" %}</a></li>
 	{% endif %}
+	<li><a href="?mes={{ mes_pesquisa|safe }}&ano={{ ano_pesquisa|safe }}&fmt=pdf" target="_blank">{% trans "Exportar para PDF" %}</a></li>
 {% endblock %}
 
 {% block content %}
-<div class="table-responsive">
-	<table class="table table-condensed table-bordered">
-		<tr>
-		{% for d in dates %}
-			<th>{{ d|date:'D' }}</th>
-		{% endfor %}
-		</tr>
-		{% for d in dates %}
-			<th>{% ifchanged d|date:'b' %}{{ d|date:'b' }}<br/>{% endifchanged %}{{ d|date:'j' }}</th>
-		{% endfor %}
-		</tr>
-		{% for linha in linhas %}
-		<tr>
-			{% for evento in linha %}
-				{% if evento.start > 0 %}
-					<td colspan="{{ evento.start }}">&nbsp;</td>
-				{% endif %}
-				
-				<td colspan="{{ evento.duration }}" class="status-{{ evento.evento.status }}">
-					<h5><a href="{% url 'admin:eventos_evento_change' evento.evento.pk %}">{{ evento.evento.nome }}</a></h5>
-					<h6>({{ evento.evento.tipo_evento }})</h6>
-					<dl class="dl-horizontal">
-					{% if evento.evento.solicitante %}
-						<dt>{% trans "Solicitante" %}:</dt>
-						<dd>{{ evento.evento.solicitante }}</dd>
-					{% endif %}
-				
-					{% if evento.evento.casa_anfitria %}
-						<dt>{% trans "Casa anfitriã" %}:</dt>
-						<dd>{{ evento.evento.casa_anfitria }}<dd>
-					{% endif %}
-				
-					<dt>{% trans "Município" %}:</dt>
-					<dd>{{ evento.evento.municipio }}<dd>
-					<dt>{% trans "Status" %}:</dt>
-					<dd>{{ evento.evento.get_status_display }}<dd>
-					
-					{% if evento.evento.data_cancelamento %}
-						<dt>{% trans "Data de cancelamento" %}:</dt>
-						<dd>{{ evento.evento.data_cancelamento }}<dd>
-					{% endif %}
-				
-					{% if evento.evento.equipe_set.count > 0 %}
-						<dt>{% trans "Equipe" %}:</dt>
-						<dd><ul class="list-unstyled">
-							{% for m in evento.evento.equipe_set.all %}
-								<li>{{ m.membro }} ({{ m.funcao }})</li>
-							{% endfor %}
-						<ul><dd>
-					{% endif %}
-					</dl>
-				</td>
-
-				{% if evento.close > 0 %}
-					<td colspan="{{ evento.close }}">&nbsp;</td>
-				{% endif %}
-				
-			{% endfor %}
-		</tr>
-		{% endfor %}
-	</table>
-</div>
+	{% include "eventos/calendario_snippet.html" %}
 {% endblock %}

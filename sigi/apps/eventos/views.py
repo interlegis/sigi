@@ -27,11 +27,15 @@ from django.utils import translation
 from django.utils.translation import ungettext, ugettext as _
 from sigi.apps.eventos.models import Evento
 from sigi.apps.servidores.models import Servidor
+from sigi.shortcuts import render_to_pdf
+import csv
+from django.http.response import JsonResponse, HttpResponse
 
 @login_required
 def calendario(request):
     mes_pesquisa = int(request.GET.get('mes', datetime.date.today().month))
     ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
+    formato = request.GET.get('fmt', 'html')
     
     dia1 = datetime.date(ano_pesquisa, mes_pesquisa, 1)
     mes_anterior = dia1 - datetime.timedelta(days=1)
@@ -107,10 +111,14 @@ def calendario(request):
     data['eventos'] = eventos
     data['linhas'] = linhas
     
+    if formato == 'pdf':
+        return render_to_pdf('eventos/calendario_pdf.html', data )
+    
     return render(request, 'eventos/calendario.html', data)
 
 def alocacao_equipe(request):
     ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
+    formato = request.GET.get('fmt', 'html')
     
     data = {'ano_pesquisa': ano_pesquisa}
     
@@ -140,8 +148,9 @@ def alocacao_equipe(request):
           
     lang = (translation.to_locale(translation.get_language())+'.utf8').encode()
     locale.setlocale(locale.LC_ALL, lang)
+    meses = [calendar.month_name[m] for m in range(1,13)]
     
-    linhas = [[_(u"Servidor")] + [calendar.month_name[m] for m in range(1,13)] + ['total']]
+    linhas = [[_(u"Servidor")] + meses + ['total']]
     
     for r in dados:
         r[2].append(reduce(lambda x,y:{'dias': x['dias'] + y['dias'],
@@ -160,5 +169,22 @@ def alocacao_equipe(request):
 #         dados.append([registro.nome_completo] + [_(ungettext(u"%(dias)s dia", u"%(dias)s dias", d['dias']) + " em " + ungettext(u"%(eventos)s evento", u"%(eventos)s eventos", d['eventos'])) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in dados])
         
     data['linhas'] = linhas
+    
+    if formato == 'pdf':
+        return render_to_pdf('eventos/alocacao_equipe_pdf.html', data)
+    elif formato == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
+        writer = csv.writer(response)
+        asc_list = [[s.encode('utf-8') if isinstance(s, unicode) else s for s in l] for l in linhas]
+        writer.writerows(asc_list)
+        return response
+    elif formato == 'json':
+        result = {'ano': ano_pesquisa,
+                  'equipe': [{'pk': d[0],
+                              'nome_completo': d[1],
+                              'meses': {m[0]: m[1] for m in zip(meses+['total'], d[2])}
+                             } for d in dados]}
+        return JsonResponse(result)
     
     return render(request, 'eventos/alocacao_equipe.html', data)
