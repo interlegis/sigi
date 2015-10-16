@@ -19,12 +19,12 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from django.db import models
-from django.db.models import Q
+from django.utils.functional import lazy
 from django.utils.translation import ugettext as _
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.mdl.models import Course
+from sigi.apps.utils.moodle_ws_api import get_courses
 from django.core.exceptions import ValidationError
 
 class TipoEvento(models.Model):
@@ -45,6 +45,18 @@ class Evento(models.Model):
         ('R', _(u"Realizado")),
         ('C', _(u"Cancelado"))
     )
+    
+    def get_course_choices():
+        result = [(None, u'---------')]
+    
+        try:
+            courses = get_courses(sort_order='categorysortorder', idnumber__startswith='evento')
+            result = result + [(c['id'], c['fullname']) for c in courses]
+        except Exception as e:
+            result.append((None, _(u"Erro ao acessar o saberes: '%s'" % (e.message,))))
+    
+        return result
+    
 
     tipo_evento = models.ForeignKey(TipoEvento)
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
@@ -52,14 +64,16 @@ class Evento(models.Model):
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
     data_inicio = models.DateField(_(u"Data de início"))
     data_termino = models.DateField(_(u"Data de término"))
-    casa_anfitria = models.ForeignKey(CasaLegislativa, verbose_name=_(u"Casa anfitriã"), blank=True, null=True)
+    casa_anfitria = models.ForeignKey(CasaLegislativa, verbose_name=_(u"Casa anfitriã"), blank=True, 
+                                      null=True)
     municipio = models.ForeignKey(Municipio)
     local = models.TextField(_(u"Local do evento"), blank=True)
     publico_alvo = models.TextField(_(u"Público alvo"), blank=True)
     status = models.CharField(_(u"Status"), max_length=1, choices=STATUS_CHOICES)
     data_cancelamento = models.DateField(_(u"Data de cancelamento"), blank=True, null=True)
     motivo_cancelamento = models.TextField(_(u"Motivo do cancelamento"), blank=True)
-    curso_moodle_id = models.IntegerField(_(u"Curso saberes"), blank=True, null=True)
+    curso_moodle_id = models.IntegerField(_(u"Curso saberes"), blank=True, null=True, 
+                                          choices=lazy(get_course_choices, list)())
     
     class Meta:
         ordering = ("-data_inicio",)
@@ -79,13 +93,6 @@ class Evento(models.Model):
         if self.data_inicio > self.data_termino:
             raise ValidationError(_(u"Data de término deve ser posterior à data de início"))
         return super(Evento, self).save(*args, **kwargs)
-        
-    @property
-    def curso_moodle(self):
-        if self.curso_moodle_id:
-            return Course.objects.get(id=self.curso_moodle_id)
-        else:
-            return None
         
 class Funcao(models.Model):
     nome = models.CharField(_(u"Função na equipe de evento"), max_length=100)
