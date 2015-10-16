@@ -19,11 +19,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from django.contrib import admin
-from django.contrib.admin import register
 from django import forms
 from django.utils.translation import ugettext as _
 from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.utils.moodle_ws_api import get_courses
 
+def get_course_choices():
+    result = [(None, u'---------')]
+    
+    try:
+        courses = get_courses(sort_order='categorysortorder', idnumber__startswith='evento')
+        result = result + [(c['id'], c['fullname']) for c in courses]
+    except Exception as e:
+        result.append((None, _(u"Erro ao acessar o saberes: '%s'" % (e.message,))))
+    
+    return result
+   
 class EventoAdminForm(forms.ModelForm):
     class Meta:
         model = Evento
@@ -31,6 +42,12 @@ class EventoAdminForm(forms.ModelForm):
                   'casa_anfitria', 'municipio', 'local', 'publico_alvo', 'status',
                   'data_cancelamento', 'motivo_cancelamento', 'curso_moodle_id',
                   )
+    
+    def __init__(self, *args, **kwargs):
+        super(EventoAdminForm, self).__init__(*args, **kwargs)
+        self.fields['curso_moodle_id'] = forms.ChoiceField(choices=get_course_choices(),
+                                                           label=_(u"Curso Saberes"))
+        
     def clean(self):
         cleaned_data = super(EventoAdminForm, self).clean()
         data_inicio = cleaned_data.get("data_inicio")
@@ -40,11 +57,11 @@ class EventoAdminForm(forms.ModelForm):
             raise forms.ValidationError(_(u"Data término deve ser posterior à data inicio"),
                                         code="invalid_period" )
             
-@register(TipoEvento)
+@admin.register(TipoEvento)
 class TipoEventAdmin(admin.ModelAdmin):
     search_fields = ('nome',)
 
-@register(Funcao)
+@admin.register(Funcao)
 class FuncaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao',)
     search_fields = ('nome', 'descricao',)
@@ -56,7 +73,7 @@ class ConviteInline(admin.TabularInline):
     model = Convite
     raw_id_fields = ('casa',)
 
-@register(Evento)
+@admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
     form = EventoAdminForm 
     date_hierarchy = 'data_inicio'
