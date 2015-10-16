@@ -26,6 +26,7 @@ from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.moodle_ws_api import get_courses
 from django.core.exceptions import ValidationError
+from sigi.apps.mdl.models import Course
 
 class TipoEvento(models.Model):
     nome = models.CharField(_(u"Nome"), max_length=100)
@@ -36,7 +37,7 @@ class TipoEvento(models.Model):
         
     def __unicode__(self):
         return self.nome
-    
+
 class Evento(models.Model):
     STATUS_CHOICES = (
         ('P', _(u"Previsão")),
@@ -46,17 +47,25 @@ class Evento(models.Model):
         ('C', _(u"Cancelado"))
     )
     
+#     def get_course_choices():
+#         result = [(None, u'---------')]
+#     
+#         try:
+#             courses = get_courses(sort_order='categorysortorder', idnumber__startswith='evento')
+#             result = result + [(c['id'], c['fullname']) for c in courses]
+#         except Exception as e:
+#             result.append((None, _(u"Erro ao acessar o saberes: '%s'" % (e.message,))))
+#     
+#         return result
+
     def get_course_choices():
-        result = [(None, u'---------')]
-    
-        try:
-            courses = get_courses(sort_order='categorysortorder', idnumber__startswith='evento')
-            result = result + [(c['id'], c['fullname']) for c in courses]
-        except Exception as e:
-            result.append((None, _(u"Erro ao acessar o saberes: '%s'" % (e.message,))))
-    
+        from django.apps import apps
+        if apps.models_ready:
+            courses = Course.objects.filter(idnumber__startswith='evento')
+        else:
+            courses = []
+        result = [(None, u'---------')] + [(c.id, c.fullname) for c in courses]
         return result
-    
 
     tipo_evento = models.ForeignKey(TipoEvento)
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
