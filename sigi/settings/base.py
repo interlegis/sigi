@@ -176,3 +176,5 @@ LOGGING = {
         },
     },
 }
+
+SABERES_REST_PATH = 'webservice/rest/server.php'

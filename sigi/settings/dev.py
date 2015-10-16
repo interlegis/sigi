@@ -38,3 +38,6 @@ CACHES = {
 PENTAHO_SERVER = 'http://localhost.com/pentaho/'
 PENTAHO_DASHBOARDS = ('saberes',)
 PENTAHO_USERNAME_PASSWORD = 'root@root'
+
+SABERES_URL = 'http://your-moodle-url.com'
+SABERES_TOKEN = 'token-generated-by-moodle-to-access-webservice-api'
