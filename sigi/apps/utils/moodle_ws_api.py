@@ -23,7 +23,16 @@ import urllib2
 from django.conf import settings
 
 def get_courses(ids=[], sort_order='', *args, **kwargs):
-    ''' Implements core_courses_get_courses function '''
+    ''' Implements core_courses_get_courses function
+        @param ids: list of course ids to retrieve, blank for all courses
+        @param sort_order: String field to sort the course list. 
+                           Prefix wuth - char to indicate reverse order
+        @param [field_name[__function]: Filters to apply, in django-style filters. Examples:
+                        - idnumber__startswith='evento'
+                        - format='topics'
+                        - visible.__ge=1
+        @return: list of courses that matches with criteria
+    '''
     
     extra_filters = []
     
@@ -61,7 +70,7 @@ def get_courses(ids=[], sort_order='', *args, **kwargs):
     courses = json.loads(urllib2.urlopen(url, params).read())
     
     if 'errorcode' in courses:
-        raise Exception(courses['message'], courses['errorcode'])
+        raise Exception(u"%(errorcode)s (%(exception)s): %(message)s" % courses)
     
     for filter in extra_filters:
         courses = [c for c in courses 
