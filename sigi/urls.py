@@ -14,9 +14,9 @@ admin.autodiscover()
 urlpatterns = patterns(
     '',
 
-    url(r'^parlamentares/parlamentar/', include('sigi.apps.parlamentares.urls')),
-    url(r'^casas/casalegislativa/', include('sigi.apps.casas.urls')),
-    url(r'^convenios/convenio/', include('sigi.apps.convenios.urls')),
+    url(r'^parlamentares/', include('sigi.apps.parlamentares.urls')),
+    url(r'^casas/', include('sigi.apps.casas.urls')),
+    url(r'^convenios/', include('sigi.apps.convenios.urls')),
     url(r'^diagnosticos/', include('sigi.apps.diagnosticos.urls')),
     url(r'^servidores/', include('sigi.apps.servidores.urls')),
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
