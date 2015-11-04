@@ -6,6 +6,8 @@ main_menu:
       url: contatos/municipio/
     - title: Unidades Federativas
       url: contatos/unidadefederativa/
+    - title: Mesorregiões
+      url: contatos/mesorregiao/
   - title: Casas Legislativas
     url: casas/casalegislativa/
     children:
@@ -15,6 +17,8 @@ main_menu:
       url: casas/casalegislativa/?tipo__id__exact=1
     - title: Assembléias Legislativas
       url: casas/casalegislativa/?tipo__id__exact=2
+    - title: Portfólio de relacionamento
+      url: casas/portfolio/
     - title: Tipos de Casas
       url: casas/tipocasalegislativa/
   - title: Legislaturas
