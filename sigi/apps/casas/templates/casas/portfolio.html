@@ -1,0 +1,101 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+{% load smart_pagination %}
+
+{% block extrastyle %}
+    <style type="text/css">
+    </style>
+    {{ block.super }}
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}<h1>{% blocktrans %}Portfólio de relacionamento com Casas{% endblocktrans %}</h1>{% endblock %}
+
+{% block content %}
+	{% for e in errors %}
+	<div class="alert alert-danger">{{ e }}</div>
+	{% endfor %}
+
+	<div class="nav">
+		<ul class="object-tools pull-left nav nav-pills">
+		{% for key, value in regioes %}
+			<li{% if regiao == key %} class="active"{% endif %}><a href="?regiao={{ key }}">{{ value }}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+
+	{% if ufs %}
+	<div class="nav">
+		<ul class="object-tools pull-left nav nav-tabs">
+		{% for uf in ufs %}
+			<li{% if uf_id == uf.pk %} class="active"{% endif %}><a href="?uf={{ uf.pk|safe }}">{{ uf.nome }}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	
+	{% if mesorregioes %}
+	<div class="nav">
+		<ul class="object-tools pull-left nav nav-pills">
+		{% for meso in mesorregioes %}
+			<li{% if meso_id == meso.pk %} class="active"{% endif %}><a href="?meso={{ meso.pk|safe }}">{{ meso.nome }}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	
+	{% if microrregioes %}
+	<div class="nav">
+		<ul class="object-tools pull-left nav nav-pills">
+		{% for micro in microrregioes %}
+			<li{% if micro_id == micro.pk %} class="active"{% endif %}><a href="?micro={{ micro.pk|safe }}">{{ micro.nome }}</a></li>
+		{% endfor %}
+		</ul>
+	</div>
+	{% endif %}
+	
+	{% if form %}
+		<form action="" method="post" id="atribui_gerente_form">
+			{% csrf_token %}
+			{{ form }}
+			<input type="submit" name="_save" value="Atribuir" class="btn btn-default" />
+		</form> 
+	{% endif %}
+	
+	{% if page_obj %}
+		<div class="table-responsive">
+			<table class="table table-striped">
+				<tr>
+					<th>{% trans "Nome da Casa" %}</th>
+					<th>{% trans "UF" %}</th>
+					<th>{% trans "Mesorregião" %}</th>
+					<th>{% trans "Microrregião" %}</th>
+					<th>{% trans "Gerente de relacionamento" %}</th> 
+				</tr>
+			
+				{% for casa in page_obj.object_list %}
+				<tr>
+					<td>{{ casa.nome }}</td>
+					<td>{{ casa.municipio.uf }}</td>
+					<td>{{ casa.municipio.microrregiao.mesorregiao }}</td>
+					<td>{{ casa.municipio.microrregiao.nome }}</td>
+					<td>{{ casa.gerente_contas }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+		</div>
+		
+		<p>{% blocktrans with count=page_obj.paginator.count %}{{ count }} casas encontradas.{% endblocktrans %}</p>
+		
+		{% if page_obj.paginator.num_pages > 1 %}
+			{% smart_paginator page_obj=page_obj querystring=querystring %}
+		{% endif %}
+	{% endif %}
+
+{% endblock %}

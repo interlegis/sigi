@@ -4,13 +4,15 @@ from functools import reduce
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.shortcuts import render, get_object_or_404
+from django.utils.translation import ugettext as _, ungettext
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLabelsSemPresidente, CasasLegislativasReport, CasasSemConvenioReport, InfoCasaLegislativa
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
+from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
+from sigi.apps.casas.forms import PortfolioForm
 
 
 # @param qs: queryset
@@ -291,7 +293,6 @@ def report_complete(request, id=None):
 
     return response
 
-
 def casas_sem_convenio_report(request):
     qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
 
@@ -383,3 +384,89 @@ def export_csv(request):
         writer.writerow(lista)
 
     return response
+
+def portfolio(request):
+    page = request.GET.get('page', 1)
+    regiao = request.GET.get('regiao', None)
+    uf_id = request.GET.get('uf', None)
+    meso_id = request.GET.get('meso', None)
+    micro_id = request.GET.get('micro', None)
+    
+    data = {}
+    data['errors'] = []
+    data['messages'] = []
+    data['regioes'] = UnidadeFederativa.REGIAO_CHOICES
+    casas = None
+    gerente_contas = None
+    
+    if request.method == 'POST':
+        form = PortfolioForm(data=request.POST)
+        if form.is_valid():
+            gerente_contas = form.cleaned_data['gerente_contas']
+        else:
+            data['errors'].append(_(u"Dados inválidos"))
+        
+    if micro_id:
+        microrregiao = get_object_or_404(Microrregiao, pk=micro_id)
+        mesorregiao = microrregiao.mesorregiao 
+        uf = mesorregiao.uf
+        data['regiao'] = uf.regiao
+        data['uf_id'] = uf.pk
+        data['meso_id'] = mesorregiao.pk
+        data['micro_id'] = microrregiao.pk
+        data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
+        data['mesorregioes'] = uf.mesorregiao_set.all()
+        data['microrregioes'] = mesorregiao.microrregiao_set.all()
+        data['form'] = PortfolioForm(_(u'Atribuir casas da microrregiao %s para') % (unicode(microrregiao),))
+        data['querystring'] = 'micro=%s' %  (microrregiao.pk,)
+        casas = CasaLegislativa.objects.filter(municipio__microrregiao=microrregiao)
+    elif meso_id:
+        mesorregiao = get_object_or_404(Mesorregiao, pk=meso_id)
+        uf = mesorregiao.uf
+        data['regiao'] = uf.regiao
+        data['uf_id'] = uf.pk
+        data['meso_id'] = mesorregiao.pk
+        data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
+        data['mesorregioes'] = uf.mesorregiao_set.all()
+        data['microrregioes'] = mesorregiao.microrregiao_set.all()
+        data['form'] = PortfolioForm(_(u'Atribuir casas da mesorregiao %s para') % (unicode(mesorregiao),))
+        data['querystring'] = 'meso=%s' %  (mesorregiao.pk,)
+        casas = CasaLegislativa.objects.filter(municipio__microrregiao__mesorregiao=mesorregiao)
+    elif uf_id:
+        uf = get_object_or_404(UnidadeFederativa, pk=uf_id)
+        data['regiao'] = uf.regiao
+        data['uf_id'] = uf.pk
+        data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
+        data['mesorregioes'] = uf.mesorregiao_set.all()
+        data['form'] = PortfolioForm(_(u'Atribuir casas do estado %s para') % (unicode(uf),))
+        data['querystring'] = 'uf=%s' %  (uf.pk,)
+        casas = CasaLegislativa.objects.filter(municipio__uf=uf)
+    elif regiao:
+        data['regiao'] = regiao 
+        data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
+        data['form'] = PortfolioForm(_(u'Atribuir casas da região %s para') % [x[1] for x in UnidadeFederativa.REGIAO_CHOICES if x[0]==regiao][0])
+        data['querystring'] = 'regiao=%s' %  (regiao,)
+        casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
+        
+    if casas:
+        if gerente_contas:
+            count = casas.update(gerente_contas=gerente_contas)
+            data['messages'].append(ungettext(
+                u"%(count)s casa atribuída para %(name)s",
+                u"%(count)s casas atribuídas para %(name)s",
+                count) % {'count': count, 'name': unicode(gerente_contas)})
+        
+        casas = casas.order_by('municipio__uf', 'municipio__microrregiao__mesorregiao',
+                               'municipio__microrregiao', 'municipio')
+        
+        casas.prefetch_related('municipio', 'municipio__uf', 'municipio__microrregiao',
+                               'municipio__microrregiao__mesorregiao', 'gerente_contas')
+        
+        paginator = Paginator(casas, 30)
+        try:
+            pagina = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            pagina = paginator.page(paginator.num_pages)
+        data['page_obj'] = pagina
+        
+    return render(request, 'casas/portfolio.html', data)
