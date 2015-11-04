@@ -37,13 +37,50 @@ class UnidadeFederativa(models.Model):
     populacao = models.PositiveIntegerField(_(u'população'))
 
     class Meta:
-        ordering = (_(u'nome'),)
+        ordering = ('nome',)
         verbose_name = _(u'Unidade Federativa')
         verbose_name_plural = _(u'Unidades Federativas')
 
     def __unicode__(self):
         return self.nome
 
+class Mesorregiao(models.Model):
+    codigo_ibge = models.PositiveIntegerField(
+        _(u'Código IBGE'),
+        primary_key=True,
+        unique=True,
+        help_text=_(u'Código da mesorregião segundo o IBGE')
+    )
+    uf = models.ForeignKey(UnidadeFederativa, verbose_name=_(u'UF'))
+    nome = models.CharField(_(u"Nome mesorregião"), max_length=100)
+    # Campo de busca em caixa baixa sem acento
+    search_text = SearchField(field_names=['nome'])
+
+    class Meta:
+        ordering = ('uf', 'nome',)
+        verbose_name, verbose_name_plural = _(u'Mesorregião'), _(u'Mesorregiões')
+
+    def __unicode__(self):
+        return self.nome
+    
+class Microrregiao(models.Model):
+    codigo_ibge = models.PositiveIntegerField(
+        _(u'Código IBGE'),
+        primary_key=True,
+        unique=True,
+        help_text=_(u'Código da microrregião segundo o IBGE')
+    )
+    mesorregiao = models.ForeignKey(Mesorregiao)
+    nome = models.CharField(_(u"Nome microrregião"), max_length=100)
+    # Campo de busca em caixa baixa sem acento
+    search_text = SearchField(field_names=['nome'])
+
+    class Meta:
+        ordering = ('mesorregiao', 'nome')
+        verbose_name, verbose_name_plural = _(u'Microrregião'), _(u'Microrregiões')
+
+    def __unicode__(self):
+        return u"%s (%s)" % (self.nome, self.mesorregiao.nome)
 
 class Municipio(models.Model):
 
@@ -55,19 +92,8 @@ class Municipio(models.Model):
         unique=True,
         help_text=_(u'Código do município segundo IBGE.')
     )
-
-    # agrupamento baseado em similaridades econômicas e sociais
-    codigo_mesorregiao = models.PositiveIntegerField(
-        _(u'código mesorregião'),
-        blank=True,
-        null=True
-    )
-    # agrupamento baseado em similaridades econômicas e sociais
-    codigo_microrregiao = models.PositiveIntegerField(
-        _(u'código microrregião'),
-        blank=True,
-        null=True
-    )
+    
+    microrregiao = models.ForeignKey(Microrregiao, verbose_name=_(u'Microrregião'), blank=True, null=True)
 
     # codio designado pelo Tribunal Superior Eleitoral
     codigo_tse = models.PositiveIntegerField(
