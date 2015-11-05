@@ -1,7 +1,6 @@
 # coding: utf-8
 import datetime
 import csv
-import ho.pisa as pisa
 
 from django.template import Context, loader
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
