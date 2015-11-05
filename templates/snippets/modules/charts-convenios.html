@@ -96,11 +96,11 @@
             {% trans 'Demais projetos como PPM e PML não estão inclusos' %}.
         </p>
         <ul class="conteudo_regiao">
-            <li><a href="reportsRegiao/CO">Centro Oeste</a></li>
-            <li><a href="reportsRegiao/NE">Nordeste</a></li>
-            <li><a href="reportsRegiao/NO">Norte</a></li>
-            <li><a href="reportsRegiao/SD">Sudeste</a></li>
-            <li><a href="reportsRegiao/SL">Sul</a></li>
+            <li><a href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a></li>
+            <li><a href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a></li>
+            <li><a href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a></li>
+            <li><a href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a></li>
+            <li><a href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a></li>
         </ul>
       </div>
     </div>
