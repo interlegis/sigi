@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 from django.db import models
+from django.conf import settings
 from django.utils.translation import ugettext as _
+from django.core.exceptions import ValidationError
+from django.utils.safestring import mark_safe
 
 
 class Categoria(models.Model):
@@ -26,12 +29,18 @@ class TipoContato(models.Model):
 
 
 class Ocorrencia(models.Model):
+    STATUS_ABERTO    = 1
+    STATUS_REABERTO  = 2
+    STATUS_RESOLVIDO = 3
+    STATUS_FECHADO   = 4
+    STATUS_DUPLICADO = 5
+    
     STATUS_CHOICES = (
-        (1, _(u'Aberto')),
-        (2, _(u'Reaberto')),
-        (3, _(u'Resolvido')),
-        (4, _(u'Fechado')),
-        (5, _(u'Duplicado')),
+        (STATUS_ABERTO   , _(u'Aberto')),
+        (STATUS_REABERTO , _(u'Reaberto')),
+        (STATUS_RESOLVIDO, _(u'Resolvido')),
+        (STATUS_FECHADO  , _(u'Fechado')),
+        (STATUS_DUPLICADO, _(u'Duplicado')),
     )
 
     PRIORITY_CHOICES = (
@@ -58,6 +67,7 @@ class Ocorrencia(models.Model):
     resolucao = models.TextField(_(u'resolução'), blank=True,)
     servidor_registro = models.ForeignKey('servidores.Servidor', verbose_name=_(u"Servidor que registrou a ocorrência"))
     setor_responsavel = models.ForeignKey('servidores.Servico', verbose_name=_(u"Setor responsável"))
+    ticket = models.PositiveIntegerField(_(u'Número do ticket'), blank=True, null=True, help_text=_(u"Número do ticket no osTicket"))
 
     class Meta:
         verbose_name, verbose_name_plural = _(u'ocorrência'), _(u'ocorrências')
@@ -66,6 +76,13 @@ class Ocorrencia(models.Model):
     def __unicode__(self):
         return u"%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': self.casa_legislativa}
 
+    def clean(self):
+        if self.ticket is not None and Ocorrencia.objects.exclude(pk=self.pk).filter(ticket=self.ticket).exists():
+            raise ValidationError({'ticket': _(u"Já existe ocorrência registrada para este ticket")})
+        return super(Ocorrencia, self).clean()
+    
+    def get_ticket_url(self):
+        return mark_safe(settings.OSTICKET_URL % self.ticket)
 
 class Comentario(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=_(u'Ocorrência'), related_name='comentarios')

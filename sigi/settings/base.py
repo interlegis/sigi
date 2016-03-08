@@ -178,3 +178,4 @@ LOGGING = {
 }
 
 SABERES_REST_PATH = 'webservice/rest/server.php'
+OSTICKET_URL = 'https://suporte.interlegis.leg.br/scp/tickets.php?a=search&query=%s'

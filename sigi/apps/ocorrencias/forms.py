@@ -78,6 +78,6 @@ class ComentarioForm(ModelForm):
 class OcorrenciaForm(ModelForm):
     class Meta:
         model = Ocorrencia
-        fields = ['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'prioridade', 
+        fields = ['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'prioridade', 'ticket',
                   'descricao', 'setor_responsavel',]
         widgets = {'casa_legislativa': AjaxSelect(url=reverse_lazy('painel-buscacasa'), attrs={'size':100}), }

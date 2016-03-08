@@ -65,9 +65,9 @@ class OcorrenciaChangeList(ChangeList):
 class OcorrenciaAdmin(BaseModelAdmin):
     list_display = ('data_criacao', 'casa_legislativa', 'get_municipio', 'get_uf', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
     list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', 'casa_legislativa__gerente_contas',)
-    search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', 'descricao', 'resolucao',)
+    search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', 'descricao', 'resolucao', 'ticket',)
     date_hierarchy = 'data_criacao'
-    fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'descricao', 'servidor_registro',
+    fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'ticket', 'descricao', 'servidor_registro',
               'setor_responsavel', 'resolucao', )
     readonly_fields = ('servidor_registro', 'setor_responsavel', )
     inlines = (ComentarioViewInline, ComentarioInline, AnexosInline, )
@@ -80,15 +80,15 @@ class OcorrenciaAdmin(BaseModelAdmin):
         fields = list(self.readonly_fields)
         if obj is not None:
             fields.extend(['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'descricao', ])
-            if obj.status in [3, 4, 5]:  # Fechados
+            if obj.status in [Ocorrencia.STATUS_RESOLVIDO, Ocorrencia.STATUS_FECHADO, Ocorrencia.STATUS_DUPLICADO]:  # Fechados
                 fields.append('prioridade')
         return fields
 
     def get_fieldsets(self, request, obj=None):
         if obj is None:
-            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'prioridade', 'descricao', 'resolucao', )
+            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'prioridade', 'ticket', 'descricao', 'resolucao', )
         else:
-            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'descricao',
+            self.fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'ticket', 'descricao',
                            'servidor_registro', 'setor_responsavel', 'resolucao', )
 
         return super(OcorrenciaAdmin, self).get_fieldsets(request, obj)
