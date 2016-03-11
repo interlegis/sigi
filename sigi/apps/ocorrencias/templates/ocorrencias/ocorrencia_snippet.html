@@ -15,14 +15,15 @@
 				<h4><a href="{{ url_painel }}?type=casa&id={{ ocorrencia.casa_legislativa_id|safe }}">
 					{{ ocorrencia.casa_legislativa.nome }}, {{ ocorrencia.casa_legislativa.municipio.uf.sigla }}</a></h4>
 				<p>
-				{% if ocorrencia.ticket %}
-				  <a href="{{ ocorrencia.get_ticket_url }}" target="_blank">{% trans "Ticket no suporte #" %}{{ ocorrencia.ticket|safe }}</a>:
-				{% endif %}
+					<a href="{% url "admin:ocorrencias_ocorrencia_change" ocorrencia.id %}" target="_blank">Ocorrência {{ ocorrencia.id|safe }}</a>:
 					{% blocktrans with data_criacao=ocorrencia.data_criacao tipo_contato=ocorrencia.tipo_contato categoria=ocorrencia.categoria id_setor=ocorrencia.setor_responsavel_id|safe setor=ocorrencia.setor_responsavel.sigla status=ocorrencia.get_status_display %}
 					Criado em {{ data_criacao }} via {{ tipo_contato }} solicitando {{ categoria }},
 					está no setor <a href="{{ url_painel }}?type=servico&id={{ id_setor }}">{{ setor }}</a>
 					com status {{ status }}
 					{% endblocktrans %}</p>
+				{% if ocorrencia.ticket %}
+				  <p><a href="{{ ocorrencia.get_ticket_url }}" target="_blank">{% trans "Ticket no suporte #" %}{{ ocorrencia.ticket|safe }}</a></p>
+				{% endif %}
 				<p>{% trans "Gerente de contas:" %} 
 					<a href="{{ url_painel }}?type=servidor&id={{ ocorrencia.casa_legislativa.gerente_contas_id|safe }}">
 					{{ ocorrencia.casa_legislativa.gerente_contas }}</a></p>
