@@ -25,7 +25,7 @@ urlpatterns = patterns(
     url(r'^ocorrencias/', include('sigi.apps.ocorrencias.urls')),
     url(r'^eventos/', include('sigi.apps.eventos.urls')),
     url(r'^pentaho/(?P<path>(plugin|api)/.*)$', pentaho_proxy),
-
+    url(r'^', include('sigi.apps.home.urls')),
     url(r'^', include(admin.site.urls)),
 
     # to enable language selection

@@ -2,26 +2,38 @@
 {% load i18n %}
 
 <div class="row row-flex row-flex-wrap">
-
-  <div class="col-md-5">
+  <div class="col-md-6">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Resumo de informações' %}</div>
-      <table class="table table-condensed numeros">
+      <div class="panel-body table-responsive">
+        <dl class="dl-horizontal">
+          <dt class="pilllabel">{% trans 'Resumo por região' %}:</dt>
+          <dd>
+            <ul class="nav nav-pills">
+              <li><a href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a></li>
+              <li><a href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a></li>
+              <li><a href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a></li>
+              <li><a href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a></li>
+              <li><a href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a></li>
+            </ul>
+          </dd>
+        </dl>
+        <table class="table table-condensed numeros">
           <tr>
-              {% for item in tabela_resumo_camara.cabecalho_topo %}
-                  <th>{{item}}</th>
-              {% endfor %}
-          </tr>
-
-          {% for cabecalho,lista in tabela_resumo_camara.lista_zip %}
-              <tr>
-                  <th>{{cabecalho}}</th>
-                  {% for item in lista %}
-                      <td>{{item}}</td>
-                  {% endfor %}
-              </tr>
+          {% for item in tabela_resumo_camara.cabecalho_topo %}
+            <th>{{item}}</th>
           {% endfor %}
-      </table>
+          </tr>
+          {% for cabecalho,lista in tabela_resumo_camara.lista_zip %}
+          <tr>
+            <th>{{cabecalho}}</th>
+            {% for item in lista %}
+              <td>{{item}}</td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
       <div class="panel-footer">
         <dl class="dl-horizontal">
           <dt>{% trans 'Câmaras sem processo' %}</dt>
@@ -35,7 +47,44 @@
     </div>
   </div>
 
-  <div class="col-md-3">
+  <div class="col-md-6">
+    <div class="panel panel-primary flex-col">
+      <div class="panel-heading">{% trans 'Serviços hospedados no Interlegis (SEIT)' %}</div>
+      <div class="panel-body">
+        <div class="titlemapbox">
+          <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>{% trans 'Ver mapa' %}</a></div>
+        </div>
+        <table class="table table-condensed numeros servicos">
+        {% for servico in tabela_resumo_seit %}
+          <tr>
+          {% if forloop.first %}
+            <th>{{ servico.nome }}</th>
+            <th>{{ servico.total }}</th>
+            <th>{{ servico.novos_mes_anterior }}</th>
+            <th>{{ servico.novos_mes_atual }}</th>
+          {% else %}
+            <th class="dropdown">
+              <a id="ddm-{{ servico.nome }}" data-toggle="dropdown" href="#">{{ servico.nome }}</a>
+              <table class="table table-condensed numeros servicos dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
+              {% for mes in servico.novos_por_mes %}
+                <tr><th>{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
+              {% endfor %}
+              </table>
+            </th>
+            <td>{{ servico.total }}</td>
+            <td>{{ servico.novos_mes_anterior }}</td>
+            <td>{{ servico.novos_mes_atual }}</td>
+          {% endif %}
+          </tr>
+        {% endfor %}
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row row-flex row-flex-wrap">
+  <div class="col-md-6">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Convênios assinados por projeto' %}</div>
       <div class="panel-body">
@@ -46,67 +95,7 @@
     </div>
   </div>
 
-  <div class="col-md-4">
-    <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{% trans 'Serviços hospedados no Interlegis (SEIT)' %}</div>
-      <div class="panel-body">
-        <div class="titlemapbox">
-            <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>{% trans 'Ver mapa' %}</a></div>
-        </div>
-      </div>
-
-
-      <table class="table table-condensed numeros servicos">
-        {% for servico in tabela_resumo_seit %}
-            <tr>
-                {% if forloop.first %}
-                    <th>{{ servico.nome }}</th>
-                    <th>{{ servico.total }}</th>
-                    <th>{{ servico.novos_mes_anterior }}</th>
-                    <th>{{ servico.novos_mes_atual }}</th>
-                {% else %}
-                    <th class="dropdown">
-                      <a id="ddm-{{ servico.nome }}" data-toggle="dropdown" href="#">
-                        {{ servico.nome }}
-                      </a>
-                        <table class="table table-condensed numeros servicos dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
-                        {% for mes in servico.novos_por_mes %}
-                          <tr><th>{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
-                        {% endfor %}
-                        </table>
-                    </th>
-                    <td>{{ servico.total }}</td>
-                    <td>{{ servico.novos_mes_anterior }}</td>
-                    <td>{{ servico.novos_mes_atual }}</td>
-                {% endif %}
-            </tr>
-        {% endfor %}
-      </table>
-    </div>
-  </div>
-</div>
-
-<div class="row row-flex row-flex-wrap">
-  <div class="col-md-5">
-    <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{% trans 'Resumo de informações por região' %}</div>
-      <div class="panel-body">
-        <p>
-            {% trans 'Resumo de informações de Câmaras Municipais por região levando em conta apenas o Projeto Interlegis' %}.
-            {% trans 'Demais projetos como PPM e PML não estão inclusos' %}.
-        </p>
-        <ul class="conteudo_regiao">
-            <li><a href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a></li>
-            <li><a href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a></li>
-            <li><a href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a></li>
-            <li><a href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a></li>
-            <li><a href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a></li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-3">
+  <div class="col-md-6">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Processos de convênios por projeto' %}</div>
       <div class="panel-body">
@@ -116,16 +105,7 @@
       </div>
     </div>
   </div>
-  <div class="col-md-4">
-    <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{% trans 'Mapa de atuação do Interlegis' %}</div>
-      <div class="panel-body">
-        <div id="dashboard-mapa" class="align-center">
-            <a href="/dashboard/mapa/"> <img src="{% static 'img/mapicon-large.png' %}"/> </a>
-        </div>
-      </div>
-    </div>
-  </div>
+  
 </div>
 
 

@@ -1,21 +1,42 @@
-#-*- coding:utf-8 -*-
-from itertools import cycle
+# -*- coding: utf-8 -*-
+#
+# sigi.apps.home.views
+#
+# Copyright (c) 2016 by Interlegis
+#
+# GNU General Public License (GPL)
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA.
+#
 
 import datetime
+from django.shortcuts import render
 from django.utils.translation import ugettext as _
-
+from itertools import cycle
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
 from sigi.apps.servicos.models import TipoServico
+from django.views.decorators.cache import never_cache
+from django.contrib.auth.decorators import login_required
 
-
-def charts_data(request):
-    """
-    Busca informacoes para a criacao dos graficos e resumos
-    """
-
+@never_cache
+@login_required
+def index(request):
     convenios = Convenio.objects.all()
     convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
 
@@ -24,14 +45,14 @@ def charts_data(request):
     tabela_resumo_diagnostico = busca_informacoes_diagnostico()
     dados_graficos_convenio_projeto = [(1, grafico_convenio_projeto(convenios)),
                                        (2, grafico_convenio_projeto(convenios_assinados))]
-    return {
+    context = {
         'tabela_resumo_camara': tabela_resumo_camara,
         'tabela_resumo_seit': tabela_resumo_seit,
         'tabela_resumo_diagnostico': tabela_resumo_diagnostico,
         'dados_graficos_convenio_projeto': dados_graficos_convenio_projeto,
         'metas': Meta.objects.all(),
     }
-
+    return render(request, 'index.html', context)
 
 def busca_informacoes_camara():
     """

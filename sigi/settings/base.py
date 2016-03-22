@@ -31,7 +31,6 @@ MANAGERS = ADMINS
 SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'sigi.context_processors.charts_data',
     'django.core.context_processors.request',
 )
 # List of callables that know how to import templates from various sources.

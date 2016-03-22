@@ -233,3 +233,8 @@ h1 {
 .container-flex > div[class*='col-'] #map div, .row-flex > div[class*='col-'] #map div {
     width: initial;
 }
+
+.pilllabel {
+	display: block;
+	padding: 10px;
+}
