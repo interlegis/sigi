@@ -116,6 +116,7 @@ def calendario(request):
     
     return render(request, 'eventos/calendario.html', data)
 
+@login_required
 def alocacao_equipe(request):
     ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
     formato = request.GET.get('fmt', 'html')

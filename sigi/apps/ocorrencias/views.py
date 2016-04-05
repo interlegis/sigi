@@ -76,6 +76,7 @@ def painel_ocorrencias(request):
     
     return render(request, 'ocorrencias/painel.html', data)
 
+@login_required
 def busca_nominal(request, origin="tudo"):
     term = request.GET.get('term', None)
     if term is None:

@@ -226,7 +226,7 @@ def categoria_contatos(request, id_diagnostico):
     return render_to_response('diagnosticos/diagnosticos_categoria_contatos_form.html',
                               context)
 
-
+@login_required
 def diagnostico_pdf(request, id_diagnostico):
     diagnostico = Diagnostico.objects.get(pk=id_diagnostico)
     categorias = Categoria.objects.all()
@@ -267,7 +267,7 @@ def diagnostico_pdf(request, id_diagnostico):
     return render_to_pdf('diagnosticos/diagnostico_pdf.html', context)
     # return render_to_response('diagnosticos/diagnostico_pdf.html', context)
 
-
+@login_required
 def graficos(request):
     categorias = Categoria.objects.all()
 
@@ -289,7 +289,7 @@ def percentage(fraction, population):
     except ValueError:
         return ''
 
-
+@login_required
 def grafico_api(request):
 
     colors = cycle(['#7cb5ec',
@@ -333,7 +333,7 @@ def grafico_api(request):
     jsonn = simplejson.dumps(list_perguntas, sort_keys=True, indent=4, separators=(',', ': '))
     return HttpResponse(jsonn, content_type="application/json")
 
-
+@login_required
 def municipios_diagnosticados(self):
     municipios = []
 

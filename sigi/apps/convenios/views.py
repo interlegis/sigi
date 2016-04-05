@@ -15,6 +15,7 @@ from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
+from django.contrib.auth.decorators import login_required
 
 
 def query_ordena(qs, o, ot):
@@ -80,13 +81,13 @@ def adicionar_convenios_carrinho(request, queryset=None, id=None):
                     lista.append(id)
             request.session['carrinho_convenios'] = lista
 
-
+@login_required
 def excluir_carrinho(request):
     if 'carrinho_convenios' in request.session:
         del request.session['carrinho_convenios']
     return HttpResponseRedirect('.')
 
-
+@login_required
 def deleta_itens_carrinho(request):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
@@ -102,7 +103,7 @@ def deleta_itens_carrinho(request):
 
     return HttpResponseRedirect('.')
 
-
+@login_required
 def visualizar_carrinho(request):
 
     qs = carrinhoOrGet_for_qs(request)
@@ -134,7 +135,7 @@ def visualizar_carrinho(request):
         }
     )
 
-
+@login_required
 def report(request, id=None):
 
     if id:
@@ -237,20 +238,14 @@ def casas_estado_to_tabela(casas, convenios, regiao):
         "sumario": sumario,
     }
 
-
+@login_required
 def report_regiao(request, regiao='NE'):
 
     if request.POST:
         if 'regiao' in request.POST:
             regiao = request.POST['regiao']
 
-    REGIAO_CHOICES = {
-        'SL': _(u'Sul'),
-        'SD': _(u'Sudeste'),
-        'CO': _(u'Centro-Oeste'),
-        'NE': _(u'Nordeste'),
-        'NO': _(u'Norte'),
-    }
+    REGIAO_CHOICES = dict(UnidadeFederativa.REGIAO_CHOICES)
 
     projetos = Projeto.objects.all()
 
@@ -284,7 +279,7 @@ def report_regiao(request, regiao='NE'):
 
     return response
 
-
+@login_required
 def export_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=convenios.csv'

@@ -15,6 +15,7 @@ from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
 
 from geraldo.generators import PDFGenerator
+from django.contrib.auth.decorators import login_required
 
 
 def adicionar_parlamentar_carrinho(request, queryset=None, id=None):
@@ -31,6 +32,7 @@ def adicionar_parlamentar_carrinho(request, queryset=None, id=None):
             request.session['carrinho_parlamentar'] = lista
 
 
+@login_required
 @csrf_protect
 def visualizar_carrinho(request):
 
@@ -104,7 +106,7 @@ def get_for_qs(get, qs):
                     qs = qs.filter(**kwargs)
     return qs
 
-
+@login_required
 def deleta_itens_carrinho(request):
     """
     Deleta itens selecionados do carrinho
@@ -123,7 +125,7 @@ def deleta_itens_carrinho(request):
 
     return HttpResponseRedirect('.')
 
-
+@login_required
 def labels_report(request, id=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
