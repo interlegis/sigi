@@ -1,0 +1,35 @@
+{% load i18n %}
+
+<div class="panel panel-primary flex-col table-responsive">
+  <div class="panel-heading">
+    <h3 class="panel-title">
+    {% if seletor == 'sim' %}
+      {% trans "Resumo da carteira de" %}
+      <mark class="dropdown">
+        <a data-toggle="dropdown" href="">{{ gerente.nome_completo|default:_("todo o Interlegis") }}</a>
+        <ul class="dropdown-menu">
+          <li><a href="{% url "casas-carteira" %}?servidor=_all&snippet={{ snippet }}&s={{ seletor }}" data-target="resumo">{% trans "Todo o Interlegis" %}</a></li>
+          {% for g in gerentes %}
+            <li><a href="{% url "casas-carteira" %}?servidor={{ g.pk }}&snippet={{ snippet }}&s={{ seletor }}" data-target="resumo">{{g.nome_completo }}</a></li>
+          {% endfor %}
+        </ul>
+      </mark>
+    {% else %}
+      {% trans "Resumo da carteira" %}
+    {% endif %}
+    </h3>
+  </div>
+  <table class="table table-hover resumo">
+  {% for row in resumo %}
+    <tr>
+    {% if row.subtitle %}
+      <th colspan="7">{{ row.subtitle }}</th>
+    {% else %}
+      {% for col in row %}
+        <td{% if forloop.counter > 2 %} class="hidden-xs"{% endif %}>{{ col }}</td>
+      {% endfor %}
+    {% endif %}
+    </tr>
+  {% endfor %}
+  </table>
+</div>

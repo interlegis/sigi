@@ -1,0 +1,78 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block coltype %}colMS{% endblock %}
+{% block extrastyle %}{{ block.super }}
+<style type="text/css">
+.resumo tr:first-child td {
+  font-weight: bold;
+}
+.resumo tr td:first-child {
+  font-weight: bold;
+}
+.resumo th {
+	font-size: smaller;
+	padding: 0px !important;
+	text-align: center;
+	background-color: #f5f5f5;
+}
+
+</style>
+{% endblock %}
+
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+console.log("Cheguei a executar");
+$(document).ready(function(){
+  $("select[name='servidor']").on('change', function() {
+    var form = $(this.form);
+    form.submit();
+  });
+  listeners();
+  
+  function listeners() {
+    $(":checkbox[name|=servico]").on('change', filter_list);
+    $("#filter-panel a").on("click", geo_filter);
+  }
+  
+  function geo_filter( e ) {
+    e.preventDefault();
+    var url = $(this).attr('href');
+    $.get(url, function(data) {
+      $("#lista").html(data);
+      listeners();
+    });
+  }
+
+  function filter_list( e ) {
+    e.preventDefault();
+    var form_data = $("form[name='servico-form']").serialize();
+    $("#lista").load("{% url "casas-carteira" %}?snippet=lista&"+form_data, listeners);
+  }
+});
+</script>
+{% endblock %}
+
+{% block content_title %}<h1>{% blocktrans with nome_gerente=gerente.nome_completo|default:_("todo o Interlegis") %}Carteira de {{ nome_gerente }}</h1>{% endblocktrans %}{% endblock %}
+
+{% block content %}
+<form action="" method="get">
+  <label for="servidor">{% trans "Selecione um gerente de carteira" %}</label>
+  <select name="servidor" type="select">
+    <option value="_all">{% trans "todo o Interlegis" %}</option>
+    {% for g in gerentes %}
+      <option value="{{ g.pk|safe }}"{% if g.pk == gerente.pk %} selected{% endif %}>{{ g.nome_completo }}</option>
+    {% endfor %}
+  </select>
+</form>
+<div id="content-main" class="container-fluid">
+  <div class="row">
+    <div id="resumo" class="col-md-4">
+      {% include "casas/resumo_carteira_snippet.html" %}
+    </div>
+    <div id = "lista" class="col-md-8">
+      {% include "casas/lista_casas_carteira_snippet.html" %}
+    </div>
+  </div>
+</div>
+{% endblock %}

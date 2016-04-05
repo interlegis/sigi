@@ -3,7 +3,7 @@ import csv
 from functools import reduce
 
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _, ungettext
 from geraldo.generators import PDFGenerator
@@ -13,6 +13,11 @@ from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLa
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
 from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
 from sigi.apps.casas.forms import PortfolioForm
+from django.contrib.auth.decorators import login_required
+from sigi.apps.servicos.models import TipoServico
+from sigi.apps.servidores.models import Servidor
+from sigi.apps.ocorrencias.models import Ocorrencia
+from django.db.models import Count, Q
 
 
 # @param qs: queryset
@@ -79,7 +84,7 @@ def adicionar_casas_carrinho(request, queryset=None, id=None):
                     lista.append(id)
             request.session['carrinho_casas'] = lista
 
-
+@login_required
 def visualizar_carrinho(request):
 
     qs = carrinhoOrGet_for_qs(request)
@@ -111,13 +116,13 @@ def visualizar_carrinho(request):
         }
     )
 
-
+@login_required
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
     return HttpResponseRedirect('.')
 
-
+@login_required
 def deleta_itens_carrinho(request):
     if request.method == 'POST':
         ids_selecionados = request.POST.getlist('_selected_action')
@@ -133,7 +138,7 @@ def deleta_itens_carrinho(request):
 
     return HttpResponseRedirect('.')
 
-
+@login_required
 def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
@@ -162,7 +167,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
 
     return response
 
-
+@login_required
 def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
@@ -210,7 +215,7 @@ def carrinhoOrGet_for_parlamentar_qs(request):
             qs = get_for_qs(request.GET, qs)
     return qs
 
-
+@login_required
 def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
@@ -230,7 +235,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
 
     return response
 
-
+@login_required
 def report(request, id=None, tipo=None):
 
     if request.POST:
@@ -255,7 +260,7 @@ def report(request, id=None, tipo=None):
     report.generate_by(PDFGenerator, filename=response)
     return response
 
-
+@login_required
 def report_complete(request, id=None):
 
     if id:
@@ -293,6 +298,7 @@ def report_complete(request, id=None):
 
     return response
 
+@login_required
 def casas_sem_convenio_report(request):
     qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
 
@@ -306,7 +312,7 @@ def casas_sem_convenio_report(request):
     report.generate_by(PDFGenerator, filename=response)
     return response
 
-
+@login_required
 def export_csv(request):
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=casas.csv'
@@ -385,6 +391,7 @@ def export_csv(request):
 
     return response
 
+@login_required
 def portfolio(request):
     page = request.GET.get('page', 1)
     regiao = request.GET.get('regiao', None)
@@ -470,3 +477,178 @@ def portfolio(request):
         data['page_obj'] = pagina
         
     return render(request, 'casas/portfolio.html', data)
+
+
+def resumo_carteira(casas):
+    regioes = {r[0]: 0 for r in UnidadeFederativa.REGIAO_CHOICES}
+    regioes['total'] = 0
+    total = regioes.copy()
+    sem_produto = regioes.copy()
+    tipos_servico = TipoServico.objects.all()
+    dados = {ts.id: regioes.copy() for ts in tipos_servico}
+    
+    for r in casas.values('municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
+        regiao = r['municipio__uf__regiao']
+        quantidade = r['quantidade']
+        total[regiao] = quantidade
+        total['total'] += quantidade
+    
+    for r in casas.values('municipio__uf__regiao', 'servico__tipo_servico__id').annotate(quantidade=Count('id')).order_by():
+        regiao = r['municipio__uf__regiao']
+        servico = r['servico__tipo_servico__id']
+        quantidade = r['quantidade']
+        if servico is None:
+            sem_produto[regiao] = quantidade
+            sem_produto['total'] += quantidade
+        else:
+            dados[servico][regiao] = quantidade 
+            dados[servico]['total'] += quantidade
+    
+    dados_ocorrencia = {
+        'registradas': regioes.copy(),
+        'pendentes': regioes.copy(),
+        'sem': regioes.copy(),
+        'media': regioes.copy(),
+    }
+    
+    for r in casas.values('ocorrencia__status', 'municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
+        status = r['ocorrencia__status']
+        regiao = r['municipio__uf__regiao']
+        quantidade = r['quantidade']
+        if status is None:
+            dados_ocorrencia['sem'][regiao] += quantidade
+            dados_ocorrencia['sem']['total'] += quantidade
+        else:
+            dados_ocorrencia['registradas'][regiao] += quantidade
+            dados_ocorrencia['registradas']['total'] += quantidade
+            if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
+                dados_ocorrencia['pendentes'][regiao] += quantidade
+                dados_ocorrencia['pendentes']['total'] += quantidade
+            
+    for r in regioes:
+        if (total[r] - dados_ocorrencia['sem'][r]) == 0:
+            dados_ocorrencia['media'][r] = 0
+        else:
+            dados_ocorrencia['media'][r] = (1.0 * dados_ocorrencia['registradas'][r] / (total[r] - dados_ocorrencia['sem'][r]))
+         
+    resumo = [[_(u"Item"), _(u"Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
+    resumo.append([_(u"Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append({'subtitle': _(u"Uso dos produtos Interlegis")})
+    resumo.append([_(u"Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.extend([[ts.nome, dados[ts.id]['total']]+[dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
+    resumo.append({'subtitle': _(u"Registros no sistema de ocorrências")})
+    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']]+[dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']]+[dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']]+[dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'],2)]+[round(dados_ocorrencia['media'][r[0]],2) for r in UnidadeFederativa.REGIAO_CHOICES])
+
+    return resumo
+
+
+def casas_carteira(request, casas, context):
+    servicos = request.GET.getlist('servico')
+    sigla_regiao = request.GET.get('r', None)
+    sigla_uf = request.GET.get('uf', None)
+    meso_id = request.GET.get('meso', None)
+    micro_id = request.GET.get('micro', None)
+    servicos = request.GET.getlist('servico')
+    tipos_servico = context['servicos']
+    
+    context['qs_regiao'] = ''
+
+    if micro_id is not None:
+        context['micro'] = get_object_or_404(Microrregiao, pk=micro_id)
+        context['qs_regiao'] = 'micro=%s' % micro_id
+        context['meso'] = context['micro'].mesorregiao
+        context['uf'] = context['meso'].uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(municipio__microrregiao=context['micro'])
+    elif meso_id is not None:
+        context['meso'] = get_object_or_404(Mesorregiao, pk=meso_id)
+        context['qs_regiao'] = 'meso=%s' % meso_id
+        context['uf'] = context['meso'].uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(municipio__microrregiao__mesorregiao=context['meso'])
+    elif sigla_uf is not None:
+        context['uf'] = get_object_or_404(UnidadeFederativa, sigla=sigla_uf)
+        context['qs_regiao'] = 'uf=%s' % sigla_uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(municipio__uf=context['uf'])
+    elif sigla_regiao is not None:
+        context['regiao'] = sigla_regiao
+        context['qs_regiao'] = 'r=%s' % sigla_regiao
+        casas = casas.filter(municipio__uf__regiao=sigla_regiao)
+         
+    if 'regiao' in context:
+        context['ufs'] = UnidadeFederativa.objects.filter(regiao=context['regiao'])
+         
+    todos_servicos = ['_none_'] + [s.sigla for s in tipos_servico]
+    
+    if not servicos or set(servicos) == set(todos_servicos):
+        servicos = todos_servicos
+        context['qs_servico'] = ''
+    else:
+        if '_none_' in servicos:
+            casas = casas.filter(Q(servico=None) | Q(servico__tipo_servico__sigla__in=servicos))
+        else:
+            casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
+        casas = casas.distinct('nome', 'municipio__uf')
+        context['qs_servico'] = "&".join(['servico=%s' %s for s in servicos])
+ 
+    context['servicos_check'] = servicos
+     
+    casas = casas.select_related('municipio', 'municipio__uf', 'municipio__microrregiao', 'municipio__microrregiao__mesorregiao').prefetch_related('servico_set')
+
+    return casas, context
+
+@login_required
+def painel_relacionamento(request):
+    page = request.GET.get('page', 1)
+    snippet = request.GET.get('snippet', '')
+    seletor = request.GET.get('s', None)
+    servidor = request.GET.get('servidor', None)
+    
+    if servidor is None:
+        gerente = request.user.servidor
+    elif servidor == '_all':
+        gerente = None
+    else:
+        gerente = get_object_or_404(Servidor, pk=servidor)
+
+    if gerente is not None:
+        casas = gerente.casas_que_gerencia.all()
+
+    if gerente is None or not casas.exists():
+        casas = CasaLegislativa.objects.exclude(gerente_contas=None)
+        gerente = None
+        
+    tipos_servico = TipoServico.objects.all()
+    regioes = UnidadeFederativa.REGIAO_CHOICES
+
+    context = {
+        'seletor': seletor,
+        'snippet': snippet,
+        'regioes': regioes,
+        'servicos': tipos_servico,
+        'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
+        'gerente': gerente,
+        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '', 
+    }
+    
+    if snippet != 'lista':
+        context['resumo'] = resumo_carteira(casas)
+
+    if snippet != 'resumo':    
+        casas, context = casas_carteira(request, casas, context)
+        paginator = Paginator(casas, 30)
+        try:
+            pagina = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            pagina = paginator.page(paginator.num_pages)
+        context['page_obj'] = pagina
+
+    if snippet == 'lista':
+        return render(request, 'casas/lista_casas_carteira_snippet.html', context)
+    if snippet == 'resumo':
+        return render(request, 'casas/resumo_carteira_snippet.html', context)        
+    return render(request, 'casas/painel.html', context)

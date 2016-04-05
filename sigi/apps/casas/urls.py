@@ -33,6 +33,6 @@ urlpatterns = patterns(
     url(r'^casalegislativa/carrinho/$', 'visualizar_carrinho', name='visualizar-carrinho'),
     url(r'^casalegislativa/carrinho/excluir_carrinho/$', 'excluir_carrinho', name='excluir-carrinho'),  # Error
     url(r'^casalegislativa/carrinho/deleta_itens_carrinho$', 'deleta_itens_carrinho', name='deleta-itens-carrinho'),  # Error
-    url(r'^portfolio/$', 'portfolio', name='casas-portfolio'),  # Error
-
+    url(r'^portfolio/$', 'portfolio', name='casas-portfolio'),
+    url(r'^carteira/$', 'painel_relacionamento', name='casas-carteira'),
 )

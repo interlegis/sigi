@@ -1,0 +1,84 @@
+{% load i18n %}
+{% load smart_pagination %}
+
+<div class="panel panel-primary flex-col">
+  <div class="panel-heading"><h3 class="panel-title">{% trans "Suas casas" %}</h3></div>
+  <div class="panel-body">
+    <div id="filter-panel">
+      <form name="servico-form" action="" method="get">
+        <label>
+          <input name="servico" value="_none_" type="checkbox" autocomplete="off"{% if '_none_' in servicos_check %} checked{% endif %}> {% trans "Nenhum serviço" %}
+        </label>
+        {% for servico in servicos %}
+        <label>
+          <input name="servico" value="{{ servico.sigla }}" type="checkbox" autocomplete="off"{% if servico.sigla in servicos_check %} checked{% endif %}> {{ servico.nome }}
+        </label>
+        {% endfor %}
+        {% if gerente %}<input name="servidor" type="hidden" value="{{ gerente.pk|safe }}"/>{% endif %}
+        {% if micro %}<input name="micro" type="hidden" value="{{ micro.pk|safe }}" />
+        {% elif meso %}<input name="meso" type="hidden" value="{{ meso.pk|safe }}" />
+        {% elif uf %}<input name="uf" type="hidden" value="{{ uf.sigla }}" />
+        {% elif regiao %}<input name="r" type="hidden" value="{{ regiao }}" />
+        {% endif %}
+      </form>
+      <ul class="nav nav-tabs" role="tablist">
+        <li role="presentation"{% if not regiao %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}">{% trans "Todo o país" %}</a></li>
+        {% for k, l in regioes %}
+          <li role="presentation" {% if regiao == k %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&r={{ k }}">{{ l }}</a></li>
+        {% endfor %}
+      </ul>
+      
+      <ul class="nav nav-pills">
+      {% for u in ufs %}
+        <li role="presentation" {% if u.pk == uf.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&uf={{ u.sigla }}" autocomplete="off">{{ u.nome }}</a></li>
+      {% endfor %}
+      </ul>
+    
+      <ul class="nav nav-pills">
+      {% for m in uf.mesorregiao_set.all %}
+        <li role="presentation" {% if m.pk == meso.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&meso={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
+      {% endfor %}
+      </ul>
+      
+      <ul class="nav nav-pills">
+      {% for m in meso.microrregiao_set.all %}
+        <li role="presentation" {% if m.pk == micro.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&micro={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
+      {% endfor %}
+      </ul>
+    </div>
+    
+    {% if page_obj %}
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <tr>
+            <th>{% trans "Casa legislativa" %}</th>
+            <th>{% trans "Região" %}</th>
+            <th>{% trans "Estado" %}</th>
+            <th>{% trans "Mesorregião" %}</th>
+            <th>{% trans "Microrregião" %}</th>
+            <th>{% trans "Serviços" %}</th>
+          </tr>
+          {% for casa in page_obj.object_list %}
+            <tr>
+              <td><a href="{% url 'admin:casas_casalegislativa_change' casa.pk %}">{{ casa.nome }}</a></td>
+              <td>{{ casa.municipio.uf.get_regiao_display }}</td>
+              <td>{{ casa.municipio.uf }}</td>
+              <td>{{ casa.municipio.microrregiao.mesorregiao }}</td>
+              <td>{{ casa.municipio.microrregiao.nome }}</td>
+              <td>{% for s in casa.servico_set.all %}
+                    {% if s.data_desativacao == None %}
+                      {{ s.tipo_servico }}{% if not forloop.last %}, {% endif %}
+                    {% endif %}
+                  {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <p>{% blocktrans with count=page_obj.paginator.count %}{{ count }} casas encontradas.{% endblocktrans %}</p>
+      {% if page_obj.paginator.num_pages > 1 %}
+        {% smart_paginator page_obj=page_obj querystring=qs_servidor|add:'&'|add:qs_servico|add:'&'|add:qs_regiao %}
+      {% endif %}
+    {% endif %}
+  </div> <!-- panel-body -->
+</div>

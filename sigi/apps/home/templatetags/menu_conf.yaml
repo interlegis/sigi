@@ -19,6 +19,8 @@ main_menu:
       url: casas/casalegislativa/?tipo__id__exact=2
     - title: Portfólio de relacionamento
       url: casas/portfolio/
+    - title: Carteira de relacionamentos
+      url: casas/carteira
     - title: Tipos de Casas
       url: casas/tipocasalegislativa/
   - title: Legislaturas
