@@ -124,18 +124,6 @@ div#footer a {
     width: 18px;
 }
 
-.titlemapbox {
-    display: inline-block;
-    margin-bottom: 0.6em;
-    width: 100%;
-}
-
-.mapbox {
-	text-align: center;
-	display: inline-block;
-	float: right;
-}
-
 #branding h1 {
 	float: left;
 }

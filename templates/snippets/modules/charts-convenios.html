@@ -2,94 +2,75 @@
 {% load i18n %}
 
 <div class="row row-flex row-flex-wrap">
+  <div id="resumoseit" class="col-md-6" data-source="{% url "home_resumoseit" %}"></div>
   <div class="col-md-6">
     <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{% trans 'Resumo de informações' %}</div>
-      <div class="panel-body table-responsive">
-        <dl class="dl-horizontal">
-          <dt class="pilllabel">{% trans 'Resumo por região' %}:</dt>
-          <dd>
-            <ul class="nav nav-pills">
-              <li><a href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a></li>
-              <li><a href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a></li>
-              <li><a href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a></li>
-              <li><a href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a></li>
-              <li><a href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a></li>
-            </ul>
-          </dd>
-        </dl>
-        <table class="table table-condensed numeros">
-          <tr>
-          {% for item in tabela_resumo_camara.cabecalho_topo %}
-            <th>{{item}}</th>
-          {% endfor %}
-          </tr>
-          {% for cabecalho,lista in tabela_resumo_camara.lista_zip %}
-          <tr>
-            <th>{{cabecalho}}</th>
-            {% for item in lista %}
-              <td>{{item}}</td>
-            {% endfor %}
-          </tr>
-          {% endfor %}
-        </table>
-      </div>
-      <div class="panel-footer">
-        <dl class="dl-horizontal">
-          <dt>{% trans 'Câmaras sem processo' %}</dt>
-          <dd>{{tabela_resumo_camara.camaras_sem_processo}}</dd>
-        </dl>
-        <dl class="dl-horizontal">
-          <dt>{% trans 'Total de câmaras' %}</dt>
-          <dd>{{tabela_resumo_camara.total_camaras}}</dd>
-        </dl>
-      </div>
-    </div>
-  </div>
-
-  <div class="col-md-6">
-    <div class="panel panel-primary flex-col">
-      <div class="panel-heading">{% trans 'Serviços hospedados no Interlegis (SEIT)' %}</div>
+      <div class="panel-heading">{% trans 'Sazonalidade da hospedagem de serviços' %}</div>
       <div class="panel-body">
-        <div class="titlemapbox">
-          <div class="mapbox"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /><br/>{% trans 'Ver mapa' %}</a></div>
+        <div class="chartcontainer">
+          <canvas id="chart-area-evolucao" data-source="{% url "home_chartseit" %}" data-legend-id="area-evolucao-legend" data-prevlink-id="area-evolucao-previlink" data-nextlink-id="area-evolucao-nextlink"></canvas>
+          <div id="area-evolucao-legend"></div>
+          <div>
+            <a id="area-evolucao-previlink" href="#" aria-label="{% trans "Retroceder um mês" %}" data-target="chart-area-evolucao"> 
+              <span class="glyphicon glyphicon-chevron-left pull-left" aria-hidden="true"></span>
+            </a>
+            <a id="area-evolucao-nextlink" href="#" aria-label="{% trans "Avançar um mês" %}" data-target="chart-area-evolucao">
+              <span class="glyphicon glyphicon-chevron-right pull-right" aria-hidden="true"></span>
+            </a>
+          </div>
         </div>
-        <table class="table table-condensed numeros servicos">
-        {% for servico in tabela_resumo_seit %}
-          <tr>
-          {% if forloop.first %}
-            <th>{{ servico.nome }}</th>
-            <th>{{ servico.total }}</th>
-            <th>{{ servico.novos_mes_anterior }}</th>
-            <th>{{ servico.novos_mes_atual }}</th>
-          {% else %}
-            <th class="dropdown">
-              <a id="ddm-{{ servico.nome }}" data-toggle="dropdown" href="#">{{ servico.nome }}</a>
-              <table class="table table-condensed numeros servicos dropdown-menu" role="menu" aria-labelledby="ddm-{{ servico.nome }}">
-              {% for mes in servico.novos_por_mes %}
-                <tr><th>{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
-              {% endfor %}
-              </table>
-            </th>
-            <td>{{ servico.total }}</td>
-            <td>{{ servico.novos_mes_anterior }}</td>
-            <td>{{ servico.novos_mes_atual }}</td>
-          {% endif %}
-          </tr>
-        {% endfor %}
-        </table>
       </div>
     </div>
   </div>
 </div>
 
 <div class="row row-flex row-flex-wrap">
+  <div id="resumo" class="col-md-6" data-source="{% url "casas-carteira" %}?snippet=resumo&s=sim"></div>
+  <div class="col-md-6">
+    <div class="panel panel-primary flex-col">
+      <div class="panel-heading">{% trans 'Performance da gerência de carteiras' %}</div>
+      <div class="panel-body">
+        <ul class="nav nav-pills" role="tablist">
+          <li role="presentation"><a href="{% url "home_chartperformance" %}" data-target="chart-performance">{% trans "Todo o Interlegis" %}</a></li>
+          {% for g in gerentes %}
+            <li role="presentation"><a href="{% url "home_chartperformance" %}?servidor={{ g.pk }}" data-target="chart-performance">{{ g.user.first_name }}</a></li>
+          {% endfor %} 
+        </ul>
+        <div class="chartcontainer">
+          <canvas id="chart-performance" data-source="{% url "home_chartperformance" %}" data-legend-id="chart-performance-all-legend"></canvas>
+          <div id="chart-performance-all-legend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row row-flex row-flex-wrap">
+  <div class="col-md-6" data-source="{% url "home_resumoconvenios" %}"></div>
+  <div class="col-md-6">
+    <div class="panel panel-primary flex-col">
+      <div class="panel-heading">{% trans 'Distribuição de Casas por Gerente' %}</div>
+      <div class="panel-body">
+        <div class="chartcontainer">
+          <canvas id="chart-carteira" data-source="{% url "home_chartcarteira" %}" data-legend-id="chart-carteira-legend"></canvas>
+          <div id="chart-carteira-legend"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% comment %}
+<div class="row row-flex row-flex-wrap">
   <div class="col-md-6">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Convênios assinados por projeto' %}</div>
       <div class="panel-body">
-        <div id="canvas-holder-1">
-            <canvas id="chart-area-1" width="150" height="150" />
+        <div class="chartcontainer">
+          <div>
+          <canvas id="chart-area-convenios" width="400" height="400" data-source="{% url "home_chartconvenios" %}" data-legend-id="area-convenios-legend"></canvas>
+          </div>
+          <div id="area-convenios-legend"></div>
         </div>
       </div>
     </div>
@@ -99,13 +80,13 @@
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Processos de convênios por projeto' %}</div>
       <div class="panel-body">
-        <div id="canvas-holder-2">
-            <canvas id="chart-area-2" width="150" height="150" />
+        <div class="chartcontainer">
+            <canvas id="chart-area-processos" width="150" height="150" data-source="{% url "home_chartconvenios" %}?q=assinados" data-legend-id="area-processos-legend"></canvas>
+            <div id="area-processos-legend"></div>
         </div>
       </div>
     </div>
   </div>
-  
 </div>
-
+{% endcomment %}
 

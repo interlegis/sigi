@@ -1,0 +1,98 @@
+{% load static from staticfiles %}
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>{{ titulo }}</title>
+  <style type="text/css">
+    h1 {
+      font-size: 2em;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.7em;
+    }
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 0px;
+    }
+    body {
+      font-family: "Helvetica, Arial, sans-serif";
+      font-size: 1.3em;
+      line-height: 1em;
+    }
+    #header {
+	  text-align: center;
+    }
+    th {
+      text-align: left;
+      padding: 2px 5px 2px 2px;
+      background-color: #f5f5f5;
+      border-left: 2px solid #ffffff;
+    }
+    th, td {
+      padding: 2px 2px 1px 2px;
+      vertical-align: bottom;
+    }
+    td {
+      border-bottom: 1px solid #ddd;
+    }
+    
+
+    @page {
+      size: {{ pagesize|default:"a4" }};
+      margin: {{ margin|default:"4cm 1cm 1cm 2cm" }};
+      font-family: "Helvetica, Arial, sans-serif";
+      font-size: 2em;
+      @frame header {
+        -pdf-frame-content: header;
+        top: 1cm;
+      }
+      @frame footer {
+        -pdf-frame-content: footer;
+        bottom: 0cm;
+        margin-left: 9cm;
+        margin-right: 9cm;
+        height: 1cm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
+    <p><strong>{% trans 'PROGRAMA INTERLEGIS – SIGI' %}</strong></p>
+    <p><strong>{{ titulo }}</strong></p>
+  </div>
+
+  <table repeat="1">
+    <tr>
+      <th>{% trans "Nome da Casa" %}</th>
+      <th width=30>{% trans "UF" %}</th>
+      <th>{% trans "Gerente de contas" %}</th>
+      <th>{% trans "Serviços" %}</th>
+    </tr>
+  {% for casa in casas %}
+    <tr>
+      <td>{{ casa.nome }}</td>
+      <td>{{ casa.municipio.uf.sigla }}</td>
+      <td>{{ casa.gerente_contas.nome_completo }}</td>
+      <td>
+      {% for s in casa.servico_set.all %}
+        {% if s.data_desativacao == None %}
+          {{ s.tipo_servico.nome }}{% if not forloop.last %}, {% endif %}
+        {% endif %}
+      {% endfor %}
+      </td>
+    </tr>
+  {% endfor %}
+  </table>
+
+        <div id="footer">
+            {%block page_foot%}
+            {% trans 'Página' %} <pdf:pagenumber>
+            {%endblock%}
+        </div>
+    </body>
+</html>

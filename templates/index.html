@@ -12,55 +12,14 @@
     <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}" ></script>
     <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}" ></script>
     <script type="text/javascript" src="{% static 'js/Chart.min.js' %}" ></script>
-    <script type="text/javascript">
-      $(document).ready(function () {        
-        var pieData = {
-        {% for num, dados in dados_graficos_convenio_projeto %}
-          {{ num }}: [
-            {% for label, value, color, highlight in dados %}
-              {
-               label: "{{ label }}",
-               value: {{ value }},
-               color:"{{ color }}",
-               highlight: "{{ highlight }}"
-              },
-            {% endfor %}
-          ],
-        {% endfor %}
-        };
-        $.each(pieData, function(num, data) {
-          var canvas = $("#canvas-holder-"+num);
-          var ctx = $("#chart-area-"+num).get(0).getContext("2d");
-          var myPie = new Chart(ctx).Pie(data);
-          canvas.append('<div>'+myPie.generateLegend()+'</div>');
-        });
-      });
-    </script>
-
-    <style type="text/css">
-
-      .numeros td,
-      .numeros th {
-        text-align: right;
-      }
-      .numeros tr :first-child {
-        text-align: left;
-      }
-      .servicos tr :first-child {
-        width: 40%;
-      }
-      #dashboard-mapa a img {
-        width: 80%;
-      }
-      .panel-footer dl {
-        margin-bottom: 5px;
-      }
-
-    </style>
+    <script type="text/javascript" src="{% static 'js/dashboard.js' %}"></script>
 
 {% endblock %}
 
-{% block content_title %}<h1>{% trans 'Dashboard' %}</h1>{% endblock %}
+{% block content_title %}
+<h1 class="pull-left">{% trans 'Dashboard' %}</h1>
+<div class="pull-right"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /> {% trans 'Mapa de atuação do Interlegis' %}</a></div>
+{% endblock %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
 
