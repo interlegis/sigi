@@ -1,17 +1,22 @@
 # -*- coding: utf-8 -*-
+
 from datetime import date
 from django.db import models
-
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from django.utils.translation import ugettext as _
 
 
 class TipoServico(models.Model):
+    MODO_CHOICES = (
+        ('H', _(u"Hospedagem")),
+        ('R', _(u"Registro"))
+    )
     email_help = u'''Use:<br/>
                         {url} para incluir a URL do serviço,<br/>
                         {senha} para incluir a senha inicial do serviço'''
     nome = models.CharField(_(u'Nome'), max_length=60)
     sigla = models.CharField(_(u'Sigla'), max_length='12')
+    modo = models.CharField(_(u'Modo de prestação do serviço'), max_length=1, choices=MODO_CHOICES)
     string_pesquisa = models.CharField(_(u'String de pesquisa'), blank=True, max_length=200,
                                        help_text=_(u'Sufixo para pesquisa RSS para averiguar a data da última atualização do serviço'))
     template_email_ativa = models.TextField(_(u'Template de email de ativação'), help_text=email_help, blank=True)
@@ -214,3 +219,4 @@ class RegistroServico(models.Model):
 
     class Meta:
         verbose_name_plural = _(u'Registro de serviços')
+                    
