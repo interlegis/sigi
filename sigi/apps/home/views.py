@@ -35,10 +35,11 @@ from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
 from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
-from django.http.response import JsonResponse
+from django.http.response import JsonResponse, HttpResponse
 from django.core.urlresolvers import reverse
 from django.db.models import Q, Count
 from sigi.shortcuts import render_to_pdf
+import csv
 
 @never_cache
 @login_required
@@ -159,6 +160,7 @@ def chart_performance(request):
 @login_required
 def report_sem_convenio(request):
     modo = request.GET.get('modo', None)
+    format = request.GET.get('f', 'pdf')
 
     sc = sem_convenio()
 
@@ -172,10 +174,36 @@ def report_sem_convenio(request):
         casas = sc['total']
         titulo = _(u"Casas sem convenio que utilizam algum serviço de registro e/ou hospedagem")
         
-    context = {'casas': casas, 'titulo': titulo}
-    print context
-#    return render(request, 'home/sem_convenio.html', context)
-    return render_to_pdf('home/sem_convenio.html', context)
+    if format == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename=casas.csv'
+        writer = csv.writer(response)
+        writer.writerow([titulo.encode('utf8')])
+        writer.writerow([u''])
+        writer.writerow([u'casa', u'uf', u'gerente', u'serviços'.encode('utf8')])
+        for casa in casas:
+            writer.writerow([
+                casa.nome.encode('utf8'),
+                casa.municipio.uf.sigla.encode('utf8'),
+                casa.gerente_contas.nome_completo.encode('utf8'),
+                (u', '.join(casa.servico_set.filter(data_desativacao__isnull=True).values_list('tipo_servico__nome', flat=True))).encode('utf8'),
+            ])
+        return response
+    elif format == 'json':
+        data = {
+            'titulo': titulo,
+            'casas': [
+                {'nome': casa.nome,
+                 'uf': casa.municipio.uf.sigla,
+                 'gerente': casa.gerente_contas.nome_completo,
+                 'servicos': list(casa.servico_set.filter(data_desativacao__isnull=True).values_list('tipo_servico__nome', flat=True))}
+                for casa in casas
+            ]
+        }
+        return JsonResponse(data, safe=False)
+    else:
+        context = {'casas': casas, 'titulo': titulo}
+        return render_to_pdf('home/sem_convenio.html', context)
     
          
 def busca_informacoes_camara():
