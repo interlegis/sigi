@@ -18,6 +18,7 @@ from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.ocorrencias.models import Ocorrencia
 from django.db.models import Count, Q
+from django.http.response import JsonResponse
 
 
 # @param qs: queryset
@@ -607,6 +608,7 @@ def painel_relacionamento(request):
     snippet = request.GET.get('snippet', '')
     seletor = request.GET.get('s', None)
     servidor = request.GET.get('servidor', None)
+    format = request.GET.get('f', 'html')
     
     if servidor is None:
         gerente = request.user.servidor
@@ -648,7 +650,32 @@ def painel_relacionamento(request):
         context['page_obj'] = pagina
 
     if snippet == 'lista':
+        if format == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=casas.csv'
+            writer = csv.writer(response)
+            writer.writerow([
+                _(u"Casa legislativa").encode('utf8'),
+                _(u"Região").encode('utf8'),
+                _(u"Estado").encode('utf8'),
+                _(u"Mesorregião").encode('utf8'),
+                _(u"Microrregião").encode('utf8'),
+                _(u"Gerente de relacionamento").encode('utf8'),
+                _(u"Serviços").encode('utf8'),
+            ])
+            for c in casas:
+                writer.writerow([
+                    c.nome.encode('utf8'),
+                    c.municipio.uf.get_regiao_display().encode('utf8'),
+                    c.municipio.uf.sigla.encode('utf8'),
+                    c.municipio.microrregiao.mesorregiao.nome.encode('utf8'),
+                    c.municipio.microrregiao.nome.encode('utf8'),
+                    c.gerente_contas.nome_completo.encode('utf8'),
+                    (u", ".join([s.tipo_servico.nome for s in c.servico_set.filter(data_desativacao__isnull=True)])).encode('utf8'),
+                ])
+            return response
         return render(request, 'casas/lista_casas_carteira_snippet.html', context)
     if snippet == 'resumo':
-        return render(request, 'casas/resumo_carteira_snippet.html', context)        
+        return render(request, 'casas/resumo_carteira_snippet.html', context)
+    
     return render(request, 'casas/painel.html', context)
