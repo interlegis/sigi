@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import admin as generic
 from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Endereco, Telefone

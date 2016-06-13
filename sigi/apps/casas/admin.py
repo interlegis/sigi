@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.core.urlresolvers import reverse
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.admin import GenericTabularInline
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
@@ -24,7 +24,7 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
-class TelefonesInline(generic.GenericTabularInline):
+class TelefonesInline(GenericTabularInline):
     model = Telefone
     readonly_fields = ('ult_alteracao',)
     extra = 1
