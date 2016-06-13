@@ -198,7 +198,7 @@ class Escolha(BaseChoice):
     """
     schema = models.ForeignKey(Pergunta,
                                related_name='choices', verbose_name=_(u'pergunta'))
-    schema_to_open = models.ForeignKey(Pergunta, related_name='',
+    schema_to_open = models.ForeignKey(Pergunta, related_name='schema_to_open_related',
                                        verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
@@ -242,7 +242,7 @@ class Anexo(models.Model):
     """
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_(u'descrição'), max_length='70')
+    descricao = models.CharField(_(u'descrição'), max_length=70)
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'),
                                     default=datetime.now)
 

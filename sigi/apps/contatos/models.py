@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
@@ -176,7 +176,7 @@ class Telefone(models.Model):
     content_type = models.ForeignKey(ContentType)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = fields.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         ordering = ('numero',)
@@ -196,7 +196,7 @@ class Contato(models.Model):
     nota = models.CharField(max_length=70, blank=True)
 
     email = models.EmailField(_(u'e-mail'), blank=True)
-    telefones = generic.GenericRelation(Telefone)
+    telefones = fields.GenericRelation(Telefone)
 
     municipio = models.ForeignKey(
         Municipio,
@@ -209,7 +209,7 @@ class Contato(models.Model):
     content_type = models.ForeignKey(ContentType)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = fields.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         ordering = ('nome',)
@@ -301,7 +301,7 @@ class Endereco(models.Model):
     content_type = models.ForeignKey(ContentType)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = fields.GenericForeignKey('content_type', 'object_id')
 
     class Meta:
         ordering = ('logradouro', 'numero')

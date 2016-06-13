@@ -2,7 +2,7 @@
 from copy import deepcopy
 
 from django import forms
-from django.contrib.contenttypes.generic import generic_inlineformset_factory
+from django.contrib.contenttypes.forms import generic_inlineformset_factory
 from django.forms import (BooleanField, CharField, DateField,
                           FloatField, ModelChoiceField, Textarea,
                           ModelMultipleChoiceField)

@@ -68,7 +68,7 @@ class AnexoForm(ModelForm):
         widgets = {'ocorrencia': HiddenInput()}
 
 class ComentarioForm(ModelForm):
-    encaminhar_setor = ModelChoiceField(queryset=Servico.objects.all(), cache_choices=True)
+    encaminhar_setor = ModelChoiceField(queryset=Servico.objects.all())
         
     class Meta:
         model = Comentario
