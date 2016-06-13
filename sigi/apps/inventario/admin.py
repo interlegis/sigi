@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.admin import GenericTabularInline
 
 from sigi.apps.contatos.models import Contato, Telefone
 from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
@@ -9,13 +9,13 @@ from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
-class ContatosInline(generic.GenericTabularInline):
+class ContatosInline(GenericTabularInline):
     model = Contato
     extra = 2
     raw_id_fields = ('municipio',)
 
 
-class TelefonesInline(generic.GenericTabularInline):
+class TelefonesInline(GenericTabularInline):
     model = Telefone
     extra = 2
 

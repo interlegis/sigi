@@ -12,7 +12,7 @@ from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from django.utils.datastructures import SortedDict
+from collections import OrderedDict
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
@@ -36,8 +36,8 @@ def dashboard(request):
         raise PermissionDenied
 
     desembolsos_max = 0
-    matriz = SortedDict()
-    dados = SortedDict()
+    matriz = OrderedDict()
+    dados = OrderedDict()
     projetos = Projeto.objects.all()
     meses = Desembolso.objects.dates('data', 'month', 'DESC')[:6]
     colors = ['ffff00', 'cc7900', 'ff0000', '92d050', '006600', '0097cc', '002776', 'ae78d6', 'ff00ff', '430080',
@@ -137,9 +137,9 @@ def map_sum(request):
     casas = filtrar_casas(**param)
 
     # Montar registros de totalização
-    tot_servicos = SortedDict()
-    tot_projetos = SortedDict()
-    tot_diagnosticos = SortedDict()
+    tot_servicos = OrderedDict()
+    tot_projetos = OrderedDict()
+    tot_diagnosticos = OrderedDict()
 
     for ts in TipoServico.objects.all():
         tot_servicos[ts.sigla] = 0

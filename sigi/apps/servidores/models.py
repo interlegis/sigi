@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
@@ -105,8 +105,8 @@ class Servidor(models.Model):
 
     # Informações de contato
     email_pessoal = models.EmailField('email pessoal', blank=True, null=True)
-    endereco = generic.GenericRelation('contatos.Endereco')
-    telefones = generic.GenericRelation('contatos.Telefone')
+    endereco = fields.GenericRelation('contatos.Endereco')
+    telefones = fields.GenericRelation('contatos.Telefone')
     ramal = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:

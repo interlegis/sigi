@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.admin import GenericTabularInline 
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.html import escape, escapejs
 from django.utils.translation import ugettext as _
@@ -20,7 +20,7 @@ class MandatosInline(admin.TabularInline):
     raw_id_fields = ('legislatura', 'partido')
 
 
-class TelefonesInline(generic.GenericTabularInline):
+class TelefonesInline(GenericTabularInline):
     model = Telefone
     extra = 2
 
