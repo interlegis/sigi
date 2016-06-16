@@ -1,15 +1,10 @@
 # coding: utf-8
-from django.conf.urls import patterns, url
-from django.views.generic.base import TemplateView
+from django.conf.urls import url
+from sigi.apps.servicos import views
 
-from .views import MapaView
-
-
-urlpatterns = patterns(
-    'sigi.apps.servicos.views',
-
-    url(r'^manifesta/$', 'casa_manifesta_view', name="casa-manifesta-view"),
-    url(r'^munatenjson/(?P<servico>\w+)/$', 'municipios_atendidos', name="municipios-atendidos"),
-    url(r'^mapa/(?P<servico>\w+)/$', MapaView.as_view(), name="servicos-mapa"),
-    # url(r'^listacasas/(?P<sigla>\w+)', 'casas_usam_servico', name="casas-usam-servico"),
-)
+urlpatterns = [
+    url(r'^manifesta/$', views.casa_manifesta_view, name="casa-manifesta-view"),
+    url(r'^munatenjson/(?P<servico>\w+)/$', views.municipios_atendidos, name="municipios-atendidos"),
+    url(r'^mapa/(?P<servico>\w+)/$', views.MapaView.as_view(), name="servicos-mapa"),
+    # url(r'^listacasas/(?P<sigla>\w+)', views.casas_usam_servico, name="casas-usam-servico"),
+]
