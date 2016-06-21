@@ -1,0 +1,13 @@
+{% extends "crud/form.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% block base_content %}
+  {% if validlink %}
+    <p>{% trans "Por favor, insira duas vezes para verificarmos se está correta." %}</p>
+      {% crispy form %}
+  {% else %}
+    <h1>{% trans 'A recuperação de senha não obteve sucesso' %}</h1>
+    <p>{% trans "O link é inválido, possivelmente este link já foi utilizado. Por favor, refaça o pedido de recuperação de senha." %}</p>
+  {% endif %}
+
+{% endblock %}

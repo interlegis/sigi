@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+{% load staticfiles i18n sass_tags%}
+<html class="no-js" lang="pt-br">
+
+  <head>
+    <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Atendimento</title>
+    {% block head_content %}
+      <link rel="icon" href="{% static 'img/favicon.ico' %}"  type="image/png" >
+      <!-- Bootstrap -->
+      <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
+      <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+      <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
+      <link href="{% sass_src 'bootstrap-sass/assets/stylesheets/_bootstrap.scss' %}" rel="stylesheet">
+    {% endblock head_content %}
+  </head>
+
+  {% block navigation %}
+    <div class="navbar navbar-inverse navbar-fixed-top">
+     <div class="navbar-inner">
+         <div class="container">
+             <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                 <span class="icon-bar"></span>
+                 <span class="icon-bar"></span>
+                 <span class="icon-bar"></span>
+             </button>
+
+             <div class="nav-collapse collapse">
+                 <ul class="nav pull-right">
+                   {% if user.is_authenticated %}
+                    <li class="dropdown">
+                      <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
+                      <ul class="dropdown-menu">
+                        <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:usuario_detail' usuario_pk %}">Perfil</a></li>
+                        <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:mudar_senha' usuario_pk %}">Mudar Senha</a></li>
+                      </ul>
+                    </li>
+                    <li><a href="{% url 'usuarios:logout' %}">Sair</a></li>
+                   {% else %}
+                    <li><a href="{% url 'usuarios:usuario_create' %}">Cadastre-se</a></li>
+                    <li><a href="{% url 'usuarios:login' %}">Login</a></li>
+                   {% endif %}
+                 </ul>
+                 <ul class="nav">
+                   {% if user.is_authenticated %}
+                    <li><a href="{% url 'solicitacoes:solicitacao_list' %}">Solicitação</a></li>
+                    <li><a href="{% url 'solicitacoes:sistema_list' %}">Sistema</a></li>
+                    <li><a href="{% url 'usuarios:usuario_list' %}">Habilitar</a></li>
+                   {% endif %}
+                   <li><a href="">Contato</a></li>
+                 </ul>
+             </div>
+         </div>
+     </div>
+   </div>
+  {% endblock navigation %}
+
+  <body>
+    {% block body_block %}
+      {# Header #}
+      {% block main_header %}
+        <div class="jumbotron">
+          <header class="masthead">
+            <div class="container">
+              <div class="navbar-header">
+                <a href="/">
+                  <img align="left" height="120" width="120" src="{% static 'img/logo.png' %}" alt="Logo" class="img-responsive visible-lg-inline-block vcenter" >
+                  <span class="vcenter" style="display:inline-block; color:black;" align="right">
+                    <h2>Interlegis</h4><small><p>Sistema de Solicitação de Serviços</p></small>
+                  </span>
+                </a>
+              </div>
+            </div>
+          </header>
+        </div>
+      {% endblock main_header %}
+
+      {# Main content #}
+      {% block content_container %}
+        <main id="content" class="content page__row">
+          <div class="container">
+            {# Feedback messages #}
+            {% for message in messages %}
+              <div class="alert alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %} alert-dismissible fade in" role="alert">
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                  <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                </button>
+                {{ message|safe }}
+              </div>
+            {% endfor %}
+
+            {# Content header #}
+            {% block base_header %}
+              <div class="clearfix">
+                <div class="clearfix">
+                  {% block title %}
+                    <h1 class="page-header">
+                      {% if title %}
+                        {{ title|safe|linebreaksbr }}
+                      {% elif object %}
+                        {{ object|safe|linebreaksbr }}
+                      {% endif %}
+                    </h1>
+                  {% endblock %}
+                </div>
+              </div>
+            {% endblock base_header %}
+
+            {# Content per se #}
+            {% block base_content %}{% endblock %}
+          </div>
+        </main>
+      {% endblock content_container %}
+    {% endblock %}
+    {% block foot_js %}
+      <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+      <script src="{% static 'jquery-ui/jquery-ui.min.js' %}"></script>
+      <script src="{% static 'jquery-mask-plugin/dist/jquery.mask.js' %}"></script>
+
+      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'js/app.js' %}"></script>
+      {% block extra_js %}{% endblock extra_js %}
+    {% endblock foot_js %}
+  </body>
+
+  {% block footer %}
+    <hr>
+    <footer id="footer" class="footer page__row">
+      <div class="container">
+        <div class="row">
+          <div style="float:left">
+            <a class="footer__logo" href="#">
+              <img src="{% static 'img/logo_interlegis.jpg' %}" alt="{% trans 'Logo do Interlegis' %} ">
+            </a>
+            <p>
+              <small>
+                Desenvolvido pelo <a href="">Interlegis</a> em software livre e aberto.
+              </small>
+            </p>
+          </div>
+          <div style="float:right">
+            <a class="footer__logo" href="">
+              <img src="{% static 'img/logo_cc.jpg' %}" alt="{% trans 'Logo do Creative Commons BY SA' %}">
+            </a>
+            <p>
+              <small>
+                Conteúdo e dados sob licença <a href="#">Creative Commons</a> 4.0 <a href="#">Atribuir Fonte - Compartilhar Igual</a>
+              </small>
+            </p>
+          </div>
+        </div>
+      </div>
+    </footer>
+  {% endblock footer %}
+</html>

@@ -26,6 +26,11 @@ urlpatterns = patterns(
     url(r'^eventos/', include('sigi.apps.eventos.urls')),
     url(r'^whois/', include('sigi.apps.whois.urls')),
     url(r'^pentaho/(?P<path>(plugin|api)/.*)$', pentaho_proxy),
+
+    url(r'', include('sigi.apps.usuarios.urls')),
+    url(r'', include('sigi.apps.solicitacoes.urls')),
+    url(r'^captcha/', include('captcha.urls')),
+
     url(r'^', include('sigi.apps.home.urls')),
     url(r'^', include(admin.site.urls)),
 

@@ -1,0 +1,14 @@
+{% load i18n %}{% autoescape off %}
+{% blocktrans %}Você está recebendo este e-mail porque fez a solicitação de recuperação de senha no seguinte website <b>{{ site_name }}</b>.</br>{% endblocktrans %}
+
+{% trans "Clique no link abaixo para redefinir sua senha:" %}</br>
+{% block reset_link %}
+<a href="{{ protocol }}://{{ domain }}{% url 'usuarios:recuperar_senha_confirma' uidb64=uid token=token %}"> Clique aqui</a></br>
+{% endblock %}
+{% trans "Seu nome de usuário, caso você tenha esquecido:" %} <b>{{ user.get_username }}</b></br>
+
+{% trans "Obrigado por acessar nosso site!" %}</br>
+
+{% blocktrans %}Atenciosamente, equipe <b>Atendimento<b> {% endblocktrans %}</br>
+
+{% endautoescape %}

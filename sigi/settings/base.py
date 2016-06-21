@@ -30,9 +30,10 @@ MANAGERS = ADMINS
 
 SITE_ID = 1
 
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
+TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + [
     'django.core.context_processors.request',
-)
+]
+
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
@@ -70,6 +71,10 @@ INSTALLED_APPS = (
     'sigi.apps.eventos',
     'sigi.apps.whois',
 
+    'sigi.apps.crud',
+    'sigi.apps.usuarios',
+    'sigi.apps.solicitacoes',
+
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
     'sigi.apps.saberes',
@@ -82,13 +87,21 @@ INSTALLED_APPS = (
     'image_cropping',
     'rest_framework',
 
+    'captcha',
+    'crispy_forms',
+    'djangobower',
+    'floppyforms',
+    'sass_processor',
+
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -180,6 +193,40 @@ LOGGING = {
         },
     },
 }
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")
+STATICFILES_DIRS = (os.path.join(BASE_DIR, ("static")),)
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+    'sass_processor.finders.CssFinder',
+)
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = False
+
+BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'bower')
+BOWER_INSTALLED_APPS = (
+    'bootstrap-sass#3.3.6',
+    'components-font-awesome#4.5.0',
+    'tinymce#4.3.3',
+    'jquery-ui#1.11.4',
+    'jquery-runner#2.3.3',
+    'jQuery-Mask-Plugin#1.13.4',
+    'jsdiff#2.2.1',
+)
+
+# Additional search paths for SASS files when using the @import statement
+SASS_PROCESSOR_INCLUDE_DIRS = (
+    os.path.join(BOWER_COMPONENTS_ROOT, 'bower_components'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'bootstrap-sass'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'assets'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'stylesheets'),
+)
 
 SABERES_REST_PATH = 'webservice/rest/server.php'
 OSTICKET_URL = 'https://suporte.interlegis.leg.br/scp/tickets.php?a=search&query=%s'

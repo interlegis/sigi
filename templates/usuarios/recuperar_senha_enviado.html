@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<p>{% trans "Foi enviado um e-mail com as instruções para recuperação de senha. Você deve recebê-lo em breve." %}</p>
+<p>{% trans "Caso você não receba, verifique se você inseriu o e-mail em que você está cadastrado e verifique, também, sua caixa de SPAM." %}</p>
+
+{% endblock %}

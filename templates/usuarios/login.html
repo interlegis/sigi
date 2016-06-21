@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+  <div class="hero-unit">
+    <h1>Login</h1>
+    <div class="container">
+      <form id="login-form" method="post" action="">
+        {% csrf_token %}
+          <p class="bs-component">
+            <table>
+              {% if form.errors %}
+                <p><strong>Usuário e/ou Senha inválidos.</strong></p>
+              {% endif %}
+
+                <tr>
+                  <td><b>Usuário</b></td>
+                  <td>{{ form.username }}</td>
+                </tr>
+                <tr>
+                  <td><b>Senha</b></td>
+                  <td>{{ form.password }}</td>
+                </tr>
+            </table>
+          </p>
+        <p class="bs-component">
+          <input class="btn btn-success btn-sm" type="submit" value="Entrar" />
+        </p>
+        <h5><a href="{% url 'usuarios:recuperar_senha' %}"> Esqueceu sua senha? </a></h5>
+        <input type="hidden" name="next" value="{{ next }}" />
+      </form>
+      </div>
+  </div>
+{% endblock %}

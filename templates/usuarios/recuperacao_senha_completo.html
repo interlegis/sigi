@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block base_content %}
+
+<p>{% trans "Sua senha foi alterada corretamente.  Agora você pode fazer o login." %}</p>
+
+<p><a href="{% url 'usuarios:login' %}">{% trans 'Entrar' %}</a></p>
+
+{% endblock %}
