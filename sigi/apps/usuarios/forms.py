@@ -6,19 +6,13 @@ from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Fieldset, Layout, Submit
 from django import forms
-from django.conf import settings
 from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
                                        SetPasswordForm)
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
-from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ValidationError
-from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
 from django.db import transaction
 from django.forms import ModelForm
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
 from django.utils.translation import ugettext_lazy as _
 
 
@@ -26,7 +20,7 @@ import sigi.apps.crispy_layout_mixin
 from sigi.apps.crud.utils import YES_NO_CHOICES
 from sigi.apps.crispy_layout_mixin import form_actions
 
-from .models import Telefone, Usuario, ConfirmaEmail
+from .models import Telefone, Usuario
 
 
 class LoginForm(AuthenticationForm):
@@ -319,11 +313,11 @@ class HabilitarEditForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(HabilitarEditForm, self).__init__(*args, **kwargs)
-        row1 = crispy_layout_mixin.to_row(
+        row1 = sigi.apps.crispy_layout_mixin.to_row(
             [(u'nome_completo', 4),
              (u'cpf', 4),
              (u'email', 4)])
-        row2 = crispy_layout_mixin.to_row([(u'habilitado', 12)])
+        row2 = sigi.apps.crispy_layout_mixin.to_row([(u'habilitado', 12)])
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -379,10 +373,10 @@ class MudarSenhaForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(MudarSenhaForm, self).__init__(*args, **kwargs)
-        row1 = crispy_layout_mixin.to_row(
+        row1 = sigi.apps.crispy_layout_mixin.to_row(
             [(u'password', 6),
              (u'password_confirm', 6)])
-        row2 = crispy_layout_mixin.to_row([(u'captcha', 12)])
+        row2 = sigi.apps.crispy_layout_mixin.to_row([(u'captcha', 12)])
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
@@ -401,7 +395,7 @@ class RecuperarSenhaEmailForm(PasswordResetForm):
 
     def __init__(self, *args, **kwargs):
         super(RecuperarSenhaEmailForm, self).__init__(*args, **kwargs)
-        row1 = crispy_layout_mixin.to_row(
+        row1 = sigi.apps.crispy_layout_mixin.to_row(
             [(u'email', 6)])
         self.helper = FormHelper()
         self.helper.layout = Layout(
@@ -433,7 +427,7 @@ class RecuperacaoMudarSenhaForm(SetPasswordForm):
     def __init__(self, *args, **kwargs):
         super(RecuperacaoMudarSenhaForm, self).__init__(*args, **kwargs)
         self.fields[u'new_password1'].help_text = u''
-        row1 = crispy_layout_mixin.to_row(
+        row1 = sigi.apps.crispy_layout_mixin.to_row(
             [(u'new_password1', 6),
              (u'new_password2', 6)])
         self.helper = FormHelper()

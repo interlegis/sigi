@@ -7,7 +7,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.utils import timezone
 from django.views.generic import DetailView, FormView, TemplateView
-import sigi.apps.crud.base
 from django.core.mail import send_mail
 from sigi.apps.crud.utils import str2bool
 from django.contrib.auth.tokens import default_token_generator
@@ -45,8 +44,8 @@ class UsuarioCrud(Crud):
             url_base = full_url[0][:full_url[0].find(u'usuario') - 1],
             mensagem = (u"Este e-mail foi utilizado para fazer cadastro no " +
                         u"Sistema de Atendimento ao Usuário do Interlegis.\n" +
-                        u"Caso você não tenha feito este cadastro, por favor " +
-                        u"ignore esta mensagem.\n" + url_base[0] +
+                        u"Caso você não tenha feito este cadastro, por favor" +
+                        u" ignore esta mensagem.\n" + url_base[0] +
                         reverse(u'usuarios:confirmar_email', kwargs=kwargs))
             remetente = settings.EMAIL_HOST_USER
             destinatario = [confirmar_email.email,
