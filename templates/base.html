@@ -6,54 +6,48 @@
     <meta charset="utf-8" name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Atendimento</title>
     {% block head_content %}
-      <link rel="icon" href="{% static 'img/favicon.ico' %}"  type="image/png" >
+      <link rel="icon" href="{% static 'img/img_atendimento/favicon.ico' %}"  type="image/png" >
       <!-- Bootstrap -->
       <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
-      <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
+      <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
       <link href="{% static 'css/bootstrap-responsive.css' %}" rel="stylesheet">
-      <link href="{% sass_src 'bootstrap-sass/assets/stylesheets/_bootstrap.scss' %}" rel="stylesheet">
+      <link href="{% static 'bootstrap-sass/assets/stylesheets/_bootstrap.css' %}" rel="stylesheet">
     {% endblock head_content %}
   </head>
 
   {% block navigation %}
-    <div class="navbar navbar-inverse navbar-fixed-top">
-     <div class="navbar-inner">
-         <div class="container">
-             <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
-                 <span class="icon-bar"></span>
-                 <span class="icon-bar"></span>
-                 <span class="icon-bar"></span>
-             </button>
-
-             <div class="nav-collapse collapse">
-                 <ul class="nav pull-right">
-                   {% if user.is_authenticated %}
-                    <li class="dropdown">
-                      <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
-                      <ul class="dropdown-menu">
-                        <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:usuario_detail' usuario_pk %}">Perfil</a></li>
-                        <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:mudar_senha' usuario_pk %}">Mudar Senha</a></li>
-                      </ul>
-                    </li>
-                    <li><a href="{% url 'usuarios:logout' %}">Sair</a></li>
-                   {% else %}
-                    <li><a href="{% url 'usuarios:usuario_create' %}">Cadastre-se</a></li>
-                    <li><a href="{% url 'usuarios:login' %}">Login</a></li>
-                   {% endif %}
-                 </ul>
-                 <ul class="nav">
-                   {% if user.is_authenticated %}
-                    <li><a href="{% url 'solicitacoes:solicitacao_list' %}">Solicitação</a></li>
-                    <li><a href="{% url 'solicitacoes:sistema_list' %}">Sistema</a></li>
-                    <li><a href="{% url 'usuarios:usuario_list' %}">Habilitar</a></li>
-                   {% endif %}
-                   <li><a href="">Contato</a></li>
-                 </ul>
-             </div>
-         </div>
+      <div class="navbar navbar-inverse navbar-fixed-top">
+       <div class="navbar-inner">
+           <div class="container">
+               <div class="nav-collapse">
+                   <ul class="nav navbar-nav pull-right">
+                     {% if user.is_authenticated %}
+                      <li class="dropdown">
+                        <a href="" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}<span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                          <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:usuario_detail' usuario_pk %}">Perfil</a></li>
+                          <li class="nav__sub-item"><a class="nav__sub-link" href="{% url 'usuarios:mudar_senha' usuario_pk %}">Mudar Senha</a></li>
+                        </ul>
+                      </li>
+                      <li><a href="{% url 'usuarios:logout' %}">Sair</a></li>
+                     {% else %}
+                      <li><a href="{% url 'usuarios:usuario_create' %}">Cadastre-se</a></li>
+                      <li><a href="{% url 'usuarios:login' %}">Login</a></li>
+                     {% endif %}
+                   </ul>
+                   <ul class="nav navbar-nav">
+                     {% if user.is_authenticated %}
+                      <li><a href="{% url 'servicos:solicitacao_list' %}">Solicitação</a></li>
+                      <li><a href="{% url 'servicos:sistema_list' %}">Sistema</a></li>
+                      <li><a href="{% url 'usuarios:usuario_list' %}">Habilitar</a></li>
+                     {% endif %}
+                   </ul>
+               </div>
+           </div>
+       </div>
      </div>
-   </div>
-  {% endblock navigation %}
+    {% endblock navigation %}
+
 
   <body>
     {% block body_block %}
@@ -64,7 +58,7 @@
             <div class="container">
               <div class="navbar-header">
                 <a href="/">
-                  <img align="left" height="120" width="120" src="{% static 'img/logo.png' %}" alt="Logo" class="img-responsive visible-lg-inline-block vcenter" >
+                  <img align="left" height="120" width="120" src="{% static 'img/img_atendimento/logo.png' %}" alt="Logo" class="img-responsive visible-lg-inline-block vcenter" >
                   <span class="vcenter" style="display:inline-block; color:black;" align="right">
                     <h2>Interlegis</h4><small><p>Sistema de Solicitação de Serviços</p></small>
                   </span>
@@ -117,7 +111,7 @@
       <script src="{% static 'jquery-ui/jquery-ui.min.js' %}"></script>
       <script src="{% static 'jquery-mask-plugin/dist/jquery.mask.js' %}"></script>
 
-      <script src="{% static 'js/bootstrap.min.js' %}"></script>
+      <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
       <script src="{% static 'js/app.js' %}"></script>
       {% block extra_js %}{% endblock extra_js %}
     {% endblock foot_js %}
@@ -130,7 +124,7 @@
         <div class="row">
           <div style="float:left">
             <a class="footer__logo" href="#">
-              <img src="{% static 'img/logo_interlegis.jpg' %}" alt="{% trans 'Logo do Interlegis' %} ">
+              <img src="{% static 'img/img_atendimento/logo_interlegis.jpg' %}" alt="{% trans 'Logo do Interlegis' %} ">
             </a>
             <p>
               <small>
@@ -140,7 +134,7 @@
           </div>
           <div style="float:right">
             <a class="footer__logo" href="">
-              <img src="{% static 'img/logo_cc.jpg' %}" alt="{% trans 'Logo do Creative Commons BY SA' %}">
+              <img src="{% static 'img/img_atendimento/logo_cc.jpg' %}" alt="{% trans 'Logo do Creative Commons BY SA' %}">
             </a>
             <p>
               <small>

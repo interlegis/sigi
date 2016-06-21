@@ -129,12 +129,6 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'sigiStatic'),
 )
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    'djangobower.finders.BowerFinder',
-    'sass_processor.finders.CssFinder',
-)
 
 SERVER_EMAIL = 'sigi@interlegis.leg.br'
 DEFAULT_FROM_EMAIL = 'spdt@interlegis.leg.br'
@@ -199,6 +193,17 @@ LOGGING = {
         },
     },
 }
+
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, "collected_static")
+STATICFILES_DIRS = (os.path.join(BASE_DIR, ("static")),)
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+    'sass_processor.finders.CssFinder',
+)
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap3'
