@@ -57,7 +57,10 @@ class UsuarioForm(ModelForm):
         widget=forms.Select(),
         choices=TIPO_TELEFONE,
         label=_(u'Tipo Telefone'))
-    segundo_ddd = forms.CharField(required=False, max_length=2, label=_(u'DDD'))
+    segundo_ddd = forms.CharField(
+        required=False,
+        max_length=2,
+        label=_(u'DDD'))
     segundo_numero = forms.CharField(
         required=False, max_length=10, label=_(u'Número'))
     segundo_principal = forms.ChoiceField(
@@ -86,12 +89,12 @@ class UsuarioForm(ModelForm):
 
     class Meta(object):
         model = Usuario
-        fields = [u'username', u'email', u'nome_completo', u'password', u'vinculo',
-                  u'password_confirm', u'email_confirm', u'captcha', u'cpf', u'rg',
-                  u'cargo', u'casa_legislativa']
+        fields = [u'username', u'email', u'nome_completo', u'password',
+                  u'vinculo', u'password_confirm', u'email_confirm',
+                  u'captcha', u'cpf', u'rg', u'cargo', u'casa_legislativa']
 
         widgets = {u'email': forms.TextInput(
-                               attrs={u'style': u'text-transform:lowercase;'}),}
+                    attrs={u'style': u'text-transform:lowercase;'}), }
 
     def __init__(self, *args, **kwargs):
         super(UsuarioForm, self).__init__(*args, **kwargs)
@@ -210,10 +213,12 @@ class UsuarioEditForm(UsuarioForm):
         fields = [u'username', u'email', u'nome_completo', u'vinculo',
                   u'email_confirm', u'captcha', u'cpf', u'rg',
                   u'cargo', u'casa_legislativa']
-        widgets = {u'username': forms.TextInput(attrs={u'readonly': u'readonly'}),
-                  u'email': forms.TextInput(
-                                 attrs={u'style': u'text-transform:lowercase;'}),
-                  }
+        widgets = {u'username': forms.TextInput(
+                                        attrs={u'readonly': u'readonly'}),
+                   u'email': forms.TextInput(
+                                 attrs={u'style': u'text-transform:lowercase;'}
+                                 ),
+                   }
 
     def __init__(self, *args, **kwargs):
         super(UsuarioEditForm, self).__init__(*args, **kwargs)
@@ -307,7 +312,8 @@ class HabilitarEditForm(ModelForm):
         fields = [u'cpf', u'nome_completo', u'email', u'habilitado']
         widgets = {
             u'cpf': forms.TextInput(attrs={u'readonly': u'readonly'}),
-            u'nome_completo': forms.TextInput(attrs={u'readonly': u'readonly'}),
+            u'nome_completo': forms.TextInput(attrs={u'readonly': u'readonly'}
+                                              ),
             u'email': forms.TextInput(attrs={u'readonly': u'readonly'})
         }
 

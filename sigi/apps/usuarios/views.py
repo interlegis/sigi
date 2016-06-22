@@ -12,7 +12,8 @@ from sigi.apps.crud.utils import str2bool
 from django.contrib.auth.tokens import default_token_generator
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from django.utils.encoding import force_bytes
-from sigi.apps.crud.base import Crud, CrudBaseMixin, CrudCreateView, CrudListView, CrudUpdateView, CrudDetailView
+from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
+                                 CrudListView, CrudUpdateView, CrudDetailView)
 
 from .forms import (HabilitarEditForm, MudarSenhaForm, UsuarioEditForm,
                     UsuarioForm)

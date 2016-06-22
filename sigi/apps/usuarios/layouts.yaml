@@ -1,4 +1,3 @@
-
 CasaLegislativa:
   Casa Legislativa:
   - sigla:4 nome
@@ -13,18 +12,18 @@ Subsecretaria:
   - nome:8 sigla
 
 Usuario:
-  Usuário:
+  Dados do Usuário:
   - username nome_completo:9
   - password password_confirm
   - email email_confirm
   - cpf rg casa_legislativa
   - cargo vinculo
   Primeiro Telefone:
-    - primeiro_tipo primeiro_ddd:2 primeiro_numero:6 primeiro_principal
+  - primeiro_tipo primeiro_ddd:2 primeiro_numero:6 primeiro_principal
   Segundo Telefone:
-    - segundo_tipo segundo_ddd:2 segundo_numero:6 segundo_principal
+  - segundo_tipo segundo_ddd:2 segundo_numero:6 segundo_principal
   Prove que você é um humano:
-    - captcha
+  - captcha
 
 UsuarioEdit:
   Usuário:
