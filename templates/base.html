@@ -7,6 +7,8 @@
     <title>Sistema de Atendimento</title>
     {% block head_content %}
       <link rel="icon" href="{% static 'img/img_atendimento/favicon.ico' %}"  type="image/png" >
+
+      <link rel="stylesheet" type="text/css" href="{% static 'css/atendimento.css' %}">
       <!-- Bootstrap -->
       <link href="{% static 'css/bootstrap-fluid-adj.css' %}" rel="stylesheet">
       <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" media="screen">
@@ -14,7 +16,6 @@
       <link href="{% static 'bootstrap-sass/assets/stylesheets/_bootstrap.css' %}" rel="stylesheet">
     {% endblock head_content %}
   </head>
-
   {% block navigation %}
       <div class="navbar navbar-inverse navbar-fixed-top">
        <div class="navbar-inner">
