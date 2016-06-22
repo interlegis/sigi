@@ -18,6 +18,8 @@ from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
 from .forms import (HabilitarEditForm, MudarSenhaForm, UsuarioEditForm,
                     UsuarioForm)
 from .models import Usuario, ConfirmaEmail, User
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import redirect
 
 
 class UsuarioCrud(Crud):
@@ -53,7 +55,7 @@ class UsuarioCrud(Crud):
                             settings.EMAIL_HOST_USER]
             send_mail(assunto, mensagem, remetente, destinatario,
                       fail_silently=False)
-            return reverse(u'home')
+            return reverse(u'home_atendimento')
 
     class ListView(LoginRequiredMixin, CrudListView):
         pass
@@ -87,7 +89,6 @@ class UsuarioCrud(Crud):
 
         def get_context_data(self, **kwargs):
             context = super(DetailView, self).get_context_data(**kwargs)
-
             tel1 = context[u'object'].primeiro_telefone
             tel1 = [(u'Primeiro Telefone'),
                     (u'[%s] - %s' % (tel1.ddd, tel1.numero))]

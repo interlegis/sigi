@@ -142,7 +142,7 @@ MEDIA_URL = '/media/'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
-LOGIN_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = ''
 LOGIN_URL = '/login/'
 
 # Using pytest directly (without a test runner)

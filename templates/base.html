@@ -36,8 +36,8 @@
                    </ul>
                    <ul class="nav navbar-nav">
                      {% if user.is_authenticated %}
-                      <li><a href="{% url 'servicos:solicitacao_list' %}">Solicitação</a></li>
-                      <li><a href="{% url 'servicos:sistema_list' %}">Sistema</a></li>
+                      <li><a href="{% url 'solicitacoes:solicitacao_list' %}">Solicitação</a></li>
+                      <li><a href="{% url 'solicitacoes:sistema_list' %}">Sistema</a></li>
                       <li><a href="{% url 'usuarios:usuario_list' %}">Habilitar</a></li>
                      {% endif %}
                    </ul>

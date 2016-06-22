@@ -1,4 +1,5 @@
 #-*- coding:utf-8 -*-
+
 from django.conf import settings
 from django.conf.urls import patterns, include, url
 from django.conf.urls.static import static
@@ -6,7 +7,6 @@ from django.contrib import admin
 from django.views.generic.base import TemplateView
 
 from sigi.apps.saberes.views import pentaho_proxy
-
 
 admin.site.index_template = 'index.html'
 admin.autodiscover()

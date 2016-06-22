@@ -64,7 +64,7 @@ def get_field_display(obj, fieldname):
     elif 'date' in str(type(value)):
         display = formats.date_format(value, "SHORT_DATE_FORMAT")
     elif 'bool' in str(type(value)):
-        display = _('Sim') if value else _('Não')
+        display = _(u'Sim') if value else _(u'Não')
     elif 'ImageFieldFile' in str(type(value)):
         if value:
             display = '<img src="{}" />'.format(value.url)
