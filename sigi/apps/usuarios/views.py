@@ -55,7 +55,7 @@ class UsuarioCrud(Crud):
                             settings.EMAIL_HOST_USER]
             send_mail(assunto, mensagem, remetente, destinatario,
                       fail_silently=False)
-            return reverse(u'home_atendimento')
+            return reverse(u'index_atendimento')
 
     class ListView(LoginRequiredMixin, CrudListView):
         pass
@@ -169,7 +169,7 @@ class MudarSenhaView(FormValidMessageMixin, FormView):
         return super(MudarSenhaView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse(u'home')
+        return reverse(u'index_atendimento')
 
 
 class ConfirmarEmailView(TemplateView):

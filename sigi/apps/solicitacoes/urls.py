@@ -8,6 +8,7 @@ from .apps import AppConfig
 app_name = AppConfig.name
 
 urlpatterns = [
-    url(ur'sistema/', include(SistemaCrud.get_urls())),
-    url(ur'solicitacao/', include(SolicitacaoCrud.get_urls())),
+    url(ur'home/atendimento/sistema/', include(SistemaCrud.get_urls())),
+    url(ur'home/atendimento/solicitacao/',
+        include(SolicitacaoCrud.get_urls())),
 ]
