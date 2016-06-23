@@ -1,8 +1,33 @@
 from __future__ import absolute_import
+from django.db import transaction
 from django import forms
 from django.forms import ModelForm
-
+from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_URL
 from .models import Sistema, Solicitacao
+import json
+import requests
+
+
+def open_osticket(solicitacao):
+    headers = {'X-API-KEY': OSTICKET_API_KEY,
+               'Content-Type': 'application/json'}
+
+    usuario = solicitacao.usuario
+    data = {"alert": True,
+            "autorespond": True,
+            "source": "API",
+            "name": usuario.username,
+            "email": usuario.email,
+            "phone": '-'.join((usuario.primeiro_telefone.ddd,
+                               usuario.primeiro_telefone.numero)),
+            "subject": solicitacao.titulo,
+            "ip": "",
+            "message": solicitacao.resumo}
+    response = requests.post(OSTICKET_URL, headers=headers, json=data)
+    if response.status_code == requests.codes.ok:
+        return response.text
+    else:
+        response.raise_for_status()
 
 
 class SolicitacaoForm(ModelForm):
@@ -19,6 +44,14 @@ class SolicitacaoForm(ModelForm):
                   u'casa_legislativa', u'titulo', u'resumo']
         widgets = {u'codigo': forms.HiddenInput(),
                    u'usuario': forms.HiddenInput()}
+
+    @transaction.atomic
+    def save(self, commit=False):
+        solicitacao = super(SolicitacaoForm, self).save(commit)
+        os_ticket = open_osticket(solicitacao)
+        solicitacao.osticket = os_ticket
+        solicitacao.save()
+        return solicitacao
 
 
 class SolicitacaoEditForm(ModelForm):

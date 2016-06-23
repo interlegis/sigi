@@ -135,16 +135,6 @@ SERVER_EMAIL = 'sigi@interlegis.leg.br'
 DEFAULT_FROM_EMAIL = 'spdt@interlegis.leg.br'
 EMAIL_SUBJECT_PREFIX = u'[SIGI]'
 
-
-EMAIL_USE_TLS = True
-EMAIL_PORT = 587
-EMAIL_HOST = 'smtp.interlegis.leg.br'
-EMAIL_HOST_USER = 'sapl-test'
-EMAIL_HOST_PASSWORD = '2BhCwbGHcZ'
-EMAIL_SEND_USER = 'atendimento@interlegis.leg.br'
-EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-
-
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates'),
 )

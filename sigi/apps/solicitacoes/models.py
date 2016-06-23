@@ -45,6 +45,11 @@ class Solicitacao(models.Model):
                                  null=True,
                                  verbose_name=_(u'Descrição'))
 
+    osticket = models.CharField(blank=True,
+                                null=True,
+                                max_length=256,
+                                verbose_name=_(u'Código Ticket'))
+
     class Meta(object):
         verbose_name = _(u'Solicitação de Novo Serviço')
         verbose_name_plural = _(u'Solicitações de Novos Serviços')
