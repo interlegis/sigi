@@ -34,8 +34,10 @@
     <dd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- {{ usuario.vinculo }}</dd>
     <dt>Casa Legislativa: </dt>
     <dd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- {{ usuario.casa_legislativa }}</dd>
-    <dt>Telefones: </dt>
+    <dt>Telefone(s): </dt>
     <dd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- [{{ usuario.primeiro_telefone.ddd }}] - {{usuario.primeiro_telefone.numero}}</dd>
-    <dd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- [{{ usuario.segundo_telefone.ddd }}] - {{usuario.segundo_telefone.numero}}</dd>
+    {% if usuario.segundo_telefone.ddd and usuario.segundo_telefone.numero %}
+      <dd>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;- [{{ usuario.segundo_telefone.ddd }}] - {{usuario.segundo_telefone.numero}}</dd>
+    {% endif %}
   </dl>
 {% endblock detail_content %}

@@ -4,7 +4,7 @@ import random
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 import sigi.apps.crud.base
-from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView
+from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView, CrudBaseMixin
 from sigi.apps.usuarios.models import Usuario
 
 from .forms import SistemaForm, SolicitacaoEditForm, SolicitacaoForm
@@ -40,6 +40,9 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
         @property
         def layout_key(self):
             return u'SolicitacaoList'
+
+    class BaseMixin(CrudBaseMixin):
+        list_field_names = [u'codigo', u'sistema', u'titulo', u'data_criacao']
 
 
 class SistemaCrud(Crud):
