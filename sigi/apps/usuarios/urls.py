@@ -48,7 +48,7 @@ urlpatterns = recuperar_email + [
         u'template_name': u'usuarios/login.html',
         u'authentication_form': LoginForm},
         name=u'login'),
-    url(ur'^home/atendimento/logout/$', logout, {u'next_page': u'/login'},
+    url(ur'^home/atendimento/logout/$', logout, {u'next_page': u'/home/atendimento'},
         name=u'logout'),
     url(ur'^home/atendimento/usuario/', include(UsuarioCrud.get_urls())),
 
