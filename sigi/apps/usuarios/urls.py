@@ -52,7 +52,7 @@ urlpatterns = recuperar_email + [
         name=u'logout'),
     url(ur'^home/atendimento/usuario/', include(UsuarioCrud.get_urls())),
 
-    url(ur'^home/atendimento/habilitar/(?P<pk>\d+)$',
+    url(ur'^habilitar/home/atendimento/(?P<pk>\d+)$',
         HabilitarDetailView.as_view(), name=u'habilitar_detail'),
     url(ur'^home/atendimento/habilitar/(?P<pk>\d+)/edit$',
         HabilitarEditView.as_view(), name=u'habilitar_edit'),
