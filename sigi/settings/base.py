@@ -32,6 +32,7 @@ SITE_ID = 1
 
 TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + [
     'django.core.context_processors.request',
+    'sigi.context_processors.usuario_context'
 ]
 
 # List of callables that know how to import templates from various sources.
