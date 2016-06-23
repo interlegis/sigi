@@ -24,7 +24,7 @@ def open_osticket(solicitacao):
             "ip": "",
             "message": solicitacao.resumo}
     response = requests.post(OSTICKET_URL, headers=headers, json=data)
-    if response.status_code == requests.codes.ok:
+    if response.status_code == requests.codes.created:
         return response.text
     else:
         response.raise_for_status()

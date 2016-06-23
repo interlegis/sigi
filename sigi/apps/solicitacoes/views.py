@@ -2,6 +2,7 @@ from __future__ import absolute_import
 import random
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.urlresolvers import reverse
 
 import sigi.apps.crud.base
 from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView, CrudBaseMixin
@@ -27,7 +28,10 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
                 self.initial[u'telefone_contato'] = usuario.primeiro_telefone
             except Usuario.DoesNotExist:
                 pass
-            return self.initial.copy() # TODO: por que?
+            return self.initial.copy()
+
+        def get_success_url(self):
+            return reverse(u'solicitacoes:solicitacao_list')
 
     class UpdateView(LoginRequiredMixin, CrudUpdateView):
         form_class = SolicitacaoEditForm
@@ -42,7 +46,8 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
             return u'SolicitacaoList'
 
     class BaseMixin(CrudBaseMixin):
-        list_field_names = [u'codigo', u'sistema', u'titulo', u'data_criacao']
+        list_field_names = [u'osticket', u'sistema',
+                            u'titulo', u'data_criacao']
 
 
 class SistemaCrud(Crud):
