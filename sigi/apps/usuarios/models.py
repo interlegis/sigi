@@ -5,38 +5,15 @@ from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-
+from sigi.apps.utils import SearchField
 from sigi.apps.crud.utils import UF, YES_NO_CHOICES
-
-
-class CasaLegislativa(models.Model):
-    nome = models.CharField(max_length=100, verbose_name=_(u'Nome'))
-    sigla = models.CharField(max_length=100, verbose_name=_(u'Sigla'))
-    endereco = models.CharField(max_length=100, verbose_name=_(u'Endereço'))
-    cep = models.CharField(max_length=100, verbose_name=_(u'CEP'))
-    municipio = models.CharField(max_length=100, verbose_name=_(u'Município'))
-    uf = models.CharField(max_length=100,
-                          choices=UF,
-                          verbose_name=_(u'UF'))
-    telefone = models.CharField(
-        max_length=100, blank=True, verbose_name=_(u'Telefone'))
-    endereco_web = models.URLField(
-        max_length=100, blank=True, verbose_name=_(u'HomePage'))
-    email = models.EmailField(
-        max_length=100, blank=True, verbose_name=_(u'E-mail'))
-
-    class Meta(object):
-        verbose_name = _(u'Casa Legislativa')
-        verbose_name_plural = _(u'Casas Legislativas')
-
-    def __str__(self):
-        return u'[%s] %s' % (self.sigla, self.nome)
 
 
 class Subsecretaria(models.Model):
 
     nome = models.CharField(verbose_name=_(u'Nome'), max_length=100, null=True)
-    sigla = models.CharField(verbose_name=_(u'Sigla'), max_length=10, null=True)
+    sigla = models.CharField(verbose_name=_(u'Sigla'),
+                             max_length=10, null=True)
 
     class Meta(object):
         ordering = (u'nome', u'sigla')
@@ -131,14 +108,17 @@ class Usuario(models.Model):
         verbose_name=_(u'Vinculo'),
         choices=TIPO_VINCULO,
         default=u'--------')
-    casa_legislativa = models.CharField(
-        max_length=30,
-        verbose_name=_(u'Casa Legislativa'),
-        default=u'--------')
     primeiro_telefone = models.ForeignKey(
         Telefone, null=True, related_name=u'primeiro_telefone')
     segundo_telefone = models.ForeignKey(
         Telefone, null=True, related_name=u'segundo_telefone')
+
+    casa_legislativa = models.ForeignKey(
+        'casas.CasaLegislativa',
+        verbose_name=_(u'Casa Legislativa')
+    )
+    # campo de busca em caixa baixa e sem acentos
+    search_text = SearchField(field_names=['casa_legislativa'])
 
     class Meta(object):
         verbose_name = _(u'Usuário')
