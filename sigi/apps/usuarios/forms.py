@@ -205,7 +205,7 @@ class UsuarioForm(ModelForm):
         # Cria User
         u = User.objects.create(username=usuario.username, email=usuario.email)
         u.set_password(self.cleaned_data[u'password'])
-        u.is_active = True # TODO: change back to False
+        u.is_active = False
 
         u.save()
         usuario.user = u
