@@ -8,7 +8,7 @@ import sigi.apps.crud.base
 from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView, CrudBaseMixin
 from sigi.apps.usuarios.models import Usuario
 
-from .forms import SolicitacaoEditForm, SolicitacaoForm
+from .forms import SolicitacaoForm
 from .models import Solicitacao
 
 
@@ -33,18 +33,6 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
 
         def get_success_url(self):
             return reverse(u'solicitacoes:solicitacao_list')
-
-    class UpdateView(LoginRequiredMixin, CrudUpdateView):
-        form_class = SolicitacaoEditForm
-
-        @property
-        def layout_key(self):
-            return u'SolicitacaoEdit'
-
-    class ListView(LoginRequiredMixin, CrudListView):
-        @property
-        def layout_key(self):
-            return u'SolicitacaoList'
 
     class BaseMixin(CrudBaseMixin):
         list_field_names = [u'osticket', u'sistema',

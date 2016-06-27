@@ -12,14 +12,14 @@ def open_osticket(solicitacao):
     headers = {'X-API-KEY': OSTICKET_API_KEY,
                'Content-Type': 'application/json'}
 
-    usuario = solicitacao.usuario
     data = {"alert": True,
             "autorespond": True,
             "source": "API",
-            "name": usuario.username,
-            "email": usuario.email,
-            "phone": '-'.join((usuario.primeiro_telefone.ddd,
-                               usuario.primeiro_telefone.numero)),
+            "name": solicitacao.usuario.username,
+            "email": solicitacao.usuario.email,
+            "phone": ' - '.join(
+                (solicitacao.usuario.primeiro_telefone.ddd,
+                 solicitacao.usuario.primeiro_telefone.numero)),
             "subject": solicitacao.titulo,
             "ip": "",
             "message": solicitacao.resumo}
@@ -37,7 +37,7 @@ class SolicitacaoForm(ModelForm):
         max_length=500,
         widget=forms.Textarea)
 
-    class Meta(object):
+    class Meta:
         model = Solicitacao
         fields = [u'codigo', u'usuario', u'sistema',
                   u'email_contato', u'telefone_contato',
@@ -45,9 +45,12 @@ class SolicitacaoForm(ModelForm):
         widgets = {
             u'codigo': forms.HiddenInput(),
             u'usuario': forms.HiddenInput(),
-            u'casa_legislativa': forms.TextInput(attrs={'readonly':'readonly'}),
-            u'email_contato': forms.TextInput(attrs={'readonly':'readonly'}),
-            u'telefone_contato': forms.TextInput(attrs={'readonly':'readonly'})
+            u'casa_legislativa': forms.TextInput(
+                attrs={'readonly': 'readonly'}),
+            u'email_contato': forms.TextInput(
+                attrs={'readonly': 'readonly'}),
+            u'telefone_contato': forms.TextInput(
+                attrs={'readonly': 'readonly'})
         }
 
     @transaction.atomic
@@ -57,18 +60,3 @@ class SolicitacaoForm(ModelForm):
         solicitacao.osticket = os_ticket
         solicitacao.save()
         return solicitacao
-
-
-class SolicitacaoEditForm(ModelForm):
-
-    resumo = forms.CharField(
-        label=u'Resumo',
-        max_length=500,
-        widget=forms.Textarea)
-
-    class Meta(object):
-        model = Solicitacao
-        fields = [u'codigo', u'usuario', u'sistema',
-                  u'casa_legislativa', u'titulo', u'resumo']
-        widgets = {u'codigo': forms.TextInput(attrs={u'readonly': u'readonly'}),
-                   u'usuario': forms.HiddenInput()}
