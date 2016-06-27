@@ -14,7 +14,8 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
-
+from sigi.apps.casas.models import CasaLegislativa
+from easy_select2 import Select2
 
 import sigi.apps.crispy_layout_mixin
 from sigi.apps.crud.utils import YES_NO_CHOICES
@@ -86,6 +87,11 @@ class UsuarioForm(ModelForm):
         label=_(u'Confirmar Email'))
 
     captcha = CaptchaField()
+
+    casa_legislativa = forms.ModelChoiceField(
+        queryset=CasaLegislativa.objects.all(),
+        widget=Select2()
+    )
 
     class Meta(object):
         model = Usuario

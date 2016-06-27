@@ -17,6 +17,7 @@ django-image-cropping==1.0.3
 django-localflavor==1.3
 django-model-utils==2.4
 django-sass-processor==0.3.4
+django-easy-select2==1.3.2
 django-simple-captcha==0.5.1
 Django==1.9.6
 libsass==0.11.0

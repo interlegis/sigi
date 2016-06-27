@@ -93,6 +93,7 @@ INSTALLED_APPS = (
     'djangobower',
     'floppyforms',
     'sass_processor',
+    'easy_select2',
 
 )
 
