@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.db import models
 from django.conf import settings
-from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 
 class Categoria(models.Model):

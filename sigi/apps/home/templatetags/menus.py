@@ -3,7 +3,6 @@ from os.path import dirname
 import yaml
 from django import template
 
-
 register = template.Library()
 
 menus = yaml.load(open(dirname(__file__) + '/menu_conf.yaml', 'r'))

@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
+from datetime import datetime
 # Dependência:
 # pip install terminaltables
 from os.path import isfile
 
-from datetime import datetime
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
-from terminaltables import AsciiTable
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Anexo as AnexoConvenios
@@ -15,6 +14,7 @@ from sigi.apps.diagnosticos.models import Anexo as AnexoDiagnosticos
 from sigi.apps.ocorrencias.models import Anexo as AnexoOcorrencias
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servidores.models import Servidor
+from terminaltables import AsciiTable
 
 
 def print_table(msg, relacao):

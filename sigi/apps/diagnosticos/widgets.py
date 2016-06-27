@@ -1,8 +1,12 @@
 from itertools import chain
-from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple, RadioSelect, RadioFieldRenderer, RadioChoiceInput
-from django.utils.html import conditional_escape
+
+from django.forms.widgets import (CheckboxInput, CheckboxSelectMultiple,
+                                  RadioChoiceInput, RadioFieldRenderer,
+                                  RadioSelect)
 from django.utils.encoding import force_unicode
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+
 from sigi.apps.diagnosticos.models import Escolha
 
 

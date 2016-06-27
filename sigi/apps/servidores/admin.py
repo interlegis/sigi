@@ -4,8 +4,9 @@ from django.contrib.contenttypes import admin as generic
 from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Endereco, Telefone
-from sigi.apps.servidores.forms import FeriasForm, LicencaForm, FuncaoForm
-from sigi.apps.servidores.models import Servidor, Funcao, Licenca, Ferias, Servico, Subsecretaria
+from sigi.apps.servidores.forms import FeriasForm, FuncaoForm, LicencaForm
+from sigi.apps.servidores.models import (Ferias, Funcao, Licenca, Servico,
+                                         Servidor, Subsecretaria)
 from sigi.apps.utils.admin_widgets import AdminImageWidget
 from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.utils.filters import AlphabeticFilter

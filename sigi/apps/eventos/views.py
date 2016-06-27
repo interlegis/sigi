@@ -19,17 +19,21 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 import calendar
+import csv
 import datetime
 import locale
+
 from django.contrib.auth.decorators import login_required
+from django.http.response import HttpResponse, JsonResponse
 from django.shortcuts import render
 from django.utils import translation
-from django.utils.translation import ungettext, ugettext as _
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
+
 from sigi.apps.eventos.models import Evento
 from sigi.apps.servidores.models import Servidor
 from sigi.shortcuts import render_to_pdf
-import csv
-from django.http.response import JsonResponse, HttpResponse
+
 
 @login_required
 def calendario(request):

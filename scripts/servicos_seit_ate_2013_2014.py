@@ -1,4 +1,5 @@
 from datetime import date
+
 from django.db.models import Q
 
 from sigi.apps.servicos.models import TipoServico

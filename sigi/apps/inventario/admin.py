@@ -3,9 +3,9 @@ from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 
 from sigi.apps.contatos.models import Contato, Telefone
-from sigi.apps.inventario.models import (Fornecedor, Fabricante, Equipamento,
-                                         TipoEquipamento, ModeloEquipamento,
-                                         Bem)
+from sigi.apps.inventario.models import (Bem, Equipamento, Fabricante,
+                                         Fornecedor, ModeloEquipamento,
+                                         TipoEquipamento)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 

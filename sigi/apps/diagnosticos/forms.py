@@ -3,9 +3,8 @@ from copy import deepcopy
 
 from django import forms
 from django.contrib.contenttypes.forms import generic_inlineformset_factory
-from django.forms import (BooleanField, CharField, DateField,
-                          FloatField, ModelChoiceField, Textarea,
-                          ModelMultipleChoiceField)
+from django.forms import (BooleanField, CharField, DateField, FloatField,
+                          ModelChoiceField, ModelMultipleChoiceField, Textarea)
 from django.forms.forms import BoundField
 from django.utils.translation import ugettext as _
 from eav.fields import RangeField
@@ -14,7 +13,8 @@ from eav.forms import BaseDynamicEntityForm
 from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
-from sigi.apps.diagnosticos.widgets import EavCheckboxSelectMultiple, EavRadioSelect
+from sigi.apps.diagnosticos.widgets import (EavCheckboxSelectMultiple,
+                                            EavRadioSelect)
 
 
 class DiagnosticoForm(BaseDynamicEntityForm):

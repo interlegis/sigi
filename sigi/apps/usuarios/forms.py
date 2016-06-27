@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+
 from datetime import datetime
 
 from captcha.fields import CaptchaField
@@ -14,12 +15,12 @@ from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.forms import ModelForm
 from django.utils.translation import ugettext_lazy as _
-from sigi.apps.casas.models import CasaLegislativa
 from easy_select2 import Select2
 
 import sigi.apps.crispy_layout_mixin
-from sigi.apps.crud.utils import YES_NO_CHOICES
+from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.crispy_layout_mixin import form_actions
+from sigi.apps.crud.utils import YES_NO_CHOICES
 
 from .models import Telefone, Usuario
 

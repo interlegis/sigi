@@ -1,5 +1,6 @@
 # style="list-style-type: noneo -*- coding: utf-8 -*-
 from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext as _
 

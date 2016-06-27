@@ -3,6 +3,7 @@ import csv
 import json as simplejson  # XXX trocar isso por simplesmente import json e refatorar o codigo
 import os
 import time
+from collections import OrderedDict
 from functools import reduce
 
 from django.contrib.auth.decorators import login_required
@@ -12,7 +13,6 @@ from django.db.models.aggregates import Sum
 from django.http import HttpResponse
 from django.shortcuts import render, render_to_response
 from django.template import RequestContext
-from collections import OrderedDict
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
@@ -25,7 +25,6 @@ from sigi.apps.servicos.models import TipoServico
 from sigi.apps.utils import to_ascii
 from sigi.settings import MEDIA_ROOT, STATIC_URL
 from sigi.shortcuts import render_to_pdf
-
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
 

@@ -2,7 +2,6 @@
 from django.conf.urls import patterns, url
 from django.views.generic.base import TemplateView
 
-
 urlpatterns = patterns(
     'sigi.apps.home.views',
     url(r'^home/atendimento', TemplateView.as_view(

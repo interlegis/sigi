@@ -3,7 +3,7 @@ import json as simplejson  # XXX trocar isso por simplesmente import json e refa
 from itertools import cycle
 
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template import RequestContext
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import never_cache
@@ -11,9 +11,10 @@ from django.views.decorators.cache import never_cache
 from sigi.apps.casas.models import Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.decorators import validate_diagnostico
-from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
-                                          CasaLegislativaMobileForm, FuncionariosMobileForm)
-from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
+from sigi.apps.diagnosticos.forms import (CasaLegislativaMobileForm,
+                                          DiagnosticoMobileForm,
+                                          FuncionariosMobileForm)
+from sigi.apps.diagnosticos.models import Categoria, Diagnostico, Pergunta
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
 from sigi.shortcuts import render_to_pdf

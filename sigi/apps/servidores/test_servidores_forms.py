@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
-from django import forms
-import pytest
 from datetime import date
 
-from sigi.apps.servidores.forms import valida_data_inicial_menor_que_final, Periodo, periodos_se_sobrepoe
+import pytest
+from django import forms
+
+from sigi.apps.servidores.forms import (Periodo, periodos_se_sobrepoe,
+                                        valida_data_inicial_menor_que_final)
 
 
 @pytest.mark.parametrize('data', [

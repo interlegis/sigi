@@ -21,14 +21,16 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-from django.forms import ModelForm, ModelChoiceField, HiddenInput, TextInput
-from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
-from sigi.apps.servidores.models import Servico
+from django.core.urlresolvers import reverse_lazy
+from django.forms import HiddenInput, ModelChoiceField, ModelForm, TextInput
+from django.forms.utils import flatatt
 from django.utils.encoding import force_text
 from django.utils.html import format_html
-from django.forms.utils import flatatt
-from django.core.urlresolvers import reverse_lazy
 from django.utils.safestring import mark_safe
+
+from sigi.apps.ocorrencias.models import Anexo, Comentario, Ocorrencia
+from sigi.apps.servidores.models import Servico
+
 
 class AjaxSelect(TextInput):
     url = ""

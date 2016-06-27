@@ -19,18 +19,20 @@ pós-instalação) para a migração dos dados. Este script não foi feito para 
 banco de dados em produção.
 """
 
+import csv
+from datetime import datetime
+
 from django.core.management import setup_environ
 
 from sigi import settings
-setup_environ(settings)
-
-import csv
-from datetime import datetime
 from sigi.apps.casas.models import *
 from sigi.apps.contatos.models import *
 from sigi.apps.convenios.models import *
 from sigi.apps.inventario.models import *
 from sigi.apps.parlamentares.models import *
+
+setup_environ(settings)
+
 
 ERROR_MSG_0 = ('<ERRO> %s[%s]: erro desconhecido! Possível erro de integridade '
                'do banco de dados. Favor verificar e inserir manualmente caso '

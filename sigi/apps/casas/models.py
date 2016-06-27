@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 import random
+from datetime import datetime
 from string import ascii_uppercase
 from unicodedata import normalize
 
-from datetime import datetime
 from django.contrib.contenttypes import fields
 from django.db import models
 from image_cropping import ImageRatioField

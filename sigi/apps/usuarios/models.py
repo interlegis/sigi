@@ -1,12 +1,15 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+
 import base64
+
 from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
-from sigi.apps.utils import SearchField
+
 from sigi.apps.crud.utils import UF, YES_NO_CHOICES
+from sigi.apps.utils import SearchField
 
 
 class Subsecretaria(models.Model):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import ugettext as _
 from django.contrib import admin
+from django.utils.translation import ugettext as _
+
 from sigi.apps.saberes.models import CategoriasInteresse
 
 

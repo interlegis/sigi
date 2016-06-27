@@ -5,8 +5,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from requests.auth import HTTPBasicAuth
 
-from sigi.settings import PENTAHO_SERVER, PENTAHO_DASHBOARDS, PENTAHO_USERNAME_PASSWORD
-
+from sigi.settings import (PENTAHO_DASHBOARDS, PENTAHO_SERVER,
+                           PENTAHO_USERNAME_PASSWORD)
 
 PENTAHO_CDF_URL = 'http://%s/pentaho/plugin/pentaho-cdf-dd/api/renderer/' % PENTAHO_SERVER
 

@@ -11,14 +11,16 @@ obsoleto.
 """
 
 import urlparse
+
+from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.utils.decorators import available_attrs
+
 try:
     from functools import wraps
 except ImportError:
     from django.utils.functional import wraps  # Python 2.4 fallback.
 
-from django.conf import settings
-from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.utils.decorators import available_attrs
 
 
 def user_passes_test(test_func, login_url=None, redirect_field_name=REDIRECT_FIELD_NAME):

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+
 from braces.views import FormMessagesMixin
 from django.conf.urls import url
 from django.core.urlresolvers import reverse
@@ -9,8 +10,10 @@ from django.utils.translation import ugettext_lazy as _
 from django.views.generic import (CreateView, DeleteView, DetailView, ListView,
                                   UpdateView)
 
+from sigi.apps.crispy_layout_mixin import (CrispyLayoutFormMixin,
+                                           get_field_display)
+
 from .utils import make_pagination
-from sigi.apps.crispy_layout_mixin import CrispyLayoutFormMixin, get_field_display
 
 LIST, CREATE, DETAIL, UPDATE, DELETE = \
     u'list', u'create', u'detail', u'update', u'delete'

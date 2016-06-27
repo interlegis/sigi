@@ -1,7 +1,6 @@
 from csv_writer import CsvWriter
 from sigi.apps.servicos.models import Servico
 
-
 ARQUIVO_CSV = '/tmp/casas_que_usam_PM_e_SAPL.csv'
 
 

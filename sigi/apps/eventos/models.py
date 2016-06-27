@@ -18,15 +18,17 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import lazy
 from django.utils.translation import ugettext as _
+
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Municipio
+from sigi.apps.mdl.models import Course
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.moodle_ws_api import get_courses
-from django.core.exceptions import ValidationError
-from sigi.apps.mdl.models import Course
+
 
 class TipoEvento(models.Model):
     nome = models.CharField(_(u"Nome"), max_length=100)

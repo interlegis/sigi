@@ -1,11 +1,15 @@
 from __future__ import absolute_import
-from django.db import transaction
-from django import forms
-from django.forms import ModelForm
-from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_URL
-from .models import Solicitacao
+
 import json
+
 import requests
+from django import forms
+from django.db import transaction
+from django.forms import ModelForm
+
+from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_URL
+
+from .models import Solicitacao
 
 
 def open_osticket(solicitacao):

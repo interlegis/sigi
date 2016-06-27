@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
 import new
+
+from django.db.models import Avg, Count, Max, Min
+from django.shortcuts import get_object_or_404, redirect, render_to_response
 from django.template import RequestContext
-from django.shortcuts import render_to_response, get_object_or_404, redirect
-from django.db.models import Avg, Max, Min, Count
-from sigi.apps.servidores.models import Servidor, Funcao
+
+from sigi.apps.servidores.models import Funcao, Servidor
 from sigi.shortcuts import render_to_pdf
 
 

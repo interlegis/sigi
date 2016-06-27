@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from sigi.apps.casas.test_casas import some_parliaments, parliaments_from_names
-from sigi.apps.parlamentares.test_parlamentares import some_parliamentarians, parliamentarians_from_names
+from sigi.apps.casas.test_casas import parliaments_from_names, some_parliaments
+from sigi.apps.parlamentares.test_parlamentares import (parliamentarians_from_names,
+                                                        some_parliamentarians)
 from sigi.testutils import pdf_text
 
 

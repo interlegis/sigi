@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext as _
-from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
+from eav.models import BaseAttribute, BaseChoice, BaseEntity, BaseSchema
 
 from sigi.apps.utils import SearchField
 from sigi.apps.utils.email import enviar_email

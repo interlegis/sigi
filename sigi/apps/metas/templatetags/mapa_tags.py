@@ -5,7 +5,6 @@ from django.utils.safestring import mark_safe
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.metas.views import parliament_summary
 
-
 register = template.Library()
 
 

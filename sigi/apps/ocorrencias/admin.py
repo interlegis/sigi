@@ -4,7 +4,8 @@ from django.contrib.admin.views.main import ChangeList
 from django.utils.translation import ugettext as _
 
 from filters import OcorrenciaListFilter
-from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
+from sigi.apps.ocorrencias.models import (Anexo, Categoria, Comentario,
+                                          Ocorrencia, TipoContato)
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.base_admin import BaseModelAdmin
 

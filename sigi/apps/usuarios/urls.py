@@ -1,15 +1,17 @@
 from __future__ import absolute_import
+
 from django.conf.urls import include, url
 from django.contrib.auth.views import (login, logout, password_reset,
-                                       password_reset_done,
+                                       password_reset_complete,
                                        password_reset_confirm,
-                                       password_reset_complete)
-from sigi.apps.usuarios.forms import (LoginForm, RecuperarSenhaEmailForm,
-                                      RecuperacaoMudarSenhaForm)
-from sigi.apps.usuarios.views import (HabilitarDetailView, HabilitarEditView,
-                                      MudarSenhaView, UsuarioCrud,
-                                      ConfirmarEmailView)
+                                       password_reset_done)
 from django.views.generic.base import TemplateView
+
+from sigi.apps.usuarios.forms import (LoginForm, RecuperacaoMudarSenhaForm,
+                                      RecuperarSenhaEmailForm)
+from sigi.apps.usuarios.views import (ConfirmarEmailView, HabilitarDetailView,
+                                      HabilitarEditView, MudarSenhaView,
+                                      UsuarioCrud)
 
 from .apps import AppConfig
 

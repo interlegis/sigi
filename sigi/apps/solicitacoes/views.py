@@ -1,11 +1,13 @@
 from __future__ import absolute_import
+
 import random
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 
 import sigi.apps.crud.base
-from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView, CrudBaseMixin
+from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
+                                 CrudListView, CrudUpdateView)
 from sigi.apps.usuarios.models import Usuario
 
 from .forms import SolicitacaoForm

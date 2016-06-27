@@ -1,12 +1,13 @@
 #-*- coding:utf-8 -*-
 import csv
-
 import datetime
+
 import ho.pisa as pisa
 from django.conf import settings
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import render, get_list_or_404
+from django.shortcuts import get_list_or_404, render
 from django.template import Context, loader
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
@@ -14,8 +15,10 @@ from geraldo.generators import PDFGenerator
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
-from django.contrib.auth.decorators import login_required
+from sigi.apps.convenios.reports import (ConvenioPorALReport,
+                                         ConvenioPorCMReport,
+                                         ConvenioReportSemAceiteAL,
+                                         ConvenioReportSemAceiteCM)
 
 
 def query_ordena(qs, o, ot):

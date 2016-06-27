@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
+
 from django.db import models
-from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from django.utils.translation import ugettext as _
+
+from sigi.apps.casas.models import CasaLegislativa, Funcionario
 
 
 class TipoServico(models.Model):
@@ -219,4 +221,3 @@ class RegistroServico(models.Model):
 
     class Meta:
         verbose_name_plural = _(u'Registro de serviços')
-                    

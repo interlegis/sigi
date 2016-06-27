@@ -4,7 +4,6 @@ from django.views.generic.base import TemplateView
 
 from .views import MapaView
 
-
 urlpatterns = patterns(
     'sigi.apps.servicos.views',
 

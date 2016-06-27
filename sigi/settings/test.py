@@ -1,6 +1,5 @@
 from base import *
 
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '0$ip1fb5xtq%a=)-k_4r^(#jn0t^@+*^kihkxkozg-mip7+w3+'
 

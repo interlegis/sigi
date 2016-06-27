@@ -5,14 +5,15 @@ from django import forms
 from django.db.models import Q
 from django.forms.forms import BoundField
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, render_to_response
 from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
+from sigi.apps.servicos.models import (CasaAtendida, CasaManifesta,
+                                       ServicoManifesto, TipoServico)
 
 
 class MapaView(TemplateView):

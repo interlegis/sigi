@@ -5,7 +5,6 @@ from django_dynamic_fixture import G
 
 from sigi.apps.servidores.management.commands.sync_ldap import Command
 
-
 pytestmark = pytest.mark.django_db
 
 

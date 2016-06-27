@@ -2,7 +2,6 @@
 from django.conf.urls import patterns, url
 from django.views.generic import TemplateView
 
-
 LOGIN_REDIRECT_URL = '/diagnosticos/mobile/login'
 
 urlpatterns = patterns(

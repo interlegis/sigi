@@ -1,25 +1,27 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+
 from braces.views import FormValidMessageMixin
 from django.conf import settings
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.urlresolvers import reverse
-from django.utils import timezone
-from django.views.generic import DetailView, FormView, TemplateView
-from django.core.mail import send_mail
-from sigi.apps.crud.utils import str2bool
 from django.contrib.auth.tokens import default_token_generator
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.core.mail import send_mail
+from django.core.urlresolvers import reverse
+from django.shortcuts import redirect
+from django.utils import timezone
 from django.utils.encoding import force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
+from django.views.generic import DetailView, FormView, TemplateView
+
 from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
-                                 CrudListView, CrudUpdateView, CrudDetailView)
+                                 CrudDetailView, CrudListView, CrudUpdateView)
+from sigi.apps.crud.utils import str2bool
 
 from .forms import (HabilitarEditForm, MudarSenhaForm, UsuarioEditForm,
                     UsuarioForm)
-from .models import Usuario, ConfirmaEmail, User
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import redirect
+from .models import ConfirmaEmail, User, Usuario
 
 
 class UsuarioCrud(Crud):

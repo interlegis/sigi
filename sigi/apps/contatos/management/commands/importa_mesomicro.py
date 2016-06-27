@@ -23,8 +23,12 @@
 #
 import csv
 import os
+
 from django.core.management.base import BaseCommand, CommandError
-from sigi.apps.contatos.models import Municipio, UnidadeFederativa, Mesorregiao, Microrregiao
+
+from sigi.apps.contatos.models import (Mesorregiao, Microrregiao, Municipio,
+                                       UnidadeFederativa)
+
 
 class Command(BaseCommand):
     args = u"data_file.csv"

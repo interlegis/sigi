@@ -8,7 +8,8 @@ from django.utils.translation import ugettext as _
 
 from sigi.apps.casas.admin import FuncionariosInline
 from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
+from sigi.apps.servicos.models import (CasaAtendida, LogServico, Servico,
+                                       TipoServico)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 

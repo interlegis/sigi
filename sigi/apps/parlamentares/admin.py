@@ -1,14 +1,16 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.contrib.contenttypes.admin import GenericTabularInline 
-from django.http import HttpResponseRedirect, HttpResponse
+from django.contrib.contenttypes.admin import GenericTabularInline
+from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.html import escape, escapejs
 from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Telefone
-from sigi.apps.parlamentares.models import (
-    Partido, Parlamentar, Mandato, Legislatura, Coligacao, ComposicaoColigacao,
-    SessaoLegislativa, MesaDiretora, Cargo, MembroMesaDiretora)
+from sigi.apps.parlamentares.models import (Cargo, Coligacao,
+                                            ComposicaoColigacao, Legislatura,
+                                            Mandato, MembroMesaDiretora,
+                                            MesaDiretora, Parlamentar, Partido,
+                                            SessaoLegislativa)
 from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
 from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.utils.filters import AlphabeticFilter

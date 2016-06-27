@@ -3,7 +3,8 @@ from cStringIO import StringIO
 from itertools import product
 
 import pyPdf
-from django_dynamic_fixture.fixture_algorithms.sequential_fixture import SequentialDataFixture
+from django_dynamic_fixture.fixture_algorithms.sequential_fixture import \
+    SequentialDataFixture
 
 
 def pdf_text(res):

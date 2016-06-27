@@ -14,6 +14,7 @@ import os
 from os.path import dirname
 
 import django.conf.global_settings as DEFAULT_SETTINGS
+from easy_thumbnails.conf import Settings as thumbnail_settings
 
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
@@ -152,7 +153,6 @@ LOGIN_URL = '/login/?next='
 # Using pytest directly (without a test runner)
 TEST_RUNNER = None
 
-from easy_thumbnails.conf import Settings as thumbnail_settings
 THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
