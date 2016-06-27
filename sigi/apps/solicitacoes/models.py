@@ -4,28 +4,13 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from sigi.apps.usuarios.models import Usuario
-
-
-class Sistema(models.Model):
-    sigla = models.CharField(verbose_name=_(u'Sigla'), max_length=10)
-    nome = models.CharField(verbose_name=_(u'Nome Sistema'),
-                            max_length=100)
-    descricao = models.TextField(null=True,
-                                 blank=True,
-                                 verbose_name=_(u'Descrição'))
-
-    class Meta(object):
-        verbose_name = _(u'Sistema')
-        verbose_name_plural = _(u'Sistemas')
-
-    def __str__(self):
-        return u"%s - %s" % (self.sigla, self.nome)
+from sigi.apps.servicos.models import TipoServico
 
 
 class Solicitacao(models.Model):
     codigo = models.PositiveIntegerField(unique=True)
     usuario = models.ForeignKey(Usuario)
-    sistema = models.ForeignKey(Sistema)
+    sistema = models.ForeignKey(TipoServico)
     titulo = models.CharField(verbose_name=_(u'Título'), max_length=100)
     resumo = models.CharField(verbose_name=_(u'Resumo'), max_length=50)
     casa_legislativa = models.CharField(verbose_name=_(u'Casa Legislativa'),

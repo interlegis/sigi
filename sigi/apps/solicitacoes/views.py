@@ -8,8 +8,8 @@ import sigi.apps.crud.base
 from sigi.apps.crud.base import Crud, CrudCreateView, CrudListView, CrudCreateView, CrudUpdateView, CrudBaseMixin
 from sigi.apps.usuarios.models import Usuario
 
-from .forms import SistemaForm, SolicitacaoEditForm, SolicitacaoForm
-from .models import Sistema, Solicitacao
+from .forms import SolicitacaoEditForm, SolicitacaoForm
+from .models import Solicitacao
 
 
 class SolicitacaoCrud(LoginRequiredMixin, Crud):
@@ -48,17 +48,3 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
     class BaseMixin(CrudBaseMixin):
         list_field_names = [u'osticket', u'sistema',
                             u'titulo', u'data_criacao']
-
-
-class SistemaCrud(Crud):
-    model = Sistema
-    help_path = u''
-
-    class CreateView(LoginRequiredMixin, CrudCreateView):
-        form_class = SistemaForm
-
-    class UpdateView(LoginRequiredMixin, CrudUpdateView):
-        form_class = SistemaForm
-
-    class ListView(LoginRequiredMixin, CrudListView):
-        pass

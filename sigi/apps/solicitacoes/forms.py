@@ -3,7 +3,7 @@ from django.db import transaction
 from django import forms
 from django.forms import ModelForm
 from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_URL
-from .models import Sistema, Solicitacao
+from .models import Solicitacao
 import json
 import requests
 
@@ -67,10 +67,3 @@ class SolicitacaoEditForm(ModelForm):
                   u'casa_legislativa', u'titulo', u'resumo']
         widgets = {u'codigo': forms.TextInput(attrs={u'readonly': u'readonly'}),
                    u'usuario': forms.HiddenInput()}
-
-
-class SistemaForm(ModelForm):
-
-    class Meta(object):
-        model = Sistema
-        fields = [u'sigla', u'nome']
