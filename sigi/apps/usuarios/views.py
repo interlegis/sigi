@@ -32,29 +32,30 @@ class UsuarioCrud(Crud):
                               validação do seu perfil.'
 
         def get_success_url(self):
-            kwargs = {}
-            user = User.objects.get(email=self.request.POST.get(u'email'))
-            confirmar_email = ConfirmaEmail(
-                email=user.email,
-                token=default_token_generator.make_token(user),
-                user_id=urlsafe_base64_encode(force_bytes(user.pk)))
-            confirmar_email.save()
-
-            kwargs[u'token'] = confirmar_email.token
-            kwargs[u'uidb64'] = confirmar_email.user_id
-            assunto = u"Cadastro no Sistema de Atendimento ao Usuário"
-            full_url = self.request.get_raw_uri(),
-            url_base = full_url[0][:full_url[0].find(u'usuario') - 1],
-            mensagem = (u"Este e-mail foi utilizado para fazer cadastro no " +
-                        u"Sistema de Atendimento ao Usuário do Interlegis.\n" +
-                        u"Caso você não tenha feito este cadastro, por favor" +
-                        u" ignore esta mensagem.\n" + url_base[0] +
-                        reverse(u'usuarios:confirmar_email', kwargs=kwargs))
-            remetente = settings.EMAIL_HOST_USER
-            destinatario = [confirmar_email.email,
-                            settings.EMAIL_HOST_USER]
-            send_mail(assunto, mensagem, remetente, destinatario,
-                      fail_silently=False)
+            # TODO: colocar isso aqui em get_success_url parece esquisito
+            # kwargs = {}
+            # user = User.objects.get(email=self.request.POST.get(u'email'))
+            # confirmar_email = ConfirmaEmail(
+            #     email=user.email,
+            #     token=default_token_generator.make_token(user),
+            #     user_id=urlsafe_base64_encode(force_bytes(user.pk)))
+            # confirmar_email.save()
+            #
+            # kwargs[u'token'] = confirmar_email.token
+            # kwargs[u'uidb64'] = confirmar_email.user_id
+            # assunto = u"Cadastro no Sistema de Atendimento ao Usuário"
+            # full_url = self.request.get_raw_uri(),
+            # url_base = full_url[0][:full_url[0].find(u'usuario') - 1],
+            # mensagem = (u"Este e-mail foi utilizado para fazer cadastro no " +
+            #             u"Sistema de Atendimento ao Usuário do Interlegis.\n" +
+            #             u"Caso você não tenha feito este cadastro, por favor" +
+            #             u" ignore esta mensagem.\n" + url_base[0] +
+            #             reverse(u'usuarios:confirmar_email', kwargs=kwargs))
+            # remetente = settings.EMAIL_HOST_USER
+            # destinatario = [confirmar_email.email,
+            #                 settings.EMAIL_HOST_USER]
+            # send_mail(assunto, mensagem, remetente, destinatario,
+            #           fail_silently=False)
             return reverse(u'index_atendimento')
 
     class ListView(LoginRequiredMixin, CrudListView):
