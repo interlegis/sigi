@@ -26,6 +26,7 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
                 self.initial[u'codigo'] = random.randint(0, 65500)
                 self.initial[u'email_contato'] = usuario.email
                 self.initial[u'telefone_contato'] = usuario.primeiro_telefone
+                self.initial[u'casa_legislativa'] = usuario.casa_legislativa
             except Usuario.DoesNotExist:
                 pass
             return self.initial.copy()

@@ -42,8 +42,13 @@ class SolicitacaoForm(ModelForm):
         fields = [u'codigo', u'usuario', u'sistema',
                   u'email_contato', u'telefone_contato',
                   u'casa_legislativa', u'titulo', u'resumo']
-        widgets = {u'codigo': forms.HiddenInput(),
-                   u'usuario': forms.HiddenInput()}
+        widgets = {
+            u'codigo': forms.HiddenInput(),
+            u'usuario': forms.HiddenInput(),
+            u'casa_legislativa': forms.TextInput(attrs={'readonly':'readonly'}),
+            u'email_contato': forms.TextInput(attrs={'readonly':'readonly'}),
+            u'telefone_contato': forms.TextInput(attrs={'readonly':'readonly'})
+        }
 
     @transaction.atomic
     def save(self, commit=False):
