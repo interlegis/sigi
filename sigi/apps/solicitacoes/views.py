@@ -12,11 +12,19 @@ from sigi.apps.usuarios.models import Usuario
 
 from .forms import SolicitacaoForm
 from .models import Solicitacao
+from sigi.context_processors import recupera_usuario
 
 
 class SolicitacaoCrud(LoginRequiredMixin, Crud):
     model = Solicitacao
     help_path = u''
+
+    class ListView(LoginRequiredMixin, CrudListView):
+
+        def get_rows(self, object_list):
+            object_list = Solicitacao.objects.filter(
+                usuario=recupera_usuario(self.request))
+            return [self._as_row(obj) for obj in object_list]
 
     class CreateView(LoginRequiredMixin, CrudCreateView):
         form_class = SolicitacaoForm

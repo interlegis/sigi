@@ -59,9 +59,6 @@ class UsuarioCrud(Crud):
                       fail_silently=False)
             return reverse(u'index_atendimento')
 
-    class ListView(LoginRequiredMixin, CrudListView):
-        pass
-
     class UpdateView(LoginRequiredMixin, CrudUpdateView):
         form_class = UsuarioEditForm
 
