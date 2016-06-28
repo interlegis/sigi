@@ -101,7 +101,7 @@ class UsuarioForm(ModelForm):
                   u'captcha', u'cpf', u'rg', u'cargo', u'casa_legislativa']
 
         widgets = {u'email': forms.TextInput(
-                    attrs={u'style': u'text-transform:lowercase;'}), }
+                   attrs={u'style': u'text-transform:lowercase;'}), }
 
     def __init__(self, *args, **kwargs):
         super(UsuarioForm, self).__init__(*args, **kwargs)
@@ -211,21 +211,34 @@ class UsuarioForm(ModelForm):
         u.save()
         usuario.user = u
         usuario.save()
+        return usuario
 
 
 class UsuarioEditForm(UsuarioForm):
+    captcha = CaptchaField(required=False)
+
+    casa_legislativa = forms.ModelChoiceField(
+        queryset=CasaLegislativa.objects.all(),
+        widget=Select2(),
+        required=False
+    )
 
     class Meta(object):
         model = Usuario
         fields = [u'username', u'email', u'nome_completo', u'vinculo',
-                  u'email_confirm', u'captcha', u'cpf', u'rg',
-                  u'cargo', u'casa_legislativa']
+                  u'email_confirm', u'cpf', u'rg', u'cargo']
+        exclude = [u'captcha', u'casa_legislativa']
+
         widgets = {u'username': forms.TextInput(
-                                        attrs={u'readonly': u'readonly'}),
+                   attrs={u'readonly': u'readonly'}),
+                   u'nome_completo': forms.TextInput(
+                   attrs={u'readonly': u'readonly'}),
+                   u'cpf': forms.TextInput(
+                   attrs={u'readonly': u'readonly'}),
+                   u'rg': forms.TextInput(
+                   attrs={u'readonly': u'readonly'}),
                    u'email': forms.TextInput(
-                                 attrs={u'style': u'text-transform:lowercase;'}
-                                 ),
-                   }
+                   attrs={u'style': u'text-transform:lowercase;'}), }
 
     def __init__(self, *args, **kwargs):
         super(UsuarioEditForm, self).__init__(*args, **kwargs)
@@ -242,7 +255,6 @@ class UsuarioEditForm(UsuarioForm):
             user__username=self.cleaned_data[u'username']).exists()
 
     def clean(self):
-
         if (u'email' not in self.cleaned_data or
                 u'email_confirm' not in self.cleaned_data):
             raise ValidationError(_(u'Favor informar endereços de email'))
@@ -263,7 +275,6 @@ class UsuarioEditForm(UsuarioForm):
 
     @transaction.atomic
     def save(self, commit=False):
-
         usuario = super(UsuarioForm, self).save(commit)
 
         # Primeiro telefone
@@ -415,13 +426,10 @@ class RecuperarSenhaEmailForm(PasswordResetForm):
             Fieldset(_(u'Recuperar Senha'),
                      row1,
                      form_actions(
-                        more=[
-                            Submit(
-                                u'Cancelar',
-                                u'Cancelar',
-                                style=u'background-color:black; color:white;')])
-                     )
-        )
+                     more=[Submit(u'Cancelar',
+                                  u'Cancelar',
+                                  style=u'background-color:black;'
+                                        'color:white;')])))
 
     def clean(self):
         email_existente_usuario = Usuario.objects.filter(
@@ -448,10 +456,7 @@ class RecuperacaoMudarSenhaForm(SetPasswordForm):
             Fieldset(_(u''),
                      row1,
                      form_actions(
-                        more=[
-                            Submit(
-                                u'Cancelar',
-                                u'Cancelar',
-                                style=u'background-color:black; color:white;')])
-                     )
-        )
+                     more=[Submit(u'Cancelar',
+                                  u'Cancelar',
+                                  style=u'background-color:black;'
+                                        'color:white;')])))

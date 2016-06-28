@@ -29,14 +29,12 @@ UsuarioEdit:
   Usuário:
   - username nome_completo:9
   - email email_confirm
-  - cpf rg casa_legislativa
+  - cpf rg
   - cargo vinculo
   Primeiro Telefone:
     - primeiro_tipo primeiro_ddd:2 primeiro_numero:6 primeiro_principal
   Segundo Telefone:
     - segundo_tipo segundo_ddd:2 segundo_numero:6 segundo_principal
-  Prove que você é um humano:
-    - captcha
 
 UsuarioDetail:
   Perfil:

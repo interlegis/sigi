@@ -120,8 +120,6 @@ class Usuario(models.Model):
         'casas.CasaLegislativa',
         verbose_name=_(u'Casa Legislativa')
     )
-    # campo de busca em caixa baixa e sem acentos
-    search_text = SearchField(field_names=['casa_legislativa'])
 
     class Meta(object):
         verbose_name = _(u'Usuário')
