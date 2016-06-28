@@ -22,7 +22,7 @@
             {% for value, href in value_list %}
               <td>
                 {% if href %}
-                <a href="../habilitar/{{ value_list|first|last|cut:'/home/atendimento/usuario/' }}">{{ value }}</a>
+                <a href="../habilitar/{{ value_list|first|last|cut:'/atendimento/usuario/' }}">{{ value }}</a>
                   {% else %}
                     {{ value|safe }}
                   {% endif %}

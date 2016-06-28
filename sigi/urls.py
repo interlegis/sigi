@@ -1,4 +1,4 @@
-#-*- coding:utf-8 -*-
+# -*- coding:utf-8 -*-
 
 from django.conf import settings
 from django.conf.urls import include, patterns, url
@@ -36,7 +36,7 @@ urlpatterns = patterns(
 
     # to enable language selection
     # Suspended
-    #url(r'^i18n/', include('django.conf.urls.i18n')),
+    # url(r'^i18n/', include('django.conf.urls.i18n')),
 
 ) + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 

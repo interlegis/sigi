@@ -9,6 +9,6 @@ from .apps import AppConfig
 app_name = AppConfig.name
 
 urlpatterns = [
-    url(ur'home/atendimento/solicitacao/',
+    url(ur'atendimento/solicitacao/',
         include(SolicitacaoCrud.get_urls())),
 ]

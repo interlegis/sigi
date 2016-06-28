@@ -20,7 +20,7 @@ app_name = AppConfig.name
 EMAIL_SEND_USER='atendimento@interlegis.leg.br'
 
 recuperar_email = [
-    url(ur'^home/atendimento/recuperar/recuperar_senha/$',
+    url(ur'^atendimento/recuperar/recuperar_senha/$',
         password_reset,
         {u'template_name': u'usuarios/recuperar_senha.html',
          u'password_reset_form': RecuperarSenhaEmailForm,
@@ -29,36 +29,36 @@ recuperar_email = [
          u'from_email': EMAIL_SEND_USER,
          u'html_email_template_name': u'usuarios/recuperar_senha_email.html'},
         name=u'recuperar_senha'),
-    url(ur'^home/atendimento/recuperar/recuperar_recuperar/finalizado/$',
+    url(ur'^atendimento/recuperar/recuperar_recuperar/finalizado/$',
         password_reset_done,
         {u'template_name': u'usuarios/recuperar_senha_enviado.html'},
         name=u'recuperar_senha_finalizado'),
-    url(ur'^home/atendimento/recuperar/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$',
+    url(ur'^atendimento/recuperar/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$',
         password_reset_confirm,
         {u'post_reset_redirect': u'usuarios:recuperar_senha_completo',
          u'template_name': u'usuarios/recuperacao_senha_form.html',
          u'set_password_form': RecuperacaoMudarSenhaForm},
         name=u'recuperar_senha_confirma'),
-    url(ur'^home/atendimento/recuperar/completo/$',
+    url(ur'^atendimento/recuperar/completo/$',
         password_reset_complete,
         {u'template_name': u'usuarios/recuperacao_senha_completo.html'},
         name=u'recuperar_senha_completo'),
 ]
 
 urlpatterns = recuperar_email + [
-    url(ur'^home/atendimento/login/$', login, {
+    url(ur'^atendimento/login/$', login, {
         u'template_name': u'usuarios/login.html',
         u'authentication_form': LoginForm},
         name=u'login'),
-    url(ur'^home/atendimento/logout/$', logout, {u'next_page': u'/home/atendimento'},
+    url(ur'^atendimento/logout/$', logout, {u'next_page': u'/atendimento'},
         name=u'logout'),
-    url(ur'^home/atendimento/usuario/', include(UsuarioCrud.get_urls())),
+    url(ur'^atendimento/usuario/', include(UsuarioCrud.get_urls())),
 
-    url(ur'^home/atendimento/habilitar/(?P<pk>\d+)$',
+    url(ur'^atendimento/habilitar/(?P<pk>\d+)$',
         HabilitarDetailView.as_view(), name=u'habilitar_detail'),
-    url(ur'^home/atendimento/habilitar/(?P<pk>\d+)/edit$',
+    url(ur'^atendimento/habilitar/(?P<pk>\d+)/edit$',
         HabilitarEditView.as_view(), name=u'habilitar_edit'),
-    url(ur'^home/atendimento/usuario/(?P<pk>\d+)/mudar_senha$',
+    url(ur'^atendimento/usuario/(?P<pk>\d+)/mudar_senha$',
         MudarSenhaView.as_view(), name=u'mudar_senha'),
     url(ur'^usuario/confirmar/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
         ConfirmarEmailView.as_view(), name=u'confirmar_email'),

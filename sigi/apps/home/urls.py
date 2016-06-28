@@ -4,7 +4,7 @@ from django.views.generic.base import TemplateView
 
 urlpatterns = patterns(
     'sigi.apps.home.views',
-    url(r'^home/atendimento', TemplateView.as_view(
+    url(r'^atendimento', TemplateView.as_view(
         template_name='index_atendimento.html'),
         name='index_atendimento'),
     url(r'^$', 'index', name='sigi_index'),
