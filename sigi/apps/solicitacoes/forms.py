@@ -43,11 +43,10 @@ class SolicitacaoForm(ModelForm):
 
     class Meta:
         model = Solicitacao
-        fields = [u'codigo', u'usuario', u'sistema',
+        fields = [u'usuario', u'sistema',
                   u'email_contato', u'telefone_contato',
                   u'casa_legislativa', u'titulo', u'resumo']
         widgets = {
-            u'codigo': forms.HiddenInput(),
             u'usuario': forms.HiddenInput(),
             u'casa_legislativa': forms.TextInput(
                 attrs={'readonly': 'readonly'}),

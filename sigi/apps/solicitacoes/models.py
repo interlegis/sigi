@@ -9,7 +9,6 @@ from sigi.apps.usuarios.models import Usuario
 
 
 class Solicitacao(models.Model):
-    codigo = models.PositiveIntegerField(unique=True)
     usuario = models.ForeignKey(Usuario)
     sistema = models.ForeignKey(TipoServico)
     titulo = models.CharField(verbose_name=_(u'Título'), max_length=100)
