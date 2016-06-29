@@ -64,6 +64,23 @@ class ConfirmaEmail(models.Model):
         verbose_name_plural = _(u'Emails')
 
 
+class Atesto(models.Model):
+    user = models.ForeignKey(User)
+    data = models.DateTimeField(default=timezone.now)
+
+    class Meta(object):
+        verbose_name = _(u'Atesto')
+        verbose_name_plural = _(u'Atestos')
+
+
+class AtestoResponsavel(Atesto):
+    pass
+
+
+class AtestoConvenio(Atesto):
+    pass
+
+
 class Usuario(models.Model):
     u'''
         Usuário cadastrado via web
@@ -89,11 +106,6 @@ class Usuario(models.Model):
     email = email = models.EmailField(unique=True, verbose_name=_(u'Email'))
     email_confirmado = models.BooleanField(
         default=False, verbose_name=_(u'Email confirmado?'))
-    habilitado = models.BooleanField(
-        default=False,
-        verbose_name=_(u'Habilitado?'))
-    conveniado = models.BooleanField(default=False)
-    responsavel = models.BooleanField(default=False)
     rg = models.CharField(
         max_length=9,
         null=True,
@@ -120,6 +132,15 @@ class Usuario(models.Model):
         'casas.CasaLegislativa',
         verbose_name=_(u'Casa Legislativa')
     )
+
+    responsavel = models.BooleanField(
+        default=False,
+        verbose_name=_(u'Responsável?'))
+    conveniado = models.BooleanField(
+        default=False,
+        verbose_name=_(u'Conveniado?'))
+    atesto_conveniado = models.ForeignKey(AtestoConvenio, null=True)
+    atesto_responsavel = models.ForeignKey(AtestoResponsavel, null=True)
 
     class Meta(object):
         verbose_name = _(u'Usuário')

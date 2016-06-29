@@ -7,21 +7,126 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.tokens import default_token_generator
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
 from django.utils import timezone
 from django.utils.encoding import force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-from django.views.generic import DetailView, FormView, TemplateView
+from django.views.generic import (CreateView, DetailView, FormView, ListView,
+                                  TemplateView)
+from django.views.generic.edit import FormMixin
 
 from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
                                  CrudDetailView, CrudListView, CrudUpdateView)
 from sigi.apps.crud.utils import str2bool
 
-from .forms import (HabilitarEditForm, MudarSenhaForm, UsuarioEditForm,
-                    UsuarioForm)
-from .models import ConfirmaEmail, User, Usuario
+from .forms import (ConveniadoForm, HabilitarEditForm, MudarSenhaForm,
+                    ResponsavelForm, UsuarioEditForm, UsuarioForm)
+from .models import (AtestoConvenio, AtestoResponsavel, ConfirmaEmail, User,
+                     Usuario)
+
+
+class ResponsavelListView(ListView):
+    template_name = u'usuarios/responsavel_list.html'
+    model = Usuario
+    queryset = Usuario.objects.filter(conveniado=True, responsavel=False)
+    ordering = [u'nome_completo', u'casa_legislativa']
+
+
+class ConveniadoListView(ListView):
+    template_name = u'usuarios/convenio_list.html'
+    model = Usuario
+    queryset = Usuario.objects.filter(conveniado=False, responsavel=False)
+    ordering = [u'casa_legislativa']
+
+
+class ConveniadoView(CreateView):
+    template_name = u'usuarios/convenio.html'
+    form_class = ConveniadoForm
+
+    def post(self, request, *args, **kwargs):
+        form = ConveniadoForm(request.POST)
+        usuario = Usuario.objects.get(pk=self.kwargs['pk'])
+
+        if usuario.atesto_conveniado:
+            atesto = usuario.atesto_conveniado
+            atesto.data = timezone.now()
+            atesto.user = request.user
+            atesto.save()
+        else:
+            atesto = AtestoConvenio.objects.create(
+                data=timezone.now(), user=request.user)
+
+        usuario.atesto_conveniado = atesto
+        usuario.conveniado = form.data['conveniado']
+
+        usuario.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context = super(ConveniadoView, self).get_context_data(**kwargs)
+        context[u'usuario'] = self.get_object()
+        context[u'casa'] = self.get_object().casa_legislativa
+        return context
+
+    def get_object(self, queryset=None):
+        obj = Usuario.objects.get(pk=self.kwargs['pk'])
+        return obj
+
+    def get_initial(self):
+        if self.get_object():
+            self.initial[u'conveniado'] = self.get_object().conveniado
+        return self.initial.copy()
+
+    def get_success_url(self):
+        return reverse(u'usuarios:convenio_list')
+
+
+class ResponsavelView(CreateView):
+    template_name = u'usuarios/responsavel.html'
+    form_class = ResponsavelForm
+
+    def post(self, request, *args, **kwargs):
+        form = ResponsavelForm(request.POST)
+        usuario = Usuario.objects.get(pk=self.kwargs['pk'])
+
+        if usuario.atesto_responsavel:
+            atesto = usuario.atesto_responsavel
+            atesto.data = timezone.now()
+            atesto.user = request.user
+            atesto.save()
+        else:
+            atesto = AtestoResponsavel.objects.create(
+                data=timezone.now(), user=request.user)
+
+        usuario.atesto_responsavel = atesto
+        usuario.responsavel = form.data['responsavel']
+
+        usuario.save()
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        context = {}
+        context = super(ResponsavelView, self).get_context_data(**kwargs)
+        context[u'usuario'] = self.get_object()
+        context[u'casa'] = self.get_object().casa_legislativa
+        return context
+
+    def get_object(self, queryset=None):
+        obj = Usuario.objects.get(pk=self.kwargs['pk'])
+        return obj
+
+    def get_initial(self):
+        if self.get_object():
+            self.initial[u'responsavel'] = self.get_object().responsavel
+        return self.initial.copy()
+
+    def get_success_url(self):
+        return reverse(u'usuarios:responsavel_list')
 
 
 class UsuarioCrud(Crud):

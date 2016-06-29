@@ -9,15 +9,17 @@ from django.views.generic.base import TemplateView
 
 from sigi.apps.usuarios.forms import (LoginForm, RecuperacaoMudarSenhaForm,
                                       RecuperarSenhaEmailForm)
-from sigi.apps.usuarios.views import (ConfirmarEmailView, HabilitarDetailView,
+from sigi.apps.usuarios.views import (ConfirmarEmailView, ConveniadoListView,
+                                      ConveniadoView, HabilitarDetailView,
                                       HabilitarEditView, MudarSenhaView,
+                                      ResponsavelListView, ResponsavelView,
                                       UsuarioCrud)
 
 from .apps import AppConfig
 
 app_name = AppConfig.name
 
-EMAIL_SEND_USER='atendimento@interlegis.leg.br'
+EMAIL_SEND_USER = 'atendimento@interlegis.leg.br'
 
 recuperar_email = [
     url(ur'^atendimento/recuperar/recuperar_senha/$',
@@ -60,6 +62,17 @@ urlpatterns = recuperar_email + [
         HabilitarEditView.as_view(), name=u'habilitar_edit'),
     url(ur'^atendimento/usuario/(?P<pk>\d+)/mudar_senha$',
         MudarSenhaView.as_view(), name=u'mudar_senha'),
-    url(ur'^usuario/confirmar/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
+    url(ur'^usuario/confirmar/(?P<uidb64>[0-9A-Za-z_\-]+)/'
+        '(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
         ConfirmarEmailView.as_view(), name=u'confirmar_email'),
+
+    url(ur'^responsavel$', ResponsavelListView.as_view(),
+        name=u'responsavel_list'),
+    url(ur'^responsavel/(?P<pk>\d+)/$', ResponsavelView.as_view(),
+        name=u'responsavel_update'),
+
+    url(ur'^convenio$', ConveniadoListView.as_view(),
+        name=u'convenio_list'),
+    url(ur'^convenio/(?P<pk>\d+)/$', ConveniadoView.as_view(),
+        name=u'convenio_update'),
 ]

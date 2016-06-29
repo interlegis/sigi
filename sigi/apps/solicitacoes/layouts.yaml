@@ -6,7 +6,6 @@ Sistema:
 
 Solicitacao:
   Solicitação:
-    - codigo
     - usuario
     - sistema
     - casa_legislativa

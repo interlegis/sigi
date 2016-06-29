@@ -123,3 +123,10 @@ main_menu:
       url: saberes/dashboard/cursos-sem-turoria/
     - title: Cursos com Tutoria
       url: saberes/dashboard/cursos-com-turoria/
+  - title: Atesto
+    url: '/'
+    children:
+    - title: Convênio
+      url: convenio
+    - title: Responsável
+      url: responsavel

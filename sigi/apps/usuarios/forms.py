@@ -5,7 +5,7 @@ from datetime import datetime
 
 from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import Fieldset, Layout, Submit
+from crispy_forms.layout import HTML, Fieldset, Layout, Submit
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
                                        SetPasswordForm)
@@ -23,6 +23,60 @@ from sigi.apps.crispy_layout_mixin import form_actions
 from sigi.apps.crud.utils import YES_NO_CHOICES
 
 from .models import Telefone, Usuario
+
+
+class ResponsavelForm(ModelForm):
+    responsavel = forms.TypedChoiceField(
+        widget=forms.Select(),
+        label=_(u'Responsavel?'),
+        choices=YES_NO_CHOICES)
+
+    class Meta(object):
+        model = Usuario
+        fields = ['responsavel']
+
+    def __init__(self, *args, **kwargs):
+        super(ResponsavelForm, self).__init__(*args, **kwargs)
+        row1 = sigi.apps.crispy_layout_mixin.to_row([(u'responsavel', 12)])
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(_(u'Atestar Responsável'),
+                     HTML(u'''<p align="center"><font size="4" color="red">
+                          Ao atestar a responsabilidade deste convênio você
+                          estará assumindo responsabilidade por qualquer
+                          problema que poderá ocorrer pela existência de dados
+                          incorretos.</font></p>'''),
+                     row1,
+                     form_actions(
+                     save_label='Atestar')))
+
+
+class ConveniadoForm(ModelForm):
+    conveniado = forms.TypedChoiceField(
+        widget=forms.Select(),
+        label=_(u'Conveniado?'),
+        choices=YES_NO_CHOICES)
+
+    class Meta(object):
+        model = Usuario
+        fields = ['conveniado']
+
+    def __init__(self, *args, **kwargs):
+        super(ConveniadoForm, self).__init__(*args, **kwargs)
+        row1 = sigi.apps.crispy_layout_mixin.to_row([(u'conveniado', 12)])
+
+        self.helper = FormHelper()
+        self.helper.layout = Layout(
+            Fieldset(_(u'Atestar Conveniado'),
+                     HTML(u'''<p align="center"><font size="4" color="red">
+                          Ao atestar o convênio deste usuário você estará
+                          assumindo resonsabilidade por qualquer problema
+                          que poderá ocorrer pela existência de dados
+                          incorretos.</font></p>'''),
+                     row1,
+                     form_actions(
+                     save_label='Atestar')))
 
 
 class LoginForm(AuthenticationForm):

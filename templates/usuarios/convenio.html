@@ -1,0 +1,24 @@
+{% extends "admin/base_site.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% block content %}
+  <table class="table table-striped table-bordered">
+    <thead class="thead-default">
+      <tr>
+        <th>Dados da Casa Legislativa</th>
+      </tr>
+    </thead>
+      <tr>
+        <td>
+          <b>Casa:</b> {{casa}}<br />
+          <b>CNJ:</b> {{casa.cnpj}}<br />
+          <b>Município:</b> {{casa.municipio}}<br />
+          <b>Email:</b> {{casa.email}}<br />
+          <b>Cep:</b> {{casa.cep}}<br />
+          <b>Página:</b> {{casa.pagina_web}}<br />
+          <b>Telefone:</b> {{casa.telefone}}<br />
+        </td>
+      </tr>
+  </table>
+  {% crispy form %}
+{% endblock %}
