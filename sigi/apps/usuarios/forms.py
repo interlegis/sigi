@@ -171,6 +171,15 @@ class UsuarioForm(ModelForm):
             raise ValidationError(msg)
         return True
 
+    def clean_username(self):
+        usuario = User.objects.filter(
+            username=self.cleaned_data[u'username']).exists()
+
+        if usuario:
+            raise ValidationError(u'Usuário existente.')
+
+        return self.cleaned_data
+
     def clean_primeiro_numero(self):
         cleaned_data = self.cleaned_data
 
