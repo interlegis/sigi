@@ -153,12 +153,14 @@ class UsuarioCrud(Crud):
             kwargs[u'uidb64'] = confirmar_email.user_id
             assunto = u"Cadastro no Sistema de Atendimento ao Usuário"
             full_url = self.request.get_raw_uri(),
-            url_base = full_url[0][:full_url[0].find(u'usuario') - 1],
+            url_base = full_url[0][:full_url[0].find(u'atendimento') - 1],
             mensagem = (u"Este e-mail foi utilizado para fazer cadastro no " +
                         u"Sistema de Atendimento ao Usuário do Interlegis.\n" +
-                        u"Caso você não tenha feito este cadastro, por favor" +
-                        u" ignore esta mensagem.\n" + url_base[0] +
-                        reverse(u'usuarios:confirmar_email', kwargs=kwargs))
+                        u"Clique no link abaixo para confirmar o cadastro:\n\n" +
+                        url_base[0] +
+                        reverse(u'usuarios:confirmar_email', kwargs=kwargs) +
+                        u"\n\nCaso você não tenha feito este cadastro, " +
+                        u"por favor, ignore esta mensagem.\n")
             remetente = settings.EMAIL_HOST_USER
             destinatario = [confirmar_email.email,
                             settings.EMAIL_HOST_USER]
