@@ -24,7 +24,7 @@ from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
                                  CrudDetailView, CrudListView, CrudUpdateView)
 from sigi.apps.crud.utils import str2bool
 
-from .forms import (ConveniadoForm, HabilitarEditForm, MudarSenhaForm,
+from .forms import (ConveniadoForm, MudarSenhaForm,
                     ResponsavelForm, UsuarioEditForm, UsuarioForm)
 from .models import (AtestoConvenio, AtestoResponsavel, ConfirmaEmail, User,
                      Usuario)
