@@ -43,7 +43,7 @@ class ResponsavelForm(ModelForm):
         self.helper.layout = Layout(
             Fieldset(_(u'Atestar Responsável'),
                      HTML(u'''<p align="center"><font size="4" color="red">
-                          Ao atestar a responsabilidade deste convênio você
+                          Ao atestar o vínculo deste usuário com esta casa você
                           estará assumindo responsabilidade por qualquer
                           problema que poderá ocorrer pela existência de dados
                           incorretos.</font></p>'''),
@@ -70,7 +70,7 @@ class ConveniadoForm(ModelForm):
         self.helper.layout = Layout(
             Fieldset(_(u'Atestar Conveniado'),
                      HTML(u'''<p align="center"><font size="4" color="red">
-                          Ao atestar o convênio deste usuário você estará
+                          Ao atestar o convênio desta casa você estará
                           assumindo resonsabilidade por qualquer problema
                           que poderá ocorrer pela existência de dados
                           incorretos.</font></p>'''),

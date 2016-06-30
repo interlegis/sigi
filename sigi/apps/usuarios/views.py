@@ -71,6 +71,8 @@ class ConveniadoView(CreateView):
         context = super(ConveniadoView, self).get_context_data(**kwargs)
         context[u'usuario'] = self.get_object()
         context[u'casa'] = self.get_object().casa_legislativa
+        context[u'convenios'] = self.get_object(
+        ).casa_legislativa.convenio_set.all()
         return context
 
     def get_object(self, queryset=None):

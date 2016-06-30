@@ -66,13 +66,13 @@ urlpatterns = recuperar_email + [
         '(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})$',
         ConfirmarEmailView.as_view(), name=u'confirmar_email'),
 
-    url(ur'^responsavel$', ResponsavelListView.as_view(),
+    url(ur'^atesto/responsavel$', ResponsavelListView.as_view(),
         name=u'responsavel_list'),
-    url(ur'^responsavel/(?P<pk>\d+)/$', ResponsavelView.as_view(),
+    url(ur'^atesto/responsavel/(?P<pk>\d+)/$', ResponsavelView.as_view(),
         name=u'responsavel_update'),
 
-    url(ur'^convenio$', ConveniadoListView.as_view(),
+    url(ur'^atesto/convenio$', ConveniadoListView.as_view(),
         name=u'convenio_list'),
-    url(ur'^convenio/(?P<pk>\d+)/$', ConveniadoView.as_view(),
+    url(ur'^atesto/convenio/(?P<pk>\d+)/$', ConveniadoView.as_view(),
         name=u'convenio_update'),
 ]

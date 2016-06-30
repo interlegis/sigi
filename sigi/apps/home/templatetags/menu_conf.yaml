@@ -127,6 +127,6 @@ main_menu:
     url: '/'
     children:
     - title: Convênio
-      url: convenio
+      url: atesto/convenio
     - title: Responsável
-      url: responsavel
+      url: atesto/responsavel

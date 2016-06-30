@@ -6,6 +6,7 @@
     <thead class="thead-default">
       <tr>
         <th>Dados da Casa Legislativa</th>
+        <th>Convênio(s) da Casa Legislativa</th>
       </tr>
     </thead>
       <tr>
@@ -17,6 +18,11 @@
           <b>Cep:</b> {{casa.cep}}<br />
           <b>Página:</b> {{casa.pagina_web}}<br />
           <b>Telefone:</b> {{casa.telefone}}<br />
+        </td>
+        <td>
+          {% for c in convenios %}
+            {{c}}<br />
+          {% endfor %}
         </td>
       </tr>
   </table>
