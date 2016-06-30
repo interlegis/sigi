@@ -7,25 +7,23 @@
   </div>
 {% endblock actions %}
 
-{% block msg %}
-  {% if not usuario.habilitado %}
-    <h4><font face="verdana" color="red"><p>Esse perfil ainda <strong>não está habilitado</strong> para uso das funcionalidades.</p></font></h4>
-  {% else %}
-    <h4><font face="verdana" color="green"><p>Esse perfil já <strong>está habilitado</strong> para uso das funcionalidades.</p></font></h4>
-  {% endif %}
-{% endblock msg %}
-
-{% block extrablock %}
-
-  {% for tel in telefones %}
-    <div class="col-sm-span">
-      <div class="form-group">
-        <p class="control-label">{{tel|first}}</p>
-        <div class="controls">
-          <p class="form-control-static">{{ tel|last }}</p>
-        </div>
-      </div>
-    </div>
-  {% endfor %}
-
+{% block detail_content %}
+  <br />
+  <table class="table table-striped table-bordered">
+    <tr><th>Nome de Usuário: </th><td>{{object.username}}</td></tr>
+    <tr><th>Nome completo: </th><td>{{object.nome_completo}}</td></tr>
+    <tr><th>Email: </th><td>{{object.email}}</td></tr>
+    <tr><th>CPF: </th><td>{{object.cpf}}</td></tr>
+    <tr><th>RG: </th><td>{{object.rg}}</td></tr>
+    <tr><th>Casa Legislativa: </th><td>{{object.casa_legislativa}}</td></tr>
+    <tr><th>Cargo: </th><td>{{object.cargo}}</td></tr>
+    <tr><th>Vínculo: </th><td>{{object.vinculo}}</td></tr>
+    <tr><th>Telefone(s): </th>
+      <td>
+        {% for tel in telefones %}
+          {{tel|last}}<br/>
+        {% endfor %}
+      </td>
+    </tr>
+  </table>
 {% endblock %}
