@@ -131,7 +131,7 @@ class CrudCreateView(FormMessagesMixin, CreateView):
 
     @property
     def cancel_url(self):
-        return self.list_url
+        return '/atendimento'
 
     def get_success_url(self):
         return self.detail_url

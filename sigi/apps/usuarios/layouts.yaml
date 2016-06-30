@@ -7,10 +7,6 @@ CasaLegislativa:
   - telefone
   - endereco_web
 
-Subsecretaria:
-  Subsecretaria:
-  - nome:8 sigla
-
 Usuario:
   Dados do Usuário:
   - username nome_completo:9

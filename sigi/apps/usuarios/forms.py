@@ -5,7 +5,7 @@ from datetime import datetime
 
 from captcha.fields import CaptchaField
 from crispy_forms.helper import FormHelper
-from crispy_forms.layout import HTML, Fieldset, Layout, Submit
+from crispy_forms.layout import HTML, Button, Fieldset, Layout, Submit
 from django import forms
 from django.contrib.auth.forms import (AuthenticationForm, PasswordResetForm,
                                        SetPasswordForm)
@@ -386,42 +386,6 @@ class UsuarioEditForm(UsuarioForm):
         return usuario
 
 
-class HabilitarEditForm(ModelForm):
-    habilitado = forms.ChoiceField(
-        widget=forms.Select(),
-        required=True,
-        choices=YES_NO_CHOICES)
-
-    class Meta(object):
-        model = Usuario
-        fields = [u'cpf', u'nome_completo', u'email', u'habilitado']
-        widgets = {
-            u'cpf': forms.TextInput(attrs={u'readonly': u'readonly'}),
-            u'nome_completo': forms.TextInput(attrs={u'readonly': u'readonly'}
-                                              ),
-            u'email': forms.TextInput(attrs={u'readonly': u'readonly'})
-        }
-
-    def __init__(self, *args, **kwargs):
-        super(HabilitarEditForm, self).__init__(*args, **kwargs)
-        row1 = sigi.apps.crispy_layout_mixin.to_row(
-            [(u'nome_completo', 4),
-             (u'cpf', 4),
-             (u'email', 4)])
-        row2 = sigi.apps.crispy_layout_mixin.to_row([(u'habilitado', 12)])
-        self.helper = FormHelper()
-        self.helper.layout = Layout(
-            Fieldset(
-                _(u'Editar usuário'), row1, row2, form_actions(
-                    more=[
-                        Submit(
-                            u'Cancelar',
-                            u'Cancelar',
-                            style=u'background-color:black; color:white;')])
-            )
-        )
-
-
 class MudarSenhaForm(ModelForm):
 
     password = forms.CharField(
@@ -433,8 +397,6 @@ class MudarSenhaForm(ModelForm):
         max_length=20,
         label=_(u'Confirmar Nova Senha'),
         widget=forms.PasswordInput())
-
-    captcha = CaptchaField()
 
     def valida_igualdade(self, texto1, texto2, msg):
         if texto1 != texto2:
@@ -460,24 +422,24 @@ class MudarSenhaForm(ModelForm):
 
     class Meta(object):
         model = Usuario
-        fields = [u'password', u'password_confirm', u'captcha']
+        fields = [u'password', u'password_confirm']
 
     def __init__(self, *args, **kwargs):
         super(MudarSenhaForm, self).__init__(*args, **kwargs)
         row1 = sigi.apps.crispy_layout_mixin.to_row(
             [(u'password', 6),
              (u'password_confirm', 6)])
-        row2 = sigi.apps.crispy_layout_mixin.to_row([(u'captcha', 12)])
         self.helper = FormHelper()
         self.helper.layout = Layout(
             Fieldset(
-                _(u'Mudar Senha'), row1, row2,
+                _(u'Mudar Senha'), row1,
                 form_actions(
                     more=[
-                        Submit(
+                        Button(
                             u'Cancelar',
                             u'Cancelar',
-                            style=u'background-color:black; color:white;')])
+                            style=u'background-color:black; color:white;',
+                            onclick="window.history.back()")])
             )
         )
 
@@ -493,10 +455,11 @@ class RecuperarSenhaEmailForm(PasswordResetForm):
             Fieldset(_(u'Recuperar Senha'),
                      row1,
                      form_actions(
-                     more=[Submit(u'Cancelar',
+                     more=[Button(u'Cancelar',
                                   u'Cancelar',
                                   style=u'background-color:black;'
-                                        'color:white;')])))
+                                        'color:white;',
+                                  onclick="window.history.back()")])))
 
     def clean(self):
         email_existente_usuario = Usuario.objects.filter(

@@ -10,8 +10,7 @@ from django.views.generic.base import TemplateView
 from sigi.apps.usuarios.forms import (LoginForm, RecuperacaoMudarSenhaForm,
                                       RecuperarSenhaEmailForm)
 from sigi.apps.usuarios.views import (ConfirmarEmailView, ConveniadoListView,
-                                      ConveniadoView, HabilitarDetailView,
-                                      HabilitarEditView, MudarSenhaView,
+                                      ConveniadoView, MudarSenhaView,
                                       ResponsavelListView, ResponsavelView,
                                       UsuarioCrud)
 
@@ -55,11 +54,6 @@ urlpatterns = recuperar_email + [
     url(ur'^atendimento/logout/$', logout, {u'next_page': u'/atendimento'},
         name=u'logout'),
     url(ur'^atendimento/usuario/', include(UsuarioCrud.get_urls())),
-
-    url(ur'^atendimento/habilitar/(?P<pk>\d+)$',
-        HabilitarDetailView.as_view(), name=u'habilitar_detail'),
-    url(ur'^atendimento/habilitar/(?P<pk>\d+)/edit$',
-        HabilitarEditView.as_view(), name=u'habilitar_edit'),
     url(ur'^atendimento/usuario/(?P<pk>\d+)/mudar_senha$',
         MudarSenhaView.as_view(), name=u'mudar_senha'),
     url(ur'^usuario/confirmar/(?P<uidb64>[0-9A-Za-z_\-]+)/'

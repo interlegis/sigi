@@ -167,7 +167,7 @@ class UsuarioCrud(Crud):
             url_base = full_url[0][:full_url[0].find(u'atendimento') - 1],
             mensagem = (u"Este e-mail foi utilizado para fazer cadastro no " +
                         u"Sistema de Atendimento ao Usuário do Interlegis.\n" +
-                        u"Clique no link abaixo para confirmar o cadastro:\n\n" +
+                        u"Clique no link abaixo para confirmar o cadastro:\n" +
                         url_base[0] +
                         reverse(u'usuarios:confirmar_email', kwargs=kwargs) +
                         u"\n\nCaso você não tenha feito este cadastro, " +
@@ -222,47 +222,6 @@ class UsuarioCrud(Crud):
         @property
         def layout_key(self):
             return u'UsuarioDetail'
-
-    class BaseMixin(CrudBaseMixin):
-        list_field_names = [u'username', u'nome_completo',
-                            u'data_criacao', u'habilitado',
-                            u'data_ultima_atualizacao']
-
-
-class HabilitarDetailView(CrudDetailView):
-    template_name = u"usuarios/habilitar_detail.html"
-
-    def get(self, request, *args, **kwargs):
-        context = {}
-        context[u'pk'] = self.kwargs[u'pk']
-        context[u'usuario'] = Usuario.objects.get(pk=self.kwargs[u'pk'])
-        return self.render_to_response(context)
-
-
-class HabilitarEditView(FormView):
-    template_name = u"crud/form.html"
-
-    def get(self, request, *args, **kwargs):
-        context = {}
-
-        usuario = Usuario.objects.get(pk=self.kwargs[u'pk'])
-        form = HabilitarEditForm(instance=usuario)
-
-        context[u'pk'] = self.kwargs[u'pk']
-        context[u'form'] = form
-        return self.render_to_response(context)
-
-    def post(self, request, *args, **kwargs):
-        form = HabilitarEditForm(request.POST)
-        usuario = Usuario.objects.get(pk=self.kwargs[u'pk'])
-        usuario.habilitado = str2bool(form.data[u'habilitado'])
-        usuario.data_ultima_atualizacao = timezone.now()
-
-        usuario.save()
-        return self.form_valid(form)
-
-    def get_success_url(self):
-        return reverse(u'usuarios:usuario_list')
 
 
 class MudarSenhaView(FormValidMessageMixin, FormView):
