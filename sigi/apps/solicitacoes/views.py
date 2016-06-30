@@ -20,7 +20,9 @@ class SolicitacaoCrud(LoginRequiredMixin, Crud):
     model = Solicitacao
     help_path = u''
 
-    class ListView(CrudListView):
+    class ListView(GroupRequiredMixin, CrudListView):
+        template_name = u'solicitacoes/solicitacoes_list.html'
+        group_required = u'Usuario_Habilitado'
 
         def get_rows(self, object_list):
             object_list = Solicitacao.objects.filter(
