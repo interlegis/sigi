@@ -2,10 +2,11 @@
 
 from __future__ import absolute_import
 
-from braces.views import FormValidMessageMixin
+from braces.views import FormValidMessageMixin, GroupRequiredMixin
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.models import Group
 from django.contrib.auth.tokens import default_token_generator
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.mail import send_mail
@@ -29,23 +30,31 @@ from .models import (AtestoConvenio, AtestoResponsavel, ConfirmaEmail, User,
                      Usuario)
 
 
-class ResponsavelListView(ListView):
+def habilitar_usuario(usuario):
+    grupo = Group.objects.get(name='Usuario_Habilitado')
+    usuario.user.groups.add(grupo)
+
+
+class ResponsavelListView(GroupRequiredMixin, ListView):
     template_name = u'usuarios/responsavel_list.html'
     model = Usuario
     queryset = Usuario.objects.filter(conveniado=True, responsavel=False)
     ordering = [u'nome_completo', u'casa_legislativa']
+    group_required = u'COPLAF'
 
 
-class ConveniadoListView(ListView):
+class ConveniadoListView(GroupRequiredMixin, ListView):
     template_name = u'usuarios/convenio_list.html'
     model = Usuario
     queryset = Usuario.objects.filter(conveniado=False, responsavel=False)
     ordering = [u'casa_legislativa']
+    group_required = u'COADFI'
 
 
-class ConveniadoView(CreateView):
+class ConveniadoView(GroupRequiredMixin, CreateView):
     template_name = u'usuarios/convenio.html'
     form_class = ConveniadoForm
+    group_required = u'COADFI'
 
     def post(self, request, *args, **kwargs):
         form = ConveniadoForm(request.POST)
@@ -88,9 +97,10 @@ class ConveniadoView(CreateView):
         return reverse(u'usuarios:convenio_list')
 
 
-class ResponsavelView(CreateView):
+class ResponsavelView(GroupRequiredMixin, CreateView):
     template_name = u'usuarios/responsavel.html'
     form_class = ResponsavelForm
+    group_required = u'COPLAF'
 
     def post(self, request, *args, **kwargs):
         form = ResponsavelForm(request.POST)
@@ -107,6 +117,7 @@ class ResponsavelView(CreateView):
 
         usuario.atesto_responsavel = atesto
         usuario.responsavel = form.data['responsavel']
+        habilitar_usuario(usuario)
 
         usuario.save()
         return HttpResponseRedirect(self.get_success_url())

@@ -2,6 +2,7 @@ from __future__ import absolute_import
 
 import random
 
+from braces.views import GroupRequiredMixin
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 
@@ -9,25 +10,34 @@ import sigi.apps.crud.base
 from sigi.apps.crud.base import (Crud, CrudBaseMixin, CrudCreateView,
                                  CrudListView, CrudUpdateView)
 from sigi.apps.usuarios.models import Usuario
+from sigi.context_processors import recupera_usuario
 
 from .forms import SolicitacaoForm
 from .models import Solicitacao
-from sigi.context_processors import recupera_usuario
 
 
 class SolicitacaoCrud(LoginRequiredMixin, Crud):
     model = Solicitacao
     help_path = u''
 
-    class ListView(LoginRequiredMixin, CrudListView):
+    class ListView(CrudListView):
 
         def get_rows(self, object_list):
             object_list = Solicitacao.objects.filter(
                 usuario=recupera_usuario(self.request))
             return [self._as_row(obj) for obj in object_list]
 
-    class CreateView(LoginRequiredMixin, CrudCreateView):
+    class UpdateView(GroupRequiredMixin, CrudUpdateView):
+        # TODO: Usado para ngm ter acesso
+        group_required = u'admin'
+
+    class CrudDeleteView(GroupRequiredMixin, CrudUpdateView):
+        # TODO: Usado para ngm ter acesso
+        group_required = u'admin'
+
+    class CreateView(GroupRequiredMixin, CrudCreateView):
         form_class = SolicitacaoForm
+        group_required = u'Usuario_Habilitado'
 
         def get_initial(self):
             try:

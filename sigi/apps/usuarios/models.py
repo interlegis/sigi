@@ -12,21 +12,6 @@ from sigi.apps.crud.utils import UF, YES_NO_CHOICES
 from sigi.apps.utils import SearchField
 
 
-class Subsecretaria(models.Model):
-
-    nome = models.CharField(verbose_name=_(u'Nome'), max_length=100, null=True)
-    sigla = models.CharField(verbose_name=_(u'Sigla'),
-                             max_length=10, null=True)
-
-    class Meta(object):
-        ordering = (u'nome', u'sigla')
-        verbose_name = _(u'Subsecretaria')
-        verbose_name_plural = _(u'Subsecretarias')
-
-    def __str__(self):
-        return u'[%s] %s' % (self.sigla, self.nome)
-
-
 class Telefone(models.Model):
     TIPO_TELEFONE = [(u'FIXO', u'FIXO'), (u'CELULAR', u'CELULAR')]
 
