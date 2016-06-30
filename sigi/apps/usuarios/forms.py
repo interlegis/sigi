@@ -172,13 +172,14 @@ class UsuarioForm(ModelForm):
         return True
 
     def clean_username(self):
+        # import ipdb; ipdb.set_trace()
         usuario = User.objects.filter(
             username=self.cleaned_data[u'username']).exists()
 
         if usuario:
             raise ValidationError(u'Usuário existente.')
 
-        return self.cleaned_data
+        return self.cleaned_data[u'username']
 
     def clean_primeiro_numero(self):
         cleaned_data = self.cleaned_data
@@ -190,7 +191,7 @@ class UsuarioForm(ModelForm):
         telefone.principal = self.data[u'primeiro_principal']
 
         cleaned_data[u'primeiro_telefone'] = telefone
-        return cleaned_data
+        return self.cleaned_data[u'primeiro_numero']
 
     def clean_segundo_numero(self):
         cleaned_data = self.cleaned_data
@@ -202,14 +203,13 @@ class UsuarioForm(ModelForm):
         telefone.principal = self.data[u'segundo_principal']
 
         cleaned_data[u'segundo_telefone'] = telefone
-        return cleaned_data
+        return self.cleaned_data[u'segundo_numero']
 
     def valida_email_existente(self):
         return Usuario.objects.filter(
             email=self.cleaned_data[u'email']).exists()
 
     def clean(self):
-
         if (u'password' not in self.cleaned_data or
                 u'password_confirm' not in self.cleaned_data):
             raise ValidationError(_(u'Favor informar senhas atuais ou novas'))
@@ -309,15 +309,20 @@ class UsuarioEditForm(UsuarioForm):
         self.fields.pop(u'password')
         self.fields.pop(u'password_confirm')
 
+    def clean_username(self):
+        pass
+
     def valida_email_existente(self):
         u'''Não permite atualizar emails para
            emails existentes de outro usuário
         '''
+
         return Usuario.objects.filter(
             email=self.cleaned_data[u'email']).exclude(
-            user__username=self.cleaned_data[u'username']).exists()
+            user__username=self.data[u'username']).exists()
 
     def clean(self):
+        self.cleaned_data[u'username'] = self.data[u'username']
         if (u'email' not in self.cleaned_data or
                 u'email_confirm' not in self.cleaned_data):
             raise ValidationError(_(u'Favor informar endereços de email'))
@@ -327,7 +332,6 @@ class UsuarioEditForm(UsuarioForm):
             self.cleaned_data[u'email'],
             self.cleaned_data[u'email_confirm'],
             msg)
-
         email_existente = self.valida_email_existente()
 
         if email_existente:

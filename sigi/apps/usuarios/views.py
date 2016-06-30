@@ -161,9 +161,8 @@ class UsuarioCrud(Crud):
                         reverse(u'usuarios:confirmar_email', kwargs=kwargs) +
                         u"\n\nCaso você não tenha feito este cadastro, " +
                         u"por favor, ignore esta mensagem.\n")
-            remetente = settings.EMAIL_HOST_USER
-            destinatario = [confirmar_email.email,
-                            settings.EMAIL_HOST_USER]
+            remetente = settings.EMAIL_SEND_USER
+            destinatario = [confirmar_email.email]
             send_mail(assunto, mensagem, remetente, destinatario,
                       fail_silently=False)
             return reverse(u'index_atendimento')
