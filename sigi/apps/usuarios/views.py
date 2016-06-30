@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from braces.views import GroupRequiredMixin
 
 from braces.views import FormValidMessageMixin, GroupRequiredMixin
 from django.conf import settings

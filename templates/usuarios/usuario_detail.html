@@ -7,6 +7,14 @@
   </div>
 {% endblock actions %}
 
+{% block msg %}
+  {% if usuario.conveniado and usuario.responsavel %}
+    <h4><font face="verdana" color="green"><p>Esse perfil já <strong>está habilitado</strong> para uso das funcionalidades.</p></font></h4>
+  {% else %}
+    <h4><font face="verdana" color="red"><p>Esse perfil ainda <strong>não está habilitado</strong> para uso das funcionalidades.</p></font></h4>
+  {% endif %}
+{% endblock msg %}
+
 {% block detail_content %}
   <br />
   <table class="table table-striped table-bordered">
@@ -26,4 +34,5 @@
       </td>
     </tr>
   </table>
+
 {% endblock %}
