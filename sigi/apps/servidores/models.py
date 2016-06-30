@@ -149,6 +149,7 @@ class Servidor(models.Model):
 # Soluçao alternativa para extender o usuário do django
 # Acessa do servidor de um objeto user criando um profile
 # baseado nos dados do LDAP
+
 User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 # Sinal para ao criar um usuário criar um servidor
@@ -156,7 +157,7 @@ User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.is_staff:
         Servidor.objects.create(
             user=instance,
             nome_completo="%s %s" % (instance.first_name, instance.last_name)
