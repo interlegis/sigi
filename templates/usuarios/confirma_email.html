@@ -1,7 +1,8 @@
 {% extends "crud/detail.html" %}
 {% load i18n %}
-
+{% block actions %}{% endblock actions %}
 {% block detail_content %}
-Sua conta foi confirmada via e-mail. Clique <a href="{% url 'usuarios:login' %}">aqui</a> para fazer seu login.
-
+  <h4><font face="verdana"><p align="center">
+    Sua conta foi confirmada via e-mail. Clique <a href="{% url 'usuarios:login' %}">aqui</a> para fazer seu login.
+  </p></font></h4>
 {% endblock %}
