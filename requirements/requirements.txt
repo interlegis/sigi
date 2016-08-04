@@ -1,5 +1,5 @@
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
-django-admin-bootstrapped==2.5.7
+git+git://github.com/hellpanderrr/django-admin-bootstrapped-1.9-compatible.git@master#egg=django_admin_bootstrappedj
 django-auth-ldap==1.2.8
 django-autoslug==1.9.3
 django-bootstrap3==7.0.1
