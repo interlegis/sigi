@@ -272,7 +272,7 @@ def diagnostico_pdf(request, id_diagnostico):
 def graficos(request):
     categorias = Categoria.objects.all()
 
-    sel_categoria = int(request.REQUEST.get("categoria", "3"))
+    sel_categoria = int(request.GET.get("categoria", "3"))
     perguntas = Pergunta.objects.filter(categoria=sel_categoria).all()
 
     context = RequestContext(request, {
@@ -315,7 +315,7 @@ def grafico_api(request):
                         '#BB9098',
                         '#BDF1ED', ])
 
-    pergunta_slug = request.REQUEST.get('id', None)
+    pergunta_slug = request.GET.get('id', None)
     pergunta = get_object_or_404(Pergunta, name=pergunta_slug)
 
     if pergunta.datatype == 'one':

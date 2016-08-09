@@ -7,7 +7,7 @@ from django import forms
 from django.db import transaction
 from django.forms import ModelForm
 
-from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_URL
+from sigi.settings.prod import OSTICKET_API_KEY, OSTICKET_ATENDIMENTO_URL
 
 from .models import Solicitacao
 
@@ -27,7 +27,8 @@ def open_osticket(solicitacao):
             "subject": solicitacao.titulo,
             "ip": "",
             "message": solicitacao.resumo}
-    response = requests.post(OSTICKET_URL, headers=headers, json=data)
+    response = requests.post(OSTICKET_ATENDIMENTO_URL,
+                             headers=headers, json=data)
     if response.status_code == requests.codes.created:
         return response.text
     else:
