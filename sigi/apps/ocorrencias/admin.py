@@ -52,7 +52,7 @@ class OcorrenciaChangeList(ChangeList):
         if 'grupo' in self.params:
             grupo = self.params['grupo']
             del self.params['grupo']
-        qs = super(OcorrenciaChangeList, self).get_query_set(request)
+        qs = super(OcorrenciaChangeList, self).get_queryset(request)
         self.params = tmp_params.copy()
         if grupo:
             servidor = Servidor.objects.get(user=self.request.user)
