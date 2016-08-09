@@ -272,7 +272,7 @@ def diagnostico_pdf(request, id_diagnostico):
 def graficos(request):
     categorias = Categoria.objects.all()
 
-    sel_categoria = int(request.GET.get("categoria", "3"))
+    sel_categoria = int(request.POST.get("categoria", "3"))
     perguntas = Pergunta.objects.filter(categoria=sel_categoria).all()
 
     context = RequestContext(request, {
