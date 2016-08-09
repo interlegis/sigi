@@ -29,9 +29,9 @@ def smart_paginator(page_obj, querystring=None):
     else:
         querystring = '?'
         
-    page_range = page_obj.paginator.page_range
+    page_range = list(page_obj.paginator.page_range)
     mid = len(page_range) / 2
-    
+
     range = list(set(page_range[:3]) | set(page_range[mid-2:mid+1]) | set(page_range[-3:]) |
                       set(page_range[page_obj.number-2:page_obj.number+1]))
     range.sort()
