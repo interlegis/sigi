@@ -39,11 +39,11 @@ db.*
 /media
 /static/
 
-# Ignoring IDE's files
+# Ignoring tools config
 .idea/
 .project
 .pydevproject
 .settings
-
 .vagrant
-sigi/settings/prod.py
+
+sigi/.env

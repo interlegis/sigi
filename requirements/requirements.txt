@@ -1,21 +1,22 @@
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
-django-bootstrap3==6.2.2
+Django==1.7.10
+Pillow==2.9.0
+PyYAML==3.11
+dj-database-url==0.4.1
 django-admin-bootstrapped==2.4.0
 django-auth-ldap==1.2.7
 django-autoslug==1.9.3
+django-bootstrap3==6.2.2
 django-extensions==1.5.7
 django-image-cropping==1.0.2
 django-localflavor==1.1
-Django==1.7.10
 easy-thumbnails==2.2
 eav-django==1.4.7
 gunicorn==19.3.0
 html5lib==0.9999999
-Pillow==2.9.0
 pisa==3.0.33
 psycopg2==2.6.1
 python-memcached==1.53
-PyYAML==3.11
 reportlab==2.7
 requests==2.8.1
 six==1.10.0
