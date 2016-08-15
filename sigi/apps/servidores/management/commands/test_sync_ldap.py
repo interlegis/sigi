@@ -19,11 +19,11 @@ class StubCommand(Command):
 
 
 def create_stub_user(username, nome_completo, first_name, last_name, email):
-    user = G(User, username=username, first_name=first_name, last_name=last_name, email=email)
+    user = G(User, username=username, first_name=first_name, last_name=last_name, email=email, is_staff=True)
     user.servidor.nome_completo = nome_completo
     return user
 
-ALEX_LDAP, BRUNO_LDAP, RITA_LDAP = [
+ALEX_LDAP, BRUNO_LDAP, CLAUDIA_LDAP = [
     ('...',
         {'cn': ['Alex Lima'],
          'givenName': ['Alex'],
@@ -54,6 +54,7 @@ ALEX_LDAP, BRUNO_LDAP, RITA_LDAP = [
      [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br')],
      u'''
 User 'alexlima' created.
+Servidor 'Alex Lima' created.
 Users are synchronized.
      '''),
 
@@ -67,7 +68,7 @@ Users are synchronized.
 
     # unicode encoding from LDAP data works well
     ([('claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', 'claudia@interlegis.leg.br', )],
-     [RITA_LDAP],
+     [CLAUDIA_LDAP],
      [(u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
      u'''
 Users are synchronized.
@@ -77,7 +78,7 @@ Users are synchronized.
     ([('alexlima', '___', '___', '___', '___', ),
       ('bruno', 'Bruno Almeida Prado', '___', 'Almeida Prado', '___', ),
       ('claudia', '___', u'Cláudia', '___', 'claudia@interlegis.leg.br', )],
-     [ALEX_LDAP, BRUNO_LDAP, RITA_LDAP],
+     [ALEX_LDAP, BRUNO_LDAP, CLAUDIA_LDAP],
      [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
       (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
       (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
@@ -108,7 +109,7 @@ Users are synchronized.
     ([(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
       (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
       (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
-     [ALEX_LDAP, RITA_LDAP],
+     [ALEX_LDAP, CLAUDIA_LDAP],
      [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
       (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
       (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
@@ -119,6 +120,7 @@ Users are synchronized.
 def test_sync_users(before, ldap_users, after, messages, capsys):
 
     # setup
+    User.objects.all().delete()
     for user_setup in before:
         if type(user_setup) == tuple:
             create_stub_user(*user_setup)

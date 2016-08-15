@@ -14,4 +14,5 @@ def some_parliaments():
 
 
 def parliaments_from_names(names):
-    return [G(CasaLegislativa, nome=name, foto=None, gerente_contas=None,) for name in names]
+    return [G(CasaLegislativa, nome=name, foto=None, gerente_contas=None,
+              pesquisador=None,) for name in names]

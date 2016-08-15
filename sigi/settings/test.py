@@ -10,7 +10,13 @@ DATABASES = {
         'USER': 'sigi',
         'PASSWORD': 'sigi',
         'HOST': 'localhost',
-        'PORT': '5432',
+    },
+    'moodle': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'moodle',  # will be actually used as "test_sigi" by pytest-django
+        'USER': 'saberes',
+        'PASSWORD': 'A8oFvFWnvj',
+        'HOST': 'bdsaberes02h.interlegis.leg.br',
     }
 }
 
