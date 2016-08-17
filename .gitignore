@@ -33,8 +33,10 @@ nosetests.xml
 # Mr Developer
 .mr.developer.cfg
 .gitignore
+*.DS_Store
 fotos
 *.db
+*.swp
 db.*
 /media
 /static/
