@@ -40,7 +40,7 @@ class CourseStats(models.Model):
         ('A', u'Aprovação'),
         ('I', u'Indeterminado'),)
 
-    category = models.ForeignKey('CourseCategories', db_column='categoryid', primary_key=True)
+    category = models.ForeignKey('CourseCategories', db_column='categoryid')
     course = models.ForeignKey('Course', db_column='courseid')
     completionstatus = models.CharField(max_length=1, choices=COMPLETIONSTATUS_CHOICES)
     usercount = models.IntegerField()

@@ -195,7 +195,7 @@ class CasaAtendida(CasaLegislativa):
 
 
 class CasaManifesta(models.Model):
-    casa_legislativa = models.OneToOneField(CasaLegislativa)
+    casa_legislativa = models.ForeignKey(CasaLegislativa)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     informante = models.CharField(_(u'Nome do informante'), max_length=100, blank=True)

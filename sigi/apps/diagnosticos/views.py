@@ -15,10 +15,10 @@ from sigi.apps.diagnosticos.forms import (CasaLegislativaMobileForm,
                                           DiagnosticoMobileForm,
                                           FuncionariosMobileForm)
 from sigi.apps.diagnosticos.models import Categoria, Diagnostico, Pergunta
-from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
 from sigi.shortcuts import render_to_pdf
 
+LOGIN_REDIRECT_URL = '/diagnosticos/mobile/login'
 
 @never_cache
 @login_required(login_url=LOGIN_REDIRECT_URL)

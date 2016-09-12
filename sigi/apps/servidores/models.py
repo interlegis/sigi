@@ -63,7 +63,7 @@ class Servidor(models.Model):
     )
 
     # usuario responsavel pela autenticação do servidor no sistema
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User)
     nome_completo = models.CharField(max_length=128)
     apelido = models.CharField(max_length=50, blank=True)
     # caminho no sistema para arquivo com a imagem

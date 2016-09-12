@@ -1,9 +1,9 @@
 # coding: utf-8
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from sigi.apps.eventos import views
 
-urlpatterns = patterns(
-    'sigi.apps.eventos.views',
+urlpatterns = [
     # Painel de ocorrencias
-    url(r'^calendario/$', 'calendario', name='eventos-calendario'),
-    url(r'^alocacaoequipe/$', 'alocacao_equipe', name='eventos-alocacaoequipe'),
-)
+    url(r'^calendario/$', views.calendario, name='eventos-calendario'),
+    url(r'^alocacaoequipe/$', views.alocacao_equipe, name='eventos-alocacaoequipe'),
+]

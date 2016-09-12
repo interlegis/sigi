@@ -1,13 +1,13 @@
 # coding: utf-8
-from django.conf.urls import patterns, url
+from django.conf.urls import url
+from sigi.apps.metas import views
 
-urlpatterns = patterns(
-    'sigi.apps.metas.views',
 
-    url(r'^$', 'dashboard', name='metas-dashboardsss'),  # tagerror
-    url(r'^mapa/$', 'mapa', name='metas-mapa'),  # tagerror
-    url(r'^mapdata/$', 'map_data', name='metas-map_data'),
-    url(r'^mapsearch/$', 'map_search', name='metas-map_search'),
-    url(r'^mapsum/$', 'map_sum', name='metas-map_sum'),
-    url(r'^maplist/$', 'map_list', name='metas-map_list'),
-)
+urlpatterns = [
+    url(r'^$', views.dashboard, name='metas-dashboardsss'),  # tagerror
+    url(r'^mapa/$', views.mapa, name='metas-mapa'),  # tagerror
+    url(r'^mapdata/$', views.map_data, name='metas-map_data'),
+    url(r'^mapsearch/$', views.map_search, name='metas-map_search'),
+    url(r'^mapsum/$', views.map_sum, name='metas-map_sum'),
+    url(r'^maplist/$', views.map_list, name='metas-map_list'),
+]
