@@ -1,5 +1,6 @@
 -e git://github.com/marinho/geraldo.git@868ebdce67176d9b6205cddc92476f642c783fff#egg=geraldo
 git+git://github.com/hellpanderrr/django-admin-bootstrapped-1.9-compatible.git@master#egg=django_admin_bootstrapped
+git+git://github.com/interlegis/eav-django
 django-auth-ldap==1.2.8
 django-autoslug==1.9.3
 django-bootstrap3==7.0.1
@@ -22,7 +23,6 @@ django-simple-captcha==0.5.1
 Django==1.10.1
 libsass==0.11.0
 easy-thumbnails==2.3
-eav-django==1.4.7
 gunicorn==19.6.0
 html5lib==0.9999999
 Pillow==3.2.0
