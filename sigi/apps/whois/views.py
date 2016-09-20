@@ -64,10 +64,9 @@ def whois_query(request, dominio):
 
     for s in servicos:
         # valida se pegamos o dominio correto, a busca pode retornar mais de
-        # um registro. ex. municipio.mg.leg.br / novomunicipio.mg.leg.br
-        # não sei se existe algum caso, mas é possível no algoritmo.
+        # um registro. ex. itapemirim.es.leg.br / cachoeirodeitapemirim.es.leg.br
         if not match_url_dominio(s.url, dominio):
-            next
+            continue
 
         resposta_dic['_encoding'] = 'utf-8'
         resposta_dic['domain'] = urlparse(s.url).netloc
