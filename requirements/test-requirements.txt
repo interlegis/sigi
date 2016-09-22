@@ -1,6 +1,6 @@
 -r requirements.txt
+git+git://github.com/paulocheque/django-dynamic-fixture/@master
 coverage==4.1
-django-dynamic-fixture==1.9.0
 django-webtest==1.7.9
 pyPdf==1.13
 pyquery==1.2.13
