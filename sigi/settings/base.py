@@ -68,6 +68,7 @@ INSTALLED_APPS = (
     'sigi.apps.financeiro',
     'sigi.apps.diagnosticos',
     'sigi.apps.eventos',
+    'sigi.apps.whois',
 
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
@@ -79,6 +80,7 @@ INSTALLED_APPS = (
     'django_extensions',
     'easy_thumbnails',
     'image_cropping',
+    'rest_framework',
 
 )
 
@@ -181,3 +183,16 @@ LOGGING = {
 
 SABERES_REST_PATH = 'webservice/rest/server.php'
 OSTICKET_URL = 'https://suporte.interlegis.leg.br/scp/tickets.php?a=search&query=%s'
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
+
+# Lista de endereços IP que podem acessar a API de whois
+WHOIS_WHITELIST = [
+        '127.0.0.1',
+        ]
