@@ -6,6 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from ipware.ip import get_ip
 
 import re
 from urlparse import urlparse
@@ -20,7 +21,7 @@ class WhitelistPermission(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        ip_addr = request.META['REMOTE_ADDR']
+        ip_addr = get_ip(request)
         if ip_addr in WHOIS_WHITELIST:
             return True
         else:
