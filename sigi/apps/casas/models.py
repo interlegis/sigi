@@ -243,7 +243,7 @@ class CasaLegislativa(models.Model):
         return codigo
 
     def __unicode__(self):
-        return self.nome
+        return self.nome + ' - ' + self.municipio.uf.sigla
 
     def save(self, *args, **kwargs):
         address_changed = False

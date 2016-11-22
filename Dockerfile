@@ -54,3 +54,13 @@ RUN easy_install pip
 RUN pip2 install -r requirements/dev-requirements.txt
 RUN pip2 install --upgrade setuptools
 
+RUN mkdir -p /var/log/sigi/
+RUN touch /var/log/sigi/application.log
+RUN chmod -x /var/log/sigi/application.log
+
+RUN git clone https://github.com/marinho/geraldo.git
+WORKDIR /sigi/geraldo/
+RUN python setup.py install
+RUN cp -Rfv reporting geraldo `python -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())"`
+WORKDIR /sigi
+RUN rm -rf geraldo/
