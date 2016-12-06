@@ -29,6 +29,7 @@ from datetime import datetime
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.servidores.models import Servidor
 
+
 def importa(file_list):
     ''' Este script importa dados de um arquivo CSV e dá carga no model casas.CasaLegislativa
 
@@ -128,4 +129,3 @@ def importa(file_list):
                     casa.save()
                     
         print 'O arquivo '+filename+'.out foi criado com os registros que nao puderam ser importados'            
-                    

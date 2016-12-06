@@ -27,7 +27,8 @@ class Parlamentar(models.Model):
         upload_to='fotos/parlamentares',
         width_field='foto_largura',
         height_field='foto_altura',
-        blank=True
+        blank=True,
+        null=True
     )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)

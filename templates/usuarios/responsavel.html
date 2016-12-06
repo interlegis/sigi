@@ -1,0 +1,33 @@
+{% extends "admin/base_site.html" %}
+{% load i18n crispy_forms_tags %}
+
+{% block content %}
+  <table class="table table-striped table-bordered">
+    <thead class="thead-default">
+      <tr>
+        <th>Dados informado pelo Usuário</th>
+        <th>Dados da Casa Legislativa</th>
+      </tr>
+    </thead>
+      <tr>
+        <td>
+          <b>Nome completo:</b> {{usuario.nome_completo}}<br />
+          <b>Email:</b> {{usuario.email}}<br />
+          <b>CPF:</b> {{usuario.cpf}}<br />
+          <b>RG:</b> {{usuario.rg}}<br />
+          <b>Cargo:</b> {{usuario.cargo}}<br />
+          <b>Vinculo:</b> {{usuario.vinculo}}<br />
+        </td>
+        <td>
+          <b>Casa:</b> {{casa}}<br />
+          <b>CNJ:</b> {{casa.cnpj}}<br />
+          <b>Município:</b> {{casa.municipio}}<br />
+          <b>Email:</b> {{casa.email}}<br />
+          <b>Cep:</b> {{casa.cep}}<br />
+          <b>Página:</b> {{casa.pagina_web}}<br />
+          <b>Telefone:</b> {{casa.telefone}}<br />
+        </td>
+      </tr>
+  </table>
+  {% crispy form %}
+{% endblock %}

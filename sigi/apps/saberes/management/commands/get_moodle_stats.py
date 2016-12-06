@@ -21,12 +21,13 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA.
 #
-from django.utils.translation import ugettext as _
 from django.core.management.base import BaseCommand
-from django.db.models import Sum, Avg
+from django.db.models import Avg, Sum
+from django.utils.translation import ugettext as _
+
+from sigi.apps.mdl.models import CourseStats, User
 from sigi.apps.metas.views import gera_map_data_file
 from sigi.apps.saberes.models import CategoriasInteresse, PainelItem
-from sigi.apps.mdl.models import User, CourseStats
 
 
 class Command(BaseCommand):

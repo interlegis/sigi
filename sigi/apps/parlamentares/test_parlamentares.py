@@ -4,7 +4,6 @@ from django_dynamic_fixture import G
 
 from sigi.apps.parlamentares.models import Parlamentar
 
-
 pytestmark = pytest.mark.django_db
 
 

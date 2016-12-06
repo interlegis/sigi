@@ -47,3 +47,11 @@ db.*
 
 .vagrant
 sigi/settings/prod.py
+bower/
+collected_static/
+eav/
+geraldo/
+
+*.bak
+*~
+

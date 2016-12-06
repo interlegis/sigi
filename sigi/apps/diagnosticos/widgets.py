@@ -1,8 +1,12 @@
 from itertools import chain
-from django.forms.widgets import CheckboxInput, CheckboxSelectMultiple, RadioSelect, RadioFieldRenderer, RadioInput
-from django.utils.html import conditional_escape
+
+from django.forms.widgets import (CheckboxInput, CheckboxSelectMultiple,
+                                  RadioChoiceInput, RadioFieldRenderer,
+                                  RadioSelect)
 from django.utils.encoding import force_unicode
+from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+
 from sigi.apps.diagnosticos.models import Escolha
 
 
@@ -46,7 +50,7 @@ class EavRadioFieldRenderer(RadioFieldRenderer):
                 if schema_to_open:
                     final_attrs['schema_to_open'] = schema_to_open.name
 
-            yield RadioInput(self.name, self.value, final_attrs, choice, i)
+            yield RadioChoiceInput(self.name, self.value, final_attrs, choice, i)
 
     def __getitem__(self, idx):
         choice = self.choices[idx]
@@ -59,7 +63,7 @@ class EavRadioFieldRenderer(RadioFieldRenderer):
         if schema_to_open:
             final_attrs['schema_to_open'] = schema_to_open.name
 
-        return RadioInput(self.name, self.value, final_attrs, choice, idx)
+        return RadioChoiceInput(self.name, self.value, final_attrs, choice, idx)
 
 
 class EavRadioSelect(RadioSelect):

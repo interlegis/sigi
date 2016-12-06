@@ -9,7 +9,6 @@ greater than and less than operators. Some common case examples::
 """
 from django import template
 
-
 register = template.Library()
 
 

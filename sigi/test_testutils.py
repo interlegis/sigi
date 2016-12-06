@@ -2,7 +2,6 @@ from collections import namedtuple
 
 from sigi.testutils import SigiDataFixture
 
-
 FieldStub = namedtuple('FieldStub', ['max_length'])
 
 

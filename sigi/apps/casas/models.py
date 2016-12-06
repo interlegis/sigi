@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 import random
+from datetime import datetime
 from string import ascii_uppercase
 from unicodedata import normalize
 
-from datetime import datetime
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.db import models
 from image_cropping import ImageRatioField
 
@@ -85,7 +85,7 @@ class CasaLegislativa(models.Model):
     pesquisador = models.ForeignKey(Servidor, verbose_name=u"Pesquisador", null=True, blank=True)
     obs_pesquisa = models.TextField(u"Observações do pesquisador", blank=True)
     ult_alt_endereco = models.DateTimeField(u'Última alteração do endereço', null=True, blank=True, editable=True)
-    telefones = generic.GenericRelation('contatos.Telefone')
+    telefones = fields.GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
         upload_to='imagens/casas',
@@ -243,7 +243,7 @@ class CasaLegislativa(models.Model):
         return codigo
 
     def __unicode__(self):
-        return self.nome
+        return self.nome + ' - ' + self.municipio.uf.sigla
 
     def save(self, *args, **kwargs):
         address_changed = False
@@ -293,8 +293,8 @@ class Funcionario(models.Model):
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
     nota = models.CharField(max_length=70, null=True, blank=True)
     email = models.CharField('e-mail', max_length=75, blank=True)
-    telefones = generic.GenericRelation('contatos.Telefone')
-    endereco = generic.GenericRelation('contatos.Endereco')
+    telefones = fields.GenericRelation('contatos.Telefone')
+    endereco = fields.GenericRelation('contatos.Endereco')
     cargo = models.CharField(max_length=100, null=True, blank=True)
     funcao = models.CharField(u'função', max_length=100, null=True, blank=True)
     setor = models.CharField(max_length=100, choices=SETOR_CHOICES, default="outros")

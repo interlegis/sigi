@@ -14,6 +14,7 @@ import os
 from os.path import dirname
 
 import django.conf.global_settings as DEFAULT_SETTINGS
+from easy_thumbnails.conf import Settings as thumbnail_settings
 
 BASE_DIR = dirname(dirname(dirname(__file__)))
 
@@ -29,14 +30,6 @@ ADMINS = (
 MANAGERS = ADMINS
 
 SITE_ID = 1
-
-TEMPLATE_CONTEXT_PROCESSORS = DEFAULT_SETTINGS.TEMPLATE_CONTEXT_PROCESSORS + (
-    'django.core.context_processors.request',
-)
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
-                    'django.template.loaders.app_directories.Loader',
-                    )
 
 # Database routers
 DATABASE_ROUTERS = ['moodlerouter.MoodleRouter', ]
@@ -70,6 +63,10 @@ INSTALLED_APPS = (
     'sigi.apps.eventos',
     'sigi.apps.whois',
 
+    'sigi.apps.crud',
+    'sigi.apps.usuarios',
+    'sigi.apps.solicitacoes',
+
     # Integração com Saberes (moodle)
     'sigi.apps.mdl',
     'sigi.apps.saberes',
@@ -82,13 +79,22 @@ INSTALLED_APPS = (
     'image_cropping',
     'rest_framework',
 
+    'captcha',
+    'crispy_forms',
+    'djangobower',
+    'floppyforms',
+    'sass_processor',
+    'easy_select2',
+
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
@@ -121,21 +127,43 @@ SERVER_EMAIL = 'sigi@interlegis.leg.br'
 DEFAULT_FROM_EMAIL = 'spdt@interlegis.leg.br'
 EMAIL_SUBJECT_PREFIX = u'[SIGI]'
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.contrib.messages.context_processors.messages',
+                'sigi.context_processors.usuario_context'
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ]
+        },
+    },
+]
+
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
 SESSION_EXPIRE_AT_BROWSER_CLOSE = True
 
+# LOGIN_REDIRECT_URL = ''
+# LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
-LOGIN_URL = '/login/'
+LOGIN_URL = '/login/?next='
 
 # Using pytest directly (without a test runner)
 TEST_RUNNER = None
 
-from easy_thumbnails.conf import Settings as thumbnail_settings
 THUMBNAIL_PROCESSORS = (
     'image_cropping.thumbnail_processors.crop_corners',
 ) + thumbnail_settings.THUMBNAIL_PROCESSORS
@@ -180,6 +208,36 @@ LOGGING = {
         },
     },
 }
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'djangobower.finders.BowerFinder',
+    'sass_processor.finders.CssFinder',
+)
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+CRISPY_ALLOWED_TEMPLATE_PACKS = 'bootstrap3'
+CRISPY_FAIL_SILENTLY = False
+
+BOWER_COMPONENTS_ROOT = os.path.join(BASE_DIR, 'bower')
+BOWER_INSTALLED_APPS = (
+    'bootstrap-sass#3.3.6',
+    'components-font-awesome#4.5.0',
+    'tinymce#4.3.3',
+    'jquery-ui#1.11.4',
+    'jquery-runner#2.3.3',
+    'jQuery-Mask-Plugin#1.13.4',
+    'jsdiff#2.2.1',
+)
+
+# Additional search paths for SASS files when using the @import statement
+SASS_PROCESSOR_INCLUDE_DIRS = (
+    os.path.join(BOWER_COMPONENTS_ROOT, 'bower_components'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'bootstrap-sass'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'assets'),
+    os.path.join(BOWER_COMPONENTS_ROOT, 'stylesheets'),
+)
 
 SABERES_REST_PATH = 'webservice/rest/server.php'
 OSTICKET_URL = 'https://suporte.interlegis.leg.br/scp/tickets.php?a=search&query=%s'

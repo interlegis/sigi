@@ -3,10 +3,11 @@ from django.contrib import admin
 from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.filters import PopulationFilter
-from sigi.apps.contatos.models import (UnidadeFederativa, Mesorregiao, Microrregiao,
-                                       Municipio, Telefone, Contato)
+from sigi.apps.contatos.models import (Contato, Mesorregiao, Microrregiao,
+                                       Municipio, Telefone, UnidadeFederativa)
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
+
 
 class MesorregiaoInline(admin.TabularInline):
     model = Mesorregiao

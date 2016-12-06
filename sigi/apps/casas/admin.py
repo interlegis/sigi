@@ -1,16 +1,17 @@
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import reverse
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.admin import GenericTabularInline
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import CasaLegislativaForm
-from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoCasaLegislativa
-from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
-    labels_report_sem_presidente, report, \
-    adicionar_casas_carrinho
+from sigi.apps.casas.models import (CasaLegislativa, Funcionario, Presidente,
+                                    TipoCasaLegislativa)
+from sigi.apps.casas.views import (adicionar_casas_carrinho, export_csv,
+                                   labels_report, labels_report_sem_presidente,
+                                   report, report_complete)
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.diagnosticos.models import Diagnostico
@@ -24,7 +25,7 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
-class TelefonesInline(generic.GenericTabularInline):
+class TelefonesInline(GenericTabularInline):
     model = Telefone
     readonly_fields = ('ult_alteracao',)
     extra = 1

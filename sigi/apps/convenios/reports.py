@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.utils.translation import ugettext as _
-from geraldo import ReportBand, ObjectValue, Label, ReportGroup, FIELD_ACTION_SUM
+from geraldo import (FIELD_ACTION_SUM, Label, ObjectValue, ReportBand,
+                     ReportGroup)
 from reportlab.lib.units import cm
 
 from sigi.apps.relatorios.reports import ReportDefault

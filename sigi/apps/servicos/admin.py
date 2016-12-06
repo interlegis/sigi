@@ -8,7 +8,8 @@ from django.utils.translation import ugettext as _
 
 from sigi.apps.casas.admin import FuncionariosInline
 from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
+from sigi.apps.servicos.models import (CasaAtendida, LogServico, Servico,
+                                       TipoServico)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
@@ -109,11 +110,11 @@ class ServicoAdmin(BaseModelAdmin):
     calcular_data_uso.short_description = _(u"Atualizar a data do último uso do(s) serviço(s)")
 
     def get_actions(self, request):
-        from django.utils.datastructures import SortedDict
+        from collections import OrderedDict
         actions = [self.get_action(action) for action in self.actions]
         actions = filter(None, actions)
         actions.sort(lambda a, b: cmp(a[2].lower(), b[2].lower()))
-        actions = SortedDict([(name, (func, name, desc)) for func, name, desc in actions])
+        actions = OrderedDict([(name, (func, name, desc)) for func, name, desc in actions])
         return actions
 
     def lookup_allowed(self, lookup, value):

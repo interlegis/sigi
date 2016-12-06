@@ -1,0 +1,32 @@
+#localhost:
+#  image: postgres
+#  environment:
+#    POSTGRES_PASSWORD: sigi
+#    POSTGRES_USER: sigi
+#    POSTGRES_DB: sigi
+#  ports:
+#    - "5532:5432"
+#web:
+#  build: .
+#  command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+#  volumes:
+#    - .:/sigi
+#  ports:
+#    - "8000:8000"
+#  links:
+#    - localhost
+
+osticket:
+  image: campbellsoftwaresolutions/osticket
+  ports:
+    - "80:80"
+  links:
+    - mysql
+
+mysql:
+  image: mysql
+  environment:
+    - MYSQL_ROOT_PASSWORD=secret
+    - MYSQL_DATABASE=osticket
+    - MYSQL_USER=osticket
+    - MYSQL_PASSWORD=secret

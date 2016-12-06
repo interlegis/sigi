@@ -2,23 +2,29 @@
 import csv
 from functools import reduce
 
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _, ungettext
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
+from django.db.models import Count, Q
+from django.http import Http404, HttpResponse, HttpResponseRedirect
+from django.http.response import JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLabelsSemPresidente, CasasLegislativasReport, CasasSemConvenioReport, InfoCasaLegislativa
-from sigi.apps.parlamentares.reports import ParlamentaresLabels
-from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
 from sigi.apps.casas.forms import PortfolioForm
-from django.contrib.auth.decorators import login_required
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.reports import (CasasLegislativasLabels,
+                                     CasasLegislativasLabelsSemPresidente,
+                                     CasasLegislativasReport,
+                                     CasasSemConvenioReport,
+                                     InfoCasaLegislativa)
+from sigi.apps.contatos.models import (Mesorregiao, Microrregiao,
+                                       UnidadeFederativa)
+from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.reports import ParlamentaresLabels
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.ocorrencias.models import Ocorrencia
-from django.db.models import Count, Q
-from django.http.response import JsonResponse
 
 
 # @param qs: queryset

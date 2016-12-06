@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from django.db import models
 from django.utils.translation import ugettext as _
-from eav.models import BaseChoice, BaseEntity, BaseSchema, BaseAttribute
+from eav.models import BaseAttribute, BaseChoice, BaseEntity, BaseSchema
 
 from sigi.apps.utils import SearchField
 from sigi.apps.utils.email import enviar_email
@@ -198,7 +199,7 @@ class Escolha(BaseChoice):
     """
     schema = models.ForeignKey(Pergunta,
                                related_name='choices', verbose_name=_(u'pergunta'))
-    schema_to_open = models.ForeignKey(Pergunta, related_name='',
+    schema_to_open = models.ForeignKey(Pergunta, related_name='schema_to_open_related',
                                        verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
@@ -242,7 +243,7 @@ class Anexo(models.Model):
     """
     diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_(u'descrição'), max_length='70')
+    descricao = models.CharField(_(u'descrição'), max_length=70)
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'),
                                     default=datetime.now)
 

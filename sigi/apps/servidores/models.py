@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes import fields
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
@@ -63,7 +63,7 @@ class Servidor(models.Model):
     )
 
     # usuario responsavel pela autenticação do servidor no sistema
-    user = models.ForeignKey(User, unique=True)
+    user = models.OneToOneField(User, unique=True)
     nome_completo = models.CharField(max_length=128)
     apelido = models.CharField(max_length=50, blank=True)
     # caminho no sistema para arquivo com a imagem
@@ -71,7 +71,8 @@ class Servidor(models.Model):
         upload_to='fotos/servidores',
         width_field='foto_largura',
         height_field='foto_altura',
-        blank=True
+        blank=True,
+        null=True
     )
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
@@ -105,8 +106,8 @@ class Servidor(models.Model):
 
     # Informações de contato
     email_pessoal = models.EmailField('email pessoal', blank=True, null=True)
-    endereco = generic.GenericRelation('contatos.Endereco')
-    telefones = generic.GenericRelation('contatos.Telefone')
+    endereco = fields.GenericRelation('contatos.Endereco')
+    telefones = fields.GenericRelation('contatos.Telefone')
     ramal = models.CharField(max_length=25, blank=True, null=True)
 
     class Meta:
@@ -149,6 +150,7 @@ class Servidor(models.Model):
 # Soluçao alternativa para extender o usuário do django
 # Acessa do servidor de um objeto user criando um profile
 # baseado nos dados do LDAP
+
 User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 # Sinal para ao criar um usuário criar um servidor
@@ -156,7 +158,7 @@ User.servidor = property(lambda user: Servidor.objects.get(user=user))
 
 
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
+    if created and instance.is_staff:
         Servidor.objects.create(
             user=instance,
             nome_completo="%s %s" % (instance.first_name, instance.last_name)

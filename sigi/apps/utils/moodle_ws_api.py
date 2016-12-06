@@ -20,7 +20,9 @@
 
 import json
 import urllib2
+
 from django.conf import settings
+
 
 def get_courses(ids=[], sort_order='', *args, **kwargs):
     ''' Implements core_courses_get_courses function

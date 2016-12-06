@@ -1,9 +1,8 @@
-import cStringIO
 import codecs
+import cStringIO
 import csv
 
-from sigi.apps.servicos.models import TipoServico, Servico
-
+from sigi.apps.servicos.models import Servico, TipoServico
 
 # cria um CSV com contatos das casas legislativas que possuem portal modelo ativo
 # rodar em um shell:

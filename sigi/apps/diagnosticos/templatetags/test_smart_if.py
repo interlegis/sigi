@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import pytest
 
-from smart_if import Or, And, Equals, Greater, GreaterOrEqual, In, IfParser
+from smart_if import And, Equals, Greater, GreaterOrEqual, IfParser, In, Or
 
 
 class TestVar(object):

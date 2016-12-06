@@ -1,21 +1,19 @@
 # coding: utf-8
-import datetime
 import csv
+import datetime
 
-from django.template import Context, loader
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.conf import settings
-from django.shortcuts import render, get_list_or_404
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import EmptyPage, InvalidPage, Paginator
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_list_or_404, render
+from django.template import Context, RequestContext, loader
 from django.views.decorators.csrf import csrf_protect
-from django.template import RequestContext
+from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
-
-from geraldo.generators import PDFGenerator
-from django.contrib.auth.decorators import login_required
 
 
 def adicionar_parlamentar_carrinho(request, queryset=None, id=None):

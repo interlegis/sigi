@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 from datetime import datetime
+
 from django.contrib import admin
 from django.db.utils import OperationalError, ProgrammingError
 from django.utils.translation import ugettext as _
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 
 from sigi.apps.diagnosticos.forms import DiagnosticoForm
-from sigi.apps.diagnosticos.models import Diagnostico, Pergunta, Escolha, Equipe, Anexo, Categoria
+from sigi.apps.diagnosticos.models import (Anexo, Categoria, Diagnostico,
+                                           Equipe, Escolha, Pergunta)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 

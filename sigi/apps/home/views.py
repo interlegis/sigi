@@ -22,24 +22,27 @@
 # 02110-1301, USA.
 #
 
-import datetime
 import calendar
-from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+import csv
+import datetime
 from itertools import cycle
+
+from django.contrib.auth.decorators import login_required
+from django.core.urlresolvers import reverse
+from django.db.models import Count, Q
+from django.http.response import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render
+from django.utils.translation import ugettext as _
+from django.views.decorators.cache import never_cache
+
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
-from django.views.decorators.cache import never_cache
-from django.contrib.auth.decorators import login_required
-from django.http.response import JsonResponse, HttpResponse
-from django.core.urlresolvers import reverse
-from django.db.models import Q, Count
 from sigi.shortcuts import render_to_pdf
-import csv
+
 
 @never_cache
 @login_required

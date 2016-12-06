@@ -1,10 +1,13 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import unicode_literals
-from django.utils.translation import ugettext as _
+
 from django.db import models
 from django.db.models import Q
-from sigi.apps.mdl.models import Course, CourseCategories, CourseCompletions, UserEnrolments
+from django.utils.translation import ugettext as _
+
+from sigi.apps.mdl.models import (Course, CourseCategories, CourseCompletions,
+                                  UserEnrolments)
 
 
 class CategoriasInteresse(models.Model):

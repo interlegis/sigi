@@ -1,14 +1,14 @@
 # coding= utf-8
 import csv
 import re
-
 from datetime import datetime
+
 from django.contrib.auth.models import User
 from django.core.management.base import BaseCommand
 from django.utils.translation import ugettext as _
 
 from sigi.apps.contatos.models import Municipio
-from sigi.apps.servidores.models import Servidor, Servico, Subsecretaria
+from sigi.apps.servidores.models import Servico, Servidor, Subsecretaria
 
 
 # Funcao.objects.all().delete()

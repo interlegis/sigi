@@ -3,7 +3,8 @@ import os
 
 from django.templatetags.static import static
 from django.utils.translation import ugettext as _
-from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, SystemField, BAND_WIDTH, FIELD_ACTION_COUNT, Line
+from geraldo import (BAND_WIDTH, FIELD_ACTION_COUNT, DetailBand, Label, Line,
+                     ObjectValue, Report, ReportBand, SystemField)
 from geraldo.graphics import Image
 from reportlab.lib.colors import navy
 from reportlab.lib.enums import TA_CENTER, TA_RIGHT

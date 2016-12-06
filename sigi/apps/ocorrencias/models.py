@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-from django.db import models
 from django.conf import settings
-from django.utils.translation import ugettext as _
 from django.core.exceptions import ValidationError
+from django.db import models
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext as _
 
 
 class Categoria(models.Model):
@@ -105,7 +105,7 @@ class Comentario(models.Model):
 class Anexo(models.Model):
     ocorrencia = models.ForeignKey(Ocorrencia, verbose_name=_(u'ocorrência'))
     arquivo = models.FileField(_(u'Arquivo anexado'), upload_to='apps/ocorrencia/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_(u'descrição do anexo'), max_length='70')
+    descricao = models.CharField(_(u'descrição do anexo'), max_length=70)
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'), null=True, blank=True, auto_now_add=True)
 
     class Meta:

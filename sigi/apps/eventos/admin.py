@@ -18,10 +18,13 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-from django.contrib import admin
 from django import forms
+from django.contrib import admin
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
+
+from sigi.apps.eventos.models import (Convite, Equipe, Evento, Funcao,
+                                      TipoEvento)
+
 
 class EventoAdminForm(forms.ModelForm):
     class Meta:
@@ -67,5 +70,3 @@ class EventoAdmin(admin.ModelAdmin):
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')
     inlines = (EquipeInline, ConviteInline)
-    
-    

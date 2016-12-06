@@ -4,7 +4,7 @@ from collections import namedtuple
 from django import forms
 from django.utils.translation import ugettext as _
 
-from sigi.apps.servidores.models import Ferias, Licenca, Funcao, Servidor
+from sigi.apps.servidores.models import Ferias, Funcao, Licenca, Servidor
 
 
 def valida_data_inicial_menor_que_final(data, chave_ini, chave_fim):

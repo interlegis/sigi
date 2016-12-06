@@ -4,7 +4,8 @@ from django.contrib.admin.views.main import ChangeList
 from django.utils.translation import ugettext as _
 
 from filters import OcorrenciaListFilter
-from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
+from sigi.apps.ocorrencias.models import (Anexo, Categoria, Comentario,
+                                          Ocorrencia, TipoContato)
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
@@ -51,7 +52,7 @@ class OcorrenciaChangeList(ChangeList):
         if 'grupo' in self.params:
             grupo = self.params['grupo']
             del self.params['grupo']
-        qs = super(OcorrenciaChangeList, self).get_query_set(request)
+        qs = super(OcorrenciaChangeList, self).get_queryset(request)
         self.params = tmp_params.copy()
         if grupo:
             servidor = Servidor.objects.get(user=self.request.user)

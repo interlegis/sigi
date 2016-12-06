@@ -1,5 +1,5 @@
-import cStringIO
 import codecs
+import cStringIO
 import csv
 
 

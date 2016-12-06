@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 
 from datetime import date
+
 from django.db import models
-from sigi.apps.casas.models import CasaLegislativa, Funcionario
 from django.utils.translation import ugettext as _
+
+from sigi.apps.casas.models import CasaLegislativa, Funcionario
 
 
 class TipoServico(models.Model):
@@ -15,7 +17,7 @@ class TipoServico(models.Model):
                         {url} para incluir a URL do serviço,<br/>
                         {senha} para incluir a senha inicial do serviço'''
     nome = models.CharField(_(u'Nome'), max_length=60)
-    sigla = models.CharField(_(u'Sigla'), max_length='12')
+    sigla = models.CharField(_(u'Sigla'), max_length=12)
     modo = models.CharField(_(u'Modo de prestação do serviço'), max_length=1, choices=MODO_CHOICES)
     string_pesquisa = models.CharField(_(u'String de pesquisa'), blank=True, max_length=200,
                                        help_text=_(u'Sufixo para pesquisa RSS para averiguar a data da última atualização do serviço'))
@@ -193,7 +195,7 @@ class CasaAtendida(CasaLegislativa):
 
 
 class CasaManifesta(models.Model):
-    casa_legislativa = models.OneToOneField(CasaLegislativa)
+    casa_legislativa = models.ForeignKey(CasaLegislativa)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     informante = models.CharField(_(u'Nome do informante'), max_length=100, blank=True)
@@ -219,4 +221,3 @@ class RegistroServico(models.Model):
 
     class Meta:
         verbose_name_plural = _(u'Registro de serviços')
-                    

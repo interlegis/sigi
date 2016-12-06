@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao
+from sigi.apps.convenios.models import (Anexo, Convenio, EquipamentoPrevisto,
+                                        Projeto, Tramitacao)
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii

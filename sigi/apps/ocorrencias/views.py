@@ -1,19 +1,23 @@
 # -*- coding: utf-8 -*-
-from django.http import JsonResponse, Http404
-from django.db.models import Q, Count
-from django.utils.translation import ungettext, ugettext as _
-from django.shortcuts import get_object_or_404, render, HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from django.template.loader import render_to_string
+from django.db.models import Count, Q
+from django.http import Http404, JsonResponse
+from django.shortcuts import HttpResponse, get_object_or_404, render
 from django.template import RequestContext
-from sigi.apps.utils import to_ascii
+from django.template.loader import render_to_string
+from django.utils.html import escape
+from django.utils.translation import ugettext as _
+from django.utils.translation import ungettext
+from django.views.decorators.http import require_POST
+
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.servidores.models import Servidor, Servico
-from sigi.apps.ocorrencias.models import Ocorrencia, Anexo
-from sigi.apps.ocorrencias.forms import AnexoForm, ComentarioForm, OcorrenciaForm
-from django.utils.html import escape
+from sigi.apps.ocorrencias.forms import (AnexoForm, ComentarioForm,
+                                         OcorrenciaForm)
+from sigi.apps.ocorrencias.models import Anexo, Ocorrencia
+from sigi.apps.servidores.models import Servico, Servidor
+from sigi.apps.utils import to_ascii
+
 
 @login_required
 def painel_ocorrencias(request):

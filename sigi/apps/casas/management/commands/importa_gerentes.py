@@ -24,10 +24,13 @@
 
 import csv
 import os
+
 from django.core.management.base import BaseCommand, CommandError
+
 from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import Municipio
+from sigi.apps.servidores.models import Servidor
+
 
 class Command(BaseCommand):
     args = u"data_file.csv"

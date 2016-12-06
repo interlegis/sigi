@@ -25,7 +25,7 @@
         			<td><p><a href="{% url 'admin:servicos_servico_change' srv.id %}">{{ srv.tipo_servico.sigla }}</a></p></td>
         			<td>{{ srv.tipo_servico }}</td>
 					<td><img alt="{{ srv.hospedagem_interlegis }}"
-					         src="{% static srv.hospedagem_interlegis|yesno:'admin/img/icon-yes.gif,admin/img/icon-no.gif' %}"></td>
+					         src="{% static srv.hospedagem_interlegis|yesno:'admin/img/icon-yes.svg,admin/img/icon-no.svg' %}"></td>
 					<td>{{ srv.data_ativacao|date:'SHORT_DATE_FORMAT' }}</td>
 					<td>{{ srv.data_alteracao|date:'SHORT_DATE_FORMAT' }}</td>
 					<td>{{ srv.data_desativacao|date:'SHORT_DATE_FORMAT' }}</td>

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from sigi.apps.servidores.models import Servidor
 
-
 gerentes = {k: Servidor.objects.get(nome_completo=n) for k, n in (
     ('ADAL', u'Adalberto Alves de Oliveira'),
     ('janarycn', u'Janary Carvão Nunes'),

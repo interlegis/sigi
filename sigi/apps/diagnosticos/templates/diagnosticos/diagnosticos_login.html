@@ -35,7 +35,7 @@
     {% endif %}
 
     <div data-role="content">
-        <form action="{% url 'django.contrib.auth.views.login' %}" method="POST">
+        <form action="{% url 'login' %}" method="POST">
             {% csrf_token %}
             <div data-role="fieldcontain" class="ui-hide-label ui-body">
                 <label for="username">{% trans 'Usuário' %}:</label>

@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 from datetime import date
+
 from django.db import models
 from django.utils.translation import ugettext as _
 
 from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.convenios.models import Projeto, Convenio
+from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.financeiro.models import Desembolso
 
