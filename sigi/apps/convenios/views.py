@@ -2,7 +2,7 @@
 import csv
 
 import datetime
-import ho.pisa as pisa
+import xhtml2pdf.pisa as pisa
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect

@@ -2,7 +2,7 @@ import cStringIO as StringIO
 import os
 from cgi import escape
 
-import ho.pisa as pisa
+import xhtml2pdf.pisa as pisa
 from django.conf import settings
 from django.http import HttpResponse
 from django.template import Context
