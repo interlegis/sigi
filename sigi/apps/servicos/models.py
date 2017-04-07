@@ -39,8 +39,8 @@ class TipoServico(models.Model):
 class Servico(models.Model):
     casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=_(u'Casa Legislativa'))
     tipo_servico = models.ForeignKey(TipoServico, verbose_name=_(u'Tipo de serviço'))
-    contato_tecnico = models.ForeignKey(Funcionario, verbose_name=_(u'Contato técnico'), related_name='contato_tecnico')
-    contato_administrativo = models.ForeignKey(Funcionario, verbose_name=_(u'Contato administrativo'), related_name='contato_administrativo')
+    contato_tecnico = models.ForeignKey(Funcionario, verbose_name=_(u'Contato técnico'), related_name='contato_tecnico', on_delete=models.PROTECT)
+    contato_administrativo = models.ForeignKey(Funcionario, verbose_name=_(u'Contato administrativo'), related_name='contato_administrativo', on_delete=models.PROTECT)
     url = models.URLField(_(u'URL do serviço'), blank=True)
     hospedagem_interlegis = models.BooleanField(_(u'Hospedagem no Interlegis?'), default=False)
     nome_servidor = models.CharField(_(u'Hospedado em'), max_length=60, blank=True,
