@@ -170,7 +170,9 @@ class ServicoAdmin(BaseModelAdmin):
 
 class ContatosInline(FuncionariosInline):
     can_delete = False  # Equipe do SEIT não pode excluir pessoas de contato
-
+    # SEIT see all contacts, including President
+    def get_queryset(self, request):
+        return self.model.objects.all()
 
 class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None
