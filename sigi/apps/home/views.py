@@ -126,9 +126,9 @@ def chart_carteira(request):
             'data': [{'value': r['total_casas'], 
                       'color': colors.next(),
                       'highlight': highlights.next(),
-                      'label': Servidor.objects.get(pk=r['gerente_contas']).nome_completo
+                      'label': r['gerente_contas__nome_completo']
                      }
-                    for r in CasaLegislativa.objects.all().values('gerente_contas').annotate(total_casas=Count('pk')).order_by('gerente_contas')
+                    for r in CasaLegislativa.objects.all().values('gerente_contas__nome_completo').annotate(total_casas=Count('pk')).order_by('gerente_contas__nome_completo')
                     ]
     }
     
