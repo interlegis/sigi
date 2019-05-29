@@ -59,7 +59,7 @@ class ConvenioAdmin(BaseModelAdmin):
                     'projeto',
                     )
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('projeto', 'casa_legislativa__municipio__uf', 'casa_legislativa', 'conveniada', 'equipada')
+    list_filter = ('projeto', 'casa_legislativa__tipo', 'conveniada', 'equipada', 'casa_legislativa__municipio__uf', )
     #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
