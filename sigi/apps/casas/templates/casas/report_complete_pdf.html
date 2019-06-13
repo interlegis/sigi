@@ -1,0 +1,237 @@
+{% load smart_if %}
+{% load static from staticfiles %}
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>Casa Legislativa</title>
+        <style type="text/css">
+          table {
+            padding: 3px;
+            line-height: 1em;
+            -fs-table-paginate: paginate;
+          }
+          thead {
+            display: table-header-group;
+          }
+          th {
+            font-weight: bold;
+            text-align: left;
+          }
+          
+          th, td {
+            border-bottom: 1px solid #ddd;
+          }
+
+          .identificacao th {
+            width: 20%;
+          }
+          
+            div#capa h3 {
+                text-align: center;
+                margin-top: 5px;
+                margin-bottom: 0px;
+            }
+            div#capa p {
+                text-align: center;
+            }
+            td.logo {
+                text-align: center;
+            }
+            td.header_text p {
+                margin: 0px;
+                font-size: 1.4em;
+            }
+            td.header_text {
+                width: 550px;
+            }
+            ul {
+                list-style-type: none;
+                padding-left: 15px;
+            }
+            li {
+                padding-left: 5px;
+                color: #999;
+            }
+            li.selected {
+                list-style-type: disc;
+                color: #000;
+                font-weight: bold;
+            }
+            p.strong {
+                margin-left: 25px;
+                line-height: 1em;
+            }
+            h1 {
+                font-size: 2em;
+                text-align: center;
+            }
+            h2 {
+                font-size: 1.7em;
+            }
+            h3 {
+                margin-top: 10px;
+                margin-bottom: 0px;
+            }
+            body {
+                font-family: "Helvetica, Arial, sans-serif";
+                font-size: 1.3em;
+                line-height: 1em;
+            }
+
+            div.new_page {
+                page-break-before: always;
+            }
+            div.same_page_ {
+                -pdf-keep-with-next: true;
+            }
+            @page {
+                size: {{ pagesize }};
+                margin: 4cm 1cm 1cm 2cm;
+                font-family: "Helvetica, Arial, sans-serif";
+                font-size: 2em;
+                @frame header {
+                    -pdf-frame-content: header;
+                    top: 1cm;
+                }
+                @frame footer {
+                    -pdf-frame-content: footer;
+                    bottom: 0cm;
+                    margin-left: 9cm;
+                    margin-right: 9cm;
+                    height: 1cm;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="header">
+            <table>
+                <tr>
+                    <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}"/></td>
+                    <td class="header_text">
+                        <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
+                        <p><strong>{% trans 'ILB - Interlegis' %}</strong></p>
+                        <p>{% trans 'Relatório completo' %}</p>
+                    </td>
+                    <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}"/></td>
+                </tr>
+            </table>
+        </div>
+
+		{% for casa in casas %}
+          <div class="{% if forloop.first %}{% else %}new_page{% endif %}">
+            <h2>{{ casa.nome }}</h2>
+            <table class="identificacao">
+              <tr><th>{% trans 'Presidente:'      %}</th><td>{{ casa.presidente          }}</td></tr>
+              <tr><th>{% trans 'Tipo:'            %}</th><td>{{ casa.tipo.nome           }}</td></tr>
+              <tr><th>{% trans 'Estado / região:' %}</th><td>{{ casa.municipio.uf.nome }} / {{ casa.municipio.uf.get_regiao_display }}</td></tr>
+              <tr><th>{% trans 'Município:'       %}</th><td>{{ casa.municipio.nome      }}</td></tr>
+              <tr><th>{% trans 'Endereço:'        %}</th><td>{{ casa.logradouro          }}</td></tr>
+              <tr><th>{% trans 'Bairro:'          %}</th><td>{{ casa.bairro              }}</td></tr>
+              <tr><th>{% trans 'CEP:'             %}</th><td>{{ casa.cep                 }}</td></tr>
+              <tr><th>{% trans 'CNPJ:'            %}</th><td>{{ casa.cnpj                }}</td></tr>
+              <tr><th>{% trans 'Telefone:'        %}</th><td>{{ casa.telefone            }}</td></tr>
+              <tr><th>{% trans 'E-mail:'          %}</th><td>{{ casa.email               }}</td></tr>
+            </table>
+            
+            <h3>Telefones</h3>
+            
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Tipo</th>
+                  <th>Nota</th>
+                </tr>
+              <thead>
+              {% for tel in casa.telefones.all %}
+                <tr>
+                  <td>{{ tel.numero }}</td>
+                  <td>{{ tel.get_tipo_display }}</td>
+                  <td>{{ tel.nota }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Pessoas de contato</h3>
+            
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Setor</th>
+                  <th>Notas</th>
+                </tr>
+              </thead>
+              {% for func in casa.funcionario_set.all %}
+                <tr>
+                  <td>{{ func.nome 				}}</td>
+                  <td>{{ func.email 			}}</td>
+                  <td>{{ func.get_setor_display }}</td>
+                  <td>{{ func.nota 				}}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Convênios</h3>
+
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Projeto</th>
+                  <th>Nº convênio</th>
+                  <th>Nº processo SF</th>
+                  <th>Adesão</th>
+                  <th>Convênio</th>
+                  <th>Equipada</th>
+                  <th>Publicada</th>
+                </tr>
+              </thead>
+              {% for conv in casa.convenio_set.all %}
+                <tr>
+                  <td>{{ conv.projeto.nome }}</td>
+                  <td>{{ conv.num_convenio|default_if_none:"-" }}</td>
+                  <td>{{ conv.num_processo_sf|default_if_none:"-" }}</td>
+                  <td>{{ conv.data_adesao|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ conv.data_retorno_assinatura|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ conv.equipada|yesno }}</td>
+                  <td>{{ conv.data_pub_diario|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Serviços Interlegis</h3>
+
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Serviço</th>
+                  <th>Endereço</th>
+                  <th>Ativado em</th>
+                  <th>Desativado em</th>
+                </tr>
+              </thead>
+              {% for srv in casa.servico_set.all %}
+                <tr>
+                  <td>{{ srv.tipo_servico.nome }}</td>
+                  <td>{{ srv.url|default_if_none:"-" }}</td>
+                  <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ srv.data_desativacao|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+              
+          </div>
+        {% endfor %}
+
+        <div id="footer">
+            {%block page_foot%}
+            {% trans 'Página' %} <pdf:pagenumber>
+            {%endblock%}
+        </div>
+    </body>
+</html>

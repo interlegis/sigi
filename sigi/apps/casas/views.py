@@ -1,30 +1,31 @@
 # -*- coding: utf-8 -*-
 import csv
 from functools import reduce
-
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _, ungettext
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLabelsSemPresidente, CasasLegislativasReport, CasasSemConvenioReport, InfoCasaLegislativa
-from sigi.apps.parlamentares.reports import ParlamentaresLabels
-from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
-from sigi.apps.casas.forms import PortfolioForm
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.db.models import Count, Q
+from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render, get_object_or_404
+from django.utils.translation import ugettext as _, ungettext
+
+from sigi.apps.casas.forms import PortfolioForm
+from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.reports import (CasasLegislativasLabels,
+                                     CasasLegislativasLabelsSemPresidente,
+                                     CasasLegislativasReport,
+                                     CasasSemConvenioReport)
+from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
+from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.reports import ParlamentaresLabels
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.ocorrencias.models import Ocorrencia
-from django.db.models import Count, Q
-from django.http.response import JsonResponse
+from sigi.shortcuts import render_to_pdf
 
 
 # @param qs: queryset
 # @param o: (int) number of order field
-
-
 def query_ordena(qs, o):
     from sigi.apps.casas.admin import CasaLegislativaAdmin
     list_display = CasaLegislativaAdmin.list_display
@@ -85,6 +86,7 @@ def adicionar_casas_carrinho(request, queryset=None, id=None):
                     lista.append(id)
             request.session['carrinho_casas'] = lista
 
+
 @login_required
 def visualizar_carrinho(request):
 
@@ -117,11 +119,13 @@ def visualizar_carrinho(request):
         }
     )
 
+
 @login_required
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
     return HttpResponseRedirect('.')
+
 
 @login_required
 def deleta_itens_carrinho(request):
@@ -138,6 +142,7 @@ def deleta_itens_carrinho(request):
                 del request.session['carrinho_casas']
 
     return HttpResponseRedirect('.')
+
 
 @login_required
 def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
@@ -167,6 +172,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     report.generate_by(PDFGenerator, filename=response)
 
     return response
+
 
 @login_required
 def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
@@ -216,6 +222,7 @@ def carrinhoOrGet_for_parlamentar_qs(request):
             qs = get_for_qs(request.GET, qs)
     return qs
 
+
 @login_required
 def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
@@ -235,6 +242,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     report.generate_by(PDFGenerator, filename=response)
 
     return response
+
 
 @login_required
 def report(request, id=None, tipo=None):
@@ -261,6 +269,7 @@ def report(request, id=None, tipo=None):
     report.generate_by(PDFGenerator, filename=response)
     return response
 
+
 @login_required
 def report_complete(request, id=None):
 
@@ -271,33 +280,9 @@ def report_complete(request, id=None):
 
     if not qs:
         return HttpResponseRedirect('../')
+    
+    return render_to_pdf('casas/report_complete_pdf.html', {'casas': qs})
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
-
-    # Gera um relatorio para cada casa e concatena os relatorios
-    cont = 0
-    canvas = None
-    quant = qs.count()
-    if quant > 1:
-        for i in qs:
-            cont += 1
-            # queryset deve ser uma lista
-            lista = (i,)
-            if cont == 1:
-                report = InfoCasaLegislativa(queryset=lista)
-                canvas = report.generate_by(PDFGenerator, return_canvas=True, filename=response,)
-            else:
-                report = InfoCasaLegislativa(queryset=lista)
-                if cont == quant:
-                    report.generate_by(PDFGenerator, canvas=canvas)
-                else:
-                    canvas = report.generate_by(PDFGenerator, canvas=canvas, return_canvas=True)
-    else:
-        report = InfoCasaLegislativa(queryset=qs)
-        report.generate_by(PDFGenerator, filename=response)
-
-    return response
 
 @login_required
 def casas_sem_convenio_report(request):
@@ -312,6 +297,7 @@ def casas_sem_convenio_report(request):
     report = CasasSemConvenioReport(queryset=qs)
     report.generate_by(PDFGenerator, filename=response)
     return response
+
 
 @login_required
 def export_csv(request):
@@ -392,6 +378,7 @@ def export_csv(request):
 
     return response
 
+
 @login_required
 def portfolio(request):
     page = request.GET.get('page', 1)
@@ -426,7 +413,7 @@ def portfolio(request):
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
         data['form'] = PortfolioForm(_(u'Atribuir casas da microrregiao %s para') % (unicode(microrregiao),))
-        data['querystring'] = 'micro=%s' %  (microrregiao.pk,)
+        data['querystring'] = 'micro=%s' % (microrregiao.pk,)
         casas = CasaLegislativa.objects.filter(municipio__microrregiao=microrregiao)
     elif meso_id:
         mesorregiao = get_object_or_404(Mesorregiao, pk=meso_id)
@@ -438,7 +425,7 @@ def portfolio(request):
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
         data['form'] = PortfolioForm(_(u'Atribuir casas da mesorregiao %s para') % (unicode(mesorregiao),))
-        data['querystring'] = 'meso=%s' %  (mesorregiao.pk,)
+        data['querystring'] = 'meso=%s' % (mesorregiao.pk,)
         casas = CasaLegislativa.objects.filter(municipio__microrregiao__mesorregiao=mesorregiao)
     elif uf_id:
         uf = get_object_or_404(UnidadeFederativa, pk=uf_id)
@@ -447,13 +434,13 @@ def portfolio(request):
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['form'] = PortfolioForm(_(u'Atribuir casas do estado %s para') % (unicode(uf),))
-        data['querystring'] = 'uf=%s' %  (uf.pk,)
+        data['querystring'] = 'uf=%s' % (uf.pk,)
         casas = CasaLegislativa.objects.filter(municipio__uf=uf)
     elif regiao:
         data['regiao'] = regiao 
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
-        data['form'] = PortfolioForm(_(u'Atribuir casas da região %s para') % [x[1] for x in UnidadeFederativa.REGIAO_CHOICES if x[0]==regiao][0])
-        data['querystring'] = 'regiao=%s' %  (regiao,)
+        data['form'] = PortfolioForm(_(u'Atribuir casas da região %s para') % [x[1] for x in UnidadeFederativa.REGIAO_CHOICES if x[0] == regiao][0])
+        data['querystring'] = 'regiao=%s' % (regiao,)
         casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
         
     if casas:
@@ -536,12 +523,12 @@ def resumo_carteira(casas):
     resumo.append([_(u"Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
     resumo.append({'subtitle': _(u"Uso dos produtos Interlegis")})
     resumo.append([_(u"Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.extend([[ts.nome, dados[ts.id]['total']]+[dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
+    resumo.extend([[ts.nome, dados[ts.id]['total']] + [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
     resumo.append({'subtitle': _(u"Registros no sistema de ocorrências")})
-    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']]+[dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']]+[dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']]+[dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'],2)]+[round(dados_ocorrencia['media'][r[0]],2) for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']] + [dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']] + [dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']] + [dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'], 2)] + [round(dados_ocorrencia['media'][r[0]], 2) for r in UnidadeFederativa.REGIAO_CHOICES])
 
     return resumo
 
@@ -594,13 +581,14 @@ def casas_carteira(request, casas, context):
         else:
             casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
         casas = casas.distinct('nome', 'municipio__uf')
-        context['qs_servico'] = "&".join(['servico=%s' %s for s in servicos])
+        context['qs_servico'] = "&".join(['servico=%s' % s for s in servicos])
  
     context['servicos_check'] = servicos
      
     casas = casas.select_related('municipio', 'municipio__uf', 'municipio__microrregiao', 'municipio__microrregiao__mesorregiao').prefetch_related('servico_set')
 
     return casas, context
+
 
 @login_required
 def painel_relacionamento(request):
@@ -634,7 +622,7 @@ def painel_relacionamento(request):
         'servicos': tipos_servico,
         'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
         'gerente': gerente,
-        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '', 
+        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '',
     }
     
     if snippet != 'lista':
