@@ -13,9 +13,7 @@ from django.utils.translation import ugettext as _, ungettext
 from sigi.apps.casas.forms import PortfolioForm
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.casas.reports import (CasasLegislativasLabels,
-                                     CasasLegislativasLabelsSemPresidente,
-                                     CasasLegislativasReport,
-                                     CasasSemConvenioReport)
+                                     CasasLegislativasLabelsSemPresidente)
 from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
 from sigi.apps.ocorrencias.models import Ocorrencia
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
@@ -261,13 +259,11 @@ def report(request, id=None, tipo=None):
 
     if not qs:
         return HttpResponseRedirect('../')
-
-    # qs.order_by('municipio__uf','nome')
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
-    report = CasasLegislativasReport(queryset=qs)
-    report.generate_by(PDFGenerator, filename=response)
-    return response
+    
+    qs = qs.order_by('municipio__uf', 'nome')
+    context = {'casas': qs, 'title': _(u"Relação de Casas Legislativas")}
+    
+    return render_to_pdf('casas/report_pdf.html', context)
 
 
 @login_required
@@ -293,10 +289,10 @@ def casas_sem_convenio_report(request):
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(content_type='application/pdf')
-    report = CasasSemConvenioReport(queryset=qs)
-    report.generate_by(PDFGenerator, filename=response)
-    return response
+    qs = qs.order_by('municipio__uf', 'nome')
+    context = {'casas': qs, 'title': _(u"Casas sem convênio")}
+    
+    return render_to_pdf('casas/report_pdf.html', context)
 
 
 @login_required
