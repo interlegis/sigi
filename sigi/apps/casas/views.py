@@ -49,7 +49,39 @@ def get_for_qs(get, qs):
     for k, v in get.iteritems():
         if str(k) not in ('page', 'pop', 'q', '_popup', 'o', 'ot'):
             kwargs[str(k)] = v
+            
+    if 'convenio' in kwargs:
+        if kwargs['convenio'] == 'SC':
+            qs = qs.filter(convenio=None)        
+        elif kwargs['convenio'] == 'CC':
+            qs = qs.exclude(convenio=None)
+        else:
+            qs = qs.filter(convenio__projeto_id=kwargs['convenio'])
+        
+        qs = qs.distinct('municipio__uf__nome', 'nome')
+        del(kwargs['convenio'])
+        
+    if 'servico' in kwargs:
+        if kwargs['servico'] == 'SS':
+            qs = qs.filter(servico=None)
+        elif kwargs['servico'] == 'CS':
+            qs = qs.exclude(servico=None).filter(
+                servico__data_desativacao__isnull=True)
+        elif kwargs['servico'] == 'CR':
+            qs = qs.exclude(servico__tipo_servico__modo='H') \
+                                .exclude(servico=None)
+        elif kwargs['servico'] == 'CH':
+            qs = qs.filter(
+                servico__tipo_servico__modo='H',
+                servico__data_desativacao__isnull=True
+            )
+        else:
+            qs = qs.filter(servico__tipo_servico_id=kwargs['servico'])
 
+        qs = qs.distinct('municipio__uf__nome', 'nome')
+        
+        del(kwargs['servico'])
+            
     qs = qs.filter(**kwargs)
     if 'o' in get:
         qs = query_ordena(qs, get['o'])
@@ -307,18 +339,19 @@ def export_csv(request):
         return HttpResponseRedirect('../')
 
     atributos = request.POST.getlist("itens_csv_selected")
-    atributos2 = [s.encode("utf-8") for s in atributos]
 
     try:
-        atributos2.insert(atributos2.index(_(u'Município')), _(u'UF'))
+        atributos.insert(atributos.index(_(u'Município')), _(u'UF'))
     except ValueError:
         pass
+
+    atributos2 = [s.encode("utf-8") for s in atributos]
 
     writer.writerow(atributos2)
 
     for casa in casas:
         lista = []
-        contatos = casa.funcionario_set.filter(setor="contato_interlegis")
+        contatos = casa.funcionario_set.exclude(nome="")
         for atributo in atributos:
             if _(u"CNPJ") == atributo:
                 lista.append(casa.cnpj.encode("utf-8"))
@@ -353,18 +386,23 @@ def export_csv(request):
             elif _(u"Última alteração de endereco") == atributo:
                 lista.append(casa.ult_alt_endereco)
             elif _(u"Nome contato") == atributo:
-                if contatos and contatos[0].nome:
-                    lista.append(contatos[0].nome.encode("utf-8"))
+                if contatos:
+                    nomes = u", ".join([c.nome for c in contatos])
+                    lista.append(nomes.encode("utf-8"))
                 else:
                     lista.append('')
             elif _(u"Cargo contato") == atributo:
-                if contatos and contatos[0].cargo:
-                    lista.append(contatos[0].cargo.encode("utf-8"))
+                if contatos:
+                    cargos = u", ".join([c.cargo if c.cargo else u"?"
+                                         for c in contatos])
+                    lista.append(cargos.encode("utf-8"))
                 else:
                     lista.append('')
             elif _(u"Email contato") == atributo:
-                if contatos and contatos[0].email:
-                    lista.append(contatos[0].email.encode("utf-8"))
+                if contatos:
+                    emails = u", ".join([c.email if c.email else u"?"
+                                         for c in contatos])
+                    lista.append(emails.encode("utf-8"))
                 else:
                     lista.append('')
             else:

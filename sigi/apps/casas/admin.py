@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-from django.core.urlresolvers import reverse
+
 from django.contrib import admin
 from django.contrib.contenttypes import generic
+from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
+from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
 
@@ -12,13 +14,13 @@ from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
     labels_report_sem_presidente, report, \
     adicionar_casas_carrinho
 from sigi.apps.contatos.models import Telefone
-from sigi.apps.convenios.models import Convenio
+from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.inventario.models import Bem
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
 from sigi.apps.parlamentares.models import Legislatura
-from sigi.apps.servicos.models import Servico
+from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
@@ -67,16 +69,19 @@ class ConveniosInline(admin.StackedInline):
 
     def get_tramitacoes(self, obj):
         return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
+
     get_tramitacoes.short_description = _(u'Tramitações')
     get_tramitacoes.allow_tags = True
 
     def get_anexos(self, obj):
         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
+
     get_anexos.short_description = _(u'Anexos')
     get_anexos.allow_tags = True
 
     def get_equipamentos(self, obj):
         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
+
     get_equipamentos.short_description = _(u'Equipamentos previstos')
     get_equipamentos.allow_tags = True
 
@@ -173,6 +178,7 @@ class OcorrenciaInline(admin.TabularInline):
     link_editar.short_description = _(u'Editar')
     link_editar.allow_tags = True
 
+
 class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
 
     def __init__(self, *args, **kwargs):
@@ -181,17 +187,76 @@ class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
         self.lookup_choices = [(x.id, x) for x in gerentes]
 
 
+class ConvenioFilter(admin.SimpleListFilter):
+    title = _(u"Tipo de convênio")
+    parameter_name = 'convenio'
+    
+    def lookups(self, request, model_admin):
+        return (
+            ('SC', _(u"Sem nenhum convênio")),
+            ('CC', _(u"Com algum convênio"))
+        ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+    
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'SC':
+                queryset = queryset.filter(convenio=None)        
+            elif self.value() == 'CC':
+                queryset = queryset.exclude(convenio=None)
+            else:
+                queryset = queryset.filter(convenio__projeto_id=self.value())
+        
+        return queryset.distinct('municipio__uf__nome', 'nome')
+
+
+class ServicoFilter(admin.SimpleListFilter):
+    title = _(u"Serviço")
+    parameter_name = 'servico'
+    
+    def lookups(self, request, model_admin):
+        return (
+            ('SS', _(u"Sem nenhum serviço")),
+            ('CS', _(u"Com algum serviço")),
+            ('CH', _(u"Com algum serviço de hospedagem")),
+            ('CR', _(u"Apenas serviço de registro")),
+        ) + tuple([(p.pk, p.nome) for p in TipoServico.objects.all()])
+    
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'SS':
+                queryset = queryset.filter(servico=None)
+            elif self.value() == 'CS':
+                queryset = queryset.exclude(servico=None).filter(
+                    servico__data_desativacao__isnull=True)
+            elif self.value() == 'CR':
+                queryset = queryset.exclude(servico__tipo_servico__modo='H') \
+                                    .exclude(servico=None)
+            elif self.value() == 'CH':
+                queryset = queryset.filter(
+                    servico__tipo_servico__modo='H',
+                    servico__data_desativacao__isnull=True
+                )
+            else:
+                queryset = queryset.filter(
+                    servico__tipo_servico_id=self.value()
+                )
+
+        return queryset.distinct('municipio__uf__nome', 'nome')
+
+
 class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
-               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline, )
-    list_display = ('nome', 'municipio', 'gerente_contas', 'get_convenios')
+               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline,)
+    list_display = ('nome', 'get_uf', 'get_gerente_contas', 'get_convenios',
+                    'get_servicos')
     list_display_links = ('nome',)
-    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter), 'municipio__uf__nome', 'convenio__projeto',
+    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter),
+                   'municipio__uf__nome', ConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
-    ordering = ('nome', 'municipio__uf')
-    queyrset = queryset_ascii
+    ordering = ('municipio__uf__nome', 'nome')
+    queryset = queryset_ascii
     fieldsets = (
         (None, {
             'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares', 'gerente_contas')
@@ -212,11 +277,31 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     search_fields = ('search_text', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+    
+    def get_uf(self, obj):
+        return obj.municipio.uf.nome
 
+    get_uf.short_description = _(u'Unidade da Federação')
+    get_uf.admin_order_field = 'municipio__uf__nome'
+    
+    def get_gerente_contas(self, obj):
+        return obj.gerente_contas
+    
+    get_gerente_contas.short_description = _(u'Gerente de contas')
+    
     def get_convenios(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
+
     get_convenios.short_description = _(u'Convênios')
     get_convenios.allow_tags = True
+    
+    def get_servicos(self, obj):
+        return '<ul>' + ''.join(['<li>%s</li>' % s.__unicode__()
+                                 for s in obj.servico_set.filter(
+                                     data_desativacao__isnull=True)]) + '</ul>'
+
+    get_servicos.short_description = _(u'Serviços')
+    get_servicos.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         return super(CasaLegislativaAdmin, self).changelist_view(
@@ -230,22 +315,27 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def etiqueta(self, request, queryset):
         return labels_report(request, queryset=queryset)
+
     etiqueta.short_description = _(u"Gerar etiqueta(s) da(s) casa(s) selecionada(s)")
 
     def etiqueta_sem_presidente(self, request, queryset):
         return labels_report_sem_presidente(request, queryset=queryset)
+
     etiqueta_sem_presidente.short_description = _(u"Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)")
 
     def relatorio(self, request, queryset):
         return report(request, queryset=queryset)
+
     relatorio.short_description = _(u"Exportar a(s) casa(s) selecionada(s) para PDF")
 
     def relatorio_completo(self, request, queryset):
         return report_complete(request, queryset=queryset)
+
     relatorio_completo.short_description = _(u"Gerar relatório completo da(s) casa(s) selecionada(s)")
 
     def relatorio_csv(self, request, queryset):
         return export_csv(request)
+
     relatorio_csv.short_description = _(u"Exportar casa(s) selecionada(s) para CSV")
 
     def adicionar_casas(self, request, queryset):
@@ -270,6 +360,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
+
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
 admin.site.register(TipoCasaLegislativa)
