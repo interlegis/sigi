@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
+from datetime import datetime
 import random
 from string import ascii_uppercase
 from unicodedata import normalize
 
-from datetime import datetime
 from django.contrib.contenttypes import generic
 from django.db import models
 from image_cropping import ImageRatioField
@@ -54,6 +54,11 @@ class CasaLegislativa(models.Model):
     tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name="Tipo")
     cnpj = models.CharField('CNPJ', max_length=32, blank=True)
     observacoes = models.TextField(u'observações', blank=True)
+    horario_funcionamento = models.CharField(
+        u"Horário de funcionamento da Casa Legislativa",
+        max_length=100,
+        blank=True,
+    )
 #    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField('Código Interlegis', max_length=3, blank=True)
     # codigo_interlegis.ts_filter = True
@@ -93,7 +98,7 @@ class CasaLegislativa(models.Model):
         height_field='foto_altura',
         blank=True
     )
-    recorte = ImageRatioField('foto', '400x300', verbose_name="Recorte", )
+    recorte = ImageRatioField('foto', '400x300', verbose_name="Recorte",)
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
     data_instalacao = models.DateField(u'Data de instalação da Casa Legislativa', null=True, blank=True)
@@ -291,6 +296,8 @@ class Funcionario(models.Model):
     nome = models.CharField('nome completo', max_length=60, blank=False)
     # nome.alphabetic_filter = True
     sexo = models.CharField(max_length=1, choices=SEXO_CHOICES, default="M")
+    data_nascimento = models.DateField(u"Data de nascimento", blank=True,
+                                       null=True)
     nota = models.CharField(max_length=70, null=True, blank=True)
     email = models.CharField('e-mail', max_length=75, blank=True)
     telefones = generic.GenericRelation('contatos.Telefone')

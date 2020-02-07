@@ -34,7 +34,14 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class PresidenteInline(admin.StackedInline):
     model = Presidente
-    exclude = ['cargo', 'funcao']
+    fieldsets = ((None, {
+        'fields': (
+            ('nome', 'sexo', 'data_nascimento'),
+            ('nota', 'email', 'tempo_de_servico'),
+            ('ult_alteracao',),
+        )
+    }),)
+#     exclude = ['setor', 'cargo', 'funcao']
     readonly_fields = ('ult_alteracao',)
     extra = 1
     max_num = 1
@@ -44,7 +51,12 @@ class PresidenteInline(admin.StackedInline):
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
     fieldsets = ((None, {
-        'fields': (('nome', 'sexo', 'nota', 'email'), ('cargo', 'funcao', 'setor', 'tempo_de_servico'), 'ult_alteracao')
+        'fields': (
+            ('nome', 'sexo', 'data_nascimento'),
+            ('nota', 'email'),
+            ('cargo', 'funcao', 'setor'),
+            ('tempo_de_servico', 'ult_alteracao'),
+        )
     }),)
     readonly_fields = ('ult_alteracao',)
     extra = 1
@@ -269,7 +281,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
             'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador', 'pagina_web', 'email', 'obs_pesquisa',) 
         }),
         (_(u'Outras informações'), {
-            'fields': ('observacoes', 'foto', 'recorte'),
+            'fields': ('observacoes', 'horario_funcionamento', 'foto', 'recorte'),
         }),
     )
     raw_id_fields = ('municipio',)
