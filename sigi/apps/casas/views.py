@@ -385,6 +385,11 @@ def export_csv(request):
                 lista.append(casa.total_parlamentares)
             elif _(u"Última alteração de endereco") == atributo:
                 lista.append(casa.ult_alt_endereco)
+            elif _(u"Servicos SEIT") == atributo:
+                lista.append(", ".join([s.tipo_servico.nome.encode('utf-8')
+                                        for s in casa.servico_set.filter(
+                                            data_desativacao__isnull=True)])
+                )
             elif _(u"Nome contato") == atributo:
                 if contatos:
                     nomes = u", ".join([c.nome for c in contatos])
