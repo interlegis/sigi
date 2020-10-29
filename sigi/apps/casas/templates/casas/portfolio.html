@@ -5,6 +5,32 @@
 
 {% block extrastyle %}
     <style type="text/css">
+		/* Tooltip container */
+		.tooltip {
+		  position: relative;
+		  display: inline-block;
+		  border-bottom: 1px dotted black; /* If you want dots under the hoverable text */
+		}
+		
+		/* Tooltip text */
+		.tooltip .tooltiptext {
+		  visibility: hidden;
+		  width: 120px;
+		  background-color: black;
+		  color: #fff;
+		  text-align: center;
+		  padding: 5px 0;
+		  border-radius: 6px;
+		 
+		  /* Position the tooltip text - see examples below! */
+		  position: absolute;
+		  z-index: 1;
+		}
+		
+		/* Show the tooltip text when you mouse over the tooltip container */
+		.tooltip:hover .tooltiptext {
+		  visibility: visible;
+		}    
     </style>
     {{ block.super }}
 {% endblock %}
@@ -22,10 +48,18 @@
 	<div class="alert alert-danger">{{ e }}</div>
 	{% endfor %}
 
+    <div class="nav">
+        <ul class="object-tools pull-left nav nav-pills">
+        {% for t in tipos_casas %}
+            <li{% if tipo == t.sigla %} class="active"{% endif %}><a href="?tipo={{ t.sigla }}" data-toggle="tooltip" title="{{ t.nome }}">{{ t.sigla }}</a></li>
+        {% endfor %}
+        </ul>
+    </div>
+
 	<div class="nav">
 		<ul class="object-tools pull-left nav nav-pills">
 		{% for key, value in regioes %}
-			<li{% if regiao == key %} class="active"{% endif %}><a href="?regiao={{ key }}">{{ value }}</a></li>
+			<li{% if regiao == key %} class="active"{% endif %}><a href="?regiao={{ key }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}">{{ value }}</a></li>
 		{% endfor %}
 		</ul>
 	</div>
@@ -34,7 +68,7 @@
 	<div class="nav">
 		<ul class="object-tools pull-left nav nav-tabs">
 		{% for uf in ufs %}
-			<li{% if uf_id == uf.pk %} class="active"{% endif %}><a href="?uf={{ uf.pk|safe }}">{{ uf.nome }}</a></li>
+			<li{% if uf_id == uf.pk %} class="active"{% endif %}><a href="?uf={{ uf.pk|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}">{{ uf.nome }}</a></li>
 		{% endfor %}
 		</ul>
 	</div>
@@ -44,7 +78,7 @@
 	<div class="nav">
 		<ul class="object-tools pull-left nav nav-pills">
 		{% for meso in mesorregioes %}
-			<li{% if meso_id == meso.pk %} class="active"{% endif %}><a href="?meso={{ meso.pk|safe }}">{{ meso.nome }}</a></li>
+			<li{% if meso_id == meso.pk %} class="active"{% endif %}><a href="?meso={{ meso.pk|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}">{{ meso.nome }}</a></li>
 		{% endfor %}
 		</ul>
 	</div>
@@ -54,7 +88,7 @@
 	<div class="nav">
 		<ul class="object-tools pull-left nav nav-pills">
 		{% for micro in microrregioes %}
-			<li{% if micro_id == micro.pk %} class="active"{% endif %}><a href="?micro={{ micro.pk|safe }}">{{ micro.nome }}</a></li>
+			<li{% if micro_id == micro.pk %} class="active"{% endif %}><a href="?micro={{ micro.pk|safe }}{% if tipo %}&tipo={{ tipo|safe }}{% endif %}">{{ micro.nome }}</a></li>
 		{% endfor %}
 		</ul>
 	</div>
@@ -64,7 +98,7 @@
 		<form action="" method="post" id="atribui_gerente_form">
 			{% csrf_token %}
 			{{ form }}
-			<input type="submit" name="_save" value="Atribuir" class="btn btn-default" />
+			<input type="submit" name="_save" class="btn btn-default"/>
 		</form> 
 	{% endif %}
 	
@@ -85,7 +119,7 @@
 					<td>{{ casa.municipio.uf }}</td>
 					<td>{{ casa.municipio.microrregiao.mesorregiao }}</td>
 					<td>{{ casa.municipio.microrregiao.nome }}</td>
-					<td>{{ casa.gerente_contas }}</td>
+					<td>{{ casa.lista_gerentes|safe }}</td>
 				</tr>
 				{% endfor %}
 			</table>

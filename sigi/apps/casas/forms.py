@@ -20,8 +20,22 @@ class CasaLegislativaForm(forms.ModelForm):
         fields = '__all__'
         
 class PortfolioForm(forms.Form):
-    gerente_contas = forms.ModelChoiceField(queryset=Servidor.objects.all(), label=_(u"Atribuir casas para"))
+    ACAO_CHOICES = (
+        ('ADD', _(u"Adicionar")),
+        ('DEL', _(u"Remover"))
+    )
+    acao = forms.ChoiceField(
+        label=_(u"Ação"),
+        choices=ACAO_CHOICES,
+        initial='ADD',
+        widget=forms.RadioSelect
+    )
+    gerente = forms.ModelChoiceField(
+        queryset=Servidor.objects.all(),
+        label=_(u"Atribuir para")
+    )
     
-    def __init__(self, label=_(u"Atribuir casas para"), *args, **kwargs):
+    # O label precisa ser trocado dependendo da região que se está visualizando
+    def __init__(self, label=_(u"Atribuir para"), *args, **kwargs):
         super(PortfolioForm, self).__init__(*args, **kwargs)
-        self.fields['gerente_contas'].label = label
+        self.fields['gerente'].label = label

@@ -77,7 +77,7 @@
     <tr>
       <td>{{ casa.nome }}</td>
       <td>{{ casa.municipio.uf.sigla }}</td>
-      <td>{{ casa.gerente_contas.nome_completo }}</td>
+      <td>{{ casa.lista_gerentes }}</td>
       <td>
       {% for s in casa.servico_set.all %}
         {% if s.data_desativacao == None %}

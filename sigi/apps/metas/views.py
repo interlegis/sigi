@@ -25,6 +25,7 @@ from sigi.apps.servicos.models import TipoServico
 from sigi.apps.utils import to_ascii
 from sigi.settings import MEDIA_ROOT, STATIC_URL
 from sigi.shortcuts import render_to_pdf
+from sigi.apps.servidores.models import Servidor
 
 
 JSON_FILE_NAME = os.path.join(MEDIA_ROOT, 'apps/metas/map_data.json')
@@ -75,11 +76,15 @@ def mapa(request):
             [(x.sigla, x.sigla, x.nome, True)
                 for x in TipoServico.objects.all()]),
         ("convenios", _(u'Por Casas conveniadas'),
-            [(x.sigla, 'convenio_' + x.sigla, _(u'ao %(projeto)s') % {'projeto': x.sigla}, x.sigla == 'PML')
-                for x in projetos]),  # Apenas o ultimo #hardcoded #fixme
+            [(x.sigla, 
+              'convenio_' + x.sigla,
+              _(u'ao {projeto}').format(projeto=x.sigla),
+              x.sigla == 'PML') for x in projetos]),
         ("equipadas", _(u'Por Casas equipadas'),
-            [(x.sigla, 'equip_' + x.sigla, _(u'pelo %(projeto)s') % {'projeto': x.sigla}, False)
-                for x in projetos]),
+            [(x.sigla,
+              'equip_' + x.sigla,
+              _(u'pelo {projeto}').format(projeto=x.sigla),
+              False) for x in projetos]),
         ("diagnosticos", _(u'Por Diagnósticos'),
             [('A', 'diagnostico_A', 'Em andamento', False),
              ('P', 'diagnostico_P', 'Publicados', True)]),
@@ -91,10 +96,12 @@ def mapa(request):
                 for x in UnidadeFederativa.objects.all()]),
         ("gerente", _(u'Por gerente de relacionamento'),
             [("", 'gerente_', _(u"Sem gerente"), False)] +
-            [(x.gerente_contas.id, 'gerente_%s' % (x.gerente_contas.id,),
-              "%s %s" % (x.gerente_contas.nome_completo.split()[0], x.gerente_contas.nome_completo.split()[-1]), False)
-             for x in CasaLegislativa.objects.exclude(gerente_contas=None).select_related(
-                        'gerente_contas').distinct('gerente_contas__nome_completo').order_by('gerente_contas__nome_completo')]),
+            [(g.id, 'gerente_{0}'.format(g.id),
+              _(u"{firstname} {lastname}").format(
+                  firstname=g.nome_completo.split()[0],
+                  lastname=g.nome_completo.split()[-1])
+              , False) for g in Servidor.objects.exclude(
+                  casas_que_gerencia=None).order_by('nome_completo')]),
     )
     return render(request, 'metas/mapa.html', {'filters': filters})
 
@@ -271,23 +278,26 @@ def get_params(request):
     }
 
 
-def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos, gerentes):
+def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos,
+                  gerentes):
     ''' Filtrar Casas que atendem aos parâmetros de pesquisa '''
 
     qServico  = Q(servico__tipo_servico__sigla__in=seit)
     qConvenio = Q(convenio__projeto__sigla__in=convenios)
-    qEquipada = Q(convenio__projeto__sigla__in=equipadas, convenio__equipada=True)
+    qEquipada = Q(convenio__projeto__sigla__in=equipadas,
+                  convenio__equipada=True)
         
     qRegiao = Q(municipio__uf__regiao__in=regioes)
     qEstado = Q(municipio__uf__sigla__in=estados)
     
     if gerentes:
-        qGerente = Q(gerente_contas_id__in=gerentes)
+        qGerente = Q(gerentes_interlegis__id__in=gerentes)
     else:
         qGerente = Q()
 
     if diagnosticos:
-        qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' for p in diagnosticos])
+        qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' 
+                                                     for p in diagnosticos])
     else:
         qDiagnostico = Q()
         
@@ -296,7 +306,8 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos, ge
     if seit or convenios or equipadas or diagnosticos:
         casas = casas.filter(qServico | qConvenio | qEquipada | qDiagnostico)
     else:
-        casas = casas.filter(Q(servico=None) & Q(convenio=None) & Q(diagnostico=None))
+        casas = casas.filter(Q(servico=None) & Q(convenio=None) & 
+                             Q(diagnostico=None))
 
     return casas
 
@@ -351,7 +362,7 @@ def parliament_summary(parliament):
         'lng': str(parliament.municipio.longitude),
         'estado': parliament.municipio.uf.sigla,
         'regiao': parliament.municipio.uf.regiao,
-        'gerente': (str(parliament.gerente_contas.id) if parliament.gerente_contas else ''),
+        'gerentes': [str(g.id) for g in parliament.gerentes_interlegis.all()],
         'diagnosticos': [],
         'seit': [],
         'convenios': [],
@@ -359,45 +370,61 @@ def parliament_summary(parliament):
         'info': []
     }
     
-    if parliament.gerente_contas:
-        summary['info'].append(_(u"Gerente de relacionamento: %s") % parliament.gerente_contas.nome_completo)
+    if parliament.gerentes_interlegis.exists():
+        summary['info'].append(_(u"Gerentes Interlegis: {lista}").format(
+            lista=parliament.lista_gerentes(fmt='lista')))
 
     for sv in parliament.servico_set.filter(data_desativacao=None):
         summary['info'].append(
-            _(u"%(name)s ativado em %(date)s") % dict(
+            _(u"{name} ativado em {date}").format(
                 name=sv.tipo_servico.nome,
-                date=sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao else _(u'<sem data de ativação>')) +
-            " <a href='%s' target='_blank'><img src='%simg/link.gif' alt='link'></a>" % (sv.url, STATIC_URL))
+                date=sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao 
+                else _(u'<sem data de ativação>')) +
+            (u" <a href='{0}' target='_blank'><img src='{1}img/link.gif' "
+             u"alt='link'></a>").format(sv.url, STATIC_URL))
         summary['seit'].append(sv.tipo_servico.sigla)
 
     for cv in parliament.convenio_set.all():
-        if (cv.data_retorno_assinatura is None) and (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Equipada em %(date)s pelo %(project)s") % dict(
-                date=cv.data_termo_aceite.strftime('%d/%m/%Y'),
-                project=cv.projeto.sigla))
+        if ((cv.data_retorno_assinatura is None) and 
+            (cv.equipada and cv.data_termo_aceite is not None)):
+            summary['info'].append(
+                _(u"Equipada em {date} pelo {project}").format(
+                    date=cv.data_termo_aceite.strftime('%d/%m/%Y'),
+                    project=cv.projeto.sigla))
             summary['equipadas'].append(cv.projeto.sigla)
         elif cv.data_retorno_assinatura is None:
-            summary['info'].append(_(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
-                project=cv.projeto.sigla,
-                date=cv.data_adesao))
+            summary['info'].append(
+                _(u"Adesão ao projeto {project}, em {date}").format(
+                    project=cv.projeto.sigla, date=cv.data_adesao))
             summary['convenios'].append(cv.projeto.sigla)
-        if (cv.data_retorno_assinatura is not None) and not (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s") % dict(
-                project=cv.projeto.sigla,
-                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
+        if ((cv.data_retorno_assinatura is not None) and not 
+            (cv.equipada and cv.data_termo_aceite is not None)):
+            summary['info'].append(
+                _(u"Conveniada ao %(project)s em %(date)s").format(
+                    project=cv.projeto.sigla,
+                    date=cv.data_retorno_assinatura.strftime('%d/%m/%Y')))
             summary['convenios'].append(cv.projeto.sigla)
-        if (cv.data_retorno_assinatura is not None) and (cv.equipada and cv.data_termo_aceite is not None):
-            summary['info'].append(_(u"Conveniada ao %(project)s em %(date)s e equipada em %(equipped_date)s") % dict(
-                project=cv.projeto.sigla,
-                date=cv.data_retorno_assinatura.strftime('%d/%m/%Y'),
-                equipped_date=cv.data_termo_aceite.strftime('%d/%m/%Y')))
+        if ((cv.data_retorno_assinatura is not None) and
+            (cv.equipada and cv.data_termo_aceite is not None)):
+            summary['info'].append(
+                _(u"Conveniada ao {project} em {date} e equipada em "
+                  u"{equipped_date}").format(
+                      project=cv.projeto.sigla,
+                      date=cv.data_retorno_assinatura.strftime('%d/%m/%Y'),
+                      equipped_date=cv.data_termo_aceite.strftime('%d/%m/%Y')))
             summary['equipadas'].append(cv.projeto.sigla)
             summary['convenios'].append(cv.projeto.sigla)
 
     for dg in parliament.diagnostico_set.all():
         summary['diagnosticos'].append('P' if dg.publicado else 'A')
-        summary['info'].append(_(u'Diagnosticada no período de %(initial_date)s a %(final_date)s') % dict(
-            initial_date=dg.data_visita_inicio.strftime('%d/%m/%Y') if dg.data_visita_inicio is not None else _(u"<sem data de início>"),
-            final_date=dg.data_visita_fim.strftime('%d/%m/%Y') if dg.data_visita_fim else _(u"<sem data de término>")))
+        summary['info'].append(
+            _(u"Diagnosticada no período de {initial_date} "
+              u"a {final_date}").format(
+                  initial_date=dg.data_visita_inicio.strftime('%d/%m/%Y')
+                    if dg.data_visita_inicio is not None 
+                    else _(u"<sem data de início>"), 
+                  final_date=dg.data_visita_fim.strftime('%d/%m/%Y')
+                    if dg.data_visita_fim
+                    else _(u"<sem data de término>")))
 
     return summary

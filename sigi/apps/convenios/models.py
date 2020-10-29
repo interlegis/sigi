@@ -1,8 +1,8 @@
-# style="list-style-type: noneo -*- coding: utf-8 -*-
-from datetime import datetime
+#-*- coding: utf-8 -*-
+import re
+from datetime import datetime, date
 from django.db import models
 from django.utils.translation import ugettext as _
-
 from sigi.apps.utils import SearchField
 
 
@@ -58,6 +58,12 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Convênio firmado.')
     )
+    duracao = models.PositiveIntegerField(
+        _(u"Duração (meses)"),
+        null=True,
+        blank=True,
+        help_text=_(u"Deixar em branco caso a duração seja indefinida")
+        )
     data_pub_diario = models.DateField(
         _(u'data da publicação no Diário Oficial'),
         null=True,
@@ -99,7 +105,59 @@ class Convenio(models.Model):
     )
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
-
+    
+    def get_termino_convenio(self):
+        if (self.data_retorno_assinatura is None or
+            self.duracao is None):
+            return None
+        
+        ano = self.data_retorno_assinatura.year + int(self.duracao / 12)
+        mes = int(self.data_retorno_assinatura.month + int(self.duracao % 12))
+        if mes > 12:
+            ano = ano + 1
+            mes = mes - 12
+        dia = self.data_retorno_assinatura.day
+        
+        while True:
+            try:
+                data_fim = date(year=ano, month=mes,day=dia)
+                break
+            except:
+                dia = dia - 1
+                
+        return data_fim
+    
+    def get_status(self):
+        if self.data_retorno_assinatura is not None:
+            if self.duracao is not None:
+                if date.today() >= self.get_termino_convenio():
+                    return _(u"Vencido")
+            return _(u"Vigente")
+        
+        if (self.data_retorno_assinatura is None and
+            self.data_devolucao_sem_assinatura is None and 
+            self.data_retorno_sem_assinatura is None):
+            return _(u"Pendente")
+        if (self.data_devolucao_sem_assinatura is not None or
+            self.data_retorno_sem_assinatura is not None):
+            return _(u"Desistência")
+        
+        return _(u"Indefinido")
+    
+    def get_sigad_url(self):
+        m = re.match(
+            r'(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}',
+            self.num_processo_sf
+        )
+        if m:
+            return (r'<a href="https://intra.senado.leg.br/'
+                    r'sigad/novo/protocolo/impressao.asp?area=processo'
+                    r'&txt_numero_orgao={orgao}'
+                    r'&txt_numero_sequencial={sequencial}'
+                    r'&txt_numero_ano={ano}"'
+                    r' target="_blank">{processo}</a>').format(processo=self.num_processo_sf,**m.groupdict())
+        return self.num_processo_sf
+    
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None
         self.equipada = self.data_termo_aceite is not None
@@ -112,10 +170,11 @@ class Convenio(models.Model):
 
     def __unicode__(self):
         if self.data_retorno_assinatura is not None:
-            return _(u"Convênio nº %(number)s - projeto %(project)s, em %(date)s") % dict(
+            return _(u"Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
                 number=self.num_convenio,
                 project=self.projeto.sigla,
-                date=self.data_retorno_assinatura)
+                date=self.data_retorno_assinatura,
+                status=self.get_status()))
         else:
             return _(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
                 project=self.projeto.sigla,

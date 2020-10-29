@@ -56,6 +56,7 @@ class FuncionariosInline(admin.StackedInline):
             ('nota', 'email'),
             ('cargo', 'funcao', 'setor'),
             ('tempo_de_servico', 'ult_alteracao'),
+            ('desativado', 'observacoes'),
         )
     }),)
     readonly_fields = ('ult_alteracao',)
@@ -63,44 +64,75 @@ class FuncionariosInline(admin.StackedInline):
     inlines = (TelefonesInline,)
 
     def get_queryset(self, request):
-        return self.model.objects.exclude(cargo=_(u"Presidente"))
+        return (self.model.objects.exclude(
+            cargo='Presidente').exclude(desativado=True)
+        )
 
 
-class ConveniosInline(admin.StackedInline):
+class ConveniosInline(admin.TabularInline):
     model = Convenio
     fieldsets = (
-        (None, {'fields': (('link_convenio', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao'),
-                           ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite', 'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
-                           ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',),
-                           ('get_tramitacoes', 'get_anexos', 'get_equipamentos',),
-                           )}
-         ),
+        (None, {'fields': (
+            ('link_sigad', 'status_convenio', 'num_convenio', 
+             'projeto', 'observacao'),
+            ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
+             'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
+            ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',),
+            ('link_convenio',),
+        )}),
     )
-    readonly_fields = ['get_tramitacoes', 'get_anexos', 'get_equipamentos', 'link_convenio', ]
+    readonly_fields = ['link_convenio', 'link_sigad', 'status_convenio',
+                       'num_convenio', 'projeto', 'observacao', 'data_adesao',
+                       'data_retorno_assinatura', 'data_termo_aceite',
+                       'data_pub_diario', 'data_devolucao_via',
+                       'data_postagem_correio', 'data_devolucao_sem_assinatura',
+                       'data_retorno_sem_assinatura',]
     extra = 0
+    can_delete = False
+    
+    def has_add_permission(self, request):
+        return False
 
-    def get_tramitacoes(self, obj):
-        return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
+#     def get_tramitacoes(self, obj):
+#         return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
+# 
+#     get_tramitacoes.short_description = _(u'Tramitações')
+#     get_tramitacoes.allow_tags = True
+# 
+#     def get_anexos(self, obj):
+#         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
+# 
+#     get_anexos.short_description = _(u'Anexos')
+#     get_anexos.allow_tags = True
+# 
+#     def get_equipamentos(self, obj):
+#         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
+# 
+#     get_equipamentos.short_description = _(u'Equipamentos previstos')
+#     get_equipamentos.allow_tags = True
 
-    get_tramitacoes.short_description = _(u'Tramitações')
-    get_tramitacoes.allow_tags = True
-
-    def get_anexos(self, obj):
-        return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
-
-    get_anexos.short_description = _(u'Anexos')
-    get_anexos.allow_tags = True
-
-    def get_equipamentos(self, obj):
-        return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
-
-    get_equipamentos.short_description = _(u'Equipamentos previstos')
-    get_equipamentos.allow_tags = True
+    def status_convenio(self, obj):
+        if obj.pk is None:
+            return ""
+        status = obj.get_status()
+                
+        if status in [u"Vencido", u"Desistência"]:
+            label = r"danger"
+        elif status == u"Vigente":
+            label = r"success"
+        elif status == u"Pendente":
+            label = r"warning"
+        else:
+            label = r"info"
+            
+        return u'<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
+    status_convenio.short_description = _(u"Status do convênio")
+    status_convenio.allow_tags = True
+            
 
     def link_convenio(self, obj):
         if obj.pk is None:
             return ""
-        from django.core.urlresolvers import reverse
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
         url = url + '?_popup=1'
         return """<input id="edit_convenio-%s" type="hidden"/>
@@ -110,6 +142,14 @@ class ConveniosInline(admin.StackedInline):
 
     link_convenio.short_description = _(u'Editar convenio')
     link_convenio.allow_tags = True
+    
+    def link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return obj.get_sigad_url()
+    
+    link_sigad.short_description = _("Processo no Senado")
+    link_sigad.allow_tags = True
 
 
 class LegislaturaInline(admin.TabularInline):
@@ -191,10 +231,10 @@ class OcorrenciaInline(admin.TabularInline):
     link_editar.allow_tags = True
 
 
-class GerentesContasFilter(admin.filters.RelatedFieldListFilter):
+class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
 
     def __init__(self, *args, **kwargs):
-        super(GerentesContasFilter, self).__init__(*args, **kwargs)
+        super(GerentesInterlegisFilter, self).__init__(*args, **kwargs)
         gerentes = Servidor.objects.filter(casas_que_gerencia__isnull=False).order_by('nome_completo').distinct()
         self.lookup_choices = [(x.id, x) for x in gerentes]
 
@@ -259,29 +299,33 @@ class ServicoFilter(admin.SimpleListFilter):
 class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, ConveniosInline, LegislaturaInline,
-               DiagnosticoInline, BemInline, ServicoInline, PlanoDiretorInline, OcorrenciaInline,)
-    list_display = ('nome', 'get_uf', 'get_gerente_contas', 'get_convenios',
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, 
+               ConveniosInline, LegislaturaInline, DiagnosticoInline, BemInline,
+               ServicoInline, PlanoDiretorInline, OcorrenciaInline,)
+    list_display = ('nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
     list_display_links = ('nome',)
-    list_filter = ('tipo', ('gerente_contas', GerentesContasFilter),
+    list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
                    'municipio__uf__nome', ConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares', 'gerente_contas')
+            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares',
+                       'gerentes_interlegis')
         }),
         (_(u'Endereço'), {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
                        'municipio', 'cep', 'ult_alt_endereco'),
         }),
         (_(u'Presença na Internet'), {
-            'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador', 'pagina_web', 'email', 'obs_pesquisa',) 
+            'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador',
+                       'pagina_web', 'email', 'obs_pesquisa',) 
         }),
         (_(u'Outras informações'), {
-            'fields': ('observacoes', 'horario_funcionamento', 'foto', 'recorte'),
+            'fields': ('observacoes', 'horario_funcionamento', 'foto',
+                       'recorte'),
         }),
     )
     raw_id_fields = ('municipio',)
@@ -289,6 +333,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     search_fields = ('search_text', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+    filter_horizontal = ('gerentes_interlegis',)
     
     def get_uf(self, obj):
         return obj.municipio.uf.nome
@@ -296,10 +341,10 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     get_uf.short_description = _(u'Unidade da Federação')
     get_uf.admin_order_field = 'municipio__uf__nome'
     
-    def get_gerente_contas(self, obj):
-        return obj.gerente_contas
-    
-    get_gerente_contas.short_description = _(u'Gerente de contas')
+    def get_gerentes(self, obj):
+        return obj.lista_gerentes
+    get_gerentes.short_description = _(u'Gerente Interlegis')
+    get_gerentes.allow_tags = True
     
     def get_convenios(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'

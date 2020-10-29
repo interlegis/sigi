@@ -44,7 +44,7 @@ class ConvenioAdmin(BaseModelAdmin):
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao')}
          ),
         (_(u'Datas'),
-            {'fields': ('data_adesao', 'data_retorno_assinatura',
+            {'fields': ('data_adesao', 'data_retorno_assinatura', 'duracao',
                         'data_termo_aceite', 'data_pub_diario',
                         'data_devolucao_via', 'data_postagem_correio')}
          ),

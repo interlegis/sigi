@@ -126,9 +126,13 @@ def chart_carteira(request):
             'data': [{'value': r['total_casas'], 
                       'color': colors.next(),
                       'highlight': highlights.next(),
-                      'label': r['gerente_contas__nome_completo']
+                      'label': r['gerentes_interlegis__nome_completo']
                      }
-                    for r in CasaLegislativa.objects.all().values('gerente_contas__nome_completo').annotate(total_casas=Count('pk')).order_by('gerente_contas__nome_completo')
+                    for r in CasaLegislativa.objects.exclude(
+                        gerentes_interlegis=None).values(
+                        'gerentes_interlegis__nome_completo').annotate(
+                            total_casas=Count('pk')).order_by(
+                                'gerentes_interlegis__nome_completo')
                     ]
     }
     
@@ -140,7 +144,7 @@ def chart_performance(request):
     servidor = request.GET.get('servidor', None)
 
     if servidor is None:
-        casas = CasaLegislativa.objects.exclude(gerente_contas=None)
+        casas = CasaLegislativa.objects.exclude(gerentes_interlegis=None)
     else:
         gerente = get_object_or_404(Servidor, pk=servidor)
         casas = gerente.casas_que_gerencia
@@ -149,8 +153,12 @@ def chart_performance(request):
         'type': 'pie',
         'options': {'responsive': True},
         'data': [
-            {'label': _(u"Utilizam serviços"), 'value': casas.exclude(servico=None).count(), 'color': '#91e8e1'},
-            {'label': _(u"Não utilizam serviços"), 'value': casas.filter(servico=None).count(), 'color': '#f7a35c'},
+            {'label': _(u"Utilizam serviços"),
+             'value': casas.exclude(servico=None).count(),
+             'color': '#91e8e1'},
+            {'label': _(u"Não utilizam serviços"),
+             'value': casas.filter(servico=None).count(),
+             'color': '#f7a35c'},
         ]
     }
 
@@ -160,43 +168,52 @@ def chart_performance(request):
 @login_required
 def report_sem_convenio(request):
     modo = request.GET.get('modo', None)
-    format = request.GET.get('f', 'pdf')
+    fmt = request.GET.get('f', 'pdf')
 
     sc = sem_convenio()
 
     if modo == 'H':
         casas = sc['hospedagem']
-        titulo = _(u"Casas sem convenio que utilizam algum serviço de hospedagem")
+        titulo = _(u"Casas sem convenio que utilizam algum serviço de "
+                   u"hospedagem")
     elif modo == 'R':
         casas = sc['registro']
-        titulo = _(u"Casas sem convenio que utilizam somente serviço de registro")
+        titulo = _(u"Casas sem convenio que utilizam somente serviço de "
+                   u"registro")
     else:
         casas = sc['total']
-        titulo = _(u"Casas sem convenio que utilizam algum serviço de registro e/ou hospedagem")
+        titulo = _(u"Casas sem convenio que utilizam algum serviço de registro "
+                   u"e/ou hospedagem")
         
-    if format == 'csv':
+    if fmt == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=casas.csv'
         writer = csv.writer(response)
         writer.writerow([titulo.encode('utf8')])
         writer.writerow([u''])
-        writer.writerow([u'casa', u'uf', u'gerente', u'serviços'.encode('utf8')])
+        writer.writerow([u'casa', u'uf', u'gerentes', 
+                         u'serviços'.encode('utf8')])
         for casa in casas:
             writer.writerow([
                 casa.nome.encode('utf8'),
                 casa.municipio.uf.sigla.encode('utf8'),
-                casa.gerente_contas.nome_completo.encode('utf8'),
-                (u', '.join(casa.servico_set.filter(data_desativacao__isnull=True).values_list('tipo_servico__nome', flat=True))).encode('utf8'),
+                casa.lista_gerentes(fmt='lista').encode('utf8'),
+                (u', '.join(casa.servico_set.filter(
+                    data_desativacao__isnull=True).values_list(
+                        'tipo_servico__nome', flat=True))).encode('utf8'),
             ])
         return response
-    elif format == 'json':
+    elif fmt == 'json':
         data = {
             'titulo': titulo,
             'casas': [
                 {'nome': casa.nome,
                  'uf': casa.municipio.uf.sigla,
-                 'gerente': casa.gerente_contas.nome_completo,
-                 'servicos': list(casa.servico_set.filter(data_desativacao__isnull=True).values_list('tipo_servico__nome', flat=True))}
+                 'gerentes': list(casa.gerentes_interlegis.all().values_list(
+                     'nome_completo', flat=True)),
+                 'servicos': list(casa.servico_set.filter(
+                     data_desativacao__isnull=True).values_list(
+                         'tipo_servico__nome', flat=True))}
                 for casa in casas
             ]
         }

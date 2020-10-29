@@ -24,9 +24,13 @@
 				{% if ocorrencia.ticket %}
 				  <p><a href="{{ ocorrencia.get_ticket_url }}" target="_blank">{% trans "Ticket no suporte #" %}{{ ocorrencia.ticket|safe }}</a></p>
 				{% endif %}
-				<p>{% trans "Gerente de contas:" %} 
-					<a href="{{ url_painel }}?type=servidor&id={{ ocorrencia.casa_legislativa.gerente_contas_id|safe }}">
-					{{ ocorrencia.casa_legislativa.gerente_contas }}</a></p>
+				<p>{% trans "Gerentes Interlegis:" %}
+				  {% for g in ocorrencia.casa_legislativa.gerentes_interlegis.all %} 
+					<a href="{{ url_painel }}?type=servidor&id={{ g.id|safe }}">
+					{{ g.nome_completo }}</a>
+					{% if not forloop.last %}, {% endif %}
+				  {% endfor %}
+				</p>
 				{% trans 'Prioridade' %}: 
 				<div class="btn-group btn-group-xs" data-toggle="buttons" role="group" aria-label="...">
 				  {% for id, name in PRIORITY_CHOICES %}

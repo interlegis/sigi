@@ -56,29 +56,43 @@ class Command(BaseCommand):
             if not self.campos.issubset(reader.fieldnames):
                 raise CommandError(u"O arquivo não possui todos os campos obrigatórios")
             
-            CasaLegislativa.objects.update(gerente_contas=None)
+            CasaLegislativa.gerentes_interlegis.through.objects.all().delete()
             
             erros = 0
             
             for reg in reader:
                 try:
-                    municipio = Municipio.objects.get(codigo_ibge=reg['cod_municipio'])
+                    municipio = Municipio.objects.get(
+                        codigo_ibge=reg['cod_municipio']
+                    )
                 except Municipio.DoesNotExist:
-                    self.stdout.write(u"(Linha %s): não existe Município com código IBGE '%s'" % 
-                                      (reader.line_num, reg['cod_municipio'],))
+                    self.stdout.write(u"{linha}: não existe Município com "
+                                      u"código IBGE {ibge}'".format(
+                                          linha=reader.line_num,
+                                          ibge=reg['cod_municipio'])
+                    )
                     erros = erros + 1
                     continue
 
                 try:
-                    gerente = Servidor.objects.get(user__username=reg['user_id'])
+                    gerente = Servidor.objects.get(
+                        user__username=reg['user_id']
+                    )
                 except Servidor.DoesNotExist:
-                    self.stdout.write(u"(Linha %s): não existe Servidor com userid '%s'" % 
-                                      (reader.line_num, reg['user_id'],))
+                    self.stdout.write(u"({linha}): não existe Servidor com "
+                                      u"userid {userid}".format(
+                                          linha=reader.line_num,
+                                          userid=reg['user_id'])
+                    )
                     erros = erros + 1
                     continue
                 
-                for casa in municipio.casalegislativa_set.filter(tipo__sigla__in=['AL', 'CM']):
-                    casa.gerente_contas = gerente
+                for casa in municipio.casalegislativa_set.filter(
+                    tipo__sigla__in=['AL', 'CM']):
+                    casa.gerentes_interlegis.add(gerente)
                     casa.save()
             
-            self.stdout.write(u"Importação concluída. %s erros em %s linhas" % (erros, reader.line_num,))
+            self.stdout.write(u"Importação concluída. {erros} erros em {linhas}"
+                              u" linhas".format(erros=erros, 
+                                                linhas=reader.line_num)
+            )

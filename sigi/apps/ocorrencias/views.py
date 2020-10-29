@@ -17,62 +17,85 @@ from django.utils.html import escape
 
 @login_required
 def painel_ocorrencias(request):
-    type = request.GET.get('type', None)
+    tipo = request.GET.get('type', None)
     id = request.GET.get('id', None)
     painel = request.GET.get('painel', None)
     
     data = {}
     
-    if type is None or type == 'error':
-        type = 'servidor'
+    if tipo is None or tipo == 'error':
+        tipo = 'servidor'
         u = get_object_or_404(Servidor, user=request.user)
         id = u.pk
         
     if id is None:
         raise Http404("id não definido")
         
-    if type == 'casa':
+    if tipo == 'casa':
         casa = get_object_or_404(CasaLegislativa, pk=id)
-        ocorrencias = Ocorrencia.objects.filter(casa_legislativa=casa)
-        panel_title = "%s, %s" % (casa.nome, casa.municipio.uf.sigla) 
-    elif type == 'servidor':
+        ocorrencias = casa.ocorrencia_set.all()
+        panel_title = u"{casa}, {uf}".format(
+            casa=casa.nome,
+            uf=casa.municipio.uf.sigla
+        ) 
+    elif tipo == 'servidor':
         servidor = get_object_or_404(Servidor, pk=id)
         panel_title = servidor.nome_completo
         
-        paineis = {'gerente': 'Minhas casas', 'servico': 'Meu setor', 'timeline': 'Comentados por mim'}
+        paineis = {'gerente': u"Minhas casas", 'servico': u"Meu setor",
+                   'timeline': u"Comentados por mim"}
 
         if painel is None:
-            if CasaLegislativa.objects.filter(gerente_contas=servidor).count() > 0:
+            if CasaLegislativa.objects.filter(
+                gerentes_interlegis=servidor).count() > 0:
                 painel = 'gerente'
-            elif Ocorrencia.objects.filter(setor_responsavel=servidor.servico).count() > 0:
+            elif Ocorrencia.objects.filter(
+                setor_responsavel=servidor.servico).count() > 0:
                 painel = 'servico'
             else:
                 painel = 'timeline'
                 
-        data.update({'paineis': paineis, 'painel': painel, 'servidor': servidor})
+        data.update({'paineis': paineis, 'painel': painel,
+                     'servidor': servidor})
                 
         if painel == 'gerente':
-            ocorrencias = Ocorrencia.objects.filter(casa_legislativa__gerente_contas=servidor)
+            ocorrencias = Ocorrencia.objects.filter(
+                casa_legislativa__gerentes_interlegis=servidor)
         elif painel == 'servico':
-            ocorrencias = Ocorrencia.objects.filter(setor_responsavel_id=servidor.servico_id)
+            ocorrencias = Ocorrencia.objects.filter(
+                setor_responsavel_id=servidor.servico_id)
         else:
-            ocorrencias = (Ocorrencia.objects.filter(servidor_registro=servidor) |
-                           Ocorrencia.objects.filter(comentarios__usuario=servidor))
-    elif type == 'servico':
+            ocorrencias = (
+                Ocorrencia.objects.filter(servidor_registro=servidor) |
+                Ocorrencia.objects.filter(comentarios__usuario=servidor)
+            )
+    elif tipo == 'servico':
         servico = get_object_or_404(Servico, pk=id)
-        ocorrencias = Ocorrencia.objects.filter(setor_responsavel_id=id)
-        panel_title = "%s - %s" % (servico.sigla, servico.nome)
+        ocorrencias = servico.ocorrencia_set.all()
+        panel_title = _(u"{sigla} - {nome}").format(
+            sigla=servico.sigla, nome=servico.nome)
 
-    ocorrencias = ocorrencias.filter(status__in=[1,2])
+    ocorrencias = ocorrencias.filter(status__in=[1, 2])
     ocorrencias = ocorrencias.order_by('prioridade', '-data_modificacao')
-    ocorrencias = ocorrencias.select_related('casa_legislativa', 'categoria', 'tipo_contato', 'servidor_registro', 'setor_responsavel',
-                                             'casa_legislativa__gerente_contas')
-    ocorrencias = ocorrencias.prefetch_related('comentarios', 'comentarios__usuario', 'comentarios__encaminhar_setor',
-                                               'casa_legislativa__municipio', 'casa_legislativa__municipio__uf', 'anexo_set')
+    ocorrencias = ocorrencias.select_related(
+        'casa_legislativa', 'categoria', 'tipo_contato', 'servidor_registro',
+        'setor_responsavel', 'casa_legislativa__gerentes_interlegis'
+    )
+    ocorrencias = ocorrencias.prefetch_related(
+        'comentarios', 'comentarios__usuario', 'comentarios__encaminhar_setor',
+        'casa_legislativa__municipio', 'casa_legislativa__municipio__uf',
+        'anexo_set'
+    )
     ocorrencias = ocorrencias.annotate(total_anexos=Count('anexo'))
     
-    data.update({'ocorrencias': ocorrencias, 'panel_title': panel_title, 'comentario_form': ComentarioForm(), 
-            'ocorrencia_form': OcorrenciaForm(), 'PRIORITY_CHOICES': Ocorrencia.PRIORITY_CHOICES})
+    data.update(
+        {'ocorrencias': ocorrencias,
+         'panel_title': panel_title,
+         'comentario_form': ComentarioForm(),
+         'ocorrencia_form': OcorrenciaForm(),
+         'PRIORITY_CHOICES': Ocorrencia.PRIORITY_CHOICES
+        }
+    )
     
     return render(request, 'ocorrencias/painel.html', data)
 

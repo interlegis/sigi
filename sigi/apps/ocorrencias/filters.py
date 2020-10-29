@@ -24,4 +24,6 @@ class OcorrenciaListFilter(admin.SimpleListFilter):
         elif self.value() == 'M':
             return queryset.filter(servidor_registro=servidor)
         elif self.value() == 'G':
-            return queryset.filter(casa_legislativa__gerente_contas=servidor)
+            return queryset.filter(
+                casa_legislativa__gerentes_interlegis=servidor
+            )
