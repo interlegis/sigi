@@ -17,7 +17,7 @@ main_menu:
       url: casas/casalegislativa/?tipo__id__exact=1
     - title: Assembléias Legislativas
       url: casas/casalegislativa/?tipo__id__exact=2
-    - title: Portfólio de relacionamento
+    - title: Organizar relacionamentos
       url: casas/portfolio/
     - title: Carteira de relacionamentos
       url: casas/carteira
