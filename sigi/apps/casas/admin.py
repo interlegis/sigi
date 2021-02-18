@@ -34,31 +34,43 @@ class TelefonesInline(generic.GenericTabularInline):
 
 class PresidenteInline(admin.StackedInline):
     model = Presidente
-    fieldsets = ((None, {
-        'fields': (
-            ('nome', 'sexo', 'data_nascimento'),
-            ('nota', 'email', 'tempo_de_servico'),
-            ('ult_alteracao',),
-        )
-    }),)
+    fields = ('nome', 'sexo', 'data_nascimento', 'nota', 'email',
+              'tempo_de_servico', 'ult_alteracao', 'endereco', 'municipio',
+              'bairro', 'cep', 'redes_sociais',)
+    raw_id_fields = ('municipio',)
+    # fieldsets = ((None, {
+    #     'fields': (
+    #         ('nome', 'sexo', 'data_nascimento'),
+    #         ('nota', 'email', 'tempo_de_servico'),
+    #         ('ult_alteracao',),
+    #     )
+    # }),)
 #     exclude = ['setor', 'cargo', 'funcao']
     readonly_fields = ('ult_alteracao',)
     extra = 1
     max_num = 1
-    inlines = (TelefonesInline)
+    verbose_name_plural = _(u'Presidente')
 
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
-    fieldsets = ((None, {
-        'fields': (
-            ('nome', 'sexo', 'data_nascimento'),
-            ('nota', 'email'),
-            ('cargo', 'funcao', 'setor'),
-            ('tempo_de_servico', 'ult_alteracao'),
-            ('desativado', 'observacoes'),
-        )
-    }),)
+    fields = ('nome', 'sexo', 'data_nascimento', 'nota', 'email', 'cargo',
+              'funcao', 'setor', 'tempo_de_servico', 'ult_alteracao',
+              'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
+              'desativado', 'observacoes')
+    raw_id_fields = ('municipio',)
+    # fieldsets = ((None, {
+    #     'fields': (
+    #         ('nome', 'sexo', 'data_nascimento'),
+    #         ('nota', 'email'),
+    #         ('cargo', 'funcao', 'setor'),
+    #         ('tempo_de_servico', 'ult_alteracao'),
+    #         ('endereco', 'municipio'),
+    #         ('bairro', 'cep'),
+    #         ('redes_sociais'),
+    #         ('desativado', 'observacoes'),
+    #     )
+    # }),)
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
@@ -73,7 +85,7 @@ class ConveniosInline(admin.TabularInline):
     model = Convenio
     fieldsets = (
         (None, {'fields': (
-            ('link_sigad', 'status_convenio', 'num_convenio', 
+            ('link_sigad', 'status_convenio', 'num_convenio',
              'projeto', 'observacao'),
             ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
              'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
@@ -89,25 +101,25 @@ class ConveniosInline(admin.TabularInline):
                        'data_retorno_sem_assinatura',]
     extra = 0
     can_delete = False
-    
+
     def has_add_permission(self, request):
         return False
 
 #     def get_tramitacoes(self, obj):
 #         return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
-# 
+#
 #     get_tramitacoes.short_description = _(u'Tramitações')
 #     get_tramitacoes.allow_tags = True
-# 
+#
 #     def get_anexos(self, obj):
 #         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
-# 
+#
 #     get_anexos.short_description = _(u'Anexos')
 #     get_anexos.allow_tags = True
-# 
+#
 #     def get_equipamentos(self, obj):
 #         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
-# 
+#
 #     get_equipamentos.short_description = _(u'Equipamentos previstos')
 #     get_equipamentos.allow_tags = True
 
@@ -115,7 +127,7 @@ class ConveniosInline(admin.TabularInline):
         if obj.pk is None:
             return ""
         status = obj.get_status()
-                
+
         if status in [u"Vencido", u"Desistência"]:
             label = r"danger"
         elif status == u"Vigente":
@@ -124,11 +136,11 @@ class ConveniosInline(admin.TabularInline):
             label = r"warning"
         else:
             label = r"info"
-            
+
         return u'<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
     status_convenio.short_description = _(u"Status do convênio")
     status_convenio.allow_tags = True
-            
+
 
     def link_convenio(self, obj):
         if obj.pk is None:
@@ -142,12 +154,12 @@ class ConveniosInline(admin.TabularInline):
 
     link_convenio.short_description = _(u'Editar convenio')
     link_convenio.allow_tags = True
-    
+
     def link_sigad(self, obj):
         if obj.pk is None:
             return ""
         return obj.get_sigad_url()
-    
+
     link_sigad.short_description = _("Processo no Senado")
     link_sigad.allow_tags = True
 
@@ -218,7 +230,7 @@ class OcorrenciaInline(admin.TabularInline):
     max_num = 0
     can_delete = False
     template = 'casas/ocorrencia_inline.html'
-    
+
     def link_editar(self, obj):
         if obj.pk is None:
             return ""
@@ -242,29 +254,29 @@ class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
 class ConvenioFilter(admin.SimpleListFilter):
     title = _(u"Tipo de convênio")
     parameter_name = 'convenio'
-    
+
     def lookups(self, request, model_admin):
         return (
             ('SC', _(u"Sem nenhum convênio")),
             ('CC', _(u"Com algum convênio"))
         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
-    
+
     def queryset(self, request, queryset):
         if self.value() is not None:
             if self.value() == 'SC':
-                queryset = queryset.filter(convenio=None)        
+                queryset = queryset.filter(convenio=None)
             elif self.value() == 'CC':
                 queryset = queryset.exclude(convenio=None)
             else:
                 queryset = queryset.filter(convenio__projeto_id=self.value())
-        
+
         return queryset.distinct('municipio__uf__nome', 'nome')
 
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")
     parameter_name = 'servico'
-    
+
     def lookups(self, request, model_admin):
         return (
             ('SS', _(u"Sem nenhum serviço")),
@@ -272,7 +284,7 @@ class ServicoFilter(admin.SimpleListFilter):
             ('CH', _(u"Com algum serviço de hospedagem")),
             ('CR', _(u"Apenas serviço de registro")),
         ) + tuple([(p.pk, p.nome) for p in TipoServico.objects.all()])
-    
+
     def queryset(self, request, queryset):
         if self.value() is not None:
             if self.value() == 'SS':
@@ -299,7 +311,7 @@ class ServicoFilter(admin.SimpleListFilter):
 class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = CasaLegislativaForm
     actions = ['adicionar_casas', ]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline, 
+    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
                ConveniosInline, LegislaturaInline, DiagnosticoInline, BemInline,
                ServicoInline, PlanoDiretorInline, OcorrenciaInline,)
     list_display = ('nome', 'get_uf', 'get_gerentes', 'get_convenios',
@@ -321,7 +333,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         }),
         (_(u'Presença na Internet'), {
             'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador',
-                       'pagina_web', 'email', 'obs_pesquisa',) 
+                       'pagina_web', 'email', 'obs_pesquisa',)
         }),
         (_(u'Outras informações'), {
             'fields': ('observacoes', 'horario_funcionamento', 'foto',
@@ -334,24 +346,24 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
     filter_horizontal = ('gerentes_interlegis',)
-    
+
     def get_uf(self, obj):
         return obj.municipio.uf.nome
 
     get_uf.short_description = _(u'Unidade da Federação')
     get_uf.admin_order_field = 'municipio__uf__nome'
-    
+
     def get_gerentes(self, obj):
         return obj.lista_gerentes
     get_gerentes.short_description = _(u'Gerente Interlegis')
     get_gerentes.allow_tags = True
-    
+
     def get_convenios(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
 
     get_convenios.short_description = _(u'Convênios')
     get_convenios.allow_tags = True
-    
+
     def get_servicos(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % s.__unicode__()
                                  for s in obj.servico_set.filter(

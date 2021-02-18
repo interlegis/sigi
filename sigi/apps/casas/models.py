@@ -8,6 +8,7 @@ from django.contrib.contenttypes import generic
 from django.db import models
 from image_cropping import ImageRatioField
 
+from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import SearchField
 
@@ -31,14 +32,14 @@ class CasaLegislativa(models.Model):
 
     """ Modelo para representar uma Casa Legislativa
     """
-    
+
     INCLUSAO_DIGITAL_CHOICES = (
         ('NAO PESQUISADO', _(u'Não pesquisado')),
         ('NAO POSSUI PORTAL', _(u'Não possui portal')),
         ('PORTAL MODELO', _(u'Possui Portal Modelo')),
         ('OUTRO PORTAL', _(u'Possui outro portal')),
     )
-    
+
     nome = models.CharField(
         _(u"Nome"),
         max_length=60,
@@ -63,7 +64,7 @@ class CasaLegislativa(models.Model):
         blank=True
     )
     # codigo_interlegis.ts_filter = True
-    
+
     gerentes_interlegis = models.ManyToManyField(
         Servidor,
         verbose_name=_(u"Gerentes Interlegis"),
@@ -72,7 +73,7 @@ class CasaLegislativa(models.Model):
 
     # Informações de contato
     logradouro = models.CharField(
-        _(u"Logradouro"), 
+        _(u"Logradouro"),
         max_length=100,
         help_text=_(u'Avenida, rua, praça, jardim, parque...')
     )
@@ -92,7 +93,7 @@ class CasaLegislativa(models.Model):
         blank=True,
     )
     inclusao_digital = models.CharField(
-        _(u"Inclusão digital"), 
+        _(u"Inclusão digital"),
         max_length=30,
         choices=INCLUSAO_DIGITAL_CHOICES,
         default=INCLUSAO_DIGITAL_CHOICES[0][0]
@@ -150,9 +151,9 @@ class CasaLegislativa(models.Model):
                 [g.nome_completo for g in self.gerentes_interlegis.all()])+\
                 u"</li></ul>"
         else:
-            return u", ".join([g.nome_completo for g in 
+            return u", ".join([g.nome_completo for g in
                                self.gerentes_interlegis.all()])
-            
+
     @property
     def num_parlamentares(self):
         if not self.legislatura_set.exists():
@@ -359,7 +360,20 @@ class Funcionario(models.Model):
         blank=True
     )
     email = models.CharField(_(u'e-mail'), max_length=75, blank=True)
-    endereco = generic.GenericRelation('contatos.Endereco')
+    # endereco = generic.GenericRelation('contatos.Endereco')
+    endereco = models.CharField(_(u'Endereço'), max_length=100, blank=True)
+    municipio = models.ForeignKey(
+        Municipio,
+        verbose_name=_(u'Municipio'),
+        null=True
+    )
+    bairro = models.CharField(_(u'Bairro'), max_length=100, blank=True)
+    cep = models.CharField(_(u'CEP'), max_length=10, blank=True)
+    redes_sociais = models.TextField(
+        _(u'Redes sociais'),
+        help_text=_(u'Colocar um por linha'),
+        blank=True
+    )
     cargo = models.CharField(_(u"Cargo"), max_length=100, null=True, blank=True)
     funcao = models.CharField(
         _(u'função'),

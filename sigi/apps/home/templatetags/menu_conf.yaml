@@ -114,12 +114,3 @@ main_menu:
     children:
     - title: Desembolsos
       url: financeiro/desembolso/
-  - title: Saberes
-    url: '/'
-    children:
-    - title: Dashboard
-      url: saberes/dashboard/
-    - title: Cursos sem Tutoria
-      url: saberes/dashboard/cursos-sem-turoria/
-    - title: Cursos com Tutoria
-      url: saberes/dashboard/cursos-com-turoria/

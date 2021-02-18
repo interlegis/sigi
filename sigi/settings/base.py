@@ -38,9 +38,6 @@ TEMPLATE_LOADERS = ('django.template.loaders.filesystem.Loader',
                     'django.template.loaders.app_directories.Loader',
                     )
 
-# Database routers
-DATABASE_ROUTERS = ['moodlerouter.MoodleRouter', ]
-
 # Application definition
 INSTALLED_APPS = (
 
@@ -69,10 +66,6 @@ INSTALLED_APPS = (
     'sigi.apps.diagnosticos',
     'sigi.apps.eventos',
     'sigi.apps.whois',
-
-    # Integração com Saberes (moodle)
-    'sigi.apps.mdl',
-    'sigi.apps.saberes',
 
     # Third-party apps
     'localflavor',
@@ -181,7 +174,6 @@ LOGGING = {
     },
 }
 
-SABERES_REST_PATH = 'webservice/rest/server.php'
 OSTICKET_URL = 'https://suporte.interlegis.leg.br/scp/tickets.php?a=search&query=%s'
 
 REST_FRAMEWORK = {

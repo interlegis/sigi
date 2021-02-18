@@ -198,7 +198,7 @@ class Escolha(BaseChoice):
     """
     schema = models.ForeignKey(Pergunta,
                                related_name='choices', verbose_name=_(u'pergunta'))
-    schema_to_open = models.ForeignKey(Pergunta, related_name='',
+    schema_to_open = models.ForeignKey(Pergunta, related_name='abre_por',
                                        verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
     ordem = models.PositiveIntegerField(blank=True, null=True)
 

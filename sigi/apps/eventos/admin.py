@@ -28,8 +28,7 @@ class EventoAdminForm(forms.ModelForm):
         model = Evento
         fields = ('tipo_evento', 'nome', 'descricao', 'solicitante', 'data_inicio', 'data_termino', 
                   'casa_anfitria', 'municipio', 'local', 'publico_alvo', 'status',
-                  'data_cancelamento', 'motivo_cancelamento', 'curso_moodle_id',
-                  )
+                  'data_cancelamento', 'motivo_cancelamento', )
     
     def clean(self):
         cleaned_data = super(EventoAdminForm, self).clean()

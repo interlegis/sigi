@@ -1,22 +1,4 @@
 # -*- coding: utf-8 -*-
-#
-# sigi.apps.eventos.models
-#
-# Copyright (C) 2015  Interlegis
-# 
-# This program is free software; you can redistribute it and/or
-# modify it under the terms of the GNU General Public License
-# as published by the Free Software Foundation; either version 2
-# of the License, or (at your option) any later version.
-# 
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-# 
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from django.db import models
 from django.utils.functional import lazy
@@ -24,9 +6,7 @@ from django.utils.translation import ugettext as _
 from sigi.apps.casas.models import CasaLegislativa
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils.moodle_ws_api import get_courses
 from django.core.exceptions import ValidationError
-from sigi.apps.mdl.models import Course
 
 class TipoEvento(models.Model):
     nome = models.CharField(_(u"Nome"), max_length=100)
@@ -46,26 +26,6 @@ class Evento(models.Model):
         ('R', _(u"Realizado")),
         ('C', _(u"Cancelado"))
     )
-    
-#     def get_course_choices():
-#         result = [(None, u'---------')]
-#     
-#         try:
-#             courses = get_courses(sort_order='categorysortorder', idnumber__startswith='evento')
-#             result = result + [(c['id'], c['fullname']) for c in courses]
-#         except Exception as e:
-#             result.append((None, _(u"Erro ao acessar o saberes: '%s'" % (e.message,))))
-#     
-#         return result
-
-    def get_course_choices():
-        from django.apps import apps
-        if apps.models_ready:
-            courses = Course.objects.filter(idnumber__startswith='evento')
-        else:
-            courses = []
-        result = [(None, u'---------')] + [(c.id, c.fullname) for c in courses]
-        return result
 
     tipo_evento = models.ForeignKey(TipoEvento)
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
@@ -81,8 +41,6 @@ class Evento(models.Model):
     status = models.CharField(_(u"Status"), max_length=1, choices=STATUS_CHOICES)
     data_cancelamento = models.DateField(_(u"Data de cancelamento"), blank=True, null=True)
     motivo_cancelamento = models.TextField(_(u"Motivo do cancelamento"), blank=True)
-    curso_moodle_id = models.IntegerField(_(u"Curso saberes"), blank=True, null=True, 
-                                          choices=lazy(get_course_choices, list)())
     
     class Meta:
         ordering = ("-data_inicio",)
