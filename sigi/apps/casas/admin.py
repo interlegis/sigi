@@ -354,7 +354,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     get_uf.admin_order_field = 'municipio__uf__nome'
 
     def get_gerentes(self, obj):
-        return obj.lista_gerentes
+        return obj.lista_gerentes()
     get_gerentes.short_description = _(u'Gerente Interlegis')
     get_gerentes.allow_tags = True
 
