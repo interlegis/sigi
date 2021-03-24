@@ -41,7 +41,8 @@ class ConvenioAdmin(BaseModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
-            {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio', 'projeto', 'observacao')}
+            {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio',
+                        'projeto', 'observacao')}
          ),
         (_(u'Datas'),
             {'fields': ('data_adesao', 'data_retorno_assinatura', 'duracao',
@@ -55,11 +56,12 @@ class ConvenioAdmin(BaseModelAdmin):
     actions = ['adicionar_convenios']
     inlines = (TramitacaoInline, AnexosInline, EquipamentoPrevistoInline)
     list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
-                    'data_adesao', 'data_retorno_assinatura', 'data_pub_diario', 'data_termo_aceite',
-                    'projeto',
+                    'status_convenio', 'link_sigad', 'data_adesao',
+                    'data_retorno_assinatura', 'duracao', 'data_pub_diario',
+                    'data_termo_aceite', 'projeto',
                     )
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('projeto', 'casa_legislativa__tipo', 'conveniada', 'equipada', 'casa_legislativa__municipio__uf', )
+    list_filter = ('projeto', 'casa_legislativa__tipo', 'conveniada','equipada', 'casa_legislativa__municipio__uf', )
     #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
@@ -71,6 +73,32 @@ class ConvenioAdmin(BaseModelAdmin):
         return obj.casa_legislativa.municipio.uf.sigla
     get_uf.short_description = _(u'UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
+
+    def status_convenio(self, obj):
+        if obj.pk is None:
+            return ""
+        status = obj.get_status()
+
+        if status in [u"Vencido", u"Desistência"]:
+            label = r"danger"
+        elif status == u"Vigente":
+            label = r"success"
+        elif status == u"Pendente":
+            label = r"warning"
+        else:
+            label = r"info"
+
+        return u'<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
+    status_convenio.short_description = _(u"Status do convênio")
+    status_convenio.allow_tags = True
+
+    def link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return obj.get_sigad_url()
+
+    link_sigad.short_description = _("Processo no Senado")
+    link_sigad.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         import re

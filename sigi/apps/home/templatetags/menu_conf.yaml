@@ -34,15 +34,15 @@ main_menu:
       url: parlamentares/cargo/
     - title: Tabela de partidos
       url: parlamentares/partido/
-  - title: Diagnósticos
-    url: diagnosticos/diagnostico/
-    children:
-    - title: Administração
-      url: diagnosticos/diagnostico/
-    - title: Coleta de dados
-      url: diagnosticos/mobile/
-    - title: Gráficos e estatísticas
-      url: diagnosticos/graficos
+  # - title: Diagnósticos
+  #   url: diagnosticos/diagnostico/
+  #   children:
+  #   - title: Administração
+  #     url: diagnosticos/diagnostico/
+  #   - title: Coleta de dados
+  #     url: diagnosticos/mobile/
+  #   - title: Gráficos e estatísticas
+  #     url: diagnosticos/graficos
   - title: Convênios
     url: convenios/convenio/
     children:
@@ -50,21 +50,21 @@ main_menu:
       url: convenios/convenio/
     - title: Planos diretores
       url: metas/planodiretor/
-  - title: Inventário
-    url: inventario/bem/
-    children:
-    - title: Bens
-      url: inventario/bem/
-    - title: Fornecedores
-      url: inventario/fornecedor/
-    - title: Equipamentos
-      url: inventario/equipamento/
-    - title: Fabricantes
-      url: inventario/fabricante/
-    - title: Tipos de equipamentos
-      url: inventario/tipoequipamento/
-    - title: Modelos de equipamentos
-      url: inventario/modeloequipamento/
+  # - title: Inventário
+  #   url: inventario/bem/
+  #   children:
+  #   - title: Bens
+  #     url: inventario/bem/
+  #   - title: Fornecedores
+  #     url: inventario/fornecedor/
+  #   - title: Equipamentos
+  #     url: inventario/equipamento/
+  #   - title: Fabricantes
+  #     url: inventario/fabricante/
+  #   - title: Tipos de equipamentos
+  #     url: inventario/tipoequipamento/
+  #   - title: Modelos de equipamentos
+  #     url: inventario/modeloequipamento/
   - title: Servidores
     url: servidores/servidor/?user__is_active__exact=1
     children:
@@ -109,8 +109,8 @@ main_menu:
       url: eventos/tipoevento/
     - title: Funções na equipe
       url: eventos/funcao/
-  - title: Financeiro
-    url: financeiro/desembolso/
-    children:
-    - title: Desembolsos
-      url: financeiro/desembolso/
+  # - title: Financeiro
+  #   url: financeiro/desembolso/
+  #   children:
+  #   - title: Desembolsos
+  #     url: financeiro/desembolso/
