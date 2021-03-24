@@ -58,7 +58,7 @@ class Command(BaseCommand):
         return result
 
     def get_ldap_users(self):
-        filter = "(&(objectclass=user)(memberof=CN=ILB,OU=Grupos,DC=senado,DC=gov,DC=br))"
+        filter = "(&(objectclass=user)(|(memberof=CN=lgs_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)(memberof=CN=lgt_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)(memberof=CN=lge_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)))"
         values = ['sAMAccountName', 'userPrincipalName', 'givenName', 'sn', 'cn']
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
         try:
