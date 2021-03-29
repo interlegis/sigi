@@ -365,7 +365,8 @@ class Funcionario(models.Model):
     municipio = models.ForeignKey(
         Municipio,
         verbose_name=_(u'Municipio'),
-        null=True
+        null=True,
+        blank=True,
     )
     bairro = models.CharField(_(u'Bairro'), max_length=100, blank=True)
     cep = models.CharField(_(u'CEP'), max_length=10, blank=True)
