@@ -90,6 +90,7 @@ class ConveniosInline(admin.TabularInline):
             ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
              'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
             ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',),
+            ('get_anexos',),
             ('link_convenio',),
         )}),
     )
@@ -98,9 +99,10 @@ class ConveniosInline(admin.TabularInline):
                        'data_retorno_assinatura', 'data_termo_aceite',
                        'data_pub_diario', 'data_devolucao_via',
                        'data_postagem_correio', 'data_devolucao_sem_assinatura',
-                       'data_retorno_sem_assinatura',]
+                       'data_retorno_sem_assinatura', 'get_anexos']
     extra = 0
     can_delete = False
+    template = 'admin/casas/convenios_inline.html'
 
     def has_add_permission(self, request):
         return False
@@ -111,11 +113,10 @@ class ConveniosInline(admin.TabularInline):
 #     get_tramitacoes.short_description = _(u'Tramitações')
 #     get_tramitacoes.allow_tags = True
 #
-#     def get_anexos(self, obj):
-#         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
-#
-#     get_anexos.short_description = _(u'Anexos')
-#     get_anexos.allow_tags = True
+    def get_anexos(self, obj):
+        return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
+    get_anexos.short_description = _(u'Anexos')
+    get_anexos.allow_tags = True
 #
 #     def get_equipamentos(self, obj):
 #         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
@@ -229,7 +230,7 @@ class OcorrenciaInline(admin.TabularInline):
     extra = 0
     max_num = 0
     can_delete = False
-    template = 'casas/ocorrencia_inline.html'
+    template = 'admin/casas/ocorrencia_inline.html'
 
     def link_editar(self, obj):
         if obj.pk is None:
