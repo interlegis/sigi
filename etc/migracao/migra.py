@@ -60,7 +60,7 @@ def migra_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
 
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='AL').get()
 
     for line in reader:
         uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
@@ -85,7 +85,7 @@ def migra_assembleias(filename):
             telefone=line[FONE_1_COL]
         )
         if line[UF_COL] == 'DF':
-            casa.tipo = TipoCasaLegislativa.objects.filter(sigla='CT').get()
+            casa.tipo = TipoOrgao.objects.filter(sigla='CT').get()
         casa.save()
 
         if line[FONE_2_COL]:
@@ -141,7 +141,7 @@ def migra_casas(filename):
 
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='CM').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='CM').get()
 
     linenum = 1
     for line in reader:
@@ -368,7 +368,7 @@ def migra_convenios_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
     linenum = 1
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='AL').get()
     for line in reader:
         linenum += 1
 
@@ -417,11 +417,11 @@ def popula():
     projeto3 = Projeto(sigla='PML', nome='Projeto Modernização Legislativo')
     projeto3.save()
 
-    tipo1 = TipoCasaLegislativa(sigla='CM', nome='Câmara Municipal')
+    tipo1 = TipoOrgao(sigla='CM', nome='Câmara Municipal')
     tipo1.save()
-    tipo2 = TipoCasaLegislativa(sigla='AL', nome='Assembléia Legislativa')
+    tipo2 = TipoOrgao(sigla='AL', nome='Assembléia Legislativa')
     tipo2.save()
-    tipo3 = TipoCasaLegislativa(sigla='CT', nome='Câmara Distrital')
+    tipo3 = TipoOrgao(sigla='CT', nome='Câmara Distrital')
     tipo3.save()
 
 

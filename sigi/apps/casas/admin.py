@@ -9,7 +9,7 @@ from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import CasaLegislativaForm
-from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoCasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoOrgao
 from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
     labels_report_sem_presidente, report, \
     adicionar_casas_carrinho
@@ -433,4 +433,4 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
 
 
 admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
-admin.site.register(TipoCasaLegislativa)
+admin.site.register(TipoOrgao)

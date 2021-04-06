@@ -13,7 +13,7 @@ from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import SearchField
 
 
-class TipoCasaLegislativa(models.Model):
+class TipoOrgao(models.Model):
 
     """ Modelo para representar o tipo da Casa Legislativa
 
@@ -49,7 +49,7 @@ class CasaLegislativa(models.Model):
     # Guarda um campo para ser usado em buscas em caixa baixa e sem acento
     search_text = SearchField(field_names=['nome'])
     # search_text.projeto_filter = True
-    tipo = models.ForeignKey(TipoCasaLegislativa, verbose_name=_(u"Tipo"))
+    tipo = models.ForeignKey(TipoOrgao, verbose_name=_(u"Tipo"))
     cnpj = models.CharField(_(u"CNPJ"), max_length=32, blank=True)
     observacoes = models.TextField(_(u'observações'), blank=True)
     horario_funcionamento = models.CharField(

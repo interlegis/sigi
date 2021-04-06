@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _, ungettext
 
 from sigi.apps.casas.forms import PortfolioForm
-from sigi.apps.casas.models import CasaLegislativa, TipoCasaLegislativa
+from sigi.apps.casas.models import CasaLegislativa, TipoOrgao
 from sigi.apps.casas.reports import (CasasLegislativasLabels,
                                      CasasLegislativasLabelsSemPresidente)
 from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
@@ -49,18 +49,18 @@ def get_for_qs(get, qs):
     for k, v in get.iteritems():
         if str(k) not in ('page', 'pop', 'q', '_popup', 'o', 'ot'):
             kwargs[str(k)] = v
-            
+
     if 'convenio' in kwargs:
         if kwargs['convenio'] == 'SC':
-            qs = qs.filter(convenio=None)        
+            qs = qs.filter(convenio=None)
         elif kwargs['convenio'] == 'CC':
             qs = qs.exclude(convenio=None)
         else:
             qs = qs.filter(convenio__projeto_id=kwargs['convenio'])
-        
+
         qs = qs.distinct('municipio__uf__nome', 'nome')
         del(kwargs['convenio'])
-        
+
     if 'servico' in kwargs:
         if kwargs['servico'] == 'SS':
             qs = qs.filter(servico=None)
@@ -79,9 +79,9 @@ def get_for_qs(get, qs):
             qs = qs.filter(servico__tipo_servico_id=kwargs['servico'])
 
         qs = qs.distinct('municipio__uf__nome', 'nome')
-        
+
         del(kwargs['servico'])
-            
+
     qs = qs.filter(**kwargs)
     if 'o' in get:
         qs = query_ordena(qs, get['o'])
@@ -291,10 +291,10 @@ def report(request, id=None, tipo=None):
 
     if not qs:
         return HttpResponseRedirect('../')
-    
+
     qs = qs.order_by('municipio__uf', 'nome')
     context = {'casas': qs, 'title': _(u"Relação de Casas Legislativas")}
-    
+
     return render_to_pdf('casas/report_pdf.html', context)
 
 
@@ -308,7 +308,7 @@ def report_complete(request, id=None):
 
     if not qs:
         return HttpResponseRedirect('../')
-    
+
     return render_to_pdf('casas/report_complete_pdf.html', {'casas': qs})
 
 
@@ -323,7 +323,7 @@ def casas_sem_convenio_report(request):
 
     qs = qs.order_by('municipio__uf', 'nome')
     context = {'casas': qs, 'title': _(u"Casas sem convênio")}
-    
+
     return render_to_pdf('casas/report_pdf.html', context)
 
 
@@ -426,21 +426,21 @@ def portfolio(request):
     uf_id = request.GET.get('uf', None)
     meso_id = request.GET.get('meso', None)
     micro_id = request.GET.get('micro', None)
-    
+
     data = {}
     data['errors'] = []
     data['messages'] = []
     data['regioes'] = UnidadeFederativa.REGIAO_CHOICES
-    data['tipos_casas'] = TipoCasaLegislativa.objects.all()
+    data['tipos_casas'] = TipoOrgao.objects.all()
     casas = None
     gerente = None
-    
+
     if tipo:
         data['tipo'] = tipo
-            
+
     if micro_id:
         microrregiao = get_object_or_404(Microrregiao, pk=micro_id)
-        mesorregiao = microrregiao.mesorregiao 
+        mesorregiao = microrregiao.mesorregiao
         uf = mesorregiao.uf
         data['regiao'] = uf.regiao
         data['uf_id'] = uf.pk
@@ -489,25 +489,25 @@ def portfolio(request):
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
         data['form'] = PortfolioForm(
             _(u'Atribuir casas da região {name} para').format(
-                name=[x[1] for x in UnidadeFederativa.REGIAO_CHOICES if 
+                name=[x[1] for x in UnidadeFederativa.REGIAO_CHOICES if
                  x[0] == regiao][0]))
         data['querystring'] = 'regiao={0}'.format(regiao)
         casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
 
     if casas:
-        casas = casas.order_by('municipio__uf', 
+        casas = casas.order_by('municipio__uf',
                                'municipio__microrregiao__mesorregiao',
                                'municipio__microrregiao', 'municipio')
-        
+
         casas.prefetch_related('municipio', 'municipio__uf',
                                'municipio__microrregiao',
                                'municipio__microrregiao__mesorregiao',
                                'gerentes_interlegis')
-        
+
         if tipo:
             casas = casas.filter(tipo__sigla=tipo)
             data['querystring'] += "&tipo={0}".format(tipo)
-        
+
         if request.method == 'POST':
             form = PortfolioForm(data=request.POST)
             if form.is_valid():
@@ -515,7 +515,7 @@ def portfolio(request):
                 acao = form.cleaned_data['acao']
 
                 count = casas.count()
-                
+
                 if acao == 'ADD':
                     gerente.casas_que_gerencia.add(*casas)
                     data['messages'].append(ungettext(
@@ -534,14 +534,14 @@ def portfolio(request):
                     data['errors'].append(_(u"Ação não definida"))
             else:
                 data['errors'].append(_(u"Dados inválidos"))
-        
+
         paginator = Paginator(casas, 30)
         try:
             pagina = paginator.page(page)
         except (EmptyPage, InvalidPage):
             pagina = paginator.page(paginator.num_pages)
         data['page_obj'] = pagina
-        
+
     return render(request, 'casas/portfolio.html', data)
 
 
@@ -552,13 +552,13 @@ def resumo_carteira(casas):
     sem_produto = regioes.copy()
     tipos_servico = TipoServico.objects.all()
     dados = {ts.id: regioes.copy() for ts in tipos_servico}
-    
+
     for r in casas.values('municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
         regiao = r['municipio__uf__regiao']
         quantidade = r['quantidade']
         total[regiao] = quantidade
         total['total'] += quantidade
-    
+
     for r in casas.values('municipio__uf__regiao', 'servico__tipo_servico__id').annotate(quantidade=Count('id')).order_by():
         regiao = r['municipio__uf__regiao']
         servico = r['servico__tipo_servico__id']
@@ -567,16 +567,16 @@ def resumo_carteira(casas):
             sem_produto[regiao] = quantidade
             sem_produto['total'] += quantidade
         else:
-            dados[servico][regiao] = quantidade 
+            dados[servico][regiao] = quantidade
             dados[servico]['total'] += quantidade
-    
+
     dados_ocorrencia = {
         'registradas': regioes.copy(),
         'pendentes': regioes.copy(),
         'sem': regioes.copy(),
         'media': regioes.copy(),
     }
-    
+
     for r in casas.values('ocorrencia__status', 'municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
         status = r['ocorrencia__status']
         regiao = r['municipio__uf__regiao']
@@ -590,13 +590,13 @@ def resumo_carteira(casas):
             if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
                 dados_ocorrencia['pendentes'][regiao] += quantidade
                 dados_ocorrencia['pendentes']['total'] += quantidade
-            
+
     for r in regioes:
         if (total[r] - dados_ocorrencia['sem'][r]) == 0:
             dados_ocorrencia['media'][r] = 0
         else:
             dados_ocorrencia['media'][r] = (1.0 * dados_ocorrencia['registradas'][r] / (total[r] - dados_ocorrencia['sem'][r]))
-         
+
     resumo = [[_(u"Item"), _(u"Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
     resumo.append([_(u"Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
     resumo.append({'subtitle': _(u"Uso dos produtos Interlegis")})
@@ -619,7 +619,7 @@ def casas_carteira(request, casas, context):
     micro_id = request.GET.get('micro', None)
     servicos = request.GET.getlist('servico')
     tipos_servico = context['servicos']
-    
+
     context['qs_regiao'] = ''
 
     if micro_id is not None:
@@ -644,12 +644,12 @@ def casas_carteira(request, casas, context):
         context['regiao'] = sigla_regiao
         context['qs_regiao'] = 'r=%s' % sigla_regiao
         casas = casas.filter(municipio__uf__regiao=sigla_regiao)
-         
+
     if 'regiao' in context:
         context['ufs'] = UnidadeFederativa.objects.filter(regiao=context['regiao'])
-         
+
     todos_servicos = ['_none_'] + [s.sigla for s in tipos_servico]
-    
+
     if not servicos or set(servicos) == set(todos_servicos):
         servicos = todos_servicos
         context['qs_servico'] = ''
@@ -660,9 +660,9 @@ def casas_carteira(request, casas, context):
             casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
         casas = casas.distinct('nome', 'municipio__uf')
         context['qs_servico'] = "&".join(['servico=%s' % s for s in servicos])
- 
+
     context['servicos_check'] = servicos
-     
+
     casas = casas.select_related('municipio', 'municipio__uf', 'municipio__microrregiao', 'municipio__microrregiao__mesorregiao').prefetch_related('servico_set')
 
     return casas, context
@@ -675,7 +675,7 @@ def painel_relacionamento(request):
     seletor = request.GET.get('s', None)
     servidor = request.GET.get('servidor', None)
     fmt = request.GET.get('f', 'html')
-    
+
     if servidor is None:
         gerente = request.user.servidor
     elif servidor == '_all':
@@ -689,7 +689,7 @@ def painel_relacionamento(request):
     if gerente is None or not casas.exists():
         casas = CasaLegislativa.objects.exclude(gerentes_interlegis=None)
         gerente = None
-        
+
     tipos_servico = TipoServico.objects.all()
     regioes = UnidadeFederativa.REGIAO_CHOICES
 
@@ -702,11 +702,11 @@ def painel_relacionamento(request):
         'gerente': gerente,
         'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '',
     }
-    
+
     if snippet != 'lista':
         context['resumo'] = resumo_carteira(casas)
 
-    if snippet != 'resumo':    
+    if snippet != 'resumo':
         casas, context = casas_carteira(request, casas, context)
         paginator = Paginator(casas, 30)
         try:
@@ -743,5 +743,5 @@ def painel_relacionamento(request):
         return render(request, 'casas/lista_casas_carteira_snippet.html', context)
     if snippet == 'resumo':
         return render(request, 'casas/resumo_carteira_snippet.html', context)
-    
+
     return render(request, 'casas/painel.html', context)
