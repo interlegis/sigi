@@ -22,7 +22,7 @@ main_menu:
     - title: Carteira de relacionamentos
       url: casas/carteira
     - title: Tipos de Casas
-      url: casas/tipocasalegislativa/
+      url: casas/tipoorgao/
   # - title: Legislaturas
   #   url: parlamentares/legislatura/
   #   children:
