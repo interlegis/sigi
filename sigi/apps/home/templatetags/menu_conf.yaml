@@ -23,17 +23,17 @@ main_menu:
       url: casas/carteira
     - title: Tipos de Casas
       url: casas/tipocasalegislativa/
-  - title: Legislaturas
-    url: parlamentares/legislatura/
-    children:
-    - title: Todas
-      url: parlamentares/legislatura/
-    - title: Parlamentares
-      url: parlamentares/parlamentar/
-    - title: Tabela de cargos
-      url: parlamentares/cargo/
-    - title: Tabela de partidos
-      url: parlamentares/partido/
+  # - title: Legislaturas
+  #   url: parlamentares/legislatura/
+  #   children:
+  #   - title: Todas
+  #     url: parlamentares/legislatura/
+  #   - title: Parlamentares
+  #     url: parlamentares/parlamentar/
+  #   - title: Tabela de cargos
+  #     url: parlamentares/cargo/
+  #   - title: Tabela de partidos
+  #     url: parlamentares/partido/
   # - title: Diagnósticos
   #   url: diagnosticos/diagnostico/
   #   children:
@@ -65,17 +65,17 @@ main_menu:
   #     url: inventario/tipoequipamento/
   #   - title: Modelos de equipamentos
   #     url: inventario/modeloequipamento/
-  - title: Servidores
-    url: servidores/servidor/?user__is_active__exact=1
-    children:
-    - title: Pessoal
-      url: servidores/servidor/?user__is_active__exact=1
-    - title: Funções
-      url: servidores/funcao
-    - title: Férias
-      url: servidores/ferias/
-    - title: Licenças
-      url: servidores/licenca/
+  # - title: Servidores
+  #   url: servidores/servidor/?user__is_active__exact=1
+  #   children:
+  #   - title: Pessoal
+  #     url: servidores/servidor/?user__is_active__exact=1
+  #   - title: Funções
+  #     url: servidores/funcao
+  #   - title: Férias
+  #     url: servidores/ferias/
+  #   - title: Licenças
+  #     url: servidores/licenca/
   - title: Serviços SEIT
     url: servicos/casaatendida/
     children:
