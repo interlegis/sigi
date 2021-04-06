@@ -24,6 +24,10 @@ class TipoOrgao(models.Model):
     sigla = models.CharField(_(u"Sigla"), max_length=5)
     nome = models.CharField(_(u"Nome"), max_length=100)
 
+    class Meta:
+        verbose_name = _(u"Tipo de órgão")
+        verbose_name_plural = _(u"Tipos de órgão")
+
     def __unicode__(self):
         return self.nome
 

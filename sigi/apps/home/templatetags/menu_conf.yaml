@@ -21,7 +21,7 @@ main_menu:
       url: casas/portfolio/
     - title: Carteira de relacionamentos
       url: casas/carteira
-    - title: Tipos de Casas
+    - title: Tipos de órgãos
       url: casas/tipoorgao/
   # - title: Legislaturas
   #   url: parlamentares/legislatura/
