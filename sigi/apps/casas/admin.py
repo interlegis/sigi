@@ -8,18 +8,18 @@ from django.shortcuts import render
 from django.utils.translation import ugettext as _
 from image_cropping import ImageCroppingMixin
 
-from sigi.apps.casas.forms import CasaLegislativaForm
-from sigi.apps.casas.models import CasaLegislativa, Presidente, Funcionario, TipoOrgao
+from sigi.apps.casas.forms import OrgaoForm
+from sigi.apps.casas.models import Orgao, Presidente, Funcionario, TipoOrgao
 from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
     labels_report_sem_presidente, report, \
     adicionar_casas_carrinho
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.diagnosticos.models import Diagnostico
-from sigi.apps.inventario.models import Bem
+# from sigi.apps.diagnosticos.models import Diagnostico
+# from sigi.apps.inventario.models import Bem
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.ocorrencias.models import Ocorrencia
-from sigi.apps.parlamentares.models import Legislatura
+# from sigi.apps.parlamentares.models import Legislatura
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
@@ -129,7 +129,7 @@ class ConveniosInline(admin.TabularInline):
             return ""
         status = obj.get_status()
 
-        if status in [u"Vencido", u"Desistência"]:
+        if status in [u"Vencido", u"Desistência", u"Cancelado"]:
             label = r"danger"
         elif status == u"Vigente":
             label = r"success"
@@ -164,51 +164,47 @@ class ConveniosInline(admin.TabularInline):
     link_sigad.short_description = _("Processo no Senado")
     link_sigad.allow_tags = True
 
+# class LegislaturaInline(admin.TabularInline):
+#     model = Legislatura
+#     fields = ['numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares', 'link_parlamentares', ]
+#     readonly_fields = ['link_parlamentares', ]
 
-class LegislaturaInline(admin.TabularInline):
-    model = Legislatura
-    fields = ['numero', 'data_inicio', 'data_fim', 'data_eleicao', 'total_parlamentares', 'link_parlamentares', ]
-    readonly_fields = ['link_parlamentares', ]
+#     def link_parlamentares(self, obj):
+#         if obj.pk is None:
+#             return ""
+#         from django.core.urlresolvers import reverse
+#         url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
+#         url = url + '?_popup=1'
+#         return """<input id="edit_legislatura-%s" type="hidden"/>
+#           <a id="lookup_edit_legislatura-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
+#             Editar
+#           </a>""" % (obj.pk, obj.pk, url)
 
-    def link_parlamentares(self, obj):
-        if obj.pk is None:
-            return ""
-        from django.core.urlresolvers import reverse
-        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
-        url = url + '?_popup=1'
-        return """<input id="edit_legislatura-%s" type="hidden"/>
-          <a id="lookup_edit_legislatura-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
-            Editar
-          </a>""" % (obj.pk, obj.pk, url)
+#     link_parlamentares.short_description = _(u'Parlamentares')
+#     link_parlamentares.allow_tags = True
 
-    link_parlamentares.short_description = _(u'Parlamentares')
-    link_parlamentares.allow_tags = True
+# class DiagnosticoInline(admin.TabularInline):
+#     model = Diagnostico
+#     fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico', ]
+#     readonly_fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico', ]
+#     extra = 0
+#     max_num = 0
+#     can_delete = False
 
+#     def link_diagnostico(self, obj):
+#         if obj.pk is None:
+#             return ""
+#         url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=["%s.pdf" % obj.pk])
+#         return """<input id="edit_diagnostico-%s" type="hidden"/>
+#           <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank">
+#             Abrir PDF
+#           </a>""" % (obj.pk, obj.pk, url)
 
-class DiagnosticoInline(admin.TabularInline):
-    model = Diagnostico
-    fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico', ]
-    readonly_fields = ['data_visita_inicio', 'data_visita_fim', 'publicado', 'data_publicacao', 'responsavel', 'link_diagnostico', ]
-    extra = 0
-    max_num = 0
-    can_delete = False
+#     link_diagnostico.short_description = _(u'Ver PDF')
+#     link_diagnostico.allow_tags = True
 
-    def link_diagnostico(self, obj):
-        if obj.pk is None:
-            return ""
-        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=["%s.pdf" % obj.pk])
-        return """<input id="edit_diagnostico-%s" type="hidden"/>
-          <a id="lookup_edit_diagnostico-%s" href="%s" class="button" target="_blank">
-            Abrir PDF
-          </a>""" % (obj.pk, obj.pk, url)
-
-    link_diagnostico.short_description = _(u'Ver PDF')
-    link_diagnostico.allow_tags = True
-
-
-class BemInline(admin.TabularInline):
-    model = Bem
-
+# class BemInline(admin.TabularInline):
+#     model = Bem
 
 class ServicoInline(admin.TabularInline):
     model = Servico
@@ -218,10 +214,8 @@ class ServicoInline(admin.TabularInline):
     max_num = 0
     can_delete = False
 
-
-class PlanoDiretorInline(admin.TabularInline):
-    model = PlanoDiretor
-
+# class PlanoDiretorInline(admin.TabularInline):
+#     model = PlanoDiretor
 
 class OcorrenciaInline(admin.TabularInline):
     model = Ocorrencia
@@ -309,12 +303,11 @@ class ServicoFilter(admin.SimpleListFilter):
         return queryset.distinct('municipio__uf__nome', 'nome')
 
 
-class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
-    form = CasaLegislativaForm
+class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
+    form = OrgaoForm
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
-               ConveniosInline, LegislaturaInline, DiagnosticoInline, BemInline,
-               ServicoInline, PlanoDiretorInline, OcorrenciaInline,)
+               ConveniosInline, ServicoInline, OcorrenciaInline,)
     list_display = ('nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
     list_display_links = ('nome',)
@@ -342,7 +335,7 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
         }),
     )
     raw_id_fields = ('municipio',)
-    readonly_fields = ['num_parlamentares', ]
+    readonly_fields = ['num_parlamentares', 'gerentes_interlegis',]
     search_fields = ('search_text', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
@@ -374,14 +367,17 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     get_servicos.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
-        return super(CasaLegislativaAdmin, self).changelist_view(
+        return super(OrgaoAdmin, self).changelist_view(
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
 
     def lookup_allowed(self, lookup, value):
-        return super(CasaLegislativaAdmin, self).lookup_allowed(lookup, value) or \
-            lookup in ['municipio__uf__codigo_ibge__exact', 'convenio__projeto__id__exact']
+        return (super(OrgaoAdmin, self).lookup_allowed(lookup, value) or
+                lookup in ['tipo__legislativo__exact',
+                           'tipo__sigla__exact',
+                           'municipio__uf__codigo_ibge__exact',
+                           'convenio__projeto__id__exact'])
 
     def etiqueta(self, request, queryset):
         return labels_report(request, queryset=queryset)
@@ -426,11 +422,11 @@ class CasaLegislativaAdmin(ImageCroppingMixin, BaseModelAdmin):
     adicionar_casas.short_description = _(u"Armazenar casas no carrinho para exportar")
 
     def get_actions(self, request):
-        actions = super(CasaLegislativaAdmin, self).get_actions(request)
+        actions = super(OrgaoAdmin, self).get_actions(request)
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
 
 
-admin.site.register(CasaLegislativa, CasaLegislativaAdmin)
+admin.site.register(Orgao, OrgaoAdmin)
 admin.site.register(TipoOrgao)

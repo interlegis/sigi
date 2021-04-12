@@ -2,7 +2,7 @@
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 
 
 class Partido(models.Model):
@@ -82,7 +82,7 @@ class Mandato(models.Model):
 
 
 class Legislatura(models.Model):
-    casa_legislativa = models.ForeignKey(CasaLegislativa)
+    casa_legislativa = models.ForeignKey(Orgao)
     numero = models.PositiveSmallIntegerField(_(u'número legislatura'))
     data_inicio = models.DateField(_(u'início'))
     data_fim = models.DateField(_(u'fim'))
@@ -174,7 +174,7 @@ class SessaoLegislativa(models.Model):
 
 class MesaDiretora(models.Model):
     casa_legislativa = models.ForeignKey(
-        'casas.CasaLegislativa',
+        'casas.Orgao',
         verbose_name=_(u'Casa Legislativa')
     )
 

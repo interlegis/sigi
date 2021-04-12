@@ -72,7 +72,7 @@ class Equipamento(models.Model):
 
 
 class Bem(models.Model):
-    casa_legislativa = models.ForeignKey('casas.CasaLegislativa')
+    casa_legislativa = models.ForeignKey('casas.Orgao')
     equipamento = models.ForeignKey(Equipamento)
     fornecedor = models.ForeignKey(Fornecedor)
     num_serie = models.CharField(

@@ -2,7 +2,7 @@
 
 from datetime import date
 from django.db import models
-from sigi.apps.casas.models import CasaLegislativa, Funcionario
+from sigi.apps.casas.models import Orgao, Funcionario
 from django.utils.translation import ugettext as _
 
 
@@ -37,7 +37,7 @@ class TipoServico(models.Model):
 
 
 class Servico(models.Model):
-    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=_(u'Casa Legislativa'))
+    casa_legislativa = models.ForeignKey(Orgao, verbose_name=_(u'Casa Legislativa'))
     tipo_servico = models.ForeignKey(TipoServico, verbose_name=_(u'Tipo de serviço'))
     contato_tecnico = models.ForeignKey(Funcionario, verbose_name=_(u'Contato técnico'), related_name='contato_tecnico', on_delete=models.PROTECT)
     contato_administrativo = models.ForeignKey(Funcionario, verbose_name=_(u'Contato administrativo'), related_name='contato_administrativo', on_delete=models.PROTECT)
@@ -183,7 +183,7 @@ class CasaAtendidaManager(models.Manager):
         return qs
 
 
-class CasaAtendida(CasaLegislativa):
+class CasaAtendida(Orgao):
 
     class Meta:
         proxy = True
@@ -193,7 +193,7 @@ class CasaAtendida(CasaLegislativa):
 
 
 class CasaManifesta(models.Model):
-    casa_legislativa = models.OneToOneField(CasaLegislativa)
+    casa_legislativa = models.OneToOneField(Orgao)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     informante = models.CharField(_(u'Nome do informante'), max_length=100, blank=True)
@@ -219,4 +219,4 @@ class RegistroServico(models.Model):
 
     class Meta:
         verbose_name_plural = _(u'Registro de serviços')
-                    
+

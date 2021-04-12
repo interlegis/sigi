@@ -10,9 +10,10 @@ from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
 from django.views.generic.base import TemplateView
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.servicos.models import TipoServico, CasaAtendida, CasaManifesta, ServicoManifesto
+from sigi.apps.servicos.models import (TipoServico, CasaManifesta, CasaAtendida,
+                                       ServicoManifesto)
 
 
 class MapaView(TemplateView):
@@ -75,7 +76,7 @@ class CasaManifestaProtoForm(forms.Form):
 def casa_manifesta_view(request):
     if 'casa_id' in request.GET:
         casa_id = request.GET.get('casa_id')
-        casa = get_object_or_404(CasaLegislativa, pk=casa_id)
+        casa = get_object_or_404(Orgao, pk=casa_id)
 
         # Criar um formulário dinâmico
 
@@ -138,7 +139,7 @@ def casa_manifesta_view(request):
             extra_context = {'casa': casa, 'cmf': cmf}
     elif 'uf' in request.GET:
         uf = request.GET.get('uf')
-        extra_context = {'casa_list': CasaLegislativa.objects.filter(municipio__uf__sigla=uf)}
+        extra_context = {'casa_list': Orgao.objects.filter(municipio__uf__sigla=uf)}
     else:
         extra_context = {'uf_list': UnidadeFederativa.objects.all()}
 

@@ -71,7 +71,7 @@ def migra_assembleias(filename):
             bairro = aux_end[1].replace(' ', '', 1)
         else:
             bairro = ''
-        casa = CasaLegislativa(
+        casa = Orgao(
             municipio=municipio,
             nome=line[NOME_COL],
             tipo=tipo_casa,
@@ -160,7 +160,7 @@ def migra_casas(filename):
         bairro = ''
         if(aux_end.__len__() > 1):
             bairro = aux_end[1].replace(' ', '', 1)
-        casa = CasaLegislativa(
+        casa = Orgao(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
             tipo=tipo_casa,
@@ -214,11 +214,11 @@ def migra_cnpj(filename):
         linenum += 1
 
         try:
-            casa = CasaLegislativa.objects.get(municipio__codigo_tse=line[COD_TSE_COL])
-        except CasaLegislativa.DoesNotExist:
+            casa = Orgao.objects.get(municipio__codigo_tse=line[COD_TSE_COL])
+        except Orgao.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
@@ -271,12 +271,12 @@ def migra_convenios_casas(filename):
         linenum += 1
 
         try:
-            casa = CasaLegislativa.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
-        except CasaLegislativa.DoesNotExist:
+            casa = Orgao.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
+        except Orgao.DoesNotExist:
             print "Erro ao inserir convênio. Casa não existe"
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
@@ -373,11 +373,11 @@ def migra_convenios_assembleias(filename):
         linenum += 1
 
         try:
-            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo=tipo_casa)
-        except CasaLegislativa.DoesNotExist:
+            assembleia = Orgao.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo=tipo_casa)
+        except Orgao.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:

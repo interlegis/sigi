@@ -3,7 +3,7 @@ from datetime import date
 from django.db import models
 from django.utils.translation import ugettext as _
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Projeto, Convenio
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.financeiro.models import Desembolso
@@ -115,7 +115,7 @@ class PlanoDiretor(models.Model):
         ('I', _(u'Implantado')),
     )
     projeto = models.ForeignKey(Projeto, verbose_name=_(u'Projeto'))
-    casa_legislativa = models.ForeignKey(CasaLegislativa, verbose_name=_(u'Casa Legislativa'))
+    casa_legislativa = models.ForeignKey(Orgao, verbose_name=_(u'Casa Legislativa'))
     casa_legislativa.casa_uf_filter = True
     status = models.CharField(_(u'Status'), max_length=1, choices=STATUS_CHOICE, default='E')
     data_entrega = models.DateField(_(u'Data de entrega'), blank=True, null=True)

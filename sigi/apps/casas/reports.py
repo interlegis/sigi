@@ -52,7 +52,7 @@ class CasasLegislativasLabels(Report):
     Usage example::
 
       >>> from geraldo.generators import PDFGenerator
-      >>> queryset = CasaLegislativa.objects.filter(municipio__uf__sigla='MG')
+      >>> queryset = Orgao.objects.filter(municipio__uf__sigla='MG')
       >>> report = LabelsReport(queryset)
       >>> report.generate_by(PDFGenerator, filename='./inline-detail-report.pdf')
 

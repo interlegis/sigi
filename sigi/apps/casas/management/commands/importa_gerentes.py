@@ -25,41 +25,41 @@
 import csv
 import os
 from django.core.management.base import BaseCommand, CommandError
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import Municipio
 
 class Command(BaseCommand):
     args = u"data_file.csv"
     help = u"""Importa dados de atribuição de gerencia de relacionamentos de um arquivo CSV.
-    
+
     A primeira linha do arquivo deve possuir um cabeçalho com os seguintes campos obrigatórios:
         - cod_municipio : Código IBGE do município
         - user_id       : Nome de usuário (usado no login) do gerente de relacionamento da Casa
-        
+
     * Os nomes dos campos devem ser grafados exatamente como descrito."""
-    
+
     campos = {'cod_municipio', 'user_id'}
-    
+
     def handle(self, *args, **options):
         if len(args) != 1:
             raise CommandError(u"Informe UM arquivo csv a importar")
-        
+
         file_name = args[0]
-        
+
         if not os.path.isfile(file_name):
             raise CommandError(u"Arquivo %s não encontrado" % [file_name,])
-        
+
         with open(file_name, 'rb') as csvfile:
             reader = csv.DictReader(csvfile)
-            
+
             if not self.campos.issubset(reader.fieldnames):
                 raise CommandError(u"O arquivo não possui todos os campos obrigatórios")
-            
-            CasaLegislativa.gerentes_interlegis.through.objects.all().delete()
-            
+
+            Orgao.gerentes_interlegis.through.objects.all().delete()
+
             erros = 0
-            
+
             for reg in reader:
                 try:
                     municipio = Municipio.objects.get(
@@ -86,13 +86,13 @@ class Command(BaseCommand):
                     )
                     erros = erros + 1
                     continue
-                
-                for casa in municipio.casalegislativa_set.filter(
+
+                for casa in municipio.orgao_set.filter(
                     tipo__sigla__in=['AL', 'CM']):
                     casa.gerentes_interlegis.add(gerente)
                     casa.save()
-            
+
             self.stdout.write(u"Importação concluída. {erros} erros em {linhas}"
-                              u" linhas".format(erros=erros, 
+                              u" linhas".format(erros=erros,
                                                 linhas=reader.line_num)
             )

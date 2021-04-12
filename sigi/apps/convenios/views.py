@@ -11,7 +11,7 @@ from django.template import Context, loader
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
@@ -249,7 +249,7 @@ def report_regiao(request, regiao='NE'):
 
     projetos = Projeto.objects.all()
 
-    camaras = CasaLegislativa.objects.filter(tipo__sigla='CM')
+    camaras = Orgao.objects.filter(tipo__sigla='CM')
 
     tabelas = list()
     # Geral

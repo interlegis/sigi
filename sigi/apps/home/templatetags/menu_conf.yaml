@@ -8,15 +8,17 @@ main_menu:
       url: contatos/unidadefederativa/
     - title: Mesorregiões
       url: contatos/mesorregiao/
-  - title: Casas Legislativas
-    url: casas/casalegislativa/
+  - title: Casas e órgãos
+    url: casas/orgao/
     children:
-    - title: Todas
-      url: casas/casalegislativa/
+    - title: Todo legislativo
+      url: casas/orgao/?tipo__legislativo__exact=1
     - title: Câmaras Municipais
-      url: casas/casalegislativa/?tipo__id__exact=1
+      url: casas/orgao/?tipo__sigla__exact=CM
     - title: Assembléias Legislativas
-      url: casas/casalegislativa/?tipo__id__exact=2
+      url: casas/orgao/?tipo__sigla__exact=AL
+    - title: Demais órgãos
+      url: casas/orgao/?tipo__legislativo__exact=0
     - title: Organizar relacionamentos
       url: casas/portfolio/
     - title: Carteira de relacionamentos
@@ -50,6 +52,8 @@ main_menu:
       url: convenios/convenio/
     - title: Planos diretores
       url: metas/planodiretor/
+    - title: Tabela de acompanhamento
+      url: convenios/statusconvenio/
   # - title: Inventário
   #   url: inventario/bem/
   #   children:

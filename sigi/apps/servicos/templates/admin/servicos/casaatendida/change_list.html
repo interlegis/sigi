@@ -15,7 +15,7 @@ function dismissRelatedLookupPopup(win, chosenId) {
 
 {% block object-tools-items %}
     <li><a id="lookup_id_casa_legislativa" onclick="return showRelatedObjectLookupPopup(this);"
-           href="{% url 'admin:casas_casalegislativa_changelist' %}?codigo_interlegis__exact=" class="addlink">
+           href="{% url 'admin:casas_orgao_changelist' %}?codigo_interlegis__exact=" class="addlink">
         <span class="glyphicon glyphicon-plus"></span>
         {% blocktrans with cl.opts.verbose_name as name %}Add {{ name }}{% endblocktrans %}
     </a></li>

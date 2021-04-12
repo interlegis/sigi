@@ -17,7 +17,7 @@ from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Projeto
 from sigi.apps.financeiro.models import Desembolso
@@ -76,7 +76,7 @@ def mapa(request):
             [(x.sigla, x.sigla, x.nome, True)
                 for x in TipoServico.objects.all()]),
         ("convenios", _(u'Por Casas conveniadas'),
-            [(x.sigla, 
+            [(x.sigla,
               'convenio_' + x.sigla,
               _(u'ao {projeto}').format(projeto=x.sigla),
               x.sigla == 'PML') for x in projetos]),
@@ -128,9 +128,9 @@ def map_search(request):
         q = request.GET.get('q')
         if len(q.split(',')) > 1:
             municipio, uf = [s.strip() for s in q.split(',')]
-            casas = CasaLegislativa.objects.filter(search_text__icontains=to_ascii(municipio), municipio__uf__sigla__iexact=uf)
+            casas = Orgao.objects.filter(search_text__icontains=to_ascii(municipio), municipio__uf__sigla__iexact=uf)
         else:
-            casas = CasaLegislativa.objects.filter(search_text__icontains=to_ascii(q))
+            casas = Orgao.objects.filter(search_text__icontains=to_ascii(q))
         if casas.count() > 0:
             response = {'result': 'FOUND', 'ids': [c.pk for c in casas]}
 
@@ -225,11 +225,11 @@ def map_list(request):
 
         srv = {x[0]: x[1] for x in TipoServico.objects.values_list('id', 'nome')}
         cnv = {x[0]: x[1] for x in Projeto.objects.values_list('id', 'sigla')}
-        
-        head = [s.encode('utf-8') for s in 
+
+        head = [s.encode('utf-8') for s in
                 [u'código IBGE', u'nome da casa', u'município', u'UF', u'região', ] +
                 [x for x in srv.values()] +
-                reduce(lambda x, y: x + y, 
+                reduce(lambda x, y: x + y,
                        [['conveniada ao %s' % x, 'equipada por %s' % x] for x in cnv.values()])]
 
         writer.writerow(head)
@@ -240,7 +240,7 @@ def map_list(request):
                    casa.municipio.nome.encode('utf-8'),
                    casa.municipio.uf.sigla.encode('utf-8'),
                    casa.municipio.uf.get_regiao_display().encode('utf-8'), ]
-            
+
             for id in srv.keys():
                 try:
                     sv = casa.servico_set.get(tipo_servico__id=id)
@@ -286,27 +286,27 @@ def filtrar_casas(seit, convenios, equipadas, regioes, estados, diagnosticos,
     qConvenio = Q(convenio__projeto__sigla__in=convenios)
     qEquipada = Q(convenio__projeto__sigla__in=equipadas,
                   convenio__equipada=True)
-        
+
     qRegiao = Q(municipio__uf__regiao__in=regioes)
     qEstado = Q(municipio__uf__sigla__in=estados)
-    
+
     if gerentes:
         qGerente = Q(gerentes_interlegis__id__in=gerentes)
     else:
         qGerente = Q()
 
     if diagnosticos:
-        qDiagnostico = Q(diagnostico__publicado__in=[p == 'P' 
+        qDiagnostico = Q(diagnostico__publicado__in=[p == 'P'
                                                      for p in diagnosticos])
     else:
         qDiagnostico = Q()
-        
-    casas = CasaLegislativa.objects.filter(qRegiao | qEstado).filter(qGerente)
-    
+
+    casas = Orgao.objects.filter(qRegiao | qEstado).filter(qGerente)
+
     if seit or convenios or equipadas or diagnosticos:
         casas = casas.filter(qServico | qConvenio | qEquipada | qDiagnostico)
     else:
-        casas = casas.filter(Q(servico=None) & Q(convenio=None) & 
+        casas = casas.filter(Q(servico=None) & Q(convenio=None) &
                              Q(diagnostico=None))
 
     return casas
@@ -323,7 +323,7 @@ def gera_map_data_file(cronjob=False):
 
     casas = {}
 
-    for c in CasaLegislativa.objects.prefetch_related('servico_set', 'convenio_set', 'diagnostico_set').all().distinct():
+    for c in Orgao.objects.prefetch_related('servico_set', 'convenio_set', 'diagnostico_set').all().distinct():
 #         if c.servico_set.count() == 0 and c.convenio_set.count() == 0 and c.diagnostico_set.count() == 0:
 #             continue
 #             # Salta essa casa, pois ela não tem nada com o Interlegis
@@ -369,7 +369,7 @@ def parliament_summary(parliament):
         'equipadas': [],
         'info': []
     }
-    
+
     if parliament.gerentes_interlegis.exists():
         summary['info'].append(_(u"Gerentes Interlegis: {lista}").format(
             lista=parliament.lista_gerentes(fmt='lista')))
@@ -378,14 +378,14 @@ def parliament_summary(parliament):
         summary['info'].append(
             _(u"{name} ativado em {date}").format(
                 name=sv.tipo_servico.nome,
-                date=sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao 
+                date=sv.data_ativacao.strftime('%d/%m/%Y') if sv.data_ativacao
                 else _(u'<sem data de ativação>')) +
             (u" <a href='{0}' target='_blank'><img src='{1}img/link.gif' "
              u"alt='link'></a>").format(sv.url, STATIC_URL))
         summary['seit'].append(sv.tipo_servico.sigla)
 
     for cv in parliament.convenio_set.all():
-        if ((cv.data_retorno_assinatura is None) and 
+        if ((cv.data_retorno_assinatura is None) and
             (cv.equipada and cv.data_termo_aceite is not None)):
             summary['info'].append(
                 _(u"Equipada em {date} pelo {project}").format(
@@ -397,7 +397,7 @@ def parliament_summary(parliament):
                 _(u"Adesão ao projeto {project}, em {date}").format(
                     project=cv.projeto.sigla, date=cv.data_adesao))
             summary['convenios'].append(cv.projeto.sigla)
-        if ((cv.data_retorno_assinatura is not None) and not 
+        if ((cv.data_retorno_assinatura is not None) and not
             (cv.equipada and cv.data_termo_aceite is not None)):
             summary['info'].append(
                 _(u"Conveniada ao %(project)s em %(date)s").format(
@@ -421,8 +421,8 @@ def parliament_summary(parliament):
             _(u"Diagnosticada no período de {initial_date} "
               u"a {final_date}").format(
                   initial_date=dg.data_visita_inicio.strftime('%d/%m/%Y')
-                    if dg.data_visita_inicio is not None 
-                    else _(u"<sem data de início>"), 
+                    if dg.data_visita_inicio is not None
+                    else _(u"<sem data de início>"),
                   final_date=dg.data_visita_fim.strftime('%d/%m/%Y')
                     if dg.data_visita_fim
                     else _(u"<sem data de término>")))

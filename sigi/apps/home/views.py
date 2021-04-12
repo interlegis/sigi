@@ -27,7 +27,7 @@ import calendar
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _
 from itertools import cycle
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.metas.models import Meta
@@ -58,7 +58,7 @@ def resumo_convenios(request):
 def resumo_seit(request):
     mes = request.GET.get('mes', None)
     ano = request.GET.get('ano', None)
-    
+
     try:
         mes = datetime.date(year=int(ano), month=int(mes), day=1)
         tabela_resumo_seit = busca_informacoes_seit(mes)
@@ -73,21 +73,21 @@ def resumo_seit(request):
 def chart_seit(request):
     mes = request.GET.get('mes', None)
     ano = request.GET.get('ano', None)
-    
+
     try:
         mes = datetime.date(year=int(ano), month=int(mes), day=1)
         tabela_resumo_seit = busca_informacoes_seit(mes)
     except:
         tabela_resumo_seit = busca_informacoes_seit()
-        
+
     data = {
         'type': 'line',
         'prevlink': reverse('home_chartseit') + ('?ano=%s&mes=%s' %
                         (tabela_resumo_seit['mes_anterior'].year,
-                         tabela_resumo_seit['mes_anterior'].month)), 
+                         tabela_resumo_seit['mes_anterior'].month)),
         'nextlink': reverse('home_chartseit') + ('?ano=%s&mes=%s' %
                         (tabela_resumo_seit['proximo_mes'].year,
-                         tabela_resumo_seit['proximo_mes'].month)), 
+                         tabela_resumo_seit['proximo_mes'].month)),
         'options': {'bezierCurve': False, 'datasetFill': False, 'pointDot': False, 'responsive': True},
         'data': {
             'labels': ['%02d/%s' % (mes.month, mes.year) for mes in reversed(tabela_resumo_seit['meses'])],
@@ -100,7 +100,7 @@ def chart_seit(request):
             for servico in tabela_resumo_seit['servicos']],
         }
     }
-        
+
     return JsonResponse(data)
 
 @never_cache
@@ -123,19 +123,19 @@ def chart_carteira(request):
     colors, highlights = color_palete()
     data = {'type': 'pie',
             'options': {'responsive': True},
-            'data': [{'value': r['total_casas'], 
+            'data': [{'value': r['total_casas'],
                       'color': colors.next(),
                       'highlight': highlights.next(),
                       'label': r['gerentes_interlegis__nome_completo']
                      }
-                    for r in CasaLegislativa.objects.exclude(
+                    for r in Orgao.objects.exclude(
                         gerentes_interlegis=None).values(
                         'gerentes_interlegis__nome_completo').annotate(
                             total_casas=Count('pk')).order_by(
                                 'gerentes_interlegis__nome_completo')
                     ]
     }
-    
+
     return JsonResponse(data)
 
 @never_cache
@@ -144,11 +144,11 @@ def chart_performance(request):
     servidor = request.GET.get('servidor', None)
 
     if servidor is None:
-        casas = CasaLegislativa.objects.exclude(gerentes_interlegis=None)
+        casas = Orgao.objects.exclude(gerentes_interlegis=None)
     else:
         gerente = get_object_or_404(Servidor, pk=servidor)
         casas = gerente.casas_que_gerencia
-    
+
     data = {
         'type': 'pie',
         'options': {'responsive': True},
@@ -184,14 +184,14 @@ def report_sem_convenio(request):
         casas = sc['total']
         titulo = _(u"Casas sem convenio que utilizam algum serviço de registro "
                    u"e/ou hospedagem")
-        
+
     if fmt == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=casas.csv'
         writer = csv.writer(response)
         writer.writerow([titulo.encode('utf8')])
         writer.writerow([u''])
-        writer.writerow([u'casa', u'uf', u'gerentes', 
+        writer.writerow([u'casa', u'uf', u'gerentes',
                          u'serviços'.encode('utf8')])
         for casa in casas:
             writer.writerow([
@@ -221,14 +221,14 @@ def report_sem_convenio(request):
     else:
         context = {'casas': casas, 'titulo': titulo}
         return render_to_pdf('home/sem_convenio.html', context)
-    
-         
+
+
 def busca_informacoes_camara():
     """
     Busca informacoes no banco para montar tabela de resumo de camaras por projeto
     Retorna um dicionario de listas
     """
-    camaras = CasaLegislativa.objects.filter(tipo__sigla='CM')
+    camaras = Orgao.objects.filter(tipo__sigla='CM')
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     projetos = Projeto.objects.all()
 
@@ -297,7 +297,7 @@ def busca_informacoes_camara():
     # Unindo as duas listass para que o cabecalho da esquerda fique junto com sua
     # respectiva linha
     lista_zip = zip(cabecalho_esquerda, linhas)
-    
+
     # Retornando listas em forma de dicionario
     return {
         'cabecalho_topo': cabecalho_topo,
@@ -309,10 +309,10 @@ def busca_informacoes_camara():
 
 
 def sem_convenio():
-    total = CasaLegislativa.objects.exclude(servico=None).filter(servico__data_desativacao=None, convenio=None).order_by('municipio__uf__sigla', 'nome').distinct('municipio__uf__sigla', 'nome')
-    hospedagem = CasaLegislativa.objects.exclude(servico=None).filter(servico__data_desativacao=None, servico__tipo_servico__modo='H', convenio=None).order_by('municipio__uf__sigla', 'nome').distinct('municipio__uf__sigla', 'nome')
+    total = Orgao.objects.exclude(servico=None).filter(servico__data_desativacao=None, convenio=None).order_by('municipio__uf__sigla', 'nome').distinct('municipio__uf__sigla', 'nome')
+    hospedagem = Orgao.objects.exclude(servico=None).filter(servico__data_desativacao=None, servico__tipo_servico__modo='H', convenio=None).order_by('municipio__uf__sigla', 'nome').distinct('municipio__uf__sigla', 'nome')
     reg_keys = set(total.values_list('pk', flat=True)).difference(set(hospedagem.values_list('pk', flat=True)))
-    registro = CasaLegislativa.objects.filter(pk__in=reg_keys).order_by('municipio__uf__sigla', 'nome')
+    registro = Orgao.objects.filter(pk__in=reg_keys).order_by('municipio__uf__sigla', 'nome')
     return {
         'total': total,
         'hospedagem': hospedagem,
@@ -342,13 +342,13 @@ def busca_informacoes_seit(mes_atual=None):
         mes_atual = datetime.date.today().replace(day=1)
     mes_anterior = mes_atual - datetime.timedelta(days=1)
     proximo_mes = mes_atual + datetime.timedelta(days=calendar.monthrange(mes_atual.year, mes_atual.month)[1])
-    
+
     meses = []
     mes = mes_atual
     for i in range(1, 13):
         meses.append(mes)
         mes = (mes - datetime.timedelta(days=1)).replace(day=1)
-        
+
     result = {
         'mes_atual': mes_atual,
         'mes_anterior': mes_anterior,
@@ -360,7 +360,7 @@ def busca_informacoes_seit(mes_atual=None):
                      'Novas casas em %s/%s' % (mes_atual.month, mes_atual.year)
         ],
         'servicos': [],
-    } 
+    }
 
     for tipo_servico in TipoServico.objects.all():
         por_mes = []
@@ -374,7 +374,7 @@ def busca_informacoes_seit(mes_atual=None):
              'novos_mes_anterior': tipo_servico.servico_set.filter(data_ativacao__year=mes_anterior.year, data_ativacao__month=mes_anterior.month).count(),
              'novos_mes_atual': tipo_servico.servico_set.filter(data_ativacao__year=mes_atual.year, data_ativacao__month=mes_atual.month).count(),
              'novos_por_mes': por_mes,
-             'cor': colors.next(), 
+             'cor': colors.next(),
              }
         )
 
@@ -410,5 +410,5 @@ def color_palete():
                         '#B3B6F1',
                         '#BB9098',
                         '#BDF1ED', ])
-    
+
     return (colors, highlights)

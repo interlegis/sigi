@@ -11,7 +11,7 @@ from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _, ungettext
 
 from sigi.apps.casas.forms import PortfolioForm
-from sigi.apps.casas.models import CasaLegislativa, TipoOrgao
+from sigi.apps.casas.models import Orgao, TipoOrgao
 from sigi.apps.casas.reports import (CasasLegislativasLabels,
                                      CasasLegislativasLabelsSemPresidente)
 from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
@@ -25,8 +25,8 @@ from sigi.shortcuts import render_to_pdf
 # @param qs: queryset
 # @param o: (int) number of order field
 def query_ordena(qs, o):
-    from sigi.apps.casas.admin import CasaLegislativaAdmin
-    list_display = CasaLegislativaAdmin.list_display
+    from sigi.apps.casas.admin import OrgaoAdmin
+    list_display = OrgaoAdmin.list_display
     order_fields = []
 
     for order_number in o.split('.'):
@@ -95,9 +95,9 @@ def carrinhoOrGet_for_qs(request):
     """
     if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
-        qs = CasaLegislativa.objects.filter(pk__in=ids)
+        qs = Orgao.objects.filter(pk__in=ids)
     else:
-        qs = CasaLegislativa.objects.all()
+        qs = Orgao.objects.all()
         if request.GET:
             qs = get_for_qs(request.GET, qs)
     return qs
@@ -189,7 +189,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
         return labels_report_sem_presidente(request, id, formato)
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -214,7 +214,7 @@ def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
             formato = request.POST['tamanho_etiqueta']
 
     if id:
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=id, legislatura__id__isnull=False).distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.filter(pk__in=id, legislatura__id__isnull=False).distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
@@ -239,12 +239,12 @@ def carrinhoOrGet_for_parlamentar_qs(request):
     """
     if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
     else:
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.all().distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.all().distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
@@ -259,7 +259,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -285,7 +285,7 @@ def report(request, id=None, tipo=None):
         return report_complete(request, id)
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -302,7 +302,7 @@ def report(request, id=None, tipo=None):
 def report_complete(request, id=None):
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -314,7 +314,7 @@ def report_complete(request, id=None):
 
 @login_required
 def casas_sem_convenio_report(request):
-    qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
+    qs = Orgao.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
 
     if request.GET:
         qs = get_for_qs(request.GET, qs)
@@ -454,7 +454,7 @@ def portfolio(request):
                 name=unicode(microrregiao))
         )
         data['querystring'] = 'micro={0}'.format(microrregiao.pk)
-        casas = CasaLegislativa.objects.filter(
+        casas = Orgao.objects.filter(
             municipio__microrregiao=microrregiao
         )
     elif meso_id:
@@ -470,7 +470,7 @@ def portfolio(request):
             _(u'Atribuir casas da mesorregiao {name} para').format(
                 name=unicode(mesorregiao)))
         data['querystring'] = 'meso={0}'.format(mesorregiao.pk)
-        casas = CasaLegislativa.objects.filter(
+        casas = Orgao.objects.filter(
             municipio__microrregiao__mesorregiao=mesorregiao
         )
     elif uf_id:
@@ -483,7 +483,7 @@ def portfolio(request):
             _(u'Atribuir casas do estado {name} para').format(
                 name=unicode(uf)))
         data['querystring'] = 'uf={0}'.format(uf.pk)
-        casas = CasaLegislativa.objects.filter(municipio__uf=uf)
+        casas = Orgao.objects.filter(municipio__uf=uf)
     elif regiao:
         data['regiao'] = regiao
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
@@ -492,7 +492,7 @@ def portfolio(request):
                 name=[x[1] for x in UnidadeFederativa.REGIAO_CHOICES if
                  x[0] == regiao][0]))
         data['querystring'] = 'regiao={0}'.format(regiao)
-        casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
+        casas = Orgao.objects.filter(municipio__uf__regiao=regiao)
 
     if casas:
         casas = casas.order_by('municipio__uf',
@@ -687,7 +687,7 @@ def painel_relacionamento(request):
         casas = gerente.casas_que_gerencia.all()
 
     if gerente is None or not casas.exists():
-        casas = CasaLegislativa.objects.exclude(gerentes_interlegis=None)
+        casas = Orgao.objects.exclude(gerentes_interlegis=None)
         gerente = None
 
     tipos_servico = TipoServico.objects.all()

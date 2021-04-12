@@ -14,7 +14,7 @@ class Diagnostico(BaseEntity):
     em uma Casa Legislativa
     """
     casa_legislativa = models.ForeignKey(
-        'casas.CasaLegislativa',
+        'casas.Orgao',
         verbose_name=_(u'Casa Legislativa'))
 
     # campo de busca em caixa baixa e sem acento

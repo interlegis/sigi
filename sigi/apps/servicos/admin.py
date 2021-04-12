@@ -7,8 +7,9 @@ from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
 from sigi.apps.casas.admin import FuncionariosInline
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
+from sigi.apps.casas.models import Orgao
+from sigi.apps.servicos.models import (Servico, LogServico, CasaAtendida,
+                                       TipoServico)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
@@ -163,7 +164,7 @@ class ServicoAdmin(BaseModelAdmin):
             if not id_casa:
                 raise Http404
 
-            obj.casa_legislativa = CasaAtendida.objects.get(pk=id_casa)
+            obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
 
         return obj
 
@@ -210,7 +211,7 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def change_view(self, request, object_id, extra_context=None):
         # Se a Casa ainda não é atendida, gerar o código interlegis para ela
         # Assim ela passa a ser uma casa atendida
-        casa = CasaLegislativa.objects.get(id=object_id)
+        casa = Orgao.objects.get(id=object_id)
 
         if casa.codigo_interlegis == '':
             casa.gerarCodigoInterlegis()

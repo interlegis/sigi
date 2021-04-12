@@ -4,29 +4,27 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.convenios.models import Projeto, Convenio, EquipamentoPrevisto, Anexo, Tramitacao
+from sigi.apps.convenios.models import (Projeto, StatusConvenio, Convenio,
+                                        EquipamentoPrevisto, Anexo, Tramitacao)
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
+from sigi.apps.servidores.models import Servidor
 
-
-class TramitacaoInline(admin.TabularInline):
-    model = Tramitacao
-    extra = 1
-
+# class TramitacaoInline(admin.TabularInline):
+#     model = Tramitacao
+#     extra = 1
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
     exclude = ['data_pub', ]
 
-
-class EquipamentoPrevistoInline(admin.TabularInline):
-    model = EquipamentoPrevisto
-    extra = 2
-    raw_id_fields = ('equipamento',)
-
+# class EquipamentoPrevistoInline(admin.TabularInline):
+#     model = EquipamentoPrevisto
+#     extra = 2
+#     raw_id_fields = ('equipamento',)
 
 class AnexoAdmin(BaseModelAdmin):
     date_hierarchy = 'data_pub'
@@ -36,14 +34,23 @@ class AnexoAdmin(BaseModelAdmin):
     search_fields = ('descricao', 'convenio__id', 'arquivo',
                      'convenio__casa_legislativa__nome')
 
+class AcompanhaFilter(admin.filters.RelatedFieldListFilter):
+    def __init__(self, *args, **kwargs):
+        super(AcompanhaFilter, self).__init__(*args, **kwargs)
+        servidores = Servidor.objects.filter(
+            convenio__isnull=False).order_by('nome_completo').distinct()
+        self.lookup_choices = [(x.id, x) for x in servidores]
 
 class ConvenioAdmin(BaseModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio',
-                        'projeto', 'observacao')}
+                        'projeto', 'data_sigad', 'data_sigi',)}
          ),
+        (_(u"Acompanhamento no gabinete"),
+         {'fields': ('status', 'acompanha', 'observacao',)}
+        ),
         (_(u'Datas'),
             {'fields': ('data_adesao', 'data_retorno_assinatura', 'duracao',
                         'data_termo_aceite', 'data_pub_diario',
@@ -53,15 +60,16 @@ class ConvenioAdmin(BaseModelAdmin):
             {'fields': ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',)}
          ),
     )
+    readonly_fields = ('data_sigi',)
     actions = ['adicionar_convenios']
-    inlines = (TramitacaoInline, AnexosInline, EquipamentoPrevistoInline)
+    inlines = (AnexosInline,)
     list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
-                    'status_convenio', 'link_sigad', 'data_adesao',
-                    'data_retorno_assinatura', 'duracao', 'data_pub_diario',
-                    'data_termo_aceite', 'projeto',
-                    )
+                    'status_convenio', 'link_sigad', 'data_retorno_assinatura',
+                    'duracao', 'projeto', 'status', 'acompanha',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('projeto', 'casa_legislativa__tipo', 'conveniada','equipada', 'casa_legislativa__municipio__uf', )
+    list_filter = ('status', ('acompanha', AcompanhaFilter), 'projeto',
+                   'casa_legislativa__tipo', 'conveniada','equipada',
+                   'casa_legislativa__municipio__uf',)
     #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
@@ -79,7 +87,7 @@ class ConvenioAdmin(BaseModelAdmin):
             return ""
         status = obj.get_status()
 
-        if status in [u"Vencido", u"Desistência"]:
+        if status in [u"Vencido", u"Desistência", u"Cancelado"]:
             label = r"danger"
         elif status == u"Vigente":
             label = r"success"
@@ -101,24 +109,26 @@ class ConvenioAdmin(BaseModelAdmin):
     link_sigad.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
-        import re
+        def normaliza_data(nome_param):
+            import re
+            if nome_param in request.GET:
+                value = request.GET.get(nome_param, '')
+                if value == '':
+                    del request.GET[nome_param]
+                elif re.match('^\d*$', value):  # Year only
+                    # Complete with january 1st
+                    request.GET[nome_param] = "%s-01-01" % value
+                elif re.match('^\d*\D\d*$', value):  # Year and month
+                    # Complete with 1st day of month
+                    request.GET[nome_param] = '%s-01' % value
+
         request.GET._mutable = True
-        if 'data_retorno_assinatura__gte' in request.GET:
-            value = request.GET.get('data_retorno_assinatura__gte', '')
-            if value == '':
-                del request.GET['data_retorno_assinatura__gte']
-            elif re.match('^\d*$', value):  # Year only
-                request.GET['data_retorno_assinatura__gte'] = "%s-01-01" % value  # Complete with january 1st
-            elif re.match('^\d*\D\d*$', value):  # Year and month
-                request.GET['data_retorno_assinatura__gte'] = '%s-01' % value  # Complete with 1st day of month
-        if 'data_retorno_assinatura__lte' in request.GET:
-            value = request.GET.get('data_retorno_assinatura__lte', '')
-            if value == '':
-                del request.GET['data_retorno_assinatura__lte']
-            elif re.match('^\d*$', value):  # Year only
-                request.GET['data_retorno_assinatura__lte'] = "%s-01-01" % value  # Complete with january 1st
-            elif re.match('^\d*\D\d*$', value):  # Year and month
-                request.GET['data_retorno_assinatura__lte'] = '%s-01' % value  # Complete with 1st day of month
+        normaliza_data('data_retorno_assinatura__gte')
+        normaliza_data('data_retorno_assinatura__lte')
+        normaliza_data('data_sigad__gte')
+        normaliza_data('data_sigad__lte')
+        normaliza_data('data_sigi__gte')
+        normaliza_data('data_sigi__lte')
         request.GET._mutable = False
 
         return super(ConvenioAdmin, self).changelist_view(
@@ -169,5 +179,6 @@ class EquipamentoPrevistoAdmin(BaseModelAdmin):
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
 
 admin.site.register(Projeto)
+admin.site.register(StatusConvenio)
 admin.site.register(Convenio, ConvenioAdmin)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)

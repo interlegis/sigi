@@ -3,6 +3,7 @@ from datetime import datetime
 import random
 from string import ascii_uppercase
 from unicodedata import normalize
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes import generic
 from django.db import models
@@ -12,9 +13,7 @@ from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import SearchField
 
-
 class TipoOrgao(models.Model):
-
     """ Modelo para representar o tipo da Casa Legislativa
 
     Geralmente: Câmara Municipal, Assembléia Legislativa,
@@ -23,6 +22,7 @@ class TipoOrgao(models.Model):
 
     sigla = models.CharField(_(u"Sigla"), max_length=5)
     nome = models.CharField(_(u"Nome"), max_length=100)
+    legislativo = models.BooleanField(_(u"Poder legislativo"), default=False)
 
     class Meta:
         verbose_name = _(u"Tipo de órgão")
@@ -31,9 +31,7 @@ class TipoOrgao(models.Model):
     def __unicode__(self):
         return self.nome
 
-
-class CasaLegislativa(models.Model):
-
+class Orgao(models.Model):
     """ Modelo para representar uma Casa Legislativa
     """
 
@@ -72,7 +70,8 @@ class CasaLegislativa(models.Model):
     gerentes_interlegis = models.ManyToManyField(
         Servidor,
         verbose_name=_(u"Gerentes Interlegis"),
-        related_name='casas_que_gerencia'
+        related_name='casas_que_gerencia',
+        blank=True,
     )
 
     # Informações de contato
@@ -143,9 +142,8 @@ class CasaLegislativa(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        unique_together = ('municipio', 'tipo')
-        verbose_name = _(u'Casa Legislativa')
-        verbose_name_plural = _(u'Casas Legislativas')
+        verbose_name = _(u'Órgão')
+        verbose_name_plural = _(u'Órgãos')
 
     def lista_gerentes(self, fmt='html'):
         if not self.gerentes_interlegis.exists():
@@ -210,7 +208,7 @@ class CasaLegislativa(models.Model):
         if codigo == '':
             if self.tipo.sigla == 'AL':  # Assembléias são tratadas a parte
                 codigo = 'A' + self.municipio.uf.sigla
-                if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() <= 0:
+                if Orgao.objects.filter(codigo_interlegis=codigo).count() <= 0:
                     # Só grava o código se ele for inédito
                     self.codigo_interlegis = codigo
                     self.save()
@@ -243,7 +241,7 @@ class CasaLegislativa(models.Model):
             cityName = cityName.replace(' ', '')
             ultima = len(cityName)
 
-            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            while Orgao.objects.filter(codigo_interlegis=codigo). \
                     count() > 0 and ultima > 0:
                 codigo = codigo[:2] + cityName[ultima - 1: ultima]
                 ultima -= 1
@@ -252,11 +250,11 @@ class CasaLegislativa(models.Model):
             # não gerou um código único, então vamos compor o nome usando as
             # três primeiras consoantes.
 
-            if CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
+            if Orgao.objects.filter(codigo_interlegis=codigo).count() > 0:
                 codigo_cons = cityName.replace('A', '').replace('E', '').\
                     replace('I', '').replace('O', '').replace('U', '')[:3]
                 if len(codigo_cons) == 3 and \
-                        CasaLegislativa.objects.filter(codigo_interlegis=codigo).count() > 0:
+                        Orgao.objects.filter(codigo_interlegis=codigo).count() > 0:
                     codigo = codigo_cons
 
             # Se ainda não gerou um nome único, vamos colocar dígitos no
@@ -264,7 +262,7 @@ class CasaLegislativa(models.Model):
 
             i = 'A'
 
-            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            while Orgao.objects.filter(codigo_interlegis=codigo). \
                     count() > 0 and i <= 'Z':
                 codigo = codigo[:2] + str(i)
                 i = chr(ord(i) + 1)
@@ -275,7 +273,7 @@ class CasaLegislativa(models.Model):
 
             i = 0
 
-            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
+            while Orgao.objects.filter(codigo_interlegis=codigo). \
                     count() > 0 and i < 100:
                 codigo = random.choice(cityName) + random.choice(cityName) + \
                     random.choice(cityName)
@@ -286,10 +284,8 @@ class CasaLegislativa(models.Model):
 
             i = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-            while CasaLegislativa.objects.filter(codigo_interlegis=codigo). \
-                    count() > 0:
-                codigo = random.choice(i) + random.choice(i) + \
-                    random.choice(i)
+            while Orgao.objects.filter(codigo_interlegis=codigo).count() > 0:
+                codigo = random.choice(i) + random.choice(i) + random.choice(i)
 
             self.codigo_interlegis = codigo
             self.save()
@@ -299,11 +295,22 @@ class CasaLegislativa(models.Model):
     def __unicode__(self):
         return self.nome
 
+    def clean(self):
+        if (hasattr(self, 'tipo') and hasattr(self, 'municipio')
+            and self.tipo.legislativo):
+            if Orgao.objects.filter(
+                tipo=self.tipo,
+                municipio=self.municipio).exclude(pk=self.pk).exists():
+                raise ValidationError(
+                    _(u"Já existe um(a) %(tipo)s em %(municipio)s"),
+                    code='integrity',
+                    params={'tipo': self.tipo, 'municipio': self.municipio})
+
     def save(self, *args, **kwargs):
         address_changed = False
 
         if self.pk is not None:
-            original = CasaLegislativa.objects.get(pk=self.pk)
+            original = Orgao.objects.get(pk=self.pk)
             if (self.logradouro != original.logradouro or
                     self.bairro != original.bairro or
                     self.municipio != original.municipio or
@@ -315,7 +322,7 @@ class CasaLegislativa(models.Model):
         if address_changed:
             self.ult_alt_endereco = datetime.now()
 
-        return super(CasaLegislativa, self).save(*args, **kwargs)
+        return super(Orgao, self).save(*args, **kwargs)
 
 
 class Funcionario(models.Model):
@@ -343,7 +350,7 @@ class Funcionario(models.Model):
         ("F", _(u"Feminino"))
     ]
 
-    casa_legislativa = models.ForeignKey(CasaLegislativa)
+    casa_legislativa = models.ForeignKey(Orgao)
     nome = models.CharField(_(u'nome completo'), max_length=60, blank=False)
     # nome.alphabetic_filter = True
     sexo = models.CharField(

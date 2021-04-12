@@ -4,6 +4,7 @@ from datetime import datetime, date
 from django.db import models
 from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField
+from sigi.apps.servidores.models import Servidor
 
 
 class Projeto(models.Model):
@@ -17,6 +18,17 @@ class Projeto(models.Model):
     def __unicode__(self):
         return self.sigla
 
+class StatusConvenio(models.Model):
+    nome = models.CharField(max_length=100)
+    cancela = models.BooleanField(_(u"Cancela o convênio"), default=False)
+
+    class Meta:
+        ordering = ('nome',)
+        verbose_name = _(u"Estado de convenios")
+        verbose_name_plural = _(u"Estados de convenios")
+
+    def __unicode__(self):
+        return self.nome
 
 class Convenio(models.Model):
 
@@ -29,8 +41,8 @@ class Convenio(models.Model):
     um pacto de colaboração entre as partes
     """
     casa_legislativa = models.ForeignKey(
-        'casas.CasaLegislativa',
-        verbose_name=_(u'Casa Legislativa')
+        'casas.Orgao',
+        verbose_name=_(u'órgão conveniado')
     )
     # campo de busca em caixa baixa e sem acentos
     search_text = SearchField(field_names=['casa_legislativa'])
@@ -47,19 +59,49 @@ class Convenio(models.Model):
         max_length=10,
         blank=True
     )
+    status = models.ForeignKey(
+        StatusConvenio,
+        on_delete=models.SET_NULL,
+        verbose_name=_(u"estado atual"),
+        null=True,
+        blank=True
+    )
+    data_sigad = models.DateField(
+        _(u"data de cadastro no SIGAD"),
+        null=True,
+        blank=True
+    )
+    data_sigi = models.DateField(
+        _(u"data de cadastro no SIGI"),
+        blank=True,
+        null=True,
+        auto_now_add=True
+    )
+    acompanha = models.ForeignKey(
+        Servidor,
+        on_delete=models.SET_NULL,
+        verbose_name=_(u"acompanhado por"),
+        null=True,
+        blank=True
+    )
+    observacao = models.TextField(
+        _(u"observações"),
+        null=True,
+        blank=True,
+    )
     data_adesao = models.DateField(
-        _(u'Aderidas'),
+        _(u'aderidas'),
         null=True,
         blank=True,
     )
     data_retorno_assinatura = models.DateField(
-        _(u'Conveniadas'),
+        _(u'conveniadas'),
         null=True,
         blank=True,
         help_text=_(u'Convênio firmado.')
     )
     duracao = models.PositiveIntegerField(
-        _(u"Duração (meses)"),
+        _(u"duração (meses)"),
         null=True,
         blank=True,
         help_text=_(u"Deixar em branco caso a duração seja indefinida")
@@ -70,7 +112,7 @@ class Convenio(models.Model):
         blank=True
     )
     data_termo_aceite = models.DateField(
-        _(u'Equipadas'),
+        _(u'equipadas'),
         null=True,
         blank=True,
         help_text=_(u'Equipamentos recebidos.')
@@ -98,52 +140,50 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Data do retorno do convênio sem assinatura'),
     )
-    observacao = models.CharField(
-        null=True,
-        blank=True,
-        max_length=100,
-    )
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
-    
+
     def get_termino_convenio(self):
         if (self.data_retorno_assinatura is None or
             self.duracao is None):
             return None
-        
+
         ano = self.data_retorno_assinatura.year + int(self.duracao / 12)
         mes = int(self.data_retorno_assinatura.month + int(self.duracao % 12))
         if mes > 12:
             ano = ano + 1
             mes = mes - 12
         dia = self.data_retorno_assinatura.day
-        
+
         while True:
             try:
                 data_fim = date(year=ano, month=mes,day=dia)
                 break
             except:
                 dia = dia - 1
-                
+
         return data_fim
-    
+
     def get_status(self):
+        if self.status and self.status.cancela:
+            return _(u"Cancelado")
+
         if self.data_retorno_assinatura is not None:
             if self.duracao is not None:
                 if date.today() >= self.get_termino_convenio():
                     return _(u"Vencido")
             return _(u"Vigente")
-        
+
         if (self.data_retorno_assinatura is None and
-            self.data_devolucao_sem_assinatura is None and 
+            self.data_devolucao_sem_assinatura is None and
             self.data_retorno_sem_assinatura is None):
             return _(u"Pendente")
         if (self.data_devolucao_sem_assinatura is not None or
             self.data_retorno_sem_assinatura is not None):
             return _(u"Desistência")
-        
+
         return _(u"Indefinido")
-    
+
     def get_sigad_url(self):
         m = re.match(
             r'(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}',
@@ -157,7 +197,7 @@ class Convenio(models.Model):
                     r'&txt_numero_ano={ano}"'
                     r' target="_blank">{processo}</a>').format(processo=self.num_processo_sf,**m.groupdict())
         return self.num_processo_sf
-    
+
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None
         self.equipada = self.data_termo_aceite is not None
