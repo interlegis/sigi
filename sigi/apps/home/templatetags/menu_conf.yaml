@@ -1,6 +1,5 @@
 main_menu:
   - title: Municípios
-    url: contatos/municipio/
     children:
     - title: Municípios
       url: contatos/municipio/
@@ -9,7 +8,6 @@ main_menu:
     - title: Mesorregiões
       url: contatos/mesorregiao/
   - title: Casas e órgãos
-    url: casas/orgao/
     children:
     - title: Todo legislativo
       url: casas/orgao/?tipo__legislativo__exact=1
@@ -19,12 +17,57 @@ main_menu:
       url: casas/orgao/?tipo__sigla__exact=AL
     - title: Demais órgãos
       url: casas/orgao/?tipo__legislativo__exact=0
-    - title: Organizar relacionamentos
-      url: casas/portfolio/
+  - title: Gerência Interlegis
+    children:
     - title: Carteira de relacionamentos
       url: casas/carteira
+    - title: Organizar relacionamentos
+      url: casas/portfolio/
+  - title: Convênios
+    children:
+    - title: Convênios
+      url: convenios/convenio/
+    - title: Planos diretores
+      url: metas/planodiretor/
+  - title: Serviços SEIT
+    children:
+    - title: Casas atendidas
+      url: servicos/casaatendida/
+    - title: Lista de serviços
+      url: servicos/servico/
+  - title: Ocorrências
+    children:
+    - title: Painel de ocorrências
+      url: ocorrencias/painel/
+    - title: Registro de ocorrências
+      url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
+  - title: Eventos
+    children:
+    - title: Eventos
+      url: eventos/evento/
+    - title: Calendário mensal
+      url: eventos/calendario
+    - title: Alocação de equipe
+      url: eventos/alocacaoequipe/
+  - title: Tabelas auxiliares
+    children:
     - title: Tipos de órgãos
       url: casas/tipoorgao/
+    - title: Acompanhamento convênios
+      url: convenios/statusconvenio/
+    - title: Tipos de serviço SEIT
+      url: servicos/tiposervico/
+    - title: Categorias de ocorrências
+      url: ocorrencias/categoria/
+    - title: Tipos de contato
+      url: ocorrencias/tipocontato/
+    - title: Tipos de evento
+      url: eventos/tipoevento/
+    - title: Funções na equipe de eventos
+      url: eventos/funcao/
+
+
+# Removidos
   # - title: Legislaturas
   #   url: parlamentares/legislatura/
   #   children:
@@ -45,15 +88,7 @@ main_menu:
   #     url: diagnosticos/mobile/
   #   - title: Gráficos e estatísticas
   #     url: diagnosticos/graficos
-  - title: Convênios
-    url: convenios/convenio/
-    children:
-    - title: Convênios
-      url: convenios/convenio/
-    - title: Planos diretores
-      url: metas/planodiretor/
-    - title: Tabela de acompanhamento
-      url: convenios/statusconvenio/
+
   # - title: Inventário
   #   url: inventario/bem/
   #   children:
@@ -80,39 +115,7 @@ main_menu:
   #     url: servidores/ferias/
   #   - title: Licenças
   #     url: servidores/licenca/
-  - title: Serviços SEIT
-    url: servicos/casaatendida/
-    children:
-    - title: Tipos de serviço
-      url: servicos/tiposervico/
-    - title: Casas atendidas
-      url: servicos/casaatendida/
-    - title: Lista de serviços
-      url: servicos/servico/
-  - title: Ocorrências
-    url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
-    children:
-    - title: Painel de ocorrências
-      url: ocorrencias/painel/
-    - title: Registro de ocorrências
-      url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
-    - title: Tabela de categorias
-      url: ocorrencias/categoria/
-    - title: Tipos de contato
-      url: ocorrencias/tipocontato/
-  - title: Eventos
-    url: eventos/evento
-    children:
-    - title: Eventos
-      url: eventos/evento/
-    - title: Calendário mensal
-      url: eventos/calendario
-    - title: Alocação de equipe
-      url: eventos/alocacaoequipe/
-    - title: Tipos de evento
-      url: eventos/tipoevento/
-    - title: Funções na equipe
-      url: eventos/funcao/
+
   # - title: Financeiro
   #   url: financeiro/desembolso/
   #   children:
