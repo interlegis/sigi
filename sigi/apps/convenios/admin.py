@@ -52,12 +52,8 @@ class ConvenioAdmin(BaseModelAdmin):
          {'fields': ('status', 'acompanha', 'observacao',)}
         ),
         (_(u'Datas'),
-            {'fields': ('data_adesao', 'data_retorno_assinatura', 'duracao',
-                        'data_termo_aceite', 'data_pub_diario',
-                        'data_devolucao_via', 'data_postagem_correio')}
-         ),
-        (_(u'Datas - Convenio sem assinatura'),
-            {'fields': ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',)}
+            {'fields': ('data_retorno_assinatura', 'duracao',
+                        'data_pub_diario',)}
          ),
     )
     readonly_fields = ('data_sigi',)
