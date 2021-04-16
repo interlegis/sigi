@@ -14,7 +14,12 @@ from geraldo.generators import PDFGenerator
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
+from sigi.apps.convenios.reports import (ConvenioReport,
+                                         ConvenioReportSemAceite,
+                                         ConvenioPorCMReport,
+                                         ConvenioPorALReport,
+                                         ConvenioReportSemAceiteAL,
+                                         ConvenioReportSemAceiteCM)
 from django.contrib.auth.decorators import login_required
 
 
@@ -154,7 +159,7 @@ def report(request, id=None):
             tipo = request.POST['filtro_casa']
         if 'data_aceite' in request.POST:
             data_aceite_has = request.POST['data_aceite']
-        # Verifica filtro se é por Assembleia
+        # filtro adicional pela seleção do usuário
         if tipo == 'al':
             qs = qs.filter(casa_legislativa__tipo__sigla='AL')
             # Verifica se é com data de aceite
@@ -162,12 +167,17 @@ def report(request, id=None):
                 report = ConvenioReportSemAceiteAL(queryset=qs)
             else:
                 report = ConvenioPorALReport(queryset=qs)
-        else:
+        elif tipo == 'cm':
             qs = qs.filter(casa_legislativa__tipo__sigla='CM')
             if data_aceite_has == 'nao':
                 report = ConvenioReportSemAceiteCM(queryset=qs)
             else:
                 report = ConvenioPorCMReport(queryset=qs)
+        else:
+            if data_aceite_has == 'nao':
+                report = ConvenioReportSemAceite(queryset=qs)
+            else:
+                report = ConvenioReport(queryset=qs)
 
     response = HttpResponse(content_type='application/pdf')
     if report:

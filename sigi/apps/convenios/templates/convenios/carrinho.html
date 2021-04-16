@@ -68,7 +68,11 @@
 	           		<legend>{% trans 'Relatório por' %}</legend>
 	            	<ul class="tabs-conteudo">
 	            		<li>
-	            			<input type="radio" name="filtro_casa" value="cm" checked="checked"/>
+	            			<input type="radio" name="filtro_casa" value="tudo" checked="checked"/>
+							<label>{% trans 'Todos' %}</label>
+						</li>
+	            		<li>
+	            			<input type="radio" name="filtro_casa" value="cm"/>
 							<label>{% trans 'Câmara Municipal' %}</label>
 						</li>
 						<li>
