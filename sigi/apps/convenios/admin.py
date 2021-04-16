@@ -4,7 +4,8 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.convenios.models import (Projeto, StatusConvenio, Convenio,
+from sigi.apps.convenios.models import (Projeto, StatusConvenio,
+                                        TipoSolicitacao, Convenio,
                                         EquipamentoPrevisto, Anexo, Tramitacao)
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
@@ -46,10 +47,11 @@ class ConvenioAdmin(BaseModelAdmin):
     fieldsets = (
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio',
-                        'projeto', 'data_sigad', 'data_sigi',)}
+                        'projeto', 'data_sigi',)}
          ),
         (_(u"Acompanhamento no gabinete"),
-         {'fields': ('status', 'acompanha', 'observacao',)}
+         {'fields': ('data_solicitacao', 'data_sigad', 'tipo_solicitacao',
+                     'status', 'acompanha', 'observacao',)}
         ),
         (_(u'Datas'),
             {'fields': ('data_retorno_assinatura', 'duracao',
@@ -125,6 +127,8 @@ class ConvenioAdmin(BaseModelAdmin):
         normaliza_data('data_sigad__lte')
         normaliza_data('data_sigi__gte')
         normaliza_data('data_sigi__lte')
+        normaliza_data('data_solicitacao__gte')
+        normaliza_data('data_solicitacao__lte')
         request.GET._mutable = False
 
         return super(ConvenioAdmin, self).changelist_view(
@@ -176,5 +180,6 @@ class EquipamentoPrevistoAdmin(BaseModelAdmin):
 
 admin.site.register(Projeto)
 admin.site.register(StatusConvenio)
+admin.site.register(TipoSolicitacao)
 admin.site.register(Convenio, ConvenioAdmin)
 admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)

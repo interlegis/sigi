@@ -6,9 +6,7 @@ from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField
 from sigi.apps.servidores.models import Servidor
 
-
 class Projeto(models.Model):
-
     """ Modelo para representar os projetos do programa
     Interlegis
     """
@@ -26,6 +24,17 @@ class StatusConvenio(models.Model):
         ordering = ('nome',)
         verbose_name = _(u"Estado de convenios")
         verbose_name_plural = _(u"Estados de convenios")
+
+    def __unicode__(self):
+        return self.nome
+
+class TipoSolicitacao(models.Model):
+    nome = models.CharField(max_length=100)
+
+    class Meta:
+        ordering = ('nome',)
+        verbose_name = _(u"tipo de solicitação")
+        verbose_name_plural = _(u"Tipos de solicitação")
 
     def __unicode__(self):
         return self.nome
@@ -63,23 +72,35 @@ class Convenio(models.Model):
         max_length=10,
         blank=True
     )
-    status = models.ForeignKey(
-        StatusConvenio,
-        on_delete=models.SET_NULL,
-        verbose_name=_(u"estado atual"),
+    data_sigi = models.DateField(
+        _(u"data de cadastro no SIGI"),
+        blank=True,
         null=True,
-        blank=True
+        auto_now_add=True
     )
     data_sigad = models.DateField(
         _(u"data de cadastro no SIGAD"),
         null=True,
         blank=True
     )
-    data_sigi = models.DateField(
-        _(u"data de cadastro no SIGI"),
-        blank=True,
+    data_solicitacao = models.DateField(
+        _(u"data do e-mail de solicitação"),
         null=True,
-        auto_now_add=True
+        blank=True
+    )
+    tipo_solicitacao = models.ForeignKey(
+        TipoSolicitacao,
+        on_delete=models.PROTECT,
+        null=True,
+        blank=True,
+        verbose_name=_(u"tipo de solicitação")
+    )
+    status = models.ForeignKey(
+        StatusConvenio,
+        on_delete=models.SET_NULL,
+        verbose_name=_(u"estado atual"),
+        null=True,
+        blank=True
     )
     acompanha = models.ForeignKey(
         Servidor,
