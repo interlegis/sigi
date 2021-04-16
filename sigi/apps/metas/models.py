@@ -18,7 +18,12 @@ class Meta(models.Model):
         ('COUNT_PDIR', _(u'Quantidade de planos diretores')),
         ('COUNT_CONV', _(u'Quantidade de casas conveniadas')),
     )
-    projeto = models.ForeignKey(Projeto, verbose_name=_(u'Projeto'), help_text=_(u'Projeto ao qual a meta se refere'))
+    projeto = models.ForeignKey(
+        Projeto,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'Projeto'),
+        help_text=_(u'Projeto ao qual a meta se refere')
+    )
     titulo = models.CharField(_(u'Título'), max_length=40, help_text=_(u'Título da meta que aparecerá no dashboard'))
     descricao = models.TextField(_(u'Descrição'))
     data_inicio = models.DateField(_(u'Data inicial'), help_text=_(u'Início do período de cômputo da meta'))
@@ -114,8 +119,16 @@ class PlanoDiretor(models.Model):
         ('E', _(u'Entregue')),
         ('I', _(u'Implantado')),
     )
-    projeto = models.ForeignKey(Projeto, verbose_name=_(u'Projeto'))
-    casa_legislativa = models.ForeignKey(Orgao, verbose_name=_(u'Casa Legislativa'))
+    projeto = models.ForeignKey(
+        Projeto,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'Projeto')
+    )
+    casa_legislativa = models.ForeignKey(
+        Orgao,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'Casa Legislativa')
+    )
     casa_legislativa.casa_uf_filter = True
     status = models.CharField(_(u'Status'), max_length=1, choices=STATUS_CHOICE, default='E')
     data_entrega = models.DateField(_(u'Data de entrega'), blank=True, null=True)

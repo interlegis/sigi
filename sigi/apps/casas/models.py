@@ -51,7 +51,11 @@ class Orgao(models.Model):
     # Guarda um campo para ser usado em buscas em caixa baixa e sem acento
     search_text = SearchField(field_names=['nome'])
     # search_text.projeto_filter = True
-    tipo = models.ForeignKey(TipoOrgao, verbose_name=_(u"Tipo"))
+    tipo = models.ForeignKey(
+        TipoOrgao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u"Tipo")
+    )
     cnpj = models.CharField(_(u"CNPJ"), max_length=32, blank=True)
     observacoes = models.TextField(_(u'observações'), blank=True)
     horario_funcionamento = models.CharField(
@@ -84,6 +88,7 @@ class Orgao(models.Model):
 
     municipio = models.ForeignKey(
         'contatos.Municipio',
+        on_delete=models.PROTECT,
         verbose_name=_(u'Município')
     )
     # municipio.uf_filter = True
@@ -108,6 +113,7 @@ class Orgao(models.Model):
     )
     pesquisador = models.ForeignKey(
         Servidor,
+        on_delete=models.SET_NULL,
         verbose_name=_(u"Pesquisador"),
         null=True,
         blank=True
@@ -350,7 +356,11 @@ class Funcionario(models.Model):
         ("F", _(u"Feminino"))
     ]
 
-    casa_legislativa = models.ForeignKey(Orgao)
+    casa_legislativa = models.ForeignKey(
+        Orgao,
+        on_delete=models.CASCADE,
+        verbose_name=_(u"órgão"),
+    )
     nome = models.CharField(_(u'nome completo'), max_length=60, blank=False)
     # nome.alphabetic_filter = True
     sexo = models.CharField(
@@ -375,6 +385,7 @@ class Funcionario(models.Model):
     endereco = models.CharField(_(u'Endereço'), max_length=100, blank=True)
     municipio = models.ForeignKey(
         Municipio,
+        on_delete=models.SET_NULL,
         verbose_name=_(u'Municipio'),
         null=True,
         blank=True,

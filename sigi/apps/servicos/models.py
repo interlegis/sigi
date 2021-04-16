@@ -37,10 +37,28 @@ class TipoServico(models.Model):
 
 
 class Servico(models.Model):
-    casa_legislativa = models.ForeignKey(Orgao, verbose_name=_(u'Casa Legislativa'))
-    tipo_servico = models.ForeignKey(TipoServico, verbose_name=_(u'Tipo de serviço'))
-    contato_tecnico = models.ForeignKey(Funcionario, verbose_name=_(u'Contato técnico'), related_name='contato_tecnico', on_delete=models.PROTECT)
-    contato_administrativo = models.ForeignKey(Funcionario, verbose_name=_(u'Contato administrativo'), related_name='contato_administrativo', on_delete=models.PROTECT)
+    casa_legislativa = models.ForeignKey(
+        Orgao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Casa Legislativa')
+    )
+    tipo_servico = models.ForeignKey(
+        TipoServico,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Tipo de serviço')
+    )
+    contato_tecnico = models.ForeignKey(
+        Funcionario,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Contato técnico'),
+        related_name='contato_tecnico'
+    )
+    contato_administrativo = models.ForeignKey(
+        Funcionario,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Contato administrativo'),
+        related_name='contato_administrativo'
+    )
     url = models.URLField(_(u'URL do serviço'), blank=True)
     hospedagem_interlegis = models.BooleanField(_(u'Hospedagem no Interlegis?'), default=False)
     nome_servidor = models.CharField(_(u'Hospedado em'), max_length=60, blank=True,
@@ -162,7 +180,11 @@ class Servico(models.Model):
 
 
 class LogServico(models.Model):
-    servico = models.ForeignKey(Servico, verbose_name=_(u'Serviço'))
+    servico = models.ForeignKey(
+        Servico,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'Serviço')
+    )
     descricao = models.CharField(_(u'Breve descrição da ação'), max_length=60)
     data = models.DateField(_(u'Data da ação'), default=date.today)
     log = models.TextField(_(u'Log da ação'))
@@ -202,8 +224,8 @@ class CasaManifesta(models.Model):
 
 
 class ServicoManifesto(models.Model):
-    casa_manifesta = models.ForeignKey(CasaManifesta)
-    servico = models.ForeignKey(TipoServico)
+    casa_manifesta = models.ForeignKey(CasaManifesta, on_delete=models.CASCADE)
+    servico = models.ForeignKey(TipoServico, on_delete=models.CASCADE)
     url = models.URLField(blank=True)
     hospedagem_interlegis = models.BooleanField(_(u'Hospedagem no Interlegis?'), default=False)
 

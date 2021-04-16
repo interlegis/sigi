@@ -14,7 +14,12 @@ class Subsecretaria(models.Model):
     nome = models.CharField(max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     # servidor responsavel por dirigir a Subsecretaria
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='diretor', null=True)
+    responsavel = models.ForeignKey(
+        'servidores.Servidor',
+        on_delete=models.SET_NULL,
+        related_name='diretor',
+        null=True
+    )
 
     class Meta:
         ordering = ('nome',)
@@ -30,9 +35,18 @@ class Servico(models.Model):
 
     nome = models.CharField(_(u'Setor'), max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
-    subsecretaria = models.ForeignKey(Subsecretaria, null=True)
+    subsecretaria = models.ForeignKey(
+        Subsecretaria,
+        on_delete=models.CASCADE,
+        null=True
+    )
     # servidor responsavel por chefiar o serviço
-    responsavel = models.ForeignKey('servidores.Servidor', related_name='chefe', null=True)
+    responsavel = models.ForeignKey(
+        'servidores.Servidor',
+        on_delete=models.SET_NULL,
+        related_name='chefe',
+        null=True
+    )
 
     class Meta:
         ordering = ('nome',)
@@ -63,7 +77,7 @@ class Servidor(models.Model):
     )
 
     # usuario responsavel pela autenticação do servidor no sistema
-    user = models.ForeignKey(User, unique=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
     nome_completo = models.CharField(max_length=128)
     apelido = models.CharField(max_length=50, blank=True)
     # caminho no sistema para arquivo com a imagem
@@ -86,7 +100,12 @@ class Servidor(models.Model):
         blank=True,
         null=True,
     )
-    servico = models.ForeignKey('servidores.Servico', blank=True, null=True)
+    servico = models.ForeignKey(
+        'servidores.Servico',
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True
+    )
     matricula = models.CharField(u'matrícula', max_length=25, blank=True, null=True)
     turno = models.CharField(
         max_length=1,
@@ -170,7 +189,7 @@ class Funcao(models.Model):
     """ Modelo para guardar o histórico de funções dos
     servidores no Interlegis
     """
-    servidor = models.ForeignKey(Servidor)
+    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
     funcao = models.CharField(max_length=250, null=True)
     cargo = models.CharField(max_length=250, null=True)
     inicio_funcao = models.DateField(u'início da função', null=True)
@@ -195,7 +214,7 @@ class Licenca(models.Model):
 
     """ Modelo que representa as licenças tiradas pelos servidores
     """
-    servidor = models.ForeignKey(Servidor)
+    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
     inicio_licenca = models.DateField(u'início da licença')
     fim_licenca = models.DateField(u'fim da licença')
     obs = models.TextField(u'observação', blank=True, null=True)
@@ -217,7 +236,7 @@ class Ferias(models.Model):
 
     """ Modelo que representa as férias tiradas pelos servidores
     """
-    servidor = models.ForeignKey(Servidor)
+    servidor = models.ForeignKey(Servidor, on_delete=models.CASCADE)
     inicio_ferias = models.DateField(u'início das férias')
     fim_ferias = models.DateField(u'fim das férias')
     obs = models.TextField(u'observação', blank=True, null=True)

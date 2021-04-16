@@ -59,10 +59,13 @@ class Mandato(models.Model):
         ('T', _(u'Titular')),
         ('S', _(u'Suplente')),
     )
-    parlamentar = models.ForeignKey(Parlamentar)
-    legislatura = models.ForeignKey('parlamentares.Legislatura')
-    partido = models.ForeignKey(Partido)
-    cargo = models.ForeignKey('parlamentares.Cargo')
+    parlamentar = models.ForeignKey(Parlamentar, on_delete=models.CASCADE)
+    legislatura = models.ForeignKey(
+        'parlamentares.Legislatura',
+        on_delete=models.CASCADE
+    )
+    partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
+    cargo = models.ForeignKey('parlamentares.Cargo', on_delete=models.PROTECT)
     inicio_mandato = models.DateField(_(u'início de mandato'))
     fim_mandato = models.DateField(_(u'fim de mandato'))
     is_afastado = models.BooleanField(
@@ -82,7 +85,7 @@ class Mandato(models.Model):
 
 
 class Legislatura(models.Model):
-    casa_legislativa = models.ForeignKey(Orgao)
+    casa_legislativa = models.ForeignKey(Orgao, on_delete=models.CASCADE)
     numero = models.PositiveSmallIntegerField(_(u'número legislatura'))
     data_inicio = models.DateField(_(u'início'))
     data_fim = models.DateField(_(u'fim'))
@@ -106,7 +109,7 @@ class Legislatura(models.Model):
 
 class Coligacao(models.Model):
     nome = models.CharField(max_length=50)
-    legislatura = models.ForeignKey(Legislatura)
+    legislatura = models.ForeignKey(Legislatura, on_delete=models.CASCADE)
     numero_votos = models.PositiveIntegerField(
         _(u'número de votos'),
         blank=True,
@@ -123,8 +126,15 @@ class Coligacao(models.Model):
 
 
 class ComposicaoColigacao(models.Model):
-    coligacao = models.ForeignKey(Coligacao, verbose_name=_(u'coligação'))
-    partido = models.ForeignKey('parlamentares.Partido')
+    coligacao = models.ForeignKey(
+        Coligacao,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'coligação')
+    )
+    partido = models.ForeignKey(
+        'parlamentares.Partido',
+        on_delete=models.CASCADE
+    )
 
     class Meta:
         verbose_name = _(u'composição da coligação')
@@ -142,9 +152,10 @@ class SessaoLegislativa(models.Model):
     numero = models.PositiveSmallIntegerField(_(u'número da sessão'), unique=True)
     mesa_diretora = models.ForeignKey(
         'MesaDiretora',
+        on_delete=models.PROTECT,
         verbose_name=_(u'Mesa Diretora')
     )
-    legislatura = models.ForeignKey(Legislatura)
+    legislatura = models.ForeignKey(Legislatura, on_delete=models.CASCADE)
     tipo = models.CharField(
         max_length=1,
         choices=SESSAO_CHOICES,
@@ -175,6 +186,7 @@ class SessaoLegislativa(models.Model):
 class MesaDiretora(models.Model):
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
+        on_delete=models.CASCADE,
         verbose_name=_(u'Casa Legislativa')
     )
 
@@ -197,9 +209,12 @@ class Cargo(models.Model):
 
 
 class MembroMesaDiretora(models.Model):
-    parlamentar = models.ForeignKey('parlamentares.Parlamentar')
-    cargo = models.ForeignKey(Cargo)
-    mesa_diretora = models.ForeignKey(MesaDiretora)
+    parlamentar = models.ForeignKey(
+        'parlamentares.Parlamentar',
+        on_delete=models.CASCADE
+    )
+    cargo = models.ForeignKey(Cargo, on_delete=models.PROTECT)
+    mesa_diretora = models.ForeignKey(MesaDiretora, on_delete=models.CASCADE)
 
     class Meta:
         ordering = ('parlamentar',)

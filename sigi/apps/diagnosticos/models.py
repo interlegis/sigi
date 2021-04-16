@@ -15,7 +15,9 @@ class Diagnostico(BaseEntity):
     """
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
-        verbose_name=_(u'Casa Legislativa'))
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Casa Legislativa')
+    )
 
     # campo de busca em caixa baixa e sem acento
     search_text = SearchField(field_names=['casa_legislativa'])
@@ -38,8 +40,11 @@ class Diagnostico(BaseEntity):
         blank=True,
     )
 
-    responsavel = models.ForeignKey('servidores.Servidor',
-                                    verbose_name=_(u'responsável'))
+    responsavel = models.ForeignKey(
+        'servidores.Servidor',
+        on_delete=models.PROTECT,
+        verbose_name=_(u'responsável')
+    )
 
     class Meta:
         verbose_name, verbose_name_plural = _(u'diagnóstico'), _(u'diagnósticos')
@@ -156,7 +161,11 @@ class Pergunta(BaseSchema):
 
     Uma pergunta tem o nome e o tipo da resposta
     """
-    categoria = models.ForeignKey(Categoria, related_name='perguntas')
+    categoria = models.ForeignKey(
+        Categoria,
+        on_delete=models.CASCADE,
+        related_name='perguntas'
+    )
 
     def group_choices(self):
         from django.db import connection, transaction
@@ -196,10 +205,20 @@ class Escolha(BaseChoice):
     """ Perguntas de multiplas escolhas tem as opções
     cadastradas neste modelo
     """
-    schema = models.ForeignKey(Pergunta,
-                               related_name='choices', verbose_name=_(u'pergunta'))
-    schema_to_open = models.ForeignKey(Pergunta, related_name='abre_por',
-                                       verbose_name=_(u'pergunta para abrir'), blank=True, null=True)
+    schema = models.ForeignKey(
+        Pergunta,
+        on_delete=models.CASCADE,
+        related_name='choices',
+        verbose_name=_(u'pergunta')
+    )
+    schema_to_open = models.ForeignKey(
+        Pergunta,
+        on_delete=models.SET_NULL,
+        related_name='abre_por',
+        verbose_name=_(u'pergunta para abrir'),
+        blank=True,
+        null=True
+    )
     ordem = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
@@ -212,10 +231,19 @@ class Resposta(BaseAttribute):
     """ Modelo para guardar as respostas das perguntas
     de um diagnosico
     """
-    schema = models.ForeignKey(Pergunta, related_name='attrs',
-                               verbose_name=_(u'pergunta'))
-    choice = models.ForeignKey(Escolha, verbose_name=_(u'escolha'),
-                               blank=True, null=True)
+    schema = models.ForeignKey(
+        Pergunta,
+        on_delete=models.PROTECT,
+        related_name='attrs',
+        verbose_name=_(u'pergunta')
+    )
+    choice = models.ForeignKey(
+        Escolha,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'escolha'),
+        blank=True,
+        null=True
+    )
 
     class Meta:
         verbose_name, verbose_name_plural = _(u'resposta'), _(u'respostas')
@@ -225,8 +253,11 @@ class Equipe(models.Model):
 
     """ Modelo que representa a equipe de um diagnóstico
     """
-    diagnostico = models.ForeignKey(Diagnostico)
-    membro = models.ForeignKey('servidores.Servidor')
+    diagnostico = models.ForeignKey(Diagnostico, on_delete=models.CASCADE)
+    membro = models.ForeignKey(
+        'servidores.Servidor',
+        on_delete=models.PROTECT
+    )
 
     class Meta:
         verbose_name, verbose_name_plural = _(u'equipe'), _(u'equipe')
@@ -240,7 +271,11 @@ class Anexo(models.Model):
     """ Modelo para representar os documentos levantados
     no processo de diagnóstico. Podem ser fotos, contratos, etc.
     """
-    diagnostico = models.ForeignKey(Diagnostico, verbose_name=u'diagnóstico')
+    diagnostico = models.ForeignKey(
+        Diagnostico,
+        on_delete=models.CASCADE,
+        verbose_name=u'diagnóstico'
+    )
     arquivo = models.FileField(upload_to='apps/diagnostico/anexo/arquivo', max_length=500)
     descricao = models.CharField(_(u'descrição'), max_length='70')
     data_pub = models.DateTimeField(_(u'data da publicação do anexo'),

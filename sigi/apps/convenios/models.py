@@ -42,11 +42,15 @@ class Convenio(models.Model):
     """
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
+        on_delete=models.PROTECT,
         verbose_name=_(u'órgão conveniado')
     )
     # campo de busca em caixa baixa e sem acentos
     search_text = SearchField(field_names=['casa_legislativa'])
-    projeto = models.ForeignKey(_(u'Projeto'))
+    projeto = models.ForeignKey(
+        Projeto,
+        on_delete=models.PROTECT,
+    )
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
         _(u'número do processo SF (Senado Federal)'),
@@ -227,8 +231,15 @@ class EquipamentoPrevisto(models.Model):
     disponibilizados para as Casas Legislativas
     (foi usado na prmeira etapa do programa)
     """
-    convenio = models.ForeignKey(Convenio, verbose_name=_(u'convênio'))
-    equipamento = models.ForeignKey('inventario.Equipamento')
+    convenio = models.ForeignKey(
+        Convenio,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'convênio')
+    )
+    equipamento = models.ForeignKey(
+        'inventario.Equipamento',
+        on_delete=models.CASCADE
+    )
     quantidade = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
@@ -244,7 +255,11 @@ class Anexo(models.Model):
     """ Modelo para giardar os documentos gerados
     no processo de convênio
     """
-    convenio = models.ForeignKey(Convenio, verbose_name=_(u'convênio'))
+    convenio = models.ForeignKey(
+        Convenio,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'convênio')
+    )
     # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo', max_length=500)
     descricao = models.CharField(_(u'descrição'), max_length='70')
@@ -278,8 +293,16 @@ class Tramitacao(models.Model):
     """ Modelo para registrar as vias do processo de convênio e a Unidade
     responsável pelo tramite (ex. colher assinaturas do secretário do senado)
     """
-    convenio = models.ForeignKey(Convenio, verbose_name=_(u'convênio'))
-    unid_admin = models.ForeignKey(UnidadeAdministrativa, verbose_name=_(u'Unidade Administrativa'))
+    convenio = models.ForeignKey(
+        Convenio,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'convênio')
+    )
+    unid_admin = models.ForeignKey(
+        UnidadeAdministrativa,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Unidade Administrativa')
+    )
     data = models.DateField()
     observacao = models.CharField(
         _(u'observação'),

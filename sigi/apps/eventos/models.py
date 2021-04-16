@@ -27,15 +27,26 @@ class Evento(models.Model):
         ('C', _(u"Cancelado"))
     )
 
-    tipo_evento = models.ForeignKey(TipoEvento)
+    tipo_evento = models.ForeignKey(
+        TipoEvento,
+        on_delete=models.PROTECT,
+    )
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
     descricao = models.TextField(_(u"Descrição do evento"))
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
     data_inicio = models.DateField(_(u"Data de início"))
     data_termino = models.DateField(_(u"Data de término"))
-    casa_anfitria = models.ForeignKey(Orgao, verbose_name=_(u"Casa anfitriã"), blank=True,
-                                      null=True)
-    municipio = models.ForeignKey(Municipio)
+    casa_anfitria = models.ForeignKey(
+        Orgao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u"Casa anfitriã"),
+        blank=True,
+        null=True
+    )
+    municipio = models.ForeignKey(
+        Municipio,
+        on_delete=models.PROTECT
+    )
     local = models.TextField(_(u"Local do evento"), blank=True)
     publico_alvo = models.TextField(_(u"Público alvo"), blank=True)
     status = models.CharField(_(u"Status"), max_length=1, choices=STATUS_CHOICES)
@@ -73,9 +84,20 @@ class Funcao(models.Model):
         return self.nome
 
 class Equipe(models.Model):
-    evento = models.ForeignKey(Evento)
-    membro = models.ForeignKey(Servidor, related_name="equipe_evento")
-    funcao = models.ForeignKey(Funcao, verbose_name=_(u"Função na equipe"))
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE
+    )
+    membro = models.ForeignKey(
+        Servidor,
+        on_delete=models.PROTECT,
+        related_name="equipe_evento"
+    )
+    funcao = models.ForeignKey(
+        Funcao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u"Função na equipe")
+    )
     observacoes = models.TextField(_(u"Observações"), blank=True)
 
     class Meta:
@@ -86,9 +108,20 @@ class Equipe(models.Model):
         return u"%s (%s)" % (unicode(self.membro), unicode(self.funcao),)
 
 class Convite(models.Model):
-    evento = models.ForeignKey(Evento)
-    casa = models.ForeignKey(Orgao, verbose_name=_(u"Casa convidada"))
-    servidor = models.ForeignKey(Servidor, verbose_name=_(u"Servidor que convidou"))
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE
+    )
+    casa = models.ForeignKey(
+        Orgao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u"Casa convidada")
+    )
+    servidor = models.ForeignKey(
+        Servidor,
+        on_delete=models.PROTECT,
+        verbose_name=_(u"Servidor que convidou")
+    )
     data_convite = models.DateField(_(u"Data do convite"))
     aceite = models.BooleanField(_("Aceitou o convite"), default=False)
     participou = models.BooleanField(_(u"Participou do evento"), default=False)
