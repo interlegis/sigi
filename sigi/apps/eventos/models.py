@@ -33,9 +33,14 @@ class Evento(models.Model):
     )
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
     descricao = models.TextField(_(u"Descrição do evento"))
+    virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
     data_inicio = models.DateField(_(u"Data de início"))
     data_termino = models.DateField(_(u"Data de término"))
+    carga_horaria = models.PositiveIntegerField(
+        _(u"carga horária"),
+        default=0
+    )
     casa_anfitria = models.ForeignKey(
         Orgao,
         on_delete=models.PROTECT,
@@ -125,6 +130,15 @@ class Convite(models.Model):
     data_convite = models.DateField(_(u"Data do convite"))
     aceite = models.BooleanField(_("Aceitou o convite"), default=False)
     participou = models.BooleanField(_(u"Participou do evento"), default=False)
+    qtde_participantes = models.PositiveIntegerField(
+        _(u"número de participantes"),
+        default=0
+    )
+    nomes_participantes = models.TextField(
+        _(u"nome dos participantes"),
+        blank=True,
+        help_text=_(u"Favor colocar um participante por linha")
+    )
 
     class Meta:
         ordering = ('evento', 'casa', '-data_convite')
