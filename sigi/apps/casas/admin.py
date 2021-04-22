@@ -308,9 +308,9 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
                ConveniosInline, ServicoInline, OcorrenciaInline,)
-    list_display = ('nome', 'get_uf', 'get_gerentes', 'get_convenios',
+    list_display = ('sigla', 'nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
-    list_display_links = ('nome',)
+    list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
                    'municipio__uf__nome', ConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
@@ -318,7 +318,7 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     queryset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'cnpj', 'num_parlamentares',
+            'fields': ('tipo', 'nome', 'sigla', 'cnpj', 'num_parlamentares',
                        'gerentes_interlegis')
         }),
         (_(u'Endereço'), {
@@ -336,10 +336,10 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     )
     raw_id_fields = ('municipio',)
     readonly_fields = ['num_parlamentares', 'gerentes_interlegis',]
-    search_fields = ('search_text', 'cnpj', 'bairro', 'logradouro',
+    search_fields = ('search_text', 'sigla', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
-    filter_horizontal = ('gerentes_interlegis',)
+    # filter_horizontal = ('gerentes_interlegis',)
 
     def get_uf(self, obj):
         return obj.municipio.uf.nome

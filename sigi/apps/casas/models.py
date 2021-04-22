@@ -47,10 +47,13 @@ class Orgao(models.Model):
         max_length=60,
         help_text=_(u'Exemplo: <em>Câmara Municipal de Pains</em>.')
     )
-
+    sigla = models.CharField(
+        _(u"sigla do órgão"),
+        max_length=30,
+        blank=True
+    )
     # Guarda um campo para ser usado em buscas em caixa baixa e sem acento
     search_text = SearchField(field_names=['nome'])
-    # search_text.projeto_filter = True
     tipo = models.ForeignKey(
         TipoOrgao,
         on_delete=models.PROTECT,
