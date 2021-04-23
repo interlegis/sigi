@@ -24,7 +24,7 @@ class Servico(models.Model):
     )
 
     class Meta:
-        ordering = ('nome',)
+        ordering = ('-subordinado__sigla', 'nome',)
         verbose_name = _(u'serviço')
         verbose_name_plural = _(u'serviços')
 

@@ -13,11 +13,33 @@ class ServidorFilter(AlphabeticFilter):
     title = _(u'Nome do Servidor')
     parameter_name = 'servidor__nome_completo'
 
+class ServicoFilter(admin.SimpleListFilter):
+    title = _(u"Subordinados à")
+    parameter_name = 'subordinado__id__exact'
+
+    def lookups(self, request, model_admin):
+        return ([('None', _(u"Nenhum"))] +
+                [(s.id, s.nome) for s in Servico.objects.exclude(servico=None)])
+
+    def queryset(self, request, queryset):
+        if self.value():
+            if self.value() == "None":
+                queryset = queryset.filter(subordinado=None)
+            else:
+                queryset = queryset.filter(subordinado__id=self.value())
+        return queryset
+
+
+class ServicoInline(admin.TabularInline):
+    model = Servico
+    fields = ['nome', 'sigla', 'responsavel',]
+
 @admin.register(Servico)
 class ServicoAdmin(admin.ModelAdmin):
     list_display = ['sigla', 'nome', 'subordinado', 'responsavel']
-    list_filter = ['subordinado',]
+    list_filter = [ServicoFilter,]
     search_fields = ['nome', 'sigla',]
+    inlines = [ServicoInline,]
 
 @admin.register(Servidor)
 class ServidorAdmin(BaseModelAdmin):
