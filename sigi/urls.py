@@ -15,7 +15,6 @@ urlpatterns = patterns(
     url(r'^casas/', include('sigi.apps.casas.urls')),
     url(r'^convenios/', include('sigi.apps.convenios.urls')),
     url(r'^diagnosticos/', include('sigi.apps.diagnosticos.urls')),
-    url(r'^servidores/', include('sigi.apps.servidores.urls')),
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
     url(r'^ocorrencias/', include('sigi.apps.ocorrencias.urls')),

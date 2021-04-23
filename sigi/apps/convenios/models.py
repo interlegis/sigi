@@ -4,7 +4,7 @@ from datetime import datetime, date
 from django.db import models
 from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField
-from sigi.apps.servidores.models import Servidor
+from sigi.apps.servidores.models import Servidor, Servico
 
 class Projeto(models.Model):
     """ Modelo para representar os projetos do programa
@@ -40,15 +40,6 @@ class TipoSolicitacao(models.Model):
         return self.nome
 
 class Convenio(models.Model):
-
-    """ Modelo que representa um convênio do Interlegis
-    com uma Casa Legislativa.
-
-    Uma Casa Legislativa pode não ter um convênio e sim
-    apenas uma adesão com o Interlegis, isto é,
-    não tem compromissos direto com o Interlegis apenas
-    um pacto de colaboração entre as partes
-    """
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
         on_delete=models.PROTECT,
@@ -105,6 +96,7 @@ class Convenio(models.Model):
     acompanha = models.ForeignKey(
         Servidor,
         on_delete=models.SET_NULL,
+        related_name='convenios_acompanhados',
         verbose_name=_(u"acompanhado por"),
         null=True,
         blank=True
@@ -113,6 +105,21 @@ class Convenio(models.Model):
         _(u"observações"),
         null=True,
         blank=True,
+    )
+    servico_gestao = models.ForeignKey(
+        Servico,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='convenios_geridos',
+        verbose_name=_(u"serviço de gestão")
+    )
+    servidor_gestao = models.ForeignKey(
+        Servidor,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        verbose_name=_(u"servidor de gestão")
     )
     data_adesao = models.DateField(
         _(u'aderidas'),

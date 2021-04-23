@@ -53,6 +53,9 @@ class ConvenioAdmin(BaseModelAdmin):
          {'fields': ('data_solicitacao', 'data_sigad', 'tipo_solicitacao',
                      'status', 'acompanha', 'observacao',)}
         ),
+        (_(u"Gestão do convênio"),
+         {'fields': ('servico_gestao', 'servidor_gestao',)}
+        ),
         (_(u'Datas'),
             {'fields': ('data_retorno_assinatura', 'duracao',
                         'data_pub_diario',)}
