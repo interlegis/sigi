@@ -1,0 +1,18 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block content_title %}
+<h1 class="pull-left">Importação de órgãos concluída com {% if com_erros %}erros{% else %}sucesso!{% endif %}</h1>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  <p>{{ total }} registros importados do arquivo {{ file_name }}</p>
+  {% if com_erros %}
+  <p>{{ com_erros }} registros apresentaram erros</p>
+  <p><a href="{{ MEDIA_URL }}temp/{{ result_file }}">Download do arquivo de erros</a></p>
+  {% endif %}
+  <p><a href="{% url 'importar-casas' %}">Importar outro arquivo</a></p>
+</div>
+{% endblock %}
+

@@ -6,6 +6,12 @@ from localflavor.br.forms import BRZipCodeField
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor
 
+class AtualizaCasaForm(forms.Form):
+    arquivo = forms.FileField(
+        required=True,
+        label=_(u"arquivo a importar"),
+        help_text=_(u"Envie um arquivo no formato CSV"),
+    )
 
 class OrgaoForm(forms.ModelForm):
     # cnpj = BRCNPJField(

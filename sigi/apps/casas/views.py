@@ -1,26 +1,254 @@
 # -*- coding: utf-8 -*-
 import csv
+from datetime import datetime
 from functools import reduce
 from geraldo.generators import PDFGenerator
 
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models import Count, Q
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import ugettext as _, ungettext
+from django.views.generic import View
 
-from sigi.apps.casas.forms import PortfolioForm
-from sigi.apps.casas.models import Orgao, TipoOrgao
+from sigi.apps.casas.forms import PortfolioForm, AtualizaCasaForm
+from sigi.apps.casas.models import Orgao, TipoOrgao, Funcionario
 from sigi.apps.casas.reports import (CasasLegislativasLabels,
                                      CasasLegislativasLabelsSemPresidente)
-from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
+from sigi.apps.contatos.models import (UnidadeFederativa, Municipio,
+                                       Mesorregiao, Microrregiao)
 from sigi.apps.ocorrencias.models import Ocorrencia
 from sigi.apps.parlamentares.reports import ParlamentaresLabels
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.shortcuts import render_to_pdf
 
+class importa_casas(View):
+    errors = []
+    total_registros = 0
+
+    TIPO = 'tipo'
+    MUNICIPIO = 'municipio'
+    UF = 'uf'
+    ORGAO_ENDERECO = 'orgao_endereco'
+    ORGAO_BAIRRO = 'orgao_bairro'
+    ORGAO_CEP = 'orgao_cep'
+    ORGAO_EMAIL = 'orgao_email'
+    ORGAO_PORTAL = 'orgao_portal'
+    ORGAO_TELEFONES = 'orgao_telefones'
+    PRESIDENTE_NOME = 'presidente_nome'
+    PRESIDENTE_DATA_NASCIMENTO = 'presidente_data_nascimento'
+    PRESIDENTE_TELEFONES = 'presidente_telefones'
+    PRESIDENTE_EMAILS = 'presidente_emails'
+    PRESIDENTE_ENDERECO = 'presidente_endereco'
+    PRESIDENTE_MUNICIPIO = 'presidente_municipio'
+    PRESIDENTE_BAIRRO = 'presidente_bairro'
+    PRESIDENTE_CEP = 'presidente_cep'
+    PRESIDENTE_REDES_SOCIAIS = 'presidente_redes_sociais'
+    ERROS = 'erros_importacao'
+
+    fieldnames = [TIPO, MUNICIPIO, UF, ORGAO_ENDERECO, ORGAO_BAIRRO, ORGAO_CEP,
+                  ORGAO_EMAIL, ORGAO_PORTAL, ORGAO_TELEFONES, PRESIDENTE_NOME,
+                  PRESIDENTE_DATA_NASCIMENTO, PRESIDENTE_TELEFONES,
+                  PRESIDENTE_EMAILS, PRESIDENTE_ENDERECO, PRESIDENTE_MUNICIPIO,
+                  PRESIDENTE_BAIRRO, PRESIDENTE_CEP, PRESIDENTE_REDES_SOCIAIS,
+                  ERROS,]
+
+    ID_FIELDS = {TIPO, MUNICIPIO, UF}
+
+    ORGAO_FIELDS = {
+        ORGAO_ENDERECO: 'logradouro',
+        ORGAO_BAIRRO: 'bairro',
+        ORGAO_CEP: 'cep',
+        ORGAO_EMAIL: 'email',
+        ORGAO_PORTAL: 'pagina_web',
+        ORGAO_TELEFONES: 'telefones',
+    }
+
+    PRESIDENTE_FIELDS = {
+        PRESIDENTE_NOME: 'nome',
+        PRESIDENTE_DATA_NASCIMENTO: 'data_nascimento',
+        PRESIDENTE_TELEFONES: 'nota',
+        PRESIDENTE_EMAILS: 'email',
+        PRESIDENTE_ENDERECO: 'endereco',
+        PRESIDENTE_MUNICIPIO: 'municipio_id',
+        PRESIDENTE_BAIRRO: 'bairro',
+        PRESIDENTE_CEP: 'cep',
+        PRESIDENTE_REDES_SOCIAIS: 'redes_sociais',
+    }
+
+    def get(self, request):
+        form = AtualizaCasaForm()
+        return render(request, 'casas/importar.html', {'form': form})
+
+    def post(self, request):
+        form = AtualizaCasaForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            file = form.cleaned_data['arquivo']
+            reader = csv.DictReader(file)
+            if not self.ID_FIELDS.issubset(reader.fieldnames):
+                return render(
+                    request,
+                    'casas/importar.html',
+                    {'form': form, 'error': _(u"O arquivo não possui algum dos "
+                                              u"campos obrigatórios")}
+                )
+
+            if self.importa(reader):
+                # Importação concluída com êxito
+                return render(
+                    request,
+                    'casas/importar_result.html',
+                    {'file_name': file.name, 'total': self.total_registros,
+                     'com_erros': 0}
+                )
+            else:
+                # Importado com erros
+                file_name = "casas-erros-{:%Y-%m-%d-%H%M}.csv".format(
+                    datetime.now())
+                fields = self.fieldnames
+                for f in reader.fieldnames:
+                    if f not in fields:
+                        fields.append(f)
+                with open(settings.MEDIA_ROOT+'/temp/'+file_name, "w+") as f:
+                    writer = csv.DictWriter(f, fieldnames=fields)
+                    writer.writeheader()
+                    writer.writerows(self.errors)
+                return render(
+                    request,
+                    'casas/importar_result.html',
+                    {'file_name': file.name, 'result_file': file_name,
+                     'total': self.total_registros,
+                     'com_erros': len(self.errors)}
+                )
+
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = (
+                    'attachment; filename="somefilename.csv"')
+                return response
+        else:
+            return render(
+                request,
+                'casas/importar.html',
+                {'form': form, 'error': u"Erro no preenchimento do formulário."}
+            )
+
+    def importa(self, reader):
+        self.errors = []
+        self.total_registros = 0
+
+        for reg in reader:
+            self.total_registros += 1
+            reg[self.ERROS] = []
+            orgao = Orgao.objects.filter(
+                tipo__sigla=reg[self.TIPO],
+                municipio__nome=reg[self.MUNICIPIO],
+                municipio__uf__sigla=reg[self.UF]
+            )
+            if orgao.count() == 0:
+                reg[self.ERROS].append("Nao existe orgao com esta identificacao")
+                self.errors.append(reg)
+                continue
+            elif orgao.count() > 1:
+                reg[self.ERROS].append("Existem {count} orgaos com esta mesma "
+                                "identificacao").format(count=orgao.count())
+                self.errors.append(reg)
+                continue
+            else:
+                orgao = orgao.get()
+
+            # Atualiza os dados do órgão
+            for key in self.ORGAO_FIELDS:
+                field_name = self.ORGAO_FIELDS[key]
+                if key in reg:
+                    value = reg[key].strip()
+                    if key == self.ORGAO_TELEFONES:
+                        for numero in value.split(" "):
+                            try:
+                                orgao.telefones.update_or_create(numero=numero)
+                            except:
+                                reg[self.ERROS].append(
+                                    'Telefone {numero} não foi '
+                                    'atualizado'.format(numero=numero)
+                                )
+                    elif value != "" and value != getattr(orgao, field_name):
+                        setattr(orgao, field_name, value)
+                try:
+                    orgao.save()
+                except Exception as e:
+                    reg[self.ERROS].append(
+                        "Erro salvando o orgao: '{message}'".format(
+                            message=e.message)
+                    )
+
+            # Atualiza o presidente
+            presidente = orgao.presidente
+
+            if presidente is None:
+                presidente = Funcionario(
+                    casa_legislativa=orgao,
+                    setor="presidente"
+                )
+
+            for key in self.PRESIDENTE_FIELDS:
+                field_name = self.PRESIDENTE_FIELDS[key]
+                if key in reg:
+                    value = reg[key].strip()
+                else:
+                    value = ""
+
+                if value != "":
+                    if key == self.PRESIDENTE_MUNICIPIO:
+                        if ',' in value:
+                            municipio, uf = value.split(',')
+                        else:
+                            municipio = value
+                            uf = reg[self.UF]
+
+                        try:
+                            value = Municipio.objects.get(
+                                nome__iexact=municipio.strip(),
+                                uf__sigla=uf.strip()).pk
+                        except:
+                            value = None
+                            reg[self.ERROS].append(
+                                "Impossivel identificar o Municipio de "
+                                "residencia do Presidente"
+                            )
+                            continue
+                    if key == self.PRESIDENTE_REDES_SOCIAIS:
+                        value = value.replace(" ", "\r")
+                    if key == self.PRESIDENTE_DATA_NASCIMENTO:
+                        sd = value.split('/')
+                        if len(sd) < 3:
+                            reg[self.ERROS].append(
+                                "Data de nascimento do presidente esta em um "
+                                "formato nao reconhecido. Use DD/MM/AAAA"
+                            )
+                            continue
+                        else:
+                            value = "{ano}-{mes}-{dia}".format(
+                                ano=sd[2],
+                                mes=sd[1],
+                                dia=sd[0]
+                            )
+                    if value != getattr(presidente, field_name):
+                        setattr(presidente, field_name, value)
+            try:
+                presidente.save()
+            except Exception as e:
+                reg[self.ERROS].append(
+                    "Erro salvando presidente: '{message}'".format(
+                        message=e.message)
+                )
+
+            if len(reg[self.ERROS]) > 0:
+                self.errors.append(reg)
+
+        return len(self.errors) == 0
 
 # @param qs: queryset
 # @param o: (int) number of order field

@@ -1,5 +1,6 @@
 # coding: utf-8
 from django.conf.urls import patterns, url
+from sigi.apps.casas.views import importa_casas
 
 
 urlpatterns = patterns(
@@ -35,4 +36,7 @@ urlpatterns = patterns(
     url(r'^orgao/carrinho/deleta_itens_carrinho$', 'deleta_itens_carrinho', name='deleta-itens-carrinho'),  # Error
     url(r'^portfolio/$', 'portfolio', name='casas-portfolio'),
     url(r'^carteira/$', 'painel_relacionamento', name='casas-carteira'),
+
+    # Atualização por CSV
+    url(r'^orgao/importa/$', importa_casas.as_view(), name='importar-casas'),
 )
