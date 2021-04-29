@@ -49,6 +49,12 @@ main_menu:
       url: eventos/calendario
     - title: Alocação de equipe
       url: eventos/alocacaoequipe/
+  - title: Servidores
+    children:
+    - title: Serviços (unidades do ILB)
+      url: servidores/servico/
+    - title: Servidores e colaboradores
+      url: servidores/servidor/
   - title: Tabelas auxiliares
     children:
     - title: Tipos de órgãos

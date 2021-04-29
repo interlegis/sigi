@@ -32,7 +32,12 @@ class Servico(models.Model):
         return u"{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
 
 class Servidor(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, unique=True)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
     nome_completo = models.CharField(max_length=128)
     apelido = models.CharField(max_length=50, blank=True)
     foto = models.ImageField(
@@ -56,6 +61,11 @@ class Servidor(models.Model):
 
     def __unicode__(self):
         return self.nome_completo
+
+    def save(self, *args, **kwargs):
+        if self.user is not None:
+            Servidor.objects.filter(user=self.user).update(user=None)
+        return super(Servidor, self).save(*args, **kwargs)
 
 # Soluçao alternativa para extender o usuário do django
 # Acessa do servidor de um objeto user criando um profile
