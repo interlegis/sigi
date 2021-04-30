@@ -47,6 +47,15 @@ class importa_casas(View):
     PRESIDENTE_BAIRRO = 'presidente_bairro'
     PRESIDENTE_CEP = 'presidente_cep'
     PRESIDENTE_REDES_SOCIAIS = 'presidente_redes_sociais'
+    SERVIDOR_NOME = 'contato_nome'
+    SERVIDOR_DATA_NASCIMENTO = 'contato_data_nascimento'
+    SERVIDOR_TELEFONES = 'contato_telefones'
+    SERVIDOR_EMAILS = 'contato_emails'
+    SERVIDOR_ENDERECO = 'contato_endereco'
+    SERVIDOR_MUNICIPIO = 'contato_municipio'
+    SERVIDOR_BAIRRO = 'contato_bairro'
+    SERVIDOR_CEP = 'contato_cep'
+    SERVIDOR_REDES_SOCIAIS = 'contato_redes_sociais'
     ERROS = 'erros_importacao'
 
     fieldnames = [TIPO, MUNICIPIO, UF, ORGAO_ENDERECO, ORGAO_BAIRRO, ORGAO_CEP,
@@ -54,7 +63,9 @@ class importa_casas(View):
                   PRESIDENTE_DATA_NASCIMENTO, PRESIDENTE_TELEFONES,
                   PRESIDENTE_EMAILS, PRESIDENTE_ENDERECO, PRESIDENTE_MUNICIPIO,
                   PRESIDENTE_BAIRRO, PRESIDENTE_CEP, PRESIDENTE_REDES_SOCIAIS,
-                  ERROS,]
+                  SERVIDOR_NOME, SERVIDOR_DATA_NASCIMENTO, SERVIDOR_TELEFONES,
+                  SERVIDOR_EMAILS, SERVIDOR_ENDERECO, SERVIDOR_MUNICIPIO,
+                  SERVIDOR_BAIRRO, SERVIDOR_CEP, SERVIDOR_REDES_SOCIAIS, ERROS,]
 
     ID_FIELDS = {TIPO, MUNICIPIO, UF}
 
@@ -77,6 +88,18 @@ class importa_casas(View):
         PRESIDENTE_BAIRRO: 'bairro',
         PRESIDENTE_CEP: 'cep',
         PRESIDENTE_REDES_SOCIAIS: 'redes_sociais',
+    }
+
+    SERVIDOR_FIELDS = {
+        SERVIDOR_NOME: 'nome',
+        SERVIDOR_DATA_NASCIMENTO: 'data_nascimento',
+        SERVIDOR_TELEFONES: 'nota',
+        SERVIDOR_EMAILS: 'email',
+        SERVIDOR_ENDERECO: 'endereco',
+        SERVIDOR_MUNICIPIO: 'municipio_id',
+        SERVIDOR_BAIRRO: 'bairro',
+        SERVIDOR_CEP: 'cep',
+        SERVIDOR_REDES_SOCIAIS: 'redes_sociais',
     }
 
     def get(self, request):
@@ -136,6 +159,85 @@ class importa_casas(View):
                 {'form': form, 'error': u"Erro no preenchimento do formulário."}
             )
 
+    # Atualiza ou cria funcionário
+    def funcionario_update(self, setor, fields, orgao, reg):
+        field_nome = (self.PRESIDENTE_NOME if setor == 'presidente' else
+                      self.SERVIDOR_NOME)
+        funcionario = orgao.funcionario_set.filter(
+            setor=setor,
+            nome__iexact=reg[field_nome].strip()
+        )
+
+        if funcionario.count() == 0:
+            funcionario = Funcionario(
+                casa_legislativa=orgao,
+                nome=reg[field_nome].strip(),
+                setor=setor
+            )
+        else:
+            funcionario = funcionario.first() #HACK: Sempre atualiza o primeiro
+
+        for key in fields:
+            field_name = fields[key]
+            if key in reg:
+                value = reg[key].strip()
+            else:
+                value = ""
+
+            if value != "":
+                if field_name == 'municipio_id':
+                    if ',' in value:
+                        municipio, uf = value.split(',')
+                    else:
+                        municipio = value
+                        uf = reg[self.UF]
+
+                    try:
+                        value = Municipio.objects.get(
+                            nome__iexact=municipio.strip(),
+                            uf__sigla=uf.strip()).pk
+                    except:
+                        value = None
+                        reg[self.ERROS].append(
+                            "Impossivel identificar o Municipio de "
+                            "residencia do {contato}".format(
+                                contato="Presidente" if setor == 'presidente'
+                                else "Contato")
+                        )
+                        continue
+                if field_name == 'redes_sociais':
+                    value = value.replace(" ", "\r")
+                if field_name == 'data_nascimento':
+                    sd = value.split('/')
+                    if len(sd) < 3:
+                        reg[self.ERROS].append(
+                            "Data de nascimento do {contato} esta em um "
+                            "formato nao reconhecido. Use DD/MM/AAAA".format(
+                                contato="Presidente" if setor == 'presidente'
+                                else "Contato"
+                            )
+                        )
+                        continue
+                    else:
+                        value = "{ano}-{mes}-{dia}".format(
+                            ano=sd[2],
+                            mes=sd[1],
+                            dia=sd[0]
+                        )
+                if value != getattr(funcionario, field_name):
+                    setattr(funcionario, field_name, value)
+        try:
+            funcionario.save()
+        except Exception as e:
+            reg[self.ERROS].append(
+                "Erro salvando {contato}: '{message}'".format(
+                    message=e.message,
+                    contato="Presidente" if setor == 'presidente'
+                    else "Contato")
+            )
+
+        return reg
+
     def importa(self, reader):
         self.errors = []
         self.total_registros = 0
@@ -185,65 +287,12 @@ class importa_casas(View):
                     )
 
             # Atualiza o presidente
-            presidente = orgao.presidente
+            reg = self.funcionario_update("presidente", self.PRESIDENTE_FIELDS,
+                                          orgao, reg)
 
-            if presidente is None:
-                presidente = Funcionario(
-                    casa_legislativa=orgao,
-                    setor="presidente"
-                )
-
-            for key in self.PRESIDENTE_FIELDS:
-                field_name = self.PRESIDENTE_FIELDS[key]
-                if key in reg:
-                    value = reg[key].strip()
-                else:
-                    value = ""
-
-                if value != "":
-                    if key == self.PRESIDENTE_MUNICIPIO:
-                        if ',' in value:
-                            municipio, uf = value.split(',')
-                        else:
-                            municipio = value
-                            uf = reg[self.UF]
-
-                        try:
-                            value = Municipio.objects.get(
-                                nome__iexact=municipio.strip(),
-                                uf__sigla=uf.strip()).pk
-                        except:
-                            value = None
-                            reg[self.ERROS].append(
-                                "Impossivel identificar o Municipio de "
-                                "residencia do Presidente"
-                            )
-                            continue
-                    if key == self.PRESIDENTE_REDES_SOCIAIS:
-                        value = value.replace(" ", "\r")
-                    if key == self.PRESIDENTE_DATA_NASCIMENTO:
-                        sd = value.split('/')
-                        if len(sd) < 3:
-                            reg[self.ERROS].append(
-                                "Data de nascimento do presidente esta em um "
-                                "formato nao reconhecido. Use DD/MM/AAAA"
-                            )
-                            continue
-                        else:
-                            value = "{ano}-{mes}-{dia}".format(
-                                ano=sd[2],
-                                mes=sd[1],
-                                dia=sd[0]
-                            )
-                    if value != getattr(presidente, field_name):
-                        setattr(presidente, field_name, value)
-            try:
-                presidente.save()
-            except Exception as e:
-                reg[self.ERROS].append(
-                    "Erro salvando presidente: '{message}'".format(
-                        message=e.message)
-                )
+            # Atualiza o contato
+            reg = self.funcionario_update("outros", self.SERVIDOR_FIELDS,
+                                          orgao, reg)
 
             if len(reg[self.ERROS]) > 0:
                 self.errors.append(reg)
