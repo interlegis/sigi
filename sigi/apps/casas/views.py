@@ -268,7 +268,8 @@ class importa_casas(View):
                 if key in reg:
                     value = reg[key].strip()
                     if key == self.ORGAO_TELEFONES:
-                        for numero in value.split(" "):
+                        for numero in value.split(";"):
+                            numero = numero.strip()
                             try:
                                 orgao.telefones.update_or_create(numero=numero)
                             except:
