@@ -45,12 +45,19 @@ class ServicoAdmin(admin.ModelAdmin):
 class ServidorAdmin(BaseModelAdmin):
     list_display = ('imagem_foto', 'nome_completo', 'is_active', 'servico', )
     list_display_links = ('imagem_foto', 'nome_completo',)
-    list_filter = ('user__is_active', 'servico',)
+    list_filter = ('user__is_active', 'externo', 'servico')
     search_fields = ('nome_completo', 'user__email', 'user__first_name',
                      'user__last_name', 'user__username', 'servico__nome',
                      'servico__sigla')
     raw_id_fields = ('user',)
-    fields = ['user', 'nome_completo', 'foto', 'servico',]
+    fieldsets = (
+        (None, {
+            'fields': ('user', 'nome_completo', 'foto', 'servico',)
+        }),
+        (_(u"outros órgãos"), {
+            'fields': ('externo', 'orgao_origem', 'qualificacoes'),
+        }),
+    )
 
     def lookup_allowed(self, lookup, value):
         return super(ServidorAdmin, self).lookup_allowed(lookup, value) or \

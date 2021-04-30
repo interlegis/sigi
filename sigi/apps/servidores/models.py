@@ -54,6 +54,12 @@ class Servidor(models.Model):
         blank=True,
         null=True
     )
+    externo = models.BooleanField(_(u"colaborador externo"), default=False)
+    orgao_origem = models.CharField(
+        _(u"órgão de origem, "),
+        max_length=100, blank=True
+    )
+    qualificacoes = models.TextField(_(u"qualificações"), blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
