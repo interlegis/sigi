@@ -379,11 +379,11 @@ class Funcionario(models.Model):
     )
     nota = models.CharField(
         _(u"Telefones"),
-        max_length=70,
+        max_length=250,
         null=True,
         blank=True
     )
-    email = models.CharField(_(u'e-mail'), max_length=75, blank=True)
+    email = models.CharField(_(u'e-mail'), max_length=250, blank=True)
     # endereco = generic.GenericRelation('contatos.Endereco')
     endereco = models.CharField(_(u'Endereço'), max_length=100, blank=True)
     municipio = models.ForeignKey(
