@@ -208,11 +208,22 @@ class ConveniosInline(admin.TabularInline):
 
 class ServicoInline(admin.TabularInline):
     model = Servico
-    fields = ['url', 'contato_tecnico', 'contato_administrativo', 'hospedagem_interlegis', 'data_ativacao', 'data_alteracao', 'data_desativacao']
-    readonly_fields = ['url', 'contato_tecnico', 'contato_administrativo', 'hospedagem_interlegis', 'data_ativacao', 'data_alteracao', 'data_desativacao']
+    fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
+              'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
+              'data_desativacao')
+    readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
+                       'hospedagem_interlegis', 'data_ativacao',
+                       'data_alteracao', 'data_desativacao']
     extra = 0
     max_num = 0
     can_delete = False
+
+    def link_url(self, servico):
+        if servico.data_desativacao is not None:
+            return servico.url
+        return u'<a href="{url}" target="_blank">{url}</a>'.format(url=servico.url)
+    link_url.short_description = _(u'URL do serviço')
+    link_url.allow_tags = True
 
 # class PlanoDiretorInline(admin.TabularInline):
 #     model = PlanoDiretor
@@ -302,7 +313,7 @@ class ServicoFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
-
+@admin.register(Orgao)
 class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = OrgaoForm
     actions = ['adicionar_casas', ]
@@ -339,11 +350,9 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     search_fields = ('search_text', 'sigla', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
-    # filter_horizontal = ('gerentes_interlegis',)
 
     def get_uf(self, obj):
         return obj.municipio.uf.nome
-
     get_uf.short_description = _(u'Unidade da Federação')
     get_uf.admin_order_field = 'municipio__uf__nome'
 
@@ -353,16 +362,16 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     get_gerentes.allow_tags = True
 
     def get_convenios(self, obj):
-        return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__() for c in obj.convenio_set.all()]) + '</ul>'
-
+        return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__()
+                                 for c in obj.convenio_set.all()]) + '</ul>'
     get_convenios.short_description = _(u'Convênios')
     get_convenios.allow_tags = True
 
     def get_servicos(self, obj):
-        return '<ul>' + ''.join(['<li>%s</li>' % s.__unicode__()
-                                 for s in obj.servico_set.filter(
-                                     data_desativacao__isnull=True)]) + '</ul>'
-
+        return u'<ul>' + u''.join(
+            [u'<li><a href="{url}" target="_blank">{servico}</a></li>'.format(
+                url=s.url, servico=s.__unicode__()) for s in
+             obj.servico_set.filter(data_desativacao__isnull=True)]) + u'</ul>'
     get_servicos.short_description = _(u'Serviços')
     get_servicos.allow_tags = True
 
@@ -381,28 +390,29 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def etiqueta(self, request, queryset):
         return labels_report(request, queryset=queryset)
-
-    etiqueta.short_description = _(u"Gerar etiqueta(s) da(s) casa(s) selecionada(s)")
+    etiqueta.short_description = _(u"Gerar etiqueta(s) da(s) casa(s) "
+                                   u"selecionada(s)")
 
     def etiqueta_sem_presidente(self, request, queryset):
         return labels_report_sem_presidente(request, queryset=queryset)
-
-    etiqueta_sem_presidente.short_description = _(u"Gerar etiqueta(s) sem presidente da(s) casa(s) selecionada(s)")
+    etiqueta_sem_presidente.short_description = _(u"Gerar etiqueta(s) sem "
+                                                  u"presidente da(s) casa(s) "
+                                                  u"selecionada(s)")
 
     def relatorio(self, request, queryset):
         return report(request, queryset=queryset)
-
-    relatorio.short_description = _(u"Exportar a(s) casa(s) selecionada(s) para PDF")
+    relatorio.short_description = _(u"Exportar a(s) casa(s) selecionada(s) "
+                                    u"para PDF")
 
     def relatorio_completo(self, request, queryset):
         return report_complete(request, queryset=queryset)
-
-    relatorio_completo.short_description = _(u"Gerar relatório completo da(s) casa(s) selecionada(s)")
+    relatorio_completo.short_description = _(u"Gerar relatório completo da(s) "
+                                             u"casa(s) selecionada(s)")
 
     def relatorio_csv(self, request, queryset):
         return export_csv(request)
-
-    relatorio_csv.short_description = _(u"Exportar casa(s) selecionada(s) para CSV")
+    relatorio_csv.short_description = _(u"Exportar casa(s) selecionada(s) "
+                                        u"para CSV")
 
     def adicionar_casas(self, request, queryset):
         if 'carrinho_casas' in request.session:
@@ -414,12 +424,15 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
         q2 = len(request.session['carrinho_casas'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + " " + _(u"Casas Legislativas adicionadas no carrinho"))
+            self.message_user(request, str(q2 - q1) + " " +
+                              _(u"Casas Legislativas adicionadas no carrinho"))
         else:
-            self.message_user(request, _(u"As Casas Legislativas selecionadas já foram adicionadas anteriormente"))
+            self.message_user(request, _(u"As Casas Legislativas selecionadas "
+                                         u"já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
 
-    adicionar_casas.short_description = _(u"Armazenar casas no carrinho para exportar")
+    adicionar_casas.short_description = _(u"Armazenar casas no carrinho para "
+                                          u"exportar")
 
     def get_actions(self, request):
         actions = super(OrgaoAdmin, self).get_actions(request)
@@ -427,6 +440,4 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
             del actions['delete_selected']
         return actions
 
-
-admin.site.register(Orgao, OrgaoAdmin)
 admin.site.register(TipoOrgao)
