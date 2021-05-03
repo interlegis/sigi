@@ -103,10 +103,16 @@ class importa_casas(View):
     }
 
     def get(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+
         form = AtualizaCasaForm()
         return render(request, 'casas/importar.html', {'form': form})
 
     def post(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+
         form = AtualizaCasaForm(request.POST, request.FILES)
 
         if form.is_valid():
