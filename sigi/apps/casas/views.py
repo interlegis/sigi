@@ -163,6 +163,12 @@ class importa_casas(View):
     def funcionario_update(self, setor, fields, orgao, reg):
         field_nome = (self.PRESIDENTE_NOME if setor == 'presidente' else
                       self.SERVIDOR_NOME)
+
+        # Se não tem nome do contato (ou presidente), então não há nada a
+        # atualizar. Volta o reg inalterado.
+        if field_nome not in reg:
+            return reg
+
         funcionario = orgao.funcionario_set.filter(
             setor=setor,
             nome__iexact=reg[field_nome].strip()
