@@ -110,28 +110,16 @@ class ConvenioAdmin(BaseModelAdmin):
     link_sigad.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
-        def normaliza_data(nome_param):
-            import re
-            if nome_param in request.GET:
-                value = request.GET.get(nome_param, '')
-                if value == '':
-                    del request.GET[nome_param]
-                elif re.match('^\d*$', value):  # Year only
-                    # Complete with january 1st
-                    request.GET[nome_param] = "%s-01-01" % value
-                elif re.match('^\d*\D\d*$', value):  # Year and month
-                    # Complete with 1st day of month
-                    request.GET[nome_param] = '%s-01' % value
-
+        from sigi.apps.convenios.views import normaliza_data
         request.GET._mutable = True
-        normaliza_data('data_retorno_assinatura__gte')
-        normaliza_data('data_retorno_assinatura__lte')
-        normaliza_data('data_sigad__gte')
-        normaliza_data('data_sigad__lte')
-        normaliza_data('data_sigi__gte')
-        normaliza_data('data_sigi__lte')
-        normaliza_data('data_solicitacao__gte')
-        normaliza_data('data_solicitacao__lte')
+        normaliza_data(request.GET, 'data_retorno_assinatura__gte')
+        normaliza_data(request.GET, 'data_retorno_assinatura__lte')
+        normaliza_data(request.GET, 'data_sigad__gte')
+        normaliza_data(request.GET, 'data_sigad__lte')
+        normaliza_data(request.GET, 'data_sigi__gte')
+        normaliza_data(request.GET, 'data_sigi__lte')
+        normaliza_data(request.GET, 'data_solicitacao__gte')
+        normaliza_data(request.GET, 'data_solicitacao__lte')
         request.GET._mutable = False
 
         return super(ConvenioAdmin, self).changelist_view(

@@ -36,10 +36,32 @@ def query_ordena(qs, o, ot):
         qs = qs.order_by("-" + aux)
     return qs
 
+def normaliza_data(get, nome_param):
+    import re
+    if nome_param in get:
+        value = get.get(nome_param, '')
+        if value == '':
+            del get[nome_param]
+        elif re.match('^\d*$', value):  # Year only
+            # Complete with january 1st
+            get[nome_param] = "%s-01-01" % value
+        elif re.match('^\d*\D\d*$', value):  # Year and month
+            # Complete with 1st day of month
+            get[nome_param] = '%s-01' % value
 
 def get_for_qs(get, qs):
     kwargs = {}
     ids = 0
+    get._mutable = True
+    normaliza_data(get, 'data_retorno_assinatura__gte')
+    normaliza_data(get, 'data_retorno_assinatura__lte')
+    normaliza_data(get, 'data_sigad__gte')
+    normaliza_data(get, 'data_sigad__lte')
+    normaliza_data(get, 'data_sigi__gte')
+    normaliza_data(get, 'data_sigi__lte')
+    normaliza_data(get, 'data_solicitacao__gte')
+    normaliza_data(get, 'data_solicitacao__lte')
+    get._mutable = False
     for k, v in get.iteritems():
         if k not in ['page', 'pop', 'q', '_popup']:
             if not k == 'o':
@@ -50,8 +72,7 @@ def get_for_qs(get, qs):
                     if(str(k) == 'ids'):
                         ids = 1
                         break
-                    qs = qs.filter(**kwargs)
-
+    qs = qs.filter(**kwargs)
     if ids:
         query = 'id IN (' + kwargs['ids'].__str__() + ')'
         qs = Convenio.objects.extra(where=[query])
