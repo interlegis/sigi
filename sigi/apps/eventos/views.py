@@ -306,10 +306,6 @@ def export_csv(request):
             value = ""
         return unicode(value).encode('utf8')
 
-    eventos_fields = Evento._meta.fields
-    equipe_fields = Equipe._meta.fields
-    convite_fields = Convite._meta.fields
-
     eventos = carrinhoOrGet_for_qs(request)
     eventos.select_related('equipe', 'convite')
 
@@ -318,17 +314,13 @@ def export_csv(request):
         return HttpResponseRedirect('../')
 
     max_equipe = max([e.equipe_set.count() for e in eventos])
-    max_convite = max([e.convite_set.count() for e in eventos])
 
-    head = [f.verbose_name.encode('utf8') for f in eventos_fields
-            if f.name != 'id']
+    head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
     head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
                  for i in range(max_equipe) for f in Equipe._meta.fields
                  if f.name not in ('id', 'evento')])
-    head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
-                 for i in range(max_convite) for f in Convite._meta.fields
+    head.extend([f.verbose_name.encode('utf8') for f in Convite._meta.fields
                  if f.name not in ('id', 'evento')])
-    head.append('total_participantes')
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=eventos.csv'
@@ -338,8 +330,7 @@ def export_csv(request):
 
     for evento in eventos:
         reg = {f.verbose_name.encode('utf8'): serialize(evento, f)
-               for f in Evento._meta.fields if f.name != 'id'}
-        reg['total_participantes'] = 0
+               for f in Evento._meta.fields}
         idx = 1
         for membro in evento.equipe_set.all():
             reg.update(
@@ -350,18 +341,15 @@ def export_csv(request):
                 }
             )
             idx += 1
-        idx = 1
         for convite in evento.convite_set.all():
             reg.update(
-                {
-                    "{0}_{1}".format(f.verbose_name.encode('utf8'), idx):
-                        serialize(convite, f) for f in Convite._meta.fields
-                        if f.name not in ('id', 'evento')
-                }
+                {f.verbose_name.encode('utf8'): serialize(convite, f)
+                 for f in Convite._meta.fields
+                 if f.name not in ('id', 'evento')}
             )
-            reg['total_participantes'] += convite.qtde_participantes
-            idx += 1
-        writer.writerow(reg)
+            writer.writerow(reg)
+        if evento.convite_set.count() == 0:
+            writer.writerow(reg)
 
     return response
 
