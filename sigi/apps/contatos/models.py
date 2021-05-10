@@ -190,10 +190,13 @@ class Telefone(models.Model):
     ult_alteracao = models.DateTimeField(_(u'Última alteração'), null=True, blank=True, editable=False, auto_now=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('numero',)
@@ -224,10 +227,13 @@ class Contato(models.Model):
     )
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('nome',)
@@ -317,10 +323,13 @@ class Endereco(models.Model):
     municipio.uf_filter = True
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('logradouro', 'numero')

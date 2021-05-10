@@ -84,10 +84,7 @@ class Bem(models.Model):
         on_delete=models.CASCADE
     )
     equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE)
-    fornecedor = models.ForeignKey(
-        Fornecedor,
-        on_delete=models.PROTECT
-    )
+    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT)
     num_serie = models.CharField(
         _(u'número de série'),
         max_length=64,

@@ -215,7 +215,7 @@ class CasaAtendida(Orgao):
 
 
 class CasaManifesta(models.Model):
-    casa_legislativa = models.OneToOneField(Orgao)
+    casa_legislativa = models.OneToOneField(Orgao, on_delete=models.CASCADE)
     data_manifestacao = models.DateTimeField(auto_now_add=True)
     data_atualizacao = models.DateTimeField(auto_now=True)
     informante = models.CharField(_(u'Nome do informante'), max_length=100, blank=True)
