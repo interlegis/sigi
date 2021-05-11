@@ -319,7 +319,7 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
                ConveniosInline, ServicoInline, OcorrenciaInline,)
-    list_display = ('sigla', 'nome', 'get_uf', 'get_gerentes', 'get_convenios',
+    list_display = ('id', 'sigla', 'nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
     list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
