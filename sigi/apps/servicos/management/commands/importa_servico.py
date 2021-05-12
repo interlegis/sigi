@@ -27,11 +27,12 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
             if (not 'TEMPLATE' in reader.fieldnames or
                 not 'NAME' in reader.fieldnames or
                 not 'COD_ORGAO' in reader.fieldnames):
+                print reader.fieldnames
                 raise CommandError(u"Formato inválido do arquivo.")
             self.stdout.write(u'Estrutura parece ok.')
             self.stdout.write("Preparando dados...")
             casas = {
-                to_ascii(c.municipio.nome).replace(' ','').replace('-','').lower()
+                to_ascii(c.municipio.nome).replace(' ','').replace('-','').replace("'", '').lower()
                 + '-' + to_ascii(c.municipio.uf.sigla).lower(): c.pk
                 for c in Orgao.objects.filter(tipo__sigla='CM')
             }
@@ -53,29 +54,35 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
             can_deactivate = True
 
             for rec in reader:
-                nome = rec['NAME']
-                sigla = rec['TEMPLATE']
+                name = rec['NAME']
+                template = rec['TEMPLATE']
                 cod_orgao = rec['COD_ORGAO']
 
-                if sigla == 'DNS':
-                    dominio = nome
-                    if '.leg.br' in nome:
-                        nome = nome.replace('.leg.br', '')
+                if template == 'DNS':
+                    s = name.split('.')
+                    nome_casa = s[0]+"-"+s[1]
+                    dominio = s[0]
+                    sufixo = ".".join(s[1:])
+                    if '.leg.br' in name:
                         sigla = 'LEGBR'
-                    elif '.gov.br' in nome:
-                        nome = nome.replace('.gov.br', '')
-                        if nome.startswith('camara'):
-                            nome = nome.replace('camara', '')
-                        if nome.startswith('cm'):
-                            nome = nome.replace('cm','')
+                    elif '.gov.br' in name:
                         sigla = 'GOVBR'
-                    nome = nome.replace('.', '-')
                 else:
-                    dominio = nome.replace('-','.')+'.leg.br'
+                    s = name.split("-")
+                    nome_casa = name
+                    dominio = name[0]
+                    sufixo = ".".join(s[1:]) + '.leg.br'
+                    sigla = template
 
-                url = u"https://{subdominio}.{dominio}".format(
+                if nome_casa.startswith('camara'):
+                    nome_casa = nome_casa.replace('camara', '')
+                if nome_casa.startswith('cm'):
+                    nome_casa = nome_casa.replace('cm','')
+
+                url = u"https://{subdominio}.{dominio}.{sufixo}".format(
                     subdominio=subdominios[sigla],
-                    dominio=dominio
+                    dominio=dominio,
+                    sufixo=sufixo
                 )
                 tipo_servico = TipoServico.objects.get(sigla=sigla)
                 lista_tipos.add(tipo_servico)
@@ -85,33 +92,67 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                         self.stdout.write(
                             "{template} {name} {cod_orgao} "
                             "registro ignorado".format(
-                                template=rec['TEMPLATE'],
-                                name=rec['NAME'],
-                                cod_orgao=rec['COD_ORGAO']
+                                template=template,
+                                name=name,
+                                cod_orgao=cod_orgao
                             )
                         )
                         continue
                     else:
-                        casa = Orgao.objects.get(id=cod_orgao)
-                else:
-                    if nome not in casas:
-                        self.stdout.write(
-                            "{template} {name} {cod_orgao} "
-                            "orgao nao encontrado ({s})".format(
-                                template=rec['TEMPLATE'],
-                                name=rec['NAME'],
-                                cod_orgao=rec['COD_ORGAO'],
-                                s=nome
+                        try:
+                            casa = Orgao.objects.get(id=cod_orgao)
+                        except Orgao.DoesNotExist:
+                            self.stdout.write(
+                                "{template} {name} {cod_orgao} "
+                                "codigo inexistente".format(
+                                    template=template,
+                                    name=name,
+                                    cod_orgao=cod_orgao
+                                )
                             )
-                        )
-                        can_deactivate = False
-                        continue
-                    casa = Orgao.objects.get(id=casas[nome])
+                            can_deactivate = False
+                            continue
+                else:
+                    if nome_casa in casas:
+                        casa = Orgao.objects.get(id=casas[nome_casa])
+                    else:
+                        # Nome pode divergir, vamos procurar pelo domínio
+                        try:
+                            servico = Servico.objects.get(
+                                url__icontains=dominio,
+                                tipo_servico=tipo_servico
+                            )
+                            servico.save()
+                            continue
+                        except (Servico.DoesNotExist,
+                                Servico.MultipleObjectsReturned):
+                            # tenta descobrir outro serviço do mesmo domínio
+                            casa = None
+                            for servico in Servico.objects.filter(
+                                url__icontains=dominio):
+                                if casa is None:
+                                    casa = servico.casa_legislativa
+                                elif casa != servico.casa_legislativa:
+                                    # Mais de uma casa usando o mesmo domínio!!!
+                                    casa = None
+                                    break
+                        if casa is None: # Impossível identificar a casa
+                            self.stdout.write(
+                                "{template} {name} {cod_orgao} "
+                                "orgao nao encontrado ({s})".format(
+                                    template=template,
+                                    name=name,
+                                    cod_orgao=cod_orgao,
+                                    s=nome_casa
+                                )
+                            )
+                            can_deactivate = False
+                            continue
 
                 try:
                     contato, created = casa.funcionario_set.get_or_create(
                         setor='contato_interlegis',
-                        defaults={'nome': u"<<CRIADO PELO SISTEMA>>"}
+                        defaults={'nome': u"<<CRIADO PELA IMPORTAÇÃO DE SERVIÇOS SEIT>>"}
                     )
                 except Funcionario.MultipleObjectsReturned:
                     contato = casa.funcionario_set.filter(
@@ -133,12 +174,15 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                     servico.save()
                 except Servico.MultipleObjectsReturned:
                     self.stdout.write(
-                        u"{template} {name} mais de um servico encontrado "
-                        u"({s})".format(template=rec['TEMPLATE'],
-                                        name=rec['NAME'], s=nome)
+                        u"{template} {name} {cod_orgao} mais de um servico "
+                        u"encontrado ({s})".format(
+                            template=template,
+                            name=name,
+                            cod_orgao=cod_orgao,
+                            s=nome_casa
+                        )
                     )
                     can_deactivate = False
-
 
             if can_deactivate:
                 for tipo_servico in lista_tipos:
