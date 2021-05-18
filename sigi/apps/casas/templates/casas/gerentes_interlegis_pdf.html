@@ -1,0 +1,143 @@
+{% load static from staticfiles %}
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>Casa Legislativa</title>
+  <style type="text/css">
+    table {
+      padding: 3px;
+      line-height: 1em;
+      -fs-table-paginate: paginate;
+    }
+    thead {
+      display: table-header-group;
+    }
+    th {
+      font-weight: bold;
+      text-align: left;
+    }
+    th, td {
+      border-bottom: 1px solid #ddd;
+      vertical-align: top;
+    }
+    td.logo {
+      text-align: center;
+    }
+    td.header_text p {
+      margin: 0px;
+      font-size: 1.4em;
+    }
+    td.header_text {
+      width: 550px;
+    }
+    ul {
+      list-style-type: none;
+      padding-left: 15px;
+    }
+    li {
+      padding-left: 5px;
+      color: #999;
+    }
+    li.selected {
+      list-style-type: disc;
+      color: #000;
+      font-weight: bold;
+    }
+    p.strong {
+      margin-left: 25px;
+      line-height: 1em;
+    }
+    h1 {
+      font-size: 2em;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.7em;
+    }
+    h3 {
+      margin-top: 10px;
+      margin-bottom: 0px;
+    }
+    body {
+      font-family: "Helvetica, Arial, sans-serif";
+      font-size: 1.3em;
+      line-height: 1em;
+    }
+    div.new_page {
+      page-break-before: always;
+    }
+    div.same_page_ {
+      -pdf-keep-with-next: true;
+    }
+    .text-right {
+      text-align: right;
+    }
+    @page {
+      margin: 4cm 1cm 1cm 2cm;
+      font-family: "Helvetica, Arial, sans-serif";
+      font-size: 2em;
+      @frame header {
+          -pdf-frame-content: header;
+          top: 1cm;
+      }
+      @frame footer {
+          -pdf-frame-content: footer;
+          bottom: 0cm;
+          margin-left: 9cm;
+          margin-right: 9cm;
+          height: 1cm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="header">
+    <table>
+      <tr>
+        <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}"/></td>
+          <td class="header_text">
+            <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
+            <p><strong>{% trans 'ILB - Interlegis' %}</strong></p>
+            <p>{% trans 'Gerentes Interlegis' %}</p>
+          </td>
+        <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}"/></td>
+      </tr>
+    </table>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Gerente Interlegis</th>
+        <th>UF</th>
+        <th>Número de casas</th>
+      </tr>
+    </thead>
+    {% for linha in gerentes %}
+      {% for uf in linha.ufs %}
+      <tr>
+      {% if forloop.first %}
+        <td>{{ linha.gerente.nome_completo }}</td>
+      {% else %}
+        <td>&nbsp;</td>
+      {% endif %}
+        <td>{{ uf.1 }}</td>
+        <td class="text-right">{{ uf.2.count }}</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td colspan="2"><strong>Total de casas atendidas por {{ linha.gerente.nome_completo }}</strong></td>
+        <td class="text-right"><strong>{{ linha.gerente.casas_que_gerencia.count }}</strong></td>
+      </tr>
+    {% endfor %}
+  </table>
+
+  <div id="footer">
+    {%block page_foot%}
+      {% trans 'Página' %} <pdf:pagenumber>
+    {%endblock%}
+  </div>
+</body>
+</html>

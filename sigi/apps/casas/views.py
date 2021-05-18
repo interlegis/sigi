@@ -1035,3 +1035,65 @@ def painel_relacionamento(request):
         return render(request, 'casas/resumo_carteira_snippet.html', context)
 
     return render(request, 'casas/painel.html', context)
+
+@login_required
+def gerentes_interlegis(request):
+    formato = request.GET.get('fmt', 'html')
+    inclui_casas = (request.GET.get('casas', 'no') == 'yes')
+    gerentes = Servidor.objects.exclude(
+        casas_que_gerencia=None).select_related('casas_que_gerencia')
+    dados = []
+    for gerente in gerentes:
+        row = {'gerente': gerente, 'ufs': []}
+        for uf in (gerente.casas_que_gerencia.distinct('municipio__uf__sigla')
+                    .order_by('municipio__uf__sigla')
+                    .values_list('municipio__uf__sigla', 'municipio__uf__nome')
+                    ):
+            row['ufs'].append((
+                uf[0],
+                uf[1],
+                gerente.casas_que_gerencia.filter(municipio__uf__sigla=uf[0])
+            ))
+        dados.append(row)
+
+    if formato == 'pdf':
+        return render_to_pdf(
+            'casas/gerentes_interlegis_pdf.html',
+            {'gerentes': dados}
+        )
+    elif formato == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = ('attachment; '
+                                           'filename="gerentes_interlegis.csv"')
+        fieldnames = ['gerente', 'total_casas', 'uf', 'total_casas_uf']
+        if inclui_casas:
+            fieldnames.append('casa_legislativa')
+        writer = csv.DictWriter(response, fieldnames=fieldnames)
+        writer.writeheader()
+        for linha in dados:
+            rec = {
+                'gerente': linha['gerente'].nome_completo.encode('utf8'),
+                'total_casas': linha['gerente'].casas_que_gerencia.count()
+            }
+            for uf in linha['ufs']:
+                rec['uf'] = uf[1].encode('utf8')
+                rec['total_casas_uf'] = uf[2].count()
+                if inclui_casas:
+                    for casa in uf[2]:
+                        rec['casa_legislativa'] = casa.nome.encode('utf8')
+                        writer.writerow(rec)
+                        rec['gerente'] = ''
+                        rec['total_casas'] = ''
+                        rec['uf'] = ''
+                        rec['total_casas_uf'] = ''
+                else:
+                    writer.writerow(rec)
+                    rec['gerente'] = ''
+                    rec['total_casas'] = ''
+        return response
+
+    return render(
+        request,
+        'casas/gerentes_interlegis.html',
+        {'gerentes': dados}
+    )

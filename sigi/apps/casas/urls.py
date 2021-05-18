@@ -52,4 +52,6 @@ urlpatterns = patterns(
     # Atualização por CSV
     url(r'^orgao/importa/$', login_required(importa_casas.as_view()),
         name='importar-casas'),
+    url(r'^gerentes/$', 'gerentes_interlegis',
+        name='gerentes_interlegis'),
 )

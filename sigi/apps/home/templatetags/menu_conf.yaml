@@ -23,6 +23,8 @@ main_menu:
       url: casas/carteira
     - title: Organizar relacionamentos
       url: casas/portfolio/
+    - title: Lista de gerentes
+      url: casas/gerentes/
   - title: Convênios
     children:
     - title: Convênios
