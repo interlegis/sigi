@@ -14,11 +14,22 @@ class TipoServico(models.Model):
     email_help = u'''Use:<br/>
                         {url} para incluir a URL do serviço,<br/>
                         {senha} para incluir a senha inicial do serviço'''
-    nome = models.CharField(_(u'Nome'), max_length=60)
-    sigla = models.CharField(_(u'Sigla'), max_length='12')
-    modo = models.CharField(_(u'Modo de prestação do serviço'), max_length=1, choices=MODO_CHOICES)
-    string_pesquisa = models.CharField(_(u'String de pesquisa'), blank=True, max_length=200,
-                                       help_text=_(u'Sufixo para pesquisa RSS para averiguar a data da última atualização do serviço'))
+    string_pesquisa_help = (u"Parâmetros da pesquisa para averiguar a data da "
+                            u"última atualização do serviço. Formato:<br/>"
+                            u"<ul><li>/caminho/da/pesquisa/?parametros "
+                            u"[xml|json] campo.de.data</li>")
+    nome = models.CharField(_(u'nome'), max_length=60)
+    sigla = models.CharField(_(u'sigla'), max_length='12')
+    modo = models.CharField(
+        _(u'modo de prestação do serviço'),
+        max_length=1,
+        choices=MODO_CHOICES
+    )
+    string_pesquisa = models.TextField(
+        _(u'string de pesquisa'),
+        blank=True,
+        help_text=string_pesquisa_help
+    )
     template_email_ativa = models.TextField(_(u'Template de email de ativação'), help_text=email_help, blank=True)
     template_email_altera = models.TextField(_(u'Template de email de alteração'), help_text=email_help, blank=True)
     template_email_desativa = models.TextField(_(u'Template de email de desativação'), help_text=email_help + _(u'<br/>{motivo} para incluir o motivo da desativação do serviço'), blank=True)
@@ -60,30 +71,142 @@ class Servico(models.Model):
         related_name='contato_administrativo'
     )
     url = models.URLField(_(u'URL do serviço'), blank=True)
-    hospedagem_interlegis = models.BooleanField(_(u'Hospedagem no Interlegis?'), default=False)
-    nome_servidor = models.CharField(_(u'Hospedado em'), max_length=60, blank=True,
-                                     help_text=_(u'Se hospedado no Interlegis, informe o nome do servidor.<br/>Senão, informe o nome do provedor de serviços.'))
-    porta_servico = models.PositiveSmallIntegerField(_(u'Porta de serviço (instância)'), blank=True, null=True)
-    senha_inicial = models.CharField(_(u'Senha inicial'), max_length=33, blank=True)
+    hospedagem_interlegis = models.BooleanField(
+        _(u'Hospedagem no Interlegis?'),
+        default=False
+    )
+    nome_servidor = models.CharField(
+        _(u'Hospedado em'),
+        max_length=60,
+        blank=True,
+        help_text=_(u'Se hospedado no Interlegis, informe o nome do servidor.'
+                    u'<br/>Senão, informe o nome do provedor de serviços.')
+    )
+    porta_servico = models.PositiveSmallIntegerField(
+        _(u'Porta de serviço (instância)'),
+        blank=True,
+        null=True
+    )
+    senha_inicial = models.CharField(
+        _(u'Senha inicial'),
+        max_length=33,
+        blank=True
+    )
     data_ativacao = models.DateField(_(u'Data de ativação'), default=date.today)
-    data_alteracao = models.DateField(_(u'Data da última alteração'), blank=True, null=True, auto_now=True)
-    data_desativacao = models.DateField(_(u'Data de desativação'), blank=True, null=True)
-    motivo_desativacao = models.TextField(_(u'Motivo da desativação'), blank=True)
-    data_ultimo_uso = models.DateField(_(u'Data da última utilização'), blank=True, null=True,
-                                       help_text=_(u'Data em que o serviço foi utilizado pela Casa Legislativa pela última vez<br/><strong>NÃO É ATUALIZADO AUTOMATICAMENTE!</strong>'))
-    erro_atualizacao = models.CharField(_(u"Erro na atualização"), blank=True, max_length=200,
-                                        help_text=_(u"Erro ocorrido na última tentativa de atualizar a data de último acesso"))
+    data_alteracao = models.DateField(
+        _(u'Data da última alteração'),
+        blank=True,
+        null=True,
+        auto_now=True
+    )
+    data_desativacao = models.DateField(
+        _(u'Data de desativação'),
+        blank=True,
+        null=True
+    )
+    motivo_desativacao = models.TextField(
+        _(u'Motivo da desativação'),
+        blank=True
+    )
+    data_ultimo_uso = models.DateField(
+        _(u'Data da última utilização'),
+        blank=True,
+        null=True,
+        help_text=_(u'Data em que o serviço foi utilizado pela Casa Legislativa'
+                    u' pela última vez')
+    )
+    erro_atualizacao = models.TextField(
+        _(u"Erro na atualização"),
+        blank=True,
+        help_text=_(u"Erro ocorrido na última tentativa de verificar a data "
+                    u"de última atualização do serviço")
+    )
 
     # casa_legislativa.casa_uf_filter = True
 
     def atualiza_data_uso(self):
-        def reset(erro=u"", comment=u""):
-            if self.data_ultimo_uso is None and not erro:
-                return
-            self.data_ultimo_uso = None
-            self.erro_atualizacao = comment + '<br/>' + erro
-            self.save()
+        import requests
+        from xml.dom.minidom import parseString
+
+        def reset():
+            if self.data_ultimo_uso is not None:
+                self.data_ultimo_uso = None
+                self.erro_atualizacao = ''
+                self.save()
             return
+
+        def ultimo_uso(url, string_pesquisa):
+            param_pesquisa = string_pesquisa.split(" ")
+            if len(param_pesquisa) != 3:
+                return {
+                    'data': '',
+                    'erro':_(u"String de pesquisa mal configurada"),
+                    'comment':_(u"Corrija a string de pesquisa")
+                }
+            campos = [int(s) if s.isdigit() else s for s in
+                    param_pesquisa[2].split('.')]
+
+            url += param_pesquisa[0]
+
+            try:  # Captura erros de conexão
+                req = requests.get(url)
+            except Exception as e:
+                return {
+                    'data': '',
+                    'erro':str(e),
+                    'comment':_(u"Não foi possível conectar com o servidor. "
+                                u"Pode estar fora do ar ou não ser "
+                                u"um {tipo}".format(
+                                tipo=self.tipo_servico.nome))
+                }
+
+            if req.status_code != 200:
+                return {
+                    'data': '',
+                    'erro': req.reason,
+                    'comment':_(u"Não foi possível receber os dados do "
+                                u"servidor. O acesso pode ter sido negado.")
+                }
+
+            try:
+                if param_pesquisa[1] == 'xml':
+                    data = parseString(req.content)
+                elif param_pesquisa[1] == 'json':
+                    data = req.json()
+                else:
+                    return {
+                        'data': '',
+                        'erro': _(u'String de pesquisa mal configurada'),
+                        'comment': ''
+                    }
+
+                for c in campos:
+                    if isinstance(c, int):
+                        if (len(data)-1) < c:
+                            return {
+                                'data': '',
+                                'erro': _(u'Sem dados para verificação'),
+                                'comment': _(u'Parece que nunca foi usado')
+                            }
+                        data = data[c]
+                    else:
+                        if param_pesquisa[1] == 'xml':
+                            data = data.getElementsByTagName(c)
+                        else:
+                            data = data[c]
+
+                if param_pesquisa[1] == 'xml':
+                    data = data.firstChild.nodeValue
+                data = data[:10]
+                data = data.replace('/','-')
+                return {'data': data, 'erro': '', 'comment': ''}
+            except Exception as e:
+                return {
+                    'data': '',
+                    'erro': str(e),
+                    'comment': _(u"Parece que não é um {tipo}".format(
+                        tipo=self.tipo_servico.nome))
+                }
 
         if self.tipo_servico.string_pesquisa == "":
             reset()
@@ -93,46 +216,35 @@ class Servico(models.Model):
 
         if not url:
             reset()
+            self.erro_atualizacao = _(u"Serviço sem URL")
+            self.save()
             return
 
         if url[-1] != '/':
             url += '/'
-        url += self.tipo_servico.string_pesquisa
 
-        import urllib2
-        from xml.dom.minidom import parseString
+        resultados = []
 
-        try:  # Captura erros de conexão
-            try:  # Tentar conxão sem proxy
-                req = urllib2.urlopen(url=url, timeout=5)
-            except:  # Tentar com proxy
-                proxy = urllib2.ProxyHandler()
-                opener = urllib2.build_opener(proxy)
-                req = opener.open(fullurl=url, timeout=5)
-        except Exception as e:
-            reset(erro=str(e), comment=_(u'Não foi possível conectar com o servidor. Pode estar fora do ar ou não ser um ') +
-                  self.tipo_servico.nome)
-            return
+        for string_pesquisa in self.tipo_servico.string_pesquisa.splitlines():
+            resultados.append(ultimo_uso(url, string_pesquisa))
 
-        try:
-            rss = req.read()
-        except Exception as e:
-            reset(erro=str(e), comment=_(u'Não foi possível receber os dados do servidor. O acesso pode ter sido negado.'))
-            return
+        data = max([r['data'] for r in resultados])
 
-        try:
-            xml = parseString(rss)
-            items = xml.getElementsByTagName('item')
-            first_item = items[0]
-            date_list = first_item.getElementsByTagName('dc:date')
-            date_item = date_list[0]
-            date_text = date_item.firstChild.nodeValue
-            self.data_ultimo_uso = date_text[:10]  # Apenas YYYY-MM-DD
+        if data == '':
+            # Nenhuma busca deu resultado, guardar log de erro
+            self.data_ultimo_uso = None
+            self.erro_atualizacao = "<br/>".join(set(
+                [u"{erro} ({comment})".format(erro=r['erro'],
+                                              comment=r['comment'])
+                 for r in resultados if r['erro'] != '' and r['comment'] != ''
+                ]))
+            self.save()
+        else:
+            # Atualiza a maior data de atualização
+            self.data_ultimo_uso = data[:10]  # Apenas YYYY-MM-DD
             self.erro_atualizacao = ""
             self.save()
-        except Exception as e:
-            reset(erro=str(e), comment=_(u'A resposta do servidor não é compatível com %s. Pode ser outro software que está sendo usado') %
-                  self.tipo_servico.nome)
+
         return
 
     def __unicode__(self):
