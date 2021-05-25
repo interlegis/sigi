@@ -7,7 +7,7 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
-from sigi.apps.casas.admin import FuncionariosInline
+from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servicos.models import (Servico, LogServico, CasaAtendida,
                                        TipoServico)
@@ -76,21 +76,21 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                 queryset = queryset.filter(data_ultimo_uso__lte=limite)
             else:
                 de = date.today() - (
-                    timedelta(days=6*30) if self.value() == 'semester' else
-                    timedelta(days=3*30) if self.value() == 'quarter' else
-                    timedelta(days=30) if self.value() == 'month' else
-                    timedelta(days=7) if self.value() == 'week' else
-                    timedelta(days=0)
-                )
-                ate = date.today() - (
                     timedelta(days=365) if self.value() == 'semester' else
                     timedelta(days=6*30) if self.value() == 'quarter' else
                     timedelta(days=3*30) if self.value() == 'month' else
                     timedelta(days=30) if self.value() == 'week' else
                     timedelta(days=0)
                 )
-                print (de, ate)
+                ate = date.today() - (
+                    timedelta(days=6*30) if self.value() == 'semester' else
+                    timedelta(days=3*30) if self.value() == 'quarter' else
+                    timedelta(days=30) if self.value() == 'month' else
+                    timedelta(days=7) if self.value() == 'week' else
+                    timedelta(days=0)
+                )
                 queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
+                print (de, ate, queryset.count())
 
         return queryset
 
@@ -113,7 +113,13 @@ class ServicoAdmin(BaseModelAdmin):
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-    list_filter = ('tipo_servico', 'hospedagem_interlegis', DataUtimoUsoFilter, 'casa_legislativa__municipio__uf', )
+    list_filter = (
+        'tipo_servico',
+        'hospedagem_interlegis',
+        DataUtimoUsoFilter,
+        ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
+        'casa_legislativa__municipio__uf',
+    )
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
