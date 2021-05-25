@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from datetime import date
-from dateutil.relativedelta import relativedelta
+from datetime import date, timedelta
 from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
@@ -73,22 +72,22 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
             if self.value() == 'err':
                 queryset = queryset.exclude(erro_atualizacao="")
             elif self.value() == 'year':
-                limite = date.today() - relativedelta(years=1)
+                limite = date.today() - timedelta(days=365)
                 queryset = queryset.filter(data_ultimo_uso__lte=limite)
             else:
                 de = date.today() - (
-                    relativedelta(months=6) if self.value() == 'semester' else
-                    relativedelta(months=3) if self.value() == 'quarter' else
-                    relativedelta(months=1) if self.value() == 'month' else
-                    relativedelta(days=7) if self.value() == 'week' else
-                    relativedelta(days=0)
+                    timedelta(days=6*30) if self.value() == 'semester' else
+                    timedelta(days=3*30) if self.value() == 'quarter' else
+                    timedelta(days=30) if self.value() == 'month' else
+                    timedelta(days=7) if self.value() == 'week' else
+                    timedelta(days=0)
                 )
                 ate = date.today() - (
-                    relativedelta(years=1) if self.value() == 'semester' else
-                    relativedelta(months=6) if self.value() == 'quarter' else
-                    relativedelta(months=3) if self.value() == 'month' else
-                    relativedelta(months=1) if self.value() == 'week' else
-                    relativedelta(days=0)
+                    timedelta(days=365) if self.value() == 'semester' else
+                    timedelta(days=6*30) if self.value() == 'quarter' else
+                    timedelta(days=3*30) if self.value() == 'month' else
+                    timedelta(days=30) if self.value() == 'week' else
+                    timedelta(days=0)
                 )
                 print (de, ate)
                 queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
