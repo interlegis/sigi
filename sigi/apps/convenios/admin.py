@@ -12,6 +12,7 @@ from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.servidores.models import Servidor
+from sigi.apps.casas.admin import GerentesInterlegisFilter
 
 # class TramitacaoInline(admin.TabularInline):
 #     model = Tramitacao
@@ -68,7 +69,9 @@ class ConvenioAdmin(BaseModelAdmin):
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
                     'duracao', 'projeto', 'status', 'acompanha',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('status', ('acompanha', AcompanhaFilter), 'projeto',
+    list_filter = ('status', ('acompanha', AcompanhaFilter),
+                   ('casa_legislativa__gerentes_interlegis',
+                    GerentesInterlegisFilter), 'projeto',
                    'casa_legislativa__tipo', 'conveniada','equipada',
                    'casa_legislativa__municipio__uf',)
     #date_hierarchy = 'data_adesao'

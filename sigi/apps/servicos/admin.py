@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+from datetime import date
+from dateutil.relativedelta import relativedelta
 from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
@@ -50,6 +52,49 @@ class TipoServicoAdmin(BaseModelAdmin):
     list_display = ('id', 'sigla', 'nome', 'qtde_casas_atendidas', )
     ordering = ['id']
 
+class DataUtimoUsoFilter(admin.SimpleListFilter):
+    title = _(u"Atualização")
+    parameter_name = 'atualizacao'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('err', _(u"Erro na verificação")),
+            ('year', _(u"Sem atualização há um ano ou mais")),
+            ('semester', _(u"Sem atualização de seis meses a um ano")),
+            ('quarter', _(u"Sem atualização de três a seis meses")),
+            ('month', _(u"Sem atualização de um a três meses")),
+            ('week', _(u"Sem atualização de uma semana a um mês")),
+            ('updated', _(u"Atualizado na última semana")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            queryset = queryset.exclude(tipo_servico__string_pesquisa="")
+            if self.value() == 'err':
+                queryset = queryset.exclude(erro_atualizacao="")
+            elif self.value() == 'year':
+                limite = date.today() - relativedelta(years=1)
+                queryset = queryset.filter(data_ultimo_uso__lte=limite)
+            else:
+                de = date.today() - (
+                    relativedelta(months=6) if self.value() == 'semester' else
+                    relativedelta(months=3) if self.value() == 'quarter' else
+                    relativedelta(months=1) if self.value() == 'month' else
+                    relativedelta(days=7) if self.value() == 'week' else
+                    relativedelta(days=0)
+                )
+                ate = date.today() - (
+                    relativedelta(years=1) if self.value() == 'semester' else
+                    relativedelta(months=6) if self.value() == 'quarter' else
+                    relativedelta(months=3) if self.value() == 'month' else
+                    relativedelta(months=1) if self.value() == 'week' else
+                    relativedelta(days=0)
+                )
+                print (de, ate)
+                queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
+
+        return queryset
+
 
 class ServicoAdmin(BaseModelAdmin):
     form = ServicoFormAdmin
@@ -69,7 +114,7 @@ class ServicoAdmin(BaseModelAdmin):
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa__municipio__uf', )
+    list_filter = ('tipo_servico', 'hospedagem_interlegis', DataUtimoUsoFilter, 'casa_legislativa__municipio__uf', )
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
@@ -96,7 +141,8 @@ class ServicoAdmin(BaseModelAdmin):
         url = obj.url
         if url[-1] != '/':
             url += '/'
-        url += obj.tipo_servico.string_pesquisa
+        if obj.tipo_servico.string_pesquisa:
+            url += obj.tipo_servico.string_pesquisa.splitlines()[0].split(" ")[0]
         return u'<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
     get_link_erro.allow_tags = True
     get_link_erro.short_description = _(u"Erro na atualização")
