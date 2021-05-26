@@ -149,7 +149,7 @@ class Servico(models.Model):
             url += param_pesquisa[0]
 
             try:  # Captura erros de conexão
-                req = requests.get(url)
+                req = requests.get(url, verify=False, allow_redirects=True)
             except Exception as e:
                 return {
                     'data': '',
