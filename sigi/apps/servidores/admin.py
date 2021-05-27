@@ -34,12 +34,41 @@ class ServicoInline(admin.TabularInline):
     model = Servico
     fields = ['nome', 'sigla', 'responsavel',]
 
+class ServidorInline(admin.TabularInline):
+    model = Servidor
+    fields = ('imagem_foto', 'nome_completo', 'is_active', )
+    readonly_fields = ('imagem_foto', 'nome_completo', 'is_active', )
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj):
+        return False
+
+    def imagem_foto(sels, servidor):
+        if servidor.foto:
+            return u'<img src="{url}" style="height: 60px; width: 60px; border-radius: 50%;">'.format(url=servidor.foto.url)
+        else:
+            return u""
+    imagem_foto.short_description = _(u"foto")
+    imagem_foto.allow_tags = True
+
+    def is_active(self, servidor):
+        if servidor.user:
+            return servidor.user.is_active
+        else:
+            return False
+    is_active.admin_order_field = 'user__is_active'
+    is_active.boolean = True
+    is_active.short_description = _(u'ativo')
+
+
 @admin.register(Servico)
 class ServicoAdmin(admin.ModelAdmin):
     list_display = ['sigla', 'nome', 'subordinado', 'responsavel']
     list_filter = [ServicoFilter,]
     search_fields = ['nome', 'sigla',]
-    inlines = [ServicoInline,]
+    inlines = [ServicoInline, ServidorInline,]
 
 @admin.register(Servidor)
 class ServidorAdmin(BaseModelAdmin):
