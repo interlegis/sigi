@@ -60,8 +60,6 @@ class Ocorrencia(models.Model):
         on_delete=models.CASCADE,
         verbose_name=_(u'Casa Legislativa')
     )
-    casa_legislativa.convenio_uf_filter = True
-    casa_legislativa.convenio_cl_tipo_filter = True
     data_criacao = models.DateField(_(u'Data de criação'), null=True, blank=True, auto_now_add=True)
     data_modificacao = models.DateField(_(u'Data de modificação'), null=True, blank=True, auto_now=True)
     categoria = models.ForeignKey(
@@ -75,9 +73,7 @@ class Ocorrencia(models.Model):
         verbose_name=_(u"Tipo de contato")
     )
     assunto = models.CharField(_(u'Assunto'), max_length=200)
-    assunto.grupo_filter = True
     status = models.IntegerField(_(u'Status'), choices=STATUS_CHOICES, default=1,)
-    status.multichoice_filter = True
     prioridade = models.IntegerField(_(u'Prioridade'), choices=PRIORITY_CHOICES, default=3, )
     descricao = models.TextField(_(u'descrição'), blank=True,)
     resolucao = models.TextField(_(u'resolução'), blank=True,)

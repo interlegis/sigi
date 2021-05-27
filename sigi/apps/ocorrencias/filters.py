@@ -11,6 +11,8 @@ class OcorrenciaListFilter(admin.SimpleListFilter):
     parameter_name = 'minhas'
 
     def lookups(self, request, model_admin):
+        if request.user.servidor is None:
+            return None
         return (
             ('S', _(u'Atribuídos ao meu setor')),
             ('M', _(u'Registrados por mim')),
@@ -18,7 +20,8 @@ class OcorrenciaListFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        servidor = Servidor.objects.get(user=request.user)
+        servidor = request.user.servidor
+        # servidor = Servidor.objects.get(user=request.user)
         if self.value() == 'S':
             return queryset.filter(setor_responsavel=servidor.servico)
         elif self.value() == 'M':

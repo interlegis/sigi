@@ -3,11 +3,11 @@ from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
 from django.utils.translation import ugettext as _
 
-from filters import OcorrenciaListFilter
+from sigi.apps.ocorrencias.filters import OcorrenciaListFilter
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.base_admin import BaseModelAdmin
-
+from sigi.apps.casas.admin import GerentesInterlegisFilter
 
 class ComentarioViewInline(admin.TabularInline):
     model = Comentario
@@ -66,9 +66,11 @@ class OcorrenciaAdmin(BaseModelAdmin):
     list_display = ('data_criacao', 'casa_legislativa', 'get_municipio',
                     'get_uf', 'assunto', 'prioridade', 'status',
                     'data_modificacao', 'setor_responsavel',)
-    list_filter = (OcorrenciaListFilter, 'status', 'prioridade',
-                   'categoria__nome', 'setor_responsavel__nome', 
-                   'casa_legislativa__gerentes_interlegis',)
+    list_filter = (
+        OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome',
+        'setor_responsavel__nome',
+        ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
+    )
     search_fields = ('casa_legislativa__search_text', 'assunto',
                      'servidor_registro__nome_completo', 'descricao',
                      'resolucao', 'ticket',)
