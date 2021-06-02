@@ -177,8 +177,8 @@
                 </div>
                 {% for g in gerentes %}
                   <div class="form-check">
-                  <input type="checkbox" id="gerente_{{ g.id }}" name="gerente" value="{{ g.id }}" checked/>
-                  <label for="gerente_{{ g.id }}" class="form-check-label">{{ g.nome_completo }}</label>
+                  <input type="checkbox" id="gerente_{{ g.id|stringformat:"s" }}" name="gerente" value="{{ g.id|stringformat:"s" }}" checked/>
+                  <label for="gerente_{{ g.id|stringformat:"s" }}" class="form-check-label">{{ g.nome_completo }}</label>
                   </div>
                 {% endfor %}
               </div>
