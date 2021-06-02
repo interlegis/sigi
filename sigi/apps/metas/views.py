@@ -6,20 +6,21 @@ import time
 from functools import reduce
 
 from django.contrib.auth.decorators import login_required
+from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.db.models.aggregates import Sum
-from django.http import HttpResponse
-from django.shortcuts import render, render_to_response
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import get_object_or_404, render, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 
-from sigi.apps.casas.models import Orgao
+from sigi.apps.casas.models import Orgao, TipoOrgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Projeto
+from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.financeiro.models import Desembolso
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.utils import to_ascii
@@ -62,6 +63,69 @@ def dashboard(request):
     extra_context = {'desembolsos': matriz, 'desembolsos_max': desembolsos_max, 'meses': meses, 'colors': ','.join(colors[:len(matriz)])}
     return render_to_response('metas/dashboard.html', extra_context, context_instance=RequestContext(request))
 
+def openmap(request):
+    context = {
+        'tipos_orgao': TipoOrgao.objects.filter(legislativo=True),
+        'tipos_servico': TipoServico.objects.all(),
+        'tipos_convenio': Projeto.objects.all(),
+        'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
+        'regioes': [(s, n, UnidadeFederativa.objects.filter(regiao=s))
+                    for s, n in UnidadeFederativa.REGIAO_CHOICES],
+
+    }
+    return render(request, 'metas/openmap.html', context)
+
+def openmapdata(request):
+    tipos_orgao = request.GET.getlist('tipo_orgao', None)
+    tipos_servico = request.GET.getlist('tipo_servico', None)
+    tipos_convenio = request.GET.getlist('tipo_convenio', None)
+    ufs = request.GET.getlist('uf', None)
+    gerentes = request.GET.getlist('gerente', None)
+    reptype = request.GET.get('reptype', None)
+
+    print reptype
+    print request.GET
+
+    dados = Orgao.objects.all()
+
+    if tipos_orgao:
+        dados = dados.filter(tipo__sigla__in=tipos_orgao)
+    else:
+        dados = dados.filter(tipo__legislativo=True)
+
+    if tipos_servico:
+        if "none" in tipos_servico:
+            dados = dados.filter(servico=None)
+        else:
+            dados = dados.filter(servico__tipo_servico__sigla__in=tipos_servico)
+
+    if tipos_convenio:
+        if "none" in tipos_convenio:
+            dados = dados.filter(convenio=None)
+        else:
+            dados = dados.filter(convenio__projeto__sigla__in=tipos_convenio)
+
+    if ufs:
+        dados = dados.filter(municipio__uf__sigla__in=ufs)
+
+    if gerentes:
+        if "none" in gerentes:
+            dados = dados.filter(gerentes_interlegis=None)
+        else:
+            dados = dados.filter(gerentes_interlegis__id__in=gerentes)
+
+    dados = dados.distinct("nome")
+
+    if not reptype:
+        dados = dados.values_list("id", "nome", "municipio__latitude",
+                                  "municipio__longitude")
+        return JsonResponse(list(dados), safe=False)
+    else:
+        return JsonResponse({'result': 'todo-feature'})
+
+def openmapdetail(request, orgao_id):
+    orgao = get_object_or_404(Orgao, id=orgao_id)
+    return render(request, "metas/openmapdetail.html", {'orgao': orgao})
 
 def mapa(request):
     """
