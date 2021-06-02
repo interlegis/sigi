@@ -83,9 +83,6 @@ def openmapdata(request):
     gerentes = request.GET.getlist('gerente', None)
     reptype = request.GET.get('reptype', None)
 
-    print reptype
-    print request.GET
-
     dados = Orgao.objects.all()
 
     if tipos_orgao:
@@ -97,7 +94,8 @@ def openmapdata(request):
         if "none" in tipos_servico:
             dados = dados.filter(servico=None)
         else:
-            dados = dados.filter(servico__tipo_servico__sigla__in=tipos_servico)
+            dados = dados.filter(servico__tipo_servico__sigla__in=tipos_servico,
+                                 servico__data_desativacao=None)
 
     if tipos_convenio:
         if "none" in tipos_convenio:
