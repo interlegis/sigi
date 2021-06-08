@@ -190,7 +190,7 @@ def openmapdata(request):
 
 
     if not reptype:
-        dados = dados.distinct("nome")
+        dados = dados.order_by('nome', 'id').distinct('nome', 'id')
         dados = dados.values_list("id", "nome", "municipio__latitude",
                                   "municipio__longitude")
         return JsonResponse(list(dados), safe=False)
@@ -198,11 +198,13 @@ def openmapdata(request):
         dados = dados.order_by(
             'municipio__uf__regiao',
             'municipio__uf__nome',
-            'nome'
+            'nome',
+            'id'
         ).distinct(
             'municipio__uf__regiao',
             'municipio__uf__nome',
-            'nome'
+            'nome',
+            'id'
         ).prefetch_related(
             'servico_set',
             'convenio_set',
