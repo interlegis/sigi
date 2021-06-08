@@ -241,17 +241,40 @@ class Convenio(models.Model):
         verbose_name = _(u'convênio')
 
     def __unicode__(self):
-        if self.data_retorno_assinatura is not None:
-            return _(u"Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
-                number=self.num_convenio,
-                project=self.projeto.sigla,
-                date=self.data_retorno_assinatura,
-                status=self.get_status()))
-        else:
-            return _(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
-                project=self.projeto.sigla,
-                date=self.data_adesao)
+        # if self.data_retorno_assinatura is not None:
+        #     return _(u"Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
+        #         number=self.num_convenio,
+        #         project=self.projeto.sigla,
+        #         date=self.data_retorno_assinatura,
+        #         status=self.get_status()))
+        # else:
+        #     return _(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
+        #         project=self.projeto.sigla,
+        #         date=self.data_adesao)
 
+        if ((self.data_retorno_assinatura is None) and
+            (self.equipada and self.data_termo_aceite is not None)):
+            return _(u"Equipada em {date} pelo {project}").format(
+                    date=self.data_termo_aceite.strftime('%d/%m/%Y'),
+                    project=self.projeto.sigla)
+        elif self.data_retorno_assinatura is None:
+            return _(u"Adesão ao projeto {project}, em {date}").format(
+                    project=self.projeto.sigla, date=self.data_adesao)
+        if ((self.data_retorno_assinatura is not None) and not
+            (self.equipada and self.data_termo_aceite is not None)):
+            return _(u"Conveniada ao {project} em {date}. "
+                     u"Status: {status}").format(
+                         project=self.projeto.sigla,
+                         date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
+                         status=self.get_status())
+        if ((self.data_retorno_assinatura is not None) and
+            (self.equipada and self.data_termo_aceite is not None)):
+            return _(u"Conveniada ao {project} em {date} e equipada em "
+                     u"{equipped_date}. Status: {status}").format(
+                      project=self.projeto.sigla,
+                      date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
+                      equipped_date=self.data_termo_aceite.strftime('%d/%m/%Y'),
+                      status=self.get_status())
 
 class EquipamentoPrevisto(models.Model):
 

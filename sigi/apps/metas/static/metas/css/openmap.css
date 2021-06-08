@@ -1,0 +1,58 @@
+body, html, .mapbox, #map {
+  height: 100%;
+}
+.filterwrap {
+  background-color: rgba(255,255,255,0.5);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 314159;
+  height: 100%;
+  max-height: 100%;
+  overflow-y: auto;
+}
+.sigi-logo {
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 314159;
+  background-color: transparent;
+  width: 100%;
+  text-align: right;
+  font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+  padding-right: 20px;
+}
+.sigi-logo h3 {
+  font-weight: bolder;
+  margin-bottom: 0px;
+}
+.sigi-logo a {
+  pointer-events: auto;
+}
+.sigi-logo div {
+  float: right;
+}
+.sigi-logo img {
+  margin: 15px;
+  width: 60px;
+  height: 60px;
+}
+.region-ufs {
+  margin-left: 15px;
+}
+#search-text {
+  min-width: 300px;
+}
+.ui-autocomplete {
+  max-width: 300px;
+  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  border-color: #ddd;
+  margin-bottom: 20px;
+  background-color: #fff;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 15px;
+  font-size: 10px;
+}

@@ -8,6 +8,7 @@
     <meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
     <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet"/>
     <link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet"/>
+    <link href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
 
     <script type="text/javascript">
     //<![CDATA[
@@ -20,61 +21,35 @@
     <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
 
     <meta name="robots" content="NONE,NOARCHIVE" />
-    <script type="text/javascript">
-    //<![CDATA[
-            (function($) {
-                $(document).ready(function() {
-                    $('input[type="submit"]').addClass('btn');
-                    $('[title]').tooltip();
-                });
-            }(jQuery));
-    //]]>
-    </script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <link rel="stylesheet" href="{% static 'metas/css/openmap.css' %}" />
     <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-	<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
-	<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
-	<script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
-	<script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
-	<style>
-	  .totalizador {
-	  	float:right;
-	  }
-	  #filter_form {
-	  	padding: 10px;
-	  }
-
-      body, html, .mapbox, #map {
-          height: 100%;
-      }
-
-      .filterwrap {
-        background-color: rgba(255,255,255,0.5);
-        position: absolute;
-        top: 0;
-        left: 0;
-        z-index: 314159;
-        max-height: 100%;
-        overflow-y: auto;
-      }
-
-      .region-ufs {
-        margin-left: 15px;
-      }
-
-	</style>
-
+  	<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
+	  <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+	  <script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
+	  <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
 </head>
-
 <body>
   <div class="mapbox">
+    <div class="sigi-logo">
+      <div>
+        <img src="{% static 'img/interlegis.png' %}" class='img-circle'/>
+      </div>
+      <div>
+        <h3>Interlegis</h3>
+        <a href="{% url 'admin:index' %}">Voltar ao SIGI</a>
+      </div>
+    </div>
     <div class="container-fluid filterwrap panel panel-body">
-      <a href="#" id="options-toggler" type="button" data-toggle="collapse" data-target="#filterbox" aria-expanded="false" aria-controls="collapseExample">
-        Opções <span class="glyphicon glyphicon-chevron-right"></span>
+      <a href="#" style="float: right;" id="options-toggler" type="button" data-toggle="collapse" data-target="#filterbox" aria-expanded="false" aria-controls="collapseExample">
+        <span class="glyphicon glyphicon-chevron-right"></span>
       </a>
       <div class="collapse" id="filterbox">
-        <input type="text" class="form-control" placeholder="Procurar" aria-label="Procurar" aria-describedby="basic-addon2">
+        <form id="searchform" class="form-inline ui-front">
+          <input type="text" id="search-text" class="form-control" placeholder="Procurar" aria-label="Procurar" aria-describedby="basic-addon2">
+        </form>
         <div class="accordion" id="accordionExample">
         <form id="filterForm" action="" method="get" >
           <h4>Filtros</h4>
@@ -105,6 +80,10 @@
             <div id="collapse-servico-filter" class="collapse" aria-labelledby="servico-filter" data-parent="#accordionExample">
               <div class="card-body">
                 <div class="form-check">
+                  <input type="checkbox" id="tipo_servico_ignore" name="ignore_tipo_servico" value="ignore" data-controls="tipo_servico" />
+                  <label for="tipo_servico_ignore" class="form-check-label">Ignorar</label>
+                </div>
+                <div class="form-check">
                   <input type="checkbox" id="tipo_servico_none" name="tipo_servico" value="none"/>
                   <label for="tipo_servico_none" class="form-check-label">Nenhum serviço</label>
                 </div>
@@ -125,6 +104,10 @@
             </div>
             <div id="collapse-convenio-filter" class="collapse" aria-labelledby="convenio-filter" data-parent="#accordionExample">
               <div class="card-body">
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_convenio_ignore" name="ignore_tipo_convenio" value="ignore" data-controls="tipo_convenio" />
+                  <label for="tipo_convenio_ignore" class="form-check-label">Ignorar</label>
+                </div>
                 <div class="form-check">
                   <input type="checkbox" id="tipo_convenio_none" name="tipo_convenio" value="none"/>
                   <label for="tipo_convenio_none" class="form-check-label">Sem convênio</label>
@@ -172,6 +155,10 @@
             <div id="collapse-gerente-filter" class="collapse" aria-labelledby="gerente-filter" data-parent="#accordionExample">
               <div class="card-body">
                 <div class="form-check">
+                  <input type="checkbox" id="gerente_ignore" name="gerente_ignore" value="ignore" data-controls="gerente" />
+                  <label for="gerente_ignore" class="form-check-label">Ignorar</label>
+                </div>
+                <div class="form-check">
                   <input type="checkbox" id="gerente_none" name="gerente" value="none"/>
                   <label for="gerente_none" class="form-check-label">Sem gerente</label>
                 </div>
@@ -184,19 +171,17 @@
               </div>
             </div>
           </div>
-          {% comment %} <hr/>
+          <hr/>
           <div class="card">
             <div class="card-body">
-              <button class="btn btn-default" type="submit" name="reptype" value="resumo"><span class="glyphicon glyphicon-print"></span> Resumo</a>
               <button class="btn btn-default" type="submit" name="reptype" value="lista"><span class="glyphicon glyphicon-print"></span> Listagem</a>
               <button class="btn btn-default" type="submit" name="reptype" value="exporta"><span class="glyphicon glyphicon-export"></span>Exportar</a>
             </div>
-          </div> {% endcomment %}
+          </div>
         </form>
         </div>
       </div>
     </div>
-
     <div id="map">
       <!-- open street map -->
     </div>
@@ -204,6 +189,43 @@
   </div>
   <script>
     $(document).ready(function(){
+      var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
+      var unfiltred_options = {color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000};
+
+      $("#search-text").autocomplete({
+        minLength: 3,
+        source: function(request, response) {
+          $.ajax({
+            url: "{% url "openmapsearch" %}",
+            data: {q: request.term },
+            dataType: "json",
+            appendTo: "#searchform",
+            success: function(data) {
+              console.log(data);
+              response(data);
+            },
+          })
+        },
+        select: function( event, ui ) {
+          mymap.flyTo([ui.item.lat, ui.item.lng], 8.5);
+          var encontrado = false;
+          mymap.eachLayer(function(layer) {
+            if (layer instanceof L.Circle) {
+              if (layer.orgao_id == ui.item.id) {
+                layer.openPopup();
+                encontrado = true;
+              }
+            }
+          })
+          if (!encontrado) {
+              var mark = L.circle([ui.item.lat, ui.item.lng], unfiltred_options).bindTooltip(ui.item.label).bindPopup("").addTo(mymap);
+              mark.orgao_id = ui.item.id
+              mark.openPopup();
+          }
+
+          console.log(ui);
+        }
+      });
       $("#filterbox").on("shown.bs.collapse", function() {
         $("#options-toggler span").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left")
       })
@@ -246,7 +268,11 @@
         var name = $(this).attr("name"),
             value = $(this).attr("value"),
             checked = $(this).prop("checked");
-        console.log(name, value, checked);
+
+        if (value == "ignore") {
+          controls = $(this).attr("data-controls");
+          $("input[type=checkbox][name='"+controls+"']").prop("disabled", checked);
+        }
 
         if (value=="none") {
           $("input[type=checkbox][name='" + name +"'][value!='none']").prop("checked", !checked);
@@ -273,7 +299,6 @@
         }
 
         var formData = $("#filterForm").serializeArray();
-        var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
 
         mymap.eachLayer(function(layer) {
           if (layer instanceof L.Circle) {

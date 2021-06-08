@@ -1,0 +1,93 @@
+{% extends "base_report.html" %}
+{% load mapa_tags %}
+{% load i18n %}
+
+{% block extra_head %}
+<style>
+	table.data, table.data td, table.data th {
+	  border: 1px solid #CCCCCC;
+	  border-collapse: collapse;
+	  font-size: 10px;
+	  padding: 2px;
+	}
+
+  table.filters, table.filters td, table.filters th {
+    border-bottom: 1px solid #CCCCCC;
+    font-size: 10px;
+    padding-top: 3px;
+    vertical-align: bottom;
+    text-align: left;
+    line-height: 16px;
+  }
+
+  table.filters th {
+    width: 12%;
+  }
+
+	td.nome_uf {
+	  padding: 0 5px !important;
+	}
+
+	ul {
+	list-style-type: none;
+	  margin: 0px;
+      padding: 0px;
+	}
+</style>
+{% endblock %}
+
+{% block pagesize %}A4 landscape{% endblock pagesize %}
+{% block title %}{% trans 'Lista de Casas atendidas' %}{% endblock title %}
+
+{% block report %}
+<h1>{% trans 'Lista de Casas atendidas' %}</h1>
+<table class="filters">
+{% if tipos_orgao %}
+  <tr><th>{% trans 'Tipos de órgão' %}</th><td>{% for t in tipos_orgao %}{{ t.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}
+{% if tipos_servico %}
+  <tr><th>{% trans 'Tipos de serviço' %}</th><td>{% for s in tipos_servico %}{{ s.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}
+{% if tipos_convenio %}
+  <tr><th>{% trans 'Tipos de convênio' %}</th><td>{% for c in tipos_convenio %}{{ c.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}
+{% if gerentes %}
+  <tr><th>{% trans 'Gerentes Interlegis' %}</th><td>{% for g in gerentes %}{{ g.nome_completo }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}
+{% if ufs %}
+  <tr><th>{% trans 'Estados' %}</th><td>{% for uf in ufs %}{{ uf.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+{% endif %}
+</table>
+
+<br/>
+<table class="data" repeat="1">
+  <tr>
+    <th>{% trans 'Casa Legislativa' %}</th>
+    <th>{% trans 'Estado' %}</th>
+    <th>{% trans 'Região' %}</th>
+    <th>{% trans 'Serviços' %}</th>
+    <th>{% trans 'Convênios' %}</th>
+    <th>{% trans 'Gerente(s)' %}</th>
+  </tr>
+  {% for casa in casas %}
+  <tr>
+    <td>{{ casa.nome }}&nbsp;</td>
+    <td>{{ casa.municipio.uf.nome }}</td>
+    <td>{{ casa.municipio.uf.get_regiao_display }}</td>
+    <td><ul>{% for s in casa.servico_set.all %}
+    {% if s.data_desativacao == None %}
+      <li>{{ s }}</li>
+    {% endif %}
+    {% endfor %}</ul></td>
+    <td><ul>{% for c in casa.convenio_set.all %}
+      <li>{{ c }}</li>
+    {% endfor %}
+    </ul></td>
+    <td><ul>{% for g in casa.gerentes_interlegis.all %}
+      <li>{{ g }}</li>
+    {% endfor %}</ul>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

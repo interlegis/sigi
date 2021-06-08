@@ -18,7 +18,7 @@
 
 {% block content_title %}
 <h1 class="pull-left">{% trans 'Dashboard' %}</h1>
-<div class="pull-right"><a href="/dashboard/mapa/"><img src="{% static 'img/mapicon.png' %}" /> {% trans 'Mapa de atuação do Interlegis' %}</a></div>
+<div class="pull-right"><a href="{% url 'openmap' %}"><img src="{% static 'img/mapicon.png' %}" /> {% trans 'Mapa de atuação do Interlegis' %}</a></div>
 {% endblock %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/dashboard.css" %}" />{% endblock %}
