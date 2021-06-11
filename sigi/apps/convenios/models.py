@@ -257,27 +257,34 @@ class Convenio(models.Model):
 
         if ((self.data_retorno_assinatura is None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Equipada em {date} pelo {project}").format(
-                    date=self.data_termo_aceite.strftime('%d/%m/%Y'),
-                    project=self.projeto.sigla)
+            return _(u"Convênio nº {number} - equipada em {date} pelo {project}"
+                     ).format(number=self.num_convenio,
+                              date=self.data_termo_aceite.strftime('%d/%m/%Y'),
+                              project=self.projeto.sigla)
         elif self.data_retorno_assinatura is None:
-            return _(u"Adesão ao projeto {project}, em {date}").format(
-                    project=self.projeto.sigla, date=self.data_adesao)
+            return _(u"Convênio nº {number} - adesão ao projeto {project}, "
+                     u"em {date}").format(number=self.num_convenio,
+                                          project=self.projeto.sigla,
+                                          date=self.data_adesao)
         if ((self.data_retorno_assinatura is not None) and not
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Conveniada ao {project} em {date}. "
-                     u"Status: {status}").format(
+            return _(u"Convênio nº {number} - conveniada ao {project} em "
+                     u"{date}. Status: {status}").format(
+                         number=self.num_convenio,
                          project=self.projeto.sigla,
                          date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
                          status=self.get_status())
         if ((self.data_retorno_assinatura is not None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Conveniada ao {project} em {date} e equipada em "
-                     u"{equipped_date}. Status: {status}").format(
-                      project=self.projeto.sigla,
-                      date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
-                      equipped_date=self.data_termo_aceite.strftime('%d/%m/%Y'),
-                      status=self.get_status())
+            return _(u"Convẽnio nº {number} - conveniada ao {project} em {date}"
+                     u" e equipada em {equipped_date}. Status: {status}"
+                     ).format(number=self.num_convenio,
+                              project=self.projeto.sigla,
+                              date=self.data_retorno_assinatura.strftime(
+                                  '%d/%m/%Y'),
+                              equipped_date=self.data_termo_aceite.strftime(
+                                  '%d/%m/%Y'),
+                              status=self.get_status())
 
 class EquipamentoPrevisto(models.Model):
 
