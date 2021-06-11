@@ -15,7 +15,10 @@ class Projeto(models.Model):
 
     def __unicode__(self):
         return self.sigla
-
+    
+    class Meta:
+        ordering = ('nome',)
+ 
 class StatusConvenio(models.Model):
     nome = models.CharField(max_length=100)
     cancela = models.BooleanField(_(u"Cancela o convênio"), default=False)

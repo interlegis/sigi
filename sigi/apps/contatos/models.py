@@ -13,11 +13,11 @@ class UnidadeFederativa(models.Model):
     """ Modelo que representa um estado brasileiro
     """
     REGIAO_CHOICES = (
-        ('SL', _(u'Sul')),
-        ('SD', _(u'Sudeste')),
         ('CO', _(u'Centro-Oeste')),
         ('NE', _(u'Nordeste')),
         ('NO', _(u'Norte')),
+        ('SD', _(u'Sudeste')),
+        ('SL', _(u'Sul')),
     )
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
@@ -83,7 +83,7 @@ class Microrregiao(models.Model):
     search_text = SearchField(field_names=['nome'])
 
     class Meta:
-        ordering = ('mesorregiao', 'nome')
+        ordering = ('nome',)
         verbose_name, verbose_name_plural = _(u'Microrregião'), _(u'Microrregiões')
 
     def __unicode__(self):

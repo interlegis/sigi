@@ -17,6 +17,7 @@ class Categoria(models.Model):
 
     class Meta:
         verbose_name, verbose_name_plural = _(u'Categoria'), _(u'Categorias')
+        ordering = ('nome',)
 
     def __unicode__(self):
         return self.nome

@@ -25,6 +25,7 @@ class TipoOrgao(models.Model):
     legislativo = models.BooleanField(_(u"Poder legislativo"), default=False)
 
     class Meta:
+        ordering = ('nome',)
         verbose_name = _(u"Tipo de órgão")
         verbose_name_plural = _(u"Tipos de órgão")
 
