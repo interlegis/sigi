@@ -46,6 +46,7 @@ class TipoEquipamento(models.Model):
 class ModeloEquipamento(models.Model):
     tipo = models.ForeignKey(
         TipoEquipamento,
+        on_delete=models.PROTECT,
         verbose_name=_(u'tipo de equipamento')
     )
     modelo = models.CharField(max_length=30)
@@ -60,8 +61,14 @@ class ModeloEquipamento(models.Model):
 
 
 class Equipamento(models.Model):
-    fabricante = models.ForeignKey(Fabricante)
-    modelo = models.ForeignKey(ModeloEquipamento)
+    fabricante = models.ForeignKey(
+        Fabricante,
+        on_delete=models.PROTECT
+    )
+    modelo = models.ForeignKey(
+        ModeloEquipamento,
+        on_delete=models.PROTECT
+    )
 
     class Meta:
         unique_together = (('fabricante', 'modelo'),)
@@ -72,9 +79,12 @@ class Equipamento(models.Model):
 
 
 class Bem(models.Model):
-    casa_legislativa = models.ForeignKey('casas.CasaLegislativa')
-    equipamento = models.ForeignKey(Equipamento)
-    fornecedor = models.ForeignKey(Fornecedor)
+    casa_legislativa = models.ForeignKey(
+        'casas.Orgao',
+        on_delete=models.CASCADE
+    )
+    equipamento = models.ForeignKey(Equipamento, on_delete=models.CASCADE)
+    fornecedor = models.ForeignKey(Fornecedor, on_delete=models.PROTECT)
     num_serie = models.CharField(
         _(u'número de série'),
         max_length=64,

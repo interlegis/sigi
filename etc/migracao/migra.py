@@ -60,7 +60,7 @@ def migra_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
 
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='AL').get()
 
     for line in reader:
         uf = UnidadeFederativa.objects.get(sigla=line[UF_COL])
@@ -71,7 +71,7 @@ def migra_assembleias(filename):
             bairro = aux_end[1].replace(' ', '', 1)
         else:
             bairro = ''
-        casa = CasaLegislativa(
+        casa = Orgao(
             municipio=municipio,
             nome=line[NOME_COL],
             tipo=tipo_casa,
@@ -85,7 +85,7 @@ def migra_assembleias(filename):
             telefone=line[FONE_1_COL]
         )
         if line[UF_COL] == 'DF':
-            casa.tipo = TipoCasaLegislativa.objects.filter(sigla='CT').get()
+            casa.tipo = TipoOrgao.objects.filter(sigla='CT').get()
         casa.save()
 
         if line[FONE_2_COL]:
@@ -141,7 +141,7 @@ def migra_casas(filename):
 
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='CM').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='CM').get()
 
     linenum = 1
     for line in reader:
@@ -160,7 +160,7 @@ def migra_casas(filename):
         bairro = ''
         if(aux_end.__len__() > 1):
             bairro = aux_end[1].replace(' ', '', 1)
-        casa = CasaLegislativa(
+        casa = Orgao(
             municipio=municipio,
             nome='Câmara Municipal de ' + line[NOME_COL],
             tipo=tipo_casa,
@@ -214,11 +214,11 @@ def migra_cnpj(filename):
         linenum += 1
 
         try:
-            casa = CasaLegislativa.objects.get(municipio__codigo_tse=line[COD_TSE_COL])
-        except CasaLegislativa.DoesNotExist:
+            casa = Orgao.objects.get(municipio__codigo_tse=line[COD_TSE_COL])
+        except Orgao.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
@@ -271,12 +271,12 @@ def migra_convenios_casas(filename):
         linenum += 1
 
         try:
-            casa = CasaLegislativa.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
-        except CasaLegislativa.DoesNotExist:
+            casa = Orgao.objects.get(municipio__codigo_ibge=line[COD_IBGE_COL])
+        except Orgao.DoesNotExist:
             print "Erro ao inserir convênio. Casa não existe"
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
@@ -368,16 +368,16 @@ def migra_convenios_assembleias(filename):
     reader = csv.reader(open(filename, 'r'), delimiter='|', skipinitialspace=True)
     header = reader.next()
     linenum = 1
-    tipo_casa = TipoCasaLegislativa.objects.filter(sigla='AL').get()
+    tipo_casa = TipoOrgao.objects.filter(sigla='AL').get()
     for line in reader:
         linenum += 1
 
         try:
-            assembleia = CasaLegislativa.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo=tipo_casa)
-        except CasaLegislativa.DoesNotExist:
+            assembleia = Orgao.objects.get(municipio__uf__sigla=line[SIGLA_COL], tipo=tipo_casa)
+        except Orgao.DoesNotExist:
             print ERROR_MSG_1 % (filename, linenum)
             continue
-        except CasaLegislativa.MultipleObjectsReturned:
+        except Orgao.MultipleObjectsReturned:
             print ERROR_MSG_1 % (filename, linenum)
             continue
         except ValueError:
@@ -417,11 +417,11 @@ def popula():
     projeto3 = Projeto(sigla='PML', nome='Projeto Modernização Legislativo')
     projeto3.save()
 
-    tipo1 = TipoCasaLegislativa(sigla='CM', nome='Câmara Municipal')
+    tipo1 = TipoOrgao(sigla='CM', nome='Câmara Municipal')
     tipo1.save()
-    tipo2 = TipoCasaLegislativa(sigla='AL', nome='Assembléia Legislativa')
+    tipo2 = TipoOrgao(sigla='AL', nome='Assembléia Legislativa')
     tipo2.save()
-    tipo3 = TipoCasaLegislativa(sigla='CT', nome='Câmara Distrital')
+    tipo3 = TipoOrgao(sigla='CT', nome='Câmara Distrital')
     tipo3.save()
 
 

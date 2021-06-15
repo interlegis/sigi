@@ -26,16 +26,16 @@ import csv
 import urlparse
 from datetime import datetime
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor
 
 def importa(file_list):
-    ''' Este script importa dados de um arquivo CSV e dá carga no model casas.CasaLegislativa
+    ''' Este script importa dados de um arquivo CSV e dá carga no model casas.Orgao
 
         O arquivo CSV esperado tem um cabeçalho de campos na primeira linha, com os seguintes campos:
-        
+
         Indicação de data e hora,Pesquisador,Câmara,Possui portal,Portal Modelo,URL,Observações
-        
+
         Indicação de data e hora: Uma string datetime no formato %d/%m/%y %H:%M
         Pesquisador: O nome do servidor que realizou a pesquisa, conforme cadastrado no SIGI
         Câmara: A sigla da UF seguida de um espaço, seguido de um caracter - seguido de um espaço seguido do nome do município,
@@ -43,19 +43,19 @@ def importa(file_list):
         Possui portal: Deve constar "sim" ou "não" indicando se a casa possui ou não portal.
         Portal Modelo: Deve constar "sim" ou "não" indicando se o portal da casa é o portal modelo ou não.
         URL: Deve conter a URL do portal da Casa. Opcionalmente pode ter alguma observação do pesquisador
-        Observações: Deve conter as observações do pesquisador, caso existam.''' 
-    
+        Observações: Deve conter as observações do pesquisador, caso existam.'''
+
     for filename in file_list:
         print 'Importando '+filename+'.csv'
         with open(filename+'.csv', 'rb') as infile:
             with open(filename+'.out', 'wb') as outfile:
                 indata = csv.reader(infile, delimiter=',', quotechar='"')
                 outdata = csv.writer(outfile, delimiter=',', quotechar='"', quoting=csv.QUOTE_ALL)
-        
+
                 head = next(indata)
                 head.append('Erros encontrados')
                 outdata.writerow(head)
-        
+
                 for row in indata:
                     data = row[0].strip()
                     pesquisador = row[1].strip()
@@ -64,32 +64,32 @@ def importa(file_list):
                     pmodelo = row[4].strip()
                     url = row[5].strip()
                     obs = row[6].strip()
-            
+
                     if data == '':
                         data = None
                     else:
                         data = datetime.strptime(data, '%d/%m/%y %H:%M')
-        
+
                     uf = uf_cidade[:2]
                     cidade = uf_cidade[5:]
-        
+
                     if tem_portal.lower() == 'não':
-                        inclusao = CasaLegislativa.INCLUSAO_DIGITAL_CHOICES[1][0]
+                        inclusao = Orgao.INCLUSAO_DIGITAL_CHOICES[1][0]
                     elif pmodelo.lower() == 'não':
-                        inclusao = CasaLegislativa.INCLUSAO_DIGITAL_CHOICES[3][0]
+                        inclusao = Orgao.INCLUSAO_DIGITAL_CHOICES[3][0]
                     else:
-                        inclusao = CasaLegislativa.INCLUSAO_DIGITAL_CHOICES[2][0]
-        
+                        inclusao = Orgao.INCLUSAO_DIGITAL_CHOICES[2][0]
+
                     l = url.splitlines()
                     url = ''
-            
+
                     for s in l:
                         p = urlparse.urlparse(s)
                         if p.netloc:
                             url = s
                         else:
                             obs = obs + '\n' + s
-                    
+
                     if pesquisador == '':
                         servidor = None
                     else:
@@ -101,8 +101,8 @@ def importa(file_list):
                             continue
                         else:
                             servidor = servidor[0]
-                    
-                    casa = CasaLegislativa.objects.filter(tipo_id=1, municipio__uf__sigla=uf, municipio__nome__iexact=cidade)
+
+                    casa = Orgao.objects.filter(tipo_id=1, municipio__uf__sigla=uf, municipio__nome__iexact=cidade)
                     cc = casa.count()
                     if cc == 0:
                         row.append('Municipio nao foi encontrado')
@@ -114,18 +114,18 @@ def importa(file_list):
                         continue
                     else:
                         casa = casa[0]
-                
+
                     casa.inclusao_digital = inclusao
                     casa.data_levantamento = data
                     casa.pesquisador = servidor
-                    
+
                     if casa.pagina_web == '':
                         casa.pagina_web = url
                     else:
                         obs = url + '\n' + obs
-                        
+
                     casa.obs_pesquisa = obs
                     casa.save()
-                    
-        print 'O arquivo '+filename+'.out foi criado com os registros que nao puderam ser importados'            
-                    
+
+        print 'O arquivo '+filename+'.out foi criado com os registros que nao puderam ser importados'
+

@@ -1,0 +1,331 @@
+{% load admin_static bootstrapped_goodies_tags %}
+{% load i18n %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+    <title>{% trans 'SIGI' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
+    <link href="{% static "bootstrap/css/bootstrap.min.css" %}" rel="stylesheet"/>
+    <link href="{% static "bootstrap/css/bootstrap-theme.min.css" %}" rel="stylesheet"/>
+    <link href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" rel="stylesheet"/>
+
+    <script type="text/javascript">
+    //<![CDATA[
+        window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
+    //]]>
+    </script>
+
+    <script src="{% static "admin/js/jquery-1.9.1.min.js" %}"></script>
+    <script src="{% static "admin/js/jquery-migrate-1.2.1.min.js" %}"></script>
+    <script src="{% static "bootstrap/js/bootstrap.min.js" %}"></script>
+
+    <meta name="robots" content="NONE,NOARCHIVE" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <link rel="stylesheet" href="{% static 'metas/css/openmap.css' %}" />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  	<link rel="stylesheet" type="text/css" href="{% static "admin/css/changelists.css" %}" />
+	  <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+	  <script type="text/javascript" src="{% static "admin/js/jquery.min.js" %}"></script>
+	  <script type="text/javascript" src="{% static "admin/js/jquery.init.js" %}"></script>
+    <script type="text/javascript" src="https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"></script>
+</head>
+<body>
+  <div class="mapbox">
+    <div class="sigi-logo">
+      <div>
+        <img src="{% static 'img/interlegis.png' %}" class='img-circle'/>
+      </div>
+      <div>
+        <h3>Interlegis</h3>
+        <a href="{% url 'admin:index' %}">Voltar ao SIGI</a>
+      </div>
+    </div>
+    <div class="container-fluid filterwrap panel panel-body">
+      <a href="#" style="float: right;" id="options-toggler" type="button" data-toggle="collapse" data-target="#filterbox" aria-expanded="false" aria-controls="collapseExample">
+        <span class="glyphicon glyphicon-chevron-right"></span>
+      </a>
+      <div class="collapse" id="filterbox">
+        <form id="searchform" class="form-inline ui-front">
+          <input type="text" id="search-text" class="form-control" placeholder="Procurar" aria-label="Procurar" aria-describedby="basic-addon2">
+        </form>
+        <div class="accordion" id="accordionExample">
+        <form id="filterForm" action="" method="get" >
+          <h4>Filtros</h4>
+          <small><strong>Total de Órgãos selecionados: </strong><span id="totalOrgao" class="badge">-</span></small>
+          <div class="card">
+            <div class="card-header" id="orgao-filter">
+              <a href="#" class="collapsed" type="button" data-toggle="collapse" data-target="#collapse-orgao-filter" aria-expanded="true" aria-controls="collapse-orgao-filter">
+                Por Tipo de órgão
+              </a>
+            </div>
+            <div id="collapse-orgao-filter" class="collapse" aria-labelledby="orgao-filter" data-parent="#accordionExample">
+              <div class="card-body">
+                {% for o in tipos_orgao %}
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_orgao_{{ o.sigla }}" name="tipo_orgao" value="{{ o.sigla }}" checked/>
+                  <label for="tipo_orgao_{{ o.sigla }}" class="form-check-label">{{ o.nome }}</label>
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="servico-filter">
+              <a href="#" class="collapsed" type="button" data-toggle="collapse" data-target="#collapse-servico-filter" aria-expanded="false" aria-controls="collapse-servico-filter">
+                  Por Tipo de serviço
+              </a>
+            </div>
+            <div id="collapse-servico-filter" class="collapse" aria-labelledby="servico-filter" data-parent="#accordionExample">
+              <div class="card-body">
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_servico_ignore" name="ignore_tipo_servico" value="ignore" data-controls="tipo_servico" />
+                  <label for="tipo_servico_ignore" class="form-check-label">Ignorar</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_servico_none" name="tipo_servico" value="none"/>
+                  <label for="tipo_servico_none" class="form-check-label">Nenhum serviço</label>
+                </div>
+                {% for s in tipos_servico %}
+                  <div class="form-check">
+                  <input type="checkbox" id="tipo_servico_{{ s.sigla }}" name="tipo_servico" value="{{ s.sigla }}" checked/>
+                  <label for="tipo_servico_{{ s.sigla }}" class="form-check-label">{{ s.nome }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="convenio-filter">
+              <a href="#" class="collapsed" type="button" data-toggle="collapse" data-target="#collapse-convenio-filter" aria-expanded="false" aria-controls="collapse-convenio-filter">
+                Por convênio
+              </a>
+            </div>
+            <div id="collapse-convenio-filter" class="collapse" aria-labelledby="convenio-filter" data-parent="#accordionExample">
+              <div class="card-body">
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_convenio_ignore" name="ignore_tipo_convenio" value="ignore" data-controls="tipo_convenio" />
+                  <label for="tipo_convenio_ignore" class="form-check-label">Ignorar</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="tipo_convenio_none" name="tipo_convenio" value="none"/>
+                  <label for="tipo_convenio_none" class="form-check-label">Sem convênio</label>
+                </div>
+                {% for c in tipos_convenio %}
+                  <div class="form-check">
+                  <input type="checkbox" id="tipo_convenio_{{ c.sigla }}" name="tipo_convenio" value="{{ c.sigla }}" checked/>
+                  <label for="tipo_convenio_{{ c.sigla }}" class="form-check-label">{{ c.nome }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="regiao-filter">
+              <a href="#" class="collapsed" type="button" data-toggle="collapse" data-target="#collapse-regiao-filter" aria-expanded="false" aria-controls="collapse-regiao-filter">
+                Por região/estado
+              </a>
+            </div>
+            <div id="collapse-regiao-filter" class="collapse" aria-labelledby="regiao-filter" data-parent="#accordionExample">
+              <div class="card-body">
+                {% for s, n, ufs in regioes %}
+                <div class="form-check">
+                  <input type="checkbox" id="regiao_{{ s }}" name="regiao" value="{{ s }}"/>
+                  <label for="regiao_{{ s }}" class="form-check-label">{{ n }}</label>
+                </div>
+                <div class="region-ufs">
+                  {% for uf in ufs %}
+                  <div class="form-check">
+                    <input type="checkbox" id="uf_{{ uf.sigla }}" name="uf" value="{{ uf.sigla }}" data-regiao="{{ s }}" />
+                    <label for="uf_{{ uf.sigla }}" class="form-check-label">{{ uf.nome }}</label>
+                  </div>
+                  {% endfor %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header" id="gerente-filter">
+              <a href="#" class="collapsed" type="button" data-toggle="collapse" data-target="#collapse-gerente-filter" aria-expanded="false" aria-controls="collapse-gerente-filter">
+                Por gerente Interlegis
+              </a>
+            </div>
+            <div id="collapse-gerente-filter" class="collapse" aria-labelledby="gerente-filter" data-parent="#accordionExample">
+              <div class="card-body">
+                <div class="form-check">
+                  <input type="checkbox" id="gerente_ignore" name="gerente_ignore" value="ignore" data-controls="gerente" />
+                  <label for="gerente_ignore" class="form-check-label">Ignorar</label>
+                </div>
+                <div class="form-check">
+                  <input type="checkbox" id="gerente_none" name="gerente" value="none"/>
+                  <label for="gerente_none" class="form-check-label">Sem gerente</label>
+                </div>
+                {% for g in gerentes %}
+                  <div class="form-check">
+                  <input type="checkbox" id="gerente_{{ g.id|stringformat:"s" }}" name="gerente" value="{{ g.id|stringformat:"s" }}" checked/>
+                  <label for="gerente_{{ g.id|stringformat:"s" }}" class="form-check-label">{{ g.nome_completo }}</label>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+          <hr/>
+          <div class="card">
+            <div class="card-body">
+              <button class="btn btn-default" type="submit" name="reptype" value="lista"><span class="glyphicon glyphicon-print"></span> Listagem</a>
+              <button class="btn btn-default" type="submit" name="reptype" value="exporta"><span class="glyphicon glyphicon-export"></span>Exportar</a>
+            </div>
+          </div>
+        </form>
+        </div>
+      </div>
+    </div>
+    <div id="map">
+      <!-- open street map -->
+    </div>
+
+  </div>
+  <script>
+    $(document).ready(function(){
+      var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
+      var unfiltred_options = {color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000};
+
+      $("#search-text").autocomplete({
+        minLength: 3,
+        source: function(request, response) {
+          $.ajax({
+            url: "{% url "openmapsearch" %}",
+            data: {q: request.term },
+            dataType: "json",
+            appendTo: "#searchform",
+            success: function(data) {
+              console.log(data);
+              response(data);
+            },
+          })
+        },
+        select: function( event, ui ) {
+          mymap.flyTo([ui.item.lat, ui.item.lng], 8.5);
+          var encontrado = false;
+          mymap.eachLayer(function(layer) {
+            if (layer instanceof L.Circle) {
+              if (layer.orgao_id == ui.item.id) {
+                layer.openPopup();
+                encontrado = true;
+              }
+            }
+          })
+          if (!encontrado) {
+              var mark = L.circle([ui.item.lat, ui.item.lng], unfiltred_options).bindTooltip(ui.item.label).bindPopup("").addTo(mymap);
+              mark.orgao_id = ui.item.id
+              mark.openPopup();
+          }
+
+          console.log(ui);
+        }
+      });
+      $("#filterbox").on("shown.bs.collapse", function() {
+        $("#options-toggler span").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left")
+      })
+      $("#filterbox").on("hidden.bs.collapse", function() {
+        $("#options-toggler span").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right")
+      })
+
+      $("input[type=checkbox]").change(filtra);
+
+      var mymap = L.map('map', {zoomSnap: 0.01}).setView([-14.235004, -51.92528], 4.5);
+
+      mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
+      mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
+      mymap.zoomControl.setPosition("bottomright");
+
+      L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+        maxZoom: 18,
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1
+      }).addTo(mymap);
+
+      mymap.on("popupopen", function(e) {
+        var popup = e.popup;
+            mark = popup._source;
+        $.ajax({
+          type: "GET",
+          url: "{% url "openmapdetail" "orgao_id" %}".replace("orgao_id", mark.orgao_id),
+          encode: true
+        }).done(function(content) {
+          popup.setContent(content);
+        })
+      })
+
+      filtra();
+
+      function filtra() {
+        var name = $(this).attr("name"),
+            value = $(this).attr("value"),
+            checked = $(this).prop("checked");
+
+        if (value == "ignore") {
+          controls = $(this).attr("data-controls");
+          $("input[type=checkbox][name='"+controls+"']").prop("disabled", checked);
+        }
+
+        if (value=="none") {
+          $("input[type=checkbox][name='" + name +"'][value!='none']").prop("checked", !checked);
+        } else {
+          if (checked) {
+            $("input[type=checkbox][name='" + name +"'][value='none']").prop("checked", false);
+          }
+        }
+
+        if (name='regiao') {
+          $("input[type=checkbox][name='uf'][data-regiao='"+value+"']").prop('checked', checked);
+        }
+
+        if (name='uf') {
+          var sigla_regiao = $(this).attr('data-regiao'),
+              regiao = $("input[type=checkbox][value='"+sigla_regiao+"']");
+          if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:checked").length == 0) {
+            $(regiao).prop('checked', false).prop("indeterminate", false);
+          } else if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:not(:checked)").length == 0) {
+            $(regiao).prop('checked', true).prop("indeterminate", false);
+          } else {
+            $(regiao).prop("indeterminate", true)
+          }
+        }
+
+        var formData = $("#filterForm").serializeArray();
+
+        mymap.eachLayer(function(layer) {
+          if (layer instanceof L.Circle) {
+            mymap.removeLayer(layer);
+          }
+        })
+
+        $.ajax({
+          type: "GET",
+          url: "{% url "openmapdata" %}",
+          data: formData,
+          dataType: "json",
+          encode: true,
+        }).done(function(returnedData) {
+          $("#totalOrgao").text(returnedData.length);
+          returnedData.forEach(function(casa) {
+            if (casa[2] === null || casa[3] === null) {
+              alert(casa[1]+" está sem coordenadas geográficas e não será plotada");
+            } else {
+              var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup("").addTo(mymap);
+              mark.orgao_id = casa[0]
+            }
+          })
+        })
+      }
+    })
+  </script>
+</body>
+</html>
+

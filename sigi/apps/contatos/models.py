@@ -13,11 +13,11 @@ class UnidadeFederativa(models.Model):
     """ Modelo que representa um estado brasileiro
     """
     REGIAO_CHOICES = (
-        ('SL', _(u'Sul')),
-        ('SD', _(u'Sudeste')),
         ('CO', _(u'Centro-Oeste')),
         ('NE', _(u'Nordeste')),
         ('NO', _(u'Norte')),
+        ('SD', _(u'Sudeste')),
+        ('SL', _(u'Sul')),
     )
     codigo_ibge = models.PositiveIntegerField(
         u'código IBGE',
@@ -51,7 +51,11 @@ class Mesorregiao(models.Model):
         unique=True,
         help_text=_(u'Código da mesorregião segundo o IBGE')
     )
-    uf = models.ForeignKey(UnidadeFederativa, verbose_name=_(u'UF'))
+    uf = models.ForeignKey(
+        UnidadeFederativa,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'UF')
+    )
     nome = models.CharField(_(u"Nome mesorregião"), max_length=100)
     # Campo de busca em caixa baixa sem acento
     search_text = SearchField(field_names=['nome'])
@@ -62,7 +66,7 @@ class Mesorregiao(models.Model):
 
     def __unicode__(self):
         return self.nome
-    
+
 class Microrregiao(models.Model):
     codigo_ibge = models.PositiveIntegerField(
         _(u'Código IBGE'),
@@ -70,13 +74,16 @@ class Microrregiao(models.Model):
         unique=True,
         help_text=_(u'Código da microrregião segundo o IBGE')
     )
-    mesorregiao = models.ForeignKey(Mesorregiao)
+    mesorregiao = models.ForeignKey(
+        Mesorregiao,
+        on_delete=models.CASCADE
+    )
     nome = models.CharField(_(u"Nome microrregião"), max_length=100)
     # Campo de busca em caixa baixa sem acento
     search_text = SearchField(field_names=['nome'])
 
     class Meta:
-        ordering = ('mesorregiao', 'nome')
+        ordering = ('nome',)
         verbose_name, verbose_name_plural = _(u'Microrregião'), _(u'Microrregiões')
 
     def __unicode__(self):
@@ -92,8 +99,14 @@ class Municipio(models.Model):
         unique=True,
         help_text=_(u'Código do município segundo IBGE.')
     )
-    
-    microrregiao = models.ForeignKey(Microrregiao, verbose_name=_(u'Microrregião'), blank=True, null=True)
+
+    microrregiao = models.ForeignKey(
+        Microrregiao,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'Microrregião'),
+        blank=True,
+        null=True
+    )
 
     # codio designado pelo Tribunal Superior Eleitoral
     codigo_tse = models.PositiveIntegerField(
@@ -104,7 +117,11 @@ class Municipio(models.Model):
     )
     nome = models.CharField(max_length=50)
     search_text = SearchField(field_names=[_(u'nome'), _(u'uf')])
-    uf = models.ForeignKey(UnidadeFederativa, verbose_name=_(u'UF'))
+    uf = models.ForeignKey(
+        UnidadeFederativa,
+        on_delete=models.PROTECT,
+        verbose_name=_(u'UF')
+    )
     # verdadeiro se o município é capital do estado
     is_capital = models.BooleanField(_(u'capital'), default=False)
     populacao = models.PositiveIntegerField(_(u'população'))
@@ -173,10 +190,13 @@ class Telefone(models.Model):
     ult_alteracao = models.DateTimeField(_(u'Última alteração'), null=True, blank=True, editable=False, auto_now=True)
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('numero',)
@@ -200,16 +220,20 @@ class Contato(models.Model):
 
     municipio = models.ForeignKey(
         Municipio,
+        on_delete=models.SET_NULL,
         verbose_name=_(u'município'),
         blank=True,
         null=True,
     )
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('nome',)
@@ -291,6 +315,7 @@ class Endereco(models.Model):
 
     municipio = models.ForeignKey(
         Municipio,
+        on_delete=models.SET_NULL,
         verbose_name=_(u'município'),
         blank=True,
         null=True,
@@ -298,10 +323,13 @@ class Endereco(models.Model):
     municipio.uf_filter = True
 
     # guarda o tipo do objeto (classe) vinculado a esse registro
-    content_type = models.ForeignKey(ContentType)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     # identificador do registro na classe vinculado a esse registro
     object_id = models.PositiveIntegerField()
-    content_object = generic.GenericForeignKey('content_type', 'object_id')
+    content_object = generic.GenericForeignKey(
+        'content_type',
+        'object_id',
+    )
 
     class Meta:
         ordering = ('logradouro', 'numero')

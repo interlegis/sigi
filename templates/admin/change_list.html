@@ -33,7 +33,6 @@
 {% block coltype %}flex{% endblock %}
 
 {% block object-tools %}
-
     <ul class="object-tools pull-left nav nav-pills">
         {% block object-tools-items %}
         {% if has_add_permission %}
@@ -46,7 +45,6 @@
         {% endif %}
         {% endblock %}
     </ul>
-
     {% if cl.has_filters %}
     <ul class="nav navbar-nav pull-right">
         <li class="dropdown">
@@ -60,10 +58,10 @@
     </ul>
     {% endif %}
     {% block search %}{% search_form cl %}{% endblock %}
-
 {% endblock %}
 
 {% block content %}
+{% block extra_search %}{% endblock %}
 <form class="" id="changelist-form" action="" method="post"{% if cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %}>{% csrf_token %}
 
 {% if cl.formset.errors %}

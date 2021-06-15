@@ -11,7 +11,7 @@ from django.utils.translation import ugettext as _
 from eav.fields import RangeField
 from eav.forms import BaseDynamicEntityForm
 
-from sigi.apps.casas.models import CasaLegislativa, Funcionario
+from sigi.apps.casas.models import Orgao, Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.models import Diagnostico
 from sigi.apps.diagnosticos.widgets import EavCheckboxSelectMultiple, EavRadioSelect
@@ -132,23 +132,23 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                 self.initial[schema.name] = value
 
 
-class CasaLegislativaMobileForm(forms.ModelForm):
+class OrgaoMobileForm(forms.ModelForm):
     data_instalacao = forms.DateField(label=_(u'Data de instalação da Casa Legislativa'), required=False)
     data_criacao = forms.DateField()
 
     class Meta:
-        model = CasaLegislativa
+        model = Orgao
         fields = ('cnpj', 'data_criacao', 'data_instalacao', 'logradouro', 'bairro', 'cep', 'email', 'pagina_web')
 
     def __init__(self, *args, **kwargs):
-        super(CasaLegislativaMobileForm, self).__init__(*args, **kwargs)
+        super(OrgaoMobileForm, self).__init__(*args, **kwargs)
         self.fields['data_criacao'] = forms.DateField(
             label=_(u'Data de criação do Município'),
             initial=self.instance.municipio.data_criacao,
             required=False)
 
     def save(self, commit=True):
-        super(CasaLegislativaMobileForm, self).save(commit=True)
+        super(OrgaoMobileForm, self).save(commit=True)
         self.instance.municipio.data_criacao = self.cleaned_data['data_criacao']
         if commit:
             self.instance.municipio.save()

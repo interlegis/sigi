@@ -1,6 +1,5 @@
 main_menu:
   - title: Municípios
-    url: contatos/municipio/
     children:
     - title: Municípios
       url: contatos/municipio/
@@ -8,96 +7,43 @@ main_menu:
       url: contatos/unidadefederativa/
     - title: Mesorregiões
       url: contatos/mesorregiao/
-  - title: Casas Legislativas
-    url: casas/casalegislativa/
+  - title: Casas e órgãos
     children:
-    - title: Todas
-      url: casas/casalegislativa/
+    - title: Todo legislativo
+      url: casas/orgao/?tipo__legislativo__exact=1
     - title: Câmaras Municipais
-      url: casas/casalegislativa/?tipo__id__exact=1
+      url: casas/orgao/?tipo__sigla__exact=CM
     - title: Assembléias Legislativas
-      url: casas/casalegislativa/?tipo__id__exact=2
-    - title: Portfólio de relacionamento
-      url: casas/portfolio/
+      url: casas/orgao/?tipo__sigla__exact=AL
+    - title: Demais órgãos
+      url: casas/orgao/?tipo__legislativo__exact=0
+  - title: Gerência Interlegis
+    children:
     - title: Carteira de relacionamentos
       url: casas/carteira
-    - title: Tipos de Casas
-      url: casas/tipocasalegislativa/
-  - title: Legislaturas
-    url: parlamentares/legislatura/
-    children:
-    - title: Todas
-      url: parlamentares/legislatura/
-    - title: Parlamentares
-      url: parlamentares/parlamentar/
-    - title: Tabela de cargos
-      url: parlamentares/cargo/
-    - title: Tabela de partidos
-      url: parlamentares/partido/
-  - title: Diagnósticos
-    url: diagnosticos/diagnostico/
-    children:
-    - title: Administração
-      url: diagnosticos/diagnostico/
-    - title: Coleta de dados
-      url: diagnosticos/mobile/
-    - title: Gráficos e estatísticas
-      url: diagnosticos/graficos
+    - title: Organizar relacionamentos
+      url: casas/portfolio/
+    - title: Lista de gerentes
+      url: casas/gerentes/
   - title: Convênios
-    url: convenios/convenio/
     children:
     - title: Convênios
       url: convenios/convenio/
     - title: Planos diretores
       url: metas/planodiretor/
-  - title: Inventário
-    url: inventario/bem/
-    children:
-    - title: Bens
-      url: inventario/bem/
-    - title: Fornecedores
-      url: inventario/fornecedor/
-    - title: Equipamentos
-      url: inventario/equipamento/
-    - title: Fabricantes
-      url: inventario/fabricante/
-    - title: Tipos de equipamentos
-      url: inventario/tipoequipamento/
-    - title: Modelos de equipamentos
-      url: inventario/modeloequipamento/
-  - title: Servidores
-    url: servidores/servidor/?user__is_active__exact=1
-    children:
-    - title: Pessoal
-      url: servidores/servidor/?user__is_active__exact=1
-    - title: Funções
-      url: servidores/funcao
-    - title: Férias
-      url: servidores/ferias/
-    - title: Licenças
-      url: servidores/licenca/
   - title: Serviços SEIT
-    url: servicos/casaatendida/
     children:
-    - title: Tipos de serviço
-      url: servicos/tiposervico/
     - title: Casas atendidas
       url: servicos/casaatendida/
     - title: Lista de serviços
       url: servicos/servico/
   - title: Ocorrências
-    url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
     children:
     - title: Painel de ocorrências
       url: ocorrencias/painel/
     - title: Registro de ocorrências
       url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
-    - title: Tabela de categorias
-      url: ocorrencias/categoria/
-    - title: Tipos de contato
-      url: ocorrencias/tipocontato/
   - title: Eventos
-    url: eventos/evento
     children:
     - title: Eventos
       url: eventos/evento/
@@ -105,21 +51,81 @@ main_menu:
       url: eventos/calendario
     - title: Alocação de equipe
       url: eventos/alocacaoequipe/
+  - title: Servidores
+    children:
+    - title: Serviços (unidades do ILB)
+      url: servidores/servico/
+    - title: Servidores e colaboradores
+      url: servidores/servidor/
+  - title: Tabelas auxiliares
+    children:
+    - title: Tipos de órgãos
+      url: casas/tipoorgao/
+    - title: Acompanhamento convênios
+      url: convenios/statusconvenio/
+    - title: Tipos de serviço SEIT
+      url: servicos/tiposervico/
+    - title: Categorias de ocorrências
+      url: ocorrencias/categoria/
+    - title: Tipos de contato
+      url: ocorrencias/tipocontato/
     - title: Tipos de evento
       url: eventos/tipoevento/
-    - title: Funções na equipe
+    - title: Funções na equipe de eventos
       url: eventos/funcao/
-  - title: Financeiro
-    url: financeiro/desembolso/
-    children:
-    - title: Desembolsos
-      url: financeiro/desembolso/
-  - title: Saberes
-    url: '/'
-    children:
-    - title: Dashboard
-      url: saberes/dashboard/
-    - title: Cursos sem Tutoria
-      url: saberes/dashboard/cursos-sem-turoria/
-    - title: Cursos com Tutoria
-      url: saberes/dashboard/cursos-com-turoria/
+
+
+# Removidos
+  # - title: Legislaturas
+  #   url: parlamentares/legislatura/
+  #   children:
+  #   - title: Todas
+  #     url: parlamentares/legislatura/
+  #   - title: Parlamentares
+  #     url: parlamentares/parlamentar/
+  #   - title: Tabela de cargos
+  #     url: parlamentares/cargo/
+  #   - title: Tabela de partidos
+  #     url: parlamentares/partido/
+  # - title: Diagnósticos
+  #   url: diagnosticos/diagnostico/
+  #   children:
+  #   - title: Administração
+  #     url: diagnosticos/diagnostico/
+  #   - title: Coleta de dados
+  #     url: diagnosticos/mobile/
+  #   - title: Gráficos e estatísticas
+  #     url: diagnosticos/graficos
+
+  # - title: Inventário
+  #   url: inventario/bem/
+  #   children:
+  #   - title: Bens
+  #     url: inventario/bem/
+  #   - title: Fornecedores
+  #     url: inventario/fornecedor/
+  #   - title: Equipamentos
+  #     url: inventario/equipamento/
+  #   - title: Fabricantes
+  #     url: inventario/fabricante/
+  #   - title: Tipos de equipamentos
+  #     url: inventario/tipoequipamento/
+  #   - title: Modelos de equipamentos
+  #     url: inventario/modeloequipamento/
+  # - title: Servidores
+  #   url: servidores/servidor/?user__is_active__exact=1
+  #   children:
+  #   - title: Pessoal
+  #     url: servidores/servidor/?user__is_active__exact=1
+  #   - title: Funções
+  #     url: servidores/funcao
+  #   - title: Férias
+  #     url: servidores/ferias/
+  #   - title: Licenças
+  #     url: servidores/licenca/
+
+  # - title: Financeiro
+  #   url: financeiro/desembolso/
+  #   children:
+  #   - title: Desembolsos
+  #     url: financeiro/desembolso/

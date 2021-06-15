@@ -5,7 +5,7 @@
 <html>
     <head>
         <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-        <title>{% trans 'Relatório' %}</title>
+        <title>{% block title %}{% trans 'Relatório' %}{% endblock title %}</title>
         <style type="text/css">
             td.logo {
                 text-align: center;
@@ -34,6 +34,22 @@
                 line-height: 1em;
             }
 
+            #footer {
+                width: 100%;
+            }
+            #footer table {
+                border: 0px;
+            }
+
+            .footer-left {
+                text-align: left;
+            }
+            .footer-center {
+                text-align: center;
+            }
+            .footer-right {
+                text-align: right;
+            }
             div.new_page {
                 page-break-before: always;
             }
@@ -41,7 +57,7 @@
                 -pdf-keep-with-next: true;
             }
             @page {
-                size: {{ pagesize }};
+                size: {% block pagesize %}{{ pagesize }}{% endblock pagesize %};
                 margin: 4cm 1cm 1cm 2cm;
                 font-family: "Helvetica, Arial, sans-serif";
                 font-size: 2em;
@@ -52,9 +68,9 @@
                 @frame footer {
                     -pdf-frame-content: footer;
                     bottom: 0cm;
-                    margin-left: 9cm;
-                    margin-right: 9cm;
                     height: 1cm;
+                    margin-left: 2cm;
+                    margin-right: 1cm;
                 }
             }
         </style>
@@ -79,7 +95,13 @@
         {% endblock %}
         <div id="footer">
             {%block page_foot%}
-            {% trans 'Página' %} <pdf:pagenumber>
+            <table>
+              <tr>
+                <td class="footer-left">{% trans 'Emissão:' %} {% now "d/m/Y H:i:s" %}</td>
+                <td class="footer-center">&nbsp;</td>
+                <td class="footer-right">{% trans 'Página:' %} <pdf:pagenumber/> </td>
+              </tr>
+            </table>
             {%endblock%}
         </div>
     </body>

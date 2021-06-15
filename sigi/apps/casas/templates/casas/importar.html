@@ -1,0 +1,81 @@
+{% extends "admin/base_site.html" %}
+{% load i18n bootstrap3 %}
+
+{% block content_title %}
+<h1 class="pull-left">{% trans 'Importar dados para atualização de órgãos' %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  {{ error }}
+</div>
+{% endif %}
+<div id="content-main">
+  <form action="" method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="form-group">
+    {% bootstrap_form form %}
+    </div>
+    <input type="submit" value="Importar" class="btn btn-primary"/>
+  </form>
+  <div id="data-hints">
+    <h3>Padrões do arquivo:</h3>
+    <ul class="list-group">
+      <li class="list-group-item">O arquivo deve ter o formato de texto, no padrão CSV</li>
+      <li class="list-group-item">Deve-se usar pt-br.UTF-8 como codificação do arquivo</li>
+      <li class="list-group-item">A primeira linha do arquivo teve conter o cabeçalho das colunas, conforme explicado a seguir</li>
+      <li class="list-group-item">Cada linha subsequente deve referir-se a um e somente um órgão</li>
+      <li class="list-group-item">Campos deixados em branco serão ignorados</li>
+    </ul>
+    <hr/>
+    <h3>Colunas do arquivo:</h3>
+    <ul class="list-group">
+      <li class="list-group-item">O arquivo deve possuir no mínimo as colunas marcadas como obrigatórias.
+          A primeira linha deve conter os cabeçalhos, que devem ser grafados
+          EXATAMENTE como descrito na tabela abaixo (minúsculas, sem acentos, sem espaços).</li>
+      <li class="list-group-item">É desejável que as colunas estejam na mesma ordem definida aqui.</li>
+      <li class="list-group-item">Colunas adicionais podem estar presentes, e serão ignoradas</li>
+    </ul>
+    <table class="table table-striped table-condensed">
+    <thead class="thead-light">
+      <tr>
+        <th>Obrigatório</th>
+        <th>Título do campo</th>
+        <th>Conteúdo esperado</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><th>*</th><th>tipo</th><td>Deve conter CM para Câmara Municipal ou AL para Assembleia Legislativa</td></tr>
+      <tr><th>*</th><th>municipio</th><td>O nome do município. Não use abreviações!!!</td></tr>
+      <tr><th>*</th><th>uf</th><td>A sigla da Unidade da Federação (Estado) em letras maiúsculas (ex: MG, SP, PA)</td></tr>
+      <tr><th></th><th>orgao_endereco</th><td>O novo endereço do órgão.</td></tr>
+      <tr><th></th><th>orgao_bairro</th><td>O novo bairro do órgão</td></tr>
+      <tr><th></th><th>orgao_cep</th><td>O novo CEP do órgão</td></tr>
+      <tr><th></th><th>orgao_email</th><td>O novo e-mail institucional do órgão</td></tr>
+      <tr><th></th><th>orgao_portal</th><td>O novo endereço do portal institucional do órgão</td></tr>
+      <tr><th></th><th>orgao_telefones</th><td>Os telefones do órgão. Pode conter quantos telefones forem necessários, separando-os por ';'. Use a formatação padrão de telefones, mas não use ';' entre os dígitos de um telefone, senão o sistema interpretará como dois telefones diferentes. </td></tr>
+      <tr><th></th><th>presidente_nome</th><td>O nome completo do presidente</td></tr>
+      <tr><th></th><th>presidente_data_nascimento</th><td>A data de nascimento do presidente no formato DD/MM/AAAA</td></tr>
+      <tr><th></th><th>presidente_telefones</th><td>Os telefones ou whatsapp do presidente. Pode conter quantos telefones forem necessários, separando-os por ';'. Use a formatação padrão de telefones, mas não use ';' entre os dígitos de um telefone, senão o sistema interpretará como dois telefones diferentes.</td></tr>
+      <tr><th></th><th>presidente_emails</th><td>Os e-mails do presidente. Pode conter quantos e-mails forem necessários. Utilize ';' para separar um e-mail do outro</td></tr>
+      <tr><th></th><th>presidente_endereco</th><td>O novo endereço do presidente</td></tr>
+      <tr><th></th><th>presidente_municipio</th><td>O nome do município onde mora o presidente</td></tr>
+      <tr><th></th><th>presidente_bairro</th><td>O nome do bairro onde mora o presidente</td></tr>
+      <tr><th></th><th>presidente_cep</th><td>O novo CEP do presidente</td></tr>
+      <tr><th></th><th>presidente_redes_sociais</th><td>As redes sociais do presidente. Pode conter quantas redes sociais forem necessárias. Utilize espaço para separar uma rede da outra.</td></tr>
+      <tr><th></th><th>contato_nome</th><td>O nome completo do contato</td></tr>
+      <tr><th></th><th>contato_data_nascimento</th><td>A data de nascimento do contato no formato DD/MM/AAAA</td></tr>
+      <tr><th></th><th>contato_telefones</th><td>Os telefones ou whatsapp do contato. Pode conter quantos telefones forem necessários, separando-os por ';'. Use a formatação padrão de telefones, mas não use ';' entre os dígitos de um telefone, senão o sistema interpretará como dois telefones diferentes.</td></tr>
+      <tr><th></th><th>contato_emails</th><td>Os e-mails do contato. Pode conter quantos e-mails forem necessários. Utilize ';' para separar um e-mail do outro</td></tr>
+      <tr><th></th><th>contato_endereco</th><td>O novo endereço do contato</td></tr>
+      <tr><th></th><th>contato_municipio</th><td>O nome do município onde mora o contato</td></tr>
+      <tr><th></th><th>contato_bairro</th><td>O nome do bairro onde mora o contato</td></tr>
+      <tr><th></th><th>contato_cep</th><td>O novo CEP do contato</td></tr>
+      <tr><th></th><th>contato_redes_sociais</th><td>As redes sociais do contato. Pode conter quantas redes sociais forem necessárias. Utilize espaço para separar uma rede da outra.</td></tr>
+    <tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+

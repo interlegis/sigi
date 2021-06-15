@@ -901,7 +901,7 @@ msgid "Data de Aceite"
 msgstr ""
 
 #: sigi/apps/convenios/reports.py:143
-msgid "CasaLegislativa: "
+msgid "Orgao: "
 msgstr ""
 
 #: sigi/apps/convenios/reports.py:250

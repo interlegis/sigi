@@ -11,10 +11,6 @@ DATABASES = {
         'PASSWORD': 'sigi',
         'HOST': 'localhost',
     },
-    'moodle': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'moodle.db'),
-    }
 }
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -33,10 +29,3 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
-
-PENTAHO_SERVER = 'http://localhost.com/pentaho/'
-PENTAHO_DASHBOARDS = ('saberes',)
-PENTAHO_USERNAME_PASSWORD = 'root@root'
-
-SABERES_URL = 'http://your-moodle-url.com'
-SABERES_TOKEN = 'token-generated-by-moodle-to-access-webservice-api'

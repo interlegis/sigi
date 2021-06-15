@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
 from terminaltables import AsciiTable
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Anexo as AnexoConvenios
 from sigi.apps.diagnosticos.models import Anexo as AnexoDiagnosticos
 from sigi.apps.ocorrencias.models import Anexo as AnexoOcorrencias
@@ -31,7 +31,7 @@ def url(obj):
 
 # IMAGENS FALTANDO
 imagens_faltando = [[u"SITUAÇÃO DO ARQUIVO DA FOTO  ", "URL", "OBJETO"]]
-for cl in (CasaLegislativa, Parlamentar, Servidor):
+for cl in (Orgao, Parlamentar, Servidor):
     for a in cl.objects.all():
         if a.foto:
             imagens_faltando.append([

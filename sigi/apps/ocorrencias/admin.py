@@ -3,11 +3,11 @@ from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
 from django.utils.translation import ugettext as _
 
-from filters import OcorrenciaListFilter
+from sigi.apps.ocorrencias.filters import OcorrenciaListFilter
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.base_admin import BaseModelAdmin
-
+from sigi.apps.casas.admin import GerentesInterlegisFilter
 
 class ComentarioViewInline(admin.TabularInline):
     model = Comentario
@@ -63,12 +63,21 @@ class OcorrenciaChangeList(ChangeList):
 
 
 class OcorrenciaAdmin(BaseModelAdmin):
-    list_display = ('data_criacao', 'casa_legislativa', 'get_municipio', 'get_uf', 'assunto', 'prioridade', 'status', 'data_modificacao', 'setor_responsavel',)
-    list_filter = (OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome', 'setor_responsavel__nome', 'casa_legislativa__gerente_contas',)
-    search_fields = ('casa_legislativa__search_text', 'assunto', 'servidor_registro__nome_completo', 'descricao', 'resolucao', 'ticket',)
+    list_display = ('data_criacao', 'casa_legislativa', 'get_municipio',
+                    'get_uf', 'assunto', 'prioridade', 'status',
+                    'data_modificacao', 'setor_responsavel',)
+    list_filter = (
+        OcorrenciaListFilter, 'status', 'prioridade', 'categoria__nome',
+        'setor_responsavel__nome',
+        ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
+    )
+    search_fields = ('casa_legislativa__search_text', 'assunto',
+                     'servidor_registro__nome_completo', 'descricao',
+                     'resolucao', 'ticket',)
     date_hierarchy = 'data_criacao'
-    fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'prioridade', 'ticket', 'descricao', 'servidor_registro',
-              'setor_responsavel', 'resolucao', )
+    fields = ('casa_legislativa', 'categoria', 'tipo_contato', 'assunto',
+              'status', 'prioridade', 'ticket', 'descricao',
+              'servidor_registro', 'setor_responsavel', 'resolucao', )
     readonly_fields = ('servidor_registro', 'setor_responsavel', )
     inlines = (ComentarioViewInline, ComentarioInline, AnexosInline, )
     raw_id_fields = ('casa_legislativa', )

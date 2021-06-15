@@ -1,0 +1,57 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_static %}
+{% load static from staticfiles %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}<h1>{% blocktrans %}Gerentes Interlegis{% endblocktrans %}</h1>{% endblock %}
+
+{% block content %}
+  <div id="navbar-object-tools" class="nav">
+    <ul class="nav navbar-nav navbar-left">
+      <li><a href="?fmt=pdf">
+        <span class="glyphicon glyphicon-print"></span>
+        Relatório PDF
+      </a></li>
+      <li><a href="?fmt=csv&casas=yes">
+          <span class="glyphicon glyphicon-list-alt"></span>
+          CSV com casas
+      </a></li>
+      <li><a href="?fmt=csv&casas=no">
+          <span class="glyphicon glyphicon-list-alt"></span>
+          CSV sem casas
+      </a></li>
+    </ul>
+  </div>
+
+  <div id="content" class="colM">
+  {% for linha in gerentes %}
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+        <p>{{ linha.gerente.nome_completo }} <span class="badge">{{ linha.gerente.casas_que_gerencia.count }}</span></p>
+    </div>
+    <div class="panel-body">
+      <ul class="nav nav-pills" role="tablist">
+      {% for uf in linha.ufs %}
+        <li role="presentation">
+          <a href="#tab{{ linha.gerente.id }}-{{ uf.0 }}" aria-controls="tab{{ linha.gerente.id }}-{{ uf.0 }}" role="tab" data-toggle="tab">{{ uf.1 }} <span class="badge">{{ uf.2|length }}</span></a>
+        </li>
+      {% endfor %}
+      </ul>
+      <div class="tab-content">
+      {% for uf in linha.ufs %}
+	    <div role="tabpanel" class="tab-pane" id="tab{{ linha.gerente.id }}-{{ uf.0 }}">
+          <ul class="list-group list-inline">
+            {% for casa in uf.2 %}
+              <li class="list-group-item list-inline-item">
+              <a href="{% url 'admin:casas_orgao_change' casa.id %}" target="_blank">{{ casa }}</a></li>
+            {% endfor %}
+          </ul>
+        </div>
+      {% endfor %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  </div>
+{% endblock %}

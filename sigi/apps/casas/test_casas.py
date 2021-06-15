@@ -1,7 +1,7 @@
 import pytest
 from django_dynamic_fixture import G
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 
 
 @pytest.fixture
@@ -14,4 +14,4 @@ def some_parliaments():
 
 
 def parliaments_from_names(names):
-    return [G(CasaLegislativa, nome=name, foto=None, gerente_contas=None,) for name in names]
+    return [G(Orgao, nome=name, foto=None,) for name in names]

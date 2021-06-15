@@ -12,7 +12,7 @@ from sigi.apps.casas.models import Funcionario
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.diagnosticos.decorators import validate_diagnostico
 from sigi.apps.diagnosticos.forms import (DiagnosticoMobileForm,
-                                          CasaLegislativaMobileForm, FuncionariosMobileForm)
+                                          OrgaoMobileForm, FuncionariosMobileForm)
 from sigi.apps.diagnosticos.models import Diagnostico, Categoria, Pergunta
 from sigi.apps.diagnosticos.urls import LOGIN_REDIRECT_URL
 from sigi.apps.utils.decorators import login_required
@@ -117,7 +117,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
     casa_legislativa = diagnostico.casa_legislativa
 
     if request.method == "POST":
-        form = CasaLegislativaMobileForm(request.POST,
+        form = OrgaoMobileForm(request.POST,
                                          instance=casa_legislativa)
         if form.is_valid():
             form.save()
@@ -133,7 +133,7 @@ def categoria_casa_legislativa(request, id_diagnostico):
         json = simplejson.dumps(resposta)
         return HttpResponse(json, content_type='application/json')
     else:
-        form = CasaLegislativaMobileForm(instance=casa_legislativa)
+        form = OrgaoMobileForm(instance=casa_legislativa)
 
     context = RequestContext(request, {'form': form,
                                        'diagnostico': diagnostico, 'casa_legislativa': casa_legislativa})

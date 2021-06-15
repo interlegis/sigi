@@ -11,10 +11,15 @@ from django.template import Context, loader
 from django.utils.translation import ugettext as _
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
+from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
-from sigi.apps.convenios.reports import ConvenioPorCMReport, ConvenioPorALReport, ConvenioReportSemAceiteAL, ConvenioReportSemAceiteCM
+from sigi.apps.convenios.reports import (ConvenioReport,
+                                         ConvenioReportSemAceite,
+                                         ConvenioPorCMReport,
+                                         ConvenioPorALReport,
+                                         ConvenioReportSemAceiteAL,
+                                         ConvenioReportSemAceiteCM)
 from django.contrib.auth.decorators import login_required
 
 
@@ -31,10 +36,32 @@ def query_ordena(qs, o, ot):
         qs = qs.order_by("-" + aux)
     return qs
 
+def normaliza_data(get, nome_param):
+    import re
+    if nome_param in get:
+        value = get.get(nome_param, '')
+        if value == '':
+            del get[nome_param]
+        elif re.match('^\d*$', value):  # Year only
+            # Complete with january 1st
+            get[nome_param] = "%s-01-01" % value
+        elif re.match('^\d*\D\d*$', value):  # Year and month
+            # Complete with 1st day of month
+            get[nome_param] = '%s-01' % value
 
 def get_for_qs(get, qs):
     kwargs = {}
     ids = 0
+    get._mutable = True
+    normaliza_data(get, 'data_retorno_assinatura__gte')
+    normaliza_data(get, 'data_retorno_assinatura__lte')
+    normaliza_data(get, 'data_sigad__gte')
+    normaliza_data(get, 'data_sigad__lte')
+    normaliza_data(get, 'data_sigi__gte')
+    normaliza_data(get, 'data_sigi__lte')
+    normaliza_data(get, 'data_solicitacao__gte')
+    normaliza_data(get, 'data_solicitacao__lte')
+    get._mutable = False
     for k, v in get.iteritems():
         if k not in ['page', 'pop', 'q', '_popup']:
             if not k == 'o':
@@ -45,8 +72,7 @@ def get_for_qs(get, qs):
                     if(str(k) == 'ids'):
                         ids = 1
                         break
-                    qs = qs.filter(**kwargs)
-
+    qs = qs.filter(**kwargs)
     if ids:
         query = 'id IN (' + kwargs['ids'].__str__() + ')'
         qs = Convenio.objects.extra(where=[query])
@@ -154,7 +180,7 @@ def report(request, id=None):
             tipo = request.POST['filtro_casa']
         if 'data_aceite' in request.POST:
             data_aceite_has = request.POST['data_aceite']
-        # Verifica filtro se é por Assembleia
+        # filtro adicional pela seleção do usuário
         if tipo == 'al':
             qs = qs.filter(casa_legislativa__tipo__sigla='AL')
             # Verifica se é com data de aceite
@@ -162,12 +188,17 @@ def report(request, id=None):
                 report = ConvenioReportSemAceiteAL(queryset=qs)
             else:
                 report = ConvenioPorALReport(queryset=qs)
-        else:
+        elif tipo == 'cm':
             qs = qs.filter(casa_legislativa__tipo__sigla='CM')
             if data_aceite_has == 'nao':
                 report = ConvenioReportSemAceiteCM(queryset=qs)
             else:
                 report = ConvenioPorCMReport(queryset=qs)
+        else:
+            if data_aceite_has == 'nao':
+                report = ConvenioReportSemAceite(queryset=qs)
+            else:
+                report = ConvenioReport(queryset=qs)
 
     response = HttpResponse(content_type='application/pdf')
     if report:
@@ -249,7 +280,7 @@ def report_regiao(request, regiao='NE'):
 
     projetos = Projeto.objects.all()
 
-    camaras = CasaLegislativa.objects.filter(tipo__sigla='CM')
+    camaras = Orgao.objects.filter(tipo__sigla='CM')
 
     tabelas = list()
     # Geral

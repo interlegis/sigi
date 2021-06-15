@@ -5,9 +5,6 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.views.generic.base import TemplateView
 
-from sigi.apps.saberes.views import pentaho_proxy
-
-
 admin.site.index_template = 'index.html'
 admin.autodiscover()
 
@@ -18,14 +15,11 @@ urlpatterns = patterns(
     url(r'^casas/', include('sigi.apps.casas.urls')),
     url(r'^convenios/', include('sigi.apps.convenios.urls')),
     url(r'^diagnosticos/', include('sigi.apps.diagnosticos.urls')),
-    url(r'^servidores/', include('sigi.apps.servidores.urls')),
     url(r'^servicos/', include('sigi.apps.servicos.urls')),
-    url(r'^saberes/', include('sigi.apps.saberes.urls')),
     url(r'^dashboard/', include('sigi.apps.metas.urls')),
     url(r'^ocorrencias/', include('sigi.apps.ocorrencias.urls')),
     url(r'^eventos/', include('sigi.apps.eventos.urls')),
     url(r'^whois/', include('sigi.apps.whois.urls')),
-    url(r'^pentaho/(?P<path>(plugin|api)/.*)$', pentaho_proxy),
     url(r'^', include('sigi.apps.home.urls')),
     url(r'^', include(admin.site.urls)),
 

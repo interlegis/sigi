@@ -1,33 +1,322 @@
 # -*- coding: utf-8 -*-
 import csv
+from datetime import datetime
 from functools import reduce
-
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.http import HttpResponse, HttpResponseRedirect, Http404
-from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _, ungettext
 from geraldo.generators import PDFGenerator
 
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.casas.reports import CasasLegislativasLabels, CasasLegislativasLabelsSemPresidente, CasasLegislativasReport, CasasSemConvenioReport, InfoCasaLegislativa
-from sigi.apps.parlamentares.reports import ParlamentaresLabels
-from sigi.apps.contatos.models import UnidadeFederativa, Mesorregiao, Microrregiao
-from sigi.apps.casas.forms import PortfolioForm
+from django.conf import settings
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator, InvalidPage, EmptyPage
+from django.db.models import Count, Q
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.shortcuts import render, get_object_or_404
+from django.utils.translation import ugettext as _, ungettext
+from django.views.generic import View
+
+from sigi.apps.casas.forms import PortfolioForm, AtualizaCasaForm
+from sigi.apps.casas.models import Orgao, TipoOrgao, Funcionario
+from sigi.apps.casas.reports import (CasasLegislativasLabels,
+                                     CasasLegislativasLabelsSemPresidente)
+from sigi.apps.contatos.models import (UnidadeFederativa, Municipio,
+                                       Mesorregiao, Microrregiao)
+from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.reports import ParlamentaresLabels
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.ocorrencias.models import Ocorrencia
-from django.db.models import Count, Q
-from django.http.response import JsonResponse
+from sigi.shortcuts import render_to_pdf
 
+class importa_casas(View):
+    errors = []
+    total_registros = 0
+
+    TIPO = 'tipo'
+    MUNICIPIO = 'municipio'
+    UF = 'uf'
+    ORGAO_ENDERECO = 'orgao_endereco'
+    ORGAO_BAIRRO = 'orgao_bairro'
+    ORGAO_CEP = 'orgao_cep'
+    ORGAO_EMAIL = 'orgao_email'
+    ORGAO_PORTAL = 'orgao_portal'
+    ORGAO_TELEFONES = 'orgao_telefones'
+    PRESIDENTE_NOME = 'presidente_nome'
+    PRESIDENTE_DATA_NASCIMENTO = 'presidente_data_nascimento'
+    PRESIDENTE_TELEFONES = 'presidente_telefones'
+    PRESIDENTE_EMAILS = 'presidente_emails'
+    PRESIDENTE_ENDERECO = 'presidente_endereco'
+    PRESIDENTE_MUNICIPIO = 'presidente_municipio'
+    PRESIDENTE_BAIRRO = 'presidente_bairro'
+    PRESIDENTE_CEP = 'presidente_cep'
+    PRESIDENTE_REDES_SOCIAIS = 'presidente_redes_sociais'
+    SERVIDOR_NOME = 'contato_nome'
+    SERVIDOR_DATA_NASCIMENTO = 'contato_data_nascimento'
+    SERVIDOR_TELEFONES = 'contato_telefones'
+    SERVIDOR_EMAILS = 'contato_emails'
+    SERVIDOR_ENDERECO = 'contato_endereco'
+    SERVIDOR_MUNICIPIO = 'contato_municipio'
+    SERVIDOR_BAIRRO = 'contato_bairro'
+    SERVIDOR_CEP = 'contato_cep'
+    SERVIDOR_REDES_SOCIAIS = 'contato_redes_sociais'
+    ERROS = 'erros_importacao'
+
+    fieldnames = [TIPO, MUNICIPIO, UF, ORGAO_ENDERECO, ORGAO_BAIRRO, ORGAO_CEP,
+                  ORGAO_EMAIL, ORGAO_PORTAL, ORGAO_TELEFONES, PRESIDENTE_NOME,
+                  PRESIDENTE_DATA_NASCIMENTO, PRESIDENTE_TELEFONES,
+                  PRESIDENTE_EMAILS, PRESIDENTE_ENDERECO, PRESIDENTE_MUNICIPIO,
+                  PRESIDENTE_BAIRRO, PRESIDENTE_CEP, PRESIDENTE_REDES_SOCIAIS,
+                  SERVIDOR_NOME, SERVIDOR_DATA_NASCIMENTO, SERVIDOR_TELEFONES,
+                  SERVIDOR_EMAILS, SERVIDOR_ENDERECO, SERVIDOR_MUNICIPIO,
+                  SERVIDOR_BAIRRO, SERVIDOR_CEP, SERVIDOR_REDES_SOCIAIS, ERROS,]
+
+    ID_FIELDS = {TIPO, MUNICIPIO, UF}
+
+    ORGAO_FIELDS = {
+        ORGAO_ENDERECO: 'logradouro',
+        ORGAO_BAIRRO: 'bairro',
+        ORGAO_CEP: 'cep',
+        ORGAO_EMAIL: 'email',
+        ORGAO_PORTAL: 'pagina_web',
+        ORGAO_TELEFONES: 'telefones',
+    }
+
+    PRESIDENTE_FIELDS = {
+        PRESIDENTE_NOME: 'nome',
+        PRESIDENTE_DATA_NASCIMENTO: 'data_nascimento',
+        PRESIDENTE_TELEFONES: 'nota',
+        PRESIDENTE_EMAILS: 'email',
+        PRESIDENTE_ENDERECO: 'endereco',
+        PRESIDENTE_MUNICIPIO: 'municipio_id',
+        PRESIDENTE_BAIRRO: 'bairro',
+        PRESIDENTE_CEP: 'cep',
+        PRESIDENTE_REDES_SOCIAIS: 'redes_sociais',
+    }
+
+    SERVIDOR_FIELDS = {
+        SERVIDOR_NOME: 'nome',
+        SERVIDOR_DATA_NASCIMENTO: 'data_nascimento',
+        SERVIDOR_TELEFONES: 'nota',
+        SERVIDOR_EMAILS: 'email',
+        SERVIDOR_ENDERECO: 'endereco',
+        SERVIDOR_MUNICIPIO: 'municipio_id',
+        SERVIDOR_BAIRRO: 'bairro',
+        SERVIDOR_CEP: 'cep',
+        SERVIDOR_REDES_SOCIAIS: 'redes_sociais',
+    }
+
+    def get(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+
+        form = AtualizaCasaForm()
+        return render(request, 'casas/importar.html', {'form': form})
+
+    def post(self, request):
+        if not request.user.is_superuser:
+            return HttpResponseForbidden()
+
+        form = AtualizaCasaForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            file = form.cleaned_data['arquivo']
+            reader = csv.DictReader(file)
+            if not self.ID_FIELDS.issubset(reader.fieldnames):
+                return render(
+                    request,
+                    'casas/importar.html',
+                    {'form': form, 'error': _(u"O arquivo não possui algum dos "
+                                              u"campos obrigatórios")}
+                )
+
+            if self.importa(reader):
+                # Importação concluída com êxito
+                return render(
+                    request,
+                    'casas/importar_result.html',
+                    {'file_name': file.name, 'total': self.total_registros,
+                     'com_erros': 0}
+                )
+            else:
+                # Importado com erros
+                file_name = "casas-erros-{:%Y-%m-%d-%H%M}.csv".format(
+                    datetime.now())
+                fields = self.fieldnames
+                for f in reader.fieldnames:
+                    if f not in fields:
+                        fields.append(f)
+                with open(settings.MEDIA_ROOT+'/temp/'+file_name, "w+") as f:
+                    writer = csv.DictWriter(f, fieldnames=fields)
+                    writer.writeheader()
+                    writer.writerows(self.errors)
+                return render(
+                    request,
+                    'casas/importar_result.html',
+                    {'file_name': file.name, 'result_file': file_name,
+                     'total': self.total_registros,
+                     'com_erros': len(self.errors)}
+                )
+
+                response = HttpResponse(content_type='text/csv')
+                response['Content-Disposition'] = (
+                    'attachment; filename="somefilename.csv"')
+                return response
+        else:
+            return render(
+                request,
+                'casas/importar.html',
+                {'form': form, 'error': u"Erro no preenchimento do formulário."}
+            )
+
+    # Atualiza ou cria funcionário
+    def funcionario_update(self, setor, fields, orgao, reg):
+        field_nome = (self.PRESIDENTE_NOME if setor == 'presidente' else
+                      self.SERVIDOR_NOME)
+
+        # Se não tem nome do contato (ou presidente), então não há nada a
+        # atualizar. Volta o reg inalterado.
+        if field_nome not in reg:
+            return reg
+
+        funcionario = orgao.funcionario_set.filter(
+            setor=setor,
+            nome__iexact=reg[field_nome].strip()
+        )
+
+        if funcionario.count() == 0:
+            funcionario = Funcionario(
+                casa_legislativa=orgao,
+                nome=reg[field_nome].strip(),
+                setor=setor
+            )
+        else:
+            funcionario = funcionario.first() #HACK: Sempre atualiza o primeiro
+
+        for key in fields:
+            field_name = fields[key]
+            if key in reg:
+                value = reg[key].strip()
+            else:
+                value = ""
+
+            if value != "":
+                if field_name == 'municipio_id':
+                    if ',' in value:
+                        municipio, uf = value.split(',')
+                    else:
+                        municipio = value
+                        uf = reg[self.UF]
+
+                    try:
+                        value = Municipio.objects.get(
+                            nome__iexact=municipio.strip(),
+                            uf__sigla=uf.strip()).pk
+                    except:
+                        value = None
+                        reg[self.ERROS].append(
+                            "Impossivel identificar o Municipio de "
+                            "residencia do {contato}".format(
+                                contato="Presidente" if setor == 'presidente'
+                                else "Contato")
+                        )
+                        continue
+                if field_name == 'redes_sociais':
+                    value = value.replace(" ", "\r")
+                if field_name == 'data_nascimento':
+                    sd = value.split('/')
+                    if len(sd) < 3:
+                        reg[self.ERROS].append(
+                            "Data de nascimento do {contato} esta em um "
+                            "formato nao reconhecido. Use DD/MM/AAAA".format(
+                                contato="Presidente" if setor == 'presidente'
+                                else "Contato"
+                            )
+                        )
+                        continue
+                    else:
+                        value = "{ano}-{mes}-{dia}".format(
+                            ano=sd[2],
+                            mes=sd[1],
+                            dia=sd[0]
+                        )
+                if value != getattr(funcionario, field_name):
+                    setattr(funcionario, field_name, value)
+        try:
+            funcionario.save()
+        except Exception as e:
+            reg[self.ERROS].append(
+                "Erro salvando {contato}: '{message}'".format(
+                    message=e.message,
+                    contato="Presidente" if setor == 'presidente'
+                    else "Contato")
+            )
+
+        return reg
+
+    def importa(self, reader):
+        self.errors = []
+        self.total_registros = 0
+
+        for reg in reader:
+            self.total_registros += 1
+            reg[self.ERROS] = []
+            orgao = Orgao.objects.filter(
+                tipo__sigla=reg[self.TIPO],
+                municipio__nome=reg[self.MUNICIPIO],
+                municipio__uf__sigla=reg[self.UF]
+            )
+            if orgao.count() == 0:
+                reg[self.ERROS].append("Nao existe orgao com esta identificacao")
+                self.errors.append(reg)
+                continue
+            elif orgao.count() > 1:
+                reg[self.ERROS].append("Existem {count} orgaos com esta mesma "
+                                "identificacao").format(count=orgao.count())
+                self.errors.append(reg)
+                continue
+            else:
+                orgao = orgao.get()
+
+            # Atualiza os dados do órgão
+            for key in self.ORGAO_FIELDS:
+                field_name = self.ORGAO_FIELDS[key]
+                if key in reg:
+                    value = reg[key].strip()
+                    if key == self.ORGAO_TELEFONES:
+                        for numero in value.split(";"):
+                            numero = numero.strip()
+                            try:
+                                orgao.telefones.update_or_create(numero=numero)
+                            except:
+                                reg[self.ERROS].append(
+                                    'Telefone {numero} não foi '
+                                    'atualizado'.format(numero=numero)
+                                )
+                    elif value != "" and value != getattr(orgao, field_name):
+                        setattr(orgao, field_name, value)
+                try:
+                    orgao.save()
+                except Exception as e:
+                    reg[self.ERROS].append(
+                        "Erro salvando o orgao: '{message}'".format(
+                            message=e.message)
+                    )
+
+            # Atualiza o presidente
+            reg = self.funcionario_update("presidente", self.PRESIDENTE_FIELDS,
+                                          orgao, reg)
+
+            # Atualiza o contato
+            reg = self.funcionario_update("outros", self.SERVIDOR_FIELDS,
+                                          orgao, reg)
+
+            if len(reg[self.ERROS]) > 0:
+                self.errors.append(reg)
+
+        return len(self.errors) == 0
 
 # @param qs: queryset
 # @param o: (int) number of order field
-
-
 def query_ordena(qs, o):
-    from sigi.apps.casas.admin import CasaLegislativaAdmin
-    list_display = CasaLegislativaAdmin.list_display
+    from sigi.apps.casas.admin import OrgaoAdmin
+    list_display = OrgaoAdmin.list_display
     order_fields = []
 
     for order_number in o.split('.'):
@@ -51,6 +340,38 @@ def get_for_qs(get, qs):
         if str(k) not in ('page', 'pop', 'q', '_popup', 'o', 'ot'):
             kwargs[str(k)] = v
 
+    if 'convenio' in kwargs:
+        if kwargs['convenio'] == 'SC':
+            qs = qs.filter(convenio=None)
+        elif kwargs['convenio'] == 'CC':
+            qs = qs.exclude(convenio=None)
+        else:
+            qs = qs.filter(convenio__projeto_id=kwargs['convenio'])
+
+        qs = qs.distinct('municipio__uf__nome', 'nome')
+        del(kwargs['convenio'])
+
+    if 'servico' in kwargs:
+        if kwargs['servico'] == 'SS':
+            qs = qs.filter(servico=None)
+        elif kwargs['servico'] == 'CS':
+            qs = qs.exclude(servico=None).filter(
+                servico__data_desativacao__isnull=True)
+        elif kwargs['servico'] == 'CR':
+            qs = qs.exclude(servico__tipo_servico__modo='H') \
+                                .exclude(servico=None)
+        elif kwargs['servico'] == 'CH':
+            qs = qs.filter(
+                servico__tipo_servico__modo='H',
+                servico__data_desativacao__isnull=True
+            )
+        else:
+            qs = qs.filter(servico__tipo_servico_id=kwargs['servico'])
+
+        qs = qs.distinct('municipio__uf__nome', 'nome')
+
+        del(kwargs['servico'])
+
     qs = qs.filter(**kwargs)
     if 'o' in get:
         qs = query_ordena(qs, get['o'])
@@ -64,9 +385,9 @@ def carrinhoOrGet_for_qs(request):
     """
     if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
-        qs = CasaLegislativa.objects.filter(pk__in=ids)
+        qs = Orgao.objects.filter(pk__in=ids)
     else:
-        qs = CasaLegislativa.objects.all()
+        qs = Orgao.objects.all()
         if request.GET:
             qs = get_for_qs(request.GET, qs)
     return qs
@@ -84,6 +405,7 @@ def adicionar_casas_carrinho(request, queryset=None, id=None):
                 if id not in lista:
                     lista.append(id)
             request.session['carrinho_casas'] = lista
+
 
 @login_required
 def visualizar_carrinho(request):
@@ -117,11 +439,13 @@ def visualizar_carrinho(request):
         }
     )
 
+
 @login_required
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
     return HttpResponseRedirect('.')
+
 
 @login_required
 def deleta_itens_carrinho(request):
@@ -139,6 +463,7 @@ def deleta_itens_carrinho(request):
 
     return HttpResponseRedirect('.')
 
+
 @login_required
 def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
@@ -154,7 +479,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
         return labels_report_sem_presidente(request, id, formato)
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -168,6 +493,7 @@ def labels_report(request, id=None, tipo=None, formato='3x9_etiqueta'):
 
     return response
 
+
 @login_required
 def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
@@ -178,7 +504,7 @@ def labels_report_parlamentar(request, id=None, formato='3x9_etiqueta'):
             formato = request.POST['tamanho_etiqueta']
 
     if id:
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=id, legislatura__id__isnull=False).distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.filter(pk__in=id, legislatura__id__isnull=False).distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
@@ -203,12 +529,12 @@ def carrinhoOrGet_for_parlamentar_qs(request):
     """
     if 'carrinho_casas' in request.session:
         ids = request.session['carrinho_casas']
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.filter(pk__in=ids, legislatura__id__isnull=False).distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
     else:
-        legislaturas = [c.legislatura_set.latest('data_inicio') for c in CasaLegislativa.objects.all().distinct()]
+        legislaturas = [c.legislatura_set.latest('data_inicio') for c in Orgao.objects.all().distinct()]
         mandatos = reduce(lambda x, y: x | y, [l.mandato_set.all() for l in legislaturas])
         parlamentares = [m.parlamentar for m in mandatos]
         qs = parlamentares
@@ -216,13 +542,14 @@ def carrinhoOrGet_for_parlamentar_qs(request):
             qs = get_for_qs(request.GET, qs)
     return qs
 
+
 @login_required
 def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
     """ TODO: adicionar suporte para resultado de pesquisa do admin.
     """
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
@@ -236,6 +563,7 @@ def labels_report_sem_presidente(request, id=None, formato='2x5_etiqueta'):
 
     return response
 
+
 @login_required
 def report(request, id=None, tipo=None):
 
@@ -247,71 +575,47 @@ def report(request, id=None, tipo=None):
         return report_complete(request, id)
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
     if not qs:
         return HttpResponseRedirect('../')
 
-    # qs.order_by('municipio__uf','nome')
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
-    report = CasasLegislativasReport(queryset=qs)
-    report.generate_by(PDFGenerator, filename=response)
-    return response
+    qs = qs.order_by('municipio__uf', 'nome')
+    context = {'casas': qs, 'title': _(u"Relação de Casas Legislativas")}
+
+    return render_to_pdf('casas/report_pdf.html', context)
+
 
 @login_required
 def report_complete(request, id=None):
 
     if id:
-        qs = CasaLegislativa.objects.filter(pk=id)
+        qs = Orgao.objects.filter(pk=id)
     else:
         qs = carrinhoOrGet_for_qs(request)
 
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=casas.pdf'
+    return render_to_pdf('casas/report_complete_pdf.html', {'casas': qs})
 
-    # Gera um relatorio para cada casa e concatena os relatorios
-    cont = 0
-    canvas = None
-    quant = qs.count()
-    if quant > 1:
-        for i in qs:
-            cont += 1
-            # queryset deve ser uma lista
-            lista = (i,)
-            if cont == 1:
-                report = InfoCasaLegislativa(queryset=lista)
-                canvas = report.generate_by(PDFGenerator, return_canvas=True, filename=response,)
-            else:
-                report = InfoCasaLegislativa(queryset=lista)
-                if cont == quant:
-                    report.generate_by(PDFGenerator, canvas=canvas)
-                else:
-                    canvas = report.generate_by(PDFGenerator, canvas=canvas, return_canvas=True)
-    else:
-        report = InfoCasaLegislativa(queryset=qs)
-        report.generate_by(PDFGenerator, filename=response)
-
-    return response
 
 @login_required
 def casas_sem_convenio_report(request):
-    qs = CasaLegislativa.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
+    qs = Orgao.objects.filter(convenio=None).order_by('municipio__uf', 'nome')
 
     if request.GET:
         qs = get_for_qs(request.GET, qs)
     if not qs:
         return HttpResponseRedirect('../')
 
-    response = HttpResponse(content_type='application/pdf')
-    report = CasasSemConvenioReport(queryset=qs)
-    report.generate_by(PDFGenerator, filename=response)
-    return response
+    qs = qs.order_by('municipio__uf', 'nome')
+    context = {'casas': qs, 'title': _(u"Casas sem convênio")}
+
+    return render_to_pdf('casas/report_pdf.html', context)
+
 
 @login_required
 def export_csv(request):
@@ -325,18 +629,19 @@ def export_csv(request):
         return HttpResponseRedirect('../')
 
     atributos = request.POST.getlist("itens_csv_selected")
-    atributos2 = [s.encode("utf-8") for s in atributos]
 
     try:
-        atributos2.insert(atributos2.index(_(u'Município')), _(u'UF'))
+        atributos.insert(atributos.index(_(u'Município')), _(u'UF'))
     except ValueError:
         pass
+
+    atributos2 = [s.encode("utf-8") for s in atributos]
 
     writer.writerow(atributos2)
 
     for casa in casas:
         lista = []
-        contatos = casa.funcionario_set.filter(setor="contato_interlegis")
+        contatos = casa.funcionario_set.exclude(nome="")
         for atributo in atributos:
             if _(u"CNPJ") == atributo:
                 lista.append(casa.cnpj.encode("utf-8"))
@@ -370,19 +675,29 @@ def export_csv(request):
                 lista.append(casa.total_parlamentares)
             elif _(u"Última alteração de endereco") == atributo:
                 lista.append(casa.ult_alt_endereco)
+            elif _(u"Servicos SEIT") == atributo:
+                lista.append(", ".join([s.tipo_servico.nome.encode('utf-8')
+                                        for s in casa.servico_set.filter(
+                                            data_desativacao__isnull=True)])
+                )
             elif _(u"Nome contato") == atributo:
-                if contatos and contatos[0].nome:
-                    lista.append(contatos[0].nome.encode("utf-8"))
+                if contatos:
+                    nomes = u", ".join([c.nome for c in contatos])
+                    lista.append(nomes.encode("utf-8"))
                 else:
                     lista.append('')
             elif _(u"Cargo contato") == atributo:
-                if contatos and contatos[0].cargo:
-                    lista.append(contatos[0].cargo.encode("utf-8"))
+                if contatos:
+                    cargos = u", ".join([c.cargo if c.cargo else u"?"
+                                         for c in contatos])
+                    lista.append(cargos.encode("utf-8"))
                 else:
                     lista.append('')
             elif _(u"Email contato") == atributo:
-                if contatos and contatos[0].email:
-                    lista.append(contatos[0].email.encode("utf-8"))
+                if contatos:
+                    emails = u", ".join([c.email if c.email else u"?"
+                                         for c in contatos])
+                    lista.append(emails.encode("utf-8"))
                 else:
                     lista.append('')
             else:
@@ -392,31 +707,30 @@ def export_csv(request):
 
     return response
 
+
 @login_required
 def portfolio(request):
     page = request.GET.get('page', 1)
+    tipo = request.GET.get('tipo', None)
     regiao = request.GET.get('regiao', None)
     uf_id = request.GET.get('uf', None)
     meso_id = request.GET.get('meso', None)
     micro_id = request.GET.get('micro', None)
-    
+
     data = {}
     data['errors'] = []
     data['messages'] = []
     data['regioes'] = UnidadeFederativa.REGIAO_CHOICES
+    data['tipos_casas'] = TipoOrgao.objects.all()
     casas = None
-    gerente_contas = None
-    
-    if request.method == 'POST':
-        form = PortfolioForm(data=request.POST)
-        if form.is_valid():
-            gerente_contas = form.cleaned_data['gerente_contas']
-        else:
-            data['errors'].append(_(u"Dados inválidos"))
-        
+    gerente = None
+
+    if tipo:
+        data['tipo'] = tipo
+
     if micro_id:
         microrregiao = get_object_or_404(Microrregiao, pk=micro_id)
-        mesorregiao = microrregiao.mesorregiao 
+        mesorregiao = microrregiao.mesorregiao
         uf = mesorregiao.uf
         data['regiao'] = uf.regiao
         data['uf_id'] = uf.pk
@@ -425,9 +739,14 @@ def portfolio(request):
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
-        data['form'] = PortfolioForm(_(u'Atribuir casas da microrregiao %s para') % (unicode(microrregiao),))
-        data['querystring'] = 'micro=%s' %  (microrregiao.pk,)
-        casas = CasaLegislativa.objects.filter(municipio__microrregiao=microrregiao)
+        data['form'] = PortfolioForm(
+            _(u'Atribuir casas da microrregiao {name} para').format(
+                name=unicode(microrregiao))
+        )
+        data['querystring'] = 'micro={0}'.format(microrregiao.pk)
+        casas = Orgao.objects.filter(
+            municipio__microrregiao=microrregiao
+        )
     elif meso_id:
         mesorregiao = get_object_or_404(Mesorregiao, pk=meso_id)
         uf = mesorregiao.uf
@@ -437,46 +756,82 @@ def portfolio(request):
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
-        data['form'] = PortfolioForm(_(u'Atribuir casas da mesorregiao %s para') % (unicode(mesorregiao),))
-        data['querystring'] = 'meso=%s' %  (mesorregiao.pk,)
-        casas = CasaLegislativa.objects.filter(municipio__microrregiao__mesorregiao=mesorregiao)
+        data['form'] = PortfolioForm(
+            _(u'Atribuir casas da mesorregiao {name} para').format(
+                name=unicode(mesorregiao)))
+        data['querystring'] = 'meso={0}'.format(mesorregiao.pk)
+        casas = Orgao.objects.filter(
+            municipio__microrregiao__mesorregiao=mesorregiao
+        )
     elif uf_id:
         uf = get_object_or_404(UnidadeFederativa, pk=uf_id)
         data['regiao'] = uf.regiao
         data['uf_id'] = uf.pk
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
         data['mesorregioes'] = uf.mesorregiao_set.all()
-        data['form'] = PortfolioForm(_(u'Atribuir casas do estado %s para') % (unicode(uf),))
-        data['querystring'] = 'uf=%s' %  (uf.pk,)
-        casas = CasaLegislativa.objects.filter(municipio__uf=uf)
+        data['form'] = PortfolioForm(
+            _(u'Atribuir casas do estado {name} para').format(
+                name=unicode(uf)))
+        data['querystring'] = 'uf={0}'.format(uf.pk)
+        casas = Orgao.objects.filter(municipio__uf=uf)
     elif regiao:
-        data['regiao'] = regiao 
+        data['regiao'] = regiao
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
-        data['form'] = PortfolioForm(_(u'Atribuir casas da região %s para') % [x[1] for x in UnidadeFederativa.REGIAO_CHOICES if x[0]==regiao][0])
-        data['querystring'] = 'regiao=%s' %  (regiao,)
-        casas = CasaLegislativa.objects.filter(municipio__uf__regiao=regiao)
-        
+        data['form'] = PortfolioForm(
+            _(u'Atribuir casas da região {name} para').format(
+                name=[x[1] for x in UnidadeFederativa.REGIAO_CHOICES if
+                 x[0] == regiao][0]))
+        data['querystring'] = 'regiao={0}'.format(regiao)
+        casas = Orgao.objects.filter(municipio__uf__regiao=regiao)
+
     if casas:
-        if gerente_contas:
-            count = casas.update(gerente_contas=gerente_contas)
-            data['messages'].append(ungettext(
-                u"%(count)s casa atribuída para %(name)s",
-                u"%(count)s casas atribuídas para %(name)s",
-                count) % {'count': count, 'name': unicode(gerente_contas)})
-        
-        casas = casas.order_by('municipio__uf', 'municipio__microrregiao__mesorregiao',
+        casas = casas.order_by('municipio__uf',
+                               'municipio__microrregiao__mesorregiao',
                                'municipio__microrregiao', 'municipio')
-        
-        casas.prefetch_related('municipio', 'municipio__uf', 'municipio__microrregiao',
-                               'municipio__microrregiao__mesorregiao', 'gerente_contas')
-        
+
+        casas.prefetch_related('municipio', 'municipio__uf',
+                               'municipio__microrregiao',
+                               'municipio__microrregiao__mesorregiao',
+                               'gerentes_interlegis')
+
+        if tipo:
+            casas = casas.filter(tipo__sigla=tipo)
+            data['querystring'] += "&tipo={0}".format(tipo)
+
+        if request.method == 'POST':
+            form = PortfolioForm(data=request.POST)
+            if form.is_valid():
+                gerente = form.cleaned_data['gerente']
+                acao = form.cleaned_data['acao']
+
+                count = casas.count()
+
+                if acao == 'ADD':
+                    gerente.casas_que_gerencia.add(*casas)
+                    data['messages'].append(ungettext(
+                        u"{count} casa adicionada para {gerente}",
+                        u"{count} casas adicionadas para {gerente}",
+                        count).format(count=count,gerente=gerente.nome_completo)
+                    )
+                elif acao == 'DEL':
+                    gerente.casas_que_gerencia.remove(*casas)
+                    data['messages'].append(ungettext(
+                        u"{count} casa removida de {gerente}",
+                        u"{count} casas removidas de {gerente}",
+                        count).format(count=count,gerente=gerente.nome_completo)
+                    )
+                else:
+                    data['errors'].append(_(u"Ação não definida"))
+            else:
+                data['errors'].append(_(u"Dados inválidos"))
+
         paginator = Paginator(casas, 30)
         try:
             pagina = paginator.page(page)
         except (EmptyPage, InvalidPage):
             pagina = paginator.page(paginator.num_pages)
         data['page_obj'] = pagina
-        
+
     return render(request, 'casas/portfolio.html', data)
 
 
@@ -487,13 +842,13 @@ def resumo_carteira(casas):
     sem_produto = regioes.copy()
     tipos_servico = TipoServico.objects.all()
     dados = {ts.id: regioes.copy() for ts in tipos_servico}
-    
+
     for r in casas.values('municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
         regiao = r['municipio__uf__regiao']
         quantidade = r['quantidade']
         total[regiao] = quantidade
         total['total'] += quantidade
-    
+
     for r in casas.values('municipio__uf__regiao', 'servico__tipo_servico__id').annotate(quantidade=Count('id')).order_by():
         regiao = r['municipio__uf__regiao']
         servico = r['servico__tipo_servico__id']
@@ -502,16 +857,16 @@ def resumo_carteira(casas):
             sem_produto[regiao] = quantidade
             sem_produto['total'] += quantidade
         else:
-            dados[servico][regiao] = quantidade 
+            dados[servico][regiao] = quantidade
             dados[servico]['total'] += quantidade
-    
+
     dados_ocorrencia = {
         'registradas': regioes.copy(),
         'pendentes': regioes.copy(),
         'sem': regioes.copy(),
         'media': regioes.copy(),
     }
-    
+
     for r in casas.values('ocorrencia__status', 'municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
         status = r['ocorrencia__status']
         regiao = r['municipio__uf__regiao']
@@ -525,23 +880,23 @@ def resumo_carteira(casas):
             if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
                 dados_ocorrencia['pendentes'][regiao] += quantidade
                 dados_ocorrencia['pendentes']['total'] += quantidade
-            
+
     for r in regioes:
         if (total[r] - dados_ocorrencia['sem'][r]) == 0:
             dados_ocorrencia['media'][r] = 0
         else:
             dados_ocorrencia['media'][r] = (1.0 * dados_ocorrencia['registradas'][r] / (total[r] - dados_ocorrencia['sem'][r]))
-         
+
     resumo = [[_(u"Item"), _(u"Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
     resumo.append([_(u"Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
     resumo.append({'subtitle': _(u"Uso dos produtos Interlegis")})
     resumo.append([_(u"Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.extend([[ts.nome, dados[ts.id]['total']]+[dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
+    resumo.extend([[ts.nome, dados[ts.id]['total']] + [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
     resumo.append({'subtitle': _(u"Registros no sistema de ocorrências")})
-    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']]+[dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']]+[dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']]+[dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'],2)]+[round(dados_ocorrencia['media'][r[0]],2) for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']] + [dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']] + [dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']] + [dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'], 2)] + [round(dados_ocorrencia['media'][r[0]], 2) for r in UnidadeFederativa.REGIAO_CHOICES])
 
     return resumo
 
@@ -554,7 +909,7 @@ def casas_carteira(request, casas, context):
     micro_id = request.GET.get('micro', None)
     servicos = request.GET.getlist('servico')
     tipos_servico = context['servicos']
-    
+
     context['qs_regiao'] = ''
 
     if micro_id is not None:
@@ -579,12 +934,12 @@ def casas_carteira(request, casas, context):
         context['regiao'] = sigla_regiao
         context['qs_regiao'] = 'r=%s' % sigla_regiao
         casas = casas.filter(municipio__uf__regiao=sigla_regiao)
-         
+
     if 'regiao' in context:
         context['ufs'] = UnidadeFederativa.objects.filter(regiao=context['regiao'])
-         
+
     todos_servicos = ['_none_'] + [s.sigla for s in tipos_servico]
-    
+
     if not servicos or set(servicos) == set(todos_servicos):
         servicos = todos_servicos
         context['qs_servico'] = ''
@@ -594,13 +949,14 @@ def casas_carteira(request, casas, context):
         else:
             casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
         casas = casas.distinct('nome', 'municipio__uf')
-        context['qs_servico'] = "&".join(['servico=%s' %s for s in servicos])
- 
+        context['qs_servico'] = "&".join(['servico=%s' % s for s in servicos])
+
     context['servicos_check'] = servicos
-     
+
     casas = casas.select_related('municipio', 'municipio__uf', 'municipio__microrregiao', 'municipio__microrregiao__mesorregiao').prefetch_related('servico_set')
 
     return casas, context
+
 
 @login_required
 def painel_relacionamento(request):
@@ -608,8 +964,8 @@ def painel_relacionamento(request):
     snippet = request.GET.get('snippet', '')
     seletor = request.GET.get('s', None)
     servidor = request.GET.get('servidor', None)
-    format = request.GET.get('f', 'html')
-    
+    fmt = request.GET.get('f', 'html')
+
     if servidor is None:
         gerente = request.user.servidor
     elif servidor == '_all':
@@ -621,9 +977,9 @@ def painel_relacionamento(request):
         casas = gerente.casas_que_gerencia.all()
 
     if gerente is None or not casas.exists():
-        casas = CasaLegislativa.objects.exclude(gerente_contas=None)
+        casas = Orgao.objects.exclude(gerentes_interlegis=None)
         gerente = None
-        
+
     tipos_servico = TipoServico.objects.all()
     regioes = UnidadeFederativa.REGIAO_CHOICES
 
@@ -634,13 +990,13 @@ def painel_relacionamento(request):
         'servicos': tipos_servico,
         'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
         'gerente': gerente,
-        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '', 
+        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '',
     }
-    
+
     if snippet != 'lista':
         context['resumo'] = resumo_carteira(casas)
 
-    if snippet != 'resumo':    
+    if snippet != 'resumo':
         casas, context = casas_carteira(request, casas, context)
         paginator = Paginator(casas, 30)
         try:
@@ -650,7 +1006,7 @@ def painel_relacionamento(request):
         context['page_obj'] = pagina
 
     if snippet == 'lista':
-        if format == 'csv':
+        if fmt == 'csv':
             response = HttpResponse(content_type='text/csv')
             response['Content-Disposition'] = 'attachment; filename=casas.csv'
             writer = csv.writer(response)
@@ -660,7 +1016,7 @@ def painel_relacionamento(request):
                 _(u"Estado").encode('utf8'),
                 _(u"Mesorregião").encode('utf8'),
                 _(u"Microrregião").encode('utf8'),
-                _(u"Gerente de relacionamento").encode('utf8'),
+                _(u"Gerentes Interlegis").encode('utf8'),
                 _(u"Serviços").encode('utf8'),
             ])
             for c in casas:
@@ -670,12 +1026,74 @@ def painel_relacionamento(request):
                     c.municipio.uf.sigla.encode('utf8'),
                     c.municipio.microrregiao.mesorregiao.nome.encode('utf8'),
                     c.municipio.microrregiao.nome.encode('utf8'),
-                    c.gerente_contas.nome_completo.encode('utf8'),
+                    c.lista_gerentes(fmt='lista').encode('utf8'),
                     (u", ".join([s.tipo_servico.nome for s in c.servico_set.filter(data_desativacao__isnull=True)])).encode('utf8'),
                 ])
             return response
         return render(request, 'casas/lista_casas_carteira_snippet.html', context)
     if snippet == 'resumo':
         return render(request, 'casas/resumo_carteira_snippet.html', context)
-    
+
     return render(request, 'casas/painel.html', context)
+
+@login_required
+def gerentes_interlegis(request):
+    formato = request.GET.get('fmt', 'html')
+    inclui_casas = (request.GET.get('casas', 'no') == 'yes')
+    gerentes = Servidor.objects.exclude(
+        casas_que_gerencia=None).select_related('casas_que_gerencia')
+    dados = []
+    for gerente in gerentes:
+        row = {'gerente': gerente, 'ufs': []}
+        for uf in (gerente.casas_que_gerencia.distinct('municipio__uf__sigla')
+                    .order_by('municipio__uf__sigla')
+                    .values_list('municipio__uf__sigla', 'municipio__uf__nome')
+                    ):
+            row['ufs'].append((
+                uf[0],
+                uf[1],
+                gerente.casas_que_gerencia.filter(municipio__uf__sigla=uf[0])
+            ))
+        dados.append(row)
+
+    if formato == 'pdf':
+        return render_to_pdf(
+            'casas/gerentes_interlegis_pdf.html',
+            {'gerentes': dados}
+        )
+    elif formato == 'csv':
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = ('attachment; '
+                                           'filename="gerentes_interlegis.csv"')
+        fieldnames = ['gerente', 'total_casas', 'uf', 'total_casas_uf']
+        if inclui_casas:
+            fieldnames.append('casa_legislativa')
+        writer = csv.DictWriter(response, fieldnames=fieldnames)
+        writer.writeheader()
+        for linha in dados:
+            rec = {
+                'gerente': linha['gerente'].nome_completo.encode('utf8'),
+                'total_casas': linha['gerente'].casas_que_gerencia.count()
+            }
+            for uf in linha['ufs']:
+                rec['uf'] = uf[1].encode('utf8')
+                rec['total_casas_uf'] = uf[2].count()
+                if inclui_casas:
+                    for casa in uf[2]:
+                        rec['casa_legislativa'] = casa.nome.encode('utf8')
+                        writer.writerow(rec)
+                        rec['gerente'] = ''
+                        rec['total_casas'] = ''
+                        rec['uf'] = ''
+                        rec['total_casas_uf'] = ''
+                else:
+                    writer.writerow(rec)
+                    rec['gerente'] = ''
+                    rec['total_casas'] = ''
+        return response
+
+    return render(
+        request,
+        'casas/gerentes_interlegis.html',
+        {'gerentes': dados}
+    )

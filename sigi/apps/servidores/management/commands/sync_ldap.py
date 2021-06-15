@@ -18,26 +18,95 @@ class Command(BaseCommand):
         filter = "(&(objectclass=Group))"
         values = ['cn', ]
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
-        l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'), AUTH_LDAP_BIND_PASSWORD)
-        result_id = l.search(AUTH_LDAP_GROUP, ldap.SCOPE_SUBTREE, filter, values)
-        result_type, result_data = l.result(result_id, 1)
-        l.unbind()
-        return result_data
+        try:
+            l.protocol_version = ldap.VERSION3
+            l.set_option(ldap.OPT_REFERRALS, 0)
+            l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'),
+                            AUTH_LDAP_BIND_PASSWORD)
+
+            page_control = ldap.controls.SimplePagedResultsControl(
+                True,
+                size=1000,
+                cookie=''
+            )
+            result = []
+            pages = 0
+
+            while True:
+                pages += 1
+                response = l.search_ext(
+                    AUTH_LDAP_GROUP,
+                    ldap.SCOPE_SUBTREE,
+                    filter,
+                    values,
+                    serverctrls=[page_control]
+                )
+                rtype, rdata, rmsgid, serverctrls = l.result3(response)
+                result.extend(rdata)
+                controls = [control for control in serverctrls
+                            if control.controlType ==
+                            ldap.controls.SimplePagedResultsControl.controlType]
+                if not controls:
+                    raise Exception('The server ignores RFC 2696 control')
+                if not controls[0].cookie:
+                    break
+                page_control.cookie = controls[0].cookie
+            # result_id = l.search(AUTH_LDAP_GROUP, ldap.SCOPE_SUBTREE, filter, values)
+            # result_type, result_data = l.result(result_id, 1)
+        finally:
+            l.unbind()
+        return result
 
     def get_ldap_users(self):
-        filter = "(&(objectclass=user))"
+        filter = "(&(objectclass=user)(|(memberof=CN=lgs_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)(memberof=CN=lgt_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)(memberof=CN=lge_ilb,OU=GruposAutomaticosOU,DC=senado,DC=gov,DC=br)))"
         values = ['sAMAccountName', 'userPrincipalName', 'givenName', 'sn', 'cn']
         l = ldap.initialize(AUTH_LDAP_SERVER_URI)
-        l.protocol_version = ldap.VERSION3
-        l.simple_bind_s(AUTH_LDAP_BIND_DN.encode('utf-8'), AUTH_LDAP_BIND_PASSWORD)
-        result_id = l.search(AUTH_LDAP_USER.encode('utf-8'), ldap.SCOPE_SUBTREE, filter, values)
-        result_type, result_data = l.result(result_id, 1)
-        l.unbind()
-        return result_data
+        try:
+            l.protocol_version = ldap.VERSION3
+            l.set_option(ldap.OPT_REFERRALS, 0)
+            l.simple_bind_s(
+                AUTH_LDAP_BIND_DN.encode('utf-8'),
+                AUTH_LDAP_BIND_PASSWORD
+            )
+
+            page_control = ldap.controls.SimplePagedResultsControl(
+                True,
+                size=1000,
+                cookie=''
+            )
+
+            result = []
+            pages = 0
+
+            while True:
+                pages += 1
+                response = l.search_ext(
+                    AUTH_LDAP_USER.encode('utf-8'),
+                    ldap.SCOPE_SUBTREE,
+                    filter,
+                    values,
+                    serverctrls=[page_control]
+                )
+                rtype, rdata, rmsgid, serverctrls = l.result3(response)
+                result.extend(rdata)
+                controls = [control for control in serverctrls
+                            if control.controlType ==
+                            ldap.controls.SimplePagedResultsControl.controlType]
+                if not controls:
+                    raise Exception('The server ignores RFC 2696 control')
+                if not controls[0].cookie:
+                    break
+                page_control.cookie = controls[0].cookie
+        # result_id = l.search(AUTH_LDAP_USER.encode('utf-8'), ldap.SCOPE_SUBTREE, filter, values)
+        # result_type, result_data = l.result(result_id, 1)
+        finally:
+            l.unbind()
+        return result
 
     def sync_groups(self):
+        print "Syncing groups..."
         ldap_groups = self.get_ldap_groups()
+        print "\tFetched groups: %s" % len(ldap_groups)
         for ldap_group in ldap_groups:
             try:
                 group_name = ldap_group[1]['cn'][0]
@@ -49,12 +118,13 @@ class Command(BaseCommand):
                 except Group.DoesNotExist:
                     group = Group(name=group_name)
                     group.save()
-                    print "Group '%s' created." % group_name
+                    print "\tGroup '%s' created." % group_name
         print "Groups are synchronized."
 
     def sync_users(self):
+        print "Syncing users..."
         ldap_users = self.get_ldap_users()
-
+        print "\tFetched users: %s" % len(ldap_users)
         def get_ldap_property(ldap_user, property_name, default_value=None):
             value = ldap_user[1].get(property_name, None)
             return value[0].decode('utf8') if value else default_value
@@ -72,7 +142,7 @@ class Command(BaseCommand):
                         user = User.objects.get(email=email)
                         old_username = user.username
                         user.username = username
-                        print "User with email '%s' had his/her username updated from [%s] to [%s]." % (
+                        print "\tUser with email '%s' had his/her username updated from [%s] to [%s]." % (
                             email, old_username, username)
                     except User.DoesNotExist:
                         user = User.objects.create_user(
@@ -81,17 +151,17 @@ class Command(BaseCommand):
                             last_name=last_name,
                             email=email,
                         )
-                        print "User '%s' created." % username
+                        print "\tUser '%s' created." % username
 
                 if not user.first_name == first_name:
                     user.first_name = first_name
-                    print "User '%s' first name updated." % username
+                    print "\tUser '%s' first name updated." % username
                 if not user.last_name == last_name:
                     user.last_name = last_name
-                    print "User '%s' last name updated." % username
+                    print "\tUser '%s' last name updated." % username
                 if not user.email == email:
                     user.email = email
-                    print "User '%s' email updated." % username
+                    print "\tUser '%s' email updated." % username
 
                 nome_completo = get_ldap_property(ldap_user, 'cn', '')
                 try:
@@ -101,11 +171,11 @@ class Command(BaseCommand):
                         servidor = Servidor.objects.get(nome_completo=nome_completo)
                     except Servidor.DoesNotExist:
                         servidor = user.servidor_set.create(nome_completo=nome_completo)
-                        print "Servidor '%s' created." % nome_completo
+                        print "\tServidor '%s' created." % nome_completo
                 else:
                     if not servidor.nome_completo == nome_completo:
                         servidor.nome_completo = nome_completo
-                        print "Full name of Servidor '%s' updated." % nome_completo
+                        print "\tFull name of Servidor '%s' updated." % nome_completo
 
                 servidor.user = user
                 servidor.save()

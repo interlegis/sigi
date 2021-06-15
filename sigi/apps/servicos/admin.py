@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from datetime import date, timedelta
 from django.contrib import admin
 from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
@@ -6,9 +7,10 @@ from django.http import Http404, HttpResponseRedirect
 from django.utils.encoding import force_unicode
 from django.utils.translation import ugettext as _
 
-from sigi.apps.casas.admin import FuncionariosInline
-from sigi.apps.casas.models import CasaLegislativa
-from sigi.apps.servicos.models import Servico, LogServico, CasaAtendida, TipoServico
+from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
+from sigi.apps.casas.models import Orgao
+from sigi.apps.servicos.models import (Servico, LogServico, CasaAtendida,
+                                       TipoServico)
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
@@ -49,6 +51,49 @@ class TipoServicoAdmin(BaseModelAdmin):
     list_display = ('id', 'sigla', 'nome', 'qtde_casas_atendidas', )
     ordering = ['id']
 
+class DataUtimoUsoFilter(admin.SimpleListFilter):
+    title = _(u"Atualização")
+    parameter_name = 'atualizacao'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('err', _(u"Erro na verificação")),
+            ('year', _(u"Sem atualização há um ano ou mais")),
+            ('semester', _(u"Sem atualização de seis meses a um ano")),
+            ('quarter', _(u"Sem atualização de três a seis meses")),
+            ('month', _(u"Sem atualização de um a três meses")),
+            ('week', _(u"Sem atualização de uma semana a um mês")),
+            ('updated', _(u"Atualizado na última semana")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            queryset = queryset.exclude(tipo_servico__string_pesquisa="")
+            if self.value() == 'err':
+                queryset = queryset.exclude(erro_atualizacao="")
+            elif self.value() == 'year':
+                limite = date.today() - timedelta(days=365)
+                queryset = queryset.filter(data_ultimo_uso__lte=limite)
+            else:
+                de = date.today() - (
+                    timedelta(days=365) if self.value() == 'semester' else
+                    timedelta(days=6*30) if self.value() == 'quarter' else
+                    timedelta(days=3*30) if self.value() == 'month' else
+                    timedelta(days=30) if self.value() == 'week' else
+                    timedelta(days=0)
+                )
+                ate = date.today() - (
+                    timedelta(days=6*30) if self.value() == 'semester' else
+                    timedelta(days=3*30) if self.value() == 'quarter' else
+                    timedelta(days=30) if self.value() == 'month' else
+                    timedelta(days=7) if self.value() == 'week' else
+                    timedelta(days=0)
+                )
+                queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
+                print (de, ate, queryset.count())
+
+        return queryset
+
 
 class ServicoAdmin(BaseModelAdmin):
     form = ServicoFormAdmin
@@ -68,7 +113,13 @@ class ServicoAdmin(BaseModelAdmin):
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
-    list_filter = ('tipo_servico', 'hospedagem_interlegis', 'data_ultimo_uso', 'casa_legislativa__municipio__uf', )
+    list_filter = (
+        'tipo_servico',
+        'hospedagem_interlegis',
+        DataUtimoUsoFilter,
+        ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
+        'casa_legislativa__municipio__uf',
+    )
     list_display_links = []
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
@@ -95,7 +146,8 @@ class ServicoAdmin(BaseModelAdmin):
         url = obj.url
         if url[-1] != '/':
             url += '/'
-        url += obj.tipo_servico.string_pesquisa
+        if obj.tipo_servico.string_pesquisa:
+            url += obj.tipo_servico.string_pesquisa.splitlines()[0].split(" ")[0]
         return u'<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
     get_link_erro.allow_tags = True
     get_link_erro.short_description = _(u"Erro na atualização")
@@ -163,14 +215,16 @@ class ServicoAdmin(BaseModelAdmin):
             if not id_casa:
                 raise Http404
 
-            obj.casa_legislativa = CasaAtendida.objects.get(pk=id_casa)
+            obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
 
         return obj
 
 
 class ContatosInline(FuncionariosInline):
     can_delete = False  # Equipe do SEIT não pode excluir pessoas de contato
-
+    # SEIT see all contacts, including President
+    def get_queryset(self, request):
+        return self.model.objects.all()
 
 class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None
@@ -208,7 +262,7 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def change_view(self, request, object_id, extra_context=None):
         # Se a Casa ainda não é atendida, gerar o código interlegis para ela
         # Assim ela passa a ser uma casa atendida
-        casa = CasaLegislativa.objects.get(id=object_id)
+        casa = Orgao.objects.get(id=object_id)
 
         if casa.codigo_interlegis == '':
             casa.gerarCodigoInterlegis()
