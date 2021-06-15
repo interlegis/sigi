@@ -97,8 +97,8 @@ class Migration(migrations.Migration):
                 ('apontamentos', models.TextField(null=True, verbose_name='apontamentos', blank=True)),
                 ('email_pessoal', models.EmailField(max_length=75, null=True, verbose_name=b'email pessoal', blank=True)),
                 ('ramal', models.CharField(max_length=25, null=True, blank=True)),
-                ('servico', models.ForeignKey(blank=True, to='servidores.Servico', null=True)),
-                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True)),
+                ('servico', models.ForeignKey(blank=True, to='servidores.Servico', null=True, on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(to=settings.AUTH_USER_MODEL, unique=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('nome_completo',),
@@ -112,7 +112,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=250, null=True)),
                 ('sigla', models.CharField(max_length=10, null=True)),
-                ('responsavel', models.ForeignKey(related_name=b'diretor', to='servidores.Servidor', null=True)),
+                ('responsavel', models.ForeignKey(related_name=b'diretor', to='servidores.Servidor', null=True, on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('nome',),
@@ -122,31 +122,31 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='servico',
             name='responsavel',
-            field=models.ForeignKey(related_name=b'chefe', to='servidores.Servidor', null=True),
+            field=models.ForeignKey(related_name=b'chefe', to='servidores.Servidor', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='servico',
             name='subsecretaria',
-            field=models.ForeignKey(to='servidores.Subsecretaria', null=True),
+            field=models.ForeignKey(to='servidores.Subsecretaria', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='licenca',
             name='servidor',
-            field=models.ForeignKey(to='servidores.Servidor'),
+            field=models.ForeignKey(to='servidores.Servidor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='funcao',
             name='servidor',
-            field=models.ForeignKey(to='servidores.Servidor'),
+            field=models.ForeignKey(to='servidores.Servidor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='ferias',
             name='servidor',
-            field=models.ForeignKey(to='servidores.Servidor'),
+            field=models.ForeignKey(to='servidores.Servidor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

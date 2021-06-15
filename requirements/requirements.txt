@@ -2,3 +2,4 @@ ipython==7.24.1
 Django==3.2.4
 psycopg2==2.8.6
 django-bootstrap5==2.0.1
+Pillow==8.2.0

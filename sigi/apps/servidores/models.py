@@ -1,19 +1,17 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
-from django.contrib.contenttypes import generic
 from django.db import models
 from django.db.models.signals import post_save
 from django.utils.translation import ugettext as _
 
 class Servico(models.Model):
-    nome = models.CharField(_(u'Setor'), max_length=250, null=True)
+    nome = models.CharField(_('setor'), max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subordinado = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_(u"subordinado a")
+        verbose_name=_("subordinado a")
     )
     responsavel = models.ForeignKey(
         'servidores.Servidor',
@@ -25,11 +23,11 @@ class Servico(models.Model):
 
     class Meta:
         ordering = ('-subordinado__sigla', 'nome',)
-        verbose_name = _(u'serviço')
-        verbose_name_plural = _(u'serviços')
+        verbose_name = _('serviço')
+        verbose_name_plural = _('serviços')
 
-    def __unicode__(self):
-        return u"{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
+    def __str__(self):
+        return "{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
 
 class Servidor(models.Model):
     user = models.ForeignKey(
@@ -38,9 +36,10 @@ class Servidor(models.Model):
         null=True,
         blank=True
     )
-    nome_completo = models.CharField(max_length=128)
-    apelido = models.CharField(max_length=50, blank=True)
+    nome_completo = models.CharField(_('nome completo'), max_length=128)
+    apelido = models.CharField(_('apelido'), max_length=50, blank=True)
     foto = models.ImageField(
+        _('foto'),
         upload_to='fotos/servidores',
         width_field='foto_largura',
         height_field='foto_altura',
@@ -52,20 +51,21 @@ class Servidor(models.Model):
         Servico,
         on_delete=models.SET_NULL,
         blank=True,
-        null=True
+        null=True,
+        verbose_name=_('serviço')
     )
-    externo = models.BooleanField(_(u"colaborador externo"), default=False)
+    externo = models.BooleanField(_("colaborador externo"), default=False)
     orgao_origem = models.CharField(
-        _(u"órgão de origem, "),
+        _("órgão de origem, "),
         max_length=100, blank=True
     )
-    qualificacoes = models.TextField(_(u"qualificações"), blank=True)
+    qualificacoes = models.TextField(_("qualificações"), blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
-        verbose_name_plural = 'servidores'
+        verbose_name_plural = _('servidores')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome_completo
 
     def save(self, *args, **kwargs):
