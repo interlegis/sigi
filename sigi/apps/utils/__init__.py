@@ -28,10 +28,9 @@ class SearchField(models.TextField):
 
 
 def to_ascii(txt, codif='utf-8'):
-    if not isinstance(txt, basestring):
-        txt = unicode(txt)
-    if isinstance(txt, unicode):
-        txt = txt.encode('utf-8')
+    if not isinstance(txt, str):
+        txt = str(txt)
+    txt = txt.encode('utf-8')
     return normalize('NFKD', txt.decode(codif)).encode('ASCII', 'ignore')
 
 
@@ -39,4 +38,4 @@ def queryset_ascii(self, request):
     if 'q' in request.GET:
         request.GET._mutable = True
         request.GET['q'] = to_ascii(request.GET['q'])
-    return admin.ModelAdmin.queryset(self, request)
+    return admin.ModelAdmin.get_queryset(self, request)

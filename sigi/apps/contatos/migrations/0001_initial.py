@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('nota', models.CharField(max_length=70, blank=True)),
                 ('email', models.EmailField(max_length=75, verbose_name='e-mail', blank=True)),
                 ('object_id', models.PositiveIntegerField()),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('nome',),
@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 ('bairro', models.CharField(max_length=100, blank=True)),
                 ('cep', models.CharField(help_text='Formato: <em>XXXXX-XXX</em>.', max_length=9, null=True, verbose_name='CEP', blank=True)),
                 ('object_id', models.PositiveIntegerField()),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('logradouro', 'numero'),
@@ -87,7 +87,7 @@ class Migration(migrations.Migration):
                 ('nota', models.CharField(max_length=70, null=True, blank=True)),
                 ('ult_alteracao', models.DateTimeField(auto_now=True, verbose_name='\xdaltima altera\xe7\xe3o', null=True)),
                 ('object_id', models.PositiveIntegerField()),
-                ('content_type', models.ForeignKey(to='contenttypes.ContentType')),
+                ('content_type', models.ForeignKey(to='contenttypes.ContentType', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('numero',),
@@ -118,19 +118,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='municipio',
             name='uf',
-            field=models.ForeignKey(verbose_name='UF', to='contatos.UnidadeFederativa'),
+            field=models.ForeignKey(verbose_name='UF', to='contatos.UnidadeFederativa', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='endereco',
             name='municipio',
-            field=models.ForeignKey(verbose_name='munic\xedpio', blank=True, to='contatos.Municipio', null=True),
+            field=models.ForeignKey(verbose_name='munic\xedpio', blank=True, to='contatos.Municipio', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='contato',
             name='municipio',
-            field=models.ForeignKey(verbose_name='munic\xedpio', blank=True, to='contatos.Municipio', null=True),
+            field=models.ForeignKey(verbose_name='munic\xedpio', blank=True, to='contatos.Municipio', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
