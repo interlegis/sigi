@@ -78,7 +78,7 @@ class ConvenioAdmin(BaseModelAdmin):
     ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
-    search_fields = ('id', 'search_text',  # 'casa_legislativa__nome',
+    search_fields = ('id', 'search_text',  'casa_legislativa__sigla',
                      'num_processo_sf', 'num_convenio')
 
     def get_uf(self, obj):
