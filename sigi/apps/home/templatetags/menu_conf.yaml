@@ -65,6 +65,8 @@ main_menu:
       url: convenios/statusconvenio/
     - title: Tipos de serviço SEIT
       url: servicos/tiposervico/
+    - title: Tipos de projeto
+      url: convenios/projeto/
     - title: Categorias de ocorrências
       url: ocorrencias/categoria/
     - title: Tipos de contato
