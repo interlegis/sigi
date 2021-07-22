@@ -120,19 +120,19 @@ class ConvenioReport(ReportDefault):
             ),
         ]
 
-    groups = [
-        ReportGroup(attribute_name='casa_legislativa.municipio.uf',
-                    band_header=ReportBand(
-                        height=0.7 * cm,
-                        elements=[
-                            ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-                                        get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
-                                        )
-                        ],
-                        borders={'top': True},
-                    )
-                    )
-    ]
+    #groups = [
+    #    ReportGroup(attribute_name='casa_legislativa.municipio.uf',
+    #                band_header=ReportBand(
+    #                    height=0.7 * cm,
+    #                    elements=[
+    #                        ObjectValue(attribute_name='casa_legislativa.municipio.uf',
+    #                                    get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
+    #                                    )
+    #                    ],
+    #                    borders={'top': True},
+    #                )
+    #                )
+    #]
 
 
 class ConvenioReportSemAceite(ConvenioReport):
