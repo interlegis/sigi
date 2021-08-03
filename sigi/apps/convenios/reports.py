@@ -27,7 +27,7 @@ class SemEquipamentosReport(object):
 
 class ConvenioReport(ReportDefault):
     title = _(u'Relatório de Parcerias')
-
+    
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
@@ -270,16 +270,16 @@ class ConvenioReportRegiao(ReportDefault):
 
 
 class ConvenioPorCMReport(ConvenioReport):
-    title = _(u'Relatório de Convênios por Câmara Municipal')
+    title = _(u'Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioPorALReport(ConvenioReport):
-    title = _(u'Relatório de Convênios por Assembléia Legislativa')
+    title = _(u'Relatório de Parcerias por Assembléia Legislativa')
 
 
 class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
-    title = _(u'Relatório de Convênios por Câmara Municipal')
+    title = _(u'Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
-    title = _(u'Relatório de Convênios por Assembléia Legislativa')
+    title = _(u'Relatório de Parcerias por Assembléia Legislativa')
