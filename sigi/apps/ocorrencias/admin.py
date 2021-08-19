@@ -85,13 +85,13 @@ class OcorrenciaAdmin(BaseModelAdmin):
     def get_changelist(self, request, **kwargs):
         return OcorrenciaChangeList
 
-    def get_readonly_fields(self, request, obj=None):
-        fields = list(self.readonly_fields)
-        if obj is not None:
-            fields.extend(['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'descricao', ])
-            if obj.status in [Ocorrencia.STATUS_RESOLVIDO, Ocorrencia.STATUS_FECHADO, Ocorrencia.STATUS_DUPLICADO]:  # Fechados
-                fields.append('prioridade')
-        return fields
+    # def get_readonly_fields(self, request, obj=None):
+    #    fields = list(self.readonly_fields)
+    #    if obj is not None:
+    #        fields.extend(['casa_legislativa', 'categoria', 'tipo_contato', 'assunto', 'status', 'descricao', ])
+    #        if obj.status in [Ocorrencia.STATUS_RESOLVIDO, Ocorrencia.STATUS_FECHADO, Ocorrencia.STATUS_DUPLICADO]:  # Fechados
+    #            fields.append('prioridade')
+    #    return fields
 
     def get_fieldsets(self, request, obj=None):
         if obj is None:
