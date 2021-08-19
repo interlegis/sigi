@@ -51,8 +51,7 @@ class ConvenioAdmin(BaseModelAdmin):
                         'projeto', 'data_sigi',)}
          ),
         (_(u"Acompanhamento no gabinete"),
-         {'fields': ('data_solicitacao', 'data_sigad', 'tipo_solicitacao',
-                     'status', 'acompanha', 'observacao',)}
+         {'fields': ('data_solicitacao', 'data_sigad', 'observacao',)}
         ),
         (_(u"Gestão do convênio"),
          {'fields': ('servico_gestao', 'servidor_gestao',)}
@@ -67,10 +66,9 @@ class ConvenioAdmin(BaseModelAdmin):
     inlines = (AnexosInline,)
     list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
-                    'duracao', 'projeto', 'status', 'acompanha',)
+                    'duracao', 'projeto',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('status', ('acompanha', AcompanhaFilter),
-                   ('casa_legislativa__gerentes_interlegis',
+    list_filter = (('casa_legislativa__gerentes_interlegis',
                     GerentesInterlegisFilter), 'projeto',
                    'casa_legislativa__tipo', 'conveniada','equipada',
                    'casa_legislativa__municipio__uf',)

@@ -26,12 +26,12 @@ class SemEquipamentosReport(object):
 
 
 class ConvenioReport(ReportDefault):
-    title = _(u'Relatório de Convênios')
-
+    title = _(u'Relatório de Parcerias')
+    
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
-        label_left = [0, 1.5, 7, 9, 11, 13, 15, 17]
+        label_left = [0, 2.5, 6, 8, 10, 12, 14, 16]
         elements = list(ReportDefault.band_page_header.elements)
         height = 4.7 * cm
 
@@ -47,38 +47,32 @@ class ConvenioReport(ReportDefault):
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Data de Adesão"),
+                text=_(u"Número do Convênio"),
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Número do Convênio"),
+                text=_(u"Data do Convênio"),
                 left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Data do Convênio"),
+                text=_(u"Data de Publicação"),
                 left=label_left[4] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Data de Publicação"),
-                left=label_left[5] * cm,
-                top=label_top,
-                width=2 * cm,
-            ),
-            Label(
-                text=_(u"Data de Aceite"),
-                left=label_left[6] * cm,
-                top=label_top,
-                width=2 * cm,
-            ),
-            Label(
                 text=_(u"Projeto"),
-                left=label_left[7] * cm,
+                left=label_left[5] * cm,
+                top=label_top + 0.4 * cm,
+                width=2 * cm,
+            ),
+            Label(
+                text=_(u"Orgão"),
+                left=label_left[6] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
             ),
@@ -89,7 +83,7 @@ class ConvenioReport(ReportDefault):
 
     class band_detail(ReportDefault.band_detail):
 
-        label_left = [0, 1.5, 7, 9, 11, 13, 15, 17]
+        label_left = [0, 2.5, 6, 8, 10, 12, 14, 16]
 
         elements = [
             ObjectValue(
@@ -101,52 +95,44 @@ class ConvenioReport(ReportDefault):
                 left=label_left[1] * cm
             ),
             ObjectValue(
-                attribute_name='data_adesao',
-                left=label_left[2] * cm,
-                get_value=lambda instance:
-                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao is not None else '-'
-            ),
-            ObjectValue(
                 attribute_name='num_convenio',
-                left=label_left[3] * cm
+                left=label_left[2] * cm
             ),
             ObjectValue(
                 attribute_name='data_retorno_assinatura',
-                left=label_left[4] * cm,
+                left=label_left[3] * cm,
                 get_value=lambda instance:
                     instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
             ),
             ObjectValue(
                 attribute_name='data_pub_diario',
-                left=label_left[5] * cm,
+                left=label_left[4] * cm,
                 get_value=lambda instance:
                     instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
             ),
             ObjectValue(
-                attribute_name='data_termo_aceite',
-                left=label_left[6] * cm,
-                get_value=lambda instance:
-                    instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite is not None else '-'
+                attribute_name='projeto.sigla',
+                left=label_left[5] * cm
             ),
             ObjectValue(
-                attribute_name='projeto.sigla',
-                left=label_left[7] * cm
+                attribute_name='casa_legislativa.nome',
+                left=label_left[6] * cm
             ),
         ]
 
-    groups = [
-        ReportGroup(attribute_name='casa_legislativa.municipio.uf',
-                    band_header=ReportBand(
-                        height=0.7 * cm,
-                        elements=[
-                            ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-                                        get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
-                                        )
-                        ],
-                        borders={'top': True},
-                    )
-                    )
-    ]
+    #groups = [
+    #    ReportGroup(attribute_name='casa_legislativa.municipio.uf',
+    #                band_header=ReportBand(
+    #                    height=0.7 * cm,
+    #                    elements=[
+    #                        ObjectValue(attribute_name='casa_legislativa.municipio.uf',
+    #                                    get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
+    #                                    )
+    #                    ],
+    #                    borders={'top': True},
+    #                )
+    #                )
+    #]
 
 
 class ConvenioReportSemAceite(ConvenioReport):
@@ -154,7 +140,7 @@ class ConvenioReportSemAceite(ConvenioReport):
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
-        label_left = [0, 1.5, 7, 9, 11, 13, 15, 17]
+        label_left = [0, 2.5, 6, 8, 10, 12, 14, 16]
         elements = list(ReportDefault.band_page_header.elements)
         height = 4.7 * cm
 
@@ -170,32 +156,26 @@ class ConvenioReportSemAceite(ConvenioReport):
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Data de Adesão"),
-                left=label_left[3] * cm,
-                top=label_top,
-                width=2 * cm,
-            ),
-            Label(
                 text=_(u"Número do Convênio"),
-                left=label_left[4] * cm,
+                left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
                 text=_(u"Data do Convênio"),
-                left=label_left[5] * cm,
+                left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
-            ),
-            Label(
-                text=_(u"Data de Publicação"),
-                left=label_left[6] * cm,
-                top=label_top,
-                width=2 * cm,
-            ),
+            ),            
             Label(
                 text=_(u"Projeto"),
-                left=label_left[7] * cm,
+                left=label_left[4] * cm,
+                top=label_top,
+                width=2 * cm,
+            ),
+            Label(
+                text=_(u"Orgão"),
+                left=label_left[5] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
             ),
@@ -203,7 +183,7 @@ class ConvenioReportSemAceite(ConvenioReport):
 
     class band_detail(ReportDefault.band_detail):
 
-        label_left = [0, 1.5, 7, 9, 11, 13, 15, 17]
+        label_left = [0, 2.5, 6, 8, 10, 12, 14, 16]
 
         elements = [
             ObjectValue(
@@ -215,30 +195,22 @@ class ConvenioReportSemAceite(ConvenioReport):
                 left=label_left[1] * cm
             ),
             ObjectValue(
-                attribute_name='data_adesao',
-                left=label_left[3] * cm,
-                get_value=lambda instance:
-                    instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao is not None else '-'
-            ),
-            ObjectValue(
                 attribute_name='num_convenio',
-                left=label_left[4] * cm
+                left=label_left[2] * cm
             ),
             ObjectValue(
                 attribute_name='data_retorno_assinatura',
-                left=label_left[5] * cm,
+                left=label_left[3] * cm,
                 get_value=lambda instance:
                     instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
             ),
             ObjectValue(
-                attribute_name='data_pub_diario',
-                left=label_left[6] * cm,
-                get_value=lambda instance:
-                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
+                attribute_name='projeto.sigla',
+                left=label_left[4],
             ),
             ObjectValue(
-                attribute_name='projeto.sigla',
-                left=label_left[7] * cm
+                attribute_name='casa_legislativa.nome',
+                left=label_left[5] * cm
             ),
         ]
 
@@ -247,7 +219,7 @@ float_duas_casas = lambda instance: '%.2f' % (instance)
 
 
 class ConvenioReportRegiao(ReportDefault):
-    title = _(u'Relatório de Convênios por Região')
+    title = _(u'Relatório de Parcerias por Região')
 
     class band_page_header(ReportDefault.band_page_header):
         label_top = ReportDefault.band_page_header.label_top
@@ -298,16 +270,16 @@ class ConvenioReportRegiao(ReportDefault):
 
 
 class ConvenioPorCMReport(ConvenioReport):
-    title = _(u'Relatório de Convênios por Câmara Municipal')
+    title = _(u'Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioPorALReport(ConvenioReport):
-    title = _(u'Relatório de Convênios por Assembléia Legislativa')
+    title = _(u'Relatório de Parcerias por Assembléia Legislativa')
 
 
 class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
-    title = _(u'Relatório de Convênios por Câmara Municipal')
+    title = _(u'Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
-    title = _(u'Relatório de Convênios por Assembléia Legislativa')
+    title = _(u'Relatório de Parcerias por Assembléia Legislativa')

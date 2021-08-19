@@ -130,7 +130,7 @@ class Convenio(models.Model):
         blank=True,
     )
     data_retorno_assinatura = models.DateField(
-        _(u'conveniadas'),
+        _(u'data início vigência'),
         null=True,
         blank=True,
         help_text=_(u'Convênio firmado.')

@@ -77,7 +77,9 @@ class FuncionariosInline(admin.StackedInline):
 
     def get_queryset(self, request):
         return (self.model.objects.exclude(
-            cargo='Presidente').exclude(desativado=True)
+            cargo='Presidente').exclude(desativado=True).order_by('-ult_alteracao')
+            .extra(select={'ult_null': 'ult_alteracao is null'}).extra(order_by=['ult_null'])
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
 
 
@@ -87,9 +89,7 @@ class ConveniosInline(admin.TabularInline):
         (None, {'fields': (
             ('link_sigad', 'status_convenio', 'num_convenio',
              'projeto', 'observacao'),
-            ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
-             'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
-            ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',),
+            ('data_retorno_assinatura', 'data_pub_diario',),
             ('get_anexos',),
             ('link_convenio',),
         )}),
@@ -103,6 +103,7 @@ class ConveniosInline(admin.TabularInline):
     extra = 0
     can_delete = False
     template = 'admin/casas/convenios_inline.html'
+    ordering = ('-data_retorno_assinatura',)
 
     def has_add_permission(self, request):
         return False
@@ -225,6 +226,8 @@ class ServicoInline(admin.TabularInline):
     link_url.short_description = _(u'URL do serviço')
     link_url.allow_tags = True
 
+    ordering = ('-data_alteracao',)
+
 # class PlanoDiretorInline(admin.TabularInline):
 #     model = PlanoDiretor
 
@@ -236,6 +239,8 @@ class OcorrenciaInline(admin.TabularInline):
     max_num = 0
     can_delete = False
     template = 'admin/casas/ocorrencia_inline.html'
+
+    ordering = ('-data_modificacao',)
 
     def link_editar(self, obj):
         if obj.pk is None:

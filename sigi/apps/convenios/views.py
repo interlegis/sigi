@@ -86,6 +86,8 @@ def carrinhoOrGet_for_qs(request):
     if 'carrinho_convenios' in request.session:
         ids = request.session['carrinho_convenios']
         qs = Convenio.objects.filter(pk__in=ids)
+        qs = qs.order_by("casa_legislativa__municipio__uf", "casa_legislativa__municipio")
+        qs = get_for_qs(request.GET, qs)
     else:
         qs = Convenio.objects.all()
         if request.GET:
