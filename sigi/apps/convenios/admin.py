@@ -73,7 +73,7 @@ class ConvenioAdmin(BaseModelAdmin):
                    'casa_legislativa__tipo', 'conveniada','equipada',
                    'casa_legislativa__municipio__uf',)
     #date_hierarchy = 'data_adesao'
-    ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
+    ordering = ('casa_legislativa', '-data_retorno_assinatura')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
     search_fields = ('id', 'search_text',  'casa_legislativa__sigla',
