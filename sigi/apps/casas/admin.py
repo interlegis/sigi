@@ -76,9 +76,9 @@ class FuncionariosInline(admin.StackedInline):
     inlines = (TelefonesInline,)
 
     def get_queryset(self, request):
-        return (self.model.objects.exclude(
-            cargo='Presidente').exclude(desativado=True).order_by('-ult_alteracao')
-            .extra(select={'ult_null': 'ult_alteracao is null'}).extra(order_by=['ult_null'])
+        return (self.model.objects.exclude(cargo='Presidente')
+        .exclude(desativado=True).extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
             # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
 
