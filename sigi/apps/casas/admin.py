@@ -50,6 +50,12 @@ class PresidenteInline(admin.StackedInline):
     extra = 1
     max_num = 1
     verbose_name_plural = _(u'Presidente')
+    def get_queryset(self, request):
+        return (self.model.objects.exclude(desativado=True)
+        .extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
+        )
 
 
 class FuncionariosInline(admin.StackedInline):
