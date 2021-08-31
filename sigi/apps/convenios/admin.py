@@ -57,7 +57,7 @@ class ConvenioAdmin(BaseModelAdmin):
          {'fields': ('servico_gestao', 'servidor_gestao',)}
         ),
         (_(u'Datas'),
-            {'fields': ('data_retorno_assinatura', 'duracao',
+            {'fields': ('data_retorno_assinatura', 'data_termino_vigencia',
                         'data_pub_diario',)}
          ),
     )
@@ -66,7 +66,7 @@ class ConvenioAdmin(BaseModelAdmin):
     inlines = (AnexosInline,)
     list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
-                    'duracao', 'projeto',)
+                    'data_termino_vigencia', 'projeto',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
     list_filter = (('casa_legislativa__gerentes_interlegis',
                     GerentesInterlegisFilter), 'projeto',

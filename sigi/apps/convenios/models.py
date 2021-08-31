@@ -15,10 +15,10 @@ class Projeto(models.Model):
 
     def __unicode__(self):
         return self.sigla
-    
+
     class Meta:
         ordering = ('nome',)
- 
+
 class StatusConvenio(models.Model):
     nome = models.CharField(max_length=100)
     cancela = models.BooleanField(_(u"Cancela o convênio"), default=False)
@@ -135,12 +135,12 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Convênio firmado.')
     )
-    duracao = models.PositiveIntegerField(
-        _(u"duração (meses)"),
+    data_termino_vigencia = models.DateField(
+        _(u'Data término vigência'),
         null=True,
         blank=True,
-        help_text=_(u"Deixar em branco caso a duração seja indefinida")
-        )
+        help_text=_(u'Término da vigência do convênio.')
+    )
     data_pub_diario = models.DateField(
         _(u'data da publicação no Diário Oficial'),
         null=True,
@@ -178,34 +178,13 @@ class Convenio(models.Model):
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
 
-    def get_termino_convenio(self):
-        if (self.data_retorno_assinatura is None or
-            self.duracao is None):
-            return None
-
-        ano = self.data_retorno_assinatura.year + int(self.duracao / 12)
-        mes = int(self.data_retorno_assinatura.month + int(self.duracao % 12))
-        if mes > 12:
-            ano = ano + 1
-            mes = mes - 12
-        dia = self.data_retorno_assinatura.day
-
-        while True:
-            try:
-                data_fim = date(year=ano, month=mes,day=dia)
-                break
-            except:
-                dia = dia - 1
-
-        return data_fim
-
     def get_status(self):
         if self.status and self.status.cancela:
             return _(u"Cancelado")
 
         if self.data_retorno_assinatura is not None:
-            if self.duracao is not None:
-                if date.today() >= self.get_termino_convenio():
+            if self.data_termino_vigencia is not None:
+                if date.today() >= self.data_termino_vigencia:
                     return _(u"Vencido")
             return _(u"Vigente")
 
