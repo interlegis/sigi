@@ -315,7 +315,12 @@ def export_csv(request):
 
     max_equipe = max([e.equipe_set.count() for e in eventos])
 
+    mun_casa = u'Município da Casa Anfitriã'.encode('utf8')
+    uf_casa = u'UF da Casa Anfitriã'.encode('utf8')
+    reg_casa = u'Região da Casa Anfitriã'.encode('utf8')
+
     head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
+    head.extend([mun_casa, uf_casa, reg_casa])
     head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
                  for i in range(max_equipe) for f in Equipe._meta.fields
                  if f.name not in ('id', 'evento')])
@@ -331,6 +336,17 @@ def export_csv(request):
     for evento in eventos:
         reg = {f.verbose_name.encode('utf8'): serialize(evento, f)
                for f in Evento._meta.fields}
+        if evento.casa_anfitria is None:
+            reg[mun_casa] = ""
+            reg[uf_casa] = ""
+            reg[reg_casa] = ""
+        else:
+            reg[mun_casa] = evento.casa_anfitria.municipio.nome.encode('utf8')
+            reg[uf_casa] = evento.casa_anfitria.municipio.uf.sigla.\
+                encode('utf8')
+            reg[reg_casa] = evento.casa_anfitria.municipio.uf.\
+                get_regiao_display().encode('utf8')
+
         idx = 1
         for membro in evento.equipe_set.all():
             reg.update(
