@@ -54,7 +54,6 @@ class Convenio(models.Model):
         verbose_name=_(u'órgão conveniado')
     )
     # campo de busca em caixa baixa e sem acentos
-    search_text = SearchField(field_names=['casa_legislativa'])
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.PROTECT,

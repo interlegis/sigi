@@ -77,8 +77,9 @@ class ConvenioAdmin(BaseModelAdmin):
     ordering = ('casa_legislativa', '-data_retorno_assinatura')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
-    search_fields = ('id', 'search_text',  'casa_legislativa__sigla',
-                     'num_processo_sf', 'num_convenio')
+    search_fields = ('id', 'casa_legislativa__search_text',
+                     'casa_legislativa__sigla', 'num_processo_sf',
+                     'num_convenio')
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
