@@ -6,7 +6,8 @@ from geraldo.generators import PDFGenerator
 
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         TipoSolicitacao, Convenio,
-                                        EquipamentoPrevisto, Anexo, Tramitacao)
+                                        EquipamentoPrevisto, Anexo, Tramitacao,
+                                        Gescon)
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
@@ -169,6 +170,11 @@ class EquipamentoPrevistoAdmin(BaseModelAdmin):
     raw_id_fields = ('convenio', 'equipamento')
     search_fields = ('convenio__id', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
+
+@admin.register(Gescon)
+class GesconAdmin(admin.ModelAdmin):
+    list_display = ('url_gescon', 'email', 'ultima_importacao')
+    readonly_fields = ('ultima_importacao',)
 
 admin.site.register(Projeto)
 admin.site.register(StatusConvenio)
