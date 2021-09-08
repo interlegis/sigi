@@ -523,7 +523,7 @@ class Gescon(models.Model):
 
             novos = 0
             erros = 0
-            verificados = 0
+            alertas = 0
             atualizados = 0
 
             for contrato in nossos:
@@ -607,6 +607,15 @@ class Gescon(models.Model):
                         Q(num_processo_sf=numero)
                     )
                     chk = convenios.count()
+                    if chk > 1:
+                        # Pode ser que existam vários contratos de subespécies
+                        # diferentes com o mesmo número Gescon. Neste caso, o
+                        # ideal é filtrar pelo tipo de projeto. Existindo, é
+                        # ele mesmo. Se não existir, então segue com os
+                        # múltiplos para registrar o problema mais adiante
+                        if convenios.filter(projeto=projeto).count() == 1:
+                            convenios = convenios.filter(projeto=projeto)
+                            chk = 1
 
                 if chk == 0:
                     convenio = Convenio(
@@ -623,6 +632,7 @@ class Gescon(models.Model):
                     )
                     convenio.save()
                     novos += 1
+                    continue
                 elif chk == 1:
                     convenio = convenios.get()
                     if convenio.casa_legislativa != orgao:
@@ -641,79 +651,74 @@ class Gescon(models.Model):
                         continue
 
                     if convenio.num_processo_sf != sigad:
-                        sigi_nums = filter(
-                            type(convenio.num_processo_sf).isdigit,
-                            convenio.num_processo_sf
-                        ).zfill(17)
-                        gesc_nums = filter(type(sigad).isdigit, sigad).zfill(17)
-                        if ( sigi_nums == gesc_nums or
-                            convenio.num_processo_sf == ""):
-                            # Número SIGAD incorreto no SIGI, podemos corrigir
-                            convenio.num_processso_sf = sigad
-                            convenio.save()
-                        else:
-                            self.add_message(
-                                _(u"\tO contrato Gescon nº {numero} corresponde"
-                                  u" ao convênio SIGI {url}, mas o NUP sigad "
-                                  u"diverge (Gescon: {sigad_gescon}, "
-                                  u"SIGI: {sigad_sigi})").format(
-                                      numero=numero,
-                                      url=reverse('admin:%s_%s_change' % (
-                                          convenio._meta.app_label,
-                                          convenio._meta.model_name),
-                                                  args=[convenio.id]),
-                                      sigad_gescon=sigad,
-                                      sigad_sigi=convenio.num_processo_sf
+                        self.add_message(
+                            _(u"\tO contrato Gescon nº {numero} corresponde"
+                              u" ao convênio SIGI {url}, mas o NUP sigad "
+                              u"diverge (Gescon: {sigad_gescon}, "
+                              u"SIGI: {sigad_sigi}). CORRIGIDO!").format(
+                                  numero=numero,
+                                  url=reverse('admin:%s_%s_change' % (
+                                      convenio._meta.app_label,
+                                      convenio._meta.model_name),
+                                              args=[convenio.id]),
+                                  sigad_gescon=sigad,
+                                  sigad_sigi=convenio.num_processo_sf
                                   )
                             )
-                            erros += 1
-                            continue
+                        convenio.num_processo_sf = sigad
+                        alertas += 1
 
                     if convenio.num_convenio != numero:
-                        sigi_nums = filter(type(convenio.num_convenio).isdigit,
-                                           convenio.num_convenio).zfill(8)
-                        gesc_nums = filter(type(numero).isdigit,
-                                           numero).zfill(8)
-                        if (sigi_nums == gesc_nums or
-                            convenio.num_convenio == ""):
-                            # Número gescon errado no SIGI mas podemos corrigir
-                            convenio.num_convenio = numero
-                        else:
-                            self.add_message(
-                                _(u"\tO contrato Gescon ID {id} corresponde ao "
-                                u"convênio SIGI {url}, mas o número do convênio"
-                                u" diverge (Gescon: {numero_gescon}, SIGI: "
-                                u"{numero_sigi})").format(
-                                    id=contrato['id'],
-                                    url=reverse('admin:%s_%s_change' % (
-                                        convenio._meta.app_label,
-                                        convenio._meta.model_name),
-                                        args=[convenio.id]
-                                    ),
-                                    numero_gescon=numero,
-                                    numero_sigi=convenio.num_convenio
-                                )
-                            )
-                            erros += 1
-                            continue
+                        self.add_message(
+                            _(u"\tO contrato Gescon ID {id} corresponde ao "
+                              u"convênio SIGI {url}, mas o número do convênio"
+                              u" diverge (Gescon: {numero_gescon}, SIGI: "
+                              u"{numero_sigi}). CORRIGIDO!").format(
+                                  id=contrato['id'],
+                                  url=reverse('admin:%s_%s_change' % (
+                                      convenio._meta.app_label,
+                                      convenio._meta.model_name),
+                                              args=[convenio.id]
+                                  ),
+                                  numero_gescon=numero,
+                                  numero_sigi=convenio.num_convenio
+                              )
+                        )
+                        convenio.num_convenio = numero
+                        alertas += 1
 
                     if contrato['objeto'] not in convenio.observacao:
                         convenio.observacao += "\n" + contrato['objeto']
 
-                    convenio.data_sigad=contrato['assinatura']
-                    convenio.data_retorno_assinatura=contrato['inicioVigencia']
-                    convenio.data_termino_vigencia=contrato['terminoVigencia']
-                    convenio.data_pub_diario=contrato['publicacao']
+                    convenio.data_sigad = contrato['assinatura']
+                    convenio.data_retorno_assinatura = contrato[
+                        'inicioVigencia'
+                    ]
+                    convenio.data_termino_vigencia = contrato[
+                        'terminoVigencia'
+                    ]
+                    convenio.data_pub_diario = contrato['publicacao']
 
                     try:
                         convenio.save()
-                    except Exception:
-                        import ipdb; ipdb.set_trace()
-                        print contrato
-                        raise
+                    except Exception as e:
+                        self.add_message(
+                            _(u"Ocorreu um erro ao salvar o convênio {url} no "
+                              u"SIGI. Alguma informação do Gescon pode ter "
+                              u"quebrado o sistema. Informe ao suporte. Erro:"
+                              u"{errmsg}").format(
+                                  url=reverse('admin:%s_%s_change' % (
+                                      convenio._meta.app_label,
+                                      convenio._meta.model_name),
+                                      args=[convenio.id]
+                                  ),
+                                  errmsg=str(e)
+                              )
+                        )
+                        erros += 1
+                        continue
 
                     atualizados += 1
-                    verificados += 1
                 else:
                     self.add_message(_(u"\tExistem {count} convênios no SIGI "
                                        u"que correspondem ao mesmo contrato no "
@@ -729,11 +734,11 @@ class Gescon(models.Model):
 
             self.add_message(
                 _(u"\t{novos} novos convenios adicionados ao SIGI, "
-                  u"{atualizados} atualizados, {verificados} confirmados e "
+                  u"{atualizados} atualizados, sendo {alertas} com alertas, e "
                   u"{erros} reportados com erro.").format(
                       novos=novos,
                       atualizados=atualizados,
-                      verificados=verificados,
+                      alertas=alertas,
                       erros=erros
                   )
             )
