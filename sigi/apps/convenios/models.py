@@ -181,6 +181,15 @@ class Convenio(models.Model):
     )
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
+    atualizacao_gescon = models.DateTimeField(
+        _(u"Data de atualização pelo Gescon"),
+        blank=True,
+        null=True
+    )
+    observacao_gescon = models.TextField(
+        _(u"Observações da atualização do Gescon"),
+        blank=True
+    )
 
     def get_status(self):
         if self.status and self.status.cancela:
@@ -628,13 +637,18 @@ class Gescon(models.Model):
                         observacao=contrato['objeto'],
                         data_retorno_assinatura=contrato['inicioVigencia'],
                         data_termino_vigencia=contrato['terminoVigencia'],
-                        data_pub_diario=contrato['publicacao']
+                        data_pub_diario=contrato['publicacao'],
+                        atualizacao_gescon=datetime.now(),
+                        observacao_gescon=_(u"Importado integralmente do"
+                                            u"Gescon")
                     )
                     convenio.save()
                     novos += 1
                     continue
                 elif chk == 1:
                     convenio = convenios.get()
+                    convenio.atualizacao_gescon = datetime.now()
+                    convenio.observacao_gescon = ''
                     if convenio.casa_legislativa != orgao:
                         self.add_message(
                             _(u"\tO órgao no convênio {url} diverge do que "
@@ -647,6 +661,10 @@ class Gescon(models.Model):
                                   nome=contrato['nomeFornecedor']
                               )
                         )
+                        convenio.observacao_gescon = _(
+                            u'ERRO: Órgão diverge do Gescon. Não atualizado!'
+                        )
+                        convenio.save()
                         erros += 1
                         continue
 
@@ -666,6 +684,9 @@ class Gescon(models.Model):
                                   )
                             )
                         convenio.num_processo_sf = sigad
+                        convenio.observacao_gescon += _(
+                            u"Número do SIGAD atualizado.\n"
+                        )
                         alertas += 1
 
                     if convenio.num_convenio != numero:
@@ -685,10 +706,16 @@ class Gescon(models.Model):
                               )
                         )
                         convenio.num_convenio = numero
+                        convenio.observacao_gescon += _(
+                            u"Número do convênio atualizado.\n"
+                        )
                         alertas += 1
 
                     if contrato['objeto'] not in convenio.observacao:
                         convenio.observacao += "\n" + contrato['objeto']
+                        convenio.observacao_gescon += _(
+                            u"Observação atualizada.\n"
+                        )
 
                     convenio.data_sigad = contrato['assinatura']
                     convenio.data_retorno_assinatura = contrato[

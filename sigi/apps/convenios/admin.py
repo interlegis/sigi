@@ -58,11 +58,14 @@ class ConvenioAdmin(BaseModelAdmin):
          {'fields': ('servico_gestao', 'servidor_gestao',)}
         ),
         (_(u'Datas'),
-            {'fields': ('data_retorno_assinatura', 'data_termino_vigencia',
-                        'data_pub_diario',)}
+         {'fields': ('data_retorno_assinatura', 'data_termino_vigencia',
+                     'data_pub_diario',)}
          ),
+        (_(u'Gescon'),
+         {'fields': ('atualizacao_gescon', 'observacao_gescon',)}
+        ),
     )
-    readonly_fields = ('data_sigi',)
+    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon',)
     actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
     list_display = ('num_convenio', 'casa_legislativa', 'get_uf',

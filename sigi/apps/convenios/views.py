@@ -2,6 +2,7 @@
 import csv
 
 import datetime
+from django.http.response import HttpResponseForbidden
 import ho.pisa as pisa
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -373,7 +374,11 @@ def export_csv(request):
 
     return response
 
+@login_required
 def importar_gescon(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+
     action = request.GET.get('action', "")
     gescon = Gescon.load()
 
