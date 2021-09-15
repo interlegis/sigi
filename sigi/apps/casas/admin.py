@@ -217,10 +217,10 @@ class ServicoInline(admin.TabularInline):
     model = Servico
     fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
               'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
-              'data_desativacao')
+              'data_desativacao', 'link_servico')
     readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
                        'hospedagem_interlegis', 'data_ativacao',
-                       'data_alteracao', 'data_desativacao']
+                       'data_alteracao', 'data_desativacao', 'link_servico']
     extra = 0
     max_num = 0
     can_delete = False
@@ -233,6 +233,22 @@ class ServicoInline(admin.TabularInline):
     link_url.allow_tags = True
 
     ordering = ('-data_alteracao',)
+
+    def link_servico(self, obj):
+        if obj.pk is None:
+            return ""
+        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
+        url = url + '?_popup=1'
+        return """<input id="edit_convenio-%s" type="hidden"/>
+          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
+            Editar
+          </a>""" % (obj.pk, obj.pk, url)
+
+    link_servico.short_description = _(u'Editar Serviço')
+    link_servico.allow_tags = True
+
+    def has_add_permission(self, request):
+        return False
 
 # class PlanoDiretorInline(admin.TabularInline):
 #     model = PlanoDiretor
