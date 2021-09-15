@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from cgi import escape
+from datetime import datetime
 import os
 
 from django.conf import settings
@@ -28,12 +29,15 @@ def render_to_pdf(template_src, context_dict):
     filename = template_src.replace('.html', '').replace('_pdf', '.pdf')
     template = get_template(template_src)
     context = Context(context_dict)
-    html = template.render(context)
-    result = StringIO.StringIO()
 
-    pdf = pisa.pisaDocument(StringIO.StringIO(html.encode('utf-8')), result, link_callback=fetch_resources)
-    if not pdf.err:
-        response = HttpResponse(result.getvalue(), content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename=' + filename
-        return response
-    return HttpResponse(_(u'We had some errors<pre>%s</pre>') % escape(html))
+    html = template.render(context)
+
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename=' + filename
+
+    pdf = pisa.CreatePDF(html, dest=response,
+                         link_callback=fetch_resources)
+
+    if pdf.err:
+        return HttpResponse(_(u'We had some errors<pre>%s</pre>') % escape(html))
+    return response
