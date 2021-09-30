@@ -233,6 +233,7 @@ class ContatosInline(FuncionariosInline):
             # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
 
+
 class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)
