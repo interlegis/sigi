@@ -2,6 +2,7 @@
 import csv
 
 import datetime
+from django.http.response import HttpResponseForbidden
 import ho.pisa as pisa
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -13,7 +14,7 @@ from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.convenios.models import Convenio, Gescon, Projeto
 from sigi.apps.convenios.reports import (ConvenioReport,
                                          ConvenioReportSemAceite,
                                          ConvenioPorCMReport,
@@ -372,3 +373,16 @@ def export_csv(request):
         csv_writer.writerow(lista)
 
     return response
+
+@login_required
+def importar_gescon(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+
+    action = request.GET.get('action', "")
+    gescon = Gescon.load()
+
+    if action == 'importar':
+        gescon.importa_contratos()
+
+    return render(request, "convenios/importar_gescon.html", {'gescon': gescon})
