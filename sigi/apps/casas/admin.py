@@ -307,7 +307,7 @@ class ConvenioFilter(admin.SimpleListFilter):
 
 class ExcluirConvenioFilter(admin.SimpleListFilter):
     title=_(u"Excluir convênio da pesquisa")
-    parameter_name = 'convenio_excluir'
+    parameter_name = 'excluir_convenio'
 
     def lookups(self, request, model_admin):
         return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
