@@ -291,7 +291,7 @@ class ConvenioFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ('SC', _(u"Sem nenhum convênio")),
-            ('CC', _(u"Com algum convênio"))
+            ('CC', _(u"Com algum convênio")),
         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
@@ -305,6 +305,16 @@ class ConvenioFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
+class ExcluirConvenioFilter(admin.SimpleListFilter):
+    title=_(u"Excluir convênio da pesquisa")
+    parameter_name = 'excluir_convenio'
+
+    def lookups(self, request, model_admin):
+        return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+
+    def queryset(self, request, queryset):
+        queryset = queryset.exclude(convenio__projeto_id=self.value())
+        return queryset.distinct('municipio__uf__nome', 'nome')
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")
@@ -350,7 +360,7 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
                     'get_servicos')
     list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
-                   'municipio__uf__nome', ConvenioFilter, ServicoFilter,
+                   'municipio__uf__nome', ConvenioFilter, ExcluirConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii
