@@ -490,7 +490,7 @@ class Gescon(models.Model):
             projeto = Projeto.objects.get(sigla=sigla_sigi)
 
             try:
-                response = requests.get(url)
+                response = requests.get(url, verify=False)
             except Exception as e:
                 self.add_message(
                     _(u"\tErro ao acessar {url}: {errmsg}").format(
