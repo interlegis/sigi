@@ -217,10 +217,10 @@ class ServicoInline(admin.TabularInline):
     model = Servico
     fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
               'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
-              'data_desativacao')
+              'data_desativacao', 'link_servico')
     readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
                        'hospedagem_interlegis', 'data_ativacao',
-                       'data_alteracao', 'data_desativacao']
+                       'data_alteracao', 'data_desativacao', 'link_servico']
     extra = 0
     max_num = 0
     can_delete = False
@@ -233,6 +233,22 @@ class ServicoInline(admin.TabularInline):
     link_url.allow_tags = True
 
     ordering = ('-data_alteracao',)
+
+    def link_servico(self, obj):
+        if obj.pk is None:
+            return ""
+        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
+        url = url + '?_popup=1'
+        return """<input id="edit_convenio-%s" type="hidden"/>
+          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
+            Editar
+          </a>""" % (obj.pk, obj.pk, url)
+
+    link_servico.short_description = _(u'Editar Serviço')
+    link_servico.allow_tags = True
+
+    def has_add_permission(self, request):
+        return False
 
 # class PlanoDiretorInline(admin.TabularInline):
 #     model = PlanoDiretor
@@ -275,7 +291,7 @@ class ConvenioFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ('SC', _(u"Sem nenhum convênio")),
-            ('CC', _(u"Com algum convênio"))
+            ('CC', _(u"Com algum convênio")),
         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
@@ -289,6 +305,16 @@ class ConvenioFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
+class ExcluirConvenioFilter(admin.SimpleListFilter):
+    title=_(u"Excluir convênio da pesquisa")
+    parameter_name = 'excluir_convenio'
+
+    def lookups(self, request, model_admin):
+        return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+
+    def queryset(self, request, queryset):
+        queryset = queryset.exclude(convenio__projeto_id=self.value())
+        return queryset.distinct('municipio__uf__nome', 'nome')
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")
@@ -334,7 +360,7 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
                     'get_servicos')
     list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
-                   'municipio__uf__nome', ConvenioFilter, ServicoFilter,
+                   'municipio__uf__nome', ConvenioFilter, ExcluirConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii

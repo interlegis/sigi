@@ -226,6 +226,13 @@ class ContatosInline(FuncionariosInline):
     def get_queryset(self, request):
         return self.model.objects.all()
 
+    def get_queryset(self, request):
+        return (self.model.objects.exclude(desativado=True)
+        .extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
+        )
+
 class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_interlegis', 'nome', 'get_servicos',)

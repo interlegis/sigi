@@ -249,18 +249,18 @@ class Convenio(models.Model):
 
         if ((self.data_retorno_assinatura is None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Convênio nº {number} - equipada em {date} pelo {project}"
+            return _(u"{project} nº {number} - equipada em {date}"
                      ).format(number=self.num_convenio,
                               date=self.data_termo_aceite.strftime('%d/%m/%Y'),
                               project=self.projeto.sigla)
         elif self.data_retorno_assinatura is None:
-            return _(u"Convênio nº {number} - adesão ao projeto {project}, "
+            return _(u"{project}, nº {number}, início "
                      u"em {date}").format(number=self.num_convenio,
                                           project=self.projeto.sigla,
                                           date=self.data_adesao)
         if ((self.data_retorno_assinatura is not None) and not
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Convênio nº {number} - conveniada ao {project} em "
+            return _(u"{project}, nº {number}, inicio em "
                      u"{date}. Status: {status}").format(
                          number=self.num_convenio,
                          project=self.projeto.sigla,
@@ -268,7 +268,7 @@ class Convenio(models.Model):
                          status=self.get_status())
         if ((self.data_retorno_assinatura is not None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"Convẽnio nº {number} - conveniada ao {project} em {date}"
+            return _(u"{project}, nº {number}, início em {date}"
                      u" e equipada em {equipped_date}. Status: {status}"
                      ).format(number=self.num_convenio,
                               project=self.projeto.sigla,
