@@ -3,7 +3,7 @@ import re
 import requests
 from datetime import datetime, date
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
@@ -65,6 +65,7 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
     )
+    fieldsets = ({'fields':('num_processo_sf',)})
     num_convenio = models.CharField(
         _(u'número do convênio'),
         max_length=10,
