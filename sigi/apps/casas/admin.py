@@ -334,8 +334,11 @@ class ExcluirConvenioFilter(admin.SimpleListFilter):
         return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
-        queryset = queryset.exclude(convenio__projeto_id=self.value())
-        return queryset.distinct('municipio__uf__nome', 'nome')
+        if (self.value() is None):
+            return queryset
+        else:    
+            queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
+        return queryset
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")

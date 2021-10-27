@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField, to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico
+#from sigi.apps.convenios.admin import ConvenioAdmin
 
 class Projeto(models.Model):
     """ Modelo para representar os projetos do programa
@@ -65,7 +66,6 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
     )
-    fieldsets = ({'fields':('num_processo_sf',)})
     num_convenio = models.CharField(
         _(u'número do convênio'),
         max_length=10,
