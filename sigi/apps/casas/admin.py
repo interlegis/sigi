@@ -69,7 +69,7 @@ class ContatoInterlegisInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
-    verbose_name_plural = _(u'Contato Interlegis Vigente')
+    verbose_name_plural = _(u'Contato(s) Interlegis Vigente(s)')
     def get_queryset(self, request):
         return (self.model.objects.filter(setor='contato_interlegis')
         .extra(select={'ult_null': 'ult_alteracao is null'}).order_by('-ult_alteracao')
