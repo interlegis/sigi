@@ -3,13 +3,14 @@ import re
 import requests
 from datetime import datetime, date
 from django.db import models
-from django.db.models import Q
+from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField, to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico
+#from sigi.apps.convenios.admin import ConvenioAdmin
 
 class Projeto(models.Model):
     """ Modelo para representar os projetos do programa
