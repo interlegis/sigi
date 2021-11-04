@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
-
+from datetime import datetime
+import random
 from django.db import models
 from django.utils.functional import lazy
 from django.utils.translation import ugettext as _
+from django.contrib.contenttypes import generic
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
@@ -35,8 +37,16 @@ class Evento(models.Model):
     descricao = models.TextField(_(u"Descrição do evento"))
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
-    data_inicio = models.DateField(_(u"Data de início"))
-    data_termino = models.DateField(_(u"Data de término"))
+    data_inicio = models.DateTimeField(
+        _(u"Data/hora do Início"),
+        null=True,
+        blank=True
+    )
+    data_termino = models.DateTimeField(
+        _(u"Data/hora do Termino"),
+        null=True,
+        blank=True
+    )
     carga_horaria = models.PositiveIntegerField(
         _(u"carga horária"),
         default=0
