@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from unicodedata import name
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
+#from geraldo.site.newsite.django_1_0.django.forms import extras
 from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import OrgaoForm
@@ -57,6 +59,24 @@ class PresidenteInline(admin.StackedInline):
             # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
 
+class ContatoInterlegisInline(admin.StackedInline):
+    model = Funcionario
+    fields = ('nome', 'sexo', 'data_nascimento', 'nota', 'email', 'cargo',
+              'funcao', 'setor', 'tempo_de_servico', 'ult_alteracao',
+              'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
+              'desativado', 'observacoes')
+    raw_id_fields = ('municipio',)
+    readonly_fields = ('ult_alteracao',)
+    extra = 1
+    inlines = (TelefonesInline,)
+    verbose_name_plural = _(u'Contato Interlegis Vigente')
+    def get_queryset(self, request):
+        return (self.model.objects.filter(setor='contato_interlegis')
+        .extra(select={'ult_null': 'ult_alteracao is null'}).order_by('-ult_alteracao')
+        )
+    def get_extra(self, request, obj=None , **kwargs):
+        extra = 0
+        return extra
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
@@ -65,6 +85,7 @@ class FuncionariosInline(admin.StackedInline):
               'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
               'desativado', 'observacoes')
     raw_id_fields = ('municipio',)
+    
     # fieldsets = ((None, {
     #     'fields': (
     #         ('nome', 'sexo', 'data_nascimento'),
@@ -80,14 +101,14 @@ class FuncionariosInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
+    verbose_name_plural = _(u'Outros Contatos da Casa')
 
     def get_queryset(self, request):
-        return (self.model.objects.exclude(cargo='Presidente')
+        return (self.model.objects.exclude(cargo='Presidente',)
         .exclude(desativado=True).extra(select={'ult_null': 'ult_alteracao is null'})
         .order_by('ult_null', '-ult_alteracao')
             # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
-
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
@@ -313,8 +334,11 @@ class ExcluirConvenioFilter(admin.SimpleListFilter):
         return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
-        queryset = queryset.exclude(convenio__projeto_id=self.value())
-        return queryset.distinct('municipio__uf__nome', 'nome')
+        if (self.value() is None):
+            return queryset
+        else:    
+            queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
+        return queryset
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")
@@ -354,7 +378,7 @@ class ServicoFilter(admin.SimpleListFilter):
 class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = OrgaoForm
     actions = ['adicionar_casas', ]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
+    inlines = (TelefonesInline, PresidenteInline, ContatoInterlegisInline, FuncionariosInline,
                ConveniosInline, ServicoInline, OcorrenciaInline,)
     list_display = ('id', 'sigla', 'nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
