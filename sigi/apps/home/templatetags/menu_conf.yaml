@@ -47,6 +47,8 @@ main_menu:
     children:
     - title: Eventos
       url: eventos/evento/
+    - title: Visitas Interlegis
+      url: eventos/evento/?tipo_evento__nome__exact=Visita Interlegis
     - title: Calendário mensal
       url: eventos/calendario
     - title: Alocação de equipe

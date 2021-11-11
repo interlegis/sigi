@@ -91,3 +91,7 @@ class EventoAdmin(admin.ModelAdmin):
         return HttpResponseRedirect('.')
     adicionar_eventos.short_description = _(u"Armazenar eventos no carrinho "
                                             u"para exportar")
+
+    def lookup_allowed(self, lookup, value):
+        return (super(EventoAdmin, self).lookup_allowed(lookup, value) or
+                lookup in ['tipo_evento__nome__exact',])
