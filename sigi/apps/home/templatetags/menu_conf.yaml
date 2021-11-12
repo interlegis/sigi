@@ -47,8 +47,8 @@ main_menu:
     children:
     - title: Eventos
       url: eventos/evento/
-#    - title: Oficinas
-#      url: eventos/evento/?tipo_evento__nome__exact=Oficina
+    - title: Oficinas
+      url: eventos/evento/?tipo_evento__nome__contains=Oficina
     - title: Visitas Interlegis
       url: eventos/evento/?tipo_evento__nome__exact=Visita Interlegis
     - title: Calendário mensal
