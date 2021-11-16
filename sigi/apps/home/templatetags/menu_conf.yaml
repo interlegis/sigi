@@ -50,7 +50,7 @@ main_menu:
     - title: Oficinas
       url: eventos/evento/?tipo_evento__nome__contains=Oficina
     - title: Visitas Interlegis
-      url: eventos/evento/?tipo_evento__nome__exact=Visita Interlegis
+      url: eventos/evento/?tipo_evento__nome__contains=Visita
     - title: Calendário mensal
       url: eventos/calendario
     - title: Alocação de equipe
