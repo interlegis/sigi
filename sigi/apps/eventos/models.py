@@ -11,8 +11,20 @@ from sigi.apps.servidores.models import Servidor
 from django.core.exceptions import ValidationError
 
 class TipoEvento(models.Model):
-    nome = models.CharField(_(u"Nome"), max_length=100)
+    CATEGORIA_CHOICES = (
+        ('C', _(u'Curso')),
+        ('E', _(u'Encontro')),
+        ('O', _(u'Oficina')),
+        ('S', _(u'Seminário')),
+        ('V', _(u'Visita')),
 
+    )
+    nome = models.CharField(_(u"Nome"), max_length=100)
+    categoria = models.CharField(
+        _(u'Categoaria'),
+        max_length=1,
+        choices=CATEGORIA_CHOICES
+    )
     class Meta:
         ordering = ("nome",)
         verbose_name, verbose_name_plural = _(u"Tipo de evento"), _(u"Tipos de evento")

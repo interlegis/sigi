@@ -45,12 +45,18 @@ main_menu:
       url: ocorrencias/ocorrencia/?minhas=S&status__in=1,2
   - title: Eventos
     children:
-    - title: Eventos
+    - title: Todos os eventos
       url: eventos/evento/
+    - title: Cursos
+      url: eventos/evento/?tipo_evento__categoria__exact=C
+    - title: Encontros
+      url: eventos/evento/?tipo_evento__categoria__exact=E
     - title: Oficinas
-      url: eventos/evento/?tipo_evento__nome__contains=Oficina
+      url: eventos/evento/?tipo_evento__categoria__exact=O
+    - title: Seminários
+      url: eventos/evento/?tipo_evento__categoria__exact=S
     - title: Visitas Interlegis
-      url: eventos/evento/?tipo_evento__nome__exact=Visita Interlegis
+      url: eventos/evento/?tipo_evento__categoria__exact=V
     - title: Calendário mensal
       url: eventos/calendario
     - title: Alocação de equipe
