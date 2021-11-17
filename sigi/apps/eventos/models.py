@@ -2,6 +2,7 @@
 from datetime import datetime
 import random
 from django.db import models
+from django.db.models import Sum
 from django.utils.functional import lazy
 from django.utils.translation import ugettext as _
 from django.contrib.contenttypes import generic
@@ -76,6 +77,13 @@ class Evento(models.Model):
     )
     local = models.TextField(_(u"Local do evento"), blank=True)
     publico_alvo = models.TextField(_(u"Público alvo"), blank=True)
+    total_participantes = models.PositiveIntegerField(
+        _(u"Total de participantes"),
+        default=0,
+        help_text=_(u"Se informar quantidade de participantes na aba de "
+                    u"convites, este campo será ajustado com a somatória "
+                    u"dos participantes naquela aba.")
+    )
     status = models.CharField(_(u"Status"), max_length=1, choices=STATUS_CHOICES)
     data_cancelamento = models.DateField(_(u"Data de cancelamento"), blank=True, null=True)
     motivo_cancelamento = models.TextField(_(u"Motivo do cancelamento"), blank=True)
@@ -96,7 +104,12 @@ class Evento(models.Model):
             self.data_cancelamento = None
             self.motivo_cancelamento = ""
         if self.data_inicio > self.data_termino:
-            raise ValidationError(_(u"Data de término deve ser posterior à data de início"))
+            raise ValidationError(_(u"Data de término deve ser posterior à "
+                                    u"data de início"))
+        total = self.convite_set.aggregate(total=Sum('qtde_participantes'))
+        total = total['total']
+        if (total is not None) or (total > 0):
+            self.total_participantes = total
         return super(Evento, self).save(*args, **kwargs)
 
 class Funcao(models.Model):
@@ -165,4 +178,64 @@ class Convite(models.Model):
     class Meta:
         ordering = ('evento', 'casa', '-data_convite')
         unique_together = ('evento', 'casa')
-        verbose_name, verbose_name_plural = _(u"Casa convidada"), _(u"Casas convidadas")
+        verbose_name = _(u"Casa convidada")
+        verbose_name_plural = _(u"Casas convidadas")
+
+class Modulo(models.Model):
+    TIPO_CHOICES = (
+        ('A', _(u'Aula')),
+        ('P', _(u'Palestra')),
+        ('R', _(u'Apresentação')),
+    )
+    evento = models.ForeignKey(Evento, verbose_name=_(u"Evento"))
+    nome = models.CharField(_(u"Nome"), max_length=100)
+    descricao = models.TextField(_(u"Descrição do módulo"))
+    tipo = models.CharField(_(u'Tipo'), max_length=1, choices=TIPO_CHOICES)
+    inicio = models.DateTimeField(
+        _(u"Data/hora de início"),
+        null=True,
+        blank=True
+    )
+    termino = models.DateTimeField(
+        _(u"Data/hora de término"),
+        null=True,
+        blank=True
+    )
+    carga_horaria = models.PositiveIntegerField(
+        _(u"carga horária"),
+        default=0
+    )
+    apresentador = models.ForeignKey(
+        Servidor,
+        on_delete=models.PROTECT,
+        related_name="modulo_apresentador",
+        null=True,
+        blank=True,
+        verbose_name=_(u"Apresentador"),
+    )
+    monitor = models.ForeignKey(
+        Servidor,
+        on_delete=models.PROTECT,
+        related_name="modulo_monitor",
+        null=True,
+        blank=True,
+        verbose_name=_(u"Monitor"),
+        help_text=_(u"Monitor, mediador, auxiliar, etc.")
+    )
+    qtde_participantes = models.PositiveIntegerField(
+        _(u"número de participantes"),
+        default=0,
+        help_text=_(u"Deixar Zero significa que todos os participantes "
+                    u"do evento participaram do módulo"),
+    )
+
+    class Meta:
+        ordering = ('inicio',)
+        verbose_name = _(u"Módulo do evento")
+        verbose_name_plural = _(u"Módulos do evento")
+
+    def __unicode__(self):
+        return _(u"{nome} ({tipo})").format(
+            nome=self.nome,
+            tipo=self.get_tipo_display()
+        )
