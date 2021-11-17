@@ -90,10 +90,25 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                     timedelta(days=0)
                 )
                 queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
-                print (de, ate, queryset.count())
-
         return queryset
 
+class ServicoAtivoFilter(admin.SimpleListFilter):
+    title = _(u"Serviço ativo")
+    parameter_name = 'ativo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('ativo', _(u"Ativo")),
+            ('desativado', _(u"Desativado")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'ativo':
+                queryset = queryset.filter(data_desativacao__isnull=True)
+            else:
+                queryset = queryset.filter(data_desativacao__isnull=False)
+        return queryset
 
 class ServicoAdmin(BaseModelAdmin):
     form = ServicoFormAdmin
@@ -116,6 +131,7 @@ class ServicoAdmin(BaseModelAdmin):
     list_filter = (
         'tipo_servico',
         'hospedagem_interlegis',
+        ServicoAtivoFilter,
         DataUtimoUsoFilter,
         ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
         'casa_legislativa__municipio__uf',
