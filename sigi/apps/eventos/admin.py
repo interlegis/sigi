@@ -66,8 +66,8 @@ class EventoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_inicio'
     list_display = ('nome', 'tipo_evento', 'status', 'data_inicio',
                     'data_termino', 'municipio', 'solicitante')
-    list_filter = ('status', 'tipo_evento', 'virtual', 'municipio__uf',
-                   'solicitante')
+    list_filter = ('status', 'tipo_evento', 'tipo_evento__categoria', 'virtual',
+                   'municipio__uf', 'solicitante')
     raw_id_fields = ('casa_anfitria', 'municipio',)
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')
