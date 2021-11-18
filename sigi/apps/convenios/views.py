@@ -2,6 +2,7 @@
 import csv
 
 import datetime
+from django.contrib import messages
 from django.http.response import HttpResponseForbidden
 import ho.pisa as pisa
 from django.conf import settings
@@ -114,7 +115,8 @@ def adicionar_convenios_carrinho(request, queryset=None, id=None):
 def excluir_carrinho(request):
     if 'carrinho_convenios' in request.session:
         del request.session['carrinho_convenios']
-    return HttpResponseRedirect('.')
+        messages.info(request, u'O carrinho foi esvaziado')
+    return HttpResponseRedirect('../../')
 
 @login_required
 def deleta_itens_carrinho(request):

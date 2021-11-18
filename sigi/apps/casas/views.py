@@ -2,6 +2,8 @@
 import csv
 from datetime import datetime
 from functools import reduce
+
+from django.contrib import messages
 from sigi.apps.utils import to_ascii
 from geraldo.generators import PDFGenerator
 
@@ -446,7 +448,8 @@ def visualizar_carrinho(request):
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
-    return HttpResponseRedirect('.')
+        messages.info(request, u'O carrinho foi esvaziado')
+    return HttpResponseRedirect('../../')
 
 
 @login_required
