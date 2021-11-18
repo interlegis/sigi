@@ -62,17 +62,17 @@ def calendario(request):
 
     for evento in Evento.objects.filter(data_inicio__year=ano_pesquisa,
                                         data_inicio__month=mes_pesquisa).order_by('data_inicio'):
-        start = dates.index(evento.data_inicio)
-        if not evento.data_termino in dates:
+        start = dates.index(evento.data_inicio.date())
+        if not evento.data_termino.date() in dates:
             lastday = dates[-1]
-            while lastday < evento.data_termino:
+            while lastday < evento.data_termino.date():
                 lastday = lastday + datetime.timedelta(days=1)
                 dates.append(lastday)
         eventos.append({'evento': evento, 'start': start})
 
     # Calcula a distância dos eventos para as bordas do calendário
     for evento in eventos:
-        end = dates.index(evento['evento'].data_termino)
+        end = dates.index(evento['evento'].data_termino.date())
         evento['duration'] = end-evento['start']+1
         evento['close'] = len(dates)-end-1
 

@@ -20,9 +20,10 @@
 
 from django import forms
 from django.contrib import admin
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.eventos.models import Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
 from sigi.apps.eventos.views import adicionar_eventos_carrinho
 
 class EventoAdminForm(forms.ModelForm):
@@ -31,7 +32,8 @@ class EventoAdminForm(forms.ModelForm):
         fields = ('tipo_evento', 'nome', 'descricao', 'virtual', 'solicitante',
                   'data_inicio', 'data_termino', 'carga_horaria',
                   'casa_anfitria', 'municipio', 'local', 'publico_alvo',
-                  'status', 'data_cancelamento', 'motivo_cancelamento', )
+                  'total_participantes', 'status', 'data_cancelamento',
+                  'motivo_cancelamento', )
 
     def clean(self):
         cleaned_data = super(EventoAdminForm, self).clean()
@@ -60,18 +62,22 @@ class ConviteInline(admin.TabularInline):
     model = Convite
     raw_id_fields = ('casa',)
 
+class ModuloInline(admin.TabularInline):
+    model = Modulo
+
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
     form = EventoAdminForm
     date_hierarchy = 'data_inicio'
     list_display = ('nome', 'tipo_evento', 'status', 'data_inicio',
-                    'data_termino', 'municipio', 'solicitante')
+                    'data_termino', 'municipio', 'solicitante',
+                    'total_participantes',)
     list_filter = ('status', 'tipo_evento', 'tipo_evento__categoria', 'virtual',
                    'municipio__uf', 'solicitante')
     raw_id_fields = ('casa_anfitria', 'municipio',)
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')
-    inlines = (EquipeInline, ConviteInline)
+    inlines = (EquipeInline, ConviteInline, ModuloInline)
     actions = ['adicionar_eventos', ]
 
     def adicionar_eventos(self, request, queryset):
