@@ -59,7 +59,7 @@ class Convenio(models.Model):
         on_delete=models.PROTECT,
     )
     # numero designado pelo Senado Federal para o convênio
-    num_processo_sf = models.CharField(
+    # num_processo_sf = models.CharField(
         _(u'número do processo SF (Senado Federal)'),
         max_length=20,
         blank=True,
