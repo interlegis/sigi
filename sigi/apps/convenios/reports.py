@@ -53,6 +53,12 @@ class ConvenioReport(ReportDefault):
                 width=2 * cm,
             ),
             Label(
+                text=_(u"Projeto"),
+                left=label_left[5] * cm,
+                top=label_top + 0.4 * cm,
+                width=2 * cm,
+            ),
+            Label(
                 text=_(u"Data do Convênio"),
                 left=label_left[3] * cm,
                 top=label_top,
@@ -62,12 +68,6 @@ class ConvenioReport(ReportDefault):
                 text=_(u"Data de Publicação"),
                 left=label_left[4] * cm,
                 top=label_top,
-                width=2 * cm,
-            ),
-            Label(
-                text=_(u"Projeto"),
-                left=label_left[5] * cm,
-                top=label_top + 0.4 * cm,
                 width=2 * cm,
             ),
             Label(
@@ -99,6 +99,10 @@ class ConvenioReport(ReportDefault):
                 left=label_left[2] * cm
             ),
             ObjectValue(
+                attribute_name='projeto.sigla',
+                left=label_left[5] * cm
+            ),
+            ObjectValue(
                 attribute_name='data_retorno_assinatura',
                 left=label_left[3] * cm,
                 get_value=lambda instance:
@@ -109,10 +113,6 @@ class ConvenioReport(ReportDefault):
                 left=label_left[4] * cm,
                 get_value=lambda instance:
                     instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
-            ),
-            ObjectValue(
-                attribute_name='projeto.sigla',
-                left=label_left[5] * cm
             ),
             ObjectValue(
                 attribute_name='casa_legislativa.nome',
@@ -160,16 +160,16 @@ class ConvenioReportSemAceite(ConvenioReport):
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
-            ),
-            Label(
-                text=_(u"Data do Convênio"),
-                left=label_left[3] * cm,
-                top=label_top,
-                width=2 * cm,
             ),            
             Label(
                 text=_(u"Projeto"),
                 left=label_left[4] * cm,
+                top=label_top,
+                width=2 * cm,
+            ),
+            Label(
+                text=_(u"Data do Convênio"),
+                left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
@@ -199,14 +199,14 @@ class ConvenioReportSemAceite(ConvenioReport):
                 left=label_left[2] * cm
             ),
             ObjectValue(
+                attribute_name='projeto.sigla',
+                left=label_left[4],
+            ),
+            ObjectValue(
                 attribute_name='data_retorno_assinatura',
                 left=label_left[3] * cm,
                 get_value=lambda instance:
                     instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
-            ),
-            ObjectValue(
-                attribute_name='projeto.sigla',
-                left=label_left[4],
             ),
             ObjectValue(
                 attribute_name='casa_legislativa.nome',
