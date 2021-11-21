@@ -19,6 +19,6 @@ PyYAML==3.11
 reportlab==2.7
 requests==2.8.1
 six==1.10.0
-djangorestframework==2.4.8
+djangorestframework==3.11.2
 django-ipware==1.1.6
 django-tinymce==2.6.0
