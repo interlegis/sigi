@@ -16,7 +16,7 @@ pisa==3.0.33
 psycopg2==2.6.1
 python-memcached==1.53
 PyYAML==3.11
-reportlab==2.7
+reportlab==3.5.55
 requests==2.8.1
 six==1.10.0
 djangorestframework==2.4.8
