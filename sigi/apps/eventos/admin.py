@@ -23,7 +23,7 @@ from django.contrib import admin
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.eventos.models import ModeloDeclaracao, Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
 from sigi.apps.eventos.views import adicionar_eventos_carrinho
 
 class EventoAdminForm(forms.ModelForm):
@@ -54,6 +54,10 @@ class TipoEventAdmin(admin.ModelAdmin):
 class FuncaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao',)
     search_fields = ('nome', 'descricao',)
+
+@admin.register(ModeloDeclaracao)
+class ModeloDeclaracaoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'formato')
 
 class EquipeInline(admin.TabularInline):
     model = Equipe

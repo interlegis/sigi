@@ -1,0 +1,25 @@
+{% extends "admin/base_site.html" %}
+{% load i18n bootstrap3 %}
+
+{% block content_title %}
+<h1 class="pull-left">{% trans 'Emitir declaração de comparecimento' %}</h1>
+{% endblock %}
+
+{% block content %}
+{% if error %}
+<div class="alert alert-danger" role="alert">
+  {{ error }}
+</div>
+{% endif %}
+<div id="content-main">
+  <form action="" method="post">{% csrf_token %}
+    {% csrf_token %}
+    <div class="form-group">
+    {% bootstrap_form form %}
+    </div>
+    <input type="submit" value="Imprimir" class="btn btn-primary"/>
+    <a class="btn btn-danger" role="button" href="{% url 'admin:eventos_evento_change' evento_id %}">{% trans "Voltar" %}</a>
+  </form>
+</div>
+{% endblock %}
+

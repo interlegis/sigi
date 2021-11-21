@@ -21,18 +21,21 @@
 import calendar
 import datetime
 import locale
+import csv
+from django import template
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import translation
 from django.utils.translation import ungettext, ugettext as _
-from sigi.apps.eventos.models import Evento, Equipe, Convite
-from sigi.apps.servidores.models import Servidor
-from sigi.shortcuts import render_to_pdf
-import csv
 from django.http.response import JsonResponse, HttpResponse
+from django.template import Template, Context
+from sigi.apps.eventos.models import Evento, Equipe, Convite
+from sigi.apps.eventos.forms import SelecionaModeloForm
+from sigi.apps.servidores.models import Servidor
+from sigi.shortcuts import render_to_pdf, pdf_renderer
 
 @login_required
 def calendario(request):
@@ -369,3 +372,36 @@ def export_csv(request):
 
     return response
 
+@login_required
+def declaracao(request, id):
+    if request.method == 'POST':
+        form = SelecionaModeloForm(request.POST)
+        if form.is_valid():
+            evento = get_object_or_404(Evento, id=id)
+            modelo = form.cleaned_data['modelo']
+            template_string = (
+                """
+                {% extends "eventos/declaracao_pdf.html" %}
+                {% block text_body %}""" +
+                modelo.texto + """
+                {% endblock %}
+                """
+            )
+            context = Context(
+                {'pagesize': modelo.formato,
+                 'pagemargin': modelo.margem,
+                 'evento': evento,
+                 'data': datetime.date.today(),
+                }
+            )
+            template = Template(template_string)
+            # return HttpResponse(template.render(context))
+            return pdf_renderer(template, context, 'declaracao.pdf')
+    else:
+        form = SelecionaModeloForm()
+
+    return render(
+        request,
+        'eventos/seleciona_modelo.html',
+        {'form': form, 'evento_id': id}
+    )
