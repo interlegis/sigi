@@ -10,7 +10,6 @@ from django.utils.translation import ugettext as _
 from sigi.apps.utils import SearchField, to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico
-#from sigi.apps.convenios.admin import ConvenioAdmin
 
 class Projeto(models.Model):
     """ Modelo para representar os projetos do programa
@@ -66,6 +65,7 @@ class Convenio(models.Model):
         blank=True,
         help_text=_(u'Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
     )
+    # link_processo_stf = ('get_sigad_url')
     num_convenio = models.CharField(
         _(u'número do convênio'),
         max_length=10,
@@ -211,6 +211,14 @@ class Convenio(models.Model):
             return _(u"Desistência")
 
         return _(u"Indefinido")
+
+    def link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return obj.get_sigad_url()
+
+    link_sigad.short_description = _("Processo no Senado")
+    link_sigad.allow_tags = True
 
     def get_sigad_url(self):
         m = re.match(
