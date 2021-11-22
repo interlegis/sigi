@@ -10,6 +10,7 @@ from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from django.core.exceptions import ValidationError
+from tinymce.models import HTMLField
 
 class TipoEvento(models.Model):
     CATEGORIA_CHOICES = (
@@ -238,4 +239,46 @@ class Modulo(models.Model):
         return _(u"{nome} ({tipo})").format(
             nome=self.nome,
             tipo=self.get_tipo_display()
+        )
+
+class ModeloDeclaracao(models.Model):
+    FORMATO_CHOICES = (
+        ('A4 portrait', _(u"A4 retrato")),
+        ('A4 landscape', _(u"A4 paisagem")),
+        ('letter portrait', _(u"Carta retrato")),
+        ('letter landscape', _(u"Carta paisagem"))
+    )
+    nome = models.CharField(_(u"Nome do modelo"), max_length=100)
+    formato = models.CharField(
+        _(u"Formato da página"),
+        max_length=30,
+        choices=FORMATO_CHOICES,
+        default=FORMATO_CHOICES[0][0]
+    )
+    margem = models.PositiveIntegerField(
+        _(u"Margem"),
+        help_text=_(u"Margem da página em centímetros"),
+        default=4
+    )
+    texto = HTMLField(
+        _(u"Texto da declaração"),
+        help_text=_(u"Use as seguintes marcações:<ul><li>{{ casa }} para o "
+                    u"nome da Casa Legislativa / órgão</li><li>{{ nome }} "
+                    u"para o nome do visitante</li><li>{{ data }} para a data "
+                    u"de emissão da declaração</li><li>{{ evento.data_inicio }}"
+                    u" para a data/hora do início da visita</li>"
+                    u"<li>{{ evento.data_termino }} para a data/hora do "
+                    u"término da visita</li><li>{{ evento.nome }} para o nome "
+                    u"do evento</li><li>{{ evento.descricao }} para a descrição"
+                    u" do evento</li></ul>")
+    )
+
+    class Meta:
+        verbose_name = _(u"modelo de declaração")
+        verbose_name_plural = _(u"modelos de declaração")
+
+    def __unicode__(self):
+        return _(u"{nome} ({formato})").format(
+            nome=self.nome,
+            formato=self.get_formato_display()
         )

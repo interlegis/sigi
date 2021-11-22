@@ -24,12 +24,7 @@ def fetch_resources(uri, rel):
                             uri.replace(settings.MEDIA_URL, ""))
     return path
 
-
-def render_to_pdf(template_src, context_dict):
-    filename = template_src.replace('.html', '').replace('_pdf', '.pdf')
-    template = get_template(template_src)
-    context = Context(context_dict)
-
+def pdf_renderer(template, context, filename='report.pdf'):
     html = template.render(context)
 
     response = HttpResponse(content_type='application/pdf')
@@ -41,3 +36,10 @@ def render_to_pdf(template_src, context_dict):
     if pdf.err:
         return HttpResponse(_(u'We had some errors<pre>%s</pre>') % escape(html))
     return response
+
+def render_to_pdf(template_src, context_dict):
+    filename = template_src.replace('.html', '').replace('_pdf', '.pdf')
+    template = get_template(template_src)
+    context = Context(context_dict)
+
+    return pdf_renderer(template, context,filename)

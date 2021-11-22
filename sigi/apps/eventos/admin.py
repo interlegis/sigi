@@ -23,28 +23,9 @@ from django.contrib import admin
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.eventos.models import ModeloDeclaracao, Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
 from sigi.apps.eventos.views import adicionar_eventos_carrinho
-
-class EventoAdminForm(forms.ModelForm):
-    class Meta:
-        model = Evento
-        fields = ('tipo_evento', 'nome', 'descricao', 'virtual', 'solicitante',
-                  'data_inicio', 'data_termino', 'carga_horaria',
-                  'casa_anfitria', 'municipio', 'local', 'publico_alvo',
-                  'total_participantes', 'status', 'data_cancelamento',
-                  'motivo_cancelamento', )
-
-    def clean(self):
-        cleaned_data = super(EventoAdminForm, self).clean()
-        data_inicio = cleaned_data.get("data_inicio")
-        data_termino = cleaned_data.get("data_termino")
-
-        if data_inicio > data_termino:
-            raise forms.ValidationError(
-                _(u"Data término deve ser posterior à data inicio"),
-                code="invalid_period"
-            )
+from sigi.apps.eventos.forms import EventoAdminForm
 
 @admin.register(TipoEvento)
 class TipoEventAdmin(admin.ModelAdmin):
@@ -54,6 +35,10 @@ class TipoEventAdmin(admin.ModelAdmin):
 class FuncaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao',)
     search_fields = ('nome', 'descricao',)
+
+@admin.register(ModeloDeclaracao)
+class ModeloDeclaracaoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'formato')
 
 class EquipeInline(admin.TabularInline):
     model = Equipe

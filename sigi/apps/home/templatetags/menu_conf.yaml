@@ -85,6 +85,8 @@ main_menu:
       url: eventos/tipoevento/
     - title: Funções na equipe de eventos
       url: eventos/funcao/
+    - title: Modelos de declaração
+      url: eventos/modelodeclaracao/
 
 
 # Removidos

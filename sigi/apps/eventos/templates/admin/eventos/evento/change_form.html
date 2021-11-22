@@ -1,0 +1,10 @@
+{% extends "base_change_form.html" %}
+{% load i18n %}
+
+{% block object-tools-items %}
+    <li><a href="declaracao/">
+        <span class="glyphicon glyphicon-print"></span>
+        {% trans 'Declaração' %}
+    </a></li>
+    {{ block.super }}
+{% endblock %}
