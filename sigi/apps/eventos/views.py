@@ -297,6 +297,11 @@ def deleta_itens_carrinho(request):
 
 @login_required
 def export_csv(request):
+    # response = HttpResponse(content_type='text/csv')
+    # response['Content-Disposition'] = 'attachment; filename=eventos.csv'
+
+    # csv_writer = csv.writer(response)
+    # eventos = carrinhoOrGet_for_qs(request)
     def serialize(r, field):
         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
                  getattr(r, field.name, ""))
@@ -366,6 +371,8 @@ def export_csv(request):
             writer.writerow(reg)
         if evento.convite_set.count() == 0:
             writer.writerow(reg)
+        
+        # csv_writer.writerow(reg)
 
     return response
 
