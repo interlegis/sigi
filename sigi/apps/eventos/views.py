@@ -87,10 +87,10 @@ def calendario(request):
         for linha in linhas:
             sobrepoe = False
             for e in linha:
-                if (((evento['evento'].data_inicio >= e['evento'].data_inicio) and
-                     (evento['evento'].data_inicio <= e['evento'].data_termino)) or
-                    ((evento['evento'].data_termino >= e['evento'].data_inicio) and
-                     (evento['evento'].data_termino <= e['evento'].data_termino))):
+                if (((evento['evento'].data_inicio.date() >= e['evento'].data_inicio.date()) and
+                     (evento['evento'].data_inicio.date() <= e['evento'].data_termino.date())) or
+                    ((evento['evento'].data_termino.date() >= e['evento'].data_inicio.date()) and
+                     (evento['evento'].data_termino.date() <= e['evento'].data_termino.date()))):
                     sobrepoe = True
                     break
             if not sobrepoe:
@@ -109,7 +109,7 @@ def calendario(request):
             if anterior is None:
                 anterior = evento
                 continue
-            anterior['close'] = (evento['evento'].data_inicio - anterior['evento'].data_termino).days-1
+            anterior['close'] = (evento['evento'].data_inicio.date() - anterior['evento'].data_termino.date()).days-1
             evento['start'] = 0
             anterior = evento
 
