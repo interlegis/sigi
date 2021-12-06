@@ -71,6 +71,13 @@ class Convenio(models.Model):
         max_length=10,
         blank=True
     )
+    id_contrato_gescon = models.CharField(
+        _(u"ID do contrato no Gescon"),
+        max_length=20,
+        blank=True,
+        default="",
+        editable=False
+    )
     data_sigi = models.DateField(
         _(u"data de cadastro no SIGI"),
         blank=True,
@@ -504,7 +511,7 @@ class Gescon(models.Model):
                 self.add_message(
                     _(u"\tErro ao acessar {url}: {errmsg}").format(
                         url=url,
-                        errmsg=str(e)
+                        errmsg=e.message.decode("utf8")
                     )
                 )
                 continue
@@ -734,6 +741,12 @@ class Gescon(models.Model):
                         'terminoVigencia'
                     ]
                     convenio.data_pub_diario = contrato['publicacao']
+                    if contrato['codTextoContrato']:
+                        convenio.id_contrato_gescon = contrato[
+                            'codTextoContrato'
+                        ]
+                    else:
+                        convenio.id_contrato_gescon = ""
 
                     try:
                         convenio.save()
@@ -748,7 +761,7 @@ class Gescon(models.Model):
                                       convenio._meta.model_name),
                                       args=[convenio.id]
                                   ),
-                                  errmsg=str(e)
+                                  errmsg=e.message.decode("utf8")
                               )
                         )
                         erros += 1
