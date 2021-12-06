@@ -68,9 +68,9 @@ class ConvenioAdmin(BaseModelAdmin):
     readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon',)
     actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
-    list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
+    list_display = ('num_convenio', 'projeto','casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
-                    'data_termino_vigencia', 'projeto',)
+                    'data_termino_vigencia',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
     list_filter = (('casa_legislativa__gerentes_interlegis',
                     GerentesInterlegisFilter), 'projeto',

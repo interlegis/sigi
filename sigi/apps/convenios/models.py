@@ -57,6 +57,7 @@ class Convenio(models.Model):
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.PROTECT,
+        verbose_name=_(u'Tipo de Convenio')
     )
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
