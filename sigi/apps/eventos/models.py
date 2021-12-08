@@ -284,3 +284,23 @@ class ModeloDeclaracao(models.Model):
             nome=self.nome,
             formato=self.get_formato_display()
         )
+
+class Anexo(models.Model):
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'evento')
+    )
+    # caminho no sistema para o documento anexo
+    arquivo = models.FileField(upload_to='apps/eventos/anexo/arquivo', max_length=500)
+    descricao = models.CharField(_(u'descrição'), max_length='70')
+    data_pub = models.DateTimeField(
+        _(u'data da publicação do anexo'),
+        default=datetime.now
+    )
+
+    class Meta:
+        ordering = ('-data_pub',)
+
+    def __unicode__(self):
+        return unicode("%s publicado em %s" % (self.descricao, self.data_pub))

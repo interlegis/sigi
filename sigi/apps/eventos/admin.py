@@ -23,7 +23,8 @@ from django.contrib import admin
 from django.db import models
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import ModeloDeclaracao, Modulo, TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.eventos.models import (ModeloDeclaracao, Modulo, TipoEvento,
+                                      Funcao, Evento, Equipe, Convite, Anexo)
 from sigi.apps.eventos.views import adicionar_eventos_carrinho
 from sigi.apps.eventos.forms import EventoAdminForm
 
@@ -50,6 +51,10 @@ class ConviteInline(admin.TabularInline):
 class ModuloInline(admin.TabularInline):
     model = Modulo
 
+class AnexoInline(admin.TabularInline):
+    model = Anexo
+    exclude = ('data_pub',)
+
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
     form = EventoAdminForm
@@ -62,7 +67,7 @@ class EventoAdmin(admin.ModelAdmin):
     raw_id_fields = ('casa_anfitria', 'municipio',)
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')
-    inlines = (EquipeInline, ConviteInline, ModuloInline)
+    inlines = (EquipeInline, ConviteInline, ModuloInline, AnexoInline)
     actions = ['adicionar_eventos', ]
 
     def adicionar_eventos(self, request, queryset):
