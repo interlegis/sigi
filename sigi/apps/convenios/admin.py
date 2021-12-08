@@ -122,7 +122,7 @@ class ConvenioAdmin(BaseModelAdmin):
             u"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
             u"contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
             u"gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
-    link_gescon.short_description = _("Download PDF do Gescon")
+    link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
     link_gescon.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
