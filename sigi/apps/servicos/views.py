@@ -311,14 +311,15 @@ def export_csv(request):
                 lista.append(servico.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
                 lista.append(servico.casa_legislativa.email.encode("utf-8"))
                 if servico.casa_legislativa.telefone is not None:
-                    lista.append(servico.casa_legislativa.telefone.encode("utf-8"))
+                    lista.append(servico.casa_legislativa.telefone)
                 else:
                     lista.append("")
             elif _(u"Contato Interlegis") == atributo:
-                lista.append(servico.casa_legislativa.contato_interlegis.encode("utf-8"))
                 if servico.casa_legislativa.contato_interlegis is not None:
+                    lista.append(servico.casa_legislativa.contato_interlegis)
                     lista.append(servico.casa_legislativa.contato_interlegis.email.encode("utf-8"))
                 else:
+                    lista.append("")
                     lista.append("")
             elif _(u"Produto") == atributo:
                 lista.append(servico.tipo_servico.nome.encode("utf-8"))
