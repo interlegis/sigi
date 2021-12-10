@@ -309,7 +309,10 @@ def export_csv(request):
             if _(u"Casa Legislativa") == atributo:
                 lista.append(servico.casa_legislativa.nome.encode("utf-8"))
                 lista.append(servico.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
-                lista.append(servico.casa_legislativa.email.encode("utf-8"))
+                if servico.casa_legislativa.contato_interlegis is not None:
+                    lista.append(servico.casa_legislativa.email.encode("utf-8"))
+                else:
+                    lista.append("")
                 lista.append(servico.casa_legislativa.telefone.encode("utf-8"))
             elif _(u"Contato Interlegis") == atributo:
                 lista.append(servico.casa_legislativa.contato_interlegis.encode("utf-8"))
