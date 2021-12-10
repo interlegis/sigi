@@ -194,6 +194,19 @@ class Orgao(models.Model):
                 return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:
             return None
+    
+    @property    
+    def contato_interlegis(self):
+        """ Link para acessar diretamente o contato do presidente da casa
+            Util para relatorios antigos
+        """
+        try:
+            if self.funcionario_set.filter(setor='contato_interlegis').count() > 1:
+                return self.funcionario_set.filter(setor='contato_interlegis')[0]
+            else:
+                return self.funcionario_set.get(setor='contato_interlegis')
+        except Funcionario.DoesNotExist:
+            return None
 
     @property
     def total_parlamentares(self):
