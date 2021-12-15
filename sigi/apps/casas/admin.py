@@ -374,6 +374,23 @@ class ServicoFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
+class ServicoAtivoFilter(admin.SimpleListFilter):
+    title = _(u"Serviço ativo")
+    parameter_name = 'ativo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('ativo', _(u"Ativo")),
+            ('desativado', _(u"Desativado")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'ativo':
+                queryset = queryset.filter(servico__data_desativacao__isnull=True)
+            else:
+                queryset = queryset.filter(servico__data_desativacao__isnull=False)
+        return queryset
 @admin.register(Orgao)
 class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = OrgaoForm
@@ -384,7 +401,7 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
                     'get_servicos')
     list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
-                   'municipio__uf__nome', ConvenioFilter, ExcluirConvenioFilter, ServicoFilter,
+                   'municipio__uf__nome', ConvenioFilter, ServicoAtivoFilter, ExcluirConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii
