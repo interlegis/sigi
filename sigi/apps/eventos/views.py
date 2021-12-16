@@ -300,6 +300,7 @@ def deleta_itens_carrinho(request):
 
 @login_required
 def export_csv(request):
+<<<<<<< HEAD
     def rm_rows(lista,reg): 
         for a in lista: 
             if a in lista:
@@ -307,6 +308,13 @@ def export_csv(request):
             else: 
                 pass
     
+=======
+    # response = HttpResponse(content_type='text/csv')
+    # response['Content-Disposition'] = 'attachment; filename=eventos.csv'
+
+    # csv_writer = csv.writer(response)
+    # eventos = carrinhoOrGet_for_qs(request)
+>>>>>>> 2e7851b317e95eb3048959966ddfd30ebec0772c
     def serialize(r, field):
         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
                  getattr(r, field.name, ""))
@@ -387,7 +395,13 @@ def export_csv(request):
             writer.writerow(reg)
             
         if evento.convite_set.count() == 0:
+<<<<<<< HEAD
             rm_rows(rm_list,reg)
+=======
+            writer.writerow(reg)
+        
+        # csv_writer.writerow(reg)
+>>>>>>> 2e7851b317e95eb3048959966ddfd30ebec0772c
 
             writer.writerow(reg)
             
