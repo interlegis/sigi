@@ -262,8 +262,10 @@ class ModeloDeclaracao(models.Model):
     )
     texto = HTMLField(
         _(u"Texto da declaração"),
-        help_text=_(u"Use as seguintes marcações:<ul><li>{{ casa }} para o "
-                    u"nome da Casa Legislativa / órgão</li><li>{{ nome }} "
+        help_text=_(u"Use as seguintes marcações:<ul><li>{{ casa.nome }} para o"
+                    u" nome da Casa Legislativa / órgão</li>"
+                    u"<li>{{ casa.municipio.uf.sigla }} para a sigla da UF da "
+                    u"Casa legislativa</li><li>{{ nome }} "
                     u"para o nome do visitante</li><li>{{ data }} para a data "
                     u"de emissão da declaração</li><li>{{ evento.data_inicio }}"
                     u" para a data/hora do início da visita</li>"
@@ -282,3 +284,23 @@ class ModeloDeclaracao(models.Model):
             nome=self.nome,
             formato=self.get_formato_display()
         )
+
+class Anexo(models.Model):
+    evento = models.ForeignKey(
+        Evento,
+        on_delete=models.CASCADE,
+        verbose_name=_(u'evento')
+    )
+    # caminho no sistema para o documento anexo
+    arquivo = models.FileField(upload_to='apps/eventos/anexo/arquivo', max_length=500)
+    descricao = models.CharField(_(u'descrição'), max_length='70')
+    data_pub = models.DateTimeField(
+        _(u'data da publicação do anexo'),
+        default=datetime.now
+    )
+
+    class Meta:
+        ordering = ('-data_pub',)
+
+    def __unicode__(self):
+        return unicode("%s publicado em %s" % (self.descricao, self.data_pub))

@@ -1,0 +1,100 @@
+{% extends "admin/carrinho.html" %}
+{% load admin_list i18n %}
+{% block extrastyle %}
+  {{ block.super }}
+  {% include "admin/tabs_style.html" %}
+{% endblock %}
+
+{% block title %}{% trans 'Serviços no Carrinho | SIGI' %}{% endblock %}
+{% block content_title %}<h1>{% trans 'Serviços no Carrinho' %}</h1>{% endblock %}
+
+{% block mensagem%}
+<ul class="messagelist">
+	{%if carIsEmpty%}
+		<li class="warning">{% trans 'O carrinho está vazio, sendo assim todos os Serviços entram na lista para exportação de acordo com os filtros aplicados.' %}</li>
+	{%else%}
+		<li>{{paginas.paginator.count}} {% trans 'Serviços no carrinho' %}.</li>
+	{%endif%}
+</ul>
+{% endblock %}
+
+{% block action %}deleta_itens_carrinho{% endblock %}
+
+{% block tabela %}
+<table class="table table-striped">
+	<thead class="thead-dark">
+		<tr>
+			{%if not carIsEmpty%}
+			<th class="sorted ascending"><!-- <input type="checkbox" id="action-toggle" style="display: inline;">-->
+			</th>
+			{% endif %}
+			<th class="sorted ascending">{% trans 'Casa Legislativa' %}</th>
+			<th class="sorted ascending">{% trans 'UF' %}</th>
+			<th class="sorted ascending">{% trans 'Email' %}</th>
+			<th class="sorted ascending">{% trans 'Telefone' %}</th>
+			<th class="sorted ascending">{% trans 'Contato Interlegis' %}</th>
+			<th class="sorted ascending">{% trans 'Tipo de Serviço' %}</th>
+			<th class="sorted ascending">{% trans 'Data Ativação' %}</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for servico in paginas.object_list %}
+		<tr>
+			{%if not carIsEmpty%}
+			<th><input type="checkbox" name="_selected_action"
+				value="{{servico.id|safe}}" class="action-select" /></th>
+			{% endif %}
+			<td style="text-align: left;">{{servico.casa_legislativa}}</td>
+			<td>{{servico.casa_legislativa.municipio.uf.sigla}}</td>
+			<td>{{servico.casa_legislativa.email}}</td>
+			<td>{{servico.casa_legislativa.telefone}}</td>
+			<td>{{servico.casa_legislativa.contato_interlegis}}</td>
+			<td>{{servico.casa_legislativa.contato_interlegis.email}}</td>
+			<td>{{servico.tipo_servico}}</td>
+			<td>{{servico.data_ativacao}}</td></tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endblock %}
+
+{% block botoes %}
+<ul class="nav nav-tabs" role="tablist">
+	<li class="active" role="presentation"><a href="#tabs-2" aria-controls="tabs-2" role="tab" data-toggle="tab">{% trans 'Arquivo CSV (Excel, Calc)' %}</a></li>
+</ul>
+<div class="tab-content">
+	<div role="tabpanel" class="tab-pane active" id="tabs-2">
+		<form action="../csv/{{query_str}}" method="post">{% csrf_token %}
+			<fieldset>
+				<legend>{% trans 'Escolha os atributos para exportar' %}</legend>
+				<ul id="sortable" class="tabs-conteudo">
+					<li>
+						<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+						<input type="checkbox" name="itens_csv_selected" value="Casa Legislativa"
+						class="action-select" checked="checked" />
+						<label>{% trans 'Casa Legislativa' %}</label>
+					</li>
+					<li>
+						<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+						<input type="checkbox" name="itens_csv_selected" value="Contato Interlegis"
+						class="action-select" checked="checked" />
+						<label>{% trans 'Contato Interlegis' %}</label>
+					</li>
+					<li>
+						<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+						<input type="checkbox" name="itens_csv_selected" value="Produto"
+						class="action-select" checked="checked" />
+						<label>{% trans 'Produto' %}</label>
+					</li>
+					<li>
+						<span class="ui-icon ui-icon-arrowthick-2-n-s"></span>
+						<input type="checkbox" name="itens_csv_selected" value="Data de Ativação"
+						class="action-select" checked="checked" />
+						<label>{% trans 'Data de Ativação' %}</label>
+					</li>
+				</ul>
+			</fieldset>
+			<input type="submit" value="Exportar CSV" type="button" class="btn btn-primary"/>
+		</form>
+	</div>
+</div>
+ {% endblock %}

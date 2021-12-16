@@ -15,6 +15,11 @@
                 font-size: 1.2em;
                 text-align: center;
             }
+            .orgao_name {
+                margin-bottom: 0px;
+                margin-top: 0px;
+                font-weight: bold;
+            }
             h1 {
                 font-size: 2em;
                 text-align: center;
@@ -82,7 +87,8 @@
                     <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}" /></td>
                     <td class="header_text">
                         <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
-                        <p><strong>{% trans 'INSTITUTO LEGISLATIVO BRASILEIRO - ILB / INTERLEGIS' %}</strong></p>
+                        <p class="orgao_name">{% trans 'Instituto Legislativo Brasileiro' %}</p>
+                        <p class="orgao_name">{% trans "ILB / Interlegis" %}</p>
                         <p>{% block subsecretaria %}{% endblock %}</p>
                     </td>
                     <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}" /></td>

@@ -62,15 +62,15 @@ class ConvenioAdmin(BaseModelAdmin):
                      'data_pub_diario',)}
          ),
         (_(u'Gescon'),
-         {'fields': ('atualizacao_gescon', 'observacao_gescon',)}
+         {'fields': ('atualizacao_gescon', 'observacao_gescon', 'link_gescon')}
         ),
     )
-    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon',)
+    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon', 'link_gescon')
     actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
-    list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
+    list_display = ('num_convenio', 'projeto','casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
-                    'data_termino_vigencia', 'projeto',)
+                    'data_termino_vigencia',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
     list_filter = (('casa_legislativa__gerentes_interlegis',
                     GerentesInterlegisFilter), 'projeto',
@@ -114,6 +114,16 @@ class ConvenioAdmin(BaseModelAdmin):
 
     link_sigad.short_description = _("Processo no Senado")
     link_sigad.allow_tags = True
+
+    def link_gescon(self, obj):
+        if not obj.id_contrato_gescon:
+            return u""
+        return (
+            u"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
+            u"contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
+            u"gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
+    link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
+    link_gescon.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data

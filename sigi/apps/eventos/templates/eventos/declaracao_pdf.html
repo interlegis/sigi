@@ -6,7 +6,7 @@
 
 {% block report %}
     {% for convite in evento.convite_set.all %}
-        {% with convite.casa.nome as casa %}
+        {% with convite.casa as casa %}
             {% for nome in convite.nomes_participantes.splitlines %}
                 {% block text_body %}{% endblock %}
                 <pdf:nextpage />

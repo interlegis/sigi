@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from django.contrib.contenttypes import generic
 from django.db import models
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.utils.translation import ugettext as _
 
 class Servico(models.Model):
@@ -90,3 +90,13 @@ def create_user_profile(sender, instance, created, **kwargs):
         )
 
 post_save.connect(create_user_profile, sender=User)
+
+# Hack horrível para ajustar o first_name e o last_name do User criado pelo
+# Django-ldap. Os campos first_name e last_name têm o tamanho máximo de
+# 30 caracteres, mas o LDAP não tem esse limite, e alguns usuários podem ter
+# nomes maiores que isso, o que provoca erro ao salvar o usuário.j
+def ajusta_nome_usuario(sender, instance, *args, **kwargs):
+    instance.first_name = instance.first_name[:30]
+    instance.last_name = instance.last_name[:30]
+
+pre_save.connect(ajusta_nome_usuario, sender=User)
