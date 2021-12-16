@@ -32,7 +32,7 @@ from django.utils import translation
 from django.utils.translation import ungettext, ugettext as _
 from django.http.response import JsonResponse, HttpResponse
 from django.template import Template, Context
-from sigi.apps.eventos.models import Evento, Equipe, Convite
+from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
 from sigi.apps.eventos.forms import SelecionaModeloForm
 from sigi.apps.servidores.models import Servidor
 from sigi.shortcuts import render_to_pdf, pdf_renderer
@@ -300,6 +300,7 @@ def deleta_itens_carrinho(request):
 
 @login_required
 def export_csv(request):
+<<<<<<< HEAD
     def rm_rows(lista,reg): 
         for a in lista: 
             if a in lista:
@@ -307,6 +308,13 @@ def export_csv(request):
             else: 
                 pass
     
+=======
+    # response = HttpResponse(content_type='text/csv')
+    # response['Content-Disposition'] = 'attachment; filename=eventos.csv'
+
+    # csv_writer = csv.writer(response)
+    # eventos = carrinhoOrGet_for_qs(request)
+>>>>>>> 2e7851b317e95eb3048959966ddfd30ebec0772c
     def serialize(r, field):
         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
                  getattr(r, field.name, ""))
@@ -332,15 +340,16 @@ def export_csv(request):
     head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
     head.extend([mun_casa, uf_casa, reg_casa])
     head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
-                 for i in range(max_equipe) for f in Equipe._meta.fields
-                 if f.name not in ('id', 'evento')])
+        for i in range(max_equipe) for f in Equipe._meta.fields
+        if f.name not in ('id', 'evento')])
     head.extend([f.verbose_name.encode('utf8') for f in Convite._meta.fields
-                 if f.name not in ('id', 'evento')])
+        if f.name not in ('id', 'evento')])
+    head.extend([f.verbose_name.encode('utf8') for f in Modulo._meta.fields
+        if f.name not in ('id', 'evento')])
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=eventos.csv'
-    rm_list = ['Descrição do evento', 'Local do evento', 'Público alvo', 'Motivo do cancelamento', 'Observações_1', 
-    'Observações_2', 'Observações_3', 'Observações_4', 'Observações_5', 'Observações_6', 'Observações_7', 'Observações_8']
+    rm_list = ['Descrição do evento', 'Local do evento', 'Público alvo', 'Motivo do cancelamento', 'Descrição do módulo']
 
   
 
@@ -386,7 +395,13 @@ def export_csv(request):
             writer.writerow(reg)
             
         if evento.convite_set.count() == 0:
+<<<<<<< HEAD
             rm_rows(rm_list,reg)
+=======
+            writer.writerow(reg)
+        
+        # csv_writer.writerow(reg)
+>>>>>>> 2e7851b317e95eb3048959966ddfd30ebec0772c
 
             writer.writerow(reg)
             
