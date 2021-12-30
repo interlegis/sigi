@@ -11,11 +11,14 @@
                 text-align: center;
             }
             td.header_text p {
-                margin: 0px;
-                font-size: 1.4em;
+                margin: 5px;
+                font-size: 1.2em;
+                text-align: center;
             }
-            td.header_text {
-                width: 550px;
+            .orgao_name {
+                margin-bottom: 0px;
+                margin-top: 0px;
+                font-weight: bold;
             }
             h1 {
                 font-size: 2em;
@@ -58,12 +61,12 @@
             }
             @page {
                 size: {% block pagesize %}{{ pagesize }}{% endblock pagesize %};
-                margin: 4cm 1cm 1cm 2cm;
+                margin: {% block pagemargin %}4cm 1cm 1cm 2cm{% endblock pagemargin %};
                 font-family: "Helvetica, Arial, sans-serif";
                 font-size: 2em;
                 @frame header {
                     -pdf-frame-content: header;
-                    top: 1cm;
+                    {% block header-settings %}top: 1cm;{% endblock header-settings %}
                 }
                 @frame footer {
                     -pdf-frame-content: footer;
@@ -84,7 +87,8 @@
                     <td class="logo"><img src="{% static 'img/logo-senado.jpg' %}" /></td>
                     <td class="header_text">
                         <p><strong>{% trans 'SENADO FEDERAL' %}</strong></p>
-                        <p><strong>{% trans 'ILB - PROGRAMA INTERLEGIS' %}</strong></p>
+                        <p class="orgao_name">{% trans 'Instituto Legislativo Brasileiro' %}</p>
+                        <p class="orgao_name">{% trans "ILB / Interlegis" %}</p>
                         <p>{% block subsecretaria %}{% endblock %}</p>
                     </td>
                     <td class="logo"><img src="{% static 'img/logo-interlegis.jpg' %}" /></td>

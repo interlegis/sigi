@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
+from unicodedata import name
 from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.utils.translation import ugettext as _
+#from geraldo.site.newsite.django_1_0.django.forms import extras
 from image_cropping import ImageCroppingMixin
 
 from sigi.apps.casas.forms import OrgaoForm
@@ -50,7 +52,31 @@ class PresidenteInline(admin.StackedInline):
     extra = 1
     max_num = 1
     verbose_name_plural = _(u'Presidente')
+    def get_queryset(self, request):
+        return (self.model.objects.exclude(desativado=True)
+        .extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
+        )
 
+class ContatoInterlegisInline(admin.StackedInline):
+    model = Funcionario
+    fields = ('nome', 'sexo', 'data_nascimento', 'nota', 'email', 'cargo',
+              'funcao', 'setor', 'tempo_de_servico', 'ult_alteracao',
+              'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
+              'desativado', 'observacoes')
+    raw_id_fields = ('municipio',)
+    readonly_fields = ('ult_alteracao',)
+    extra = 1
+    inlines = (TelefonesInline,)
+    verbose_name_plural = _(u'Contato(s) Interlegis Vigente(s)')
+    def get_queryset(self, request):
+        return (self.model.objects.filter(setor='contato_interlegis')
+        .extra(select={'ult_null': 'ult_alteracao is null'}).order_by('-ult_alteracao')
+        )
+    def get_extra(self, request, obj=None , **kwargs):
+        extra = 0
+        return extra
 
 class FuncionariosInline(admin.StackedInline):
     model = Funcionario
@@ -59,6 +85,7 @@ class FuncionariosInline(admin.StackedInline):
               'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
               'desativado', 'observacoes')
     raw_id_fields = ('municipio',)
+    
     # fieldsets = ((None, {
     #     'fields': (
     #         ('nome', 'sexo', 'data_nascimento'),
@@ -74,12 +101,14 @@ class FuncionariosInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
+    verbose_name_plural = _(u'Outros Contatos da Casa')
 
     def get_queryset(self, request):
-        return (self.model.objects.exclude(
-            cargo='Presidente').exclude(desativado=True)
+        return (self.model.objects.exclude(cargo='Presidente',)
+        .exclude(desativado=True).extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
         )
-
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
@@ -87,9 +116,7 @@ class ConveniosInline(admin.TabularInline):
         (None, {'fields': (
             ('link_sigad', 'status_convenio', 'num_convenio',
              'projeto', 'observacao'),
-            ('data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
-             'data_pub_diario', 'data_devolucao_via', 'data_postagem_correio'),
-            ('data_devolucao_sem_assinatura', 'data_retorno_sem_assinatura',),
+            ('data_retorno_assinatura', 'data_pub_diario',),
             ('get_anexos',),
             ('link_convenio',),
         )}),
@@ -103,6 +130,7 @@ class ConveniosInline(admin.TabularInline):
     extra = 0
     can_delete = False
     template = 'admin/casas/convenios_inline.html'
+    ordering = ('-data_retorno_assinatura',)
 
     def has_add_permission(self, request):
         return False
@@ -210,10 +238,10 @@ class ServicoInline(admin.TabularInline):
     model = Servico
     fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
               'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
-              'data_desativacao')
+              'data_desativacao', 'link_servico')
     readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
                        'hospedagem_interlegis', 'data_ativacao',
-                       'data_alteracao', 'data_desativacao']
+                       'data_alteracao', 'data_desativacao', 'link_servico']
     extra = 0
     max_num = 0
     can_delete = False
@@ -224,6 +252,24 @@ class ServicoInline(admin.TabularInline):
         return u'<a href="{url}" target="_blank">{url}</a>'.format(url=servico.url)
     link_url.short_description = _(u'URL do serviço')
     link_url.allow_tags = True
+
+    ordering = ('-data_alteracao',)
+
+    def link_servico(self, obj):
+        if obj.pk is None:
+            return ""
+        url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
+        url = url + '?_popup=1'
+        return """<input id="edit_convenio-%s" type="hidden"/>
+          <a id="lookup_edit_convenio-%s" href="%s" class="changelink" onclick="return showRelatedObjectLookupPopup(this)">
+            Editar
+          </a>""" % (obj.pk, obj.pk, url)
+
+    link_servico.short_description = _(u'Editar Serviço')
+    link_servico.allow_tags = True
+
+    def has_add_permission(self, request):
+        return False
 
 # class PlanoDiretorInline(admin.TabularInline):
 #     model = PlanoDiretor
@@ -236,6 +282,8 @@ class OcorrenciaInline(admin.TabularInline):
     max_num = 0
     can_delete = False
     template = 'admin/casas/ocorrencia_inline.html'
+
+    ordering = ('-data_modificacao',)
 
     def link_editar(self, obj):
         if obj.pk is None:
@@ -264,7 +312,7 @@ class ConvenioFilter(admin.SimpleListFilter):
     def lookups(self, request, model_admin):
         return (
             ('SC', _(u"Sem nenhum convênio")),
-            ('CC', _(u"Com algum convênio"))
+            ('CC', _(u"Com algum convênio")),
         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
@@ -278,6 +326,19 @@ class ConvenioFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
+class ExcluirConvenioFilter(admin.SimpleListFilter):
+    title=_(u"Excluir convênio da pesquisa")
+    parameter_name = 'excluir_convenio'
+
+    def lookups(self, request, model_admin):
+        return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+
+    def queryset(self, request, queryset):
+        if (self.value() is None):
+            return queryset
+        else:    
+            queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
+        return queryset
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _(u"Serviço")
@@ -313,17 +374,34 @@ class ServicoFilter(admin.SimpleListFilter):
 
         return queryset.distinct('municipio__uf__nome', 'nome')
 
+class ServicoAtivoFilter(admin.SimpleListFilter):
+    title = _(u"Serviço ativo")
+    parameter_name = 'ativo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('ativo', _(u"Ativo")),
+            ('desativado', _(u"Desativado")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'ativo':
+                queryset = queryset.filter(servico__data_desativacao__isnull=True)
+            else:
+                queryset = queryset.filter(servico__data_desativacao__isnull=False)
+        return queryset
 @admin.register(Orgao)
 class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
     form = OrgaoForm
     actions = ['adicionar_casas', ]
-    inlines = (TelefonesInline, PresidenteInline, FuncionariosInline,
+    inlines = (TelefonesInline, PresidenteInline, ContatoInterlegisInline, FuncionariosInline,
                ConveniosInline, ServicoInline, OcorrenciaInline,)
     list_display = ('id', 'sigla', 'nome', 'get_uf', 'get_gerentes', 'get_convenios',
                     'get_servicos')
     list_display_links = ('sigla', 'nome',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
-                   'municipio__uf__nome', ConvenioFilter, ServicoFilter,
+                   'municipio__uf__nome', ConvenioFilter, ServicoAtivoFilter, ExcluirConvenioFilter, ServicoFilter,
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii

@@ -2,6 +2,8 @@
 import csv
 
 import datetime
+from django.contrib import messages
+from django.http.response import HttpResponseForbidden
 import ho.pisa as pisa
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
@@ -13,7 +15,7 @@ from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.convenios.models import Convenio, Gescon, Projeto
 from sigi.apps.convenios.reports import (ConvenioReport,
                                          ConvenioReportSemAceite,
                                          ConvenioPorCMReport,
@@ -86,6 +88,8 @@ def carrinhoOrGet_for_qs(request):
     if 'carrinho_convenios' in request.session:
         ids = request.session['carrinho_convenios']
         qs = Convenio.objects.filter(pk__in=ids)
+        qs = qs.order_by("casa_legislativa__municipio__uf", "casa_legislativa__municipio")
+        qs = get_for_qs(request.GET, qs)
     else:
         qs = Convenio.objects.all()
         if request.GET:
@@ -111,7 +115,8 @@ def adicionar_convenios_carrinho(request, queryset=None, id=None):
 def excluir_carrinho(request):
     if 'carrinho_convenios' in request.session:
         del request.session['carrinho_convenios']
-    return HttpResponseRedirect('.')
+        messages.info(request, u'O carrinho foi esvaziado')
+    return HttpResponseRedirect('../../')
 
 @login_required
 def deleta_itens_carrinho(request):
@@ -370,3 +375,16 @@ def export_csv(request):
         csv_writer.writerow(lista)
 
     return response
+
+@login_required
+def importar_gescon(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+
+    action = request.GET.get('action', "")
+    gescon = Gescon.load()
+
+    if action == 'importar':
+        gescon.importa_contratos()
+
+    return render(request, "convenios/importar_gescon.html", {'gescon': gescon})

@@ -21,18 +21,21 @@
 import calendar
 import datetime
 import locale
+import csv
+from django import template
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.utils import translation
 from django.utils.translation import ungettext, ugettext as _
-from sigi.apps.eventos.models import Evento, Equipe, Convite
-from sigi.apps.servidores.models import Servidor
-from sigi.shortcuts import render_to_pdf
-import csv
 from django.http.response import JsonResponse, HttpResponse
+from django.template import Template, Context
+from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
+from sigi.apps.eventos.forms import SelecionaModeloForm
+from sigi.apps.servidores.models import Servidor
+from sigi.shortcuts import render_to_pdf, pdf_renderer
 
 @login_required
 def calendario(request):
@@ -62,17 +65,17 @@ def calendario(request):
 
     for evento in Evento.objects.filter(data_inicio__year=ano_pesquisa,
                                         data_inicio__month=mes_pesquisa).order_by('data_inicio'):
-        start = dates.index(evento.data_inicio)
-        if not evento.data_termino in dates:
+        start = dates.index(evento.data_inicio.date())
+        if not evento.data_termino.date() in dates:
             lastday = dates[-1]
-            while lastday < evento.data_termino:
+            while lastday < evento.data_termino.date():
                 lastday = lastday + datetime.timedelta(days=1)
                 dates.append(lastday)
         eventos.append({'evento': evento, 'start': start})
 
     # Calcula a distância dos eventos para as bordas do calendário
     for evento in eventos:
-        end = dates.index(evento['evento'].data_termino)
+        end = dates.index(evento['evento'].data_termino.date())
         evento['duration'] = end-evento['start']+1
         evento['close'] = len(dates)-end-1
 
@@ -84,10 +87,10 @@ def calendario(request):
         for linha in linhas:
             sobrepoe = False
             for e in linha:
-                if (((evento['evento'].data_inicio >= e['evento'].data_inicio) and
-                     (evento['evento'].data_inicio <= e['evento'].data_termino)) or
-                    ((evento['evento'].data_termino >= e['evento'].data_inicio) and
-                     (evento['evento'].data_termino <= e['evento'].data_termino))):
+                if (((evento['evento'].data_inicio.date() >= e['evento'].data_inicio.date()) and
+                     (evento['evento'].data_inicio.date() <= e['evento'].data_termino.date())) or
+                    ((evento['evento'].data_termino.date() >= e['evento'].data_inicio.date()) and
+                     (evento['evento'].data_termino.date() <= e['evento'].data_termino.date()))):
                     sobrepoe = True
                     break
             if not sobrepoe:
@@ -106,7 +109,7 @@ def calendario(request):
             if anterior is None:
                 anterior = evento
                 continue
-            anterior['close'] = (evento['evento'].data_inicio - anterior['evento'].data_termino).days-1
+            anterior['close'] = (evento['evento'].data_inicio.date() - anterior['evento'].data_termino.date()).days-1
             evento['start'] = 0
             anterior = evento
 
@@ -297,6 +300,13 @@ def deleta_itens_carrinho(request):
 
 @login_required
 def export_csv(request):
+    def rm_rows(lista,reg): 
+        for a in lista: 
+            if a in lista:
+                reg.pop(a,None)
+            else: 
+                pass
+    
     def serialize(r, field):
         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
                  getattr(r, field.name, ""))
@@ -315,22 +325,50 @@ def export_csv(request):
 
     max_equipe = max([e.equipe_set.count() for e in eventos])
 
+    mun_casa = u'Município da Casa Anfitriã'.encode('utf8')
+    uf_casa = u'UF da Casa Anfitriã'.encode('utf8')
+    reg_casa = u'Região da Casa Anfitriã'.encode('utf8')
+
     head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
+    head.extend([mun_casa, uf_casa, reg_casa])
     head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
-                 for i in range(max_equipe) for f in Equipe._meta.fields
-                 if f.name not in ('id', 'evento')])
+        for i in range(max_equipe) for f in Equipe._meta.fields
+        if f.name not in ('id', 'evento')])
     head.extend([f.verbose_name.encode('utf8') for f in Convite._meta.fields
-                 if f.name not in ('id', 'evento')])
+        if f.name not in ('id', 'evento')])
+    head.extend([f.verbose_name.encode('utf8') for f in Modulo._meta.fields
+        if f.name not in ('id', 'evento')])
 
     response = HttpResponse(content_type='text/csv')
     response['Content-Disposition'] = 'attachment; filename=eventos.csv'
+    rm_list = ['Descrição do evento', 'Local do evento', 'Público alvo', 'Motivo do cancelamento', 'Descrição do módulo']
 
+    for a in head: 
+        if 'Observações_' in a: 
+            rm_list.append(a)
+    
+    for a in rm_list: 
+        if a in head: 
+            head.remove(a)
+        else: 
+            pass 
     writer = csv.DictWriter(response, fieldnames=head)
     writer.writeheader()
 
     for evento in eventos:
         reg = {f.verbose_name.encode('utf8'): serialize(evento, f)
                for f in Evento._meta.fields}
+        if evento.casa_anfitria is None:
+            reg[mun_casa] = ""
+            reg[uf_casa] = ""
+            reg[reg_casa] = ""
+        else:
+            reg[mun_casa] = evento.casa_anfitria.municipio.nome.encode('utf8')
+            reg[uf_casa] = evento.casa_anfitria.municipio.uf.sigla.\
+                encode('utf8')
+            reg[reg_casa] = evento.casa_anfitria.municipio.uf.\
+                get_regiao_display().encode('utf8')
+
         idx = 1
         for membro in evento.equipe_set.all():
             reg.update(
@@ -347,9 +385,46 @@ def export_csv(request):
                  for f in Convite._meta.fields
                  if f.name not in ('id', 'evento')}
             )
+            rm_rows(rm_list,reg)
             writer.writerow(reg)
+            
         if evento.convite_set.count() == 0:
-            writer.writerow(reg)
+            rm_rows(rm_list,reg)
 
+            writer.writerow(reg)
+            
     return response
 
+@login_required
+def declaracao(request, id):
+    if request.method == 'POST':
+        form = SelecionaModeloForm(request.POST)
+        if form.is_valid():
+            evento = get_object_or_404(Evento, id=id)
+            modelo = form.cleaned_data['modelo']
+            template_string = (
+                """
+                {% extends "eventos/declaracao_pdf.html" %}
+                {% block text_body %}""" +
+                modelo.texto + """
+                {% endblock %}
+                """
+            )
+            context = Context(
+                {'pagesize': modelo.formato,
+                 'pagemargin': modelo.margem,
+                 'evento': evento,
+                 'data': datetime.date.today(),
+                }
+            )
+            template = Template(template_string)
+            # return HttpResponse(template.render(context))
+            return pdf_renderer(template, context, 'declaracao.pdf')
+    else:
+        form = SelecionaModeloForm()
+
+    return render(
+        request,
+        'eventos/seleciona_modelo.html',
+        {'form': form, 'evento_id': id}
+    )

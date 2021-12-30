@@ -11,6 +11,7 @@ from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servicos.models import (Servico, LogServico, CasaAtendida,
                                        TipoServico)
+from sigi.apps.servicos.views import adicionar_servicos_carrinho
 from sigi.apps.utils.base_admin import BaseModelAdmin
 
 
@@ -90,12 +91,28 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                     timedelta(days=0)
                 )
                 queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
-                print (de, ate, queryset.count())
-
         return queryset
 
+class ServicoAtivoFilter(admin.SimpleListFilter):
+    title = _(u"Serviço ativo")
+    parameter_name = 'ativo'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('ativo', _(u"Ativo")),
+            ('desativado', _(u"Desativado")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'ativo':
+                queryset = queryset.filter(data_desativacao__isnull=True)
+            else:
+                queryset = queryset.filter(data_desativacao__isnull=False)
+        return queryset
 
 class ServicoAdmin(BaseModelAdmin):
+    change_list_template = "servico/change_list.html"
     form = ServicoFormAdmin
     actions = ['calcular_data_uso', ]
     list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf', 'tipo_servico', 'hospedagem_interlegis',
@@ -116,11 +133,13 @@ class ServicoAdmin(BaseModelAdmin):
     list_filter = (
         'tipo_servico',
         'hospedagem_interlegis',
+        ServicoAtivoFilter,
         DataUtimoUsoFilter,
         ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
         'casa_legislativa__municipio__uf',
     )
     list_display_links = []
+    actions = ['adicionar_servicos']
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
     search_fields = ('casa_legislativa__search_text',)
@@ -153,6 +172,22 @@ class ServicoAdmin(BaseModelAdmin):
     get_link_erro.short_description = _(u"Erro na atualização")
     get_link_erro.admin_order_field = 'erro_atualizacao'
 
+    def adicionar_servicos(self, request, queryset):
+        if 'carrinho_servicos' in request.session:
+            q1 = len(request.session['carrinho_servicos'])
+        else:
+            q1 = 0
+        adicionar_servicos_carrinho(request, queryset=queryset)
+        q2 = len(request.session['carrinho_servicos'])
+        quant = q2 - q1
+        if quant:
+            self.message_user(request, str(q2 - q1) + _(u" Serviços adicionados no carrinho"))
+        else:
+            self.message_user(request, _(u"Os Serviços selecionados já foram adicionadas anteriormente"))
+        return HttpResponseRedirect('.')
+    adicionar_servicos.short_description = _(u"Armazenar serviços no carrinho para exportar")
+
+    
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
@@ -170,7 +205,7 @@ class ServicoAdmin(BaseModelAdmin):
 
     def lookup_allowed(self, lookup, value):
         return super(ServicoAdmin, self).lookup_allowed(lookup, value) or \
-            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
+            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact', ]
 
     def add_view(self, request, form_url='', extra_context=None):
         id_casa = request.GET.get('id_casa', None)
@@ -218,6 +253,34 @@ class ServicoAdmin(BaseModelAdmin):
             obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
 
         return obj
+    
+    def changelist_view(self, request, extra_context=None):
+        from sigi.apps.convenios.views import normaliza_data
+        request.GET._mutable = True
+        normaliza_data(request.GET, 'data_ativacao__gte')
+        normaliza_data(request.GET, 'data_ativacao__lte')
+        request.GET._mutable = False
+
+        return super(ServicoAdmin, self).changelist_view(
+            request,
+            extra_context={'query_str': '?' + request.META['QUERY_STRING']}
+        )
+        
+    def adicionar_servicos(self, request, queryset):
+        if 'carrinho_servicos' in request.session:
+            q1 = len(request.session['carrinho_servicos'])
+        else:
+            q1 = 0
+        adicionar_servicos_carrinho(request, queryset=queryset)
+        q2 = len(request.session['carrinho_servicos'])
+        quant = q2 - q1
+        if quant:
+            self.message_user(request, str(q2 - q1) + _(u" Convênios adicionados no carrinho"))
+        else:
+            self.message_user(request, _(u"Os Convênios selecionados já foram adicionadas anteriormente"))
+        return HttpResponseRedirect('.')
+    adicionar_servicos.short_description = _(u"Armazenar Serviços no carrinho para exportar")
+
 
 
 class ContatosInline(FuncionariosInline):
@@ -225,6 +288,14 @@ class ContatosInline(FuncionariosInline):
     # SEIT see all contacts, including President
     def get_queryset(self, request):
         return self.model.objects.all()
+
+    def get_queryset(self, request):
+        return (self.model.objects.exclude(desativado=True)
+        .extra(select={'ult_null': 'ult_alteracao is null'})
+        .order_by('ult_null', '-ult_alteracao')
+            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
+        )
+
 
 class CasaAtendidaAdmin(BaseModelAdmin):
     actions = None

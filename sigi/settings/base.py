@@ -74,7 +74,7 @@ INSTALLED_APPS = (
     'easy_thumbnails',
     'image_cropping',
     'rest_framework',
-
+    'tinymce',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -95,6 +95,7 @@ LANGUAGE_CODE = 'pt-br'
 USE_I18N = True
 USE_L10N = True
 USE_THOUSAND_SEPARATOR = True
+TIME_ZONE = "America/Sao_Paulo"
 
 gettext_noop = lambda s: s  # for gettext discovery
 LANGUAGES = (
@@ -188,3 +189,11 @@ REST_FRAMEWORK = {
 WHOIS_WHITELIST = [
         '127.0.0.1',
         ]
+
+# TinyMCE configuration
+TINYMCE_SPELLCHECKER = True
+TINYMCE_COMPRESSOR = True
+TINYMCE_DEFAULT_CONFIG = {
+    'theme': "advanced",
+    "height": 500,
+}

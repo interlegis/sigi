@@ -20,29 +20,13 @@
 
 from django import forms
 from django.contrib import admin
+from django.db import models
 from django.http import HttpResponseRedirect
 from django.utils.translation import ugettext as _
-from sigi.apps.eventos.models import TipoEvento, Funcao, Evento, Equipe, Convite
+from sigi.apps.eventos.models import (ModeloDeclaracao, Modulo, TipoEvento,
+                                      Funcao, Evento, Equipe, Convite, Anexo)
 from sigi.apps.eventos.views import adicionar_eventos_carrinho
-
-class EventoAdminForm(forms.ModelForm):
-    class Meta:
-        model = Evento
-        fields = ('tipo_evento', 'nome', 'descricao', 'virtual', 'solicitante',
-                  'data_inicio', 'data_termino', 'carga_horaria',
-                  'casa_anfitria', 'municipio', 'local', 'publico_alvo',
-                  'status', 'data_cancelamento', 'motivo_cancelamento', )
-
-    def clean(self):
-        cleaned_data = super(EventoAdminForm, self).clean()
-        data_inicio = cleaned_data.get("data_inicio")
-        data_termino = cleaned_data.get("data_termino")
-
-        if data_inicio > data_termino:
-            raise forms.ValidationError(
-                _(u"Data término deve ser posterior à data inicio"),
-                code="invalid_period"
-            )
+from sigi.apps.eventos.forms import EventoAdminForm
 
 @admin.register(TipoEvento)
 class TipoEventAdmin(admin.ModelAdmin):
@@ -53,6 +37,10 @@ class FuncaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'descricao',)
     search_fields = ('nome', 'descricao',)
 
+@admin.register(ModeloDeclaracao)
+class ModeloDeclaracaoAdmin(admin.ModelAdmin):
+    list_display = ('nome', 'formato')
+
 class EquipeInline(admin.TabularInline):
     model = Equipe
 
@@ -60,18 +48,26 @@ class ConviteInline(admin.TabularInline):
     model = Convite
     raw_id_fields = ('casa',)
 
+class ModuloInline(admin.TabularInline):
+    model = Modulo
+
+class AnexoInline(admin.TabularInline):
+    model = Anexo
+    exclude = ('data_pub',)
+
 @admin.register(Evento)
 class EventoAdmin(admin.ModelAdmin):
     form = EventoAdminForm
     date_hierarchy = 'data_inicio'
     list_display = ('nome', 'tipo_evento', 'status', 'data_inicio',
-                    'data_termino', 'municipio', 'solicitante')
-    list_filter = ('status', 'tipo_evento', 'virtual', 'municipio__uf',
-                   'solicitante')
+                    'data_termino', 'municipio', 'solicitante',
+                    'total_participantes',)
+    list_filter = ('status', 'tipo_evento', 'tipo_evento__categoria', 'virtual',
+                   'municipio__uf', 'solicitante')
     raw_id_fields = ('casa_anfitria', 'municipio',)
     search_fields = ('nome', 'tipo_evento__nome', 'casa_anfitria__search_text',
                      'municipio__search_text', 'solicitante')
-    inlines = (EquipeInline, ConviteInline)
+    inlines = (EquipeInline, ConviteInline, ModuloInline, AnexoInline)
     actions = ['adicionar_eventos', ]
 
     def adicionar_eventos(self, request, queryset):
@@ -91,3 +87,8 @@ class EventoAdmin(admin.ModelAdmin):
         return HttpResponseRedirect('.')
     adicionar_eventos.short_description = _(u"Armazenar eventos no carrinho "
                                             u"para exportar")
+
+    def lookup_allowed(self, lookup, value):
+        return (super(EventoAdmin, self).lookup_allowed(lookup, value) or
+                lookup in ['tipo_evento__nome__exact',
+                            'tipo_evento__nome__contains'])

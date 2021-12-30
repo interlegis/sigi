@@ -15,5 +15,8 @@ urlpatterns = patterns(
     url(r'^evento/carrinho/deleta_itens_carrinho$', 'deleta_itens_carrinho',
         name='deleta-itens-carrinho-evento'),  # Error
     url(r'^evento/csv/$', 'export_csv', name='evento-export-csv'),  # Error
+    url(r'^evento/(?P<id>\w+)/declaracao/$', 'declaracao',
+        name='evento-declaracao'),
+
 
 )

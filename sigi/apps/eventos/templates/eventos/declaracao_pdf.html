@@ -1,0 +1,24 @@
+{% extends 'base_report.html' %}
+{% load i18n %}
+
+{% block pagesize %}{{ pagesize }}{% endblock pagesize %}
+{% block pagemargin %}4cm {{ pagemargin }}cm {{ pagemargin }}cm 2cm{% endblock pagemargin %}
+
+{% block report %}
+    {% for convite in evento.convite_set.all %}
+        {% with convite.casa as casa %}
+            {% for nome in convite.nomes_participantes.splitlines %}
+                {% block text_body %}{% endblock %}
+                <pdf:nextpage />
+            {% endfor %}
+        {% endwith %}
+    {% endfor %}
+{% endblock %}
+
+{%block page_foot%}
+    <table>
+        <tr>
+        <td class="footer-left">{% trans 'Emissão:' %} {% now "d/m/Y H:i:s" %}</td>
+        </tr>
+    </table>
+{% endblock %}

@@ -20,6 +20,7 @@ urlpatterns = patterns(
     url(r'^ocorrencias/', include('sigi.apps.ocorrencias.urls')),
     url(r'^eventos/', include('sigi.apps.eventos.urls')),
     url(r'^whois/', include('sigi.apps.whois.urls')),
+    url(r'^tinymce/', include('tinymce.urls')),
     url(r'^', include('sigi.apps.home.urls')),
     url(r'^', include(admin.site.urls)),
 

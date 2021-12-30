@@ -6,7 +6,8 @@ from geraldo.generators import PDFGenerator
 
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         TipoSolicitacao, Convenio,
-                                        EquipamentoPrevisto, Anexo, Tramitacao)
+                                        EquipamentoPrevisto, Anexo, Tramitacao,
+                                        Gescon)
 from sigi.apps.convenios.reports import ConvenioReport
 from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
@@ -51,35 +52,37 @@ class ConvenioAdmin(BaseModelAdmin):
                         'projeto', 'data_sigi',)}
          ),
         (_(u"Acompanhamento no gabinete"),
-         {'fields': ('data_solicitacao', 'data_sigad', 'tipo_solicitacao',
-                     'status', 'acompanha', 'observacao',)}
+         {'fields': ('data_solicitacao', 'data_sigad', 'observacao',)}
         ),
         (_(u"Gestão do convênio"),
          {'fields': ('servico_gestao', 'servidor_gestao',)}
         ),
         (_(u'Datas'),
-            {'fields': ('data_retorno_assinatura', 'duracao',
-                        'data_pub_diario',)}
+         {'fields': ('data_retorno_assinatura', 'data_termino_vigencia',
+                     'data_pub_diario',)}
          ),
+        (_(u'Gescon'),
+         {'fields': ('atualizacao_gescon', 'observacao_gescon', 'link_gescon')}
+        ),
     )
-    readonly_fields = ('data_sigi',)
+    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon', 'link_gescon')
     actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
-    list_display = ('num_convenio', 'casa_legislativa', 'get_uf',
+    list_display = ('num_convenio', 'projeto','casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
-                    'duracao', 'projeto', 'status', 'acompanha',)
+                    'data_termino_vigencia',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = ('status', ('acompanha', AcompanhaFilter),
-                   ('casa_legislativa__gerentes_interlegis',
+    list_filter = (('casa_legislativa__gerentes_interlegis',
                     GerentesInterlegisFilter), 'projeto',
                    'casa_legislativa__tipo', 'conveniada','equipada',
                    'casa_legislativa__municipio__uf',)
     #date_hierarchy = 'data_adesao'
-    ordering = ('casa_legislativa__tipo__sigla', 'casa_legislativa__municipio__uf', 'casa_legislativa')
+    ordering = ('casa_legislativa', '-data_retorno_assinatura')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
-    search_fields = ('id', 'search_text',  # 'casa_legislativa__nome',
-                     'num_processo_sf', 'num_convenio')
+    search_fields = ('id', 'casa_legislativa__search_text',
+                     'casa_legislativa__sigla', 'num_processo_sf',
+                     'num_convenio')
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
@@ -111,6 +114,16 @@ class ConvenioAdmin(BaseModelAdmin):
 
     link_sigad.short_description = _("Processo no Senado")
     link_sigad.allow_tags = True
+
+    def link_gescon(self, obj):
+        if not obj.id_contrato_gescon:
+            return u""
+        return (
+            u"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
+            u"contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
+            u"gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
+    link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
+    link_gescon.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data
@@ -171,6 +184,11 @@ class EquipamentoPrevistoAdmin(BaseModelAdmin):
     raw_id_fields = ('convenio', 'equipamento')
     search_fields = ('convenio__id', 'equipamento__fabricante__nome',
                      'equipamento__modelo__modelo', 'equipamento__modelo__tipo__tipo')
+
+@admin.register(Gescon)
+class GesconAdmin(admin.ModelAdmin):
+    list_display = ('url_gescon', 'email', 'ultima_importacao')
+    readonly_fields = ('ultima_importacao',)
 
 admin.site.register(Projeto)
 admin.site.register(StatusConvenio)

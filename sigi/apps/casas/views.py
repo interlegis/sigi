@@ -2,6 +2,9 @@
 import csv
 from datetime import datetime
 from functools import reduce
+
+from django.contrib import messages
+from sigi.apps.utils import to_ascii
 from geraldo.generators import PDFGenerator
 
 from django.conf import settings
@@ -257,9 +260,10 @@ class importa_casas(View):
         for reg in reader:
             self.total_registros += 1
             reg[self.ERROS] = []
+            nome_orgao = to_ascii(reg[self.MUNICIPIO])
             orgao = Orgao.objects.filter(
                 tipo__sigla=reg[self.TIPO],
-                municipio__nome=reg[self.MUNICIPIO],
+                municipio__search_text__icontains=nome_orgao,
                 municipio__uf__sigla=reg[self.UF]
             )
             if orgao.count() == 0:
@@ -444,7 +448,8 @@ def visualizar_carrinho(request):
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
-    return HttpResponseRedirect('.')
+        messages.info(request, u'O carrinho foi esvaziado')
+    return HttpResponseRedirect('../../')
 
 
 @login_required
