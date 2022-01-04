@@ -2,7 +2,7 @@
 from datetime import datetime
 from django.contrib import admin
 from django.db.utils import OperationalError, ProgrammingError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from eav.admin import BaseEntityAdmin, BaseSchemaAdmin
 
 from sigi.apps.diagnosticos.forms import DiagnosticoForm

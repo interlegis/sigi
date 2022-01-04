@@ -29,7 +29,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, render
 from django.utils import translation
-from django.utils.translation import ungettext, ugettext as _
+from django.utils.translation import ungettext, gettext as _
 from django.http.response import JsonResponse, HttpResponse
 from django.template import Template, Context
 from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
@@ -300,13 +300,13 @@ def deleta_itens_carrinho(request):
 
 @login_required
 def export_csv(request):
-    def rm_rows(lista,reg): 
-        for a in lista: 
+    def rm_rows(lista,reg):
+        for a in lista:
             if a in lista:
                 reg.pop(a,None)
-            else: 
+            else:
                 pass
-    
+
     def serialize(r, field):
         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
                  getattr(r, field.name, ""))
@@ -343,15 +343,15 @@ def export_csv(request):
     response['Content-Disposition'] = 'attachment; filename=eventos.csv'
     rm_list = ['Descrição do evento', 'Local do evento', 'Público alvo', 'Motivo do cancelamento', 'Descrição do módulo']
 
-    for a in head: 
-        if 'Observações_' in a: 
+    for a in head:
+        if 'Observações_' in a:
             rm_list.append(a)
-    
-    for a in rm_list: 
-        if a in head: 
+
+    for a in rm_list:
+        if a in head:
             head.remove(a)
-        else: 
-            pass 
+        else:
+            pass
     writer = csv.DictWriter(response, fieldnames=head)
     writer.writeheader()
 
@@ -387,12 +387,12 @@ def export_csv(request):
             )
             rm_rows(rm_list,reg)
             writer.writerow(reg)
-            
+
         if evento.convite_set.count() == 0:
             rm_rows(rm_list,reg)
 
             writer.writerow(reg)
-            
+
     return response
 
 @login_required

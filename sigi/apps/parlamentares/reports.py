@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.templatetags.static import static
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from geraldo import Report, DetailBand, Label, ObjectValue, ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH, SystemField
 from geraldo.graphics import Image
 from reportlab.lib.enums import TA_CENTER

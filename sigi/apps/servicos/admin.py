@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from django.forms.models import ModelForm
 from django.http import Http404, HttpResponseRedirect
 from django.utils.encoding import force_unicode
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
 from sigi.apps.casas.models import Orgao
@@ -187,7 +187,7 @@ class ServicoAdmin(BaseModelAdmin):
         return HttpResponseRedirect('.')
     adicionar_servicos.short_description = _(u"Armazenar serviços no carrinho para exportar")
 
-    
+
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
@@ -253,7 +253,7 @@ class ServicoAdmin(BaseModelAdmin):
             obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
 
         return obj
-    
+
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data
         request.GET._mutable = True
@@ -265,7 +265,7 @@ class ServicoAdmin(BaseModelAdmin):
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
-        
+
     def adicionar_servicos(self, request, queryset):
         if 'carrinho_servicos' in request.session:
             q1 = len(request.session['carrinho_servicos'])

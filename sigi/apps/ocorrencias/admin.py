@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.contrib.admin.views.main import ChangeList
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sigi.apps.ocorrencias.filters import OcorrenciaListFilter
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo, Categoria, TipoContato

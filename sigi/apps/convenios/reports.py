@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from geraldo import ReportBand, ObjectValue, Label, ReportGroup, FIELD_ACTION_SUM
 from reportlab.lib.units import cm
 
@@ -27,7 +27,7 @@ class SemEquipamentosReport(object):
 
 class ConvenioReport(ReportDefault):
     title = _(u'Relatório de Parcerias')
-    
+
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
@@ -160,7 +160,7 @@ class ConvenioReportSemAceite(ConvenioReport):
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
-            ),            
+            ),
             Label(
                 text=_(u"Projeto"),
                 left=label_left[3] * cm,

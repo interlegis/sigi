@@ -1,6 +1,6 @@
 # coding: utf-8
 from django.contrib import admin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class PopulationFilter(admin.SimpleListFilter):

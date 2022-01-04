@@ -25,7 +25,7 @@
 import datetime
 import calendar
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from itertools import cycle
 from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Convenio, Projeto

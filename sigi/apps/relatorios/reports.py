@@ -2,7 +2,7 @@
 import os
 
 from django.templatetags.static import static
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from geraldo import Report, ReportBand, ObjectValue, DetailBand, Label, SystemField, BAND_WIDTH, FIELD_ACTION_COUNT, Line
 from geraldo.graphics import Image
 from reportlab.lib.colors import navy

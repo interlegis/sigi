@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sigi.apps.contatos.filters import PopulationFilter
 from sigi.apps.contatos.models import (UnidadeFederativa, Mesorregiao, Microrregiao,
@@ -10,10 +10,10 @@ from sigi.apps.utils.base_admin import BaseModelAdmin
 
 class MesorregiaoInline(admin.TabularInline):
     model = Mesorregiao
-    
+
 class MicrorregiaoInline(admin.TabularInline):
     model = Microrregiao
-    
+
 class UnidadeFederativaAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'nome', 'sigla', 'regiao', 'populacao')
@@ -22,7 +22,7 @@ class UnidadeFederativaAdmin(BaseModelAdmin):
     search_fields = ('search_text', 'codigo_ibge', 'sigla', 'regiao')
     get_queryset = queryset_ascii
     inlines = (MesorregiaoInline, )
-    
+
 class MesorregiaoAdmin(BaseModelAdmin):
     actions = None
     list_display = ('codigo_ibge', 'uf', 'nome')

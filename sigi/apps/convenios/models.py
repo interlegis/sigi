@@ -6,7 +6,7 @@ from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from sigi.apps.utils import SearchField, to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico

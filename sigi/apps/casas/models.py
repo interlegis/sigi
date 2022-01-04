@@ -4,7 +4,7 @@ import random
 from string import ascii_uppercase
 from unicodedata import normalize
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from image_cropping import ImageRatioField

@@ -3,7 +3,7 @@ from django.contrib import admin
 from django.contrib.contenttypes import generic
 from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.html import escape, escapejs
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.parlamentares.models import (

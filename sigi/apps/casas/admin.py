@@ -6,7 +6,7 @@ from django.contrib.contenttypes import generic
 from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 #from geraldo.site.newsite.django_1_0.django.forms import extras
 from image_cropping import ImageCroppingMixin
 
@@ -85,7 +85,7 @@ class FuncionariosInline(admin.StackedInline):
               'endereco', 'municipio', 'bairro', 'cep', 'redes_sociais',
               'desativado', 'observacoes')
     raw_id_fields = ('municipio',)
-    
+
     # fieldsets = ((None, {
     #     'fields': (
     #         ('nome', 'sexo', 'data_nascimento'),
@@ -336,7 +336,7 @@ class ExcluirConvenioFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if (self.value() is None):
             return queryset
-        else:    
+        else:
             queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
         return queryset
 

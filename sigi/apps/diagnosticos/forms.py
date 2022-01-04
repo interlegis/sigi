@@ -7,7 +7,7 @@ from django.forms import (BooleanField, CharField, DateField,
                           FloatField, ModelChoiceField, Textarea,
                           ModelMultipleChoiceField)
 from django.forms.forms import BoundField
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from eav.fields import RangeField
 from eav.forms import BaseDynamicEntityForm
 

@@ -3,7 +3,7 @@
 from datetime import date
 from django.db import models
 from sigi.apps.casas.models import Orgao, Funcionario
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 
 class TipoServico(models.Model):

@@ -2,7 +2,7 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 class Servico(models.Model):
     nome = models.CharField(_(u'Setor'), max_length=250, null=True)

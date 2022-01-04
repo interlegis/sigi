@@ -10,7 +10,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_list_or_404
 from django.template import Context, loader
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.casas.models import Orgao

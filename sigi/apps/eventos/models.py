@@ -4,7 +4,7 @@ import random
 from django.db import models
 from django.db.models import Sum
 from django.utils.functional import lazy
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.contrib.contenttypes import generic
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio

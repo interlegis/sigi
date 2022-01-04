@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from geraldo.generators import PDFGenerator
 
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,

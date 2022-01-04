@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.http import JsonResponse, Http404
 from django.db.models import Q, Count
-from django.utils.translation import ungettext, ugettext as _
+from django.utils.translation import ungettext, gettext as _
 from django.shortcuts import get_object_or_404, render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST

@@ -13,7 +13,7 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.db.models import Count, Q
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
-from django.utils.translation import ugettext as _, ungettext
+from django.utils.translation import gettext as _, ungettext
 from django.views.generic import View
 
 from sigi.apps.casas.forms import PortfolioForm, AtualizaCasaForm

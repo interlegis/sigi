@@ -12,7 +12,7 @@ from django.http import HttpResponse
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render, render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.generic.base import TemplateView
 
 from sigi.apps.casas.models import Orgao
@@ -163,7 +163,7 @@ def adicionar_servicos_carrinho(request, queryset=None, id=None):
             if id not in lista:
                 lista.append(id)
         request.session['carrinho_servicos'] = lista
-        
+
 def carrinhoOrGet_for_qs(request):
     """
        Verifica se existe convênios na sessão se não verifica get e retorna qs correspondente.
@@ -248,7 +248,7 @@ def visualizar_carrinho(request):
             'query_str': '?' + request.META['QUERY_STRING']
         }
     )
-    
+
 def get_for_qs(get, qs):
     kwargs = {}
     ids = 0
@@ -296,11 +296,11 @@ def export_csv(request):
         col_titles.insert(pos, _(u"email"))
         pos+=1
         col_titles.insert(pos, _(u"telefone"))
-    
+
     if _(u"Contato Interlegis") in col_titles:
         pos = col_titles.index(_(u"Contato Interlegis")) + 1
         col_titles.insert(pos, _(u"Email do contato"))
-        
+
     csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for servico in servicos:

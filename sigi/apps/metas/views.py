@@ -15,7 +15,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, render, render_to_response
 from django.template import RequestContext
 from django.utils.datastructures import SortedDict
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_page
 from easy_thumbnails.templatetags.thumbnail import thumbnail_url
 

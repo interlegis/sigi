@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.contrib import admin
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from sigi.apps.metas.models import PlanoDiretor
 from sigi.apps.utils.base_admin import BaseModelAdmin

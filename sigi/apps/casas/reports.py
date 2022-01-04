@@ -3,7 +3,7 @@ from geraldo import Report, DetailBand, Label, ObjectValue, ReportGroup, ReportB
 from geraldo.graphics import Image
 
 from django.templatetags.static import static
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import cm
