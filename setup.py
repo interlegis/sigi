@@ -5,4 +5,4 @@
 from distutils.core import setup
 
 
-setup(name='sigi', version='2.x')
+setup(name='sigi', version='3.x')
