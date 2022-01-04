@@ -48,3 +48,4 @@ db.*
 
 .vagrant
 sigi/settings/prod.py
+sigi/settings/production.py
