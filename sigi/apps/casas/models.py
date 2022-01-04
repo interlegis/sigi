@@ -5,7 +5,7 @@ from string import ascii_uppercase
 from unicodedata import normalize
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext as _
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from image_cropping import ImageRatioField
 
@@ -132,7 +132,7 @@ class Orgao(models.Model):
         blank=True,
         editable=True
     )
-    telefones = generic.GenericRelation('contatos.Telefone')
+    telefones = GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
         _(u"Foto"),
@@ -194,8 +194,8 @@ class Orgao(models.Model):
                 return self.funcionario_set.get(setor='presidente')
         except Funcionario.DoesNotExist:
             return None
-    
-    @property    
+
+    @property
     def contato_interlegis(self):
         """ Link para acessar diretamente o contato do presidente da casa
             Util para relatorios antigos

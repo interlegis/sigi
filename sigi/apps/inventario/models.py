@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from django.contrib.contenttypes import generic
+from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import ugettext as _
 
@@ -9,8 +9,8 @@ class Fornecedor(models.Model):
     nome.alphabetic_filter = True
     email = models.EmailField(_(u'e-mail'), blank=True)
     pagina_web = models.URLField(_(u'página web'), blank=True)
-    telefones = generic.GenericRelation('contatos.Telefone')
-    contatos = generic.GenericRelation('contatos.Contato')
+    telefones = GenericRelation('contatos.Telefone')
+    contatos = GenericRelation('contatos.Contato')
 
     class Meta:
         ordering = ('nome',)
