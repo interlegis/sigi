@@ -5,14 +5,14 @@ from django.db.models.signals import post_save, pre_save
 from django.utils.translation import gettext as _
 
 class Servico(models.Model):
-    nome = models.CharField(_(u'Setor'), max_length=250, null=True)
+    nome = models.CharField(_('Setor'), max_length=250, null=True)
     sigla = models.CharField(max_length=10, null=True)
     subordinado = models.ForeignKey(
         'self',
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_(u"subordinado a")
+        verbose_name=_("subordinado a")
     )
     responsavel = models.ForeignKey(
         'servidores.Servidor',
@@ -24,11 +24,11 @@ class Servico(models.Model):
 
     class Meta:
         ordering = ('-subordinado__sigla', 'nome',)
-        verbose_name = _(u'serviço')
-        verbose_name_plural = _(u'serviços')
+        verbose_name = _('serviço')
+        verbose_name_plural = _('serviços')
 
     def __unicode__(self):
-        return u"{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
+        return "{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
 
 class Servidor(models.Model):
     user = models.ForeignKey(
@@ -53,12 +53,12 @@ class Servidor(models.Model):
         blank=True,
         null=True
     )
-    externo = models.BooleanField(_(u"colaborador externo"), default=False)
+    externo = models.BooleanField(_("colaborador externo"), default=False)
     orgao_origem = models.CharField(
-        _(u"órgão de origem, "),
+        _("órgão de origem, "),
         max_length=100, blank=True
     )
-    qualificacoes = models.TextField(_(u"qualificações"), blank=True)
+    qualificacoes = models.TextField(_("qualificações"), blank=True)
 
     class Meta:
         ordering = ('nome_completo',)

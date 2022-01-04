@@ -24,7 +24,7 @@ class MigrationError(Exception):
 
 
 class Command(BaseCommand):
-    help = _(u'Migra usuários do antigo Sistema de RH')
+    help = _('Migra usuários do antigo Sistema de RH')
 
     def to_date(self, data):
         return datetime.strptime(data, "%Y-%m-%d 00:00:00")

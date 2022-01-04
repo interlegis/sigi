@@ -26,12 +26,12 @@ class Projeto(models.Model):
 
 class StatusConvenio(models.Model):
     nome = models.CharField(max_length=100)
-    cancela = models.BooleanField(_(u"Cancela o convênio"), default=False)
+    cancela = models.BooleanField(_("Cancela o convênio"), default=False)
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _(u"Estado de convenios")
-        verbose_name_plural = _(u"Estados de convenios")
+        verbose_name = _("Estado de convenios")
+        verbose_name_plural = _("Estados de convenios")
 
     def __unicode__(self):
         return self.nome
@@ -41,8 +41,8 @@ class TipoSolicitacao(models.Model):
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _(u"tipo de solicitação")
-        verbose_name_plural = _(u"Tipos de solicitação")
+        verbose_name = _("tipo de solicitação")
+        verbose_name_plural = _("Tipos de solicitação")
 
     def __unicode__(self):
         return self.nome
@@ -51,47 +51,47 @@ class Convenio(models.Model):
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
         on_delete=models.PROTECT,
-        verbose_name=_(u'órgão conveniado')
+        verbose_name=_('órgão conveniado')
     )
     # campo de busca em caixa baixa e sem acentos
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.PROTECT,
-        verbose_name=_(u'Tipo de Convenio')
+        verbose_name=_('Tipo de Convenio')
     )
     # numero designado pelo Senado Federal para o convênio
     num_processo_sf = models.CharField(
-        _(u'número do processo SF (Senado Federal)'),
+        _('número do processo SF (Senado Federal)'),
         max_length=20,
         blank=True,
-        help_text=_(u'Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
+        help_text=_('Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>')
     )
     # link_processo_stf = ('get_sigad_url')
     num_convenio = models.CharField(
-        _(u'número do convênio'),
+        _('número do convênio'),
         max_length=10,
         blank=True
     )
     id_contrato_gescon = models.CharField(
-        _(u"ID do contrato no Gescon"),
+        _("ID do contrato no Gescon"),
         max_length=20,
         blank=True,
         default="",
         editable=False
     )
     data_sigi = models.DateField(
-        _(u"data de cadastro no SIGI"),
+        _("data de cadastro no SIGI"),
         blank=True,
         null=True,
         auto_now_add=True
     )
     data_sigad = models.DateField(
-        _(u"data de cadastro no SIGAD"),
+        _("data de cadastro no SIGAD"),
         null=True,
         blank=True
     )
     data_solicitacao = models.DateField(
-        _(u"data do e-mail de solicitação"),
+        _("data do e-mail de solicitação"),
         null=True,
         blank=True
     )
@@ -100,12 +100,12 @@ class Convenio(models.Model):
         on_delete=models.PROTECT,
         null=True,
         blank=True,
-        verbose_name=_(u"tipo de solicitação")
+        verbose_name=_("tipo de solicitação")
     )
     status = models.ForeignKey(
         StatusConvenio,
         on_delete=models.SET_NULL,
-        verbose_name=_(u"estado atual"),
+        verbose_name=_("estado atual"),
         null=True,
         blank=True
     )
@@ -113,12 +113,12 @@ class Convenio(models.Model):
         Servidor,
         on_delete=models.SET_NULL,
         related_name='convenios_acompanhados',
-        verbose_name=_(u"acompanhado por"),
+        verbose_name=_("acompanhado por"),
         null=True,
         blank=True
     )
     observacao = models.TextField(
-        _(u"observações"),
+        _("observações"),
         null=True,
         blank=True,
     )
@@ -128,97 +128,97 @@ class Convenio(models.Model):
         null=True,
         blank=True,
         related_name='convenios_geridos',
-        verbose_name=_(u"serviço de gestão")
+        verbose_name=_("serviço de gestão")
     )
     servidor_gestao = models.ForeignKey(
         Servidor,
         on_delete=models.SET_NULL,
         null=True,
         blank=True,
-        verbose_name=_(u"servidor de gestão")
+        verbose_name=_("servidor de gestão")
     )
     data_adesao = models.DateField(
-        _(u'aderidas'),
+        _('aderidas'),
         null=True,
         blank=True,
     )
     data_retorno_assinatura = models.DateField(
-        _(u'data início vigência'),
+        _('data início vigência'),
         null=True,
         blank=True,
-        help_text=_(u'Convênio firmado.')
+        help_text=_('Convênio firmado.')
     )
     data_termino_vigencia = models.DateField(
-        _(u'Data término vigência'),
+        _('Data término vigência'),
         null=True,
         blank=True,
-        help_text=_(u'Término da vigência do convênio.')
+        help_text=_('Término da vigência do convênio.')
     )
     data_pub_diario = models.DateField(
-        _(u'data da publicação no Diário Oficial'),
+        _('data da publicação no Diário Oficial'),
         null=True,
         blank=True
     )
     data_termo_aceite = models.DateField(
-        _(u'equipadas'),
+        _('equipadas'),
         null=True,
         blank=True,
-        help_text=_(u'Equipamentos recebidos.')
+        help_text=_('Equipamentos recebidos.')
     )
     data_devolucao_via = models.DateField(
-        _(u'data de devolução da via'),
+        _('data de devolução da via'),
         null=True,
         blank=True,
-        help_text=_(u'Data de devolução da via do convênio à Câmara Municipal.')
+        help_text=_('Data de devolução da via do convênio à Câmara Municipal.')
     )
     data_postagem_correio = models.DateField(
-        _(u'data postagem correio'),
+        _('data postagem correio'),
         null=True,
         blank=True,
     )
     data_devolucao_sem_assinatura = models.DateField(
-        _(u'data de devolução por falta de assinatura'),
+        _('data de devolução por falta de assinatura'),
         null=True,
         blank=True,
-        help_text=_(u'Data de devolução por falta de assinatura'),
+        help_text=_('Data de devolução por falta de assinatura'),
     )
     data_retorno_sem_assinatura = models.DateField(
-        _(u'data do retorno sem assinatura'),
+        _('data do retorno sem assinatura'),
         null=True,
         blank=True,
-        help_text=_(u'Data do retorno do convênio sem assinatura'),
+        help_text=_('Data do retorno do convênio sem assinatura'),
     )
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
     atualizacao_gescon = models.DateTimeField(
-        _(u"Data de atualização pelo Gescon"),
+        _("Data de atualização pelo Gescon"),
         blank=True,
         null=True
     )
     observacao_gescon = models.TextField(
-        _(u"Observações da atualização do Gescon"),
+        _("Observações da atualização do Gescon"),
         blank=True
     )
 
     def get_status(self):
         if self.status and self.status.cancela:
-            return _(u"Cancelado")
+            return _("Cancelado")
 
         if self.data_retorno_assinatura is not None:
             if self.data_termino_vigencia is not None:
                 if date.today() >= self.data_termino_vigencia:
-                    return _(u"Vencido")
-            return _(u"Vigente")
+                    return _("Vencido")
+            return _("Vigente")
 
         if (self.data_retorno_assinatura is None and
             self.data_devolucao_sem_assinatura is None and
             self.data_retorno_sem_assinatura is None):
-            return _(u"Pendente")
+            return _("Pendente")
         if (self.data_devolucao_sem_assinatura is not None or
             self.data_retorno_sem_assinatura is not None):
-            return _(u"Desistência")
+            return _("Desistência")
 
-        return _(u"Indefinido")
+        return _("Indefinido")
 
     def link_sigad(self, obj):
         if obj.pk is None:
@@ -250,43 +250,43 @@ class Convenio(models.Model):
     class Meta:
         get_latest_by = 'id'
         ordering = ('id',)
-        verbose_name = _(u'convênio')
+        verbose_name = _('convênio')
 
     def __unicode__(self):
         # if self.data_retorno_assinatura is not None:
-        #     return _(u"Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
+        #     return _("Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
         #         number=self.num_convenio,
         #         project=self.projeto.sigla,
         #         date=self.data_retorno_assinatura,
         #         status=self.get_status()))
         # else:
-        #     return _(u"Adesão ao projeto %(project)s, em %(date)s") % dict(
+        #     return _("Adesão ao projeto %(project)s, em %(date)s") % dict(
         #         project=self.projeto.sigla,
         #         date=self.data_adesao)
 
         if ((self.data_retorno_assinatura is None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"{project} nº {number} - equipada em {date}"
+            return _("{project} nº {number} - equipada em {date}"
                      ).format(number=self.num_convenio,
                               date=self.data_termo_aceite.strftime('%d/%m/%Y'),
                               project=self.projeto.sigla)
         elif self.data_retorno_assinatura is None:
-            return _(u"{project}, nº {number}, início "
-                     u"em {date}").format(number=self.num_convenio,
+            return _("{project}, nº {number}, início "
+                     "em {date}").format(number=self.num_convenio,
                                           project=self.projeto.sigla,
                                           date=self.data_adesao)
         if ((self.data_retorno_assinatura is not None) and not
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"{project}, nº {number}, inicio em "
-                     u"{date}. Status: {status}").format(
+            return _("{project}, nº {number}, inicio em "
+                     "{date}. Status: {status}").format(
                          number=self.num_convenio,
                          project=self.projeto.sigla,
                          date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
                          status=self.get_status())
         if ((self.data_retorno_assinatura is not None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _(u"{project}, nº {number}, início em {date}"
-                     u" e equipada em {equipped_date}. Status: {status}"
+            return _("{project}, nº {number}, início em {date}"
+                     " e equipada em {equipped_date}. Status: {status}"
                      ).format(number=self.num_convenio,
                               project=self.projeto.sigla,
                               date=self.data_retorno_assinatura.strftime(
@@ -304,7 +304,7 @@ class EquipamentoPrevisto(models.Model):
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
-        verbose_name=_(u'convênio')
+        verbose_name=_('convênio')
     )
     equipamento = models.ForeignKey(
         'inventario.Equipamento',
@@ -313,11 +313,11 @@ class EquipamentoPrevisto(models.Model):
     quantidade = models.PositiveSmallIntegerField(default=1)
 
     class Meta:
-        verbose_name = _(u'equipamento previsto')
-        verbose_name_plural = _(u'equipamentos previstos')
+        verbose_name = _('equipamento previsto')
+        verbose_name_plural = _('equipamentos previstos')
 
     def __unicode__(self):
-        return u'%s %s(s)' % (self.quantidade, self.equipamento)
+        return '%s %s(s)' % (self.quantidade, self.equipamento)
 
 
 class Anexo(models.Model):
@@ -328,13 +328,13 @@ class Anexo(models.Model):
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
-        verbose_name=_(u'convênio')
+        verbose_name=_('convênio')
     )
     # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_(u'descrição'), max_length='70')
+    descricao = models.CharField(_('descrição'), max_length='70')
     data_pub = models.DateTimeField(
-        _(u'data da publicação do anexo'),
+        _('data da publicação do anexo'),
         default=datetime.now
     )
 
@@ -366,74 +366,74 @@ class Tramitacao(models.Model):
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
-        verbose_name=_(u'convênio')
+        verbose_name=_('convênio')
     )
     unid_admin = models.ForeignKey(
         UnidadeAdministrativa,
         on_delete=models.PROTECT,
-        verbose_name=_(u'Unidade Administrativa')
+        verbose_name=_('Unidade Administrativa')
     )
     data = models.DateField()
     observacao = models.CharField(
-        _(u'observação'),
+        _('observação'),
         max_length='512',
         null=True,
         blank=True,
     )
 
     class Meta:
-        verbose_name_plural = _(u'Tramitações')
+        verbose_name_plural = _('Tramitações')
 
     def __unicode__(self):
-        in_date = _(u"em %(date)s") % dict(date=self.data)  # for focused translation
-        result = u"%s %s" % (self.unid_admin, in_date)
+        in_date = _("em %(date)s") % dict(date=self.data)  # for focused translation
+        result = "%s %s" % (self.unid_admin, in_date)
         if self.observacao:
-            result = result + u" (%s)" % (self.observacao)
+            result = result + " (%s)" % (self.observacao)
         return unicode(result)  # XXX is this unicode(...) really necessary???
 
 class Gescon(models.Model):
     url_gescon = models.URLField(
-        _(u"Webservice Gescon"),
-        default=(u"https://adm.senado.gov.br/gestao-contratos/api/contratos"
-                 u"/busca?especie={s}"),
-        help_text=_(u"Informe o ponto de consulta do webservice do Gescon, "
-                    u"inclusive com a querystring. No ponto onde deve ser "
-                    u"inserida a sigla da subespecie do contrato, use a "
-                    u"marcação {s}.<br/><strong>Por exemplo:</strong> "
-                    u"https://adm.senado.gov.br/gestao-contratos/api/contratos"
-                    u"/busca?especie=<strong>{s}</strong>")
+        _("Webservice Gescon"),
+        default=("https://adm.senado.gov.br/gestao-contratos/api/contratos"
+                 "/busca?especie={s}"),
+        help_text=_("Informe o ponto de consulta do webservice do Gescon, "
+                    "inclusive com a querystring. No ponto onde deve ser "
+                    "inserida a sigla da subespecie do contrato, use a "
+                    "marcação {s}.<br/><strong>Por exemplo:</strong> "
+                    "https://adm.senado.gov.br/gestao-contratos/api/contratos"
+                    "/busca?especie=<strong>{s}</strong>")
     )
     subespecies = models.TextField(
-        _(u"Subespécies"),
-        default=u"AC=ACT\nPI=PI\nCN=PML\nTA=PML",
-        help_text=_(u"Informe as siglas das subespécies de contratos que "
-                     u"devem ser pesquisados no Gescon com a sigla "
-                     u"correspondente do projeto no SIGI. Coloque um par de "
-                     u"siglas por linha, no formato SIGLA_GESTON=SIGLA_SIGI. "
-                     u"As siglas não encontradas serão ignoradas.")
+        _("Subespécies"),
+        default="AC=ACT\nPI=PI\nCN=PML\nTA=PML",
+        help_text=_("Informe as siglas das subespécies de contratos que "
+                     "devem ser pesquisados no Gescon com a sigla "
+                     "correspondente do projeto no SIGI. Coloque um par de "
+                     "siglas por linha, no formato SIGLA_GESTON=SIGLA_SIGI. "
+                     "As siglas não encontradas serão ignoradas.")
     )
     palavras = models.TextField(
-        _(u"Palavras de filtro"),
-        default=u"ILB\nINTERLEGIS",
-        help_text=_(u"Palavras que devem aparecer no campo OBJETO dos dados do "
-                    u"Gescon para identificar se o contrato pertence ao ILB. "
-                    u"<ul><li>Informe uma palavra por linha.</li>"
-                    u"<li>Ocorrendo qualquer uma das palavras, o contrato será "
-                    u"importado.</li></ul>")
+        _("Palavras de filtro"),
+        default="ILB\nINTERLEGIS",
+        help_text=_("Palavras que devem aparecer no campo OBJETO dos dados do "
+                    "Gescon para identificar se o contrato pertence ao ILB. "
+                    "<ul><li>Informe uma palavra por linha.</li>"
+                    "<li>Ocorrendo qualquer uma das palavras, o contrato será "
+                    "importado.</li></ul>")
     )
     email = models.EmailField(
-        _(u"E-mail"),
-        help_text=_(u"Caixa de e-mail para onde o relatório diário de "
-                    u"importação será enviado.")
+        _("E-mail"),
+        help_text=_("Caixa de e-mail para onde o relatório diário de "
+                    "importação será enviado.")
     )
     ultima_importacao = models.TextField(
-        _(u"Resultado da última importação"),
+        _("Resultado da última importação"),
         blank=True
     )
 
     class Meta:
-        verbose_name = _(u"Configuração do Gescon")
-        verbose_name_plural = _(u"Configurações do Gescon")
+        verbose_name = _("Configuração do Gescon")
+        verbose_name_plural = _("Configurações do Gescon")
 
     def __unicode__(self):
         return self.url_gescon
@@ -454,43 +454,43 @@ class Gescon(models.Model):
     def email_report(self):
         if self.email:
             send_mail(
-                subject=_(u"Relatório de importação GESCON"),
+                subject=_("Relatório de importação GESCON"),
                 message=self.ultima_importacao,
                 recipient_list=self.email,
                 fail_silently=True
             )
         else:
             self.ultima_importacao += _(
-                u"\n\n*Não foi definida uma caixa de e-mail nas configurações "
-                u"do Gescon*"
+                "\n\n*Não foi definida uma caixa de e-mail nas configurações "
+                "do Gescon*"
             )
             self.save()
 
     def importa_contratos(self):
         self.ultima_importacao = ""
         self.add_message(
-            _(u"Importação iniciada em {:%d/%m/%Y %H:%M:%S}\n"
-              u"==========================================\n").format(
+            _("Importação iniciada em {:%d/%m/%Y %H:%M:%S}\n"
+              "==========================================\n").format(
                 datetime.now()
             )
         )
 
         if self.palavras == "":
-            self.add_message(_(u"Nenhuma palavra de pesquisa definida - "
-                               u"processo abortado."), True)
+            self.add_message(_("Nenhuma palavra de pesquisa definida - "
+                               "processo abortado."), True)
             return
 
         if self.subespecies == "":
-            self.add_message(_(u"Nenhuma subespécie definida - processo "
-                               u"abortado."), True)
+            self.add_message(_("Nenhuma subespécie definida - processo "
+                               "abortado."), True)
             return
 
         if "{s}" not in self.url_gescon:
             self.add_message(
                 _(
-                    u"Falta a marcação {s} na URL para indicar o local onde "
-                    u"inserir a sigla da subespécia na consulta ao webservice "
-                    u"- processo abortado."
+                    "Falta a marcação {s} na URL para indicar o local onde "
+                    "inserir a sigla da subespécia na consulta ao webservice "
+                    "- processo abortado."
                 ),
                 True
             )
@@ -500,7 +500,7 @@ class Gescon(models.Model):
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
 
         for sigla_gescon, sigla_sigi in subespecies:
-            self.add_message(_(u"\nImportando subespécie {s}".format(
+            self.add_message(_("\nImportando subespécie {s}".format(
                 s=sigla_gescon)))
             url = self.url_gescon.format(s=sigla_gescon)
 
@@ -510,7 +510,7 @@ class Gescon(models.Model):
                 response = requests.get(url, verify=False)
             except Exception as e:
                 self.add_message(
-                    _(u"\tErro ao acessar {url}: {errmsg}").format(
+                    _("\tErro ao acessar {url}: {errmsg}").format(
                         url=url,
                         errmsg=e.message.decode("utf8")
                     )
@@ -519,7 +519,7 @@ class Gescon(models.Model):
 
             if not response.ok:
                 self.add_message(
-                    _(u"\tErro ao acessar {url}: {reason}").format(
+                    _("\tErro ao acessar {url}: {reason}").format(
                         url=url,
                         reason=response.reason
                     )
@@ -527,8 +527,8 @@ class Gescon(models.Model):
                 continue
 
             if not 'application/json' in response.headers.get('Content-Type'):
-                self.add_message(_(u"\tResultado da consulta à {url} não "
-                                   u"retornou dados em formato json").format(
+                self.add_message(_("\tResultado da consulta à {url} não "
+                                   "retornou dados em formato json").format(
                                        url=url
                                    )
                 )
@@ -542,7 +542,7 @@ class Gescon(models.Model):
                       if any(palavra in c['objeto'] for palavra in palavras)]
 
             self.add_message(
-                _(u"\t{count} contratos encontrados no Gescon").format(
+                _("\t{count} contratos encontrados no Gescon").format(
                     count=len(nossos)
                 )
             )
@@ -570,7 +570,7 @@ class Gescon(models.Model):
 
                 if contrato['nomeFornecedor']:
                     nome = contrato['nomeFornecedor']
-                    nome = nome.replace(u'VEREADORES DE', '')
+                    nome = nome.replace('VEREADORES DE', '')
                     nome = nome.split('-')[0]
                     nome = nome.split('/')[0]
                     nome = nome.strip()
@@ -581,8 +581,8 @@ class Gescon(models.Model):
 
                 if (cnpj is None) and (nome is None):
                     self.add_message(
-                        _(u"\tO contrato {numero} no Gescon não informa o CNPJ "
-                          u"nem o nome do órgão.").format(numero=numero)
+                        _("\tO contrato {numero} no Gescon não informa o CNPJ "
+                          "nem o nome do órgão.").format(numero=numero)
                     )
                     erros += 1
                     continue
@@ -609,10 +609,10 @@ class Gescon(models.Model):
 
                 if orgao is None:
                     self.add_message(
-                        _(u"\tÓrgão não encontrado no SIGI ou mais de um órgão"
-                          u"encontrado com o mesmo CNPJ ou nome. Favor "
-                          u"regularizar o cadastro: CNPJ: {cnpj}, "
-                          u"Nome: {nome}".format(
+                        _("\tÓrgão não encontrado no SIGI ou mais de um órgão"
+                          "encontrado com o mesmo CNPJ ou nome. Favor "
+                          "regularizar o cadastro: CNPJ: {cnpj}, "
+                          "Nome: {nome}".format(
                               cnpj=contrato['cnpjCpfFornecedor'],
                               nome=contrato['nomeFornecedor']
                           )
@@ -656,8 +656,8 @@ class Gescon(models.Model):
                         data_termino_vigencia=contrato['terminoVigencia'],
                         data_pub_diario=contrato['publicacao'],
                         atualizacao_gescon=datetime.now(),
-                        observacao_gescon=_(u"Importado integralmente do"
-                                            u"Gescon")
+                        observacao_gescon=_("Importado integralmente do"
+                                            "Gescon")
                     )
                     convenio.save()
                     novos += 1
@@ -668,8 +668,8 @@ class Gescon(models.Model):
                     convenio.observacao_gescon = ''
                     if convenio.casa_legislativa != orgao:
                         self.add_message(
-                            _(u"\tO órgao no convênio {url} diverge do que "
-                              u"consta no Gescon ({cnpj}, {nome})").format(
+                            _("\tO órgao no convênio {url} diverge do que "
+                              "consta no Gescon ({cnpj}, {nome})").format(
                                   url=reverse('admin:%s_%s_change' % (
                                       convenio._meta.app_label,
                                       convenio._meta.model_name),
@@ -679,7 +679,7 @@ class Gescon(models.Model):
                               )
                         )
                         convenio.observacao_gescon = _(
-                            u'ERRO: Órgão diverge do Gescon. Não atualizado!'
+                            'ERRO: Órgão diverge do Gescon. Não atualizado!'
                         )
                         convenio.save()
                         erros += 1
@@ -687,10 +687,10 @@ class Gescon(models.Model):
 
                     if convenio.num_processo_sf != sigad:
                         self.add_message(
-                            _(u"\tO contrato Gescon nº {numero} corresponde"
-                              u" ao convênio SIGI {url}, mas o NUP sigad "
-                              u"diverge (Gescon: {sigad_gescon}, "
-                              u"SIGI: {sigad_sigi}). CORRIGIDO!").format(
+                            _("\tO contrato Gescon nº {numero} corresponde"
+                              " ao convênio SIGI {url}, mas o NUP sigad "
+                              "diverge (Gescon: {sigad_gescon}, "
+                              "SIGI: {sigad_sigi}). CORRIGIDO!").format(
                                   numero=numero,
                                   url=reverse('admin:%s_%s_change' % (
                                       convenio._meta.app_label,
@@ -702,16 +702,16 @@ class Gescon(models.Model):
                             )
                         convenio.num_processo_sf = sigad
                         convenio.observacao_gescon += _(
-                            u"Número do SIGAD atualizado.\n"
+                            "Número do SIGAD atualizado.\n"
                         )
                         alertas += 1
 
                     if convenio.num_convenio != numero:
                         self.add_message(
-                            _(u"\tO contrato Gescon ID {id} corresponde ao "
-                              u"convênio SIGI {url}, mas o número do convênio"
-                              u" diverge (Gescon: {numero_gescon}, SIGI: "
-                              u"{numero_sigi}). CORRIGIDO!").format(
+                            _("\tO contrato Gescon ID {id} corresponde ao "
+                              "convênio SIGI {url}, mas o número do convênio"
+                              " diverge (Gescon: {numero_gescon}, SIGI: "
+                              "{numero_sigi}). CORRIGIDO!").format(
                                   id=contrato['id'],
                                   url=reverse('admin:%s_%s_change' % (
                                       convenio._meta.app_label,
@@ -724,14 +724,14 @@ class Gescon(models.Model):
                         )
                         convenio.num_convenio = numero
                         convenio.observacao_gescon += _(
-                            u"Número do convênio atualizado.\n"
+                            "Número do convênio atualizado.\n"
                         )
                         alertas += 1
 
                     if contrato['objeto'] not in convenio.observacao:
                         convenio.observacao += "\n" + contrato['objeto']
                         convenio.observacao_gescon += _(
-                            u"Observação atualizada.\n"
+                            "Observação atualizada.\n"
                         )
 
                     convenio.data_sigad = contrato['assinatura']
@@ -753,10 +753,10 @@ class Gescon(models.Model):
                         convenio.save()
                     except Exception as e:
                         self.add_message(
-                            _(u"Ocorreu um erro ao salvar o convênio {url} no "
-                              u"SIGI. Alguma informação do Gescon pode ter "
-                              u"quebrado o sistema. Informe ao suporte. Erro:"
-                              u"{errmsg}").format(
+                            _("Ocorreu um erro ao salvar o convênio {url} no "
+                              "SIGI. Alguma informação do Gescon pode ter "
+                              "quebrado o sistema. Informe ao suporte. Erro:"
+                              "{errmsg}").format(
                                   url=reverse('admin:%s_%s_change' % (
                                       convenio._meta.app_label,
                                       convenio._meta.model_name),
@@ -770,10 +770,10 @@ class Gescon(models.Model):
 
                     atualizados += 1
                 else:
-                    self.add_message(_(u"\tExistem {count} convênios no SIGI "
-                                       u"que correspondem ao mesmo contrato no "
-                                       u"Gescon (contrato {numero}, sigad "
-                                       u"{sigad})").format(
+                    self.add_message(_("\tExistem {count} convênios no SIGI "
+                                       "que correspondem ao mesmo contrato no "
+                                       "Gescon (contrato {numero}, sigad "
+                                       "{sigad})").format(
                                            count=chk,
                                            numero=numero,
                                            sigad=sigad
@@ -783,9 +783,9 @@ class Gescon(models.Model):
                     continue
 
             self.add_message(
-                _(u"\t{novos} novos convenios adicionados ao SIGI, "
-                  u"{atualizados} atualizados, sendo {alertas} com alertas, e "
-                  u"{erros} reportados com erro.").format(
+                _("\t{novos} novos convenios adicionados ao SIGI, "
+                  "{atualizados} atualizados, sendo {alertas} com alertas, e "
+                  "{erros} reportados com erro.").format(
                       novos=novos,
                       atualizados=atualizados,
                       alertas=alertas,

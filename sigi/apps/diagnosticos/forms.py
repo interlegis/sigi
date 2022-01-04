@@ -115,7 +115,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                 defaults.update({'queryset': schema.get_choices(),
                                  'initial': choice.pk if choice else None,
                                  # if schema is required remove --------- from ui
-                                 'empty_label': None if schema.required else u"---------"})
+                                 'empty_label': None if schema.required else "---------"})
 
             extra = self.FIELD_EXTRA.get(datatype, {})
             extra.update(self.FIELD_WIDGET.get(schema.name, {}))
@@ -133,7 +133,7 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
 
 
 class OrgaoMobileForm(forms.ModelForm):
-    data_instalacao = forms.DateField(label=_(u'Data de instalação da Casa Legislativa'), required=False)
+    data_instalacao = forms.DateField(label=_('Data de instalação da Casa Legislativa'), required=False)
     data_criacao = forms.DateField()
 
     class Meta:
@@ -143,7 +143,7 @@ class OrgaoMobileForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(OrgaoMobileForm, self).__init__(*args, **kwargs)
         self.fields['data_criacao'] = forms.DateField(
-            label=_(u'Data de criação do Município'),
+            label=_('Data de criação do Município'),
             initial=self.instance.municipio.data_criacao,
             required=False)
 

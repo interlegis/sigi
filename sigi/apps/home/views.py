@@ -153,10 +153,10 @@ def chart_performance(request):
         'type': 'pie',
         'options': {'responsive': True},
         'data': [
-            {'label': _(u"Utilizam serviços"),
+            {'label': _("Utilizam serviços"),
              'value': casas.exclude(servico=None).count(),
              'color': '#91e8e1'},
-            {'label': _(u"Não utilizam serviços"),
+            {'label': _("Não utilizam serviços"),
              'value': casas.filter(servico=None).count(),
              'color': '#f7a35c'},
         ]
@@ -174,31 +174,31 @@ def report_sem_convenio(request):
 
     if modo == 'H':
         casas = sc['hospedagem']
-        titulo = _(u"Casas sem convenio que utilizam algum serviço de "
-                   u"hospedagem")
+        titulo = _("Casas sem convenio que utilizam algum serviço de "
+                   "hospedagem")
     elif modo == 'R':
         casas = sc['registro']
-        titulo = _(u"Casas sem convenio que utilizam somente serviço de "
-                   u"registro")
+        titulo = _("Casas sem convenio que utilizam somente serviço de "
+                   "registro")
     else:
         casas = sc['total']
-        titulo = _(u"Casas sem convenio que utilizam algum serviço de registro "
-                   u"e/ou hospedagem")
+        titulo = _("Casas sem convenio que utilizam algum serviço de registro "
+                   "e/ou hospedagem")
 
     if fmt == 'csv':
         response = HttpResponse(content_type='text/csv')
         response['Content-Disposition'] = 'attachment; filename=casas.csv'
         writer = csv.writer(response)
         writer.writerow([titulo.encode('utf8')])
-        writer.writerow([u''])
-        writer.writerow([u'casa', u'uf', u'gerentes',
-                         u'serviços'.encode('utf8')])
+        writer.writerow([''])
+        writer.writerow(['casa', 'uf', 'gerentes',
+                         'serviços'.encode('utf8')])
         for casa in casas:
             writer.writerow([
                 casa.nome.encode('utf8'),
                 casa.municipio.uf.sigla.encode('utf8'),
                 casa.lista_gerentes(fmt='lista').encode('utf8'),
-                (u', '.join(casa.servico_set.filter(
+                (', '.join(casa.servico_set.filter(
                     data_desativacao__isnull=True).values_list(
                         'tipo_servico__nome', flat=True))).encode('utf8'),
             ])
@@ -273,14 +273,14 @@ def busca_informacoes_camara():
 
     # Cabecalho da esquerda na tabela
     cabecalho_esquerda = (
-        _(u'Câmaras municipais'),
-        _(u'Câmaras municipais não aderidas'),
-        _(u'Câmaras municipais aderidas'),
-        _(u'Câmaras municipais com convênios assinados'),
-        _(u'Câmaras municipais convênios em andamento'),
-        _(u'Câmaras municipais equipadas'),
-        _(u'Diagnósticos digitados'),
-        _(u'Diagnósticos publicados')
+        _('Câmaras municipais'),
+        _('Câmaras municipais não aderidas'),
+        _('Câmaras municipais aderidas'),
+        _('Câmaras municipais com convênios assinados'),
+        _('Câmaras municipais convênios em andamento'),
+        _('Câmaras municipais equipadas'),
+        _('Diagnósticos digitados'),
+        _('Diagnósticos publicados')
     )
 
     linhas = (
@@ -383,8 +383,8 @@ def busca_informacoes_seit(mes_atual=None):
 
 def busca_informacoes_diagnostico():
     return [
-        {'title': _(u'Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
-        {'title': _(u'Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
+        {'title': _('Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
+        {'title': _('Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
     ]
 
 

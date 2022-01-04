@@ -20,7 +20,7 @@ class EventoAdminForm(forms.ModelForm):
 
         if data_inicio > data_termino:
             raise forms.ValidationError(
-                _(u"Data término deve ser posterior à data inicio"),
+                _("Data término deve ser posterior à data inicio"),
                 code="invalid_period"
             )
 
@@ -28,5 +28,5 @@ class SelecionaModeloForm(forms.Form):
     modelo = forms.ModelChoiceField(
         queryset=ModeloDeclaracao.objects.all(),
         required=True,
-        label=_(u"Modelo de declaração"),
+        label=_("Modelo de declaração"),
     )

@@ -51,7 +51,7 @@ class PresidenteInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     max_num = 1
-    verbose_name_plural = _(u'Presidente')
+    verbose_name_plural = _('Presidente')
     def get_queryset(self, request):
         return (self.model.objects.exclude(desativado=True)
         .extra(select={'ult_null': 'ult_alteracao is null'})
@@ -69,7 +69,7 @@ class ContatoInterlegisInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
-    verbose_name_plural = _(u'Contato(s) Interlegis Vigente(s)')
+    verbose_name_plural = _('Contato(s) Interlegis Vigente(s)')
     def get_queryset(self, request):
         return (self.model.objects.filter(setor='contato_interlegis')
         .extra(select={'ult_null': 'ult_alteracao is null'}).order_by('-ult_alteracao')
@@ -101,7 +101,7 @@ class FuncionariosInline(admin.StackedInline):
     readonly_fields = ('ult_alteracao',)
     extra = 1
     inlines = (TelefonesInline,)
-    verbose_name_plural = _(u'Outros Contatos da Casa')
+    verbose_name_plural = _('Outros Contatos da Casa')
 
     def get_queryset(self, request):
         return (self.model.objects.exclude(cargo='Presidente',)
@@ -138,18 +138,18 @@ class ConveniosInline(admin.TabularInline):
 #     def get_tramitacoes(self, obj):
 #         return '<br/>'.join([t.__unicode__() for t in obj.tramitacao_set.all()])
 #
-#     get_tramitacoes.short_description = _(u'Tramitações')
+#     get_tramitacoes.short_description = _('Tramitações')
 #     get_tramitacoes.allow_tags = True
 #
     def get_anexos(self, obj):
         return '<br/>'.join(['<a href="%s" target="_blank">%s</a>' % (a.arquivo.url, a.__unicode__()) for a in obj.anexo_set.all()])
-    get_anexos.short_description = _(u'Anexos')
+    get_anexos.short_description = _('Anexos')
     get_anexos.allow_tags = True
 #
 #     def get_equipamentos(self, obj):
 #         return '<br/>'.join([e.__unicode__() for e in obj.equipamentoprevisto_set.all()])
 #
-#     get_equipamentos.short_description = _(u'Equipamentos previstos')
+#     get_equipamentos.short_description = _('Equipamentos previstos')
 #     get_equipamentos.allow_tags = True
 
     def status_convenio(self, obj):
@@ -157,17 +157,17 @@ class ConveniosInline(admin.TabularInline):
             return ""
         status = obj.get_status()
 
-        if status in [u"Vencido", u"Desistência", u"Cancelado"]:
+        if status in ["Vencido", "Desistência", "Cancelado"]:
             label = r"danger"
-        elif status == u"Vigente":
+        elif status == "Vigente":
             label = r"success"
-        elif status == u"Pendente":
+        elif status == "Pendente":
             label = r"warning"
         else:
             label = r"info"
 
-        return u'<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
-    status_convenio.short_description = _(u"Status do convênio")
+        return '<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
+    status_convenio.short_description = _("Status do convênio")
     status_convenio.allow_tags = True
 
 
@@ -181,7 +181,7 @@ class ConveniosInline(admin.TabularInline):
             Editar
           </a>""" % (obj.pk, obj.pk, url)
 
-    link_convenio.short_description = _(u'Editar convenio')
+    link_convenio.short_description = _('Editar convenio')
     link_convenio.allow_tags = True
 
     def link_sigad(self, obj):
@@ -208,7 +208,7 @@ class ConveniosInline(admin.TabularInline):
 #             Editar
 #           </a>""" % (obj.pk, obj.pk, url)
 
-#     link_parlamentares.short_description = _(u'Parlamentares')
+#     link_parlamentares.short_description = _('Parlamentares')
 #     link_parlamentares.allow_tags = True
 
 # class DiagnosticoInline(admin.TabularInline):
@@ -228,7 +228,7 @@ class ConveniosInline(admin.TabularInline):
 #             Abrir PDF
 #           </a>""" % (obj.pk, obj.pk, url)
 
-#     link_diagnostico.short_description = _(u'Ver PDF')
+#     link_diagnostico.short_description = _('Ver PDF')
 #     link_diagnostico.allow_tags = True
 
 # class BemInline(admin.TabularInline):
@@ -249,8 +249,8 @@ class ServicoInline(admin.TabularInline):
     def link_url(self, servico):
         if servico.data_desativacao is not None:
             return servico.url
-        return u'<a href="{url}" target="_blank">{url}</a>'.format(url=servico.url)
-    link_url.short_description = _(u'URL do serviço')
+        return '<a href="{url}" target="_blank">{url}</a>'.format(url=servico.url)
+    link_url.short_description = _('URL do serviço')
     link_url.allow_tags = True
 
     ordering = ('-data_alteracao',)
@@ -265,7 +265,7 @@ class ServicoInline(admin.TabularInline):
             Editar
           </a>""" % (obj.pk, obj.pk, url)
 
-    link_servico.short_description = _(u'Editar Serviço')
+    link_servico.short_description = _('Editar Serviço')
     link_servico.allow_tags = True
 
     def has_add_permission(self, request):
@@ -289,11 +289,11 @@ class OcorrenciaInline(admin.TabularInline):
         if obj.pk is None:
             return ""
         url = reverse('admin:%s_%s_change' % (obj._meta.app_label, obj._meta.module_name), args=[obj.pk])
-        return u"""<input id="edit_ocorrencia-%s" type="hidden"/>
+        return """<input id="edit_ocorrencia-%s" type="hidden"/>
         <a id="lookup_edit_ocorrencia-%s" href="%s" class="button" target="_blank"
-          onclick="return showRelatedObjectLookupPopup(this);">%s</a>""" % (obj.pk, obj.pk, url, _(u'Editar'))
+          onclick="return showRelatedObjectLookupPopup(this);">%s</a>""" % (obj.pk, obj.pk, url, _('Editar'))
 
-    link_editar.short_description = _(u'Editar')
+    link_editar.short_description = _('Editar')
     link_editar.allow_tags = True
 
 
@@ -306,13 +306,13 @@ class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
 
 
 class ConvenioFilter(admin.SimpleListFilter):
-    title = _(u"Tipo de convênio")
+    title = _("Tipo de convênio")
     parameter_name = 'convenio'
 
     def lookups(self, request, model_admin):
         return (
-            ('SC', _(u"Sem nenhum convênio")),
-            ('CC', _(u"Com algum convênio")),
+            ('SC', _("Sem nenhum convênio")),
+            ('CC', _("Com algum convênio")),
         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
     def queryset(self, request, queryset):
@@ -327,7 +327,7 @@ class ConvenioFilter(admin.SimpleListFilter):
         return queryset.distinct('municipio__uf__nome', 'nome')
 
 class ExcluirConvenioFilter(admin.SimpleListFilter):
-    title=_(u"Excluir convênio da pesquisa")
+    title=_("Excluir convênio da pesquisa")
     parameter_name = 'excluir_convenio'
 
     def lookups(self, request, model_admin):
@@ -341,15 +341,15 @@ class ExcluirConvenioFilter(admin.SimpleListFilter):
         return queryset
 
 class ServicoFilter(admin.SimpleListFilter):
-    title = _(u"Serviço")
+    title = _("Serviço")
     parameter_name = 'servico'
 
     def lookups(self, request, model_admin):
         return (
-            ('SS', _(u"Sem nenhum serviço")),
-            ('CS', _(u"Com algum serviço")),
-            ('CH', _(u"Com algum serviço de hospedagem")),
-            ('CR', _(u"Apenas serviço de registro")),
+            ('SS', _("Sem nenhum serviço")),
+            ('CS', _("Com algum serviço")),
+            ('CH', _("Com algum serviço de hospedagem")),
+            ('CR', _("Apenas serviço de registro")),
         ) + tuple([(p.pk, p.nome) for p in TipoServico.objects.all()])
 
     def queryset(self, request, queryset):
@@ -375,13 +375,13 @@ class ServicoFilter(admin.SimpleListFilter):
         return queryset.distinct('municipio__uf__nome', 'nome')
 
 class ServicoAtivoFilter(admin.SimpleListFilter):
-    title = _(u"Serviço ativo")
+    title = _("Serviço ativo")
     parameter_name = 'ativo'
 
     def lookups(self, request, model_admin):
         return (
-            ('ativo', _(u"Ativo")),
-            ('desativado', _(u"Desativado")),
+            ('ativo', _("Ativo")),
+            ('desativado', _("Desativado")),
         )
 
     def queryset(self, request, queryset):
@@ -410,15 +410,15 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
             'fields': ('tipo', 'nome', 'sigla', 'cnpj', 'num_parlamentares',
                        'gerentes_interlegis')
         }),
-        (_(u'Endereço'), {
+        (_('Endereço'), {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
                        'municipio', 'cep', 'ult_alt_endereco'),
         }),
-        (_(u'Presença na Internet'), {
+        (_('Presença na Internet'), {
             'fields': ('inclusao_digital', 'data_levantamento', 'pesquisador',
                        'pagina_web', 'email', 'obs_pesquisa',)
         }),
-        (_(u'Outras informações'), {
+        (_('Outras informações'), {
             'fields': ('observacoes', 'horario_funcionamento', 'foto',
                        'recorte'),
         }),
@@ -431,26 +431,26 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.municipio.uf.nome
-    get_uf.short_description = _(u'Unidade da Federação')
+    get_uf.short_description = _('Unidade da Federação')
     get_uf.admin_order_field = 'municipio__uf__nome'
 
     def get_gerentes(self, obj):
         return obj.lista_gerentes()
-    get_gerentes.short_description = _(u'Gerente Interlegis')
+    get_gerentes.short_description = _('Gerente Interlegis')
     get_gerentes.allow_tags = True
 
     def get_convenios(self, obj):
         return '<ul>' + ''.join(['<li>%s</li>' % c.__unicode__()
                                  for c in obj.convenio_set.all()]) + '</ul>'
-    get_convenios.short_description = _(u'Convênios')
+    get_convenios.short_description = _('Convênios')
     get_convenios.allow_tags = True
 
     def get_servicos(self, obj):
-        return u'<ul>' + u''.join(
-            [u'<li><a href="{url}" target="_blank">{servico}</a></li>'.format(
+        return '<ul>' + ''.join(
+            ['<li><a href="{url}" target="_blank">{servico}</a></li>'.format(
                 url=s.url, servico=s.__unicode__()) for s in
-             obj.servico_set.filter(data_desativacao__isnull=True)]) + u'</ul>'
-    get_servicos.short_description = _(u'Serviços')
+             obj.servico_set.filter(data_desativacao__isnull=True)]) + '</ul>'
+    get_servicos.short_description = _('Serviços')
     get_servicos.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
@@ -468,29 +468,29 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
 
     def etiqueta(self, request, queryset):
         return labels_report(request, queryset=queryset)
-    etiqueta.short_description = _(u"Gerar etiqueta(s) da(s) casa(s) "
-                                   u"selecionada(s)")
+    etiqueta.short_description = _("Gerar etiqueta(s) da(s) casa(s) "
+                                   "selecionada(s)")
 
     def etiqueta_sem_presidente(self, request, queryset):
         return labels_report_sem_presidente(request, queryset=queryset)
-    etiqueta_sem_presidente.short_description = _(u"Gerar etiqueta(s) sem "
-                                                  u"presidente da(s) casa(s) "
-                                                  u"selecionada(s)")
+    etiqueta_sem_presidente.short_description = _("Gerar etiqueta(s) sem "
+                                                  "presidente da(s) casa(s) "
+                                                  "selecionada(s)")
 
     def relatorio(self, request, queryset):
         return report(request, queryset=queryset)
-    relatorio.short_description = _(u"Exportar a(s) casa(s) selecionada(s) "
-                                    u"para PDF")
+    relatorio.short_description = _("Exportar a(s) casa(s) selecionada(s) "
+                                    "para PDF")
 
     def relatorio_completo(self, request, queryset):
         return report_complete(request, queryset=queryset)
-    relatorio_completo.short_description = _(u"Gerar relatório completo da(s) "
-                                             u"casa(s) selecionada(s)")
+    relatorio_completo.short_description = _("Gerar relatório completo da(s) "
+                                             "casa(s) selecionada(s)")
 
     def relatorio_csv(self, request, queryset):
         return export_csv(request)
-    relatorio_csv.short_description = _(u"Exportar casa(s) selecionada(s) "
-                                        u"para CSV")
+    relatorio_csv.short_description = _("Exportar casa(s) selecionada(s) "
+                                        "para CSV")
 
     def adicionar_casas(self, request, queryset):
         if 'carrinho_casas' in request.session:
@@ -503,14 +503,14 @@ class OrgaoAdmin(ImageCroppingMixin, BaseModelAdmin):
         quant = q2 - q1
         if quant:
             self.message_user(request, str(q2 - q1) + " " +
-                              _(u"Casas Legislativas adicionadas no carrinho"))
+                              _("Casas Legislativas adicionadas no carrinho"))
         else:
-            self.message_user(request, _(u"As Casas Legislativas selecionadas "
-                                         u"já foram adicionadas anteriormente"))
+            self.message_user(request, _("As Casas Legislativas selecionadas "
+                                         "já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
 
-    adicionar_casas.short_description = _(u"Armazenar casas no carrinho para "
-                                          u"exportar")
+    adicionar_casas.short_description = _("Armazenar casas no carrinho para "
+                                          "exportar")
 
     def get_actions(self, request):
         actions = super(OrgaoAdmin, self).get_actions(request)

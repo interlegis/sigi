@@ -21,14 +21,14 @@ def publicar_diagnostico(self, request, queryset):
         email = diagnostico.responsavel.user.email
         if email:
             diagnostico.email_diagnostico_publicado(email, request.get_host())
-    self.message_user(request, _(u"Diagnóstico(s) publicado(s) com sucesso!"))
-publicar_diagnostico.short_description = _(u"""
+    self.message_user(request, _("Diagnóstico(s) publicado(s) com sucesso!"))
+publicar_diagnostico.short_description = _("""
     Definir diagnósticos como publicado""")
 
 
 def despublicar_diagnostico(self, request, queryset):
     queryset.update(publicado=False)
-despublicar_diagnostico.short_description = _(u"""
+despublicar_diagnostico.short_description = _("""
     Definir diagnósticos como não publicado""")
 
 
@@ -62,9 +62,9 @@ class DiagnosticoAdmin(BaseEntityAdmin):
     ordering = ('casa_legislativa',)
 
     eav_fieldsets = (
-        (u'00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
-        (u'01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
-        (u'02. Identificação de Competências da Casa Legislativa', {'fields': ()})
+        ('00. Identificação do Diagnóstico', {'fields': ('responsavel', 'data_visita_inicio', 'data_visita_fim',)}),
+        ('01. Identificação da Casa Legislativa', {'fields': ('casa_legislativa',)}),
+        ('02. Identificação de Competências da Casa Legislativa', {'fields': ()})
     )
 
     # popula o eav fieldsets ordenando as categorias e as perguntas
@@ -86,7 +86,7 @@ class DiagnosticoAdmin(BaseEntityAdmin):
 
     def get_uf(self, obj):
         return '%s' % (obj.casa_legislativa.municipio.uf)
-    get_uf.short_description = _(u'UF')
+    get_uf.short_description = _('UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
 
     def lookup_allowed(self, lookup, value):
@@ -128,7 +128,7 @@ class EscolhaInline(admin.TabularInline):
     model = Escolha
     fk_name = 'schema'
     raw_id_fields = ('schema_to_open',)
-    verbose_name = _(u'Escolhas (apenas para choices ou multiple choices)')
+    verbose_name = _('Escolhas (apenas para choices ou multiple choices)')
     extra = 0
 
 

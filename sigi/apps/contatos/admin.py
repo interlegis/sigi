@@ -44,7 +44,7 @@ class MunicipioAdmin(BaseModelAdmin):
             'fields': ('codigo_ibge', 'codigo_tse', 'nome', 'data_criacao', 'uf', 'microrregiao',
                        'is_capital', 'populacao', 'is_polo', 'idh', 'pib_ano', 'pib_total', 'pib_percapita')
         }),
-        (_(u'Posição geográfica'), {
+        (_('Posição geográfica'), {
             'fields': ('latitude', 'longitude'),
         }),
     )

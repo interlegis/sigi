@@ -80,13 +80,13 @@ class EventoAdmin(admin.ModelAdmin):
         quant = q2 - q1
         if quant:
             self.message_user(request, str(q2 - q1) + " " +
-                              _(u"Eventos adicionados no carrinho"))
+                              _("Eventos adicionados no carrinho"))
         else:
-            self.message_user(request, _(u"Os Eventos selecionados "
-                                         u"já foram adicionados anteriormente"))
+            self.message_user(request, _("Os Eventos selecionados "
+                                         "já foram adicionados anteriormente"))
         return HttpResponseRedirect('.')
-    adicionar_eventos.short_description = _(u"Armazenar eventos no carrinho "
-                                            u"para exportar")
+    adicionar_eventos.short_description = _("Armazenar eventos no carrinho "
+                                            "para exportar")
 
     def lookup_allowed(self, lookup, value):
         return (super(EventoAdmin, self).lookup_allowed(lookup, value) or

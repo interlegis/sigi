@@ -85,7 +85,7 @@ class ParlamentaresLabels(Report):
 
         my_elements = [
             Label(
-                text=_(u'A Sua Excelência o(a) Senhor(a)'),
+                text=_('A Sua Excelência o(a) Senhor(a)'),
                 top=(self.start + self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
             ),
             ObjectValue(
@@ -126,32 +126,32 @@ def logradouro_parlamentar(instance):
     try:
         return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.logradouro
     except:
-        return _(u"<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
+        return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def bairro_parlamentar(instance):
     try:
         return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.bairro
     except:
-        return _(u"<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
+        return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def municipio_parlamentar(instance):
     try:
         return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.municipio
     except:
-        return _(u"<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
+        return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def cep_parlamentar(instance):
     try:
         return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.cep
     except:
-        return _(u"<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
+        return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 class CasasLegislativasReport(ReportDefault):
-    title = _(u'Relatório de Casas Legislativas')
+    title = _('Relatório de Casas Legislativas')
     height = 80 * cm
     page_size = landscape(A4)
 
@@ -170,10 +170,10 @@ class CasasLegislativasReport(ReportDefault):
                   left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
                   width=3 * cm, height=3 * cm,
                   ),
-            Label(text=_(u"SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_("SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
                   ),
-            Label(text=_(u"SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
+            Label(text=_("SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
                   style={'fontName': 'Helvetica-Bold', 'fontSize': 13, 'alignment': TA_CENTER}
                   ),
             SystemField(
@@ -181,32 +181,32 @@ class CasasLegislativasReport(ReportDefault):
                 style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
             ),
             Label(
-                text=_(u"UF"),
+                text=_("UF"),
                 left=label_left[0] * cm,
                 top=label_top,
             ),
             Label(
-                text=_(u"Municipio"),
+                text=_("Municipio"),
                 left=label_left[1] * cm,
                 top=label_top,
             ),
             Label(
-                text=_(u"Presidente"),
+                text=_("Presidente"),
                 left=label_left[2] * cm,
                 top=label_top,
             ),
             Label(
-                text=_(u"Endereço"),
+                text=_("Endereço"),
                 left=label_left[3] * cm,
                 top=label_top,
             ),
             Label(
-                text=_(u"Endereço na Internet"),
+                text=_("Endereço na Internet"),
                 left=label_left[4] * cm,
                 top=label_top,
             ),
             Label(
-                text=_(u"Email"),
+                text=_("Email"),
                 left=label_left[5] * cm,
                 top=label_top,
             ),
@@ -269,7 +269,7 @@ def label_text(text):
 
 
 class InfoOrgao(ReportDefault):
-    title = _(u'Casa Legislativa')
+    title = _('Casa Legislativa')
 
     class band_summary(ReportBand):
         pass
@@ -278,7 +278,7 @@ class InfoOrgao(ReportDefault):
         height = 1 * cm
 
         elements = [
-            SystemField(expression=_(u'%(now:%d/%m/%Y)s às %(now:%H:%M)s'), top=0.3 * cm),
+            SystemField(expression=_('%(now:%d/%m/%Y)s às %(now:%H:%M)s'), top=0.3 * cm),
         ]
 
     class band_detail(ReportDefault.band_detail):
@@ -316,7 +316,7 @@ class InfoOrgao(ReportDefault):
         elements = [
 
             Label(
-                text=label_text(_(u"Tipo")),
+                text=label_text(_("Tipo")),
                 left=posicao_left[0] * cm,
                 top=posicao_top[0] * cm,
             ),
@@ -327,7 +327,7 @@ class InfoOrgao(ReportDefault):
                 width=6 * cm,
             ),
             Label(
-                text=label_text(_(u"Região")),
+                text=label_text(_("Região")),
                 left=posicao_left[2] * cm,
                 top=posicao_top[1] * cm,
             ),
@@ -336,11 +336,11 @@ class InfoOrgao(ReportDefault):
                 left=posicao_left[3] * cm,
                 top=posicao_top[1] * cm,
                 get_value=lambda instance:
-                {'SL': _(u'Sul'), 'SD': _(u'Sudeste'), 'CO': _(u'Centro-Oeste'), 'NE': _(u'Nordeste'), 'NO': _(u'Norte'), }
+                {'SL': _('Sul'), 'SD': _('Sudeste'), 'CO': _('Centro-Oeste'), 'NE': _('Nordeste'), 'NO': _('Norte'), }
                 [instance.municipio.uf.regiao]
             ),
             Label(
-                text=label_text(_(u"UF")),
+                text=label_text(_("UF")),
                 left=posicao_left[4] * cm,
                 top=posicao_top[2] * cm,
             ),
@@ -350,7 +350,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[2] * cm,
             ),
             Label(
-                text=label_text(_(u"Município")),
+                text=label_text(_("Município")),
                 left=posicao_left[6] * cm,
                 top=posicao_top[3] * cm,
             ),
@@ -362,7 +362,7 @@ class InfoOrgao(ReportDefault):
             ),
             # Linha 3
             Label(
-                text=label_text(_(u"Endereço")),
+                text=label_text(_("Endereço")),
                 left=posicao_left[8] * cm,
                 top=posicao_top[4] * cm,
             ),
@@ -373,7 +373,7 @@ class InfoOrgao(ReportDefault):
                 width=20 * cm,
             ),
             Label(
-                text=label_text(_(u"Bairro")),
+                text=label_text(_("Bairro")),
                 left=posicao_left[10] * cm,
                 top=posicao_top[5] * cm,
             ),
@@ -383,7 +383,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[5] * cm,
             ),
             Label(
-                text=label_text(_(u"CEP")),
+                text=label_text(_("CEP")),
                 left=posicao_left[12] * cm,
                 top=posicao_top[6] * cm,
             ),
@@ -393,7 +393,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[6] * cm,
             ),
             Label(
-                text=label_text(_(u"CNPJ")),
+                text=label_text(_("CNPJ")),
                 left=posicao_left[14] * cm,
                 top=posicao_top[7] * cm,
             ),
@@ -403,7 +403,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[7] * cm,
             ),
             Label(
-                text=label_text(_(u"Telefone")),
+                text=label_text(_("Telefone")),
                 left=posicao_left[16] * cm,
                 top=posicao_top[8] * cm,
             ),
@@ -413,7 +413,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[8] * cm,
             ),
             Label(
-                text=label_text(_(u"Presidente")),
+                text=label_text(_("Presidente")),
                 left=posicao_left[18] * cm,
                 top=posicao_top[9] * cm,
             ),
@@ -442,14 +442,14 @@ class InfoOrgao(ReportDefault):
                 height=2.5 * cm,
                 elements=[
                     Label(
-                        text=_(u"Telefone(s)"),
+                        text=_("Telefone(s)"),
                         style={'fontSize': 14, 'alignment': TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_(u"Número"), left=tel_left[0] * cm, top=tel_top),
-                    Label(text=_(u"Tipo"), left=tel_left[1] * cm, top=tel_top),
-                    Label(text=_(u"Nota"), left=tel_left[2] * cm, top=tel_top),
+                    Label(text=_("Número"), left=tel_left[0] * cm, top=tel_top),
+                    Label(text=_("Tipo"), left=tel_left[1] * cm, top=tel_top),
+                    Label(text=_("Nota"), left=tel_left[2] * cm, top=tel_top),
                 ],
                 borders={'bottom': True},
             ),
@@ -460,7 +460,7 @@ class InfoOrgao(ReportDefault):
                     ObjectValue(attribute_name='__unicode__', left=tel_left[0] * cm),
                     ObjectValue(attribute_name='tipo', left=tel_left[1] * cm,
                                 get_value=lambda instance:
-                                {'F': _(u'Fixo'), 'M': _(u'Móvel'), 'X': _(u'Fax'), 'I': _(u'Indefinido')}[instance.tipo],
+                                {'F': _('Fixo'), 'M': _('Móvel'), 'X': _('Fax'), 'I': _('Indefinido')}[instance.tipo],
                                 ),
                     ObjectValue(attribute_name='nota', left=tel_left[2] * cm),
                 ],
@@ -475,14 +475,14 @@ class InfoOrgao(ReportDefault):
                 height=2.5 * cm,
                 elements=[
                     Label(
-                        text=_(u"Contato(s)"),
+                        text=_("Contato(s)"),
                         style={'fontSize': 14, 'alignment': TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_(u"Nome"), left=cont_left[0] * cm, top=cont_top),
-                    Label(text=_(u"Nota"), left=cont_left[1] * cm, top=cont_top),
-                    Label(text=_(u"E-mail"), left=cont_left[2] * cm, top=cont_top),
+                    Label(text=_("Nome"), left=cont_left[0] * cm, top=cont_top),
+                    Label(text=_("Nota"), left=cont_left[1] * cm, top=cont_top),
+                    Label(text=_("E-mail"), left=cont_left[2] * cm, top=cont_top),
                 ],
                 borders={'bottom': True, 'top': True},
             ),
@@ -505,18 +505,18 @@ class InfoOrgao(ReportDefault):
                 height=2.5 * cm,
                 elements=[
                     Label(
-                        text=_(u"Convênio(s)"),
+                        text=_("Convênio(s)"),
                         style={'fontSize': 14, 'alignment': TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_(u"Projeto"), left=convenio_left[0] * cm, top=convenio_top),
-                    Label(text=_(u"Nº Convenio"), left=convenio_left[1] * cm, top=convenio_top),
-                    Label(text=_(u"Nº Processo SF"), left=convenio_left[2] * cm, top=convenio_top),
-                    Label(text=_(u"Adesão"), left=convenio_left[3] * cm, top=convenio_top),
-                    Label(text=_(u"Convênio"), left=convenio_left[4] * cm, top=convenio_top),
-                    Label(text=_(u"Equipada"), left=convenio_left[5] * cm, top=convenio_top),
-                    Label(text=_(u"Data D.O."), left=convenio_left[6] * cm, top=convenio_top),
+                    Label(text=_("Projeto"), left=convenio_left[0] * cm, top=convenio_top),
+                    Label(text=_("Nº Convenio"), left=convenio_left[1] * cm, top=convenio_top),
+                    Label(text=_("Nº Processo SF"), left=convenio_left[2] * cm, top=convenio_top),
+                    Label(text=_("Adesão"), left=convenio_left[3] * cm, top=convenio_top),
+                    Label(text=_("Convênio"), left=convenio_left[4] * cm, top=convenio_top),
+                    Label(text=_("Equipada"), left=convenio_left[5] * cm, top=convenio_top),
+                    Label(text=_("Data D.O."), left=convenio_left[6] * cm, top=convenio_top),
                 ],
                 borders={'bottom': True}
             ),

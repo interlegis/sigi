@@ -122,18 +122,18 @@ def openmap(request):
                     'ult_alt_endereco': (casa.ult_alt_endereco.strftime(
                         "%d/%m/%Y").encode('utf8')
                                          if casa.ult_alt_endereco else ""),
-                    'telefones': u", ".join(casa.telefones.values_list('numero',
+                    'telefones': ", ".join(casa.telefones.values_list('numero',
                                                                       flat=True)
                                            ).encode('utf8'),
-                    'emails': u", ".join([casa.email] + list(
+                    'emails': ", ".join([casa.email] + list(
                         casa.funcionario_set.values_list('email',flat=True))
                                         ).encode('utf8'),
-                    'contatos': u", ".join(casa.funcionario_set.values_list(
+                    'contatos': ", ".join(casa.funcionario_set.values_list(
                         'nome', flat=True)).encode('utf8'),
-                    'convenios': u", ".join([c.__unicode__() for c in
+                    'convenios': ", ".join([c.__unicode__() for c in
                                             casa.convenio_set.all()]
                                            ).encode('utf8'),
-                    'servicos': u", ".join([u"{tipo} ({url})".format(
+                    'servicos': ", ".join(["{tipo} ({url})".format(
                         tipo=s.tipo_servico.nome, url=s.url)
                                            for s in casa.servico_set.all()]
                                           ).encode('utf8')

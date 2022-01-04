@@ -20,14 +20,14 @@ class TipoOrgao(models.Model):
     Câmara Distrital ou Legislativo Federal
     """
 
-    sigla = models.CharField(_(u"Sigla"), max_length=5)
-    nome = models.CharField(_(u"Nome"), max_length=100)
-    legislativo = models.BooleanField(_(u"Poder legislativo"), default=False)
+    sigla = models.CharField(_("Sigla"), max_length=5)
+    nome = models.CharField(_("Nome"), max_length=100)
+    legislativo = models.BooleanField(_("Poder legislativo"), default=False)
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _(u"Tipo de órgão")
-        verbose_name_plural = _(u"Tipos de órgão")
+        verbose_name = _("Tipo de órgão")
+        verbose_name_plural = _("Tipos de órgão")
 
     def __unicode__(self):
         return self.nome
@@ -37,19 +37,19 @@ class Orgao(models.Model):
     """
 
     INCLUSAO_DIGITAL_CHOICES = (
-        ('NAO PESQUISADO', _(u'Não pesquisado')),
-        ('NAO POSSUI PORTAL', _(u'Não possui portal')),
-        ('PORTAL MODELO', _(u'Possui Portal Modelo')),
-        ('OUTRO PORTAL', _(u'Possui outro portal')),
+        ('NAO PESQUISADO', _('Não pesquisado')),
+        ('NAO POSSUI PORTAL', _('Não possui portal')),
+        ('PORTAL MODELO', _('Possui Portal Modelo')),
+        ('OUTRO PORTAL', _('Possui outro portal')),
     )
 
     nome = models.CharField(
-        _(u"Nome"),
+        _("Nome"),
         max_length=60,
-        help_text=_(u'Exemplo: <em>Câmara Municipal de Pains</em>.')
+        help_text=_('Exemplo: <em>Câmara Municipal de Pains</em>.')
     )
     sigla = models.CharField(
-        _(u"sigla do órgão"),
+        _("sigla do órgão"),
         max_length=30,
         blank=True
     )
@@ -58,18 +58,18 @@ class Orgao(models.Model):
     tipo = models.ForeignKey(
         TipoOrgao,
         on_delete=models.PROTECT,
-        verbose_name=_(u"Tipo")
+        verbose_name=_("Tipo")
     )
-    cnpj = models.CharField(_(u"CNPJ"), max_length=32, blank=True)
-    observacoes = models.TextField(_(u'observações'), blank=True)
+    cnpj = models.CharField(_("CNPJ"), max_length=32, blank=True)
+    observacoes = models.TextField(_('observações'), blank=True)
     horario_funcionamento = models.CharField(
-        _(u"Horário de funcionamento da Casa Legislativa"),
+        _("Horário de funcionamento da Casa Legislativa"),
         max_length=100,
         blank=True,
     )
 #    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField(
-        _(u'Código Interlegis'),
+        _('Código Interlegis'),
         max_length=3,
         blank=True
     )
@@ -77,57 +77,57 @@ class Orgao(models.Model):
 
     gerentes_interlegis = models.ManyToManyField(
         Servidor,
-        verbose_name=_(u"Gerentes Interlegis"),
+        verbose_name=_("Gerentes Interlegis"),
         related_name='casas_que_gerencia',
         blank=True,
     )
 
     # Informações de contato
     logradouro = models.CharField(
-        _(u"Logradouro"),
+        _("Logradouro"),
         max_length=100,
-        help_text=_(u'Avenida, rua, praça, jardim, parque...')
+        help_text=_('Avenida, rua, praça, jardim, parque...')
     )
-    bairro = models.CharField(_(u"Bairro"), max_length=100, blank=True)
+    bairro = models.CharField(_("Bairro"), max_length=100, blank=True)
 
     municipio = models.ForeignKey(
         'contatos.Municipio',
         on_delete=models.PROTECT,
-        verbose_name=_(u'Município')
+        verbose_name=_('Município')
     )
     # municipio.uf_filter = True
 
-    cep = models.CharField(_(u"CEP"), max_length=32)
-    email = models.EmailField(_(u'E-mail'), max_length=128, blank=True)
+    cep = models.CharField(_("CEP"), max_length=32)
+    email = models.EmailField(_('E-mail'), max_length=128, blank=True)
     pagina_web = models.URLField(
-        _(u'Página web'),
-        help_text=_(u'Exemplo: <em>http://www.camarapains.mg.gov.br</em>.'),
+        _('Página web'),
+        help_text=_('Exemplo: <em>http://www.camarapains.mg.gov.br</em>.'),
         blank=True,
     )
     inclusao_digital = models.CharField(
-        _(u"Inclusão digital"),
+        _("Inclusão digital"),
         max_length=30,
         choices=INCLUSAO_DIGITAL_CHOICES,
         default=INCLUSAO_DIGITAL_CHOICES[0][0]
     )
     data_levantamento = models.DateTimeField(
-        _(u"Data/hora da pesquisa"),
+        _("Data/hora da pesquisa"),
         null=True,
         blank=True
     )
     pesquisador = models.ForeignKey(
         Servidor,
         on_delete=models.SET_NULL,
-        verbose_name=_(u"Pesquisador"),
+        verbose_name=_("Pesquisador"),
         null=True,
         blank=True
     )
     obs_pesquisa = models.TextField(
-        _(u"Observações do pesquisador"),
+        _("Observações do pesquisador"),
         blank=True
     )
     ult_alt_endereco = models.DateTimeField(
-        _(u'Última alteração do endereço'),
+        _('Última alteração do endereço'),
         null=True,
         blank=True,
         editable=True
@@ -135,7 +135,7 @@ class Orgao(models.Model):
     telefones = GenericRelation('contatos.Telefone')
 
     foto = models.ImageField(
-        _(u"Foto"),
+        _("Foto"),
         upload_to='imagens/casas',
         width_field='foto_largura',
         height_field='foto_altura',
@@ -145,25 +145,25 @@ class Orgao(models.Model):
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
     data_instalacao = models.DateField(
-        _(u'Data de instalação da Casa Legislativa'),
+        _('Data de instalação da Casa Legislativa'),
         null=True,
         blank=True
     )
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _(u'Órgão')
-        verbose_name_plural = _(u'Órgãos')
+        verbose_name = _('Órgão')
+        verbose_name_plural = _('Órgãos')
 
     def lista_gerentes(self, fmt='html'):
         if not self.gerentes_interlegis.exists():
             return ""
         if fmt == 'html':
-            return u"<ul><li>"+u"</li><li>".join(
+            return "<ul><li>"+"</li><li>".join(
                 [g.nome_completo for g in self.gerentes_interlegis.all()])+\
-                u"</li></ul>"
+                "</li></ul>"
         else:
-            return u", ".join([g.nome_completo for g in
+            return ", ".join([g.nome_completo for g in
                                self.gerentes_interlegis.all()])
 
     @property
@@ -275,7 +275,7 @@ class Orgao(models.Model):
 
             if Orgao.objects.filter(codigo_interlegis=codigo).count() > 0:
                 codigo_cons = cityName.replace('A', '').replace('E', '').\
-                    replace('I', '').replace('O', '').replace('U', '')[:3]
+                    replace('I', '').replace('O', '').replace('', '')[:3]
                 if len(codigo_cons) == 3 and \
                         Orgao.objects.filter(codigo_interlegis=codigo).count() > 0:
                     codigo = codigo_cons
@@ -325,7 +325,7 @@ class Orgao(models.Model):
                 tipo=self.tipo,
                 municipio=self.municipio).exclude(pk=self.pk).exists():
                 raise ValidationError(
-                    _(u"Já existe um(a) %(tipo)s em %(municipio)s"),
+                    _("Já existe um(a) %(tipo)s em %(municipio)s"),
                     code='integrity',
                     params={'tipo': self.tipo, 'municipio': self.municipio})
 
@@ -355,98 +355,98 @@ class Funcionario(models.Model):
     """
 
     SETOR_CHOICES = [
-        ("presidente", _(u"Presidente")),
-        ("contato_interlegis", _(u"Contato Interlegis")),
-        ("infraestrutura_fisica", _(u"Infraestrutura Física")),
-        ("estrutura_de_ti", _(u"Estrutura de TI")),
+        ("presidente", _("Presidente")),
+        ("contato_interlegis", _("Contato Interlegis")),
+        ("infraestrutura_fisica", _("Infraestrutura Física")),
+        ("estrutura_de_ti", _("Estrutura de TI")),
         ("organizacao_do_processo_legislativo",
-         _(u"Organização do Processo Legislativo")),
-        ("producao_legislativa", _(u"Produção Legislativa")),
+         _("Organização do Processo Legislativo")),
+        ("producao_legislativa", _("Produção Legislativa")),
         ("estrutura_de_comunicacao_social",
-         _(u"Estrutura de Comunicação Social")),
-        ("estrutura_de_recursos_humanos", _(u"Estrutura de Recursos Humanos")),
-        ("gestao", _(u"Gestão")),
-        ("outros", _(u"Outros")),
+         _("Estrutura de Comunicação Social")),
+        ("estrutura_de_recursos_humanos", _("Estrutura de Recursos Humanos")),
+        ("gestao", _("Gestão")),
+        ("outros", _("Outros")),
     ]
     SEXO_CHOICES = [
-        ("M", _(u"Masculino")),
-        ("F", _(u"Feminino"))
+        ("M", _("Masculino")),
+        ("F", _("Feminino"))
     ]
 
     casa_legislativa = models.ForeignKey(
         Orgao,
         on_delete=models.CASCADE,
-        verbose_name=_(u"órgão"),
+        verbose_name=_("órgão"),
     )
-    nome = models.CharField(_(u'nome completo'), max_length=60, blank=False)
+    nome = models.CharField(_('nome completo'), max_length=60, blank=False)
     # nome.alphabetic_filter = True
     sexo = models.CharField(
-        _(u"Sexo"),
+        _("Sexo"),
         max_length=1,
         choices=SEXO_CHOICES,
         default="M"
     )
     data_nascimento = models.DateField(
-        _(u"Data de nascimento"),
+        _("Data de nascimento"),
         blank=True,
         null=True
     )
     nota = models.CharField(
-        _(u"Telefones"),
+        _("Telefones"),
         max_length=250,
         null=True,
         blank=True
     )
-    email = models.CharField(_(u'e-mail'), max_length=250, blank=True)
+    email = models.CharField(_('e-mail'), max_length=250, blank=True)
     # endereco = generic.GenericRelation('contatos.Endereco')
-    endereco = models.CharField(_(u'Endereço'), max_length=100, blank=True)
+    endereco = models.CharField(_('Endereço'), max_length=100, blank=True)
     municipio = models.ForeignKey(
         Municipio,
         on_delete=models.SET_NULL,
-        verbose_name=_(u'Municipio'),
+        verbose_name=_('Municipio'),
         null=True,
         blank=True,
     )
-    bairro = models.CharField(_(u'Bairro'), max_length=100, blank=True)
-    cep = models.CharField(_(u'CEP'), max_length=10, blank=True)
+    bairro = models.CharField(_('Bairro'), max_length=100, blank=True)
+    cep = models.CharField(_('CEP'), max_length=10, blank=True)
     redes_sociais = models.TextField(
-        _(u'Redes sociais'),
-        help_text=_(u'Colocar um por linha'),
+        _('Redes sociais'),
+        help_text=_('Colocar um por linha'),
         blank=True
     )
-    cargo = models.CharField(_(u"Cargo"), max_length=100, null=True, blank=True)
+    cargo = models.CharField(_("Cargo"), max_length=100, null=True, blank=True)
     funcao = models.CharField(
-        _(u'função'),
+        _('função'),
         max_length=100,
         null=True,
         blank=True
     )
     setor = models.CharField(
-        _(u"Setor"),
+        _("Setor"),
         max_length=100,
         choices=SETOR_CHOICES,
         default="outros"
     )
     tempo_de_servico = models.CharField(
-        _(u'Tempo de serviço'),
+        _('Tempo de serviço'),
         max_length=50,
         null=True,
         blank=True
     )
     ult_alteracao = models.DateTimeField(
-        _(u'Última alteração'),
+        _('Última alteração'),
         null=True,
         blank=True,
         editable=True,
         auto_now=True
     )
-    desativado = models.BooleanField(_(u"Desativado"), default=False)
-    observacoes = models.TextField(_(u"Observações"), blank=True)
+    desativado = models.BooleanField(_("Desativado"), default=False)
+    observacoes = models.TextField(_("Observações"), blank=True)
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _(u'contato da Casa Legislativa')
-        verbose_name_plural = _(u'contatos da Casa Legislativa')
+        verbose_name = _('contato da Casa Legislativa')
+        verbose_name_plural = _('contatos da Casa Legislativa')
 
     def __unicode__(self):
         return self.nome

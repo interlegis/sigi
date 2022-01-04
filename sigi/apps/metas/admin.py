@@ -20,7 +20,7 @@ class PlanoDiretorAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.nome
-    get_uf.short_description = _(u"UF")
+    get_uf.short_description = _("UF")
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__nome'
 
     def lookup_allowed(self, lookup, value):

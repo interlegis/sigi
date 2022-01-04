@@ -12,7 +12,7 @@ class SearchField(models.TextField):
         for field_name in self.field_names:
             val = unicode(to_ascii(getattr(model_instance, field_name)))
             search_text.append(val)
-        value = u' '.join(search_text)
+        value = ' '.join(search_text)
         setattr(model_instance, self.name, value)
         return value
 

@@ -51,17 +51,17 @@ class ConvenioAdmin(BaseModelAdmin):
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio',
                         'projeto', 'data_sigi',)}
          ),
-        (_(u"Acompanhamento no gabinete"),
+        (_("Acompanhamento no gabinete"),
          {'fields': ('data_solicitacao', 'data_sigad', 'observacao',)}
         ),
-        (_(u"Gestão do convênio"),
+        (_("Gestão do convênio"),
          {'fields': ('servico_gestao', 'servidor_gestao',)}
         ),
-        (_(u'Datas'),
+        (_('Datas'),
          {'fields': ('data_retorno_assinatura', 'data_termino_vigencia',
                      'data_pub_diario',)}
          ),
-        (_(u'Gescon'),
+        (_('Gescon'),
          {'fields': ('atualizacao_gescon', 'observacao_gescon', 'link_gescon')}
         ),
     )
@@ -86,7 +86,7 @@ class ConvenioAdmin(BaseModelAdmin):
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
-    get_uf.short_description = _(u'UF')
+    get_uf.short_description = _('UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf__sigla'
 
     def status_convenio(self, obj):
@@ -94,17 +94,17 @@ class ConvenioAdmin(BaseModelAdmin):
             return ""
         status = obj.get_status()
 
-        if status in [u"Vencido", u"Desistência", u"Cancelado"]:
+        if status in ["Vencido", "Desistência", "Cancelado"]:
             label = r"danger"
-        elif status == u"Vigente":
+        elif status == "Vigente":
             label = r"success"
-        elif status == u"Pendente":
+        elif status == "Pendente":
             label = r"warning"
         else:
             label = r"info"
 
-        return u'<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
-    status_convenio.short_description = _(u"Status do convênio")
+        return '<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
+    status_convenio.short_description = _("Status do convênio")
     status_convenio.allow_tags = True
 
     def link_sigad(self, obj):
@@ -117,11 +117,11 @@ class ConvenioAdmin(BaseModelAdmin):
 
     def link_gescon(self, obj):
         if not obj.id_contrato_gescon:
-            return u""
+            return ""
         return (
-            u"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
-            u"contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
-            u"gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
+            "<a href='https://adm.senado.gov.br/gestao-contratos/api/"
+            "contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
+            "gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
     link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
     link_gescon.allow_tags = True
 
@@ -149,7 +149,7 @@ class ConvenioAdmin(BaseModelAdmin):
         report = ConvenioReport(queryset=queryset)
         report.generate_by(PDFGenerator, filename=response)
         return response
-    relatorio.short_description = _(u'Exportar convênios selecionados para PDF')
+    relatorio.short_description = _('Exportar convênios selecionados para PDF')
 
     def adicionar_convenios(self, request, queryset):
         if 'carrinho_convenios' in request.session:
@@ -160,11 +160,11 @@ class ConvenioAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_convenios'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + _(u" Convênios adicionados no carrinho"))
+            self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
         else:
-            self.message_user(request, _(u"Os Convênios selecionados já foram adicionadas anteriormente"))
+            self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
-    adicionar_convenios.short_description = _(u"Armazenar convênios no carrinho para exportar")
+    adicionar_convenios.short_description = _("Armazenar convênios no carrinho para exportar")
 
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)

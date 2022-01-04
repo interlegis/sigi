@@ -18,8 +18,8 @@ class Partido(models.Model):
 
 class Parlamentar(models.Model):
     SEXO_CHOICES = (
-        ('M', _(u'Masculino')),
-        ('F', _(u'Feminino')),
+        ('M', _('Masculino')),
+        ('F', _('Feminino')),
     )
     nome_completo = models.CharField(max_length=128)
     nome_parlamentar = models.CharField(max_length=35, blank=True)
@@ -36,17 +36,17 @@ class Parlamentar(models.Model):
         choices=SEXO_CHOICES,
     )
     data_nascimento = models.DateField(
-        _(u'data de nascimento'),
+        _('data de nascimento'),
         blank=True,
         null=True,
     )
-    email = models.EmailField(_(u'e-mail'), blank=True)
-    pagina_web = models.URLField(_(u'página web'),
+    email = models.EmailField(_('e-mail'), blank=True)
+    pagina_web = models.URLField(_('página web'),
                                  blank=True)
 
     class Meta:
         ordering = ('nome_completo',)
-        verbose_name_plural = _(u'parlamentares')
+        verbose_name_plural = _('parlamentares')
 
     def __unicode__(self):
         if self.nome_parlamentar:
@@ -56,8 +56,8 @@ class Parlamentar(models.Model):
 
 class Mandato(models.Model):
     SUPLENCIA_CHOICES = (
-        ('T', _(u'Titular')),
-        ('S', _(u'Suplente')),
+        ('T', _('Titular')),
+        ('S', _('Suplente')),
     )
     parlamentar = models.ForeignKey(Parlamentar, on_delete=models.CASCADE)
     legislatura = models.ForeignKey(
@@ -66,16 +66,16 @@ class Mandato(models.Model):
     )
     partido = models.ForeignKey(Partido, on_delete=models.CASCADE)
     cargo = models.ForeignKey('parlamentares.Cargo', on_delete=models.PROTECT)
-    inicio_mandato = models.DateField(_(u'início de mandato'))
-    fim_mandato = models.DateField(_(u'fim de mandato'))
+    inicio_mandato = models.DateField(_('início de mandato'))
+    fim_mandato = models.DateField(_('fim de mandato'))
     is_afastado = models.BooleanField(
-        _(u'afastado'),
+        _('afastado'),
         default=False,
-        help_text=_(u'Marque caso parlamentar não esteja ativo.')
+        help_text=_('Marque caso parlamentar não esteja ativo.')
     )
 
 #    suplencia = models.CharField(
-#        _(u'suplência'),
+#        _('suplência'),
 #        max_length=1,
 #        choices=SUPLENCIA_CHOICES,
 #    )
@@ -86,11 +86,11 @@ class Mandato(models.Model):
 
 class Legislatura(models.Model):
     casa_legislativa = models.ForeignKey(Orgao, on_delete=models.CASCADE)
-    numero = models.PositiveSmallIntegerField(_(u'número legislatura'))
-    data_inicio = models.DateField(_(u'início'))
-    data_fim = models.DateField(_(u'fim'))
-    data_eleicao = models.DateField(_(u'data da eleição'))
-    total_parlamentares = models.PositiveIntegerField(_(u"Total de parlamentares"))
+    numero = models.PositiveSmallIntegerField(_('número legislatura'))
+    data_inicio = models.DateField(_('início'))
+    data_fim = models.DateField(_('fim'))
+    data_eleicao = models.DateField(_('data da eleição'))
+    total_parlamentares = models.PositiveIntegerField(_("Total de parlamentares"))
 
     casa_legislativa.convenio_uf_filter = True
     casa_legislativa.convenio_cl_tipo_filter = True
@@ -100,7 +100,7 @@ class Legislatura(models.Model):
         ordering = ['casa_legislativa__municipio__uf__sigla', '-data_inicio']
 
     def __unicode__(self):
-        return _(u"%(number)sª legislatura da %(parliament)s (%(initial_year)s-%(final_year)s)") % dict(
+        return _("%(number)sª legislatura da %(parliament)s (%(initial_year)s-%(final_year)s)") % dict(
             number=self.numero,
             parliament=self.casa_legislativa.__unicode__(),
             initial_year=self.data_inicio.year,
@@ -111,15 +111,15 @@ class Coligacao(models.Model):
     nome = models.CharField(max_length=50)
     legislatura = models.ForeignKey(Legislatura, on_delete=models.CASCADE)
     numero_votos = models.PositiveIntegerField(
-        _(u'número de votos'),
+        _('número de votos'),
         blank=True,
         null=True,
     )
 
     class Meta:
         ordering = ('legislatura', 'nome')
-        verbose_name = _(u'coligação')
-        verbose_name_plural = _(u'coligações')
+        verbose_name = _('coligação')
+        verbose_name_plural = _('coligações')
 
     def __unicode__(self):
         return self.nome
@@ -129,7 +129,7 @@ class ComposicaoColigacao(models.Model):
     coligacao = models.ForeignKey(
         Coligacao,
         on_delete=models.CASCADE,
-        verbose_name=_(u'coligação')
+        verbose_name=_('coligação')
     )
     partido = models.ForeignKey(
         'parlamentares.Partido',
@@ -137,8 +137,8 @@ class ComposicaoColigacao(models.Model):
     )
 
     class Meta:
-        verbose_name = _(u'composição da coligação')
-        verbose_name_plural = _(u'composições das coligações')
+        verbose_name = _('composição da coligação')
+        verbose_name_plural = _('composições das coligações')
 
     def __unicode__(self):
         return str(self.id)
@@ -146,14 +146,14 @@ class ComposicaoColigacao(models.Model):
 
 class SessaoLegislativa(models.Model):
     SESSAO_CHOICES = (
-        ('O', _(u'Ordinária')),
-        ('E', _(u'Extraordinária')),
+        ('O', _('Ordinária')),
+        ('E', _('Extraordinária')),
     )
-    numero = models.PositiveSmallIntegerField(_(u'número da sessão'), unique=True)
+    numero = models.PositiveSmallIntegerField(_('número da sessão'), unique=True)
     mesa_diretora = models.ForeignKey(
         'MesaDiretora',
         on_delete=models.PROTECT,
-        verbose_name=_(u'Mesa Diretora')
+        verbose_name=_('Mesa Diretora')
     )
     legislatura = models.ForeignKey(Legislatura, on_delete=models.CASCADE)
     tipo = models.CharField(
@@ -161,23 +161,23 @@ class SessaoLegislativa(models.Model):
         choices=SESSAO_CHOICES,
         default='O'
     )
-    data_inicio = models.DateField(_(u'início'))
-    data_fim = models.DateField(_(u'fim'))
+    data_inicio = models.DateField(_('início'))
+    data_fim = models.DateField(_('fim'))
     data_inicio_intervalo = models.DateField(
-        _(u'início de intervalo'),
+        _('início de intervalo'),
         blank=True,
         null=True
     )
     data_fim_intervalo = models.DateField(
-        _(u'fim de intervalo'),
+        _('fim de intervalo'),
         blank=True,
         null=True
     )
 
     class Meta:
         ordering = ('legislatura', 'numero')
-        verbose_name = _(u'Sessão Legislativa')
-        verbose_name_plural = _(u'Sessões Legislativas')
+        verbose_name = _('Sessão Legislativa')
+        verbose_name_plural = _('Sessões Legislativas')
 
     def __unicode__(self):
         return str(self.numero)
@@ -187,19 +187,19 @@ class MesaDiretora(models.Model):
     casa_legislativa = models.ForeignKey(
         'casas.Orgao',
         on_delete=models.CASCADE,
-        verbose_name=_(u'Casa Legislativa')
+        verbose_name=_('Casa Legislativa')
     )
 
     class Meta:
-        verbose_name = _(u'Mesa Diretora')
-        verbose_name_plural = _(u'Mesas Diretoras')
+        verbose_name = _('Mesa Diretora')
+        verbose_name_plural = _('Mesas Diretoras')
 
     def __unicode__(self):
-        return _(u'Mesa Diretora da %s') % unicode(self.casa_legislativa)
+        return _('Mesa Diretora da %s') % unicode(self.casa_legislativa)
 
 
 class Cargo(models.Model):
-    descricao = models.CharField(_(u'descrição'), max_length=30)
+    descricao = models.CharField(_('descrição'), max_length=30)
 
     class Meta:
         ordering = ('descricao',)
@@ -219,8 +219,8 @@ class MembroMesaDiretora(models.Model):
     class Meta:
         ordering = ('parlamentar',)
         unique_together = ('cargo', 'mesa_diretora')
-        verbose_name = _(u'membro de Mesa Diretora')
-        verbose_name_plural = _(u'membros de Mesa Diretora')
+        verbose_name = _('membro de Mesa Diretora')
+        verbose_name_plural = _('membros de Mesa Diretora')
 
     def __unicode__(self):
         return '%s (%s)' % (unicode(self.parlamentar), unicode(self.cargo))

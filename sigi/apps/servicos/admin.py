@@ -53,18 +53,18 @@ class TipoServicoAdmin(BaseModelAdmin):
     ordering = ['id']
 
 class DataUtimoUsoFilter(admin.SimpleListFilter):
-    title = _(u"Atualização")
+    title = _("Atualização")
     parameter_name = 'atualizacao'
 
     def lookups(self, request, model_admin):
         return (
-            ('err', _(u"Erro na verificação")),
-            ('year', _(u"Sem atualização há um ano ou mais")),
-            ('semester', _(u"Sem atualização de seis meses a um ano")),
-            ('quarter', _(u"Sem atualização de três a seis meses")),
-            ('month', _(u"Sem atualização de um a três meses")),
-            ('week', _(u"Sem atualização de uma semana a um mês")),
-            ('updated', _(u"Atualizado na última semana")),
+            ('err', _("Erro na verificação")),
+            ('year', _("Sem atualização há um ano ou mais")),
+            ('semester', _("Sem atualização de seis meses a um ano")),
+            ('quarter', _("Sem atualização de três a seis meses")),
+            ('month', _("Sem atualização de um a três meses")),
+            ('week', _("Sem atualização de uma semana a um mês")),
+            ('updated', _("Atualizado na última semana")),
         )
 
     def queryset(self, request, queryset):
@@ -94,13 +94,13 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
         return queryset
 
 class ServicoAtivoFilter(admin.SimpleListFilter):
-    title = _(u"Serviço ativo")
+    title = _("Serviço ativo")
     parameter_name = 'ativo'
 
     def lookups(self, request, model_admin):
         return (
-            ('ativo', _(u"Ativo")),
-            ('desativado', _(u"Desativado")),
+            ('ativo', _("Ativo")),
+            ('desativado', _("Desativado")),
         )
 
     def queryset(self, request, queryset):
@@ -120,13 +120,13 @@ class ServicoAdmin(BaseModelAdmin):
     fieldsets = ((None, {
         'fields': ('casa_legislativa', 'data_ativacao',)
     }),
-        (_(u'Serviço'), {
+        (_('Serviço'), {
             'fields': ('tipo_servico', ('url', 'hospedagem_interlegis'), ('nome_servidor', 'porta_servico', 'senha_inicial'),)
         }),
-        (_(u'Contatos'), {
+        (_('Contatos'), {
             'fields': ('contato_tecnico', 'contato_administrativo',)
         }),
-        (_(u'Alterações'), {
+        (_('Alterações'), {
             'fields': ('data_alteracao', 'data_desativacao', 'motivo_desativacao',)
         }))
     readonly_fields = ('casa_legislativa', 'data_ativacao', 'data_alteracao')
@@ -146,30 +146,30 @@ class ServicoAdmin(BaseModelAdmin):
 
     def get_codigo_interlegis(self, obj):
         return obj.casa_legislativa.codigo_interlegis
-    get_codigo_interlegis.short_description = _(u'Código Interlegis')
+    get_codigo_interlegis.short_description = _('Código Interlegis')
     get_codigo_interlegis.admin_order_field = 'casa_legislativa__codigo_interlegis'
 
     def get_uf(self, obj):
-        return u'%s' % (obj.casa_legislativa.municipio.uf)
-    get_uf.short_description = _(u'UF')
+        return '%s' % (obj.casa_legislativa.municipio.uf)
+    get_uf.short_description = _('UF')
     get_uf.admin_order_field = 'casa_legislativa__municipio__uf'
 
     def getUrl(self, obj):
-        return u'<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
-    getUrl.short_description = _(u'Url')
+        return '<a href="%s" target="_blank">%s</a>' % (obj.url, obj.url)
+    getUrl.short_description = _('Url')
     getUrl.allow_tags = True
 
     def get_link_erro(self, obj):
         if not obj.erro_atualizacao:
-            return u""
+            return ""
         url = obj.url
         if url[-1] != '/':
             url += '/'
         if obj.tipo_servico.string_pesquisa:
             url += obj.tipo_servico.string_pesquisa.splitlines()[0].split(" ")[0]
-        return u'<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
+        return '<a href="%s" target="_blank">%s</a>' % (url, obj.erro_atualizacao)
     get_link_erro.allow_tags = True
-    get_link_erro.short_description = _(u"Erro na atualização")
+    get_link_erro.short_description = _("Erro na atualização")
     get_link_erro.admin_order_field = 'erro_atualizacao'
 
     def adicionar_servicos(self, request, queryset):
@@ -181,19 +181,19 @@ class ServicoAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_servicos'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + _(u" Serviços adicionados no carrinho"))
+            self.message_user(request, str(q2 - q1) + _(" Serviços adicionados no carrinho"))
         else:
-            self.message_user(request, _(u"Os Serviços selecionados já foram adicionadas anteriormente"))
+            self.message_user(request, _("Os Serviços selecionados já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
-    adicionar_servicos.short_description = _(u"Armazenar serviços no carrinho para exportar")
+    adicionar_servicos.short_description = _("Armazenar serviços no carrinho para exportar")
 
 
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
-        self.message_user(request, _(u"Atualização concluída. Os sites que não responderam foram deixados com a data em branco"))
+        self.message_user(request, _("Atualização concluída. Os sites que não responderam foram deixados com a data em branco"))
         return HttpResponseRedirect('.')
-    calcular_data_uso.short_description = _(u"Atualizar a data do último uso do(s) serviço(s)")
+    calcular_data_uso.short_description = _("Atualizar a data do último uso do(s) serviço(s)")
 
     def get_actions(self, request):
         from django.utils.datastructures import SortedDict
@@ -217,10 +217,10 @@ class ServicoAdmin(BaseModelAdmin):
 
     def response_add(self, request, obj):
         opts = obj._meta
-        msg = _(u'The %(name)s "%(obj)s" was added successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
+        msg = _('The %(name)s "%(obj)s" was added successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
         if "_addanother" in request.POST:
-            self.message_user(request, msg + ' ' + (_(u"You may add another %s below.") % force_unicode(opts.verbose_name)))
+            self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect(request.path + '?id_casa=%s' % (obj.casa_legislativa.id,))
         elif "_save" in request.POST:
             self.message_user(request, msg)
@@ -230,10 +230,10 @@ class ServicoAdmin(BaseModelAdmin):
 
     def response_change(self, request, obj):
         opts = obj._meta
-        msg = _(u'The %(name)s "%(obj)s" was changed successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
+        msg = _('The %(name)s "%(obj)s" was changed successfully.') % {'name': force_unicode(opts.verbose_name), 'obj': force_unicode(obj)}
 
         if "_addanother" in request.POST:
-            self.message_user(request, msg + ' ' + (_(u"You may add another %s below.") % force_unicode(opts.verbose_name)))
+            self.message_user(request, msg + ' ' + (_("You may add another %s below.") % force_unicode(opts.verbose_name)))
             return HttpResponseRedirect("../add/?id_casa=%s" % (obj.casa_legislativa.id,))
         elif "_save" in request.POST:
             self.message_user(request, msg)
@@ -275,11 +275,11 @@ class ServicoAdmin(BaseModelAdmin):
         q2 = len(request.session['carrinho_servicos'])
         quant = q2 - q1
         if quant:
-            self.message_user(request, str(q2 - q1) + _(u" Convênios adicionados no carrinho"))
+            self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
         else:
-            self.message_user(request, _(u"Os Convênios selecionados já foram adicionadas anteriormente"))
+            self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
         return HttpResponseRedirect('.')
-    adicionar_servicos.short_description = _(u"Armazenar Serviços no carrinho para exportar")
+    adicionar_servicos.short_description = _("Armazenar Serviços no carrinho para exportar")
 
 
 
@@ -316,15 +316,15 @@ class CasaAtendidaAdmin(BaseModelAdmin):
     def get_servicos(self, obj):
         result = []
         for servico in obj.servico_set.all():
-            result.append(u"%s (%s). %s: %s" % (
+            result.append("%s (%s). %s: %s" % (
                 servico.tipo_servico.nome,
-                _(u'ativo') if servico.data_desativacao is None else _(u'desativado'),
-                _(u'Contato'),
+                _('ativo') if servico.data_desativacao is None else _('desativado'),
+                _('Contato'),
                 servico.contato_administrativo.nome))
 
         return "<ul><li>" + "</li><li>".join(result) + "</li></ul>"
     get_servicos.allow_tags = True
-    get_servicos.short_description = _(u"Serviços")
+    get_servicos.short_description = _("Serviços")
 
     def lookup_allowed(self, lookup, value):
         return super(CasaAtendidaAdmin, self).lookup_allowed(lookup, value) or \

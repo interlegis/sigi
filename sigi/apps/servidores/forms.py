@@ -10,7 +10,7 @@ from sigi.apps.servidores.models import Ferias, Licenca, Funcao, Servidor
 def valida_data_inicial_menor_que_final(data, chave_ini, chave_fim):
     if data.get(chave_ini) >= data.get(chave_fim):
         raise forms.ValidationError(_(
-            u"A data de início deve ser menor que a data final. Verifique novamente"))
+            "A data de início deve ser menor que a data final. Verifique novamente"))
 
 
 class FeriasForm(forms.ModelForm):
@@ -62,5 +62,5 @@ class FuncaoForm(forms.ModelForm):
                     Periodo(funcao.inicio_funcao, funcao.fim_funcao),
                     Periodo(data.get('inicio_funcao'), data.get('fim_funcao'))):
                 raise forms.ValidationError(_(
-                    u"Este período coincide com o de outra função exercida."))
+                    "Este período coincide com o de outra função exercida."))
         return data

@@ -8,7 +8,7 @@ from sigi.settings import *
 
 
 class Command(BaseCommand):
-    help = u'Sincroniza Usuários e Servidores com o LDAP'
+    help = 'Sincroniza Usuários e Servidores com o LDAP'
 
     def handle(self, *args, **options):
         self.sync_groups()

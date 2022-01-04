@@ -52,37 +52,37 @@ ALEX_LDAP, BRUNO_LDAP, RITA_LDAP = [
     # new user from ldap is created
     ([],
      [ALEX_LDAP],
-     [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br')],
-     u'''
+     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
+     '''
 User 'alexlima' created.
 Users are synchronized.
      '''),
 
     # nothing changes
-    ([(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br')],
+    ([('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
      [ALEX_LDAP],
-     [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br')],
-     u'''
+     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
+     '''
 Users are synchronized.
      '''),
 
     # unicode encoding from LDAP data works well
-    ([('claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', 'claudia@interlegis.leg.br', )],
+    ([('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
      [RITA_LDAP],
-     [(u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
-     u'''
+     [('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
+     '''
 Users are synchronized.
      '''),
 
     # update: full name, first name, last name, email
     ([('alexlima', '___', '___', '___', '___', ),
       ('bruno', 'Bruno Almeida Prado', '___', 'Almeida Prado', '___', ),
-      ('claudia', '___', u'Cláudia', '___', 'claudia@interlegis.leg.br', )],
+      ('claudia', '___', 'Cláudia', '___', 'claudia@interlegis.leg.br', )],
      [ALEX_LDAP, BRUNO_LDAP, RITA_LDAP],
-     [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
-      (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
-      (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
-     u'''
+     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
+      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
+      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
+     '''
 User 'alexlima' first name updated.
 User 'alexlima' last name updated.
 User 'alexlima' email updated.
@@ -106,14 +106,14 @@ Users are synchronized.
 
 
     # user not present in ldap is NOT deleted
-    ([(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
-      (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
-      (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
+    ([('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
+      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
+      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
      [ALEX_LDAP, RITA_LDAP],
-     [(u'alexlima', u'Alex Lima', u'Alex', u'Lima', u'alexlima@interlegis.leg.br', ),
-      (u'bruno', u'Bruno Almeida Prado', u'Bruno', u'Almeida Prado', u'bruno@interlegis.leg.br', ),
-      (u'claudia', u'Cláudia de Cássia', u'Cláudia', u'de Cássia', u'claudia@interlegis.leg.br', )],
-     u'''
+     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
+      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
+      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
+     '''
 Users are synchronized.
       '''),
 ])

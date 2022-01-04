@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('data_convite', models.DateField(verbose_name='Data do convite')),
                 ('aceite', models.BooleanField(default=False, verbose_name='Aceitou o convite')),
-                ('participou', models.BooleanField(default=False, verbose_name='Participou do evento')),
+                ('participo', models.BooleanField(default=False, verbose_name='Participou do evento')),
                 ('casa', models.ForeignKey(verbose_name='Casa convidada', to='casas.CasaLegislativa')),
             ],
             options={
@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='convite',
             name='servidor',
-            field=models.ForeignKey(verbose_name='Servidor que convidou', to='servidores.Servidor'),
+            field=models.ForeignKey(verbose_name='Servidor que convido', to='servidores.Servidor'),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(

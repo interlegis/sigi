@@ -34,7 +34,7 @@ def painel_ocorrencias(request):
     if tipo == 'casa':
         casa = get_object_or_404(Orgao, pk=id)
         ocorrencias = casa.ocorrencia_set.all()
-        panel_title = u"{casa}, {uf}".format(
+        panel_title = "{casa}, {uf}".format(
             casa=casa.nome,
             uf=casa.municipio.uf.sigla
         )
@@ -42,8 +42,8 @@ def painel_ocorrencias(request):
         servidor = get_object_or_404(Servidor, pk=id)
         panel_title = servidor.nome_completo
 
-        paineis = {'gerente': u"Minhas casas", 'servico': u"Meu setor",
-                   'timeline': u"Comentados por mim"}
+        paineis = {'gerente': "Minhas casas", 'servico': "Meu setor",
+                   'timeline': "Comentados por mim"}
 
         if painel is None:
             if Orgao.objects.filter(
@@ -72,7 +72,7 @@ def painel_ocorrencias(request):
     elif tipo == 'servico':
         servico = get_object_or_404(Servico, pk=id)
         ocorrencias = servico.ocorrencia_set.all()
-        panel_title = _(u"{sigla} - {nome}").format(
+        panel_title = _("{sigla} - {nome}").format(
             sigla=servico.sigla, nome=servico.nome)
 
     ocorrencias = ocorrencias.filter(status__in=[1, 2])
@@ -103,7 +103,7 @@ def painel_ocorrencias(request):
 def busca_nominal(request, origin="tudo"):
     term = request.GET.get('term', None)
     if term is None:
-        return JsonResponse([{'label': _(u'Erro na pesquisa por termo'), 'value': 'type=error'}], safe=False)
+        return JsonResponse([{'label': _('Erro na pesquisa por termo'), 'value': 'type=error'}], safe=False)
 
     data = []
 
@@ -131,10 +131,10 @@ def muda_prioridade(request):
     prioridade = request.POST.get('prioridade', None)
 
     if id_ocorrencia is None or prioridade is None:
-        return JsonResponse({'result': 'error', 'message': _(u'Erro nos parâmetros')})
+        return JsonResponse({'result': 'error', 'message': _('Erro nos parâmetros')})
 
     if not any([int(prioridade) == p[0] for p in Ocorrencia.PRIORITY_CHOICES]):
-        return JsonResponse({'result': 'error', 'message': _(u'Valor de prioridade não aceito')})
+        return JsonResponse({'result': 'error', 'message': _('Valor de prioridade não aceito')})
 
     try:
         ocorrencia = Ocorrencia.objects.get(pk=id_ocorrencia)
@@ -144,14 +144,14 @@ def muda_prioridade(request):
     ocorrencia.prioridade = prioridade
     ocorrencia.save()
 
-    return JsonResponse({'result': 'success', 'message': _(u'Prioridade alterada')})
+    return JsonResponse({'result': 'success', 'message': _('Prioridade alterada')})
 
 @login_required
 def exclui_anexo(request):
     anexo_id = request.GET.get('anexo_id', None)
 
     if anexo_id is None:
-        return JsonResponse({'result': 'error', 'message': _(u'Erro nos parâmetros')})
+        return JsonResponse({'result': 'error', 'message': _('Erro nos parâmetros')})
 
     try:
         anexo = Anexo.objects.get(pk=anexo_id)
@@ -167,7 +167,7 @@ def exclui_anexo(request):
     painel = render_to_string('ocorrencias/anexos_snippet.html', {'ocorrencia': ocorrencia},
                               context_instance=RequestContext(request))
 
-    return JsonResponse({'result': 'success', 'message': _(u'Anexo %s excluído com sucesso' % (anexo_id,)),
+    return JsonResponse({'result': 'success', 'message': _('Anexo %s excluído com sucesso' % (anexo_id,)),
                          'link_label': link_label, 'anexos_panel': painel})
 
 @login_required

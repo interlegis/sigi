@@ -157,14 +157,14 @@ def alocacao_equipe(request):
     locale.setlocale(locale.LC_ALL, lang)
     meses = [calendar.month_name[m] for m in range(1,13)]
 
-    linhas = [[_(u"Servidor")] + meses + ['total']]
+    linhas = [[_("Servidor")] + meses + ['total']]
 
     for r in dados:
         r[2].append(reduce(lambda x,y:{'dias': x['dias'] + y['dias'],
                                     'eventos': x['eventos'] + y['eventos']}, r[2]))
         linhas.append([r[1]] +
-                       [_(ungettext(u"%(dias)s dia", u"%(dias)s dias", d['dias']) + " em " +
-                          ungettext(u"%(eventos)s evento", u"%(eventos)s eventos", d['eventos'])
+                       [_(ungettext("%(dias)s dia", "%(dias)s dias", d['dias']) + " em " +
+                          ungettext("%(eventos)s evento", "%(eventos)s eventos", d['eventos'])
                         ) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in r[2]])
 
 #     for registro in Servidor.objects.filter(equipe_evento__evento__data_inicio__year=ano_pesquisa).exclude(equipe_evento__evento__status='C').distinct():
@@ -173,7 +173,7 @@ def alocacao_equipe(request):
 #             dados[part.evento.data_inicio.month-1]['dias'] +=  (part.evento.data_termino -
 #                                                                 part.evento.data_inicio).days + 1
 #             dados[part.evento.data_inicio.month-1]['eventos'] += 1
-#         dados.append([registro.nome_completo] + [_(ungettext(u"%(dias)s dia", u"%(dias)s dias", d['dias']) + " em " + ungettext(u"%(eventos)s evento", u"%(eventos)s eventos", d['eventos'])) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in dados])
+#         dados.append([registro.nome_completo] + [_(ungettext("%(dias)s dia", "%(dias)s dias", d['dias']) + " em " + ungettext("%(eventos)s evento", "%(eventos)s eventos", d['eventos'])) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in dados])
 
     data['linhas'] = linhas
 
@@ -277,7 +277,7 @@ def visualizar_carrinho(request):
 def excluir_carrinho(request):
     if 'carrinho_eventos' in request.session:
         del request.session['carrinho_eventos']
-        messages.info(request, u'O carrinho foi esvaziado')
+        messages.info(request, 'O carrinho foi esvaziado')
     return HttpResponseRedirect('../../')
 
 @login_required
@@ -295,7 +295,7 @@ def deleta_itens_carrinho(request):
             else:
                 del lista
                 del request.session['carrinho_eventos']
-        messages.info(request, u"{0} itens removidos do carrinho".format(removed))
+        messages.info(request, "{0} itens removidos do carrinho".format(removed))
     return HttpResponseRedirect('.')
 
 @login_required
@@ -320,14 +320,14 @@ def export_csv(request):
     eventos.select_related('equipe', 'convite')
 
     if not eventos:
-        messages.info(request, _(u"Nenhum evento a exportar"))
+        messages.info(request, _("Nenhum evento a exportar"))
         return HttpResponseRedirect('../')
 
     max_equipe = max([e.equipe_set.count() for e in eventos])
 
-    mun_casa = u'Município da Casa Anfitriã'.encode('utf8')
-    uf_casa = u'UF da Casa Anfitriã'.encode('utf8')
-    reg_casa = u'Região da Casa Anfitriã'.encode('utf8')
+    mun_casa = 'Município da Casa Anfitriã'.encode('utf8')
+    uf_casa = 'UF da Casa Anfitriã'.encode('utf8')
+    reg_casa = 'Região da Casa Anfitriã'.encode('utf8')
 
     head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
     head.extend([mun_casa, uf_casa, reg_casa])

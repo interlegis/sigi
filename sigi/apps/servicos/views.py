@@ -90,9 +90,9 @@ def casa_manifesta_view(request):
         fieldsets = ((None, ('informante', 'cargo', 'email'),),)
 
         for ts in TipoServico.objects.all():
-            campos['possui_%s' % ts.pk] = forms.BooleanField(label=_(u'Possui o serviço de %s') % ts.nome, required=False)
-            campos['url_%s' % ts.pk] = forms.URLField(label=_(u'Informe a URL'), required=False)
-            campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=_(u'Serviço está hospedado no Interlegis'), required=False)
+            campos['possui_%s' % ts.pk] = forms.BooleanField(label=_('Possui o serviço de %s') % ts.nome, required=False)
+            campos['url_%s' % ts.pk] = forms.URLField(label=_('Informe a URL'), required=False)
+            campos['hospedagem_interlegis_%s' % ts.pk] = forms.BooleanField(label=_('Serviço está hospedado no Interlegis'), required=False)
             fieldsets += ((ts.nome, ('possui_%s' % ts.pk, 'url_%s' % ts.pk, 'hospedagem_interlegis_%s' % ts.pk)),)
 
         CasaManifestaForm = type('', (CasaManifestaProtoForm,), campos)
@@ -106,21 +106,21 @@ def casa_manifesta_view(request):
                 cm.cargo = cmf.cleaned_data['cargo']
                 cm.email = cmf.cleaned_data['email']
                 cm.save()
-                thanks.append((_(u'Informante'), cmf.cleaned_data['informante']))
-                thanks.append((_(u'Cargo'), cmf.cleaned_data['cargo']))
-                thanks.append((_(u'E-mail'), cmf.cleaned_data['email']))
+                thanks.append((_('Informante'), cmf.cleaned_data['informante']))
+                thanks.append((_('Cargo'), cmf.cleaned_data['cargo']))
+                thanks.append((_('E-mail'), cmf.cleaned_data['email']))
                 for ts in TipoServico.objects.all():
                     if cmf.cleaned_data['possui_%s' % ts.pk]:
                         sm, created = ServicoManifesto.objects.get_or_create(casa_manifesta=cm, servico=ts)
                         sm.url = cmf.cleaned_data['url_%s' % ts.pk]
                         sm.hospedagem_interlegis = cmf.cleaned_data['hospedagem_interlegis_%s' % ts.pk]
                         sm.save()
-                        thanks.append((ts.nome, _(u'Possui o serviço acessível em %(url)s %(obs)s') % dict(
+                        thanks.append((ts.nome, _('Possui o serviço acessível em %(url)s %(obs)s') % dict(
                             url=sm.url,
-                            obs=_(u'hospedado no Interlegis') if sm.hospedagem_interlegis else '')))
+                            obs=_('hospedado no Interlegis') if sm.hospedagem_interlegis else '')))
                     else:
                         ServicoManifesto.objects.filter(casa_manifesta=cm, servico=ts).delete()
-                        thanks.append((ts.nome, _(u'Não possui')))
+                        thanks.append((ts.nome, _('Não possui')))
                 extra_context = {'casa': casa, 'thanks': thanks}
             else:
                 extra_context = {'casa': casa, 'cmf': cmf}
@@ -198,7 +198,7 @@ def adicionar_servicos_carrinho(request, queryset=None, id=None):
 def excluir_carrinho(request):
     if 'carrinho_servicos' in request.session:
         del request.session['carrinho_servicos']
-        messages.info(request, u'O carrinho foi esvaziado')
+        messages.info(request, 'O carrinho foi esvaziado')
     return HttpResponseRedirect('../../')
 
 @login_required
@@ -282,31 +282,31 @@ def export_csv(request):
     if not servicos:
         return HttpResponseRedirect('../')
 
-    atributos = [_(u"Casa Legislativa"), _(u"Contato Interlegis"), _(u"Produto"),
-                 _(u"Data de Ativação"), ]
+    atributos = [_("Casa Legislativa"), _("Contato Interlegis"), _("Produto"),
+                 _("Data de Ativação"), ]
 
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
 
     col_titles = atributos
-    if _(u"Casa Legislativa") in col_titles:
-        pos = col_titles.index(_(u"Casa Legislativa")) + 1
-        col_titles.insert(pos, _(u"uf"))
+    if _("Casa Legislativa") in col_titles:
+        pos = col_titles.index(_("Casa Legislativa")) + 1
+        col_titles.insert(pos, _("uf"))
         pos+=1
-        col_titles.insert(pos, _(u"email"))
+        col_titles.insert(pos, _("email"))
         pos+=1
-        col_titles.insert(pos, _(u"telefone"))
+        col_titles.insert(pos, _("telefone"))
 
-    if _(u"Contato Interlegis") in col_titles:
-        pos = col_titles.index(_(u"Contato Interlegis")) + 1
-        col_titles.insert(pos, _(u"Email do contato"))
+    if _("Contato Interlegis") in col_titles:
+        pos = col_titles.index(_("Contato Interlegis")) + 1
+        col_titles.insert(pos, _("Email do contato"))
 
     csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for servico in servicos:
         lista = []
         for atributo in atributos:
-            if _(u"Casa Legislativa") == atributo:
+            if _("Casa Legislativa") == atributo:
                 lista.append(servico.casa_legislativa.nome.encode("utf-8"))
                 lista.append(servico.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
                 lista.append(servico.casa_legislativa.email.encode("utf-8"))
@@ -314,16 +314,16 @@ def export_csv(request):
                     lista.append(servico.casa_legislativa.telefone)
                 else:
                     lista.append("")
-            elif _(u"Contato Interlegis") == atributo:
+            elif _("Contato Interlegis") == atributo:
                 if servico.casa_legislativa.contato_interlegis is not None:
                     lista.append(servico.casa_legislativa.contato_interlegis)
                     lista.append(servico.casa_legislativa.contato_interlegis.email.encode("utf-8"))
                 else:
                     lista.append("")
                     lista.append("")
-            elif _(u"Produto") == atributo:
+            elif _("Produto") == atributo:
                 lista.append(servico.tipo_servico.nome.encode("utf-8"))
-            elif _(u"Data de Ativação") == atributo:
+            elif _("Data de Ativação") == atributo:
                 data = ''
                 if servico.data_ativacao:
                     data = servico.data_ativacao.strftime("%d/%m/%Y")

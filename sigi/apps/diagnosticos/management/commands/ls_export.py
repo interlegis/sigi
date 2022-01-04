@@ -16,27 +16,27 @@ DATATYPES = {
 }
 
 class Command(BaseCommand):
-    help = u"""Exporta dados do diagnóstico para o formato Tab-Separated-Values
-    do LimeSurvey, conforme documentado em 
+    help = """Exporta dados do diagnóstico para o formato Tab-Separated-Values
+    do LimeSurvey, conforme documentado em
     https://manual.limesurvey.org/Tab_Separated_Value_survey_structure"""
-    
+
     def handle(self, *args, **options):
         def normalize(l):
             return [s.encode('utf-8') for s in l]
 
         nonum = lambda s: s[s.index(' ')+1:]
-        avalue = lambda e: ('Y' if e.title == u'Sim' else 'N' 
-                                if e.title == u'Não' else e.id)
+        avalue = lambda e: ('Y' if e.title == 'Sim' else 'N'
+                                if e.title == 'Não' else e.id)
 
         setores = [(i+1, s[0], s[1]) for i, s in enumerate(
             Funcionario.SETOR_CHOICES)]
 
         if len(args) < 2:
-            raise CommandError(u"Use: ls_export survey_id struct.txt data.csv")
+            raise CommandError("Use: ls_export survey_id struct.txt data.csv")
 
         survey_id = args[0]
 
-        lsf = csv.writer(open(args[1], 'wb+'), delimiter="\t", 
+        lsf = csv.writer(open(args[1], 'wb+'), delimiter="\t",
                          quoting=csv.QUOTE_MINIMAL)
 
         struct = ['id', 'token', 'submitdate', 'lastpage', 'startlanguage',
@@ -56,55 +56,55 @@ class Command(BaseCommand):
              'pt-BR'],
             ['', '', 'SL', '', 'surveyls_language', '', 'pt-BR', '', 'pt-BR'],
             ['', '', 'SL', '', 'surveyls_title', '',
-             u'Diagnóstico PML'.encode('utf-8'), '', 'pt-BR']])
+             'Diagnóstico PML'.encode('utf-8'), '', 'pt-BR']])
         self.stdout.write("Done!")
-        
+
         # Identificação da Casa Legislativa e sua equipe #
         self.stdout.write("\tIdentificação da Casa...", ending=" ")
-        lsf.writerow(normalize(['1000', '', 'G', '', u'Identificação da Casa',
+        lsf.writerow(normalize(['1000', '', 'G', '', 'Identificação da Casa',
             '', '', '', 'pt-BR']))
         lsf.writerow(normalize(['1001', '', 'Q', 'L', 'c001q001', '1',
-            u'Região', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Região', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c001q001')
         lsf.writerows([normalize(['1001', '', 'A', '0', sigla, '', nome, '',
             'pt-BR']) for sigla, nome in UnidadeFederativa.REGIAO_CHOICES])
         lsf.writerow(normalize(['1002', '', 'Q', '!', 'c001q002', '1',
-            u'Estado (UF)', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Estado (UF)', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c001q002')
         lsf.writerows([normalize(['1002', '', 'A', '0', u.sigla, '', u.nome, '',
             'pt-BR']) for u in UnidadeFederativa.objects.all()])
         lsf.writerow(normalize(['1003', '', 'Q', 'S', 'c001q003', '1',
-            u'Município', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Município', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c001q003')
         lsf.writerow(normalize(['1004', '', 'Q', 'D', 'c001q004', '1',
-            u'Data de criação do município', '', 'pt-BR', '', 'Y', 'N', '',
+            'Data de criação do município', '', 'pt-BR', '', 'Y', 'N', '',
             '0']))
         struct.append('c001q004')
         lsf.writerow(normalize(['1005', '', 'Q', 'S', 'c001q005', '1',
-            u'Nome da Casa', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Nome da Casa', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c001q005')
         lsf.writerow(normalize(['1006', '', 'Q', 'D', 'c001q006', '1',
-            u'Data de instalação do legislativo', '', 'pt-BR', '', 'Y', 'N', '',
+            'Data de instalação do legislativo', '', 'pt-BR', '', 'Y', 'N', '',
             '0']))
         struct.append('c001q006')
         lsf.writerow(normalize(['1007', '', 'Q', 'T', 'c001q007', '1',
-            u'Endereço', '', 'pt-BR', '', 'N', 'N', '', '0']))
+            'Endereço', '', 'pt-BR', '', 'N', 'N', '', '0']))
         struct.append('c001q007')
         lsf.writerow(normalize(['1008', '', 'Q', 'S', 'c001q008', '1',
-            u'CNPJ', '', 'pt-BR', '', 'N', 'N', '', '0']))
+            'CNPJ', '', 'pt-BR', '', 'N', 'N', '', '0']))
         struct.append('c001q008')
         lsf.writerow(normalize(['1009', '', 'Q', 'S', 'c001q009', '1',
-            u'E-mail principal', '', 'pt-BR', '', 'N', 'N', '', '0']))
+            'E-mail principal', '', 'pt-BR', '', 'N', 'N', '', '0']))
         struct.append('c001q009')
         lsf.writerow(normalize(['1010', '', 'Q', 'S', 'c001q010', '1',
-            u'Endereço Web', '', 'pt-BR', '', 'N', 'N', '', '0']))
+            'Endereço Web', '', 'pt-BR', '', 'N', 'N', '', '0']))
         struct.append('c001q010')
         lsf.writerow(normalize(['1011', '', 'Q', ';', 'c001q011', '1',
-            u'Pessoas de contato', '', 'pt-BR', '', 'N', 'N', '', '0']))
-        lsf.writerow(normalize(['101198', '', 'SQ', '1', 'SQ00101', '', u'Nome',
+            'Pessoas de contato', '', 'pt-BR', '', 'N', 'N', '', '0']))
+        lsf.writerow(normalize(['101198', '', 'SQ', '1', 'SQ00101', '', 'Nome',
             '', 'pt-BR', '', '', 'N', '', '0']))
         lsf.writerow(normalize(['101199', '', 'SQ', '1', 'SQ00102', '',
-            u'E-mail', '', 'pt-BR', '', '', 'N', '', '0']))
+            'E-mail', '', 'pt-BR', '', '', 'N', '', '0']))
         for i, k, v in setores:
             lsf.writerow(normalize(['10110{0}'.format(i), '', 'SQ', '',
                 'SQ1010{0}'.format(i), '1', v, '', 'pt-BR', '', '', 'N',
@@ -117,25 +117,25 @@ class Command(BaseCommand):
         self.stdout.write("Done!")
         # Equipe de diagnóstico #
         self.stdout.write("\tEquipe de diagnóstico...", ending=" ")
-        lsf.writerow(normalize(['2000', '', 'G', '', u'Equipe de diagnóstico',
+        lsf.writerow(normalize(['2000', '', 'G', '', 'Equipe de diagnóstico',
             '', '', '', 'pt-BR']))
         lsf.writerow(normalize(['2001', '', 'Q', 'D', 'c002q001', '1',
-            u'Data de início da visita', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Data de início da visita', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c002q001')
         lsf.writerow(normalize(['2002', '', 'Q', 'D', 'c002q002', '1',
-            u'Data de término da visita', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Data de término da visita', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c002q002')
         lsf.writerow(normalize(['2003', '', 'Q', 'S', 'c002q003', '1',
-            u'Líder da equipe', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Líder da equipe', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c002q003')
         lsf.writerow(normalize(['2004', '', 'Q', 'T', 'c002q004', '1',
-            u'Membros da equipe', '', 'pt-BR', '', 'Y', 'N', '', '0']))
+            'Membros da equipe', '', 'pt-BR', '', 'Y', 'N', '', '0']))
         struct.append('c002q004')
         self.stdout.write("Done!")
 
         for c in Categoria.objects.all():
             self.stdout.write("\t{0}...".format(nonum(c.nome).encode('utf-8')), ending=" ")
-            lsf.writerow(normalize([str(c.id), '', 'G', '', 
+            lsf.writerow(normalize([str(c.id), '', 'G', '',
                 nonum(c.nome), '', nonum(c.nome), '',
                 'pt-BR']))
             perguntas = sorted([(p.title, p) for p in c.perguntas.all()])
@@ -143,16 +143,16 @@ class Command(BaseCommand):
                 lstype = DATATYPES[p.datatype]
                 # Hack para perguntas SIM/NÃO que foram cadastradas como Choice
                 if lstype == 'L':
-                    if ("".join([e.title for e in p.choices.all()]) in 
-                        [u"SimNão", u"NãoSim"]):
+                    if ("".join([e.title for e in p.choices.all()]) in
+                        ["SimNão", "NãoSim"]):
                         lstype = 'Y'
                 ########
                 relevance = "1"
                 if p.abre_por.exists():
                     relevance = "(" + " or ".join(
-                        [u'({sid}X{gid}X{qid}.NAOK == "{value}")'.format(
+                        ['({sid}X{gid}X{qid}.NAOK == "{value}")'.format(
                             sid=survey_id, gid=e.schema.categoria.id,
-                            qid=e.schema.id, value=avalue(e)) for e in 
+                            qid=e.schema.id, value=avalue(e)) for e in
                             p.abre_por.all()]) + ")"
 
                 lsf.writerow(normalize([str(p.id), '', 'Q', lstype,
@@ -160,12 +160,12 @@ class Command(BaseCommand):
                     nonum(p.title), p.help_text, 'pt-BR', '', 'NY'[p.required],
                     'N', '', '0']))
                 if lstype == 'L':
-                    lsf.writerows([normalize([str(p.id), u'', u'A', u'0', 
-                        str(e.id), u'', e.title, u'', u'pt-BR'])
+                    lsf.writerows([normalize([str(p.id), '', 'A', '0',
+                        str(e.id), '', e.title, '', 'pt-BR'])
                         for e in p.choices.all()])
                 if lstype == 'M':
-                    lsf.writerows([normalize([str(p.id*1000+e.id), u'', u'SQ',
-                        u'', str(e.id), u'1', e.title, u'', u'pt-BR'])
+                    lsf.writerows([normalize([str(p.id*1000+e.id), '', 'SQ',
+                        '', str(e.id), '1', e.title, '', 'pt-BR'])
                         for e in p.choices.all()])
                     struct.extend(['c{0:03}q{1:03}_{2}'.format(c.id, p.id,
                         e.id) for e in p.choices.all()])
@@ -184,7 +184,7 @@ class Command(BaseCommand):
         dtf.writerow(struct)
 
         for d in Diagnostico.objects.all():
-            self.stdout.write(u"\t{0}".format(d.casa_legislativa.nome))
+            self.stdout.write("\t{0}".format(d.casa_legislativa.nome))
 
             form = OrderedDict.fromkeys(struct, '{question_not_shown}')
 
@@ -207,9 +207,9 @@ class Command(BaseCommand):
                 form['c001q006'] = \
                     d.casa_legislativa.data_instalacao.isoformat()
             form['c001q007'] = (
-                u"{logradouro}{{cr}}{{newline}}"
-                u"{bairro}{{cr}}{{newline}}"
-                u"{cep} - {municipio} - {uf}".format(
+                "{logradouro}{{cr}}{{newline}}"
+                "{bairro}{{cr}}{{newline}}"
+                "{cep} - {municipio} - {uf}".format(
                     logradouro=d.casa_legislativa.logradouro,
                     bairro=d.casa_legislativa.bairro,
                     cep=d.casa_legislativa.cep,
@@ -252,9 +252,9 @@ class Command(BaseCommand):
                     if r.schema.datatype == 'one':
                         if value is None:
                             value = '{question_not_shown}'
-                        elif value.title == u'Sim':
+                        elif value.title == 'Sim':
                             value = 'Y'
-                        elif value.title == u'Não':
+                        elif value.title == 'Não':
                             value = 'N'
                         else:
                             value = r.value.id
@@ -264,12 +264,12 @@ class Command(BaseCommand):
                                 replace('\r', '{cr}{newline}').\
                                     replace('\n', '{cr}{newline}').\
                                         replace('\t', ' ')
-                
+
                 if value is None:
                     value = '{question_not_shown}'
-                form[key] = u'{0}'.format(value)
+                form[key] = '{0}'.format(value)
             dtf.writerow(normalize(form.values()))
 
         self.stdout.write('Done!')
-        
-            
+
+

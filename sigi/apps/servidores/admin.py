@@ -10,15 +10,15 @@ from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.utils.filters import AlphabeticFilter
 
 class ServidorFilter(AlphabeticFilter):
-    title = _(u'Nome do Servidor')
+    title = _('Nome do Servidor')
     parameter_name = 'servidor__nome_completo'
 
 class ServicoFilter(admin.SimpleListFilter):
-    title = _(u"Subordinados à")
+    title = _("Subordinados à")
     parameter_name = 'subordinado__id__exact'
 
     def lookups(self, request, model_admin):
-        return ([('None', _(u"Nenhum"))] +
+        return ([('None', _("Nenhum"))] +
                 [(s.id, s.nome) for s in Servico.objects.exclude(servico=None)])
 
     def queryset(self, request, queryset):
@@ -47,10 +47,10 @@ class ServidorInline(admin.TabularInline):
 
     def imagem_foto(sels, servidor):
         if servidor.foto:
-            return u'<img src="{url}" style="height: 60px; width: 60px; border-radius: 50%;">'.format(url=servidor.foto.url)
+            return '<img src="{url}" style="height: 60px; width: 60px; border-radius: 50%;">'.format(url=servidor.foto.url)
         else:
-            return u""
-    imagem_foto.short_description = _(u"foto")
+            return ""
+    imagem_foto.short_description = _("foto")
     imagem_foto.allow_tags = True
 
     def is_active(self, servidor):
@@ -60,7 +60,7 @@ class ServidorInline(admin.TabularInline):
             return False
     is_active.admin_order_field = 'user__is_active'
     is_active.boolean = True
-    is_active.short_description = _(u'ativo')
+    is_active.short_description = _('ativo')
 
 
 @admin.register(Servico)
@@ -83,7 +83,7 @@ class ServidorAdmin(BaseModelAdmin):
         (None, {
             'fields': ('user', 'nome_completo', 'foto', 'servico',)
         }),
-        (_(u"outros órgãos"), {
+        (_("outros órgãos"), {
             'fields': ('externo', 'orgao_origem', 'qualificacoes'),
         }),
     )
@@ -109,12 +109,12 @@ class ServidorAdmin(BaseModelAdmin):
             return False
     is_active.admin_order_field = 'user__is_active'
     is_active.boolean = True
-    is_active.short_description = _(u'ativo')
+    is_active.short_description = _('ativo')
 
     def imagem_foto(sels, servidor):
         if servidor.foto:
-            return u'<img src="{url}" style="height: 60px; width: 60px; border-radius: 50%;">'.format(url=servidor.foto.url)
+            return '<img src="{url}" style="height: 60px; width: 60px; border-radius: 50%;">'.format(url=servidor.foto.url)
         else:
-            return u""
-    imagem_foto.short_description = _(u"foto")
+            return ""
+    imagem_foto.short_description = _("foto")
     imagem_foto.allow_tags = True

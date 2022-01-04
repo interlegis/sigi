@@ -12,11 +12,11 @@ class EavCheckboxSelectMultiple(CheckboxSelectMultiple):
         if value is None:
             value = []
         final_attrs = self.build_attrs(attrs, name=name)
-        output = [u'<ul>']
+        output = ['<ul>']
         str_values = set([force_unicode(v) for v in value])
         for i, (option_value, option_label) in enumerate(chain(self.choices, choices)):
             final_attrs = dict(final_attrs, id='%s_%s' % (attrs['id'], i))
-            label_for = u' for="%s"' % final_attrs['id']
+            label_for = ' for="%s"' % final_attrs['id']
 
             # Caso exista uma pergunta para abrir
             # adiciona um atripbuto no checkbox
@@ -28,9 +28,9 @@ class EavCheckboxSelectMultiple(CheckboxSelectMultiple):
             option_value = force_unicode(option_value)
             rendered_cb = cb.render(name, option_value)
             option_label = conditional_escape(force_unicode(option_label))
-            output.append(u'<li><label%s>%s %s</label></li>' % (label_for, rendered_cb, option_label))
-        output.append(u'</ul>')
-        return mark_safe(u'\n'.join(output))
+            output.append('<li><label%s>%s %s</label></li>' % (label_for, rendered_cb, option_label))
+        output.append('</ul>')
+        return mark_safe('\n'.join(output))
 
 
 class EavRadioFieldRenderer(RadioFieldRenderer):

@@ -10,17 +10,17 @@ from sigi.apps.casas.models import Orgao, Funcionario
 
 class Command(BaseCommand):
     args = "nome_do_arquivo.txt"
-    help = u"""
+    help = """
 Importa dados de serviços de arquivos TXT gerados pela COTIN.
 """
     def handle(self, *args, **options):
         if len(args) != 1:
-            raise CommandError(u"Informe UM arquivo TXT a importar")
+            raise CommandError("Informe UM arquivo TXT a importar")
         file_name = args[0]
 
-        self.stdout.write(u'Verificando estrutura do arquivo...')
+        self.stdout.write('Verificando estrutura do arquivo...')
         if not os.path.isfile(file_name):
-            raise CommandError(u"Arquivo '%s' não encontrado" % file_name)
+            raise CommandError("Arquivo '%s' não encontrado" % file_name)
 
         with open(file_name, 'r') as f:
             reader = csv.DictReader(f, delimiter=" ")
@@ -28,8 +28,8 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                 not 'NAME' in reader.fieldnames or
                 not 'COD_ORGAO' in reader.fieldnames):
                 print reader.fieldnames
-                raise CommandError(u"Formato inválido do arquivo.")
-            self.stdout.write(u'Estrutura parece ok.')
+                raise CommandError("Formato inválido do arquivo.")
+            self.stdout.write('Estrutura parece ok.')
             self.stdout.write("Preparando dados...")
             casas = {
                 to_ascii(c.municipio.nome).replace(' ','').replace('-','').replace("'", '').lower()
@@ -79,7 +79,7 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                 if nome_casa.startswith('cm'):
                     nome_casa = nome_casa.replace('cm','')
 
-                url = u"https://{subdominio}.{dominio}.{sufixo}".format(
+                url = "https://{subdominio}.{dominio}.{sufixo}".format(
                     subdominio=subdominios[sigla],
                     dominio=dominio,
                     sufixo=sufixo
@@ -152,7 +152,7 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                 try:
                     contato, created = casa.funcionario_set.get_or_create(
                         setor='contato_interlegis',
-                        defaults={'nome': u"<<CRIADO PELA IMPORTAÇÃO DE SERVIÇOS SEIT>>"}
+                        defaults={'nome': "<<CRIADO PELA IMPORTAÇÃO DE SERVIÇOS SEIT>>"}
                     )
                 except Funcionario.MultipleObjectsReturned:
                     contato = casa.funcionario_set.filter(
@@ -174,8 +174,8 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                     servico.save()
                 except Servico.MultipleObjectsReturned:
                     self.stdout.write(
-                        u"{template} {name} {cod_orgao} mais de um servico "
-                        u"encontrado ({s})".format(
+                        "{template} {name} {cod_orgao} mais de um servico "
+                        "encontrado ({s})".format(
                             template=template,
                             name=name,
                             cod_orgao=cod_orgao,
@@ -190,14 +190,14 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                         data_alteracao__lt=agora
                     ).update(
                         data_desativacao=agora,
-                        motivo_desativacao=(u"[AUTOMÁTICO] Não consta da lista "
-                                            u"da COTIN")
+                        motivo_desativacao=("[AUTOMÁTICO] Não consta da lista "
+                                            "da COTIN")
                     )
             else:
                 self.stdout.write(
-                    self.style.ERROR(u"Os serviços excendentes não podem ser "
-                                     u"desativados porque foram encontradas "
-                                     u"inconsistências no arquivo de origem")
+                    self.style.ERROR("Os serviços excendentes não podem ser "
+                                     "desativados porque foram encontradas "
+                                     "inconsistências no arquivo de origem")
                 )
 
 

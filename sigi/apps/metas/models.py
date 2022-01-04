@@ -11,29 +11,29 @@ from sigi.apps.financeiro.models import Desembolso
 
 class Meta(models.Model):
     ALGORITMO_CHOICES = (
-        ('SUM_GASTOS', _(u'Soma dos desembolsos')),
-        ('COUNT_EQUI', _(u'Quantidade de casas equipadas')),
-        ('COUNT_ADER', _(u'Quantidade de casas aderidas')),
-        ('COUNT_DIAG', _(u'Quantidade de casas diagnosticadas')),
-        ('COUNT_PDIR', _(u'Quantidade de planos diretores')),
-        ('COUNT_CONV', _(u'Quantidade de casas conveniadas')),
+        ('SUM_GASTOS', _('Soma dos desembolsos')),
+        ('COUNT_EQUI', _('Quantidade de casas equipadas')),
+        ('COUNT_ADER', _('Quantidade de casas aderidas')),
+        ('COUNT_DIAG', _('Quantidade de casas diagnosticadas')),
+        ('COUNT_PDIR', _('Quantidade de planos diretores')),
+        ('COUNT_CONV', _('Quantidade de casas conveniadas')),
     )
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.CASCADE,
-        verbose_name=_(u'Projeto'),
-        help_text=_(u'Projeto ao qual a meta se refere')
+        verbose_name=_('Projeto'),
+        help_text=_('Projeto ao qual a meta se refere')
     )
-    titulo = models.CharField(_(u'Título'), max_length=40, help_text=_(u'Título da meta que aparecerá no dashboard'))
-    descricao = models.TextField(_(u'Descrição'))
-    data_inicio = models.DateField(_(u'Data inicial'), help_text=_(u'Início do período de cômputo da meta'))
-    data_fim = models.DateField(_(u'Data final'), help_text=_(u'Prazo final para cumprimento da meta'))
-    algoritmo = models.CharField(_(u'Algoritmo de cálculo'), max_length=10, choices=ALGORITMO_CHOICES)
-    valor_meta = models.FloatField(_(u'Valor da meta'), help_text=_(u'Valor que deve ser atingido até o prazo final da meta'))
+    titulo = models.CharField(_('Título'), max_length=40, help_text=_('Título da meta que aparecerá no dashboard'))
+    descricao = models.TextField(_('Descrição'))
+    data_inicio = models.DateField(_('Data inicial'), help_text=_('Início do período de cômputo da meta'))
+    data_fim = models.DateField(_('Data final'), help_text=_('Prazo final para cumprimento da meta'))
+    algoritmo = models.CharField(_('Algoritmo de cálculo'), max_length=10, choices=ALGORITMO_CHOICES)
+    valor_meta = models.FloatField(_('Valor da meta'), help_text=_('Valor que deve ser atingido até o prazo final da meta'))
 
     class Meta:
-        verbose_name = _(u'Meta BID')
-        verbose_name_plural = _(u'Metas BID')
+        verbose_name = _('Meta BID')
+        verbose_name_plural = _('Metas BID')
 
     def __unicode__(self):
         return self.titulo
@@ -116,27 +116,27 @@ class Meta(models.Model):
 
 class PlanoDiretor(models.Model):
     STATUS_CHOICE = (
-        ('E', _(u'Entregue')),
-        ('I', _(u'Implantado')),
+        ('E', _('Entregue')),
+        ('I', _('Implantado')),
     )
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.CASCADE,
-        verbose_name=_(u'Projeto')
+        verbose_name=_('Projeto')
     )
     casa_legislativa = models.ForeignKey(
         Orgao,
         on_delete=models.CASCADE,
-        verbose_name=_(u'Casa Legislativa')
+        verbose_name=_('Casa Legislativa')
     )
     casa_legislativa.casa_uf_filter = True
-    status = models.CharField(_(u'Status'), max_length=1, choices=STATUS_CHOICE, default='E')
-    data_entrega = models.DateField(_(u'Data de entrega'), blank=True, null=True)
-    data_implantacao = models.DateField(_(u'Data de implantação'), blank=True, null=True)
+    status = models.CharField(_('Status'), max_length=1, choices=STATUS_CHOICE, default='E')
+    data_entrega = models.DateField(_('Data de entrega'), blank=True, null=True)
+    data_implantacao = models.DateField(_('Data de implantação'), blank=True, null=True)
 
     class Meta:
-        verbose_name = _(u'Plano Diretor')
-        verbose_name_plural = _(u'Planos Diretores')
+        verbose_name = _('Plano Diretor')
+        verbose_name_plural = _('Planos Diretores')
 
     def __unicode__(self):
         return self.casa_legislativa.nome

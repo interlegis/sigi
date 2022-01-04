@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='convite',
             name='servidor',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Servidor que convidou', to='servidores.Servidor'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, verbose_name='Servidor que convido', to='servidores.Servidor'),
             preserve_default=True,
         ),
         migrations.AlterField(

@@ -7,16 +7,16 @@ from sigi.apps.servidores.models import Servidor
 
 class OcorrenciaListFilter(admin.SimpleListFilter):
 
-    title = _(u'Relacionadas a Mim')
+    title = _('Relacionadas a Mim')
     parameter_name = 'minhas'
 
     def lookups(self, request, model_admin):
         if request.user.servidor is None:
             return None
         return (
-            ('S', _(u'Atribuídos ao meu setor')),
-            ('M', _(u'Registrados por mim')),
-            ('G', _(u'Sobre casas que gerencio')),
+            ('S', _('Atribuídos ao meu setor')),
+            ('M', _('Registrados por mim')),
+            ('G', _('Sobre casas que gerencio')),
         )
 
     def queryset(self, request, queryset):

@@ -115,7 +115,7 @@ def adicionar_convenios_carrinho(request, queryset=None, id=None):
 def excluir_carrinho(request):
     if 'carrinho_convenios' in request.session:
         del request.session['carrinho_convenios']
-        messages.info(request, u'O carrinho foi esvaziado')
+        messages.info(request, 'O carrinho foi esvaziado')
     return HttpResponseRedirect('../../')
 
 @login_required
@@ -260,12 +260,12 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     )
 
     cabecalho_topo = (
-        _(u'UF'),
-        _(u'Câmaras municipais'),
-        _(u'Não Aderidas'),
-        _(u'Aderidas'),
-        _(u'Conveniadas'),
-        _(u'Equipadas')
+        _('UF'),
+        _('Câmaras municipais'),
+        _('Não Aderidas'),
+        _('Aderidas'),
+        _('Conveniadas'),
+        _('Equipadas')
     )
 
     return {
@@ -291,7 +291,7 @@ def report_regiao(request, regiao='NE'):
     # Geral
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
     tabela = casas_estado_to_tabela(camaras, convenios, regiao)
-    tabela["projeto"] = _(u"Geral")
+    tabela["projeto"] = _("Geral")
 
     tabelas.append(tabela)
 
@@ -325,47 +325,47 @@ def export_csv(request):
     if not convenios:
         return HttpResponseRedirect('../')
 
-    atributos = [_(u"No. Processo"), _(u"No. Convênio"), _(u"Projeto"), _(u"Casa Legislativa"), _(u"Data de Adesão"), _(u"Data de Convênio"),
-                 _(u"Data da Publicacao no D.O."), _(u"Data Equipada"), ]
+    atributos = [_("No. Processo"), _("No. Convênio"), _("Projeto"), _("Casa Legislativa"), _("Data de Adesão"), _("Data de Convênio"),
+                 _("Data da Publicacao no D.O."), _("Data Equipada"), ]
 
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
 
     col_titles = atributos
-    if _(u"Casa Legislativa") in col_titles:
-        pos = col_titles.index(_(u"Casa Legislativa")) + 1
-        col_titles.insert(pos, _(u"uf"))
+    if _("Casa Legislativa") in col_titles:
+        pos = col_titles.index(_("Casa Legislativa")) + 1
+        col_titles.insert(pos, _("uf"))
     csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for convenio in convenios:
         lista = []
         for atributo in atributos:
-            if _(u"No. Processo") == atributo:
+            if _("No. Processo") == atributo:
                 lista.append(convenio.num_processo_sf.encode("utf-8"))
-            elif _(u"No. Convênio") == atributo:
+            elif _("No. Convênio") == atributo:
                 lista.append(convenio.num_convenio.encode("utf-8"))
-            elif _(u"Projeto") == atributo:
+            elif _("Projeto") == atributo:
                 lista.append(convenio.projeto.nome.encode("utf-8"))
-            elif _(u"Casa Legislativa") == atributo:
+            elif _("Casa Legislativa") == atributo:
                 lista.append(convenio.casa_legislativa.nome.encode("utf-8"))
                 lista.append(convenio.casa_legislativa.municipio.uf.sigla.encode("utf-8"))
-            elif _(u"Data de Adesão") == atributo:
+            elif _("Data de Adesão") == atributo:
                 data = ''
                 if convenio.data_adesao:
                     data = convenio.data_adesao.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
-            elif _(u"Data de Convênio") == atributo:
+            elif _("Data de Convênio") == atributo:
                 data = ''
                 if convenio.data_retorno_assinatura:
                     data = convenio.data_retorno_assinatura.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
-            elif _(u"Data da Publicacao no D.O.") == atributo:
+            elif _("Data da Publicacao no D.O.") == atributo:
                 data = ''
                 if convenio.data_pub_diario:
                     data = convenio.data_pub_diario.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
                 data = ''
-            elif _(u"Data Equipada") == atributo:
+            elif _("Data Equipada") == atributo:
                 if convenio.data_termo_aceite:
                     data = convenio.data_termo_aceite.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))

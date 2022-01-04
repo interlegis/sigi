@@ -125,8 +125,8 @@ class importa_casas(View):
                 return render(
                     request,
                     'casas/importar.html',
-                    {'form': form, 'error': _(u"O arquivo não possui algum dos "
-                                              u"campos obrigatórios")}
+                    {'form': form, 'error': _("O arquivo não possui algum dos "
+                                              "campos obrigatórios")}
                 )
 
             if self.importa(reader):
@@ -165,7 +165,7 @@ class importa_casas(View):
             return render(
                 request,
                 'casas/importar.html',
-                {'form': form, 'error': u"Erro no preenchimento do formulário."}
+                {'form': form, 'error': "Erro no preenchimento do formulário."}
             )
 
     # Atualiza ou cria funcionário
@@ -448,7 +448,7 @@ def visualizar_carrinho(request):
 def excluir_carrinho(request):
     if 'carrinho_casas' in request.session:
         del request.session['carrinho_casas']
-        messages.info(request, u'O carrinho foi esvaziado')
+        messages.info(request, 'O carrinho foi esvaziado')
     return HttpResponseRedirect('../../')
 
 
@@ -588,7 +588,7 @@ def report(request, id=None, tipo=None):
         return HttpResponseRedirect('../')
 
     qs = qs.order_by('municipio__uf', 'nome')
-    context = {'casas': qs, 'title': _(u"Relação de Casas Legislativas")}
+    context = {'casas': qs, 'title': _("Relação de Casas Legislativas")}
 
     return render_to_pdf('casas/report_pdf.html', context)
 
@@ -617,7 +617,7 @@ def casas_sem_convenio_report(request):
         return HttpResponseRedirect('../')
 
     qs = qs.order_by('municipio__uf', 'nome')
-    context = {'casas': qs, 'title': _(u"Casas sem convênio")}
+    context = {'casas': qs, 'title': _("Casas sem convênio")}
 
     return render_to_pdf('casas/report_pdf.html', context)
 
@@ -636,7 +636,7 @@ def export_csv(request):
     atributos = request.POST.getlist("itens_csv_selected")
 
     try:
-        atributos.insert(atributos.index(_(u'Município')), _(u'UF'))
+        atributos.insert(atributos.index(_('Município')), _('UF'))
     except ValueError:
         pass
 
@@ -648,59 +648,59 @@ def export_csv(request):
         lista = []
         contatos = casa.funcionario_set.exclude(nome="")
         for atributo in atributos:
-            if _(u"CNPJ") == atributo:
+            if _("CNPJ") == atributo:
                 lista.append(casa.cnpj.encode("utf-8"))
-            elif _(u"Código IBGE") == atributo:
+            elif _("Código IBGE") == atributo:
                 lista.append(str(casa.municipio.codigo_ibge).encode("utf-8"))
-            elif _(u"Código TSE") == atributo:
+            elif _("Código TSE") == atributo:
                 lista.append(str(casa.municipio.codigo_tse).encode("utf-8"))
-            elif _(u"Nome") == atributo:
+            elif _("Nome") == atributo:
                 lista.append(casa.nome.encode("utf-8"))
-            elif _(u"Município") == atributo:
+            elif _("Município") == atributo:
                 lista.append(unicode(casa.municipio.uf.sigla).encode("utf-8"))
                 lista.append(unicode(casa.municipio.nome).encode("utf-8"))
-            elif _(u"Presidente") == atributo:
+            elif _("Presidente") == atributo:
                 # TODO: Esse encode deu erro em 25/04/2012. Comentei para que o usuário pudesse continuar seu trabalho
                 # É preciso descobrir o porque do erro e fazer a correção definitiva.
                 #                lista.append(str(casa.presidente or "").encode("utf-8"))
                 lista.append(str(casa.presidente or ""))
-            elif _(u"Logradouro") == atributo:
+            elif _("Logradouro") == atributo:
                 lista.append(casa.logradouro.encode("utf-8"))
-            elif _(u"Bairro") == atributo:
+            elif _("Bairro") == atributo:
                 lista.append(casa.bairro.encode("utf-8"))
-            elif _(u"CEP") == atributo:
+            elif _("CEP") == atributo:
                 lista.append(casa.cep.encode("utf-8"))
-            elif _(u"Telefone") == atributo:
+            elif _("Telefone") == atributo:
                 lista.append(str(casa.telefone or ""))
-            elif _(u"Página web") == atributo:
+            elif _("Página web") == atributo:
                 lista.append(casa.pagina_web.encode("utf-8"))
-            elif _(u"Email") == atributo:
+            elif _("Email") == atributo:
                 lista.append(casa.email.encode("utf-8"))
-            elif _(u"Número de parlamentares") == atributo:
+            elif _("Número de parlamentares") == atributo:
                 lista.append(casa.total_parlamentares)
-            elif _(u"Última alteração de endereco") == atributo:
+            elif _("Última alteração de endereco") == atributo:
                 lista.append(casa.ult_alt_endereco)
-            elif _(u"Servicos SEIT") == atributo:
+            elif _("Servicos SEIT") == atributo:
                 lista.append(", ".join([s.tipo_servico.nome.encode('utf-8')
                                         for s in casa.servico_set.filter(
                                             data_desativacao__isnull=True)])
                 )
-            elif _(u"Nome contato") == atributo:
+            elif _("Nome contato") == atributo:
                 if contatos:
-                    nomes = u", ".join([c.nome for c in contatos])
+                    nomes = ", ".join([c.nome for c in contatos])
                     lista.append(nomes.encode("utf-8"))
                 else:
                     lista.append('')
-            elif _(u"Cargo contato") == atributo:
+            elif _("Cargo contato") == atributo:
                 if contatos:
-                    cargos = u", ".join([c.cargo if c.cargo else u"?"
+                    cargos = ", ".join([c.cargo if c.cargo else "?"
                                          for c in contatos])
                     lista.append(cargos.encode("utf-8"))
                 else:
                     lista.append('')
-            elif _(u"Email contato") == atributo:
+            elif _("Email contato") == atributo:
                 if contatos:
-                    emails = u", ".join([c.email if c.email else u"?"
+                    emails = ", ".join([c.email if c.email else "?"
                                          for c in contatos])
                     lista.append(emails.encode("utf-8"))
                 else:
@@ -745,7 +745,7 @@ def portfolio(request):
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
         data['form'] = PortfolioForm(
-            _(u'Atribuir casas da microrregiao {name} para').format(
+            _('Atribuir casas da microrregiao {name} para').format(
                 name=unicode(microrregiao))
         )
         data['querystring'] = 'micro={0}'.format(microrregiao.pk)
@@ -762,7 +762,7 @@ def portfolio(request):
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['microrregioes'] = mesorregiao.microrregiao_set.all()
         data['form'] = PortfolioForm(
-            _(u'Atribuir casas da mesorregiao {name} para').format(
+            _('Atribuir casas da mesorregiao {name} para').format(
                 name=unicode(mesorregiao)))
         data['querystring'] = 'meso={0}'.format(mesorregiao.pk)
         casas = Orgao.objects.filter(
@@ -775,7 +775,7 @@ def portfolio(request):
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=uf.regiao)
         data['mesorregioes'] = uf.mesorregiao_set.all()
         data['form'] = PortfolioForm(
-            _(u'Atribuir casas do estado {name} para').format(
+            _('Atribuir casas do estado {name} para').format(
                 name=unicode(uf)))
         data['querystring'] = 'uf={0}'.format(uf.pk)
         casas = Orgao.objects.filter(municipio__uf=uf)
@@ -783,7 +783,7 @@ def portfolio(request):
         data['regiao'] = regiao
         data['ufs'] = UnidadeFederativa.objects.filter(regiao=regiao)
         data['form'] = PortfolioForm(
-            _(u'Atribuir casas da região {name} para').format(
+            _('Atribuir casas da região {name} para').format(
                 name=[x[1] for x in UnidadeFederativa.REGIAO_CHOICES if
                  x[0] == regiao][0]))
         data['querystring'] = 'regiao={0}'.format(regiao)
@@ -814,21 +814,21 @@ def portfolio(request):
                 if acao == 'ADD':
                     gerente.casas_que_gerencia.add(*casas)
                     data['messages'].append(ungettext(
-                        u"{count} casa adicionada para {gerente}",
-                        u"{count} casas adicionadas para {gerente}",
+                        "{count} casa adicionada para {gerente}",
+                        "{count} casas adicionadas para {gerente}",
                         count).format(count=count,gerente=gerente.nome_completo)
                     )
                 elif acao == 'DEL':
                     gerente.casas_que_gerencia.remove(*casas)
                     data['messages'].append(ungettext(
-                        u"{count} casa removida de {gerente}",
-                        u"{count} casas removidas de {gerente}",
+                        "{count} casa removida de {gerente}",
+                        "{count} casas removidas de {gerente}",
                         count).format(count=count,gerente=gerente.nome_completo)
                     )
                 else:
-                    data['errors'].append(_(u"Ação não definida"))
+                    data['errors'].append(_("Ação não definida"))
             else:
-                data['errors'].append(_(u"Dados inválidos"))
+                data['errors'].append(_("Dados inválidos"))
 
         paginator = Paginator(casas, 30)
         try:
@@ -892,16 +892,16 @@ def resumo_carteira(casas):
         else:
             dados_ocorrencia['media'][r] = (1.0 * dados_ocorrencia['registradas'][r] / (total[r] - dados_ocorrencia['sem'][r]))
 
-    resumo = [[_(u"Item"), _(u"Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
-    resumo.append([_(u"Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append({'subtitle': _(u"Uso dos produtos Interlegis")})
-    resumo.append([_(u"Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo = [[_("Item"), _("Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
+    resumo.append([_("Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append({'subtitle': _("Uso dos produtos Interlegis")})
+    resumo.append([_("Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
     resumo.extend([[ts.nome, dados[ts.id]['total']] + [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
-    resumo.append({'subtitle': _(u"Registros no sistema de ocorrências")})
-    resumo.append([_(u"Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']] + [dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']] + [dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']] + [dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-    resumo.append([_(u"Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'], 2)] + [round(dados_ocorrencia['media'][r[0]], 2) for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append({'subtitle': _("Registros no sistema de ocorrências")})
+    resumo.append([_("Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']] + [dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_("Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']] + [dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_("Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']] + [dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo.append([_("Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'], 2)] + [round(dados_ocorrencia['media'][r[0]], 2) for r in UnidadeFederativa.REGIAO_CHOICES])
 
     return resumo
 
@@ -1016,13 +1016,13 @@ def painel_relacionamento(request):
             response['Content-Disposition'] = 'attachment; filename=casas.csv'
             writer = csv.writer(response)
             writer.writerow([
-                _(u"Casa legislativa").encode('utf8'),
-                _(u"Região").encode('utf8'),
-                _(u"Estado").encode('utf8'),
-                _(u"Mesorregião").encode('utf8'),
-                _(u"Microrregião").encode('utf8'),
-                _(u"Gerentes Interlegis").encode('utf8'),
-                _(u"Serviços").encode('utf8'),
+                _("Casa legislativa").encode('utf8'),
+                _("Região").encode('utf8'),
+                _("Estado").encode('utf8'),
+                _("Mesorregião").encode('utf8'),
+                _("Microrregião").encode('utf8'),
+                _("Gerentes Interlegis").encode('utf8'),
+                _("Serviços").encode('utf8'),
             ])
             for c in casas:
                 writer.writerow([
@@ -1032,7 +1032,7 @@ def painel_relacionamento(request):
                     c.municipio.microrregiao.mesorregiao.nome.encode('utf8'),
                     c.municipio.microrregiao.nome.encode('utf8'),
                     c.lista_gerentes(fmt='lista').encode('utf8'),
-                    (u", ".join([s.tipo_servico.nome for s in c.servico_set.filter(data_desativacao__isnull=True)])).encode('utf8'),
+                    (", ".join([s.tipo_servico.nome for s in c.servico_set.filter(data_desativacao__isnull=True)])).encode('utf8'),
                 ])
             return response
         return render(request, 'casas/lista_casas_carteira_snippet.html', context)

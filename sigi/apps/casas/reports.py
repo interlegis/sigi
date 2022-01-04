@@ -100,7 +100,7 @@ class CasasLegislativasLabels(Report):
 
         my_elements = [
             Label(
-                text=label_text(_(u'A Sua Excelência o(a) Senhor(a)')),
+                text=label_text(_('A Sua Excelência o(a) Senhor(a)')),
                 top=calc_top(0), left=calc_left, width=calc_width,
             ),
             ObjectValue(
@@ -113,7 +113,7 @@ class CasasLegislativasLabels(Report):
                 attribute_name='nome',
                 top=calc_top(2), left=calc_left, width=calc_width, height=calc_height(2),
                 get_value=lambda instance:
-                    (_(u"Presidente da %s") % instance.nome)
+                    (_("Presidente da %s") % instance.nome)
             ),
             ObjectValue(
                 attribute_name='logradouro',
@@ -125,7 +125,7 @@ class CasasLegislativasLabels(Report):
             ObjectValue(
                 attribute_name='cep',
                 top=calc_top(8), left=calc_left, width=calc_width,
-                get_value=lambda instance: "%s: %s" % (_(u"CEP"), instance.cep)
+                get_value=lambda instance: "%s: %s" % (_("CEP"), instance.cep)
             ),
         ]
         self.band_detail = DetailBand(
@@ -148,14 +148,14 @@ class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
 
         my_elements = [
             Label(
-                text=label_text(_(u'A Sua Excelência o(a) Senhor(a)')),
+                text=label_text(_('A Sua Excelência o(a) Senhor(a)')),
                 top=calc_top(0), left=calc_left, width=calc_width,
             ),
             ObjectValue(
                 attribute_name='nome',
                 top=calc_top(1), left=calc_left, width=calc_width, height=calc_height(2),
                 get_value=lambda instance:
-                    (_(u"Presidente da %s") % instance.nome)
+                    (_("Presidente da %s") % instance.nome)
             ),
             ObjectValue(
                 attribute_name='logradouro',
@@ -167,7 +167,7 @@ class CasasLegislativasLabelsSemPresidente(CasasLegislativasLabels):
             ObjectValue(
                 attribute_name='cep',
                 top=calc_top(8), left=calc_left, width=calc_width,
-                get_value=lambda instance: "%s: %s" % (_(u"CEP"), instance.cep)
+                get_value=lambda instance: "%s: %s" % (_("CEP"), instance.cep)
             ),
         ]
         self.band_detail = DetailBand(

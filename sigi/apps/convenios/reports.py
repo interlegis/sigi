@@ -26,7 +26,7 @@ class SemEquipamentosReport(object):
 
 
 class ConvenioReport(ReportDefault):
-    title = _(u'Relatório de Parcerias')
+    title = _('Relatório de Parcerias')
 
     class band_page_header(ReportDefault.band_page_header):
 
@@ -37,41 +37,41 @@ class ConvenioReport(ReportDefault):
 
         elements += [
             Label(
-                text=_(u"UF"),
+                text=_("UF"),
                 left=label_left[0] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Municipio"),
+                text=_("Municipio"),
                 left=label_left[1] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Número do Convênio"),
+                text=_("Número do Convênio"),
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Projeto"),
+                text=_("Projeto"),
                 left=label_left[3] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Data do Convênio"),
+                text=_("Data do Convênio"),
                 left=label_left[4] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Data de Publicação"),
+                text=_("Data de Publicação"),
                 left=label_left[5] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Orgão"),
+                text=_("Orgão"),
                 left=label_left[6] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
@@ -126,7 +126,7 @@ class ConvenioReport(ReportDefault):
     #                    height=0.7 * cm,
     #                    elements=[
     #                        ObjectValue(attribute_name='casa_legislativa.municipio.uf',
-    #                                    get_Value=lambda instance: '%s: %s' % (_(u'Casa Legislativa'), instance.casa_legislativa.uf)
+    #                                    get_Value=lambda instance: '%s: %s' % (_('Casa Legislativa'), instance.casa_legislativa.uf)
     #                                    )
     #                    ],
     #                    borders={'top': True},
@@ -146,35 +146,35 @@ class ConvenioReportSemAceite(ConvenioReport):
 
         elements += [
             Label(
-                text=_(u"UF"),
+                text=_("UF"),
                 left=label_left[0] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Município"),
+                text=_("Município"),
                 left=label_left[1] * cm,
                 top=label_top + 0.4 * cm,
             ),
             Label(
-                text=_(u"Número do Convênio"),
+                text=_("Número do Convênio"),
                 left=label_left[2] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Projeto"),
+                text=_("Projeto"),
                 left=label_left[3] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Data do Convênio"),
+                text=_("Data do Convênio"),
                 left=label_left[4] * cm,
                 top=label_top,
                 width=2 * cm,
             ),
             Label(
-                text=_(u"Orgão"),
+                text=_("Orgão"),
                 left=label_left[5] * cm,
                 top=label_top + 0.4 * cm,
                 width=2 * cm,
@@ -219,7 +219,7 @@ float_duas_casas = lambda instance: '%.2f' % (instance)
 
 
 class ConvenioReportRegiao(ReportDefault):
-    title = _(u'Relatório de Parcerias por Região')
+    title = _('Relatório de Parcerias por Região')
 
     class band_page_header(ReportDefault.band_page_header):
         label_top = ReportDefault.band_page_header.label_top
@@ -229,11 +229,11 @@ class ConvenioReportRegiao(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements += [
-            Label(text=_(u"UF"), left=label_left[0] * cm, top=label_top,),
-            Label(text=_(u"Total"), left=label_left[1] * cm, top=label_top,),
-            Label(text=_(u"Aderidas"), left=label_left[2] * cm, top=label_top,),
+            Label(text=_("UF"), left=label_left[0] * cm, top=label_top,),
+            Label(text=_("Total"), left=label_left[1] * cm, top=label_top,),
+            Label(text=_("Aderidas"), left=label_left[2] * cm, top=label_top,),
             Label(text="%", left=label_left[3] * cm, top=label_top),
-            Label(text=_(u"Ñ Aderidas"), left=label_left[4] * cm, top=label_top,),
+            Label(text=_("Ñ Aderidas"), left=label_left[4] * cm, top=label_top,),
             Label(text="%", left=label_left[5] * cm, top=label_top),
         ]
 
@@ -255,7 +255,7 @@ class ConvenioReportRegiao(ReportDefault):
     class band_summary(ReportBand):
         label_left = [0.5, 6, 8, 10, 12, 14]
         elements = [
-            Label(text=_(u"Total"), top=0.1 * cm, left=label_left[0] * cm),
+            Label(text=_("Total"), top=0.1 * cm, left=label_left[0] * cm),
             ObjectValue(attribute_name='quant_casas', action=FIELD_ACTION_SUM, left=label_left[1] * cm, ),
             ObjectValue(attribute_name='quant_casas_aderidas', action=FIELD_ACTION_SUM, left=label_left[2] * cm),
             #            ObjectValue(attribute_name='porc_casas_aderidas', action=FIELD_ACTION_AVG, left=label_left[3]*cm,
@@ -270,16 +270,16 @@ class ConvenioReportRegiao(ReportDefault):
 
 
 class ConvenioPorCMReport(ConvenioReport):
-    title = _(u'Relatório de Parcerias por Câmara Municipal')
+    title = _('Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioPorALReport(ConvenioReport):
-    title = _(u'Relatório de Parcerias por Assembléia Legislativa')
+    title = _('Relatório de Parcerias por Assembléia Legislativa')
 
 
 class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
-    title = _(u'Relatório de Parcerias por Câmara Municipal')
+    title = _('Relatório de Parcerias por Câmara Municipal')
 
 
 class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
-    title = _(u'Relatório de Parcerias por Assembléia Legislativa')
+    title = _('Relatório de Parcerias por Assembléia Legislativa')
