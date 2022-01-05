@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
@@ -27,8 +26,8 @@ class Servico(models.Model):
         verbose_name = _('serviço')
         verbose_name_plural = _('serviços')
 
-    def __unicode__(self):
-        return "{sigla} - {nome}".format(sigla=self.sigla, nome=self.nome)
+    def __str__(self):
+        return f"{self.sigla} - {self.nome}"
 
 class Servidor(models.Model):
     user = models.ForeignKey(
@@ -64,7 +63,7 @@ class Servidor(models.Model):
         ordering = ('nome_completo',)
         verbose_name_plural = 'servidores'
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome_completo
 
     def save(self, *args, **kwargs):
@@ -80,7 +79,7 @@ User.servidor = property(lambda user: Servidor.objects.get(user=user)
                          else None)
 
 # Sinal para ao criar um usuário criar um servidor
-# baseado no nome contino no LDAP
+# baseado no nome contido no LDAP
 def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Servidor.objects.create(

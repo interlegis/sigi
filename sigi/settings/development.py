@@ -11,6 +11,13 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+INTERNAL_IPS = ["127.0.0.1",]
+
+# Application definition
+
+INSTALLED_APPS = ['debug_toolbar',] + INSTALLED_APPS
+
+MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware',] + MIDDLEWARE
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
