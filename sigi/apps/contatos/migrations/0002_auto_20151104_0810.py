@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('codigo_ibge', models.PositiveIntegerField(help_text='C\xf3digo da mesorregi\xe3o segundo o IBGE', unique=True, serialize=False, verbose_name='C\xf3digo IBGE', primary_key=True)),
                 ('nome', models.CharField(max_length=100, verbose_name='Nome mesorregi\xe3o')),
                 ('search_text', sigi.apps.utils.SearchField(field_names=[b'nome'], editable=False)),
-                ('uf', models.ForeignKey(verbose_name='UF', to='contatos.UnidadeFederativa')),
+                ('uf', models.ForeignKey(verbose_name='UF', to='contatos.UnidadeFederativa', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('uf', 'nome'),
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('codigo_ibge', models.PositiveIntegerField(help_text='C\xf3digo da microrregi\xe3o segundo o IBGE', unique=True, serialize=False, verbose_name='C\xf3digo IBGE', primary_key=True)),
                 ('nome', models.CharField(max_length=100, verbose_name='Nome microrregi\xe3o')),
                 ('search_text', sigi.apps.utils.SearchField(field_names=[b'nome'], editable=False)),
-                ('mesorregiao', models.ForeignKey(to='contatos.Mesorregiao')),
+                ('mesorregiao', models.ForeignKey(to='contatos.Mesorregiao', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('mesorregiao', 'nome'),
@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='municipio',
             name='microrregiao',
-            field=models.ForeignKey(verbose_name='Microrregi\xe3o', blank=True, to='contatos.Microrregiao', null=True),
+            field=models.ForeignKey(verbose_name='Microrregi\xe3o', blank=True, to='contatos.Microrregiao', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

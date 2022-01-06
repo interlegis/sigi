@@ -29,6 +29,5 @@ class BaseChangeList(ChangeList):
 
 
 class BaseModelAdmin(admin.ModelAdmin):
-
     def get_changelist(self, request, **kwargs):
         return BaseChangeList

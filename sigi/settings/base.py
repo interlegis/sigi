@@ -20,6 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 INSTALLED_APPS = [
     'sigi.apps.servidores',
+    'sigi.apps.contatos',
     'django_bootstrap5',
     'django.forms',
     'django.contrib.admin',

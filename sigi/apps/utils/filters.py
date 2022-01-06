@@ -1,31 +1,94 @@
 # coding: utf-8
 import string
 from django.contrib import admin
+from django.contrib.admin.options import IncorrectLookupParameters
+from django.utils.translation import gettext as _
+from django.core.exceptions import ValidationError
 
 
 class AlphabeticFilter(admin.SimpleListFilter):
-        # Human-readable title which will be displayed in the
-    # right admin sidebar just above the filter options.
     title = ''
-
-    # Parameter for the filter that will be used in the URL query.
     parameter_name = ''
 
     def lookups(self, request, model_admin):
-        """
-        Returns a list of tuples. The first element in each
-        tuple is the coded value for the option that will
-        appear in the URL query. The second element is the
-        human-readable name for the option that will appear
-        in the right sidebar.
-        """
         return ((letter, letter,) for letter in string.ascii_uppercase)
 
     def queryset(self, request, queryset):
-        """
-        Returns the filtered queryset based on the value
-        provided in the query string and retrievable via
-        `self.value()`.
-        """
         if self.value():
-            return queryset.filter((self.parameter_name + '__istartswith', self.value()))
+            return queryset.filter(
+                (self.parameter_name + '__istartswith', self.value())
+            )
+
+class RangeFilter(admin.FieldListFilter):
+    num_faixas = 4
+    parameter_name = None
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        self.model = model
+        self.model_admin = model_admin
+        self.parameter_name = f'{field_path}__range'
+
+        super().__init__(field, request, params, model, model_admin, field_path)
+
+        if self.parameter_name in params:
+            value = params.pop(self.parameter_name)
+            self.used_parameters[self.parameter_name] = value
+        lookup_choices = self.lookups(request, model_admin)
+
+        if lookup_choices is None:
+            lookup_choices = ()
+        self.lookup_choices = list(lookup_choices)
+
+    def ranges(self, model):
+        tudo = model.objects.values_list(self.field_path, flat=True).order_by(
+            self.field_path)
+        passo = len(tudo) // self.num_faixas
+        ultimo = 0
+
+        for i in range(1, self.num_faixas):
+            yield (i, ultimo, tudo[i*passo])
+            ultimo = tudo[i*passo]
+
+        yield (self.num_faixas, ultimo, tudo.last())
+
+    def lookups(self, request, model_admin):
+        return ((value, _(f"de {min} até {max}"))
+                for value, min, max in self.ranges(self.model))
+
+    def has_output(self):
+        return self.model.objects.exists()
+
+    def value(self):
+        return self.used_parameters.get(self.parameter_name)
+
+    def expected_parameters(self):
+        return [self.parameter_name,]
+
+    def choices(self, changelist):
+        yield {
+            'selected': self.value() is None,
+            'query_string': changelist.get_query_string(
+                remove=[self.parameter_name]),
+            'display': _('All'),
+        }
+        for lookup, title in self.lookup_choices:
+            yield {
+                'selected': self.value() == str(lookup),
+                'query_string': changelist.get_query_string(
+                    {self.parameter_name: lookup}
+                ),
+                'display': title,
+            }
+
+    def queryset(self, request, queryset):
+        try:
+            for value, min, max in self.ranges(self.model):
+                if self.value() == str(value):
+                    return queryset.filter(
+                        (f'{self.field_path}__gte', min),
+                        (f'{self.field_path}__lt', max)
+                    )
+        except (ValueError, ValidationError) as e:
+            raise IncorrectLookupParameters(e)
+
+        return queryset

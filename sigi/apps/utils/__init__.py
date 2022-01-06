@@ -39,4 +39,4 @@ def queryset_ascii(self, request):
     if 'q' in request.GET:
         request.GET._mutable = True
         request.GET['q'] = to_ascii(request.GET['q'])
-    return admin.ModelAdmin.queryset(self, request)
+    return admin.ModelAdmin.get_queryset(self, request)
