@@ -1,8 +1,8 @@
-# coding: utf-8
 import string
+from math import log10
 from django.contrib import admin
 from django.contrib.admin.options import IncorrectLookupParameters
-from django.utils.translation import gettext as _
+from django.utils.translation import ngettext, gettext as _
 from django.core.exceptions import ValidationError
 
 
@@ -46,14 +46,55 @@ class RangeFilter(admin.FieldListFilter):
         ultimo = 0
 
         for i in range(1, self.num_faixas):
-            yield (i, ultimo, tudo[i*passo])
-            ultimo = tudo[i*passo]
+            value = tudo[i*passo]
+            if value > 100:
+                if value > 1000:
+                    l = int(log10(value))
+                else:
+                    l = int(log10(value))-1
+                value = value // (10**l) * (10**l)
+            yield (i, ultimo, value)
+            ultimo = value
 
         yield (self.num_faixas, ultimo, tudo.last())
 
     def lookups(self, request, model_admin):
-        return ((value, _(f"de {min} até {max}"))
-                for value, min, max in self.ranges(self.model))
+        def humanize(num):
+            if num < 1000:
+                return num
+            l = int(log10(num))
+            if l < 6:
+                return ngettext(
+                    f"{num//10**3} mil",
+                    f"{num//10**3} mil",
+                    num//10**3
+                )
+            elif l < 9:
+                return ngettext(
+                    f"{num//10**6} milhão",
+                    f"{num//10**6} milhões",
+                    num//10**6
+                )
+            elif l < 12:
+                return ngettext(
+                    f"{num//10**9} bilhão",
+                    f"{num//10**9} bilhões",
+                    num//10**9
+                )
+            else:
+                return ngettext(
+                    f"{num//10**12} trilhão",
+                    f"{num//10**12} trilhões",
+                    num//10**12
+                )
+
+        primeiro, *meio, ultimo = self.ranges(self.model)
+        value, min, max = primeiro
+        yield (value, _(f"Até {humanize(max)}"))
+        for value, min, max in meio:
+            yield (value, _(f"de {humanize(min)} até {humanize(max)}"))
+        value, min, max = ultimo
+        yield (value, _(f"Acima de {humanize(min)}"))
 
     def has_output(self):
         return self.model.objects.exists()
