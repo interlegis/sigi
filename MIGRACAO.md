@@ -22,7 +22,7 @@ Para montar o ambiente
   ```
   source env/sigi/bin/activate
   pip install --upgrade pip
-  pip install -r requirements/dev-reuirements.txt
+  pip install -r requirements/dev-requirements.txt
   ```
 
 Pronto! Tá instalado!
