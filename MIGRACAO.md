@@ -5,18 +5,22 @@ Para montar o ambiente
 ----------------------
 
 * Clonar o sigi em sua máquina:
-  ```$ git clone git@github.com:interlegis/sigi.git
+  ```
+  $ git clone git@github.com:interlegis/sigi.git
   ```
 * Entrar no diretório e mudar para o branch master:
-  ```$ cd sigi
+  ```
+  $ cd sigi
   $ git checkout --track origin/master
   ```
 * Criar o ambiente virtual:
-  ```$ mkdir env
+  ```
+  $ mkdir env
   $ virtualenv -p python3 env/sigi
   ```
 * Instalar os requirements:
-  ```$ source env/sigi/bin/activate
+  ```
+  $ source env/sigi/bin/activate
   $ pip install --upgrade pip
   $ pip install -r requirements/dev-reuirements.txt
   ```
