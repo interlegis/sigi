@@ -21,7 +21,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 INSTALLED_APPS = [
     'sigi.apps.servidores',
     'sigi.apps.contatos',
+    'sigi.apps.casas',
     'django_bootstrap5',
+    'localflavor',
     'django.forms',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -85,6 +87,8 @@ USE_THOUSAND_SEPARATOR = True
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
+STATICFILES_DIRS = [BASE_DIR / "static",]
+STATIC_ROOT = '/var/www/sigi/static/'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field

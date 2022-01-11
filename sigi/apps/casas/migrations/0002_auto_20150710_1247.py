@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from django.db import models, migrations
@@ -33,13 +32,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='casalegislativa',
             name='pesquisador',
-            field=models.ForeignKey(verbose_name='Pesquisador', blank=True, to='servidores.Servidor', null=True),
+            field=models.ForeignKey(verbose_name='Pesquisador', blank=True, to='servidores.Servidor', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='casalegislativa',
             name='gerente_contas',
-            field=models.ForeignKey(related_name='casas_que_gerencia', verbose_name=b'Gerente de contas', blank=True, to='servidores.Servidor', null=True),
+            field=models.ForeignKey(related_name='casas_que_gerencia', verbose_name=b'Gerente de contas', blank=True, to='servidores.Servidor', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

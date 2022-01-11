@@ -1,0 +1,45 @@
+{% load static i18n %}
+<!DOCTYPE HTML>
+<html lang="pt-BR">
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="description" content="SIGI reports">
+        <meta name="author" content="Interlegis">
+        <style type="text/css">
+            @page {
+                size: {% block page_size %}A4 portrait{% endblock page_size %};
+                margin: {% block page_margin %}3cm 2cm 2cm 2cm{% endblock page_margin %};
+                font-family: "Helvetica, Arial, sans-serif";
+                font-size: 10px;
+                @top-right { content: url("{% static 'img/logo-interlegis.png' %}");}
+                @top-left {content: url("{% static 'img/logo-senado.png' %}");}
+                @top-center { content: element(header); }
+                @bottom-center { content: element(footer); }
+                @bottom-right { content: "{% trans "Página: " %}" counter(page); }
+                {% block extra_page_settings %}{% endblock extra_page_settings %}
+            }
+            h1 { bookmark-level: 1 }
+            h2 { bookmark-level: 2 }
+            h3 { bookmark-level: 3 }
+            h4 { bookmark-level: 4 }
+            h5 { bookmark-level: 5 }
+            h6 { bookmark-level: 6 }
+            @media print {
+                header {position: running(header);}
+                footer {position: running(footer);}
+            }
+            @media print {
+            }
+            body {
+                font-family: Helvetica, Arial, sans-serif;
+                font-size: 10px;
+            }
+            {% block extra_style %}{% endblock extra_style %}
+        </style>
+        {% block extra_head %}{% endblock extra_head %}
+        <title>{% block title %}{% endblock title %}</title>
+    </head>
+    <body class="{% block body_class %}{% endblock body_class %}">
+        {% block body_content %}{% endblock body_content %}
+    </body>
+</html>

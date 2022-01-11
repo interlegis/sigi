@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from django.db import models, migrations
@@ -68,7 +67,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='casalegislativa',
             name='municipio',
-            field=models.ForeignKey(verbose_name='Munic\xedpio', to='contatos.Municipio'),
+            field=models.ForeignKey(verbose_name='Munic\xedpio', to='contatos.Municipio', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(

@@ -1,4 +1,13 @@
-# coding: utf-8
+from django.urls import path, include
+from sigi.apps.casas.views import CasasSemConvenioReport
+
+urlpatterns = [
+    path('orgao/casas_sem_convenio_report/', CasasSemConvenioReport.as_view(),
+         name='casas-sem-convenio-report'),
+]
+
+
+"""
 from django.conf.urls import patterns, url
 from django.contrib.auth.decorators import login_required
 from sigi.apps.casas.views import importa_casas
@@ -55,3 +64,4 @@ urlpatterns = patterns(
     url(r'^gerentes/$', 'gerentes_interlegis',
         name='gerentes_interlegis'),
 )
+"""

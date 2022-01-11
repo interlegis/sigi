@@ -1,0 +1,59 @@
+{% extends 'pdf/base.html' %}
+{% load static i18n %}
+
+{% block title %}{{ title }}{% endblock title %}
+{% block extra_style %}
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+h1 {font-size: 1.6em;}
+h2 {font-size: 1.5em;}
+h3 {font-size: 1.4em;}
+h4 {font-size: 1.3em;}
+h5 {font-size: 1.2em;}
+h6 {font-size: 1.1em;}
+header {
+  font-size: 1.4em;
+  font-weight: bold;
+  text-align: center;
+}
+header p {
+  margin: 5px;
+}
+.report_name {
+  font-size: 1.6em;
+}
+
+table {
+  border: 2px white;
+  width: 100%;
+}
+th,td {
+  padding: 4px;
+}
+th {
+  background-color: #007433;
+  color: white;
+}
+tr:nth-child(even) {
+  background-color: #d2d2d2;
+}
+.title_row {
+  background-color: #b2b2b2;
+}
+{% endblock extra_style %}
+
+{% block body_content %}
+  <header>{% block header %}
+    <p>{% trans 'SENADO FEDERAL' %}</p>
+    <p>{% trans 'Instituto Legislativo Brasileiro - ILB' %}</p>
+    <p>{% trans "INTERLEGIS" %}</p>
+    <p class="report_name">{{ title|upper }}</p>{% endblock header %}
+  </header>
+
+  <footer>{% block footer %}
+    <p>{% trans 'Emitido em ' %}{% now "DATETIME_FORMAT" %}</p>{% endblock footer %}
+  </footer>
+
+  {% block main_content %}{% endblock main_content %}
+{% endblock body_content %}

@@ -18,6 +18,7 @@ from django.urls import path, include
 from django.conf import settings
 
 urlpatterns = [
+    path('admin/casas/', include('sigi.apps.casas.urls')),
     path('admin/', admin.site.urls),
 ]
 

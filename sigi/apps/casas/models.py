@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
 import random
 from string import ascii_uppercase
@@ -7,19 +6,12 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
-from image_cropping import ImageRatioField
 
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import SearchField
 
 class TipoOrgao(models.Model):
-    """ Modelo para representar o tipo da Casa Legislativa
-
-    Geralmente: Câmara Municipal, Assembléia Legislativa,
-    Câmara Distrital ou Legislativo Federal
-    """
-
     sigla = models.CharField(_("Sigla"), max_length=5)
     nome = models.CharField(_("Nome"), max_length=100)
     legislativo = models.BooleanField(_("Poder legislativo"), default=False)
@@ -29,13 +21,10 @@ class TipoOrgao(models.Model):
         verbose_name = _("Tipo de órgão")
         verbose_name_plural = _("Tipos de órgão")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
 class Orgao(models.Model):
-    """ Modelo para representar uma Casa Legislativa
-    """
-
     INCLUSAO_DIGITAL_CHOICES = (
         ('NAO PESQUISADO', _('Não pesquisado')),
         ('NAO POSSUI PORTAL', _('Não possui portal')),
@@ -44,7 +33,7 @@ class Orgao(models.Model):
     )
 
     nome = models.CharField(
-        _("Nome"),
+        _("nome"),
         max_length=60,
         help_text=_('Exemplo: <em>Câmara Municipal de Pains</em>.')
     )
@@ -58,102 +47,93 @@ class Orgao(models.Model):
     tipo = models.ForeignKey(
         TipoOrgao,
         on_delete=models.PROTECT,
-        verbose_name=_("Tipo")
+        verbose_name=_("tipo")
     )
     cnpj = models.CharField(_("CNPJ"), max_length=32, blank=True)
     observacoes = models.TextField(_('observações'), blank=True)
     horario_funcionamento = models.CharField(
-        _("Horário de funcionamento da Casa Legislativa"),
+        _("horário de funcionamento da Casa Legislativa"),
         max_length=100,
         blank=True,
     )
-#    num_parlamentares = models.PositiveIntegerField('Número de parlamentares')
     codigo_interlegis = models.CharField(
-        _('Código Interlegis'),
+        _('código Interlegis'),
         max_length=3,
         blank=True
     )
-    # codigo_interlegis.ts_filter = True
-
     gerentes_interlegis = models.ManyToManyField(
         Servidor,
         verbose_name=_("Gerentes Interlegis"),
         related_name='casas_que_gerencia',
         blank=True,
     )
-
     # Informações de contato
     logradouro = models.CharField(
-        _("Logradouro"),
+        _("logradouro"),
         max_length=100,
         help_text=_('Avenida, rua, praça, jardim, parque...')
     )
-    bairro = models.CharField(_("Bairro"), max_length=100, blank=True)
-
+    bairro = models.CharField(_("bairro"), max_length=100, blank=True)
     municipio = models.ForeignKey(
         'contatos.Municipio',
         on_delete=models.PROTECT,
-        verbose_name=_('Município')
+        verbose_name=_('município')
     )
-    # municipio.uf_filter = True
-
     cep = models.CharField(_("CEP"), max_length=32)
-    email = models.EmailField(_('E-mail'), max_length=128, blank=True)
+    email = models.EmailField(_('e-mail'), max_length=128, blank=True)
     pagina_web = models.URLField(
-        _('Página web'),
+        _('página web'),
         help_text=_('Exemplo: <em>http://www.camarapains.mg.gov.br</em>.'),
         blank=True,
     )
     inclusao_digital = models.CharField(
-        _("Inclusão digital"),
+        _("inclusão digital"),
         max_length=30,
         choices=INCLUSAO_DIGITAL_CHOICES,
         default=INCLUSAO_DIGITAL_CHOICES[0][0]
     )
     data_levantamento = models.DateTimeField(
-        _("Data/hora da pesquisa"),
+        _("data/hora da pesquisa"),
         null=True,
         blank=True
     )
     pesquisador = models.ForeignKey(
         Servidor,
         on_delete=models.SET_NULL,
-        verbose_name=_("Pesquisador"),
+        verbose_name=_("pesquisador"),
         null=True,
         blank=True
     )
     obs_pesquisa = models.TextField(
-        _("Observações do pesquisador"),
+        _("observações do pesquisador"),
         blank=True
     )
     ult_alt_endereco = models.DateTimeField(
-        _('Última alteração do endereço'),
+        _('última alteração do endereço'),
         null=True,
         blank=True,
         editable=True
     )
     telefones = GenericRelation('contatos.Telefone')
-
     foto = models.ImageField(
-        _("Foto"),
+        _("foto"),
         upload_to='imagens/casas',
         width_field='foto_largura',
         height_field='foto_altura',
         blank=True
     )
-    recorte = ImageRatioField('foto', '400x300', verbose_name=_("Recorte"))
     foto_largura = models.SmallIntegerField(editable=False, null=True)
     foto_altura = models.SmallIntegerField(editable=False, null=True)
     data_instalacao = models.DateField(
-        _('Data de instalação da Casa Legislativa'),
+        _('data de instalação da Casa Legislativa'),
         null=True,
         blank=True
     )
 
     class Meta:
         ordering = ('nome',)
-        verbose_name = _('Órgão')
-        verbose_name_plural = _('Órgãos')
+        verbose_name = _('órgão')
+        verbose_name_plural = _('órgãos')
 
     def lista_gerentes(self, fmt='html'):
         if not self.gerentes_interlegis.exists():
@@ -168,15 +148,14 @@ class Orgao(models.Model):
 
     @property
     def num_parlamentares(self):
-        if not self.legislatura_set.exists():
-            return 0
-        return self.legislatura_set.latest('data_inicio').total_parlamentares
+        # TODO: Descomentar assim que a app Parlamentares for migrada
+        # if not self.legislatura_set.exists():
+        #     return 0
+        # return self.legislatura_set.latest('data_inicio').total_parlamentares
+        return 0
 
     @property
     def telefone(self):
-        """ Link para acessar diretamente o primeiro telefone cadastrado da casa
-            Util para relatorios antigos
-        """
         telefones = self.telefones.all()
         if telefones:
             return telefones[0]
@@ -184,9 +163,6 @@ class Orgao(models.Model):
 
     @property
     def presidente(self):
-        """ Link para acessar diretamente o contato do presidente da casa
-            Util para relatorios antigos
-        """
         try:
             if self.funcionario_set.filter(setor='presidente').count() > 1:
                 return self.funcionario_set.filter(setor='presidente')[0]
@@ -197,9 +173,6 @@ class Orgao(models.Model):
 
     @property
     def contato_interlegis(self):
-        """ Link para acessar diretamente o contato do presidente da casa
-            Util para relatorios antigos
-        """
         try:
             if self.funcionario_set.filter(setor='contato_interlegis').count() > 1:
                 return self.funcionario_set.filter(setor='contato_interlegis')[0]
@@ -207,23 +180,6 @@ class Orgao(models.Model):
                 return self.funcionario_set.get(setor='contato_interlegis')
         except Funcionario.DoesNotExist:
             return None
-
-    @property
-    def total_parlamentares(self):
-        """
-        Calcula o total de parlamentares atual da Casa:
-        - O total de parlamentares da legislatura mais recente, ou
-        - num_parlamentares ou
-        - 0 se não tiver nenhuma das informações
-        """
-
-        if self.legislatura_set.exists():
-            return self.legislatura_set.all()[0].total_parlamentares
-
-        if self.num_parlamentares is not None:
-            return self.num_parlamentares
-
-        return 0
 
     def gerarCodigoInterlegis(self):
         codigo = self.codigo_interlegis
@@ -238,7 +194,8 @@ class Orgao(models.Model):
                     return codigo
                 # Se já existe, então trata a Assembleia como uma Casa qualquer.
 
-            cityName = normalize('NFKD', unicode(self.municipio.nome)).encode('ascii', 'ignore')
+            cityName = normalize('NFKD', self.municipio.nome).encode(
+                'ascii', 'ignore')
             cityName = cityName.upper().strip()
             cityName = cityName.replace(' DA ', ' ')
             cityName = cityName.replace(' DE ', ' ')
@@ -315,7 +272,7 @@ class Orgao(models.Model):
 
         return codigo
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
     def clean(self):
@@ -347,13 +304,7 @@ class Orgao(models.Model):
 
         return super(Orgao, self).save(*args, **kwargs)
 
-
 class Funcionario(models.Model):
-
-    """ Modelo para registrar contatos vinculados às
-    Casas Legislativas
-    """
-
     SETOR_CHOICES = [
         ("presidente", _("Presidente")),
         ("contato_interlegis", _("Contato Interlegis")),
@@ -379,42 +330,40 @@ class Funcionario(models.Model):
         verbose_name=_("órgão"),
     )
     nome = models.CharField(_('nome completo'), max_length=60, blank=False)
-    # nome.alphabetic_filter = True
     sexo = models.CharField(
-        _("Sexo"),
+        _("sexo"),
         max_length=1,
         choices=SEXO_CHOICES,
         default="M"
     )
     data_nascimento = models.DateField(
-        _("Data de nascimento"),
+        _("data de nascimento"),
         blank=True,
         null=True
     )
     nota = models.CharField(
-        _("Telefones"),
+        _("telefones"),
         max_length=250,
         null=True,
         blank=True
     )
     email = models.CharField(_('e-mail'), max_length=250, blank=True)
-    # endereco = generic.GenericRelation('contatos.Endereco')
-    endereco = models.CharField(_('Endereço'), max_length=100, blank=True)
+    endereco = models.CharField(_('endereço'), max_length=100, blank=True)
     municipio = models.ForeignKey(
         Municipio,
         on_delete=models.SET_NULL,
-        verbose_name=_('Municipio'),
+        verbose_name=_('municipio'),
         null=True,
         blank=True,
     )
-    bairro = models.CharField(_('Bairro'), max_length=100, blank=True)
+    bairro = models.CharField(_('bairro'), max_length=100, blank=True)
     cep = models.CharField(_('CEP'), max_length=10, blank=True)
     redes_sociais = models.TextField(
-        _('Redes sociais'),
+        _('redes sociais'),
         help_text=_('Colocar um por linha'),
         blank=True
     )
-    cargo = models.CharField(_("Cargo"), max_length=100, null=True, blank=True)
+    cargo = models.CharField(_("cargo"), max_length=100, null=True, blank=True)
     funcao = models.CharField(
         _('função'),
         max_length=100,
@@ -422,46 +371,42 @@ class Funcionario(models.Model):
         blank=True
     )
     setor = models.CharField(
-        _("Setor"),
+        _("setor"),
         max_length=100,
         choices=SETOR_CHOICES,
         default="outros"
     )
     tempo_de_servico = models.CharField(
-        _('Tempo de serviço'),
+        _('tempo de serviço'),
         max_length=50,
         null=True,
         blank=True
     )
     ult_alteracao = models.DateTimeField(
-        _('Última alteração'),
+        _('última alteração'),
         null=True,
         blank=True,
         editable=True,
         auto_now=True
     )
-    desativado = models.BooleanField(_("Desativado"), default=False)
-    observacoes = models.TextField(_("Observações"), blank=True)
+    desativado = models.BooleanField(_("desativado"), default=False)
+    observacoes = models.TextField(_("observações"), blank=True)
 
     class Meta:
         ordering = ('nome',)
         verbose_name = _('contato da Casa Legislativa')
         verbose_name_plural = _('contatos da Casa Legislativa')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
-
 class PresidenteManager(models.Manager):
-
     def get_queryset(self):
         qs = super(PresidenteManager, self).get_queryset()
         qs = qs.filter(setor='presidente')
         return qs
 
-
 class Presidente(Funcionario):
-
     class Meta:
         proxy = True
 
