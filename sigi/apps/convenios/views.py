@@ -1,30 +1,29 @@
-#-*- coding:utf-8 -*-
 import csv
 
 import datetime
 from django.contrib import messages
 from django.http.response import HttpResponseForbidden
-import ho.pisa as pisa
+# import ho.pisa as pisa
 from django.conf import settings
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_list_or_404
 from django.template import Context, loader
 from django.utils.translation import gettext as _
-from geraldo.generators import PDFGenerator
+# from geraldo.generators import PDFGenerator
+from django.contrib.auth.decorators import login_required
 
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Gescon, Projeto
-from sigi.apps.convenios.reports import (ConvenioReport,
-                                         ConvenioReportSemAceite,
-                                         ConvenioPorCMReport,
-                                         ConvenioPorALReport,
-                                         ConvenioReportSemAceiteAL,
-                                         ConvenioReportSemAceiteCM)
-from django.contrib.auth.decorators import login_required
+# from sigi.apps.convenios.reports import (ConvenioReport,
+#                                          ConvenioReportSemAceite,
+#                                          ConvenioPorCMReport,
+#                                          ConvenioPorALReport,
+#                                          ConvenioReportSemAceiteAL,
+#                                          ConvenioReportSemAceiteCM)
 
-
+"""
 def query_ordena(qs, o, ot):
     list_display = ('num_convenio', 'casa_legislativa',
                     'data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
@@ -37,7 +36,7 @@ def query_ordena(qs, o, ot):
     else:
         qs = qs.order_by("-" + aux)
     return qs
-
+"""
 def normaliza_data(get, nome_param):
     import re
     if nome_param in get:
@@ -50,7 +49,7 @@ def normaliza_data(get, nome_param):
         elif re.match('^\d*\D\d*$', value):  # Year and month
             # Complete with 1st day of month
             get[nome_param] = '%s-01' % value
-
+"""
 def get_for_qs(get, qs):
     kwargs = {}
     ids = 0
@@ -82,9 +81,6 @@ def get_for_qs(get, qs):
 
 
 def carrinhoOrGet_for_qs(request):
-    """
-       Verifica se existe convênios na sessão se não verifica get e retorna qs correspondente.
-    """
     if 'carrinho_convenios' in request.session:
         ids = request.session['carrinho_convenios']
         qs = Convenio.objects.filter(pk__in=ids)
@@ -388,3 +384,4 @@ def importar_gescon(request):
         gescon.importa_contratos()
 
     return render(request, "convenios/importar_gescon.html", {'gescon': gescon})
+"""

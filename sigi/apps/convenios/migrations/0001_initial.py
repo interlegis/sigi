@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from __future__ import unicode_literals
 
 from django.db import models, migrations
@@ -45,7 +44,7 @@ class Migration(migrations.Migration):
                 ('observacao', models.CharField(max_length=100, null=True, blank=True)),
                 ('conveniada', models.BooleanField(default=False)),
                 ('equipada', models.BooleanField(default=False)),
-                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa')),
+                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ('id',),
@@ -59,8 +58,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('quantidade', models.PositiveSmallIntegerField(default=1)),
-                ('convenio', models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio')),
-                ('equipamento', models.ForeignKey(to='inventario.Equipamento')),
+                ('convenio', models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio', on_delete=models.CASCADE)),
+                ('equipamento', models.ForeignKey(to='inventario.Equipamento', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'equipamento previsto',
@@ -85,7 +84,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.DateField()),
                 ('observacao', models.CharField(max_length=b'512', null=True, verbose_name='observa\xe7\xe3o', blank=True)),
-                ('convenio', models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio')),
+                ('convenio', models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'Tramita\xe7\xf5es',
@@ -106,19 +105,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tramitacao',
             name='unid_admin',
-            field=models.ForeignKey(verbose_name='Unidade Administrativa', to='convenios.UnidadeAdministrativa'),
+            field=models.ForeignKey(verbose_name='Unidade Administrativa', to='convenios.UnidadeAdministrativa', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='convenio',
             name='projeto',
-            field=models.ForeignKey(to='convenios.Projeto'),
+            field=models.ForeignKey(to='convenios.Projeto', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='anexo',
             name='convenio',
-            field=models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio'),
+            field=models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

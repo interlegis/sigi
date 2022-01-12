@@ -8,3 +8,4 @@ psycopg2==2.9.3
 django-bootstrap5==21.3
 Pillow==9.0.0
 django-localflavor==3.1
+requests==2.27.1

@@ -1,24 +1,21 @@
-#-*- coding: utf-8 -*-
 import re
 import requests
 from datetime import datetime, date
 from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.translation import gettext as _
-from sigi.apps.utils import SearchField, to_ascii
+from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico
 
+
 class Projeto(models.Model):
-    """ Modelo para representar os projetos do programa
-    Interlegis
-    """
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.sigla
 
     class Meta:
@@ -33,7 +30,7 @@ class StatusConvenio(models.Model):
         verbose_name = _("Estado de convenios")
         verbose_name_plural = _("Estados de convenios")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
 class TipoSolicitacao(models.Model):
@@ -44,7 +41,7 @@ class TipoSolicitacao(models.Model):
         verbose_name = _("tipo de solicitação")
         verbose_name_plural = _("Tipos de solicitação")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
 class Convenio(models.Model):
@@ -53,7 +50,6 @@ class Convenio(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_('órgão conveniado')
     )
-    # campo de busca em caixa baixa e sem acentos
     projeto = models.ForeignKey(
         Projeto,
         on_delete=models.PROTECT,
@@ -225,21 +221,19 @@ class Convenio(models.Model):
             return ""
         return obj.get_sigad_url()
 
-    link_sigad.short_description = _("Processo no Senado")
-    link_sigad.allow_tags = True
-
     def get_sigad_url(self):
         m = re.match(
             r'(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}',
             self.num_processo_sf
         )
         if m:
-            return (r'<a href="https://intra.senado.leg.br/'
-                    r'sigad/novo/protocolo/impressao.asp?area=processo'
-                    r'&txt_numero_orgao={orgao}'
-                    r'&txt_numero_sequencial={sequencial}'
-                    r'&txt_numero_ano={ano}"'
-                    r' target="_blank">{processo}</a>').format(processo=self.num_processo_sf,**m.groupdict())
+            orgao, sequencial, ano = m.groups()
+            return (
+                f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
+                f'impressao.asp?area=processo&txt_numero_orgao={orgao}'
+                f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '
+                f'target="_blank">{self.num_processo_sf}</a>'
+            )
         return self.num_processo_sf
 
     def save(self, *args, **kwargs):
@@ -252,55 +246,35 @@ class Convenio(models.Model):
         ordering = ('id',)
         verbose_name = _('convênio')
 
-    def __unicode__(self):
-        # if self.data_retorno_assinatura is not None:
-        #     return _("Convênio {project} nº {number} assinado em {date}. Status: {status}".format(
-        #         number=self.num_convenio,
-        #         project=self.projeto.sigla,
-        #         date=self.data_retorno_assinatura,
-        #         status=self.get_status()))
-        # else:
-        #     return _("Adesão ao projeto %(project)s, em %(date)s") % dict(
-        #         project=self.projeto.sigla,
-        #         date=self.data_adesao)
-
+    def __str__(self):
+        from django.conf import settings
+        SDF = settings.SHORT_DATE_FORMAT
+        number = self.num_convenio
+        project=self.projeto.sigla
         if ((self.data_retorno_assinatura is None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _("{project} nº {number} - equipada em {date}"
-                     ).format(number=self.num_convenio,
-                              date=self.data_termo_aceite.strftime('%d/%m/%Y'),
-                              project=self.projeto.sigla)
+            date=self.data_termo_aceite.strftime(SDF)
+            return _(f"{project} nº {number} - equipada em {date}")
         elif self.data_retorno_assinatura is None:
-            return _("{project}, nº {number}, início "
-                     "em {date}").format(number=self.num_convenio,
-                                          project=self.projeto.sigla,
-                                          date=self.data_adesao)
+            date = self.data_adesao.strftime(SDF) if self.data_adesao else ""
+            return _(f"{project}, nº {number}, início em {date}")
         if ((self.data_retorno_assinatura is not None) and not
             (self.equipada and self.data_termo_aceite is not None)):
-            return _("{project}, nº {number}, inicio em "
-                     "{date}. Status: {status}").format(
-                         number=self.num_convenio,
-                         project=self.projeto.sigla,
-                         date=self.data_retorno_assinatura.strftime('%d/%m/%Y'),
-                         status=self.get_status())
+            date=self.data_retorno_assinatura.strftime(SDF)
+            status=self.get_status()
+            return _(
+                f"{project}, nº {number}, inicio em {date}. Status: {status}"
+            )
         if ((self.data_retorno_assinatura is not None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            return _("{project}, nº {number}, início em {date}"
-                     " e equipada em {equipped_date}. Status: {status}"
-                     ).format(number=self.num_convenio,
-                              project=self.projeto.sigla,
-                              date=self.data_retorno_assinatura.strftime(
-                                  '%d/%m/%Y'),
-                              equipped_date=self.data_termo_aceite.strftime(
-                                  '%d/%m/%Y'),
-                              status=self.get_status())
+            date=self.data_retorno_assinatura.strftime(SDF)
+            equipped_date=self.data_termo_aceite.strftime(SDF)
+            return _(
+                f"{project}, nº {number}, início em {date} e equipada em "
+                f"{equipped_date}. Status: {self.get_status()}"
+            )
 
 class EquipamentoPrevisto(models.Model):
-
-    """ Modelo utilizado para registrar os equipamentos
-    disponibilizados para as Casas Legislativas
-    (foi usado na prmeira etapa do programa)
-    """
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
@@ -316,15 +290,10 @@ class EquipamentoPrevisto(models.Model):
         verbose_name = _('equipamento previsto')
         verbose_name_plural = _('equipamentos previstos')
 
-    def __unicode__(self):
-        return '%s %s(s)' % (self.quantidade, self.equipamento)
-
+    def __str__(self):
+        return _(f"{self.quantidade} {self.equipamento}(s)")
 
 class Anexo(models.Model):
-
-    """ Modelo para giardar os documentos gerados
-    no processo de convênio
-    """
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
@@ -332,7 +301,7 @@ class Anexo(models.Model):
     )
     # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/convenios/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_('descrição'), max_length='70')
+    descricao = models.CharField(_('descrição'), max_length=70)
     data_pub = models.DateTimeField(
         _('data da publicação do anexo'),
         default=datetime.now
@@ -341,28 +310,17 @@ class Anexo(models.Model):
     class Meta:
         ordering = ('-data_pub',)
 
-    def __unicode__(self):
-        return unicode("%s publicado em %s" % (self.descricao, self.data_pub))
-
+    def __str__(self):
+        return _(f"{self.descricao} publicado em {self.data_pub}")
 
 class UnidadeAdministrativa(models.Model):
+    sigla = models.CharField(max_length=10)
+    nome = models.CharField(max_length=100)
 
-    """ Modelo para representar uma Unidade Administrativa
-    que pode ser um servivo do próprio Interlegis, assim como
-    uma unidade do Senado Federal
-    """
-    sigla = models.CharField(max_length='10')
-    nome = models.CharField(max_length='100')
-
-    def __unicode__(self):
-        return unicode(self.sigla)
-
+    def __str__(self):
+        return self.sigla
 
 class Tramitacao(models.Model):
-
-    """ Modelo para registrar as vias do processo de convênio e a Unidade
-    responsável pelo tramite (ex. colher assinaturas do secretário do senado)
-    """
     convenio = models.ForeignKey(
         Convenio,
         on_delete=models.CASCADE,
@@ -376,7 +334,7 @@ class Tramitacao(models.Model):
     data = models.DateField()
     observacao = models.CharField(
         _('observação'),
-        max_length='512',
+        max_length=512,
         null=True,
         blank=True,
     )
@@ -384,12 +342,12 @@ class Tramitacao(models.Model):
     class Meta:
         verbose_name_plural = _('Tramitações')
 
-    def __unicode__(self):
-        in_date = _("em %(date)s") % dict(date=self.data)  # for focused translation
-        result = "%s %s" % (self.unid_admin, in_date)
+    def __str__(self):
+        in_date = _(f"em {self.data}") # for focused translation
+        result = f"{self.unid_admin} {in_date}"
         if self.observacao:
-            result = result + " (%s)" % (self.observacao)
-        return unicode(result)  # XXX is this unicode(...) really necessary???
+            result = f"{result} ({self.observacao})"
+        return result
 
 class Gescon(models.Model):
     url_gescon = models.URLField(
@@ -435,7 +393,7 @@ class Gescon(models.Model):
         verbose_name = _("Configuração do Gescon")
         verbose_name_plural = _("Configurações do Gescon")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.url_gescon
 
     def save(self, *args, **kwargs):

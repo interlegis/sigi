@@ -1,35 +1,23 @@
-# -*- coding: utf-8 -*-
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import gettext as _
-from geraldo.generators import PDFGenerator
-
+from django.utils.safestring import mark_safe
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         TipoSolicitacao, Convenio,
                                         EquipamentoPrevisto, Anexo, Tramitacao,
                                         Gescon)
-from sigi.apps.convenios.reports import ConvenioReport
-from sigi.apps.convenios.views import adicionar_convenios_carrinho
+# from sigi.apps.convenios.reports import ConvenioReport
+# from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
-from sigi.apps.utils.base_admin import BaseModelAdmin
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import GerentesInterlegisFilter
-
-# class TramitacaoInline(admin.TabularInline):
-#     model = Tramitacao
-#     extra = 1
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
     extra = 2
     exclude = ['data_pub', ]
 
-# class EquipamentoPrevistoInline(admin.TabularInline):
-#     model = EquipamentoPrevisto
-#     extra = 2
-#     raw_id_fields = ('equipamento',)
-
-class AnexoAdmin(BaseModelAdmin):
+class AnexoAdmin(admin.ModelAdmin):
     date_hierarchy = 'data_pub'
     exclude = ['data_pub', ]
     list_display = ('arquivo', 'descricao', 'data_pub', 'convenio')
@@ -44,7 +32,8 @@ class AcompanhaFilter(admin.filters.RelatedFieldListFilter):
             convenio__isnull=False).order_by('nome_completo').distinct()
         self.lookup_choices = [(x.id, x) for x in servidores]
 
-class ConvenioAdmin(BaseModelAdmin):
+@admin.register(Convenio)
+class ConvenioAdmin(admin.ModelAdmin):
     change_list_template = 'convenios/change_list.html'
     fieldsets = (
         (None,
@@ -65,8 +54,9 @@ class ConvenioAdmin(BaseModelAdmin):
          {'fields': ('atualizacao_gescon', 'observacao_gescon', 'link_gescon')}
         ),
     )
-    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon', 'link_gescon')
-    actions = ['adicionar_convenios']
+    readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon',
+                       'link_gescon')
+    # actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
     list_display = ('num_convenio', 'projeto','casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
@@ -76,7 +66,6 @@ class ConvenioAdmin(BaseModelAdmin):
                     GerentesInterlegisFilter), 'projeto',
                    'casa_legislativa__tipo', 'conveniada','equipada',
                    'casa_legislativa__municipio__uf',)
-    #date_hierarchy = 'data_adesao'
     ordering = ('casa_legislativa', '-data_retorno_assinatura')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
@@ -102,28 +91,24 @@ class ConvenioAdmin(BaseModelAdmin):
             label = r"warning"
         else:
             label = r"info"
-
-        return '<p class="label label-{label}">{status}</p>'.format(label=label, status=status)
+        return mark_safe(f'<p class="label label-{label}">{status}</p>')
     status_convenio.short_description = _("Status do convênio")
-    status_convenio.allow_tags = True
 
     def link_sigad(self, obj):
         if obj.pk is None:
             return ""
-        return obj.get_sigad_url()
-
+        return mark_safe(obj.get_sigad_url())
     link_sigad.short_description = _("Processo no Senado")
-    link_sigad.allow_tags = True
 
     def link_gescon(self, obj):
         if not obj.id_contrato_gescon:
             return ""
-        return (
-            "<a href='https://adm.senado.gov.br/gestao-contratos/api/"
-            "contratos/buscaTexto/{id}'>https://adm.senado.gov.br/"
-            "gestao-contratos/api/{id}</a>").format(id=obj.id_contrato_gescon)
+        return mark_safe(
+            f"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
+            f"contratos/buscaTexto/{obj.id_contrato_gescon}'>"
+            f"https://adm.senado.gov.br/gestao-contratos/api/"
+            f"{obj.id_contrato_gescon}</a>")
     link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
-    link_gescon.allow_tags = True
 
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data
@@ -143,28 +128,28 @@ class ConvenioAdmin(BaseModelAdmin):
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
 
-    def relatorio(self, request, queryset):
-        # queryset.order_by('casa_legislativa__municipio__uf')
-        response = HttpResponse(content_type='application/pdf')
-        report = ConvenioReport(queryset=queryset)
-        report.generate_by(PDFGenerator, filename=response)
-        return response
-    relatorio.short_description = _('Exportar convênios selecionados para PDF')
+    # def relatorio(self, request, queryset):
+    #     # queryset.order_by('casa_legislativa__municipio__uf')
+    #     response = HttpResponse(content_type='application/pdf')
+    #     report = ConvenioReport(queryset=queryset)
+    #     report.generate_by(PDFGenerator, filename=response)
+    #     return response
+    # relatorio.short_description = _('Exportar convênios selecionados para PDF')
 
-    def adicionar_convenios(self, request, queryset):
-        if 'carrinho_convenios' in request.session:
-            q1 = len(request.session['carrinho_convenios'])
-        else:
-            q1 = 0
-        adicionar_convenios_carrinho(request, queryset=queryset)
-        q2 = len(request.session['carrinho_convenios'])
-        quant = q2 - q1
-        if quant:
-            self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
-        else:
-            self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
-        return HttpResponseRedirect('.')
-    adicionar_convenios.short_description = _("Armazenar convênios no carrinho para exportar")
+    # def adicionar_convenios(self, request, queryset):
+    #     if 'carrinho_convenios' in request.session:
+    #         q1 = len(request.session['carrinho_convenios'])
+    #     else:
+    #         q1 = 0
+    #     adicionar_convenios_carrinho(request, queryset=queryset)
+    #     q2 = len(request.session['carrinho_convenios'])
+    #     quant = q2 - q1
+    #     if quant:
+    #         self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
+    #     else:
+    #         self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
+    #     return HttpResponseRedirect('.')
+    # adicionar_convenios.short_description = _("Armazenar convênios no carrinho para exportar")
 
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)
@@ -172,12 +157,12 @@ class ConvenioAdmin(BaseModelAdmin):
             del actions['delete_selected']
         return actions
 
-    def lookup_allowed(self, lookup, value):
-        return super(ConvenioAdmin, self).lookup_allowed(lookup, value) or \
-            lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
+    # def lookup_allowed(self, lookup, value):
+    #     return super(ConvenioAdmin, self).lookup_allowed(lookup, value) or \
+    #         lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
 
-
-class EquipamentoPrevistoAdmin(BaseModelAdmin):
+@admin.register(EquipamentoPrevisto)
+class EquipamentoPrevistoAdmin(admin.ModelAdmin):
     list_display = ('convenio', 'equipamento', 'quantidade')
     list_display_links = ('convenio', 'equipamento')
     ordering = ('convenio', 'equipamento')
@@ -193,5 +178,3 @@ class GesconAdmin(admin.ModelAdmin):
 admin.site.register(Projeto)
 admin.site.register(StatusConvenio)
 admin.site.register(TipoSolicitacao)
-admin.site.register(Convenio, ConvenioAdmin)
-admin.site.register(EquipamentoPrevisto, EquipamentoPrevistoAdmin)

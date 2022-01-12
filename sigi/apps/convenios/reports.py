@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.utils.translation import gettext as _
 from geraldo import ReportBand, ObjectValue, Label, ReportGroup, FIELD_ACTION_SUM
 from reportlab.lib.units import cm
