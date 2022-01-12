@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.contrib.contenttypes.fields import GenericRelation
 from django.db import models
 from django.utils.translation import gettext as _
@@ -6,7 +5,6 @@ from django.utils.translation import gettext as _
 
 class Fornecedor(models.Model):
     nome = models.CharField(max_length=40)
-    nome.alphabetic_filter = True
     email = models.EmailField(_('e-mail'), blank=True)
     pagina_web = models.URLField(_('página web'), blank=True)
     telefones = GenericRelation('contatos.Telefone')
@@ -16,20 +14,17 @@ class Fornecedor(models.Model):
         ordering = ('nome',)
         verbose_name_plural = _('fornecedores')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
-
 
 class Fabricante(models.Model):
     nome = models.CharField(max_length=40, unique=True)
-    nome.alphabetic_filter = True
 
     class Meta:
         ordering = ('nome',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
-
 
 class TipoEquipamento(models.Model):
     tipo = models.CharField(max_length=40)
@@ -39,9 +34,8 @@ class TipoEquipamento(models.Model):
         verbose_name = _('tipo de equipamento')
         verbose_name_plural = _('tipos de equipamentos')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.tipo
-
 
 class ModeloEquipamento(models.Model):
     tipo = models.ForeignKey(
@@ -56,9 +50,8 @@ class ModeloEquipamento(models.Model):
         verbose_name = _('modelo de equipamento')
         verbose_name_plural = _('modelos de equipamentos')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.modelo
-
 
 class Equipamento(models.Model):
     fabricante = models.ForeignKey(
@@ -73,10 +66,10 @@ class Equipamento(models.Model):
     class Meta:
         unique_together = (('fabricante', 'modelo'),)
 
-    def __unicode__(self):
-        return unicode('%s %s %s' % (self.modelo.tipo, self.fabricante.nome,
-                                     self.modelo.modelo))
-
+    def __str__(self):
+        return _(
+            f"{self.modelo.tipo} {self.fabricante.nome} {self.modelo.modelo}"
+        )
 
 class Bem(models.Model):
     casa_legislativa = models.ForeignKey(
@@ -101,5 +94,5 @@ class Bem(models.Model):
     class Meta:
         verbose_name_plural = _('bens')
 
-    def __unicode__(self):
-        return unicode('%s (%s)') % (self.equipamento, self.casa_legislativa)
+    def __str__(self):
+        return _(f"{self.equipamento} ({self.casa_legislativa})")

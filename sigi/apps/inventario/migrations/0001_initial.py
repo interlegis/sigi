@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
                 ('num_serie', models.CharField(help_text='N\xfamero fornecido pelo fabricante.', unique=True, max_length=64, verbose_name='n\xfamero de s\xe9rie')),
                 ('recebido_por', models.CharField(help_text='Nome de quem recebeu o equipamento.', max_length=64, blank=True)),
                 ('observacoes', models.TextField(verbose_name='observa\xe7\xf5es', blank=True)),
-                ('casa_legislativa', models.ForeignKey(to='casas.CasaLegislativa')),
+                ('casa_legislativa', models.ForeignKey(to='casas.CasaLegislativa', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name_plural': 'bens',
@@ -88,19 +88,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='modeloequipamento',
             name='tipo',
-            field=models.ForeignKey(verbose_name='tipo de equipamento', to='inventario.TipoEquipamento'),
+            field=models.ForeignKey(verbose_name='tipo de equipamento', to='inventario.TipoEquipamento', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='equipamento',
             name='fabricante',
-            field=models.ForeignKey(to='inventario.Fabricante'),
+            field=models.ForeignKey(to='inventario.Fabricante', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='equipamento',
             name='modelo',
-            field=models.ForeignKey(to='inventario.ModeloEquipamento'),
+            field=models.ForeignKey(to='inventario.ModeloEquipamento', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -110,13 +110,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bem',
             name='equipamento',
-            field=models.ForeignKey(to='inventario.Equipamento'),
+            field=models.ForeignKey(to='inventario.Equipamento', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='bem',
             name='fornecedor',
-            field=models.ForeignKey(to='inventario.Fornecedor'),
+            field=models.ForeignKey(to='inventario.Fornecedor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

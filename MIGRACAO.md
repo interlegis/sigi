@@ -43,7 +43,7 @@ Macro-tarefas:
 * [ ] Migração dos APPS, nesta sequência:
   * [x] servidores
   * [x] contatos
-  * [ ] casas
+  * [-] casas - migração básica - falta integração com outros apps
   * [ ] convenios
   * [ ] parlamentares
   * [ ] eventos
@@ -51,6 +51,6 @@ Macro-tarefas:
   * [ ] ocorrencias
   * [ ] whois
   * [ ] financeiro
-  * [ ] inventario
+  * [x] inventario
   * [ ] metas
 * [ ] Definição de um novo tema *bootstrapado* para o admin
