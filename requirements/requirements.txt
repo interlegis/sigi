@@ -1,11 +1,11 @@
 ipython==7.30.1
+Pillow==9.0.0
+psycopg2==2.9.3
+requests==2.27.1
 weasyprint==54.0
 Django==4.0.1
-django-localflavor==3.1
-django-extensions==3.1.5
-django-weasyprint==2.1.0
-psycopg2==2.9.3
 django-bootstrap5==21.3
-Pillow==9.0.0
+django-extensions==3.1.5
+django-import-export==2.7.1
 django-localflavor==3.1
-requests==2.27.1
+django-weasyprint==2.1.0

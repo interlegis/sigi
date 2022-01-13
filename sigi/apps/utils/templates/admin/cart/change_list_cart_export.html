@@ -1,0 +1,24 @@
+{% extends "admin/import_export/change_list_export.html" %}
+{% load admin_list admin_urls i18n %}
+
+{% block content_title %}
+    {% if viewing_cart %}
+        {% blocktrans with s=opts.verbose_name_plural|lower c=cart_item_count %}
+            <h1>Visualizando carrinho de {{ s }} <span class="badge">{{ c }}</span></h1>
+        {% endblocktrans %}
+        {% else %}
+        {% if title %}<h1>{{ title }}</h1>{% endif %}
+    {% endif %}
+{% endblock %}
+
+  {{ block.super }}
+
+{% block object-tools-items %}
+    {% if viewing_cart %}
+        {% include "admin/import_export/change_list_export_item.html" %}
+        {% include "admin/cart/change_list_cart_item.html" %}
+    {% else %}
+        <li><a class="btn" href="?cart=1"><span class="glyphicon glyphicon-shopping-cart"></span>{% blocktrans with c=cart_item_count %}Ver Carrinho <span class="badge">{{ c }}</span>{% endblocktrans %}</a></li>
+        {{ block.super }}
+    {% endif %}
+{% endblock %}

@@ -1,0 +1,5 @@
+{% load i18n %}
+{% load admin_urls %}
+
+<li><a role="button" class="btn" href="?cart=0"><span class="glyphicon glyphicon-chevron-left"></span>{% trans 'Voltar à lista completa' %}</a></li>
+<li><a role="button" class="btn" href="{% url opts|admin_urlname:'clearcart' %}"><span class="glyphicon glyphicon-trash"></span>{% trans "Esvaziar carrinho" %}</a></li>
