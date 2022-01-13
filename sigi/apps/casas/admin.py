@@ -6,18 +6,58 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from import_export import resources
+from import_export.fields import Field
 from sigi.apps.casas.forms import OrgaoForm
 from sigi.apps.casas.models import Orgao, Presidente, Funcionario, TipoOrgao
 # from sigi.apps.casas.views import report_complete, labels_report, export_csv, \
 #     labels_report_sem_presidente, report, \
 #     adicionar_casas_carrinho
-from sigi.apps.casas.filters import GerentesInterlegisFilter
+from sigi.apps.casas.filters import (GerentesInterlegisFilter, ConvenioFilter,
+                                     ExcluirConvenioFilter)
 from sigi.apps.contatos.models import Telefone
-# from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.convenios.models import Convenio, Projeto
 # from sigi.apps.ocorrencias.models import Ocorrencia
 # from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.mixins import CartExportMixin
 
+
+class OrgaoExportResourse(resources.ModelResource):
+    presidente = Field(column_name='presidente')
+    telefone = Field(column_name='telefone')
+    num_parlamentares = Field(column_name='num_parlamentares')
+    # servicos_seit = Field(column_name='servicos_seit')
+    contato = Field(column_name='contato')
+    class Meta:
+        model = Orgao
+        fields = ('municipio__codigo_ibge', 'cnpj', 'municipio__codigo_tse',
+                  'nome', 'municipio__nome', 'municipio__uf__sigla',
+                  'presidente', 'logradouro', 'bairro', 'cep', 'telefone',
+                  'pagina_web', 'email', 'telefone', 'num_parlamentares',
+                  'ult_alt_endereco', 'contato')
+        export_order = fields
+
+    def dehydrate_presidente(self, orgao):
+        return orgao.presidente
+
+    def dehydrate_telefone(self, orgao):
+        return orgao.telefone
+
+    def dehydrate_num_parlamentares(self, orgao):
+        return orgao.num_parlamentares
+
+    # def dehydrate_servicos_seit(self, orgao):
+    #     servicos = [s.tipo_servico.nome for s in orgao.servico_set.filter(
+    #         data_desativacao__isnull=True)]
+    #     return ", ".join(servicos)
+
+    def dehydrate_contato(self, orgao):
+        return ", ".join(
+            [f"{c.cargo if c.cargo else 'Sem cargo'}: {c.nome} ({c.email})"
+             for c in orgao.funcionario_set.filter(desativado=False)
+            ]
+        )
 
 class TelefonesInline(GenericTabularInline):
     model = Telefone
@@ -83,76 +123,76 @@ class FuncionariosInline(admin.StackedInline):
             # o campo igual a null não aparecer na frente dos mais novos
         )
 
-# class ConveniosInline(admin.TabularInline):
-#     model = Convenio
-#     fieldsets = (
-#         (None, {'fields': (
-#             ('link_sigad', 'status_convenio', 'num_convenio',
-#              'projeto', 'observacao'),
-#             ('data_retorno_assinatura', 'data_pub_diario',),
-#             ('get_anexos',),
-#             ('link_convenio',),
-#         )}),
-#     )
-#     readonly_fields = ['link_convenio', 'link_sigad', 'status_convenio',
-#                        'num_convenio', 'projeto', 'observacao', 'data_adesao',
-#                        'data_retorno_assinatura', 'data_termo_aceite',
-#                        'data_pub_diario', 'data_devolucao_via',
-#                        'data_postagem_correio', 'data_devolucao_sem_assinatura',
-#                        'data_retorno_sem_assinatura', 'get_anexos']
-#     extra = 0
-#     can_delete = False
-#     template = 'admin/casas/convenios_inline.html'
-#     ordering = ('-data_retorno_assinatura',)
+class ConveniosInline(admin.TabularInline):
+    model = Convenio
+    fieldsets = (
+        (None, {'fields': (
+            ('link_sigad', 'status_convenio', 'num_convenio',
+             'projeto', 'observacao'),
+            ('data_retorno_assinatura', 'data_pub_diario',),
+            ('get_anexos',),
+            ('link_convenio',),
+        )}),
+    )
+    readonly_fields = ['link_convenio', 'link_sigad', 'status_convenio',
+                       'num_convenio', 'projeto', 'observacao', 'data_adesao',
+                       'data_retorno_assinatura', 'data_termo_aceite',
+                       'data_pub_diario', 'data_devolucao_via',
+                       'data_postagem_correio', 'data_devolucao_sem_assinatura',
+                       'data_retorno_sem_assinatura', 'get_anexos']
+    extra = 0
+    can_delete = False
+    template = 'admin/casas/convenios_inline.html'
+    ordering = ('-data_retorno_assinatura',)
 
-#     def has_add_permission(self, request):
-#         return False
+    def has_add_permission(self, request):
+        return False
 
-#     def get_anexos(self, obj):
-#         return mark_safe('<br/>'.join(
-#             [f'<a href="{a.arquivo.url}" target="_blank">{a}</a>'
-#              for a in obj.anexo_set.all()])
-#         )
-#     get_anexos.short_description = _('Anexos')
+    def get_anexos(self, obj):
+        return mark_safe('<br/>'.join(
+            [f'<a href="{a.arquivo.url}" target="_blank">{a}</a>'
+             for a in obj.anexo_set.all()])
+        )
+    get_anexos.short_description = _('Anexos')
 
-#     def status_convenio(self, obj):
-#         if obj.pk is None:
-#             return ""
-#         status = obj.get_status()
+    def status_convenio(self, obj):
+        if obj.pk is None:
+            return ""
+        status = obj.get_status()
 
-#         if status in ["Vencido", "Desistência", "Cancelado"]:
-#             label = r"danger"
-#         elif status == "Vigente":
-#             label = r"success"
-#         elif status == "Pendente":
-#             label = r"warning"
-#         else:
-#             label = r"info"
+        if status in ["Vencido", "Desistência", "Cancelado"]:
+            label = r"danger"
+        elif status == "Vigente":
+            label = r"success"
+        elif status == "Pendente":
+            label = r"warning"
+        else:
+            label = r"info"
 
-#         return mark_safe(f'<p class="label label-{label}">{status}</p>')
-#     status_convenio.short_description = _("Status do convênio")
+        return mark_safe(f'<p class="label label-{label}">{status}</p>')
+    status_convenio.short_description = _("Status do convênio")
 
-#     def link_convenio(self, obj):
-#         if obj.pk is None:
-#             return ""
-#         url = reverse(
-#             f'admin:{obj._meta.app_label}_{obj._meta.module_name}_change',
-#             args=[obj.pk]
-#         ) + '?_popup=1'
-#         return mark_safe(
-#             f'<input id="edit_convenio-{obj.pk}" type="hidden"/>'
-#             f'<a id="lookup_edit_convenio-{obj.pk}" href="{url}"'
-#             'class="changelink" '
-#             'onclick="return showRelatedObjectLookupPopup(this)">'
-#             f'{_("Editar")}</a>'
-#         )
-#     link_convenio.short_description = _('Editar convenio')
+    def link_convenio(self, obj):
+        if obj.pk is None:
+            return ""
+        url = reverse(
+            f'admin:{obj._meta.app_label}_{obj._meta.module_name}_change',
+            args=[obj.pk]
+        ) + '?_popup=1'
+        return mark_safe(
+            f'<input id="edit_convenio-{obj.pk}" type="hidden"/>'
+            f'<a id="lookup_edit_convenio-{obj.pk}" href="{url}"'
+            'class="changelink" '
+            'onclick="return showRelatedObjectLookupPopup(this)">'
+            f'{_("Editar")}</a>'
+        )
+    link_convenio.short_description = _('Editar convenio')
 
-#     def link_sigad(self, obj):
-#         if obj.pk is None:
-#             return ""
-#         return mark_safe(obj.get_sigad_url())
-#     link_sigad.short_description = _("Processo no Senado")
+    def link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return mark_safe(obj.get_sigad_url())
+    link_sigad.short_description = _("Processo no Senado")
 
 # class ServicoInline(admin.TabularInline):
 #     model = Servico
@@ -223,8 +263,9 @@ class FuncionariosInline(admin.StackedInline):
 
 
 @admin.register(Orgao)
-class OrgaoAdmin(admin.ModelAdmin):
+class OrgaoAdmin(CartExportMixin, admin.ModelAdmin):
     form = OrgaoForm
+    resource_class = OrgaoExportResourse
     # actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, ContatoInterlegisInline,
                FuncionariosInline, ) #ConveniosInline, ServicoInline,
@@ -236,7 +277,8 @@ class OrgaoAdmin(admin.ModelAdmin):
     #                'municipio__uf__nome', ConvenioFilter, ServicoAtivoFilter,
     #                ExcluirConvenioFilter, ServicoFilter, 'inclusao_digital',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
-                   'municipio__uf__nome', 'inclusao_digital',)
+                   'municipio__uf__nome', ConvenioFilter, ExcluirConvenioFilter,
+                   'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii
     fieldsets = (
@@ -273,13 +315,11 @@ class OrgaoAdmin(admin.ModelAdmin):
     get_gerentes.short_description = _('Gerente Interlegis')
 
     def get_convenios(self, obj):
-        #TODO: Descomentar após migração da app Convênios
-        # return mark_safe(
-        #     '<ul>' +
-        #     ''.join([f'<li>{c}</li>' for c in obj.convenio_set.all()]) +
-        #     '</ul>'
-        # )
-        return "TODO: Descomentar após migração da app Convênios"
+        return mark_safe(
+            '<ul>' +
+            ''.join([f'<li>{c}</li>' for c in obj.convenio_set.all()]) +
+            '</ul>'
+        )
     get_convenios.short_description = _('Convênios')
 
     def get_servicos(self, obj):

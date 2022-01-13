@@ -5,6 +5,7 @@ from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.urls import reverse
+from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Orgao
@@ -253,22 +254,23 @@ class Convenio(models.Model):
         project=self.projeto.sigla
         if ((self.data_retorno_assinatura is None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            date=self.data_termo_aceite.strftime(SDF)
+            date = date_format(self.data_termo_aceite, SDF)
             return _(f"{project} nº {number} - equipada em {date}")
         elif self.data_retorno_assinatura is None:
-            date = self.data_adesao.strftime(SDF) if self.data_adesao else ""
+            date = (date_format(self.data_adesao, SDF)
+                    if self.data_adesao else "")
             return _(f"{project}, nº {number}, início em {date}")
         if ((self.data_retorno_assinatura is not None) and not
             (self.equipada and self.data_termo_aceite is not None)):
-            date=self.data_retorno_assinatura.strftime(SDF)
+            date = date_format(self.data_retorno_assinatura, SDF)
             status=self.get_status()
             return _(
                 f"{project}, nº {number}, inicio em {date}. Status: {status}"
             )
         if ((self.data_retorno_assinatura is not None) and
             (self.equipada and self.data_termo_aceite is not None)):
-            date=self.data_retorno_assinatura.strftime(SDF)
-            equipped_date=self.data_termo_aceite.strftime(SDF)
+            date = date_format(self.data_retorno_assinatura, SDF)
+            equipped_date=date_format(self.data_termo_aceite, SDF)
             return _(
                 f"{project}, nº {number}, início em {date} e equipada em "
                 f"{equipped_date}. Status: {self.get_status()}"

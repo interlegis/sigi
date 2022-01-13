@@ -1,5 +1,7 @@
 from django.contrib import admin
+from django.utils.translation import gettext as _
 from sigi.apps.servidores.models import Servidor
+from sigi.apps.convenios.models import Convenio, Projeto
 
 
 class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
@@ -9,40 +11,40 @@ class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
         gerentes = Servidor.objects.filter(casas_que_gerencia__isnull=False).order_by('nome_completo').distinct()
         self.lookup_choices = [(x.id, x) for x in gerentes]
 
-# class ConvenioFilter(admin.SimpleListFilter):
-#     title = _("Tipo de convênio")
-#     parameter_name = 'convenio'
+class ConvenioFilter(admin.SimpleListFilter):
+    title = _("Tipo de convênio")
+    parameter_name = 'convenio'
 
-#     def lookups(self, request, model_admin):
-#         return (
-#             ('SC', _("Sem nenhum convênio")),
-#             ('CC', _("Com algum convênio")),
-#         ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+    def lookups(self, request, model_admin):
+        return (
+            ('SC', _("Sem nenhum convênio")),
+            ('CC', _("Com algum convênio")),
+        ) + tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
-#     def queryset(self, request, queryset):
-#         if self.value() is not None:
-#             if self.value() == 'SC':
-#                 queryset = queryset.filter(convenio=None)
-#             elif self.value() == 'CC':
-#                 queryset = queryset.exclude(convenio=None)
-#             else:
-#                 queryset = queryset.filter(convenio__projeto_id=self.value())
+    def queryset(self, request, queryset):
+        if self.value() is not None:
+            if self.value() == 'SC':
+                queryset = queryset.filter(convenio=None)
+            elif self.value() == 'CC':
+                queryset = queryset.exclude(convenio=None)
+            else:
+                queryset = queryset.filter(convenio__projeto_id=self.value())
 
-#         return queryset.distinct('municipio__uf__nome', 'nome')
+        return queryset.distinct('municipio__uf__nome', 'nome')
 
-# class ExcluirConvenioFilter(admin.SimpleListFilter):
-#     title=_("Excluir convênio da pesquisa")
-#     parameter_name = 'excluir_convenio'
+class ExcluirConvenioFilter(admin.SimpleListFilter):
+    title=_("Excluir convênio da pesquisa")
+    parameter_name = 'excluir_convenio'
 
-#     def lookups(self, request, model_admin):
-#         return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
+    def lookups(self, request, model_admin):
+        return tuple([(p.pk, p.sigla) for p in Projeto.objects.all()])
 
-#     def queryset(self, request, queryset):
-#         if (self.value() is None):
-#             return queryset
-#         else:
-#             queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
-#         return queryset
+    def queryset(self, request, queryset):
+        if (self.value() is None):
+            return queryset
+        else:
+            queryset = queryset.exclude(convenio__projeto_id=self.value()).distinct('municipio__uf__nome', 'nome')
+        return queryset
 
 # class ServicoFilter(admin.SimpleListFilter):
 #     title = _("Serviço")

@@ -30,12 +30,13 @@ from sigi.apps.servidores.models import Servidor
 
 class CasasSemConvenioReport(WeasyTemplateView):
     template_name = "casas/casas_sem_convenio_pdf.html"
+    pdf_filename = 'casas_sem_convenio.pdf'
 
     def get_context_data(self, **kwargs):
-        # qs = Orgao.objects.filter(convenio=None).order_by(
-        #     'municipio__uf',
-        #     'nome'
-        # )
+        qs = Orgao.objects.filter(convenio=None).order_by(
+            'municipio__uf',
+            'nome'
+        )
         qs = Orgao.objects.order_by(
             'municipio__uf',
             'nome'

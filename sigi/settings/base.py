@@ -21,11 +21,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 INSTALLED_APPS = [
     'sigi.apps.servidores',
     'sigi.apps.contatos',
+    'sigi.apps.utils',
     'sigi.apps.casas',
     'sigi.apps.convenios',
     'sigi.apps.inventario',
-    'django_bootstrap5',
     'localflavor',
+    'import_export',
+    'django_bootstrap5',
     'django.forms',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -96,3 +98,9 @@ STATIC_ROOT = '/var/www/sigi/static/'
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django import-export settings
+# https://django-import-export.readthedocs.io/en/latest/installation.html#settings
+
+IMPORT_EXPORT_USE_TRANSACTIONS = True
+IMPORT_EXPORT_SKIP_ADMIN_LOG = True
