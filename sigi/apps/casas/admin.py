@@ -6,7 +6,6 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from import_export import resources
 from import_export.fields import Field
 from sigi.apps.casas.forms import OrgaoForm
 from sigi.apps.casas.models import Orgao, Presidente, Funcionario, TipoOrgao
@@ -19,11 +18,11 @@ from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio, Projeto
 # from sigi.apps.ocorrencias.models import Ocorrencia
 # from sigi.apps.servicos.models import Servico, TipoServico
-from sigi.apps.utils import queryset_ascii
-from sigi.apps.utils.mixins import CartExportMixin
+from sigi.apps.utils import field_label, queryset_ascii
+from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
 
 
-class OrgaoExportResourse(resources.ModelResource):
+class OrgaoExportResourse(LabeledResourse):
     presidente = Field(column_name='presidente')
     telefone = Field(column_name='telefone')
     num_parlamentares = Field(column_name='num_parlamentares')
@@ -34,7 +33,7 @@ class OrgaoExportResourse(resources.ModelResource):
         fields = ('municipio__codigo_ibge', 'cnpj', 'municipio__codigo_tse',
                   'nome', 'municipio__nome', 'municipio__uf__sigla',
                   'presidente', 'logradouro', 'bairro', 'cep', 'telefone',
-                  'pagina_web', 'email', 'telefone', 'num_parlamentares',
+                  'pagina_web', 'email', 'num_parlamentares',
                   'ult_alt_endereco', 'contato')
         export_order = fields
 
@@ -304,6 +303,10 @@ class OrgaoAdmin(CartExportMixin, admin.ModelAdmin):
     search_fields = ('search_text', 'sigla', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+
+    def get_queryset(self, request):
+        queryset = super(OrgaoAdmin, self).get_queryset(request)
+        return queryset.prefetch_related('gerentes_interlegis', 'convenio_set')
 
     def get_uf(self, obj):
         return obj.municipio.uf.nome

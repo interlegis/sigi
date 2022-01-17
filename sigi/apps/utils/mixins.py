@@ -1,13 +1,54 @@
 from collections import OrderedDict
 from functools import update_wrapper
+from django import forms
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import csrf_protect_m
-from django.http.response import HttpResponseRedirect
+from django.core.exceptions import PermissionDenied
+from django.http.response import HttpResponse, HttpResponseRedirect
+from django.template.response import TemplateResponse
 from django.utils.translation import gettext as _, ngettext
+from import_export import resources
 from import_export.admin import ExportMixin
+from import_export.forms import ExportForm
+from import_export.signals import post_export
+from sigi.apps.utils import field_label
+
+class ExportFormFields(ExportForm):
+   def __init__(self, formats, field_list, *args, **kwargs):
+        super().__init__(formats, *args, **kwargs)
+        self.fields['selected_fields'] = forms.MultipleChoiceField(
+            label=_('Campos a exportar'),
+            required=True,
+            choices=field_list,
+            initial=[f[0] for f in field_list],
+            widget=forms.CheckboxSelectMultiple,
+        )
+
+class LabeledResourse(resources.ModelResource):
+    selected_fields = None
+    def get_export_headers(self):
+        headers = []
+        for field in self.get_export_fields():
+            if field.attribute == field.column_name:
+                label = field_label(field.attribute, self._meta.model)
+            else:
+                label = field.column_name
+            headers.append(label)
+        return headers
+
+    def get_export_fields(self):
+        fields = self.get_fields()
+        if self.selected_fields:
+            fields = [f for f in fields if f.column_name in self.selected_fields]
+        return fields
+
+    def export(self, queryset=None, selected_fields=None, *args, **kwargs):
+        self.selected_fields = selected_fields
+        return super().export(queryset, *args, **kwargs)
 
 class CartExportMixin(ExportMixin):
+    to_encoding = 'utf-8'
     actions = ['add_to_cart']
     change_list_template = 'admin/cart/change_list_cart_export.html'
     _cart_session_name = None
@@ -135,3 +176,44 @@ class CartExportMixin(ExportMixin):
         request.session.pop(self._cart_viewing_name, None)
         self.message_user(request, _(u"Carrinho vazio"))
         return HttpResponseRedirect('..')
+
+    def export_action(self, request, *args, **kwargs):
+        if not self.has_export_permission(request):
+            raise PermissionDenied
+
+        formats = self.get_export_formats()
+        resource = (self.get_export_resource_class())()
+        field_list = list(zip(resource.get_export_order(),
+                              resource.get_export_headers()))
+        form = ExportFormFields(formats, field_list, request.POST or None)
+        if form.is_valid():
+            file_format = formats[
+                int(form.cleaned_data['file_format'])
+            ]()
+
+            queryset = self.get_export_queryset(request)
+            export_data = self.get_export_data(
+                file_format,
+                queryset,
+                request=request,
+                encoding=self.to_encoding,
+                selected_fields=form.cleaned_data['selected_fields'])
+            content_type = file_format.get_content_type()
+            response = HttpResponse(export_data, content_type=content_type)
+            response['Content-Disposition'] = 'attachment; filename="%s"' % (
+                self.get_export_filename(request, queryset, file_format),
+            )
+
+            post_export.send(sender=None, model=self.model)
+            return response
+
+        context = self.get_export_context_data()
+
+        context.update(self.admin_site.each_context(request))
+
+        context['title'] = _("Export")
+        context['form'] = form
+        context['opts'] = self.model._meta
+        request.current_app = self.admin_site.name
+        return TemplateResponse(request, [self.export_template_name],
+                                context)

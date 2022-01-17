@@ -28,7 +28,7 @@ DATABASES = {
         'NAME': 'sigi',
         'USER': 'sigi',
         'PASSWORD': '123456',
-        'HOST': 'database',
+        'HOST': 'localhost',
     }
 }
 
