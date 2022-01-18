@@ -25,6 +25,7 @@ INSTALLED_APPS = [
     'sigi.apps.casas',
     'sigi.apps.convenios',
     'sigi.apps.inventario',
+    'sigi.apps.servicos',
     'localflavor',
     'import_export',
     'django_bootstrap5',

@@ -15,13 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='casamanifesta',
             name='casa_legislativa',
-            field=models.OneToOneField(to='casas.Orgao'),
+            field=models.OneToOneField(to='casas.Orgao', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='servico',
             name='casa_legislativa',
-            field=models.ForeignKey(verbose_name='Casa Legislativa', to='casas.Orgao'),
+            field=models.ForeignKey(verbose_name='Casa Legislativa', to='casas.Orgao', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

@@ -21,7 +21,7 @@ class Migration(migrations.Migration):
                 ('informante', models.CharField(max_length=100, verbose_name='Nome do informante', blank=True)),
                 ('cargo', models.CharField(max_length=100, verbose_name='Cargo do informante', blank=True)),
                 ('email', models.EmailField(max_length=75, verbose_name='E-mail de contato', blank=True)),
-                ('casa_legislativa', models.OneToOneField(to='casas.CasaLegislativa')),
+                ('casa_legislativa', models.OneToOneField(to='casas.CasaLegislativa', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -70,9 +70,9 @@ class Migration(migrations.Migration):
                 ('motivo_desativacao', models.TextField(verbose_name='Motivo da desativa\xe7\xe3o', blank=True)),
                 ('data_ultimo_uso', models.DateField(help_text='Data em que o servi\xe7o foi utilizado pela Casa Legislativa pela \xfaltima vez<br/><strong>N\xc3O \xc9 ATUALIZADO AUTOMATICAMENTE!</strong>', null=True, verbose_name='Data da \xfaltima utiliza\xe7\xe3o', blank=True)),
                 ('erro_atualizacao', models.CharField(help_text='Erro ocorrido na \xfaltima tentativa de atualizar a data de \xfaltimo acesso', max_length=200, verbose_name='Erro na atualiza\xe7\xe3o', blank=True)),
-                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa')),
-                ('contato_administrativo', models.ForeignKey(related_name=b'contato_administrativo', verbose_name='Contato administrativo', to='casas.Funcionario')),
-                ('contato_tecnico', models.ForeignKey(related_name=b'contato_tecnico', verbose_name='Contato t\xe9cnico', to='casas.Funcionario')),
+                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa', on_delete=models.CASCADE)),
+                ('contato_administrativo', models.ForeignKey(related_name=b'contato_administrativo', verbose_name='Contato administrativo', to='casas.Funcionario', on_delete=models.CASCADE)),
+                ('contato_tecnico', models.ForeignKey(related_name=b'contato_tecnico', verbose_name='Contato t\xe9cnico', to='casas.Funcionario', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -84,7 +84,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('url', models.URLField(blank=True)),
                 ('hospedagem_interlegis', models.BooleanField(default=False, verbose_name='Hospedagem no Interlegis?')),
-                ('casa_manifesta', models.ForeignKey(to='servicos.CasaManifesta')),
+                ('casa_manifesta', models.ForeignKey(to='servicos.CasaManifesta', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -110,7 +110,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='servicomanifesto',
             name='servico',
-            field=models.ForeignKey(to='servicos.TipoServico'),
+            field=models.ForeignKey(to='servicos.TipoServico', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -120,13 +120,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='servico',
             name='tipo_servico',
-            field=models.ForeignKey(verbose_name='Tipo de servi\xe7o', to='servicos.TipoServico'),
+            field=models.ForeignKey(verbose_name='Tipo de servi\xe7o', to='servicos.TipoServico', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='logservico',
             name='servico',
-            field=models.ForeignKey(verbose_name='Servi\xe7o', to='servicos.Servico'),
+            field=models.ForeignKey(verbose_name='Servi\xe7o', to='servicos.Servico', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.CreateModel(

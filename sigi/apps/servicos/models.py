@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from datetime import date
 from django.db import models
 from sigi.apps.casas.models import Orgao, Funcionario
@@ -19,7 +17,7 @@ class TipoServico(models.Model):
                             "<ul><li>/caminho/da/pesquisa/?parametros "
                             "[xml|json] campo.de.data</li>")
     nome = models.CharField(_('nome'), max_length=60)
-    sigla = models.CharField(_('sigla'), max_length='12')
+    sigla = models.CharField(_('sigla'), max_length=12)
     modo = models.CharField(
         _('modo de prestação do serviço'),
         max_length=1,
@@ -43,9 +41,8 @@ class TipoServico(models.Model):
         verbose_name = _('Tipo de serviço')
         verbose_name_plural = _('Tipos de serviço')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
-
 
 class Servico(models.Model):
     casa_legislativa = models.ForeignKey(
@@ -122,7 +119,12 @@ class Servico(models.Model):
                     "de última atualização do serviço")
     )
 
-    # casa_legislativa.casa_uf_filter = True
+    @property
+    def status_servico(self):
+        if self.data_desativacao is None:
+            return _("Ativo")
+        else:
+            return _("Inativo")
 
     def atualiza_data_uso(self):
         import requests
@@ -247,8 +249,8 @@ class Servico(models.Model):
 
         return
 
-    def __unicode__(self):
-        return "%s (%s)" % (self.tipo_servico.nome, _('ativo') if self.data_desativacao is None else _('Desativado'))
+    def __str__(self):
+        return f"{self.tipo_servico.nome} ({self.status_servico})"
 
     def save(self, *args, **kwargs):
         # Reter o objeto original para verificar mudanças
@@ -290,7 +292,6 @@ class Servico(models.Model):
 
         return
 
-
 class LogServico(models.Model):
     servico = models.ForeignKey(
         Servico,
@@ -301,30 +302,25 @@ class LogServico(models.Model):
     data = models.DateField(_('Data da ação'), default=date.today)
     log = models.TextField(_('Log da ação'))
 
-    def __unicode__(self):
-        return "%s (%s)" % (self.descricao, self.data)
+    def __str__(self):
+        return f"{self.descricao} ({self.data})"
 
     class Meta:
         verbose_name = _('Log do serviço')
         verbose_name_plural = _('Logs do serviço')
 
-
 class CasaAtendidaManager(models.Manager):
-
     def get_queryset(self):
         qs = super(CasaAtendidaManager, self).get_queryset()
         qs = qs.exclude(codigo_interlegis='')
         return qs
 
-
 class CasaAtendida(Orgao):
-
     class Meta:
         proxy = True
         verbose_name_plural = _('Casas atendidas')
 
     objects = CasaAtendidaManager()
-
 
 class CasaManifesta(models.Model):
     casa_legislativa = models.OneToOneField(Orgao, on_delete=models.CASCADE)
@@ -334,7 +330,6 @@ class CasaManifesta(models.Model):
     cargo = models.CharField(_('Cargo do informante'), max_length=100, blank=True)
     email = models.EmailField(_('E-mail de contato'), blank=True)
 
-
 class ServicoManifesto(models.Model):
     casa_manifesta = models.ForeignKey(CasaManifesta, on_delete=models.CASCADE)
     servico = models.ForeignKey(TipoServico, on_delete=models.CASCADE)
@@ -343,7 +338,6 @@ class ServicoManifesto(models.Model):
 
     class Meta:
         unique_together = ('casa_manifesta', 'servico')
-
 
 class RegistroServico(models.Model):
     produto = models.CharField(max_length=50)
