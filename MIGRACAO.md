@@ -4,6 +4,11 @@ NOTAS PARA MIGRAÇÃO PARA DJANGO 4.0
 Para montar o ambiente
 ----------------------
 
+* Em uma máquina que nunca rodou SIGI, deve-se instalar alguns pacotes (Testado em Ubuntu 20.04), que são:
+```
+sudo apt install python3-dev graphviz libgraphviz-dev pkg-config libpq-dev
+```
+
 * Clonar o sigi em sua máquina:
   ```
   git clone git@github.com:interlegis/sigi.git
