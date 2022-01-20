@@ -25,7 +25,7 @@ class Migration(migrations.Migration):
                 ('carga_horaria', models.PositiveIntegerField(default=0, verbose_name='carga hor\xe1ria')),
                 ('qtde_participantes', models.PositiveIntegerField(default=0, help_text='Deixar Zero significa que todos os participantes do evento participaram do m\xf3dulo', verbose_name='n\xfamero de participantes')),
                 ('apresentador', models.ForeignKey(related_name='modulo_apresentador', on_delete=django.db.models.deletion.PROTECT, verbose_name='Apresentador', blank=True, to='servidores.Servidor', null=True)),
-                ('evento', models.ForeignKey(verbose_name='Evento', to='eventos.Evento')),
+                ('evento', models.ForeignKey(verbose_name='Evento', to='eventos.Evento', on_delete=models.CASCADE)),
                 ('monitor', models.ForeignKey(related_name='modulo_monitor', on_delete=django.db.models.deletion.PROTECT, blank=True, to='servidores.Servidor', help_text='Monitor, mediador, auxiliar, etc.', null=True, verbose_name='Monitor')),
             ],
             options={

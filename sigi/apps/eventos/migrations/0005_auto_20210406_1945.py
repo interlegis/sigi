@@ -15,13 +15,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='convite',
             name='casa',
-            field=models.ForeignKey(verbose_name='Casa convidada', to='casas.Orgao'),
+            field=models.ForeignKey(verbose_name='Casa convidada', to='casas.Orgao', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='evento',
             name='casa_anfitria',
-            field=models.ForeignKey(verbose_name='Casa anfitri\xe3', blank=True, to='casas.Orgao', null=True),
+            field=models.ForeignKey(verbose_name='Casa anfitri\xe3', blank=True, to='casas.Orgao', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

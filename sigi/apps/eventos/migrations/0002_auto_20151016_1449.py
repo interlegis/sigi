@@ -11,10 +11,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='evento',
-            name='curso_moodle_id',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Curso saberes', choices=[(None, '---------'), (None, "Erro ao acessar o saberes: 'invalidtoken (moodle_exception): Token inv\xe1lido - token n\xe3o encontrado'")]),
-            preserve_default=True,
-        ),
     ]

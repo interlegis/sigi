@@ -11,10 +11,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='evento',
-            name='curso_moodle_id',
-            field=models.IntegerField(blank=True, null=True, verbose_name='Curso saberes', choices=[(None, '---------'), (851L, 'Implanta\xe7\xe3o SAPL em Cuiab\xe1')]),
-            preserve_default=True,
-        ),
     ]

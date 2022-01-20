@@ -1,16 +1,13 @@
-# -*- coding: utf-8 -*-
 from datetime import datetime
-import random
 from django.db import models
 from django.db.models import Sum
-from django.utils.functional import lazy
 from django.utils.translation import gettext as _
-from django.contrib.contenttypes import generic
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
 from django.core.exceptions import ValidationError
 from tinymce.models import HTMLField
+
 
 class TipoEvento(models.Model):
     CATEGORIA_CHOICES = (
@@ -31,7 +28,7 @@ class TipoEvento(models.Model):
         ordering = ("nome",)
         verbose_name, verbose_name_plural = _("Tipo de evento"), _("Tipos de evento")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
 class Evento(models.Model):
@@ -93,12 +90,11 @@ class Evento(models.Model):
         ordering = ("-data_inicio",)
         verbose_name, verbose_name_plural = _("Evento"), _("Eventos")
 
-    def __unicode__(self):
-        return _("%(nome)s (%(tipo_evento)s): de %(data_inicio)s a %(data_termino)s") % dict(
-                    nome=self.nome,
-                    tipo_evento=unicode(self.tipo_evento),
-                    data_inicio=self.data_inicio,
-                    data_termino=self.data_termino)
+    def __str__(self):
+        return _(
+            f"{self.nome} ({self.tipo_evento}): "
+            f"de {self.data_inicio} a {self.data_termino}"
+        )
 
     def save(self, *args, **kwargs):
         if self.status != 'C':
@@ -121,7 +117,7 @@ class Funcao(models.Model):
         ordering = ("nome",)
         verbose_name, verbose_name_plural = _("Função"), _("Funções")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
 
 class Equipe(models.Model):
@@ -145,8 +141,8 @@ class Equipe(models.Model):
         ordering = ('evento', 'funcao', 'membro',)
         verbose_name, verbose_name_plural = _("Membro da equipe"), _("Membros da equipe")
 
-    def __unicode__(self):
-        return "%s (%s)" % (unicode(self.membro), unicode(self.funcao),)
+    def __str__(self):
+        return _(f"{self.membro} ({self.funcao})")
 
 class Convite(models.Model):
     evento = models.ForeignKey(
@@ -188,7 +184,7 @@ class Modulo(models.Model):
         ('P', _('Palestra')),
         ('R', _('Apresentação')),
     )
-    evento = models.ForeignKey(Evento, verbose_name=_("Evento"))
+    evento = models.ForeignKey(Evento, verbose_name=_("Evento"), on_delete=models.CASCADE)
     nome = models.CharField(_("Nome"), max_length=100)
     descricao = models.TextField(_("Descrição do módulo"))
     tipo = models.CharField(_('Tipo'), max_length=1, choices=TIPO_CHOICES)
@@ -235,11 +231,8 @@ class Modulo(models.Model):
         verbose_name = _("Módulo do evento")
         verbose_name_plural = _("Módulos do evento")
 
-    def __unicode__(self):
-        return _("{nome} ({tipo})").format(
-            nome=self.nome,
-            tipo=self.get_tipo_display()
-        )
+    def __str__(self):
+        return _(f"{self.nome} ({self.get_tipo_display()})")
 
 class ModeloDeclaracao(models.Model):
     FORMATO_CHOICES = (
@@ -279,11 +272,8 @@ class ModeloDeclaracao(models.Model):
         verbose_name = _("modelo de declaração")
         verbose_name_plural = _("modelos de declaração")
 
-    def __unicode__(self):
-        return _("{nome} ({formato})").format(
-            nome=self.nome,
-            formato=self.get_formato_display()
-        )
+    def __str__(self):
+        return _(f"{self.nome} ({self.get_formato_display()})")
 
 class Anexo(models.Model):
     evento = models.ForeignKey(
@@ -293,7 +283,7 @@ class Anexo(models.Model):
     )
     # caminho no sistema para o documento anexo
     arquivo = models.FileField(upload_to='apps/eventos/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_('descrição'), max_length='70')
+    descricao = models.CharField(_('descrição'), max_length=70)
     data_pub = models.DateTimeField(
         _('data da publicação do anexo'),
         default=datetime.now
@@ -302,5 +292,5 @@ class Anexo(models.Model):
     class Meta:
         ordering = ('-data_pub',)
 
-    def __unicode__(self):
-        return unicode("%s publicado em %s" % (self.descricao, self.data_pub))
+    def __str__(self):
+        return _(f"{self.descricao} publicado em {self.data_pub}")

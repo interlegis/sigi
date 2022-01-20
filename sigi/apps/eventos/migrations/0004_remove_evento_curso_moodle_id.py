@@ -11,8 +11,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RemoveField(
-            model_name='evento',
-            name='curso_moodle_id',
-        ),
     ]

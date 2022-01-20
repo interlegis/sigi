@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -26,10 +27,14 @@ INSTALLED_APPS = [
     'sigi.apps.convenios',
     'sigi.apps.inventario',
     'sigi.apps.servicos',
+    'sigi.apps.eventos',
     'localflavor',
     'import_export',
+    'tinymce',
     'django_bootstrap5',
     'django.forms',
+    # 'material',
+    # 'material.admin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -105,3 +110,28 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
+
+# Django Material Admin settings
+#
+
+# MATERIAL_ADMIN_SITE = {
+#     'HEADER':  _('SIGI'),
+#     'TITLE':  _('SIGI - Sistema de Informações do Interlegis'),
+#     'FAVICON':  'img/favicon.ico',
+#     # 'MAIN_BG_COLOR':  'color',  # Admin site main color, css color should be specified
+#     # 'MAIN_HOVER_COLOR':  'color',  # Admin site main hover color, css color should be specified
+#     'PROFILE_PICTURE':  'img/interlegis.jpeg',  # Admin site profile picture (path to static should be specified)
+#     'PROFILE_BG':  'img/engitec.jpeg',  # Admin site profile background (path to static should be specified)
+#     'LOGIN_LOGO':  'img/interlegis.jpeg',  # Admin site logo on login page (path to static should be specified)
+#     'LOGOUT_BG':  'img/engitec.jpeg',  # Admin site background on login/logout pages (path to static should be specified)
+#     'SHOW_THEMES':  True,  #  Show default admin themes button
+#     'TRAY_REVERSE': True,  # Hide object-tools and additional-submit-line by default
+#     'NAVBAR_REVERSE': True,  # Hide side navbar by default
+#     # 'SHOW_COUNTS': True, # Show instances counts for each model
+#     # 'APP_ICONS': {  # Set icons for applications(lowercase), including 3rd party apps, {'application_name': 'material_icon_name', ...}
+#     #     'sites': 'send',
+#     # },
+#     # 'MODEL_ICONS': {  # Set icons for models(lowercase), including 3rd party models, {'model_name': 'material_icon_name', ...}
+#     #     'site': 'contact_mail',
+#     # }
+# }
