@@ -24,6 +24,7 @@ INSTALLED_APPS = [
     'sigi.apps.contatos',
     'sigi.apps.convenios',
     'sigi.apps.eventos',
+    'sigi.apps.home',
     'sigi.apps.inventario',
     'sigi.apps.ocorrencias',
     'sigi.apps.servicos',

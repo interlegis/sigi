@@ -6,8 +6,10 @@ from django import template
 
 register = template.Library()
 
-menus = yaml.load(open(dirname(__file__) + '/menu_conf.yaml', 'r'))
-
+menus = yaml.load(
+    open(dirname(__file__) + '/menu_conf.yaml', 'r'),
+    yaml.FullLoader
+)
 
 @register.inclusion_tag('menus/menu.html', takes_context=True)
 def show_menu(context, menu_id):
