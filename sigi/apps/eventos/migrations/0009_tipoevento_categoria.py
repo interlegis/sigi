@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tipoevento',
             name='categoria',
-            field=models.CharField(default='E', max_length=1, verbose_name='Categoaria', choices=[(b'C', 'Curso'), (b'E', 'Encontro'), (b'O', 'Oficina'), (b'S', 'Semin\xe1rio'), (b'V', 'Visita')]),
+            field=models.CharField(default='E', max_length=1, verbose_name='Categoaria', choices=[('C', 'Curso'), ('E', 'Encontro'), ('O', 'Oficina'), ('S', 'Semin\xe1rio'), ('V', 'Visita')]),
             preserve_default=False,
         ),
     ]

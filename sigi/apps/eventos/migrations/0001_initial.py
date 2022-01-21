@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
                 ('data_termino', models.DateField(verbose_name='Data de t\xe9rmino')),
                 ('local', models.TextField(verbose_name='Local do evento', blank=True)),
                 ('publico_alvo', models.TextField(verbose_name='P\xfablico alvo', blank=True)),
-                ('status', models.CharField(max_length=1, verbose_name='Status', choices=[(b'P', 'Previs\xe3o'), (b'A', 'A confirmar'), (b'O', 'Confirmado'), (b'R', 'Realizado'), (b'C', 'Cancelado')])),
+                ('status', models.CharField(max_length=1, verbose_name='Status', choices=[('P', 'Previs\xe3o'), ('A', 'A confirmar'), ('O', 'Confirmado'), ('R', 'Realizado'), ('C', 'Cancelado')])),
                 ('data_cancelamento', models.DateField(null=True, verbose_name='Data de cancelamento', blank=True)),
                 ('motivo_cancelamento', models.TextField(verbose_name='Motivo do cancelamento', blank=True)),
                 ('casa_anfitria', models.ForeignKey(verbose_name='Casa anfitri\xe3', blank=True, to='casas.CasaLegislativa', null=True, on_delete=models.CASCADE)),

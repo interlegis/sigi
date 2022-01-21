@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=100, verbose_name='Nome')),
                 ('descricao', models.TextField(verbose_name='Descri\xe7\xe3o do m\xf3dulo')),
-                ('tipo', models.CharField(max_length=1, verbose_name='Tipo', choices=[(b'A', 'Aula'), (b'P', 'Palestra'), (b'R', 'Apresenta\xe7\xe3o')])),
+                ('tipo', models.CharField(max_length=1, verbose_name='Tipo', choices=[('A', 'Aula'), ('P', 'Palestra'), ('R', 'Apresenta\xe7\xe3o')])),
                 ('inicio', models.DateTimeField(null=True, verbose_name='Data/hora de in\xedcio', blank=True)),
                 ('termino', models.DateTimeField(null=True, verbose_name='Data/hora de t\xe9rmino', blank=True)),
                 ('carga_horaria', models.PositiveIntegerField(default=0, verbose_name='carga hor\xe1ria')),

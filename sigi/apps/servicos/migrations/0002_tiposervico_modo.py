@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='tiposervico',
             name='modo',
-            field=models.CharField(default='H', max_length=1, verbose_name='Modo de presta\xe7\xe3o do servi\xe7o', choices=[(b'H', 'Hospedagem'), (b'R', 'Registro')]),
+            field=models.CharField(default='H', max_length=1, verbose_name='Modo de presta\xe7\xe3o do servi\xe7o', choices=[('H', 'Hospedagem'), ('R', 'Registro')]),
             preserve_default=False,
         ),
     ]

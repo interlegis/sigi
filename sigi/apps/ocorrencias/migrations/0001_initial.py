@@ -16,8 +16,8 @@ class Migration(migrations.Migration):
             name='Anexo',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('arquivo', models.FileField(upload_to=b'apps/ocorrencia/anexo/arquivo', max_length=500, verbose_name='Arquivo anexado')),
-                ('descricao', models.CharField(max_length=b'70', verbose_name='descri\xe7\xe3o do anexo')),
+                ('arquivo', models.FileField(upload_to='apps/ocorrencia/anexo/arquivo', max_length=500, verbose_name='Arquivo anexado')),
+                ('descricao', models.CharField(max_length='70', verbose_name='descri\xe7\xe3o do anexo')),
                 ('data_pub', models.DateTimeField(auto_now_add=True, verbose_name='data da publica\xe7\xe3o do anexo', null=True)),
             ],
             options={

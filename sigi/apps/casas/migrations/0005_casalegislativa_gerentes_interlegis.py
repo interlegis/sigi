@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='casalegislativa',
             name='gerentes_interlegis',
-            field=models.ManyToManyField(related_name='casas_que_gerencia', verbose_name=b'Gerentes Interlegis', to='servidores.Servidor'),
+            field=models.ManyToManyField(related_name='casas_que_gerencia', verbose_name='Gerentes Interlegis', to='servidores.Servidor'),
             preserve_default=True,
         ),
     ]

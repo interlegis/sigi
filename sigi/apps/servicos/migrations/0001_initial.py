@@ -71,8 +71,8 @@ class Migration(migrations.Migration):
                 ('data_ultimo_uso', models.DateField(help_text='Data em que o servi\xe7o foi utilizado pela Casa Legislativa pela \xfaltima vez<br/><strong>N\xc3O \xc9 ATUALIZADO AUTOMATICAMENTE!</strong>', null=True, verbose_name='Data da \xfaltima utiliza\xe7\xe3o', blank=True)),
                 ('erro_atualizacao', models.CharField(help_text='Erro ocorrido na \xfaltima tentativa de atualizar a data de \xfaltimo acesso', max_length=200, verbose_name='Erro na atualiza\xe7\xe3o', blank=True)),
                 ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa', on_delete=models.CASCADE)),
-                ('contato_administrativo', models.ForeignKey(related_name=b'contato_administrativo', verbose_name='Contato administrativo', to='casas.Funcionario', on_delete=models.CASCADE)),
-                ('contato_tecnico', models.ForeignKey(related_name=b'contato_tecnico', verbose_name='Contato t\xe9cnico', to='casas.Funcionario', on_delete=models.CASCADE)),
+                ('contato_administrativo', models.ForeignKey(related_name='contato_administrativo', verbose_name='Contato administrativo', to='casas.Funcionario', on_delete=models.CASCADE)),
+                ('contato_tecnico', models.ForeignKey(related_name='contato_tecnico', verbose_name='Contato t\xe9cnico', to='casas.Funcionario', on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -95,7 +95,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=60, verbose_name='Nome')),
-                ('sigla', models.CharField(max_length=b'12', verbose_name='Sigla')),
+                ('sigla', models.CharField(max_length='12', verbose_name='Sigla')),
                 ('string_pesquisa', models.CharField(help_text='Sufixo para pesquisa RSS para averiguar a data da \xfaltima atualiza\xe7\xe3o do servi\xe7o', max_length=200, verbose_name='String de pesquisa', blank=True)),
                 ('template_email_ativa', models.TextField(help_text='Use:<br/>\n                        {url} para incluir a URL do servi\xe7o,<br/>\n                        {senha} para incluir a senha inicial do servi\xe7o', verbose_name='Template de email de ativa\xe7\xe3o', blank=True)),
                 ('template_email_altera', models.TextField(help_text='Use:<br/>\n                        {url} para incluir a URL do servi\xe7o,<br/>\n                        {senha} para incluir a senha inicial do servi\xe7o', verbose_name='Template de email de altera\xe7\xe3o', blank=True)),

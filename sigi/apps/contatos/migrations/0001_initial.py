@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
             name='Endereco',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('tipo', models.CharField(max_length=15, choices=[(b'aeroporto', 'Aeroporto'), (b'alameda', 'Alameda'), (b'area', '\xc1rea'), (b'avenida', 'Avenida'), (b'campo', 'Campo'), (b'chacara', 'Ch\xe1cara'), (b'colonia', 'Col\xf4nia'), (b'condominio', 'Condom\xednio'), (b'conjunto', 'Conjunto'), (b'distrito', 'Distrito'), (b'esplanada', 'Esplanada'), (b'estacao', 'Esta\xe7\xe3o'), (b'estrada', 'Estrada'), (b'favela', 'Favela'), (b'fazenda', 'Fazenda'), (b'feira', 'Feira'), (b'jardim', 'Jardim'), (b'ladeira', 'Ladeira'), (b'lago', 'Lago'), (b'lagoa', 'Lagoa'), (b'largo', 'Largo'), (b'loteamento', 'Loteamento'), (b'morro', 'Morro'), (b'nucleo', 'N\xfacleo'), (b'parque', 'Parque'), (b'passarela', 'Passarela'), (b'patio', 'P\xe1tio'), (b'praca', 'Pra\xe7a'), (b'quadra', 'Quadra'), (b'recanto', 'Recanto'), (b'residencial', 'Residencial'), (b'rodovia', 'Rodovia'), (b'rua', 'Rua'), (b'setor', 'Setor'), (b'sitio', 'S\xedtio'), (b'travessa', 'Travessa'), (b'trecho', 'Trecho'), (b'trevo', 'Trevo'), (b'vale', 'Vale'), (b'vereda', 'Vereda'), (b'via', 'Via'), (b'viaduto', 'Viaduto'), (b'viela', 'Viela'), (b'vila', 'Vila'), (b'outro', 'Outro')])),
+                ('tipo', models.CharField(max_length=15, choices=[('aeroporto', 'Aeroporto'), ('alameda', 'Alameda'), ('area', '\xc1rea'), ('avenida', 'Avenida'), ('campo', 'Campo'), ('chacara', 'Ch\xe1cara'), ('colonia', 'Col\xf4nia'), ('condominio', 'Condom\xednio'), ('conjunto', 'Conjunto'), ('distrito', 'Distrito'), ('esplanada', 'Esplanada'), ('estacao', 'Esta\xe7\xe3o'), ('estrada', 'Estrada'), ('favela', 'Favela'), ('fazenda', 'Fazenda'), ('feira', 'Feira'), ('jardim', 'Jardim'), ('ladeira', 'Ladeira'), ('lago', 'Lago'), ('lagoa', 'Lagoa'), ('largo', 'Largo'), ('loteamento', 'Loteamento'), ('morro', 'Morro'), ('nucleo', 'N\xfacleo'), ('parque', 'Parque'), ('passarela', 'Passarela'), ('patio', 'P\xe1tio'), ('praca', 'Pra\xe7a'), ('quadra', 'Quadra'), ('recanto', 'Recanto'), ('residencial', 'Residencial'), ('rodovia', 'Rodovia'), ('rua', 'Rua'), ('setor', 'Setor'), ('sitio', 'S\xedtio'), ('travessa', 'Travessa'), ('trecho', 'Trecho'), ('trevo', 'Trevo'), ('vale', 'Vale'), ('vereda', 'Vereda'), ('via', 'Via'), ('viaduto', 'Viaduto'), ('viela', 'Viela'), ('vila', 'Vila'), ('outro', 'Outro')])),
                 ('logradouro', models.CharField(max_length=100)),
                 ('numero', models.CharField(max_length=15, blank=True)),
                 ('complemento', models.CharField(max_length=15, blank=True)),
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('numero', models.CharField(help_text='Exemplo: <em>(31)8851-9898</em>.', max_length=64, verbose_name='n\xfamero')),
-                ('tipo', models.CharField(default=b'I', max_length=1, choices=[(b'F', 'Fixo'), (b'M', 'M\xf3vel'), (b'X', 'Fax'), (b'I', 'Indefinido')])),
+                ('tipo', models.CharField(default='I', max_length=1, choices=[('F', 'Fixo'), ('M', 'M\xf3vel'), ('X', 'Fax'), ('I', 'Indefinido')])),
                 ('nota', models.CharField(max_length=70, null=True, blank=True)),
                 ('ult_alteracao', models.DateTimeField(auto_now=True, verbose_name='\xdaltima altera\xe7\xe3o', null=True)),
                 ('object_id', models.PositiveIntegerField()),
@@ -98,9 +98,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('codigo_ibge', models.PositiveIntegerField(help_text='C\xf3digo do estado segundo IBGE.', unique=True, serialize=False, verbose_name='c\xf3digo IBGE', primary_key=True)),
                 ('nome', models.CharField(max_length=25, verbose_name='Nome UF')),
-                ('search_text', sigi.apps.utils.SearchField(field_names=[b'nome'], editable=False)),
+                ('search_text', sigi.apps.utils.SearchField(field_names=['nome'], editable=False)),
                 ('sigla', models.CharField(help_text='Exemplo: <em>MG</em>.', unique=True, max_length=2)),
-                ('regiao', models.CharField(max_length=2, verbose_name='regi\xe3o', choices=[(b'SL', 'Sul'), (b'SD', 'Sudeste'), (b'CO', 'Centro-Oeste'), (b'NE', 'Nordeste'), (b'NO', 'Norte')])),
+                ('regiao', models.CharField(max_length=2, verbose_name='regi\xe3o', choices=[('SL', 'Sul'), ('SD', 'Sudeste'), ('CO', 'Centro-Oeste'), ('NE', 'Nordeste'), ('NO', 'Norte')])),
                 ('populacao', models.PositiveIntegerField(verbose_name='popula\xe7\xe3o')),
             ],
             options={

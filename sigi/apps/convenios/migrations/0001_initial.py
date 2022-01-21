@@ -17,8 +17,8 @@ class Migration(migrations.Migration):
             name='Anexo',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('arquivo', models.FileField(max_length=500, upload_to=b'apps/convenios/anexo/arquivo')),
-                ('descricao', models.CharField(max_length=b'70', verbose_name='descri\xe7\xe3o')),
+                ('arquivo', models.FileField(max_length=500, upload_to='apps/convenios/anexo/arquivo')),
+                ('descricao', models.CharField(max_length='70', verbose_name='descri\xe7\xe3o')),
                 ('data_pub', models.DateTimeField(default=datetime.datetime.now, verbose_name='data da publica\xe7\xe3o do anexo')),
             ],
             options={
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
             name='Convenio',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('search_text', sigi.apps.utils.SearchField(field_names=[b'casa_legislativa'], editable=False)),
+                ('search_text', sigi.apps.utils.SearchField(field_names=['casa_legislativa'], editable=False)),
                 ('num_processo_sf', models.CharField(help_text='Formatos:<br/>Antigo: <em>XXXXXX/XX-X</em>.<br/><em>SIGAD: XXXXX.XXXXXX/XXXX-XX</em>', max_length=20, verbose_name='n\xfamero do processo SF (Senado Federal)', blank=True)),
                 ('num_convenio', models.CharField(max_length=10, verbose_name='n\xfamero do conv\xeanio', blank=True)),
                 ('data_adesao', models.DateField(null=True, verbose_name='Aderidas', blank=True)),
@@ -83,7 +83,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('data', models.DateField()),
-                ('observacao', models.CharField(max_length=b'512', null=True, verbose_name='observa\xe7\xe3o', blank=True)),
+                ('observacao', models.CharField(max_length='512', null=True, verbose_name='observa\xe7\xe3o', blank=True)),
                 ('convenio', models.ForeignKey(verbose_name='conv\xeanio', to='convenios.Convenio', on_delete=models.CASCADE)),
             ],
             options={
@@ -95,8 +95,8 @@ class Migration(migrations.Migration):
             name='UnidadeAdministrativa',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('sigla', models.CharField(max_length=b'10')),
-                ('nome', models.CharField(max_length=b'100')),
+                ('sigla', models.CharField(max_length='10')),
+                ('nome', models.CharField(max_length='100')),
             ],
             options={
             },

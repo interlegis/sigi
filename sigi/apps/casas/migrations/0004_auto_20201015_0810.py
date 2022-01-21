@@ -13,7 +13,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='casalegislativa',
             name='gerente_contas',
-            field=models.ForeignKey(related_name='casas_que_gerencia_old', verbose_name=b'Gerente de contas', blank=True, to='servidores.Servidor', null=True, on_delete=models.CASCADE),
+            field=models.ForeignKey(related_name='casas_que_gerencia_old', verbose_name='Gerente de contas', blank=True, to='servidores.Servidor', null=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

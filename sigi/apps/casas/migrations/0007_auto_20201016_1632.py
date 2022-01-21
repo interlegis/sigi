@@ -49,13 +49,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='casalegislativa',
             name='foto',
-            field=models.ImageField(upload_to=b'imagens/casas', width_field=b'foto_largura', height_field=b'foto_altura', blank=True, verbose_name='Foto'),
+            field=models.ImageField(upload_to='imagens/casas', width_field='foto_largura', height_field='foto_altura', blank=True, verbose_name='Foto'),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='casalegislativa',
             name='inclusao_digital',
-            field=models.CharField(default=b'NAO PESQUISADO', max_length=30, verbose_name='Inclus\xe3o digital', choices=[(b'NAO PESQUISADO', 'N\xe3o pesquisado'), (b'NAO POSSUI PORTAL', 'N\xe3o possui portal'), (b'PORTAL MODELO', 'Possui Portal Modelo'), (b'OUTRO PORTAL', 'Possui outro portal')]),
+            field=models.CharField(default='NAO PESQUISADO', max_length=30, verbose_name='Inclus\xe3o digital', choices=[('NAO PESQUISADO', 'N\xe3o pesquisado'), ('NAO POSSUI PORTAL', 'N\xe3o possui portal'), ('PORTAL MODELO', 'Possui Portal Modelo'), ('OUTRO PORTAL', 'Possui outro portal')]),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -97,13 +97,13 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='funcionario',
             name='setor',
-            field=models.CharField(default=b'outros', max_length=100, verbose_name='Setor', choices=[(b'presidente', 'Presidente'), (b'contato_interlegis', 'Contato Interlegis'), (b'infraestrutura_fisica', 'Infraestrutura F\xedsica'), (b'estrutura_de_ti', 'Estrutura de TI'), (b'organizacao_do_processo_legislativo', 'Organiza\xe7\xe3o do Processo Legislativo'), (b'producao_legislativa', 'Produ\xe7\xe3o Legislativa'), (b'estrutura_de_comunicacao_social', 'Estrutura de Comunica\xe7\xe3o Social'), (b'estrutura_de_recursos_humanos', 'Estrutura de Recursos Humanos'), (b'gestao', 'Gest\xe3o'), (b'outros', 'Outros')]),
+            field=models.CharField(default='outros', max_length=100, verbose_name='Setor', choices=[('presidente', 'Presidente'), ('contato_interlegis', 'Contato Interlegis'), ('infraestrutura_fisica', 'Infraestrutura F\xedsica'), ('estrutura_de_ti', 'Estrutura de TI'), ('organizacao_do_processo_legislativo', 'Organiza\xe7\xe3o do Processo Legislativo'), ('producao_legislativa', 'Produ\xe7\xe3o Legislativa'), ('estrutura_de_comunicacao_social', 'Estrutura de Comunica\xe7\xe3o Social'), ('estrutura_de_recursos_humanos', 'Estrutura de Recursos Humanos'), ('gestao', 'Gest\xe3o'), ('outros', 'Outros')]),
             preserve_default=True,
         ),
         migrations.AlterField(
             model_name='funcionario',
             name='sexo',
-            field=models.CharField(default=b'M', max_length=1, verbose_name='Sexo', choices=[(b'M', 'Masculino'), (b'F', 'Feminino')]),
+            field=models.CharField(default='M', max_length=1, verbose_name='Sexo', choices=[('M', 'Masculino'), ('F', 'Feminino')]),
             preserve_default=True,
         ),
         migrations.AlterField(

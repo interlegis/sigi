@@ -18,7 +18,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='unidadefederativa',
             name='regiao',
-            field=models.CharField(max_length=2, verbose_name='regi\xe3o', choices=[(b'CO', 'Centro-Oeste'), (b'NE', 'Nordeste'), (b'NO', 'Norte'), (b'SD', 'Sudeste'), (b'SL', 'Sul')]),
+            field=models.CharField(max_length=2, verbose_name='regi\xe3o', choices=[('CO', 'Centro-Oeste'), ('NE', 'Nordeste'), ('NO', 'Norte'), ('SD', 'Sudeste'), ('SL', 'Sul')]),
             preserve_default=True,
         ),
     ]

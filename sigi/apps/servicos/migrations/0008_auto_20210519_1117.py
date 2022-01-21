@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='tiposervico',
             name='modo',
-            field=models.CharField(max_length=1, verbose_name='modo de presta\xe7\xe3o do servi\xe7o', choices=[(b'H', 'Hospedagem'), (b'R', 'Registro')]),
+            field=models.CharField(max_length=1, verbose_name='modo de presta\xe7\xe3o do servi\xe7o', choices=[('H', 'Hospedagem'), ('R', 'Registro')]),
             preserve_default=True,
         ),
         migrations.AlterField(
@@ -38,7 +38,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='tiposervico',
             name='sigla',
-            field=models.CharField(max_length=b'12', verbose_name='sigla'),
+            field=models.CharField(max_length='12', verbose_name='sigla'),
             preserve_default=True,
         ),
         migrations.AlterField(
