@@ -1,0 +1,46 @@
+{% load i18n %}
+
+<div class="content-wrapper">
+  <div class="app-list">
+    {% if app_list %}
+      {% for app in app_list %}
+        <div class="app">
+          <div class="card">
+            <div class="card-content">
+              <div class="card-title">
+                {{ app.name }}
+              </div>
+              <div class="row">
+                {% for model in app.models %}
+                  <div class="app-item col s6 m6 l4">
+                    <a {% if model.admin_url %}href="{{ model.admin_url }}"{% else %}class="disabled"{% endif %}>
+                      {% if model.count != None %}
+                        <div class="card app-count-badge">
+                          <div class="badge-content">
+                            {{ model.count }}
+                          </div>
+                        </div>
+                      {% endif %}
+                      <i class="material-icons" aria-hidden="true">
+                        {{ model.icon|default_if_none:'settings' }}
+                      </i>
+                      <h6 class="card-app-name">{{ model.name }}</h6>
+                    </a>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+    <div class="app">
+      <div class="card">
+        <div class="card-content">
+          <p>{% trans "You don't have permission to view or edit anything." %}</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>

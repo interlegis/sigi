@@ -117,8 +117,8 @@ IMPORT_EXPORT_SKIP_ADMIN_LOG = True
 # https://github.com/MaistrenkoAnton/django-material-admin#django-material-administration
 
 MATERIAL_ADMIN_SITE = {
-    'HEADER':  _('SIGI'),
-    'TITLE':  _('SIGI - Sistema de Informações do Interlegis'),
+    'HEADER':  _('SIGI - Sistema de Informações do Interlegis'),
+    'TITLE':  _('SIGI'),
     'FAVICON':  'img/favicon.ico',
     # 'MAIN_BG_COLOR':  'color',  # Admin site main color, css color should be specified
     # 'MAIN_HOVER_COLOR':  'color',  # Admin site main hover color, css color should be specified
@@ -126,8 +126,8 @@ MATERIAL_ADMIN_SITE = {
     'PROFILE_BG':  'img/engitec.jpeg',  # Admin site profile background (path to static should be specified)
     'LOGIN_LOGO':  'img/interlegis.jpeg',  # Admin site logo on login page (path to static should be specified)
     'LOGOUT_BG':  'img/engitec.jpeg',  # Admin site background on login/logout pages (path to static should be specified)
-    'SHOW_THEMES':  True,  #  Show default admin themes button
-    'TRAY_REVERSE': True,  # Hide object-tools and additional-submit-line by default
+    'SHOW_THEMES':  False,  #  Show default admin themes button
+    'TRAY_REVERSE': False,  # Hide object-tools and additional-submit-line by default
     'NAVBAR_REVERSE': True,  # Hide side navbar by default
     # 'SHOW_COUNTS': True, # Show instances counts for each model
     # 'APP_ICONS': {  # Set icons for applications(lowercase), including 3rd party apps, {'application_name': 'material_icon_name', ...}
@@ -137,3 +137,7 @@ MATERIAL_ADMIN_SITE = {
     #     'site': 'contact_mail',
     # }
 }
+
+# SIGI specific settings
+
+MENU_FILE = BASE_DIR / 'settings/menu_conf.yaml'

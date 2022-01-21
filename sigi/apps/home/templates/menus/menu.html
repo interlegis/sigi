@@ -1,6 +1,31 @@
 {% load menus %}
-  <ul class="nav navbar-nav">
-    {% for menu_item in menu_items %}
-      {% show_menu_item menu_item base_url %}
-    {% endfor %}
-  </ul>
+{% for menu in menu_items %}
+  {% if menu.children %}
+  <li class="scrollspy">
+    <div class="collapsible-header">
+      <i class="material-icons" aria-hidden="true">{% if menu.icon %}{{ menu.icon }}{% else %}settings{% endif %}</i>
+      {{ menu.title }}
+    </div>
+    <div class="collapsible-body">
+      {% for child in menu.children %}
+        {% if child.view_name %}
+          {% url child.view_name as item_url %}
+          <div{% if item_url in request.path %} class="active"{% endif %}>
+            <a href="{{ item_url }}{% if child.querystr %}?{{ child.querystr }}{% endif %}">{{ child.title }}</a>
+          </div>
+        {% else %}
+          <div class="disabled"><a href="#" class="disabled">{{ child.title }}</a></div>
+        {% endif %}
+      {% endfor %}
+    </div>
+  </li>
+  {% else %}
+    {% url menu.view_name as item_url %}
+    <div{% if item_url in request.path %} class="active"{% endif %}>
+      <li>
+        <i class="material-icons" aria-hidden="true">{% if menu.icon %}{{ menu.icon }}{% else %}settings{% endif %}</i>
+        <a href="{{ item_url }}{% if menu.querystr %}?{{ menu.querystr }}{% endif %}">{{ menu.title }}</a>
+      </li>
+    </div>
+  {% endif %}
+{% endfor %}
