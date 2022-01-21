@@ -1,5 +1,5 @@
 -r test-requirements.txt
 django-debug-toolbar==1.2.2
 ipdb==0.8
-ipython==2.3.1
+ipython==7.16.3
 pygraphviz==1.2
