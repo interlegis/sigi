@@ -20,14 +20,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Application definition
 
 INSTALLED_APPS = [
-    'sigi.apps.servidores',
-    'sigi.apps.contatos',
-    'sigi.apps.utils',
     'sigi.apps.casas',
+    'sigi.apps.contatos',
     'sigi.apps.convenios',
-    'sigi.apps.inventario',
-    'sigi.apps.servicos',
     'sigi.apps.eventos',
+    'sigi.apps.inventario',
+    'sigi.apps.ocorrencias',
+    'sigi.apps.servicos',
+    'sigi.apps.servidores',
+    'sigi.apps.utils',
     'localflavor',
     'import_export',
     'tinymce',

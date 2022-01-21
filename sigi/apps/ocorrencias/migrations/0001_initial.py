@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('nome', models.CharField(max_length=50, verbose_name='Categoria')),
                 ('descricao', models.TextField(null=True, verbose_name='descri\xe7\xe3o', blank=True)),
-                ('setor_responsavel', models.ForeignKey(verbose_name='Setor respons\xe1vel', to='servidores.Servico')),
+                ('setor_responsavel', models.ForeignKey(verbose_name='Setor respons\xe1vel', to='servidores.Servico', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Categoria',
@@ -48,7 +48,7 @@ class Migration(migrations.Migration):
                 ('data_criacao', models.DateTimeField(auto_now_add=True, verbose_name='Data de cria\xe7\xe3o', null=True)),
                 ('descricao', models.TextField(null=True, verbose_name='Descri\xe7\xe3o', blank=True)),
                 ('novo_status', models.IntegerField(blank=True, null=True, verbose_name='Novo status', choices=[(1, 'Aberto'), (2, 'Reaberto'), (3, 'Resolvido'), (4, 'Fechado'), (5, 'Duplicado')])),
-                ('encaminhar_setor', models.ForeignKey(verbose_name='Encaminhar para setor', blank=True, to='servidores.Servico', null=True)),
+                ('encaminhar_setor', models.ForeignKey(verbose_name='Encaminhar para setor', blank=True, to='servidores.Servico', null=True, on_delete=models.CASCADE)),
             ],
             options={
             },
@@ -65,10 +65,10 @@ class Migration(migrations.Migration):
                 ('prioridade', models.IntegerField(default=3, verbose_name='Prioridade', choices=[(1, 'Alt\xedssimo'), (2, 'Alto'), (3, 'Normal'), (4, 'Baixo'), (5, 'Baix\xedssimo')])),
                 ('descricao', models.TextField(verbose_name='descri\xe7\xe3o', blank=True)),
                 ('resolucao', models.TextField(verbose_name='resolu\xe7\xe3o', blank=True)),
-                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa')),
-                ('categoria', models.ForeignKey(verbose_name='Categoria', to='ocorrencias.Categoria')),
-                ('servidor_registro', models.ForeignKey(verbose_name='Servidor que registrou a ocorr\xeancia', to='servidores.Servidor')),
-                ('setor_responsavel', models.ForeignKey(verbose_name='Setor respons\xe1vel', to='servidores.Servico')),
+                ('casa_legislativa', models.ForeignKey(verbose_name='Casa Legislativa', to='casas.CasaLegislativa', on_delete=models.CASCADE)),
+                ('categoria', models.ForeignKey(verbose_name='Categoria', to='ocorrencias.Categoria', on_delete=models.CASCADE)),
+                ('servidor_registro', models.ForeignKey(verbose_name='Servidor que registrou a ocorr\xeancia', to='servidores.Servidor', on_delete=models.CASCADE)),
+                ('setor_responsavel', models.ForeignKey(verbose_name='Setor respons\xe1vel', to='servidores.Servico', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['prioridade', 'data_modificacao', 'data_criacao'],
@@ -92,25 +92,25 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='ocorrencia',
             name='tipo_contato',
-            field=models.ForeignKey(verbose_name='Tipo de contato', to='ocorrencias.TipoContato'),
+            field=models.ForeignKey(verbose_name='Tipo de contato', to='ocorrencias.TipoContato', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='comentario',
             name='ocorrencia',
-            field=models.ForeignKey(verbose_name='Ocorr\xeancia', to='ocorrencias.Ocorrencia'),
+            field=models.ForeignKey(verbose_name='Ocorr\xeancia', to='ocorrencias.Ocorrencia', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='comentario',
             name='usuario',
-            field=models.ForeignKey(verbose_name='Usu\xe1rio', to='servidores.Servidor'),
+            field=models.ForeignKey(verbose_name='Usu\xe1rio', to='servidores.Servidor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='anexo',
             name='ocorrencia',
-            field=models.ForeignKey(verbose_name='ocorr\xeancia', to='ocorrencias.Ocorrencia'),
+            field=models.ForeignKey(verbose_name='ocorr\xeancia', to='ocorrencias.Ocorrencia', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

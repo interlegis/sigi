@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from django.db import models
 from django.conf import settings
 from django.utils.translation import gettext as _
@@ -16,22 +15,22 @@ class Categoria(models.Model):
     )
 
     class Meta:
-        verbose_name, verbose_name_plural = _('Categoria'), _('Categorias')
+        verbose_name = _('Categoria')
+        verbose_name_plural = _('Categorias')
         ordering = ('nome',)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.nome
-
 
 class TipoContato(models.Model):
     descricao = models.CharField(_("Descrição"), max_length=50)
 
     class Meta:
-        verbose_name, verbose_name_plural = _("Tipo de contato"), _("Tipos de contato")
+        verbose_name = _("Tipo de contato")
+        verbose_name_plural = _("Tipos de contato")
 
-    def __unicode__(self):
+    def __str__(self):
         return self.descricao
-
 
 class Ocorrencia(models.Model):
     STATUS_ABERTO    = 1
@@ -61,8 +60,18 @@ class Ocorrencia(models.Model):
         on_delete=models.CASCADE,
         verbose_name=_('Casa Legislativa')
     )
-    data_criacao = models.DateField(_('Data de criação'), null=True, blank=True, auto_now_add=True)
-    data_modificacao = models.DateField(_('Data de modificação'), null=True, blank=True, auto_now=True)
+    data_criacao = models.DateField(
+        _('Data de criação'),
+        null=True,
+        blank=True,
+        auto_now_add=True
+    )
+    data_modificacao = models.DateField(
+        _('Data de modificação'),
+        null=True,
+        blank=True,
+        auto_now=True
+    )
     categoria = models.ForeignKey(
         Categoria,
         on_delete=models.PROTECT,
@@ -74,8 +83,16 @@ class Ocorrencia(models.Model):
         verbose_name=_("Tipo de contato")
     )
     assunto = models.CharField(_('Assunto'), max_length=200)
-    status = models.IntegerField(_('Status'), choices=STATUS_CHOICES, default=1,)
-    prioridade = models.IntegerField(_('Prioridade'), choices=PRIORITY_CHOICES, default=3, )
+    status = models.IntegerField(
+        _('Status'),
+        choices=STATUS_CHOICES,
+        default=1
+    )
+    prioridade = models.IntegerField(
+        _('Prioridade'),
+        choices=PRIORITY_CHOICES,
+        default=3
+    )
     descricao = models.TextField(_('descrição'), blank=True,)
     resolucao = models.TextField(_('resolução'), blank=True,)
     servidor_registro = models.ForeignKey(
@@ -88,18 +105,28 @@ class Ocorrencia(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_("Setor responsável")
     )
-    ticket = models.PositiveIntegerField(_('Número do ticket'), blank=True, null=True, help_text=_("Número do ticket no osTicket"))
+    ticket = models.PositiveIntegerField(
+        _('Número do ticket'),
+        blank=True,
+        null=True,
+        help_text=_("Número do ticket no osTicket")
+    )
 
     class Meta:
-        verbose_name, verbose_name_plural = _('ocorrência'), _('ocorrências')
+        verbose_name = _('ocorrência')
+        verbose_name_plural = _('ocorrências')
         ordering = ['prioridade', 'data_modificacao', 'data_criacao', ]
 
-    def __unicode__(self):
-        return "%(casa_legislativa)s: %(assunto)s" % {'assunto': self.assunto, 'casa_legislativa': self.casa_legislativa}
+    def __str__(self):
+        return _(f"{self.casa_legislativa}: {self.assunto}")
 
     def clean(self):
-        if self.ticket is not None and Ocorrencia.objects.exclude(pk=self.pk).filter(ticket=self.ticket).exists():
-            raise ValidationError({'ticket': _("Já existe ocorrência registrada para este ticket")})
+        if (self.ticket is not None
+            and Ocorrencia.objects.exclude(pk=self.pk).filter(
+                ticket=self.ticket).exists()
+        ):
+            raise ValidationError({'ticket': _("Já existe ocorrência "
+                                               "registrada para este ticket")})
         return super(Ocorrencia, self).clean()
 
     def get_ticket_url(self):
@@ -112,14 +139,24 @@ class Comentario(models.Model):
         verbose_name=_('Ocorrência'),
         related_name='comentarios'
     )
-    data_criacao = models.DateTimeField(_('Data de criação'), null=True, blank=True, auto_now_add=True)
+    data_criacao = models.DateTimeField(
+        _('Data de criação'),
+        null=True,
+        blank=True,
+        auto_now_add=True
+    )
     descricao = models.TextField(_('Descrição'), blank=True, null=True)
     usuario = models.ForeignKey(
         'servidores.Servidor',
         on_delete=models.PROTECT,
         verbose_name=_('Usuário')
     )
-    novo_status = models.IntegerField(_('Novo status'), choices=Ocorrencia.STATUS_CHOICES, blank=True, null=True)
+    novo_status = models.IntegerField(
+        _('Novo status'),
+        choices=Ocorrencia.STATUS_CHOICES,
+        blank=True,
+        null=True
+    )
     encaminhar_setor = models.ForeignKey(
         'servidores.Servico',
         on_delete=models.PROTECT,
@@ -129,7 +166,9 @@ class Comentario(models.Model):
     )
 
     def save(self, *args, **kwargs):
-        if self.encaminhar_setor and (self.encaminhar_setor != self.ocorrencia.setor_responsavel):
+        if (self.encaminhar_setor
+            and (self.encaminhar_setor != self.ocorrencia.setor_responsavel)
+        ):
             self.ocorrencia.setor_responsavel = self.encaminhar_setor
             self.ocorrencia.save()
         if self.novo_status and (self.novo_status != self.ocorrencia.status):
@@ -137,20 +176,32 @@ class Comentario(models.Model):
             self.ocorrencia.save()
         super(Comentario, self).save(*args, **kwargs)
 
-
 class Anexo(models.Model):
     ocorrencia = models.ForeignKey(
         Ocorrencia,
         on_delete=models.CASCADE,
         verbose_name=_('ocorrência')
     )
-    arquivo = models.FileField(_('Arquivo anexado'), upload_to='apps/ocorrencia/anexo/arquivo', max_length=500)
-    descricao = models.CharField(_('descrição do anexo'), max_length='70')
-    data_pub = models.DateTimeField(_('data da publicação do anexo'), null=True, blank=True, auto_now_add=True)
+    arquivo = models.FileField(
+        _('Arquivo anexado'),
+        upload_to='apps/ocorrencia/anexo/arquivo',
+        max_length=500
+    )
+    descricao = models.CharField(
+        _('descrição do anexo'),
+        max_length=70
+    )
+    data_pub = models.DateTimeField(
+        _('data da publicação do anexo'),
+        null=True,
+        blank=True,
+        auto_now_add=True
+    )
 
     class Meta:
         ordering = ('-data_pub',)
-        verbose_name, verbose_name_plural = _('Anexo'), _('Anexos')
+        verbose_name =  _('Anexo')
+        verbose_name_plural =_('Anexos')
 
-    def __unicode__(self):
-        return "%(arquivo_name)s: %(descricao)s" % {'arquivo_name': self.arquivo.name, 'descricao': self.descricao}
+    def __str__(self):
+        return _(f"{self.arquivo.name}: {self.descricao}")

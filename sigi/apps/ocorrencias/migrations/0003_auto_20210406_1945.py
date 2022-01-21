@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='ocorrencia',
             name='casa_legislativa',
-            field=models.ForeignKey(verbose_name='Casa Legislativa', to='casas.Orgao'),
+            field=models.ForeignKey(verbose_name='Casa Legislativa', to='casas.Orgao', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

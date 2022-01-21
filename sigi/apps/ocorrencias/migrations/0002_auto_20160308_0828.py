@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='comentario',
             name='ocorrencia',
-            field=models.ForeignKey(related_name='comentarios', verbose_name='Ocorr\xeancia', to='ocorrencias.Ocorrencia'),
+            field=models.ForeignKey(related_name='comentarios', verbose_name='Ocorr\xeancia', to='ocorrencias.Ocorrencia', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]
