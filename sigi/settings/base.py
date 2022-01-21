@@ -37,7 +37,7 @@ INSTALLED_APPS = [
     'django.forms',
     'material',
     'material.admin',
-    'django.contrib.admin',
+    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
