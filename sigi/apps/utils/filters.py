@@ -56,7 +56,7 @@ class RangeFilter(admin.FieldListFilter):
             yield (i, ultimo, value)
             ultimo = value
 
-        yield (self.num_faixas, ultimo, tudo.last())
+        yield (self.num_faixas, ultimo, tudo.last()+1)
 
     def lookups(self, request, model_admin):
         def humanize(num):
