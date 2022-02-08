@@ -1,0 +1,47 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    #content {
+      display: block;
+    }
+    .submit-row>a {
+      color: #fff;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}<h6>{% blocktrans with name=opts.verbose_name_plural %}Exportar {{ name }}{% endblocktrans %}</h6>{% endblock %}
+{% block content %}
+<form action="" method="POST" novalidate>{% csrf_token %}
+  <div class="container">
+    <fieldset>
+      {% for field in form %}
+        <div class="form-row">
+          {{ field.errors }}
+
+          {{ field.label_tag }}
+          {{ field }}
+
+          {% if field.field.help_text %}
+            <p class="help">{{ field.field.help_text|safe }}</p>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </fieldset>
+
+    <div class="submit-row">
+      <button class="btn waves-effect waves-light" type="submit" name="export">
+        <i class="material-icons left">done</i>
+        {% trans "Export" %}
+      </button>
+      <a class="btn waves-effect waves-light" href="{% url opts|admin_urlname:'changelist' %}">
+        <i class="material-icons left">navigate_before</i>
+        {% trans "Voltar" %}
+      </a>
+  </div>
+</form>
+{% endblock %}

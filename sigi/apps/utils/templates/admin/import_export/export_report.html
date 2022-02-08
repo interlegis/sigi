@@ -1,0 +1,68 @@
+{% extends "admin/import_export/export.html" %}
+{% load i18n admin_urls %}
+
+{% block content %}
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      {% block tab-items %}
+      <li class="tab col"><a href="#export">{% trans "Exportar" %}</a></li>
+      <li class="tab col"><a href="#report">{% trans "Relatórios" %}</a></li>
+      {% endblock %}
+    </ul>
+  </div>
+  {% block tabs %}
+    <div id="export" class="col s12">
+      <form action="" method="POST" novalidate>{% csrf_token %}
+        <div class="container">
+          <fieldset>
+            {% for field in form %}
+              <div class="form-row">
+                {{ field.errors }}
+
+                {{ field.label_tag }}
+                {{ field }}
+
+                {% if field.field.help_text %}
+                  <p class="help">{{ field.field.help_text|safe }}</p>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </fieldset>
+          <div class="submit-row">
+            <button class="btn waves-effect waves-light" type="submit" name="export">
+              <i class="material-icons left">done</i>
+              {% trans "Export" %}
+            </button>
+            <a class="btn waves-effect waves-light" href="{% url opts|admin_urlname:'changelist' %}">
+              <i class="material-icons left">navigate_before</i>
+              {% trans "Voltar" %}
+            </a>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div id="report" class="col s12">
+      <div class="container">
+        <div class="collection">
+        {% for report in reports %}
+          <a class="collection-item" href="{% url opts|admin_urlname:'report' report.name %}">
+            <i class="material-icons left">{{ report.icon }}</i>
+            {{ report.title }}
+          </a>
+        {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endblock %}
+</div>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function(){
+      var instance = M.Tabs.init($('.tabs'), {});
+    });
+  </script>
+{% endblock %}

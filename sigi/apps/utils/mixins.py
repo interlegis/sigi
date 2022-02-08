@@ -4,16 +4,18 @@ from django import forms
 from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import csrf_protect_m
-from django.core.exceptions import PermissionDenied
+from django.contrib.admin.utils import pretty_name
+from django.core.exceptions import PermissionDenied, ImproperlyConfigured
+from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
+from django.urls import path
 from django.utils.translation import gettext as _, ngettext
 from import_export import resources
 from import_export.admin import ExportMixin
 from import_export.forms import ExportForm
 from import_export.signals import post_export
 from sigi.apps.utils import field_label
-
 class ExportFormFields(ExportForm):
    def __init__(self, formats, field_list, *args, **kwargs):
         super().__init__(formats, *args, **kwargs)
@@ -88,32 +90,20 @@ class CartExportMixin(ExportMixin):
         cart_item_count = len(request.session.get(self._cart_session_name, []))
 
         extra_context = extra_context or {}
-        extra_context['cart_item_count'] = (
-            _('Vazio') if cart_item_count == 0
-            else _(f'{cart_item_count} itens')
-        )
+        extra_context['cart_item_count'] = cart_item_count
 
         if self._cart_viewing_name in request.session:
             extra_context['viewing_cart'] = True
         return super(CartExportMixin, self).changelist_view(request, extra_context)
 
     def get_urls(self):
-        from django.urls import path
-        def wrap(view):
-            def wrapper(*args, **kwargs):
-                return self.admin_site.admin_view(view)(*args, **kwargs)
-            wrapper.model_admin = self
-            return update_wrapper(wrapper, view)
-
-        info = self.model._meta.app_label, self.model._meta.model_name
-
-        paths = super(CartExportMixin, self).get_urls()
-        paths.insert(2, path(
-            'clearcart/',
-            wrap(self.clear_cart),
-            name='%s_%s_clearcart' % info
-        ))
-        return paths
+        urls = super().get_urls()
+        my_urls = [
+            path('clearcart/',
+                self.admin_site.admin_view(self.clear_cart),
+                name='%s_%s_clearcart' % self.get_model_info()),
+        ]
+        return my_urls + urls
 
     @csrf_protect_m
     def add_to_cart(self, request, queryset):
@@ -177,6 +167,7 @@ class CartExportMixin(ExportMixin):
         self.message_user(request, _(u"Carrinho vazio"))
         return HttpResponseRedirect('..')
 
+    @csrf_protect_m
     def export_action(self, request, *args, **kwargs):
         if not self.has_export_permission(request):
             raise PermissionDenied
@@ -217,3 +208,43 @@ class CartExportMixin(ExportMixin):
         request.current_app = self.admin_site.name
         return TemplateResponse(request, [self.export_template_name],
                                 context)
+
+class CartExportReportMixin(CartExportMixin):
+    export_template_name = 'admin/import_export/export_report.html'
+    reports = []
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path('report/<str:name>/',
+                self.admin_site.admin_view(self.report),
+                name='%s_%s_report' % self.get_model_info()),
+        ]
+        return my_urls + urls
+
+    def get_export_context_data(self):
+        context = super().get_export_context_data()
+        report_list = []
+        for name in self.reports:
+            report = getattr(self, name, None)
+            if report is None:
+                continue
+            report_list.append(
+                {'name': name,
+                 'title': getattr(report, 'title', pretty_name(name)),
+                 'icon': getattr(report, 'icon', 'picture_as_pdf')
+                }
+            )
+
+        context['reports'] = report_list
+
+        return context
+
+    def report(self, request, name):
+        if (name not in self.reports or not hasattr(self, name) or
+            not callable(getattr(self, name))):
+            raise Http404(_(f"Report {name} not exists"))
+
+        report_view = getattr(self, name)
+
+        return report_view(request)

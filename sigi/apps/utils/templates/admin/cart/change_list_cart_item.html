@@ -1,5 +1,13 @@
 {% load i18n %}
 {% load admin_urls %}
 
-<li><a role="button" class="btn" href="?cart=0"><span class="glyphicon glyphicon-chevron-left"></span>{% trans 'Voltar à lista completa' %}</a></li>
-<li><a role="button" class="btn" href="{% url opts|admin_urlname:'clearcart' %}"><span class="glyphicon glyphicon-trash"></span>{% trans "Esvaziar carrinho" %}</a></li>
+<li>
+  <a class="btn-floating tooltipped waves-effect waves-light" href="?cart=0" data-position="left" data-tooltip="{% trans 'Voltar à lista completa' %}">
+    <i class="material-icons">undo</i>
+  </a>
+</li>
+<li>
+  <a class="btn-floating tooltipped waves-effect waves-light" href="{% url opts|admin_urlname:'clearcart' %}" data-position="left" data-tooltip="{% trans "Esvaziar carrinho" %}">
+    <i class="material-icons">remove_shopping_cart</i>
+  </a>
+</li>
