@@ -128,7 +128,7 @@ MATERIAL_ADMIN_SITE = {
     'LOGOUT_BG':  'img/engitec.jpeg',  # Admin site background on login/logout pages (path to static should be specified)
     'SHOW_THEMES':  False,  #  Show default admin themes button
     'TRAY_REVERSE': False,  # Hide object-tools and additional-submit-line by default
-    'NAVBAR_REVERSE': True,  # Hide side navbar by default
+    'NAVBAR_REVERSE': False,  # Hide side navbar by default
     # 'SHOW_COUNTS': True, # Show instances counts for each model
     # 'APP_ICONS': {  # Set icons for applications(lowercase), including 3rd party apps, {'application_name': 'material_icon_name', ...}
     #     'sites': 'send',
