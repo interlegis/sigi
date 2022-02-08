@@ -1,4 +1,5 @@
 from unicodedata import name
+from urllib import response
 from django.contrib import admin
 from django.contrib.admin.options import ModelAdmin
 from django.contrib.contenttypes.admin import GenericTabularInline
@@ -6,6 +7,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django_weasyprint.views import WeasyTemplateResponse
 from import_export.fields import Field
 from sigi.apps.casas.forms import OrgaoForm
 from sigi.apps.casas.models import Orgao, Presidente, Funcionario, TipoOrgao
@@ -19,7 +21,7 @@ from sigi.apps.convenios.models import Convenio, Projeto
 # from sigi.apps.ocorrencias.models import Ocorrencia
 # from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.utils import field_label, queryset_ascii
-from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
+from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
 
 
 class OrgaoExportResourse(LabeledResourse):
@@ -262,10 +264,9 @@ class ConveniosInline(admin.TabularInline):
 
 
 @admin.register(Orgao)
-class OrgaoAdmin(CartExportMixin, admin.ModelAdmin):
+class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     form = OrgaoForm
     resource_class = OrgaoExportResourse
-    # actions = ['adicionar_casas', ]
     inlines = (TelefonesInline, PresidenteInline, ContatoInterlegisInline,
                FuncionariosInline, ) #ConveniosInline, ServicoInline,
             #    OcorrenciaInline,)
@@ -303,6 +304,10 @@ class OrgaoAdmin(CartExportMixin, admin.ModelAdmin):
     search_fields = ('search_text', 'sigla', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')
+    reports = ['casas_sem_processo', 'relatorio_simples', 'relatorio_completo',
+               'etiqueta_presidente_25', 'etiqueta_presidente_39',
+               'etiqueta_25', 'etiqueta_39', 'etiqueta_parlamentar_25',
+               'etiqueta_parlamentar_39',]
 
     def get_queryset(self, request):
         queryset = super(OrgaoAdmin, self).get_queryset(request)
@@ -352,6 +357,59 @@ class OrgaoAdmin(CartExportMixin, admin.ModelAdmin):
                            'tipo__sigla__exact',
                            'municipio__uf__codigo_ibge__exact',
                            'convenio__projeto__id__exact'])
+
+    def casas_sem_processo(self, request):
+        context = {
+            'casas': self.get_queryset(request).filter(convenio=None).order_by(
+                'municipio__uf','nome'),
+            'title': _('Casas sem nenhum processo de convênio')
+        }
+        return WeasyTemplateResponse(
+            filename='casas_sem_processo.pdf',
+            request=request,
+            template="casas/casas_sem_convenio_pdf.html",
+            context=context,
+            content_type='application/pdf',
+        )
+    casas_sem_processo.title = _('Casas sem nenhum processo de convênio')
+
+    def relatorio_simples(self, request):
+        return HttpResponseRedirect('..')
+    relatorio_simples.title = _('Relatório simples')
+
+    def relatorio_completo(self, request):
+        return HttpResponseRedirect('..')
+    relatorio_completo.title = _('Relatório completo')
+
+    def etiqueta_presidente_25(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_presidente_25.title = _('Etiqueta 2 x 5 com presidente')
+    etiqueta_presidente_25.icon = 'label'
+
+    def etiqueta_presidente_39(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_presidente_39.title = _('Etiqueta 3 x 9 com presidente')
+    etiqueta_presidente_39.icon = 'label'
+
+    def etiqueta_25(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_25.title = _('Etiqueta 2 x 5 sem presidente')
+    etiqueta_25.icon = 'label'
+
+    def etiqueta_39(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_39.title = _('Etiqueta 3 x 9 sem presidente')
+    etiqueta_39.icon = 'label'
+
+    def etiqueta_parlamentar_25(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_parlamentar_25.title = _('Etiqueta 2 x 5 parlamentares')
+    etiqueta_parlamentar_25.icon = 'label'
+
+    def etiqueta_parlamentar_39(self, request):
+        return HttpResponseRedirect('..')
+    etiqueta_parlamentar_39.title = _('Etiqueta 3 x 9 parlamentares')
+    etiqueta_parlamentar_39.icon = 'label'
 
     #TODO: Resolver depois - sigi-boys???
     # def etiqueta(self, request, queryset):
