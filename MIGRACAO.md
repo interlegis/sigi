@@ -6,7 +6,7 @@ Para montar o ambiente
 
 * Em uma máquina que nunca rodou SIGI, deve-se instalar alguns pacotes (Testado em Ubuntu 20.04), que são:
 ```
-sudo apt install python3-dev graphviz libgraphviz-dev pkg-config libpq-dev
+sudo apt install build-essential python3-dev graphviz libgraphviz-dev pkg-config libpq-dev
 ```
 
 * Clonar o sigi em sua máquina:
