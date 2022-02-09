@@ -1,0 +1,123 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+{% block main_content %}
+  <table repeat="1">
+    <thead>
+      <tr>
+        <th style="width: 22.5%;">{% trans 'Casa'       %}</th>
+        <th style="width: 12.5%;">{% trans 'Presidente' %}</th>
+        <th style="width:    5%;">{% trans 'Tipo'       %}</th>
+        <th style="width:   18%;">{% trans 'Endereço'   %}</th>
+        <th style="width:   10%;">{% trans 'Bairro'     %}</th>
+        <th style="width:    7%;">{% trans 'CEP'        %}</th>
+        <th style="width: 12.5%;">{% trans 'Telefone'   %}</th>
+        <th style="width: 12.5%;">{% trans 'E-mail'     %}</th>
+      </tr>
+    </thead>
+
+    {% for casa in casas %}
+      {% ifchanged casa.municipio.uf %}
+        <tr class="title_row"><td colspan="8"><h1>{{ casa.municipio.uf.nome }}</h1></td></tr>
+      {% endifchanged %}
+      <tr>
+        <td>{{ casa.nome           }}</td>
+        <td>{{ casa.presidente     }}</td>
+        <td>{{ casa.tipo.sigla     }}</td>
+        <td>{{ casa.logradouro     }}</td>
+        <td>{{ casa.bairro         }}</td>
+        <td>{{ casa.cep            }}</td>
+        <td>{{ casa.telefone       }}</td>
+        <td>{{ casa.email          }}</td>
+      </tr>
+  </table>
+  <h3>Telefones</h3>
+            
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Número</th>
+                  <th>Tipo</th>
+                  <th>Nota</th>
+                </tr>
+              <thead>
+              {% for tel in casa.telefones.all %}
+                <tr>
+                  <td>{{ tel.numero }}</td>
+                  <td>{{ tel.get_tipo_display }}</td>
+                  <td>{{ tel.nota }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Pessoas de contato</h3>
+            
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>E-mail</th>
+                  <th>Setor</th>
+                  <th>Notas</th>
+                </tr>
+              </thead>
+              {% for func in casa.funcionario_set.all %}
+                <tr>
+                  <td>{{ func.nome 				}}</td>
+                  <td>{{ func.email 			}}</td>
+                  <td>{{ func.get_setor_display }}</td>
+                  <td>{{ func.nota 				}}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Convênios</h3>
+
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Projeto</th>
+                  <th>Nº convênio</th>
+                  <th>Nº processo SF</th>
+                  <th>Adesão</th>
+                  <th>Convênio</th>
+                  <th>Equipada</th>
+                  <th>Publicada</th>
+                </tr>
+              </thead>
+              {% for conv in casa.convenio_set.all %}
+                <tr>
+                  <td>{{ conv.projeto.nome }}</td>
+                  <td>{{ conv.num_convenio|default_if_none:"-" }}</td>
+                  <td>{{ conv.num_processo_sf|default_if_none:"-" }}</td>
+                  <td>{{ conv.data_adesao|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ conv.data_retorno_assinatura|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ conv.equipada|yesno }}</td>
+                  <td>{{ conv.data_pub_diario|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+
+            <h3>Serviços Interlegis</h3>
+
+            <table repeat="1">
+              <thead>
+                <tr>
+                  <th>Serviço</th>
+                  <th>Endereço</th>
+                  <th>Ativado em</th>
+                  <th>Desativado em</th>
+                </tr>
+              </thead>
+              {% for srv in casa.servico_set.all %}
+                <tr>
+                  <td>{{ srv.tipo_servico.nome }}</td>
+                  <td>{{ srv.url|default_if_none:"-" }}</td>
+                  <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ srv.data_desativacao|date:"SHORT_DATE_FORMAT" }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+    {% endfor %}
+{% endblock main_content %}

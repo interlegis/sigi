@@ -374,42 +374,64 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     casas_sem_processo.title = _('Casas sem nenhum processo de convênio')
 
     def relatorio_simples(self, request):
-        return HttpResponseRedirect('..')
-    relatorio_simples.title = _('Relatório simples')
-
+        context = {
+            'casas': self.get_queryset(request).order_by(
+                'municipio__uf','nome'),
+            'title': _('Relatório Simples')
+        }
+        return WeasyTemplateResponse(
+            filename='relatorio_simples.pdf',
+            request=request,
+            template="casas/casas_sem_convenio_pdf.html",
+            context=context,
+            content_type='application/pdf',
+        )
+    relatorio_simples.title = _('Relatório Simples')
+    
     def relatorio_completo(self, request):
-        return HttpResponseRedirect('..')
+        context = {
+            'casas': self.get_queryset(request).order_by('municipio__uf','nome'),
+            'title': _('Relatório completo')
+        }
+        print (context)
+        return WeasyTemplateResponse(
+            filename='relatorio_completo.pdf',
+            request=request,
+            template="casas/relatorio_completo_pdf.html",
+            context=context,
+            content_type='application/pdf',
+        )
     relatorio_completo.title = _('Relatório completo')
 
-    def etiqueta_presidente_25(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_presidente_25.title = _('Etiqueta 2 x 5 com presidente')
-    etiqueta_presidente_25.icon = 'label'
+    # def etiqueta_presidente_25(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_presidente_25.title = _('Etiqueta 2 x 5 com presidente')
+    # etiqueta_presidente_25.icon = 'label'
 
-    def etiqueta_presidente_39(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_presidente_39.title = _('Etiqueta 3 x 9 com presidente')
-    etiqueta_presidente_39.icon = 'label'
+    # def etiqueta_presidente_39(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_presidente_39.title = _('Etiqueta 3 x 9 com presidente')
+    # etiqueta_presidente_39.icon = 'label'
 
-    def etiqueta_25(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_25.title = _('Etiqueta 2 x 5 sem presidente')
-    etiqueta_25.icon = 'label'
+    # def etiqueta_25(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_25.title = _('Etiqueta 2 x 5 sem presidente')
+    # etiqueta_25.icon = 'label'
 
-    def etiqueta_39(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_39.title = _('Etiqueta 3 x 9 sem presidente')
-    etiqueta_39.icon = 'label'
+    # def etiqueta_39(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_39.title = _('Etiqueta 3 x 9 sem presidente')
+    # etiqueta_39.icon = 'label'
 
-    def etiqueta_parlamentar_25(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_parlamentar_25.title = _('Etiqueta 2 x 5 parlamentares')
-    etiqueta_parlamentar_25.icon = 'label'
+    # def etiqueta_parlamentar_25(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_parlamentar_25.title = _('Etiqueta 2 x 5 parlamentares')
+    # etiqueta_parlamentar_25.icon = 'label'
 
-    def etiqueta_parlamentar_39(self, request):
-        return HttpResponseRedirect('..')
-    etiqueta_parlamentar_39.title = _('Etiqueta 3 x 9 parlamentares')
-    etiqueta_parlamentar_39.icon = 'label'
+    # def etiqueta_parlamentar_39(self, request):
+    #     return HttpResponseRedirect('..')
+    # etiqueta_parlamentar_39.title = _('Etiqueta 3 x 9 parlamentares')
+    # etiqueta_parlamentar_39.icon = 'label'
 
     #TODO: Resolver depois - sigi-boys???
     # def etiqueta(self, request, queryset):
