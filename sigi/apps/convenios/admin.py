@@ -2,15 +2,28 @@ from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
+from import_export.fields import Field
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         TipoSolicitacao, Convenio,
                                         EquipamentoPrevisto, Anexo, Tramitacao,
                                         Gescon)
-# from sigi.apps.convenios.reports import ConvenioReport
-# from sigi.apps.convenios.views import adicionar_convenios_carrinho
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import GerentesInterlegisFilter
+from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
+
+class ConvenioExportResourse(LabeledResourse):
+    class Meta:
+        model = Convenio
+        fields = ('num_processo_sf', 'num_convenio', 'projeto__nome',
+                  'casa_legislativa__nome', 'casa_legislativa__municipio__nome',
+                  'casa_legislativa__municipio__uf__sigla', 'data_sigi',
+                  'data_sigad', 'data_adesao', 'data_retorno_assinatura',
+                  'data_solicitacao', 'atualizacao_gescon', 'observacao_gescon',
+                  'tipo_solicitacao__nome', 'status__nome',
+                  'acompanha__nome_completo', 'servidor_gestao__nome_completo',
+                  'observacao')
+        export_order = fields
 
 class AnexosInline(admin.TabularInline):
     model = Anexo
@@ -33,8 +46,7 @@ class AcompanhaFilter(admin.filters.RelatedFieldListFilter):
         self.lookup_choices = [(x.id, x) for x in servidores]
 
 @admin.register(Convenio)
-class ConvenioAdmin(admin.ModelAdmin):
-    change_list_template = 'convenios/change_list.html'
+class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     fieldsets = (
         (None,
             {'fields': ('casa_legislativa', 'num_processo_sf', 'num_convenio',
@@ -56,7 +68,6 @@ class ConvenioAdmin(admin.ModelAdmin):
     )
     readonly_fields = ('data_sigi', 'atualizacao_gescon', 'observacao_gescon',
                        'link_gescon')
-    # actions = ['adicionar_convenios']
     inlines = (AnexosInline,)
     list_display = ('num_convenio', 'projeto','casa_legislativa', 'get_uf',
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
@@ -72,6 +83,15 @@ class ConvenioAdmin(admin.ModelAdmin):
     search_fields = ('id', 'casa_legislativa__search_text',
                      'casa_legislativa__sigla', 'num_processo_sf',
                      'num_convenio')
+    resource_class = ConvenioExportResourse
+    reports = [
+        'report_convenios',
+        'report_convenios_data_aceite',
+        'report_convenios_camaras',
+        'report_convenios_camaras_data_aceite',
+        'report_convenios_assembleia',
+        'report_convenios_assembleia_data_aceite',
+    ]
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
@@ -110,23 +130,37 @@ class ConvenioAdmin(admin.ModelAdmin):
             f"{obj.id_contrato_gescon}</a>")
     link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
 
-    def changelist_view(self, request, extra_context=None):
-        from sigi.apps.convenios.views import normaliza_data
-        request.GET._mutable = True
-        normaliza_data(request.GET, 'data_retorno_assinatura__gte')
-        normaliza_data(request.GET, 'data_retorno_assinatura__lte')
-        normaliza_data(request.GET, 'data_sigad__gte')
-        normaliza_data(request.GET, 'data_sigad__lte')
-        normaliza_data(request.GET, 'data_sigi__gte')
-        normaliza_data(request.GET, 'data_sigi__lte')
-        normaliza_data(request.GET, 'data_solicitacao__gte')
-        normaliza_data(request.GET, 'data_solicitacao__lte')
-        request.GET._mutable = False
+    def report_convenios(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios.title = _('Todos os convênios')
 
-        return super(ConvenioAdmin, self).changelist_view(
-            request,
-            extra_context={'query_str': '?' + request.META['QUERY_STRING']}
-        )
+    def report_convenios_data_aceite(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios_data_aceite.title = _(
+        'Todos os convênios com data aceite (equipada)'
+    )
+
+    def report_convenios_camaras(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios_camaras.title = _('Convênios das Câmaras Municipais')
+
+    def report_convenios_camaras_data_aceite(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios_camaras_data_aceite.title = _(
+        'Convênios das Câmaras Municipais com data aceite (equipada)'
+    )
+
+    def report_convenios_assembleia(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios_assembleia.title = _(
+        'Convênios das Assembléias Legislativas'
+    )
+
+    def report_convenios_assembleia_data_aceite(self, request):
+        return HttpResponseRedirect('../')
+    report_convenios_assembleia_data_aceite.title = _(
+        'Convênios das Assembléias Legislativas com data aceite (equipada)'
+    )
 
     # def relatorio(self, request, queryset):
     #     # queryset.order_by('casa_legislativa__municipio__uf')
@@ -156,10 +190,6 @@ class ConvenioAdmin(admin.ModelAdmin):
         if 'delete_selected' in actions:
             del actions['delete_selected']
         return actions
-
-    # def lookup_allowed(self, lookup, value):
-    #     return super(ConvenioAdmin, self).lookup_allowed(lookup, value) or \
-    #         lookup in ['casa_legislativa__municipio__uf__codigo_ibge__exact']
 
 @admin.register(EquipamentoPrevisto)
 class EquipamentoPrevistoAdmin(admin.ModelAdmin):
