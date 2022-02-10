@@ -1,4 +1,5 @@
 from datetime import date, timedelta
+import resource
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.encoding import force_str
@@ -6,11 +7,33 @@ from django.utils.safestring import mark_safe
 from django.forms.models import ModelForm
 from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import gettext as _
-
+from import_export.fields import Field
 from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servicos.models import (Servico, LogServico, CasaAtendida,
                                        TipoServico)
+from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
+
+class ServicoExportResourse(LabeledResourse):
+    telefone_casa = Field(column_name='Casa Legislativa/telefone')
+    hospedagem_interlegis = Field(column_name='hospedagem no interlegis')
+    class Meta:
+        model = Servico
+        fields = ('casa_legislativa__nome', 'casa_legislativa__municipio__nome',
+                  'casa_legislativa__municipio__uf__sigla',
+                  'casa_legislativa__email', 'telefone_casa',
+                  'contato_tecnico__nome', 'contato_tecnico__email',
+                  'contato_tecnico__nota', 'tipo_servico__nome', 'url',
+                  'hospedagem_interlegis', 'data_ativacao', 'data_desativacao',
+                  'motivo_desativacao', 'data_ultimo_uso', 'erro_atualizacao')
+        export_order = fields
+    def dehydrate_telefone_casa(self, servico):
+        return servico.casa_legislativa.telefone
+    def dehydrate_hospedagem_interlegis(self, servico):
+        if servico.hospedagem_interlegis:
+            return _("Sim")
+        else:
+            return _("Não")
 
 
 class LogServicoInline(admin.StackedInline):
@@ -110,8 +133,7 @@ class ServicoAtivoFilter(admin.SimpleListFilter):
         return queryset
 
 @admin.register(Servico)
-class ServicoAdmin(admin.ModelAdmin):
-    change_list_template = "servico/change_list.html"
+class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
     form = ServicoFormAdmin
     actions = ['calcular_data_uso', ]
     list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf',
@@ -142,11 +164,11 @@ class ServicoAdmin(admin.ModelAdmin):
         'casa_legislativa__municipio__uf',
     )
     list_display_links = []
-    actions = ['adicionar_servicos']
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa',
                 'tipo_servico',)
     inlines = (LogServicoInline,)
     search_fields = ('casa_legislativa__search_text',)
+    resource_class = ServicoExportResourse
 
     def get_codigo_interlegis(self, obj):
         return obj.casa_legislativa.codigo_interlegis
