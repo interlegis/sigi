@@ -2,7 +2,6 @@ from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
-from import_export.fields import Field
 from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         TipoSolicitacao, Convenio,
                                         EquipamentoPrevisto, Anexo, Tramitacao,
@@ -11,6 +10,7 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
+from sigi.apps.utils.filters import DateRangeFilter
 
 class ConvenioExportResourse(LabeledResourse):
     class Meta:
@@ -73,10 +73,14 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
                     'status_convenio', 'link_sigad', 'data_retorno_assinatura',
                     'data_termino_vigencia',)
     list_display_links = ('num_convenio', 'casa_legislativa',)
-    list_filter = (('casa_legislativa__gerentes_interlegis',
-                    GerentesInterlegisFilter), 'projeto',
-                   'casa_legislativa__tipo', 'conveniada','equipada',
-                   'casa_legislativa__municipio__uf',)
+    list_filter = (
+        ('data_retorno_assinatura', DateRangeFilter),
+        ('data_sigi', DateRangeFilter), ('data_solicitacao', DateRangeFilter),
+        ('data_sigad', DateRangeFilter),
+        ('casa_legislativa__gerentes_interlegis', GerentesInterlegisFilter),
+        'projeto', 'casa_legislativa__tipo', 'conveniada','equipada',
+        'casa_legislativa__municipio__uf',
+    )
     ordering = ('casa_legislativa', '-data_retorno_assinatura')
     raw_id_fields = ('casa_legislativa',)
     get_queryset = queryset_ascii
