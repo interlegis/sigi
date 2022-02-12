@@ -37,8 +37,6 @@ main_menu:
     children:
     - title: Convênios
       view_name: admin:convenios_convenio_changelist
-    - title: Planos diretores
-      view_name: admin:metas_planodiretor_changelist
   - title: Serviços SEIT
     icon: cloud_done
     children:
