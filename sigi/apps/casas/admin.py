@@ -18,8 +18,9 @@ from sigi.apps.casas.filters import (GerentesInterlegisFilter, ConvenioFilter,
                                      ExcluirConvenioFilter)
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio, Projeto
-# from sigi.apps.ocorrencias.models import Ocorrencia
-# from sigi.apps.servicos.models import Servico, TipoServico
+from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.servicos.models import Servico, TipoServico
+from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.utils import field_label, queryset_ascii
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
 
@@ -143,10 +144,9 @@ class ConveniosInline(admin.TabularInline):
                        'data_retorno_sem_assinatura', 'get_anexos']
     extra = 0
     can_delete = False
-    template = 'admin/casas/convenios_inline.html'
     ordering = ('-data_retorno_assinatura',)
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
     def get_anexos(self, obj):
@@ -176,16 +176,11 @@ class ConveniosInline(admin.TabularInline):
     def link_convenio(self, obj):
         if obj.pk is None:
             return ""
-        url = reverse(
-            f'admin:{obj._meta.app_label}_{obj._meta.module_name}_change',
-            args=[obj.pk]
-        ) + '?_popup=1'
+        opts = self.opts
+        url = reverse(f"admin:{opts.app_label}_{opts.model_name}_change",
+                      args=[obj.pk])
         return mark_safe(
-            f'<input id="edit_convenio-{obj.pk}" type="hidden"/>'
-            f'<a id="lookup_edit_convenio-{obj.pk}" href="{url}"'
-            'class="changelink" '
-            'onclick="return showRelatedObjectLookupPopup(this)">'
-            f'{_("Editar")}</a>'
+            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
         )
     link_convenio.short_description = _('Editar convenio')
 
@@ -195,72 +190,64 @@ class ConveniosInline(admin.TabularInline):
         return mark_safe(obj.get_sigad_url())
     link_sigad.short_description = _("Processo no Senado")
 
-# class ServicoInline(admin.TabularInline):
-#     model = Servico
-#     fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
-#               'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
-#               'data_desativacao', 'link_servico')
-#     readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
-#                        'hospedagem_interlegis', 'data_ativacao',
-#                        'data_alteracao', 'data_desativacao', 'link_servico']
-#     extra = 0
-#     max_num = 0
-#     can_delete = False
-#     ordering = ('-data_alteracao',)
+class ServicoInline(admin.TabularInline):
+    model = Servico
+    fields = ('link_url', 'contato_tecnico', 'contato_administrativo',
+              'hospedagem_interlegis', 'data_ativacao', 'data_alteracao',
+              'data_desativacao', 'link_servico')
+    readonly_fields = ['link_url', 'contato_tecnico', 'contato_administrativo',
+                       'hospedagem_interlegis', 'data_ativacao',
+                       'data_alteracao', 'data_desativacao', 'link_servico']
+    extra = 0
+    max_num = 0
+    can_delete = False
+    ordering = ('-data_alteracao',)
 
-#     def link_url(self, servico):
-#         if servico.data_desativacao is not None:
-#             return servico.url
-#         return mark_safe(
-#             f'<a href="{servico.url}" target="_blank">{servico.url}</a>'
-#         )
-#     link_url.short_description = _('URL do serviço')
+    def link_url(self, servico):
+        if servico.data_desativacao is not None:
+            return servico.url
+        return mark_safe(
+            f'<a href="{servico.url}" target="_blank">{servico.url}</a>'
+        )
+    link_url.short_description = _('URL do serviço')
 
-#     def link_servico(self, obj):
-#         if obj.pk is None:
-#             return ""
-#         url = reverse(
-#             f'admin:{obj._meta.app_label}_{obj._meta.module_name_change}',
-#             args=[obj.pk]
-#         ) + '?_popup=1'
-#         return mark_safe(
-#             f'<input id="edit_convenio-{obj.pk}" type="hidden"/>'
-#             f'<a id="lookup_edit_convenio-{obj.pk}" href="{url}" '
-#             'class="changelink" '
-#             'onclick="return showRelatedObjectLookupPopup(this)">Editar</a>'
-#         )
-#     link_servico.short_description = _('Editar Serviço')
+    def link_servico(self, obj):
+        if obj.pk is None:
+            return ""
+        opts = self.opts
+        url = reverse(f'admin:{opts.app_label}_{opts.model_name}_change',
+                      args=[obj.pk])
+        return mark_safe(
+            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
+        )
+    link_servico.short_description = _('Editar Serviço')
 
-#     def has_add_permission(self, request):
-#         return False
+    def has_add_permission(self, request, obj):
+        return False
 
-# class OcorrenciaInline(admin.TabularInline):
-#     model = Ocorrencia
-#     fields = ('data_criacao', 'assunto', 'prioridade', 'status',
-#               'data_modificacao', 'setor_responsavel', 'link_editar',)
-#     readonly_fields = ('data_criacao', 'assunto', 'prioridade', 'status',
-#                        'data_modificacao', 'setor_responsavel', 'link_editar',)
-#     extra = 0
-#     max_num = 0
-#     can_delete = False
-#     template = 'admin/casas/ocorrencia_inline.html'
-#     ordering = ('-data_modificacao',)
+class OcorrenciaInline(admin.TabularInline):
+    model = Ocorrencia
+    fields = ('data_criacao', 'assunto', 'prioridade', 'status',
+              'data_modificacao', 'setor_responsavel', 'link_editar',)
+    readonly_fields = ('data_criacao', 'assunto', 'prioridade', 'status',
+                       'data_modificacao', 'setor_responsavel', 'link_editar',)
+    extra = 0
+    max_num = 0
+    can_delete = False
+    ordering = ('-data_modificacao',)
 
-#     def link_editar(self, obj):
-#         if obj.pk is None:
-#             return ""
-#         url = reverse(
-#             f'admin:{obj._meta.app_label}_{obj._meta.module_name}_change',
-#             args=[obj.pk]
-#         )
-#         return mark_safe(
-#             f'<input id="edit_ocorrencia-{obj.pk}" type="hidden"/>'
-#             f'<a id="lookup_edit_ocorrencia-{obj.pk}" href="{url}" '
-#             'class="button" target="_blank" '
-#             'onclick="return showRelatedObjectLookupPopup(this);">'
-#             f'{_("Editar")}</a>'
-#         )
-#     link_editar.short_description = _('Editar')
+    def link_editar(self, obj):
+        if obj.pk is None:
+            return ""
+        opts = self.opts
+        url = reverse(
+            f'admin:{opts.app_label}_{opts.model_name}_change',
+            args=[obj.pk]
+        )
+        return mark_safe(
+            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
+        )
+    link_editar.short_description = _('Editar')
 
 
 @admin.register(Orgao)
@@ -268,8 +255,8 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     form = OrgaoForm
     resource_class = OrgaoExportResourse
     inlines = (TelefonesInline, PresidenteInline, ContatoInterlegisInline,
-               FuncionariosInline, ) #ConveniosInline, ServicoInline,
-            #    OcorrenciaInline,)
+               FuncionariosInline, ConveniosInline, ServicoInline,
+               OcorrenciaInline,)
     list_display = ('id', 'sigla', 'nome', 'get_uf', 'get_gerentes',
                     'get_convenios', 'get_servicos')
     list_display_links = ('sigla', 'nome',)
@@ -278,6 +265,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     #                ExcluirConvenioFilter, ServicoFilter, 'inclusao_digital',)
     list_filter = ('tipo', ('gerentes_interlegis', GerentesInterlegisFilter),
                    'municipio__uf__nome', ConvenioFilter, ExcluirConvenioFilter,
+                   ('servico__data_desativacao', ServicoAtivoFilter),
                    'inclusao_digital',)
     ordering = ('municipio__uf__nome', 'nome')
     queryset = queryset_ascii
@@ -295,8 +283,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
                        'pagina_web', 'email', 'obs_pesquisa',)
         }),
         (_('Outras informações'), {
-            'fields': ('observacoes', 'horario_funcionamento', 'foto',
-                       'recorte'),
+            'fields': ('observacoes', 'horario_funcionamento', 'foto',),
         }),
     )
     raw_id_fields = ('municipio',)
@@ -387,7 +374,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
             content_type='application/pdf',
         )
     relatorio_simples.title = _('Relatório Simples')
-    
+
     def relatorio_completo(self, request):
         context = {
             'casas': self.get_queryset(request).order_by('municipio__uf','nome'),

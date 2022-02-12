@@ -148,11 +148,9 @@ class Orgao(models.Model):
 
     @property
     def num_parlamentares(self):
-        # TODO: Descomentar assim que a app Parlamentares for migrada
-        # if not self.legislatura_set.exists():
-        #     return 0
-        # return self.legislatura_set.latest('data_inicio').total_parlamentares
-        return 0
+        if not self.legislatura_set.exists():
+            return 0
+        return self.legislatura_set.latest('data_inicio').total_parlamentares
 
     @property
     def telefone(self):
