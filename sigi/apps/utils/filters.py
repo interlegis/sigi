@@ -1,5 +1,6 @@
 import string
 from math import log10
+from django import forms
 from django.contrib import admin
 from django.contrib.admin.options import IncorrectLookupParameters
 from django.utils.translation import ngettext, gettext as _
@@ -133,3 +134,42 @@ class RangeFilter(admin.FieldListFilter):
             raise IncorrectLookupParameters(e)
 
         return queryset
+
+class DateRangeFilter(admin.FieldListFilter):
+    template = 'admin/date_range_filter.html'
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        self.model = model
+        self.model_admin = model_admin
+        self.lookup_kwargs = [f'{field_path}__gte', f'{field_path}__lte']
+
+        super().__init__(field, request, params, model, model_admin, field_path)
+
+        form = self.get_date_form(self.used_parameters)
+        if form.is_valid():
+            self.used_parameters = {
+                key: value for key,value in form.cleaned_data.items()
+                if value is not None
+            }
+        else:
+            self.used_parameters = {}
+
+    def has_output(self):
+        return self.model.objects.exists()
+
+    def expected_parameters(self):
+        return self.lookup_kwargs
+
+    def choices(self, changelist):
+        return [{
+            'query_string': changelist.get_query_string(
+                remove=self.lookup_kwargs),
+            'form': self.get_date_form(self.used_parameters)
+        }]
+
+    def get_date_form(self, context={}):
+        date_fields = {name: forms.DateField(required=False)
+                       for name in self.lookup_kwargs}
+        DateForm = type('DateForm', (forms.Form,), date_fields)
+
+        return DateForm(context)
+
