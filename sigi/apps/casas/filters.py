@@ -7,10 +7,10 @@ from sigi.apps.servicos.models import TipoServico
 
 class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
     def __init__(self, *args, **kwargs):
-        super(GerentesInterlegisFilter, self).__init__(*args, **kwargs)
-        gerentes = Servidor.objects.filter(
-            casas_que_gerencia__isnull=False).order_by(
-                'nome_completo').distinct()
+        super().__init__(*args, **kwargs)
+        gerentes = Servidor.objects.exclude(
+            casas_que_gerencia=None).order_by(
+                'nome_completo')
         self.lookup_choices = [(x.id, x) for x in gerentes]
 
 class ConvenioFilter(admin.SimpleListFilter):
