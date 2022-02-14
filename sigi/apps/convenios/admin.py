@@ -9,8 +9,9 @@ from sigi.apps.convenios.models import (Projeto, StatusConvenio,
                                         Gescon)
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.casas.admin import GerentesInterlegisFilter
+from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
+from django_weasyprint.views import WeasyTemplateResponse
 
 class ConvenioExportResourse(LabeledResourse):
     class Meta:
@@ -86,12 +87,14 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     resource_class = ConvenioExportResourse
     reports = [
         'report_convenios',
-        'report_convenios_data_aceite',
         'report_convenios_camaras',
-        'report_convenios_camaras_data_aceite',
         'report_convenios_assembleia',
-        'report_convenios_assembleia_data_aceite',
     ]
+    
+    def get_queryset(self, request):
+        queryset = super(ConvenioAdmin, self).get_queryset(request)
+        print (queryset)
+        return queryset
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
@@ -131,36 +134,49 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")
 
     def report_convenios(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios.title = _('Todos os convênios')
+        context = {
+            'convenios': self.get_queryset(request),
+            'title': _('Relatório de convenios'),
+        }
+        return WeasyTemplateResponse(
+            filename='relatorio_convenios.pdf',
+            request=request,
+            template="convenios/convenios_report.html",
+            context=context,
+            content_type='application/pdf',
+        )
+    report_convenios.title = _('Relatório de convênios')
 
-    def report_convenios_data_aceite(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios_data_aceite.title = _(
-        'Todos os convênios com data aceite (equipada)'
-    )
 
     def report_convenios_camaras(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios_camaras.title = _('Convênios das Câmaras Municipais')
+        context = {
+            'convenios': self.get_queryset(request).filter(casa_legislativa__tipo__legislativo = False),
+            'title': _('Relatório de convenios de camaras municipais'),
+        }
+        return WeasyTemplateResponse(
+            filename='relatorio_convenios.pdf',
+            request=request,
+            template="convenios/convenios_report.html",
+            context=context,
+            content_type='application/pdf',
+        )
+    report_convenios_camaras.title = _('Relatório de convênios de camaras municipais')
 
-    def report_convenios_camaras_data_aceite(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios_camaras_data_aceite.title = _(
-        'Convênios das Câmaras Municipais com data aceite (equipada)'
-    )
 
     def report_convenios_assembleia(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios_assembleia.title = _(
-        'Convênios das Assembléias Legislativas'
-    )
+        context = {
+            'convenios': self.get_queryset(request).filter(casa_legislativa__tipo__legislativo = True),
+            'title': _('Relatório de convenios de assembleias legislativas'),
+        }
+        return WeasyTemplateResponse(
+            filename='relatorio_convenios.pdf',
+            request=request,
+            template="convenios/convenios_report.html",
+            context=context,
+            content_type='application/pdf',
+        )
+    report_convenios_assembleia.title = _('Relatório de convênios de assembleias legislativas')
 
-    def report_convenios_assembleia_data_aceite(self, request):
-        return HttpResponseRedirect('../')
-    report_convenios_assembleia_data_aceite.title = _(
-        'Convênios das Assembléias Legislativas com data aceite (equipada)'
-    )
 
     # def relatorio(self, request, queryset):
     #     # queryset.order_by('casa_legislativa__municipio__uf')
