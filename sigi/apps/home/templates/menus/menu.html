@@ -10,7 +10,7 @@
       {% for child in menu.children %}
         {% if child.view_name %}
           {% url child.view_name as item_url %}
-          <div{% if item_url in request.path and child.querystr in request.get_full_path %} class="active"{% endif %}>
+          <div{% if item_url in request.path and child.querystr == None or child.querystr in request.get_full_path %} class="active"{% endif %}>
             <a href="{{ item_url }}{% if child.querystr %}?{{ child.querystr }}{% endif %}">{{ child.title }}</a>
           </div>
         {% else %}

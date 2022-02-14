@@ -16,6 +16,7 @@ from import_export.admin import ExportMixin
 from import_export.forms import ExportForm
 from import_export.signals import post_export
 from sigi.apps.utils import field_label
+
 class ExportFormFields(ExportForm):
    def __init__(self, formats, field_list, *args, **kwargs):
         super().__init__(formats, *args, **kwargs)
@@ -42,7 +43,8 @@ class LabeledResourse(resources.ModelResource):
     def get_export_fields(self):
         fields = self.get_fields()
         if self.selected_fields:
-            fields = [f for f in fields if f.column_name in self.selected_fields]
+            fields = [f for f in fields
+                      if self.get_field_name(f) in self.selected_fields]
         return fields
 
     def export(self, queryset=None, selected_fields=None, *args, **kwargs):
@@ -51,7 +53,6 @@ class LabeledResourse(resources.ModelResource):
 
 class CartExportMixin(ExportMixin):
     to_encoding = 'utf-8'
-    actions = ['add_to_cart']
     change_list_template = 'admin/cart/change_list_cart_export.html'
     _cart_session_name = None
     _cart_viewing_name = None
@@ -73,6 +74,9 @@ class CartExportMixin(ExportMixin):
             action = self.get_action('remove_from_cart')
             return OrderedDict([(action[1], action)])
         else:
+            if self.actions is None:
+                self.actions = []
+            self.actions.append('add_to_cart')
             return super(CartExportMixin, self).get_actions(request)
 
     @csrf_protect_m
