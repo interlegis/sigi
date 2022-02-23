@@ -10,11 +10,8 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
-<<<<<<< HEAD
 from django_weasyprint.views import WeasyTemplateResponse
-=======
 from sigi.apps.utils.filters import DateRangeFilter
->>>>>>> 96ea3b8f2dd4c7380c7e59f4a0546e6c27b09ffe
 
 class ConvenioExportResourse(LabeledResourse):
     class Meta:
