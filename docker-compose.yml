@@ -1,0 +1,32 @@
+version: "3"
+   
+services:
+  db:
+    image: postgres
+    volumes:
+      - ./data/db:/usr/local/var/postgresql/sigi
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=sigi
+      - POSTGRES_PASSWORD=sigi
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8001:8000"
+    environment:
+      - POSTGRES_NAME=sigi
+      - POSTGRES_USER=sigi
+      - POSTGRES_PASSWORD=sigi
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:12.9
+    ports:
+      - "5433:5432"
+    environment:
+      - POSTGRES_NAME=postgres
+      - POSTGRES_USER=sigi
+      - POSTGRES_PASSWORD=sigi
