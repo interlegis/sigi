@@ -28,7 +28,7 @@ class ServicoExportResourse(LabeledResourse):
                   'motivo_desativacao', 'data_ultimo_uso', 'erro_atualizacao')
         export_order = fields
     def dehydrate_telefone_casa(self, servico):
-        return servico.casa_legislativa.telefone
+        return force_str(servico.casa_legislativa.telefone)
     def dehydrate_hospedagem_interlegis(self, servico):
         if servico.hospedagem_interlegis:
             return _("Sim")
