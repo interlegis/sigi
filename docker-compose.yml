@@ -6,21 +6,27 @@ services:
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
-      - POSTGRES_NAME=postgres
+      - POSTGRES_NAME=sigi
       - POSTGRES_USER=sigi
-      - POSTGRES_PASSWORD=123456
-  code:
+      - POSTGRES_PASSWORD=sigi
+      - PGDATA=var/lib/postgresql/data
+    networks:
+      - sigi-net
+  sigi:
     build: .
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/code
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
       - DB_HOST=db
       - POSTGRES_NAME=postgres
       - POSTGRES_USER=sigi
-      - POSTGRES_PASSWORD=132456
+      - POSTGRES_PASSWORD=sigi
     depends_on:
       - db
-
+networks:
+  sigi-net:
+    name: sigi-net
+    driver: bridge
