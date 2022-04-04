@@ -1,0 +1,60 @@
+{% extends "pdf/base_report.html" %}
+{% load i18n %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+{% block title %}{% trans 'Lista de Casas atendidas' %}{% endblock title %}
+{% block report_name %}{% trans 'Lista de Casas atendidas'|upper %}{% endblock report_name %}
+
+{% block main_content %}
+<table>
+  <caption>{% trans "Filtros aplicados" %}</caption>
+  {% if tipos_orgao %}
+    <tr><th>{% trans 'Tipos de órgão' %}</th><td>{% for t in tipos_orgao %}{{ t.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+  {% if tipos_servico %}
+    <tr><th>{% trans 'Tipos de serviço' %}</th><td>{% for s in tipos_servico %}{{ s.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+  {% if tipos_convenio %}
+    <tr><th>{% trans 'Tipos de convênio' %}</th><td>{% for c in tipos_convenio %}{{ c.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+  {% if gerentes %}
+    <tr><th>{% trans 'Gerentes Interlegis' %}</th><td>{% for g in gerentes %}{{ g.nome_completo }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+  {% if ufs %}
+    <tr><th>{% trans 'Estados' %}</th><td>{% for uf in ufs %}{{ uf.nome }}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+</table>
+<br/>
+<table class="data" repeat="1">
+  <thead>
+    <tr>
+      <th>{% trans 'Casa Legislativa' %}</th>
+      <th>{% trans 'Estado' %}</th>
+      <th>{% trans 'Região' %}</th>
+      <th>{% trans 'Serviços' %}</th>
+      <th>{% trans 'Convênios' %}</th>
+      <th>{% trans 'Gerente(s)' %}</th>
+    </tr>
+  </thead>
+  {% for casa in casas %}
+  <tr>
+    <td>{{ casa.nome }}&nbsp;</td>
+    <td>{{ casa.municipio.uf.nome }}</td>
+    <td>{{ casa.municipio.uf.get_regiao_display }}</td>
+    <td><ul>{% for s in casa.servico_set.all %}
+    {% if s.data_desativacao == None %}
+      <li>{{ s }}</li>
+    {% endif %}
+    {% endfor %}</ul></td>
+    <td><ul>{% for c in casa.convenio_set.all %}
+      <li>{{ c }}</li>
+    {% endfor %}
+    </ul></td>
+    <td><ul>{% for g in casa.gerentes_interlegis.all %}
+      <li>{{ g }}</li>
+    {% endfor %}</ul>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% endblock %}

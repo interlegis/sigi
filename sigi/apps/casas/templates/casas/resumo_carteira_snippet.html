@@ -1,35 +1,64 @@
-{% load i18n %}
+{% load static i18n %}
 
-<div class="panel panel-primary flex-col table-responsive">
-  <div class="panel-heading">
-    <h3 class="panel-title">
-    {% if seletor == 'sim' %}
-      {% trans "Resumo da carteira de" %}
-      <mark class="dropdown">
-        <a data-toggle="dropdown" href="">{{ gerente.nome_completo|default:_("todo o Interlegis") }}</a>
-        <ul class="dropdown-menu">
-          <li><a href="{% url "casas-carteira" %}?servidor=_all&snippet={{ snippet }}&s={{ seletor }}" data-target="resumo">{% trans "Todo o Interlegis" %}</a></li>
+{% if seletor == 'sim' %}
+  <ul class="collapsible gerente_selector" style="width: 100%;">
+    <li>
+      <div class="collapsible-header">
+        {% if gerente %}
+          {% if gerente.foto %}
+            <img src="{{ gerente.foto.url }}" class="circle user_thumb" alt="{% trans "Foto do servidor" %}">
+          {% else %}
+            <i class="material-icons circle">account_circle</i>
+          {% endif %}
+          {{ gerente.nome_completo }}
+        {% else %}
+          <img src="{% static "img/interlegis_60x60.png" %}" class="circle user_thumb" alt="{% trans "Logo Interlegis" %}">
+          {% trans "Todo o Interlegis" %}
+        {% endif %}
+      </div>
+      <div class="collapsible-body">
+        <ul>
+          <li>
+            <a href="{% url "casas-carteira" %}?servidor=_all&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
+              {% trans "Todo o Interlegis" %}
+            </a>
+          </li>
           {% for g in gerentes %}
-            <li><a href="{% url "casas-carteira" %}?servidor={{ g.pk }}&snippet={{ snippet }}&s={{ seletor }}" data-target="resumo">{{g.nome_completo }}</a></li>
+            <li>
+              <a href="{% url "casas-carteira" %}?servidor={{ g.pk|safe }}&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
+                {{g.nome_completo }}
+              </a>
+            </li>
           {% endfor %}
         </ul>
-      </mark>
-    {% else %}
-      {% trans "Resumo da carteira" %}
-    {% endif %}
-    </h3>
-  </div>
-  <table class="table table-hover resumo">
+      </div>
+    </li>
+  </ul>
+{% endif %}
+
+<table class="numeros resumo-carteira">
   {% for row in resumo %}
+    {% if forloop.first %}
+      <tr>
+      {% for col in row %}
+        <th>{{ col }}</th>
+      {% endfor %}
+      </tr>
+    {% else %}
     <tr>
     {% if row.subtitle %}
       <th colspan="7">{{ row.subtitle }}</th>
     {% else %}
       {% for col in row %}
-        <td{% if forloop.counter > 2 %} class="hidden-xs"{% endif %}>{{ col }}</td>
+        {% if forloop.first %}
+          <th>{{ col }}</th>
+        {% else %}
+          <td>{{ col }}</td>
+        {% endif %}
       {% endfor %}
     {% endif %}
     </tr>
+    {% endif %}
   {% endfor %}
   </table>
 </div>

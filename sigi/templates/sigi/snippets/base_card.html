@@ -1,0 +1,27 @@
+{% load i18n %}
+
+<div class="app">
+  <div class="card">
+    <div class="full-preloader valign-wrapper">
+      <div class="center">
+      <div class="preloader-wrapper active">
+        <div class="spinner-layer spinner-green-only">
+          <div class="circle-clipper left">
+            <div class="circle"></div>
+          </div><div class="gap-patch">
+            <div class="circle"></div>
+          </div><div class="circle-clipper right">
+            <div class="circle"></div>
+          </div>
+        </div>
+      </div>
+      </div>
+    </div>
+    <div class="card-content">
+      <div class="card-title">{% block card-title %}{% translate card_title|default:"" %}{% endblock %}</div>
+      <div class="card-content-wrapper">
+      {% block card-content %}{% endblock card-content %}
+      </div>
+    </div>
+  </div>
+</div>

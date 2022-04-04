@@ -16,14 +16,19 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/casas/', include('sigi.apps.casas.urls')),
+    path('admin/convenios/', include('sigi.apps.convenios.urls')),
+    path('admin/ocorrencias/', include('sigi.apps.ocorrencias.urls')),
+    path('admin/eventos/', include('sigi.apps.eventos.urls')),
     path('admin/', admin.site.urls),
     path('tinymce/', include('tinymce.urls')),
+    path('', include('sigi.apps.home.urls')),
 ]
 
 if settings.DEBUG:
     urlpatterns = urlpatterns + [
         path('__debug__/', include('debug_toolbar.urls'))
-    ]
+    ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

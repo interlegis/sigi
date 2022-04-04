@@ -48,7 +48,7 @@ main_menu:
     icon: comment
     children:
     - title: Painel de ocorrências
-      view_name:
+      view_name: painel-ocorrencias
     - title: Registro de ocorrências
       view_name: admin:ocorrencias_ocorrencia_changelist
       querystr: minhas=S&status__in=1,2

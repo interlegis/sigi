@@ -22,19 +22,18 @@
 
 {% block extrahead %}{{ block.super }}
 <script type="text/javascript">
-console.log("Cheguei a executar");
 $(document).ready(function(){
   $("select[name='servidor']").on('change', function() {
     var form = $(this.form);
     form.submit();
   });
   listeners();
-  
+
   function listeners() {
     $(":checkbox[name|=servico]").on('change', filter_list);
     $("#filter-panel a").on("click", geo_filter);
   }
-  
+
   function geo_filter( e ) {
     e.preventDefault();
     var url = $(this).attr('href');

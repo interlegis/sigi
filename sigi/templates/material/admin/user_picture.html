@@ -1,0 +1,21 @@
+{% load static %}
+
+{% block user_profile %}
+    {% if user.servidor.foto  %}
+        <img class="login-logo" alt="login logo" src="{{ user.servidor.foto.url }}">
+    {% elif profile_picture %}
+        <img class="login-logo" alt="login logo" src="{{ profile_picture }}">
+    {% else %}
+        <img class="login-logo" alt="login logo" src="{% static 'material/admin/images/login-logo-'|add:current_theme|add:'.jpg' %}">
+    {% endif %}
+
+    {% if profile_bg %}
+        <img width="300" height="212" alt="profile background" src="{{ profile_bg }}">
+    {% else %}
+        <img src="{% static 'material/admin/images/login-bg-'|add:current_theme|add:'.jpg' %}" alt="profile background">
+    {% endif %}
+    <div class="card-title">
+        <strong>{% firstof user.get_short_name user.username|default_if_none:'' %}</strong><br>
+        <small>{{ user.email|default_if_none:'' }}</small>
+    </div>
+{% endblock %}

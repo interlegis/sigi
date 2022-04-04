@@ -1,0 +1,35 @@
+{% load static i18n %}
+
+<ul class="collapsible gerente_selector">
+  <li>
+    <div class="collapsible-header">
+      {% if gerente %}
+        {% if gerente.foto %}
+          <img src="{{ gerente.foto.url }}" class="circle user_thumb" alt="{% trans "Foto do servidor" %}">
+        {% else %}
+          <i class="material-icons circle">account_circle</i>
+        {% endif %}
+        {{ gerente.nome_completo }}
+      {% else %}
+        <img src="{% static "img/interlegis_60x60.png" %}" class="circle user_thumb" alt="{% trans "Logo Interlegis" %}">
+        {% trans "Todo o Interlegis" %}
+      {% endif %}
+    </div>
+    <div class="collapsible-body">
+      <ul>
+        <li>
+          <a href="{% url "home_chartperformance" %}?servidor=_all" data-target="performance-chart">
+            {% trans "Todo o Interlegis" %}
+          </a>
+        </li>
+        {% for g in gerentes %}
+          <li>
+            <a href="{% url "home_chartperformance" %}?servidor={{ g.pk|safe }}" data-target="performance-chart">
+              {{g.nome_completo }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </li>
+</ul>

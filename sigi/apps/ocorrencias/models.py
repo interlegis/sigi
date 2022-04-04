@@ -8,11 +8,6 @@ from django.utils.safestring import mark_safe
 class Categoria(models.Model):
     nome = models.CharField(_("Categoria"), max_length=50)
     descricao = models.TextField(_('descrição'), blank=True, null=True)
-    setor_responsavel = models.ForeignKey(
-        'servidores.Servico',
-        on_delete=models.PROTECT,
-        verbose_name=_("Setor responsável")
-    )
 
     class Meta:
         verbose_name = _('Categoria')
@@ -100,11 +95,6 @@ class Ocorrencia(models.Model):
         on_delete=models.PROTECT,
         verbose_name=_("Servidor que registrou a ocorrência")
     )
-    setor_responsavel = models.ForeignKey(
-        'servidores.Servico',
-        on_delete=models.PROTECT,
-        verbose_name=_("Setor responsável")
-    )
     ticket = models.PositiveIntegerField(
         _('Número do ticket'),
         blank=True,
@@ -157,20 +147,8 @@ class Comentario(models.Model):
         blank=True,
         null=True
     )
-    encaminhar_setor = models.ForeignKey(
-        'servidores.Servico',
-        on_delete=models.PROTECT,
-        verbose_name=_('Encaminhar para setor'),
-        blank=True,
-        null=True
-    )
 
     def save(self, *args, **kwargs):
-        if (self.encaminhar_setor
-            and (self.encaminhar_setor != self.ocorrencia.setor_responsavel)
-        ):
-            self.ocorrencia.setor_responsavel = self.encaminhar_setor
-            self.ocorrencia.save()
         if self.novo_status and (self.novo_status != self.ocorrencia.status):
             self.ocorrencia.status = self.novo_status
             self.ocorrencia.save()

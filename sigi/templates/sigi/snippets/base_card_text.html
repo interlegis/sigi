@@ -1,0 +1,8 @@
+{% extends "sigi/snippets/base_card.html" %}
+{% load i18n %}
+
+{% block card-content %}
+  <div id="card-{{ card_name }}" data-source="{% block data-source %}{{ data_source }}{% endblock %}">
+    <p>{% trans "Carregando conteúdo..." %}</p>
+  </div>
+{% endblock card-content %}

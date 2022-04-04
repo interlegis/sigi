@@ -1,0 +1,18 @@
+{% extends "sigi/snippets/base_card.html" %}
+{% load i18n %}
+
+{% block card-content %}
+  {% if has_action_links %}
+    {% block action-links %}
+      <div id="{{ chart_name }}-action-links" class="card-links hide">
+        <a id="{{ chart_name }}-previlink" class="waves-effect waves-light btn-small btn-flat btn-floating left" href="#" data-target="{{ chart_name }}-chart">
+          <i class="material-icons left">chevron_left</i>
+        </a>
+        <a id="{{ chart_name }}-nextlink" class="waves-effect waves-light btn-small btn-flat btn-floating right" href="#" data-target="{{ chart_name }}-chart">
+          <i class="material-icons right">chevron_right</i>
+        </a>
+      </div>
+    {% endblock action-links %}
+  {% endif %}
+  <canvas id="{{ chart_name }}-chart" data-source="{{ data_source }}" data-chart-name="{{ chart_name }}" data-has-action-links="{{ has_action_links }}"></canvas>
+{% endblock card-content %}

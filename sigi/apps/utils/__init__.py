@@ -32,7 +32,8 @@ def to_ascii(txt, codif='utf-8'):
         txt = force_str(txt)
     if isinstance(txt, str):
         txt = txt.encode('utf-8')
-    return normalize('NFKD', txt.decode(codif)).encode('ASCII', 'ignore')
+    return normalize('NFKD', txt.decode(codif)).encode(
+        'ASCII', 'ignore').decode(codif)
 
 
 def queryset_ascii(self, request):

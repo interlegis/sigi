@@ -1,21 +1,68 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_static %}
-{% load static from staticfiles %}
-{% load thumbnail %}
+{% load i18n %}
+{% load static %}
 
+{% block coltype %}colMS{% endblock %}
+
+{% block content %}
+	<div class="row">
+		<div class="col s12">
+			<ul class="tabs">
+			{% for ano in meses %}
+				<li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
+			{% endfor %}
+			</ul>
+		</div>
+		{% for ano, lista in meses.items %}
+		<div id="tab-{{ ano|safe }}" class="col s12">
+			{% for mes, nome in lista.items %}
+			<a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}">{{ nome }}</a>
+			{% endfor %}
+		</div>
+		{% endfor %}
+	</div>
+
+	{% for evento in eventos %}
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{{ evento.nome }}</span>
+          <p>Os detalhes virão aqui</p>
+        </div>
+      </div>
+    </div>
+  </div>
+	{% endfor %}
+
+
+
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+	<script>
+		$(document).ready(function(){
+			var elements = $('.tabs');
+			M.Tabs.init(elements, {});
+		});
+	</script>
+{% endblock %}
+
+{% comment %}
 {% block extrastyle %}
     <style type="text/css">
 		th {
 		    text-align: center !important;
 		    vertical-align: bottom !important;
 		}
-		
+
 		.status-P { background-color: #ffffb0}
         .status-A { background-color: #a6ebff}
         .status-O { background-color: #c2ffc2}
         .status-R { background-color: #ffdaa6}
         .status-C { background-color: #d98f8d}
-		
+
     </style>
     {{ block.super }}
 {% endblock %}
@@ -41,3 +88,4 @@
 {% block content %}
 	{% include "eventos/calendario_snippet.html" %}
 {% endblock %}
+{% endcomment %}

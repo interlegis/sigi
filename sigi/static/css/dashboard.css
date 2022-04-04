@@ -1,0 +1,37 @@
+table.servicos {
+    width: 100%;
+}
+
+table.numeros>tbody>tr>td {
+    text-align: right;
+}
+.app>.card>.card-content>.card-title {
+    font-size: 16px;
+    font-weight: bolder;
+}
+
+.full-preloader {
+    width: 100%;
+    height: 100%;
+    background-color: rgb(255,255,255,0.8);
+    position: absolute;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.user_thumb {
+    width: 24px;
+    height: 24px;
+    margin-right: 1rem;
+}
+
+.gerente_selector {
+    width: 100%;
+    border: none;
+}
+
+.card-links {
+    padding: 0 24px;
+}

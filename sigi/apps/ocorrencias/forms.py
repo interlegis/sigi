@@ -1,13 +1,16 @@
-from django.forms import ModelForm, ModelChoiceField, HiddenInput, TextInput
+from django import forms
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
 from sigi.apps.servidores.models import Servico
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.forms.utils import flatatt
 from django.urls import reverse_lazy
 from django.utils.safestring import mark_safe
+from material.admin.widgets import MaterialAdminTextareaWidget
+from django.contrib.admin.widgets import AutocompleteSelect
+from django.contrib import admin
 
-class AjaxSelect(TextInput):
+class AjaxSelect(forms.TextInput):
     url = ""
     def __init__(self, url, attrs=None):
         super(AjaxSelect, self).__init__(attrs)
@@ -20,7 +23,7 @@ class AjaxSelect(TextInput):
         code_attrs = self.build_attrs(type='hidden', name=name,
                                       id='hidden_'+name)
         if value != '':
-            final_attrs['value'] = force_text(self._format_value(value))
+            final_attrs['value'] = force_str(self._format_value(value))
         result = format_html('<input{0} />', flatatt(final_attrs)) + "\n"
         result = result + format_html('<input{0} />', flatatt(code_attrs))
         js = """
@@ -38,31 +41,35 @@ class AjaxSelect(TextInput):
         result = result + mark_safe(js)
         return result
 
-class AnexoForm(ModelForm):
+class AnexoForm(forms.ModelForm):
     class Meta:
         model = Anexo
         fields = ['ocorrencia', 'descricao', 'arquivo',]
-        widgets = {'ocorrencia': HiddenInput()}
+        widgets = {'ocorrencia': forms.HiddenInput()}
 
-class ComentarioForm(ModelForm):
-    encaminhar_setor = ModelChoiceField(
-        queryset=Servico.objects.all(),
-        cache_choices=True
-    )
-
+class ComentarioForm(forms.ModelForm):
     class Meta:
         model = Comentario
-        fields = ['ocorrencia', 'descricao', 'novo_status', 'encaminhar_setor']
-        widgets = {'ocorrencia': HiddenInput(),}
+        fields = ['ocorrencia', 'descricao', 'novo_status',]
+        widgets = {
+            'ocorrencia': forms.HiddenInput(),
+            'descricao': MaterialAdminTextareaWidget(),
+        }
 
-class OcorrenciaForm(ModelForm):
+class OcorrenciaForm(forms.ModelForm):
     class Meta:
         model = Ocorrencia
         fields = ['casa_legislativa', 'categoria', 'tipo_contato', 'assunto',
-                  'prioridade', 'ticket', 'descricao', 'setor_responsavel',]
+                  'prioridade', 'ticket', 'descricao',]
         widgets = {
-            'casa_legislativa': AjaxSelect(
-                url=reverse_lazy('painel-buscacasa'),
-                attrs={'size':100}
-            ),
+            'casa_legislativa': AutocompleteSelect(
+                Ocorrencia.casa_legislativa.field,
+                admin.site
+            )
         }
+        # widgets = {
+        #     'casa_legislativa': AjaxSelect(
+        #         url=reverse_lazy('painel-buscacasa'),
+        #         attrs={'size':100}
+        #     ),
+        # }

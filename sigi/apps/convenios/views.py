@@ -1,18 +1,16 @@
 import csv
 
 import datetime
-from django.contrib import messages
-from django.http.response import HttpResponseForbidden
-# import ho.pisa as pisa
-from django.conf import settings
-from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.http import HttpResponse, HttpResponseRedirect
+# from django.contrib import messages
+# from django.http.response import HttpResponseForbidden
+# from django.conf import settings
+# from django.core.paginator import Paginator, InvalidPage, EmptyPage
+# from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_list_or_404
 from django.template import Context, loader
 from django.utils.translation import gettext as _
-# from geraldo.generators import PDFGenerator
 from django.contrib.auth.decorators import login_required
-
+from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Gescon, Projeto
@@ -22,6 +20,117 @@ from sigi.apps.convenios.models import Convenio, Gescon, Projeto
 #                                          ConvenioPorALReport,
 #                                          ConvenioReportSemAceiteAL,
 #                                          ConvenioReportSemAceiteCM)
+
+@login_required
+def report_regiao(request, regiao):
+    REGIAO_CHOICES = dict(UnidadeFederativa.REGIAO_CHOICES)
+    projetos = Projeto.objects.all()
+    camaras = Orgao.objects.filter(tipo__sigla='CM')
+
+    tabelas = list()
+    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
+    tabela = casas_estado_to_tabela(camaras, convenios, regiao)
+    tabela["projeto"] = _("Geral")
+
+    tabelas.append(tabela)
+
+    for projeto in projetos:
+        convenios_proj = convenios.filter(projeto=projeto)
+        tabela = casas_estado_to_tabela(camaras, convenios_proj, regiao)
+        tabela["projeto"] = projeto.nome
+        tabelas.append(tabela)
+
+    context = {
+        'tabelas': tabelas,
+        'regiao': REGIAO_CHOICES[regiao],
+    }
+
+    return WeasyTemplateResponse(
+        filename=f'relatorio_regiao_{ regiao }.pdf',
+        request=request,
+        template='convenios/tabela_regiao.html',
+        context=context,
+        content_type='application/pdf',
+    )
+
+def casas_estado_to_tabela(casas, convenios, regiao):
+    estados = get_list_or_404(UnidadeFederativa, regiao=regiao)
+
+    class LinhaEstado():
+        pass
+
+    lista = []
+
+    for estado in estados:
+        linha = LinhaEstado()
+
+        convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
+        convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
+        convenios_est_equipados = convenios_est.exclude(data_termo_aceite=None)
+
+        casas_est = casas.filter(municipio__uf=estado)
+        casas_est_nao_aderidas = casas_est.exclude(
+            convenio__in=convenios_est
+        ).distinct()
+        casas_est_aderidas = casas_est.filter(
+            convenio__in=convenios_est
+        ).distinct()
+        casas_est_conveniadas = casas_est.filter(
+            convenio__in=convenios_est_publicados
+        ).distinct()
+        casas_est_equipadas = casas_est.filter(
+            convenio__in=convenios_est_equipados
+        ).distinct()
+
+        linha.lista = (
+            casas_est.count(),
+            casas_est_nao_aderidas.count(),
+            casas_est_aderidas.count(),
+            casas_est_conveniadas.count(),
+            casas_est_equipadas.count(),
+        )
+
+        linha.estado = estado
+
+        lista.append(linha)
+
+    casas_regiao = casas.filter(municipio__uf__regiao=regiao)
+    convenios_regiao = convenios.filter(
+        casa_legislativa__municipio__uf__regiao=regiao
+    )
+    convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
+    convenios_regiao_equipados = convenios_regiao.exclude(
+        data_termo_aceite=None
+    )
+    sumario = (
+        casas_regiao.count(),
+        casas_regiao.exclude(convenio__in=convenios_regiao).distinct().count(),
+        casas_regiao.filter(convenio__in=convenios_regiao).distinct().count(),
+        casas_regiao.filter(
+            convenio__in=convenios_regiao_publicados
+        ).distinct().count(),
+        casas_regiao.filter(
+            convenio__in=convenios_regiao_equipados
+        ).distinct().count(),
+    )
+
+    cabecalho_topo = (
+        _('UF'),
+        _('Câmaras municipais'),
+        _('Não Aderidas'),
+        _('Aderidas'),
+        _('Conveniadas'),
+        _('Equipadas')
+    )
+
+    return {
+        "linhas": lista,
+        "cabecalho": cabecalho_topo,
+        "sumario": sumario,
+    }
+
+
+
 
 """
 def query_ordena(qs, o, ot):
@@ -209,107 +318,7 @@ def report(request, id=None):
     return response
 
 
-def casas_estado_to_tabela(casas, convenios, regiao):
 
-    estados = get_list_or_404(UnidadeFederativa, regiao=regiao)
-
-    class LinhaEstado():
-        pass
-
-    lista = []
-
-    for estado in estados:
-        linha = LinhaEstado()
-
-        convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
-        convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
-        convenios_est_equipados = convenios_est.exclude(data_termo_aceite=None)
-
-        casas_est = casas.filter(municipio__uf=estado)
-        casas_est_nao_aderidas = casas_est.exclude(convenio__in=convenios_est).distinct()
-        casas_est_aderidas = casas_est.filter(convenio__in=convenios_est).distinct()
-        casas_est_conveniadas = casas_est.filter(convenio__in=convenios_est_publicados).distinct()
-        casas_est_equipadas = casas_est.filter(convenio__in=convenios_est_equipados).distinct()
-
-        linha.lista = (
-            casas_est.count(),
-            casas_est_nao_aderidas.count(),
-            casas_est_aderidas.count(),
-            casas_est_conveniadas.count(),
-            casas_est_equipadas.count(),
-        )
-
-        linha.estado = estado
-
-        lista.append(linha)
-
-    casas_regiao = casas.filter(municipio__uf__regiao=regiao)
-    convenios_regiao = convenios.filter(casa_legislativa__municipio__uf__regiao=regiao)
-    convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
-    convenios_regiao_equipados = convenios_regiao.exclude(data_termo_aceite=None)
-    sumario = (
-        casas_regiao.count(),
-        casas_regiao.exclude(convenio__in=convenios_regiao).distinct().count(),
-        casas_regiao.filter(convenio__in=convenios_regiao).distinct().count(),
-        casas_regiao.filter(convenio__in=convenios_regiao_publicados).distinct().count(),
-        casas_regiao.filter(convenio__in=convenios_regiao_equipados).distinct().count(),
-    )
-
-    cabecalho_topo = (
-        _('UF'),
-        _('Câmaras municipais'),
-        _('Não Aderidas'),
-        _('Aderidas'),
-        _('Conveniadas'),
-        _('Equipadas')
-    )
-
-    return {
-        "linhas": lista,
-        "cabecalho": cabecalho_topo,
-        "sumario": sumario,
-    }
-
-@login_required
-def report_regiao(request, regiao='NE'):
-
-    if request.POST:
-        if 'regiao' in request.POST:
-            regiao = request.POST['regiao']
-
-    REGIAO_CHOICES = dict(UnidadeFederativa.REGIAO_CHOICES)
-
-    projetos = Projeto.objects.all()
-
-    camaras = Orgao.objects.filter(tipo__sigla='CM')
-
-    tabelas = list()
-    # Geral
-    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
-    tabela = casas_estado_to_tabela(camaras, convenios, regiao)
-    tabela["projeto"] = _("Geral")
-
-    tabelas.append(tabela)
-
-    for projeto in projetos:
-        convenios_proj = convenios.filter(projeto=projeto)
-        tabela = casas_estado_to_tabela(camaras, convenios_proj, regiao)
-        tabela["projeto"] = projeto.nome
-        tabelas.append(tabela)
-
-    data = datetime.datetime.now().strftime('%d/%m/%Y')
-    hora = datetime.datetime.now().strftime('%H:%M')
-    pisa.showLogging()
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename=RelatorioRegiao_' + regiao + '.pdf'
-    #tabelas = ({'projeto':"PI"},{'projeto':"PML"},)
-    t = loader.get_template('convenios/tabela_regiao.html')
-    c = Context({'tabelas': tabelas, 'regiao': REGIAO_CHOICES[regiao], 'data': data, 'hora': hora})
-    pdf = pisa.CreatePDF(t.render(c), response)
-    if not pdf.err:
-        pisa.startViewer(response)
-
-    return response
 
 @login_required
 def export_csv(request):

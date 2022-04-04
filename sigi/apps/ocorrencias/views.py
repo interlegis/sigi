@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.http import JsonResponse, Http404
 from django.db.models import Q, Count
-from django.utils.translation import ungettext, gettext as _
+from django.utils.translation import ngettext, gettext as _
 from django.shortcuts import get_object_or_404, render, HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
@@ -17,87 +17,92 @@ from django.utils.html import escape
 
 @login_required
 def painel_ocorrencias(request):
-    tipo = request.GET.get('type', None)
-    id = request.GET.get('id', None)
     painel = request.GET.get('painel', None)
+    id_servidor = request.GET.get('servidor', None)
+    id_casa = request.GET.get('casa', None)
+    page = int(request.GET.get('page', '0'))
 
-    data = {}
+    paineis = {
+        'gerente': _("Casas que gerencio"),
+        'registro': _("Ocorrências registrados por mim"),
+        'tudo': _("Todas as ocorrências")
+    }
 
-    if tipo is None or tipo == 'error':
-        tipo = 'servidor'
-        u = get_object_or_404(Servidor, user=request.user)
-        id = u.pk
+    if id_servidor is None:
+        servidor = request.user.servidor
+    else:
+        servidor = get_object_or_404(Servidor, id=id_servidor)
 
-    if id is None:
-        raise Http404("id não definido")
-
-    if tipo == 'casa':
-        casa = get_object_or_404(Orgao, pk=id)
-        ocorrencias = casa.ocorrencia_set.all()
-        panel_title = "{casa}, {uf}".format(
-            casa=casa.nome,
-            uf=casa.municipio.uf.sigla
-        )
-    elif tipo == 'servidor':
-        servidor = get_object_or_404(Servidor, pk=id)
-        panel_title = servidor.nome_completo
-
-        paineis = {'gerente': "Minhas casas", 'servico': "Meu setor",
-                   'timeline': "Comentados por mim"}
-
-        if painel is None:
-            if Orgao.objects.filter(
-                gerentes_interlegis=servidor).count() > 0:
-                painel = 'gerente'
-            elif Ocorrencia.objects.filter(
-                setor_responsavel=servidor.servico).count() > 0:
-                painel = 'servico'
-            else:
-                painel = 'timeline'
-
-        data.update({'paineis': paineis, 'painel': painel,
-                     'servidor': servidor})
-
-        if painel == 'gerente':
-            ocorrencias = Ocorrencia.objects.filter(
-                casa_legislativa__gerentes_interlegis=servidor)
-        elif painel == 'servico':
-            ocorrencias = Ocorrencia.objects.filter(
-                setor_responsavel_id=servidor.servico_id)
+    if id_casa is not None:
+        casa = get_object_or_404(Orgao, id=id_casa)
+        painel = 'tudo'
+        panel_title = _(f"Ocorrências da {casa.nome}, {casa.municipio.uf.nome}")
+    else:
+        casa = None
+        if servidor:
+            is_gerente = servidor.casas_que_gerencia.exists()
+            is_registrador = (servidor.ocorrencia_set.exists() or
+                            servidor.comentario_set.exists())
+            panel_title = servidor.nome_completo
         else:
-            ocorrencias = (
-                Ocorrencia.objects.filter(servidor_registro=servidor) |
-                Ocorrencia.objects.filter(comentarios__usuario=servidor)
-            )
-    elif tipo == 'servico':
-        servico = get_object_or_404(Servico, pk=id)
-        ocorrencias = servico.ocorrencia_set.all()
-        panel_title = _("{sigla} - {nome}").format(
-            sigla=servico.sigla, nome=servico.nome)
+            is_gerente = False
+            is_registrador = False
+            panel_title = _('Todas as ocorrências')
+
+        if (servidor is None) or (not is_gerente and not is_registrador):
+            painel = 'tudo'
+        elif not is_gerente and is_registrador:
+            painel = 'registro'
+        elif is_gerente:
+            if painel is None:
+                painel = 'gerente'
+
+    if painel == 'gerente':
+        ocorrencias = Ocorrencia.objects.filter(
+            casa_legislativa__gerentes_interlegis=servidor)
+    elif painel == 'registro':
+        ocorrencias = (
+            Ocorrencia.objects.filter(servidor_registro=servidor) |
+            Ocorrencia.objects.filter(comentarios__usuario=servidor)
+        )
+    else: # Tudo...
+        if casa is None: # ...de todas as Casas...
+            ocorrencias = Ocorrencia.objects.all()
+        else: # ... ou da Casa escolhida
+            ocorrencias = casa.ocorrencia_set.all()
 
     ocorrencias = ocorrencias.filter(status__in=[1, 2])
     ocorrencias = ocorrencias.order_by('prioridade', '-data_modificacao')
     ocorrencias = ocorrencias.select_related(
-        'casa_legislativa', 'categoria', 'tipo_contato', 'servidor_registro',
-        'setor_responsavel', 'casa_legislativa__gerentes_interlegis'
+        'casa_legislativa', 'casa_legislativa__municipio',
+        'casa_legislativa__municipio__uf', 'categoria', 'tipo_contato',
+        'servidor_registro',
     )
     ocorrencias = ocorrencias.prefetch_related(
-        'comentarios', 'comentarios__usuario', 'comentarios__encaminhar_setor',
-        'casa_legislativa__municipio', 'casa_legislativa__municipio__uf',
-        'anexo_set'
+        'comentarios', 'comentarios__usuario', 'anexo_set',
+        'casa_legislativa__gerentes_interlegis'
     )
     ocorrencias = ocorrencias.annotate(total_anexos=Count('anexo'))
 
-    data.update(
-        {'ocorrencias': ocorrencias,
-         'panel_title': panel_title,
-         'comentario_form': ComentarioForm(),
-         'ocorrencia_form': OcorrenciaForm(),
-         'PRIORITY_CHOICES': Ocorrencia.PRIORITY_CHOICES
-        }
-    )
+    if page * 100 > ocorrencias.count():
+        ocorrencias = ocorrencias[-100]
+    else:
+        ocorrencias = ocorrencias[page * 100:page * 100 + 100]
 
-    return render(request, 'ocorrencias/painel.html', data)
+
+    context = {
+        'paineis': paineis,
+        'painel': painel,
+        'servidor': servidor,
+        'casa': casa,
+        'ocorrencias': ocorrencias,
+        'panel_title': panel_title,
+        'comentario_form': ComentarioForm(),
+        'ocorrencia_form': OcorrenciaForm(),
+        'PRIORITY_CHOICES': Ocorrencia.PRIORITY_CHOICES
+    }
+
+    return render(request, 'ocorrencias/painel.html', context)
 
 @login_required
 def busca_nominal(request, origin="tudo"):
@@ -161,7 +166,7 @@ def exclui_anexo(request):
     ocorrencia = anexo.ocorrencia
     anexo.delete()
 
-    link_label = (ungettext('%s arquivo anexo', '%s arquivos anexos', ocorrencia.anexo_set.count()) %
+    link_label = (ngettext('%s arquivo anexo', '%s arquivos anexos', ocorrencia.anexo_set.count()) %
                   (ocorrencia.anexo_set.count(),))
 
     painel = render_to_string('ocorrencias/anexos_snippet.html', {'ocorrencia': ocorrencia},

@@ -2,45 +2,22 @@
 
 <div class="content-wrapper">
   <div class="app-list">
-    {% if app_list %}
-      {% for app in app_list %}
-        <div class="app">
-          <div class="card">
-            <div class="card-content">
-              <div class="card-title">
-                {{ app.name }}
-              </div>
-              <div class="row">
-                {% for model in app.models %}
-                  <div class="app-item col s6 m6 l4">
-                    <a {% if model.admin_url %}href="{{ model.admin_url }}"{% else %}class="disabled"{% endif %}>
-                      {% if model.count != None %}
-                        <div class="card app-count-badge">
-                          <div class="badge-content">
-                            {{ model.count }}
-                          </div>
-                        </div>
-                      {% endif %}
-                      <i class="material-icons" aria-hidden="true">
-                        {{ model.icon|default_if_none:'settings' }}
-                      </i>
-                      <h6 class="card-app-name">{{ model.name }}</h6>
-                    </a>
-                  </div>
-                {% endfor %}
-              </div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    {% else %}
-    <div class="app">
-      <div class="card">
-        <div class="card-content">
-          <p>{% trans "You don't have permission to view or edit anything." %}</p>
-        </div>
-      </div>
-    </div>
-    {% endif %}
+    {% url "home_resumoseit" as source_url %}
+    {% include "sigi/snippets/base_card_text.html" with card_title="Serviços hospedados no Interlegis (SEIT)" data_source=source_url card_name="resumoseit" %}
+
+    {% url "home_chartseit" as source_url %}
+    {% include "sigi/snippets/base_card_chart.html" with card_title="Sazonalidade da hospedagem de serviços" data_source=source_url chart_name="evolucao-servicos" has_action_links="1" %}
+
+    {% url "casas-carteira" as source_url %}
+    {% include "sigi/snippets/base_card_text.html" with card_title="Resumo da carteira de relacionamentos" data_source=source_url|add:"?snippet=resumo&s=sim" card_name="carteira" %}
+
+    {% url "home_chartperformance" as source_url %}
+    {% include "sigi/snippets/base_card_chart.html" with card_title="Performance da gerência de carteiras" data_source=source_url chart_name="performance"  has_action_links="1" %}
+
+    {% url "home_chartcarteira" as source_url %}
+    {% include "sigi/snippets/base_card_chart.html" with card_title="Distribuição de Casas por Gerente" data_source=source_url chart_name="carteira" %}
+
+    {% url "home_resumoconvenios" as source_url %}
+    {% include "sigi/snippets/base_card_text.html" with card_title="Resumo de informações" data_source=source_url card_name="resumo-convenios" %}
   </div>
 </div>

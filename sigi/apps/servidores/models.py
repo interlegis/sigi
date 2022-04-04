@@ -71,6 +71,13 @@ class Servidor(models.Model):
             Servidor.objects.filter(user=self.user).update(user=None)
         return super(Servidor, self).save(*args, **kwargs)
 
+    def get_apelido(self):
+        if self.apelido:
+            return self.apelido
+        else:
+            nomes = self.nome_completo.split(' ')
+            return nomes[0]
+
 # Soluçao alternativa para extender o usuário do django
 # Acessa do servidor de um objeto user criando um profile
 # baseado nos dados do LDAP

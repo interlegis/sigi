@@ -22,11 +22,12 @@ from sigi.apps.servidores.models import Servidor
 # from sigi.shortcuts import render_to_pdf
 # from sigi.apps.casas.reports import (CasasLegislativasLabels,
 #                                      CasasLegislativasLabelsSemPresidente)
-# from sigi.apps.contatos.models import (UnidadeFederativa, Municipio,
-#                                        Mesorregiao, Microrregiao)
-# from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.contatos.models import (UnidadeFederativa, Mesorregiao,
+                                       Microrregiao)
+# , Municipio
+from sigi.apps.ocorrencias.models import Ocorrencia
 # from sigi.apps.parlamentares.reports import ParlamentaresLabels
-# from sigi.apps.servicos.models import TipoServico
+from sigi.apps.servicos.models import TipoServico
 
 class CasasSemConvenioReport(WeasyTemplateView):
     template_name = "casas/casas_sem_convenio_pdf.html"
@@ -910,206 +911,265 @@ def query_ordena(qs, o):
 #     return render(request, 'casas/portfolio.html', data)
 
 
-# def resumo_carteira(casas):
-#     regioes = {r[0]: 0 for r in UnidadeFederativa.REGIAO_CHOICES}
-#     regioes['total'] = 0
-#     total = regioes.copy()
-#     sem_produto = regioes.copy()
-#     tipos_servico = TipoServico.objects.all()
-#     dados = {ts.id: regioes.copy() for ts in tipos_servico}
+def resumo_carteira(casas):
+    regioes = {r[0]: 0 for r in UnidadeFederativa.REGIAO_CHOICES}
+    regioes['total'] = 0
+    total = regioes.copy()
+    sem_produto = regioes.copy()
+    tipos_servico = TipoServico.objects.all()
+    dados = {ts.id: regioes.copy() for ts in tipos_servico}
 
-#     for r in casas.values('municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
-#         regiao = r['municipio__uf__regiao']
-#         quantidade = r['quantidade']
-#         total[regiao] = quantidade
-#         total['total'] += quantidade
+    for r in casas.values('municipio__uf__regiao').annotate(
+        quantidade=Count('id')).order_by():
+        regiao = r['municipio__uf__regiao']
+        quantidade = r['quantidade']
+        total[regiao] = quantidade
+        total['total'] += quantidade
 
-#     for r in casas.values('municipio__uf__regiao', 'servico__tipo_servico__id').annotate(quantidade=Count('id')).order_by():
-#         regiao = r['municipio__uf__regiao']
-#         servico = r['servico__tipo_servico__id']
-#         quantidade = r['quantidade']
-#         if servico is None:
-#             sem_produto[regiao] = quantidade
-#             sem_produto['total'] += quantidade
-#         else:
-#             dados[servico][regiao] = quantidade
-#             dados[servico]['total'] += quantidade
+    for r in casas.values('municipio__uf__regiao',
+                          'servico__tipo_servico__id').annotate(
+                              quantidade=Count('id')).order_by():
+        regiao = r['municipio__uf__regiao']
+        servico = r['servico__tipo_servico__id']
+        quantidade = r['quantidade']
+        if servico is None:
+            sem_produto[regiao] = quantidade
+            sem_produto['total'] += quantidade
+        else:
+            dados[servico][regiao] = quantidade
+            dados[servico]['total'] += quantidade
 
-#     dados_ocorrencia = {
-#         'registradas': regioes.copy(),
-#         'pendentes': regioes.copy(),
-#         'sem': regioes.copy(),
-#         'media': regioes.copy(),
-#     }
+    dados_ocorrencia = {
+        'registradas': regioes.copy(),
+        'pendentes': regioes.copy(),
+        'sem': regioes.copy(),
+        'media': regioes.copy(),
+    }
 
-#     for r in casas.values('ocorrencia__status', 'municipio__uf__regiao').annotate(quantidade=Count('id')).order_by():
-#         status = r['ocorrencia__status']
-#         regiao = r['municipio__uf__regiao']
-#         quantidade = r['quantidade']
-#         if status is None:
-#             dados_ocorrencia['sem'][regiao] += quantidade
-#             dados_ocorrencia['sem']['total'] += quantidade
-#         else:
-#             dados_ocorrencia['registradas'][regiao] += quantidade
-#             dados_ocorrencia['registradas']['total'] += quantidade
-#             if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
-#                 dados_ocorrencia['pendentes'][regiao] += quantidade
-#                 dados_ocorrencia['pendentes']['total'] += quantidade
+    for r in casas.values('ocorrencia__status',
+                          'municipio__uf__regiao').annotate(
+                              quantidade=Count('id')).order_by():
+        status = r['ocorrencia__status']
+        regiao = r['municipio__uf__regiao']
+        quantidade = r['quantidade']
+        if status is None:
+            dados_ocorrencia['sem'][regiao] += quantidade
+            dados_ocorrencia['sem']['total'] += quantidade
+        else:
+            dados_ocorrencia['registradas'][regiao] += quantidade
+            dados_ocorrencia['registradas']['total'] += quantidade
+            if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
+                dados_ocorrencia['pendentes'][regiao] += quantidade
+                dados_ocorrencia['pendentes']['total'] += quantidade
 
-#     for r in regioes:
-#         if (total[r] - dados_ocorrencia['sem'][r]) == 0:
-#             dados_ocorrencia['media'][r] = 0
-#         else:
-#             dados_ocorrencia['media'][r] = (1.0 * dados_ocorrencia['registradas'][r] / (total[r] - dados_ocorrencia['sem'][r]))
+    for r in regioes:
+        if (total[r] - dados_ocorrencia['sem'][r]) == 0:
+            dados_ocorrencia['media'][r] = 0
+        else:
+            dados_ocorrencia['media'][r] = (
+                1.0 * dados_ocorrencia['registradas'][r] /
+                (total[r] - dados_ocorrencia['sem'][r])
+            )
 
-#     resumo = [[_("Item"), _("Total nacional")] + [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]]
-#     resumo.append([_("Casas em sua carteira"), total['total']] + [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-#     resumo.append({'subtitle': _("Uso dos produtos Interlegis")})
-#     resumo.append([_("Casas sem nenhum produto"), sem_produto['total']] + [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-#     resumo.extend([[ts.nome, dados[ts.id]['total']] + [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES] for ts in tipos_servico])
-#     resumo.append({'subtitle': _("Registros no sistema de ocorrências")})
-#     resumo.append([_("Casas que nunca registraram ocorrências"), dados_ocorrencia['sem']['total']] + [dados_ocorrencia['sem'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-#     resumo.append([_("Total de ocorrências registradas"), dados_ocorrencia['registradas']['total']] + [dados_ocorrencia['registradas'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-#     resumo.append([_("Total de ocorrências pendentes"), dados_ocorrencia['pendentes']['total']] + [dados_ocorrencia['pendentes'][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES])
-#     resumo.append([_("Média de ocorrências por casa"), round(dados_ocorrencia['media']['total'], 2)] + [round(dados_ocorrencia['media'][r[0]], 2) for r in UnidadeFederativa.REGIAO_CHOICES])
+    resumo = [
+        [_("Item"), _("Total nacional")] +
+        [r[1] for r in UnidadeFederativa.REGIAO_CHOICES]
+    ]
+    resumo.append(
+        [_("Casas em sua carteira"), total['total']] +
+        [total[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES]
+    )
+    resumo.append({'subtitle': _("Uso dos produtos Interlegis")})
+    resumo.append(
+        [_("Casas sem nenhum produto"), sem_produto['total']] +
+        [sem_produto[r[0]] for r in UnidadeFederativa.REGIAO_CHOICES]
+    )
+    resumo.extend(
+        [[ts.nome, dados[ts.id]['total']] +
+         [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES]
+         for ts in tipos_servico
+        ]
+    )
+    resumo.append({'subtitle': _("Registros no sistema de ocorrências")})
+    resumo.append(
+        [_("Casas que nunca registraram ocorrências"),
+         dados_ocorrencia['sem']['total']] +
+        [dados_ocorrencia['sem'][r[0]]
+         for r in UnidadeFederativa.REGIAO_CHOICES
+        ]
+    )
+    resumo.append(
+        [_("Total de ocorrências registradas"),
+         dados_ocorrencia['registradas']['total']] +
+        [dados_ocorrencia['registradas'][r[0]]
+         for r in UnidadeFederativa.REGIAO_CHOICES
+        ]
+    )
+    resumo.append(
+        [_("Total de ocorrências pendentes"),
+         dados_ocorrencia['pendentes']['total']] +
+        [dados_ocorrencia['pendentes'][r[0]]
+         for r in UnidadeFederativa.REGIAO_CHOICES
+        ]
+    )
+    resumo.append(
+        [_("Média de ocorrências por casa"),
+         round(dados_ocorrencia['media']['total'], 2)] +
+        [round(dados_ocorrencia['media'][r[0]], 2)
+         for r in UnidadeFederativa.REGIAO_CHOICES
+        ]
+    )
 
-#     return resumo
-
-
-# def casas_carteira(request, casas, context):
-#     servicos = request.GET.getlist('servico')
-#     sigla_regiao = request.GET.get('r', None)
-#     sigla_uf = request.GET.get('uf', None)
-#     meso_id = request.GET.get('meso', None)
-#     micro_id = request.GET.get('micro', None)
-#     servicos = request.GET.getlist('servico')
-#     tipos_servico = context['servicos']
-
-#     context['qs_regiao'] = ''
-
-#     if micro_id is not None:
-#         context['micro'] = get_object_or_404(Microrregiao, pk=micro_id)
-#         context['qs_regiao'] = 'micro=%s' % micro_id
-#         context['meso'] = context['micro'].mesorregiao
-#         context['uf'] = context['meso'].uf
-#         context['regiao'] = context['uf'].regiao
-#         casas = casas.filter(municipio__microrregiao=context['micro'])
-#     elif meso_id is not None:
-#         context['meso'] = get_object_or_404(Mesorregiao, pk=meso_id)
-#         context['qs_regiao'] = 'meso=%s' % meso_id
-#         context['uf'] = context['meso'].uf
-#         context['regiao'] = context['uf'].regiao
-#         casas = casas.filter(municipio__microrregiao__mesorregiao=context['meso'])
-#     elif sigla_uf is not None:
-#         context['uf'] = get_object_or_404(UnidadeFederativa, sigla=sigla_uf)
-#         context['qs_regiao'] = 'uf=%s' % sigla_uf
-#         context['regiao'] = context['uf'].regiao
-#         casas = casas.filter(municipio__uf=context['uf'])
-#     elif sigla_regiao is not None:
-#         context['regiao'] = sigla_regiao
-#         context['qs_regiao'] = 'r=%s' % sigla_regiao
-#         casas = casas.filter(municipio__uf__regiao=sigla_regiao)
-
-#     if 'regiao' in context:
-#         context['ufs'] = UnidadeFederativa.objects.filter(regiao=context['regiao'])
-
-#     todos_servicos = ['_none_'] + [s.sigla for s in tipos_servico]
-
-#     if not servicos or set(servicos) == set(todos_servicos):
-#         servicos = todos_servicos
-#         context['qs_servico'] = ''
-#     else:
-#         if '_none_' in servicos:
-#             casas = casas.filter(Q(servico=None) | Q(servico__tipo_servico__sigla__in=servicos))
-#         else:
-#             casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
-#         casas = casas.distinct('nome', 'municipio__uf')
-#         context['qs_servico'] = "&".join(['servico=%s' % s for s in servicos])
-
-#     context['servicos_check'] = servicos
-
-#     casas = casas.select_related('municipio', 'municipio__uf', 'municipio__microrregiao', 'municipio__microrregiao__mesorregiao').prefetch_related('servico_set')
-
-#     return casas, context
+    return resumo
 
 
-# @login_required
-# def painel_relacionamento(request):
-#     page = request.GET.get('page', 1)
-#     snippet = request.GET.get('snippet', '')
-#     seletor = request.GET.get('s', None)
-#     servidor = request.GET.get('servidor', None)
-#     fmt = request.GET.get('f', 'html')
+def casas_carteira(request, casas, context):
+    servicos = request.GET.getlist('servico')
+    sigla_regiao = request.GET.get('r', None)
+    sigla_uf = request.GET.get('uf', None)
+    meso_id = request.GET.get('meso', None)
+    micro_id = request.GET.get('micro', None)
+    servicos = request.GET.getlist('servico')
+    tipos_servico = context['servicos']
 
-#     if servidor is None:
-#         gerente = request.user.servidor
-#     elif servidor == '_all':
-#         gerente = None
-#     else:
-#         gerente = get_object_or_404(Servidor, pk=servidor)
+    context['qs_regiao'] = ''
 
-#     if gerente is not None:
-#         casas = gerente.casas_que_gerencia.all()
+    if micro_id is not None:
+        context['micro'] = get_object_or_404(Microrregiao, pk=micro_id)
+        context['qs_regiao'] = 'micro=%s' % micro_id
+        context['meso'] = context['micro'].mesorregiao
+        context['uf'] = context['meso'].uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(municipio__microrregiao=context['micro'])
+    elif meso_id is not None:
+        context['meso'] = get_object_or_404(Mesorregiao, pk=meso_id)
+        context['qs_regiao'] = 'meso=%s' % meso_id
+        context['uf'] = context['meso'].uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(
+            municipio__microrregiao__mesorregiao=context['meso']
+        )
+    elif sigla_uf is not None:
+        context['uf'] = get_object_or_404(UnidadeFederativa, sigla=sigla_uf)
+        context['qs_regiao'] = 'uf=%s' % sigla_uf
+        context['regiao'] = context['uf'].regiao
+        casas = casas.filter(municipio__uf=context['uf'])
+    elif sigla_regiao is not None:
+        context['regiao'] = sigla_regiao
+        context['qs_regiao'] = 'r=%s' % sigla_regiao
+        casas = casas.filter(municipio__uf__regiao=sigla_regiao)
 
-#     if gerente is None or not casas.exists():
-#         casas = Orgao.objects.exclude(gerentes_interlegis=None)
-#         gerente = None
+    if 'regiao' in context:
+        context['ufs'] = UnidadeFederativa.objects.filter(
+            regiao=context['regiao']
+        )
 
-#     tipos_servico = TipoServico.objects.all()
-#     regioes = UnidadeFederativa.REGIAO_CHOICES
+    todos_servicos = ['_none_'] + [s.sigla for s in tipos_servico]
 
-#     context = {
-#         'seletor': seletor,
-#         'snippet': snippet,
-#         'regioes': regioes,
-#         'servicos': tipos_servico,
-#         'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
-#         'gerente': gerente,
-#         'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '',
-#     }
+    if not servicos or set(servicos) == set(todos_servicos):
+        servicos = todos_servicos
+        context['qs_servico'] = ''
+    else:
+        if '_none_' in servicos:
+            casas = casas.filter(
+                Q(servico=None) | Q(servico__tipo_servico__sigla__in=servicos)
+            )
+        else:
+            casas = casas.filter(servico__tipo_servico__sigla__in=servicos)
+        casas = casas.distinct('nome', 'municipio__uf')
+        context['qs_servico'] = "&".join(['servico=%s' % s for s in servicos])
 
-#     if snippet != 'lista':
-#         context['resumo'] = resumo_carteira(casas)
+    context['servicos_check'] = servicos
 
-#     if snippet != 'resumo':
-#         casas, context = casas_carteira(request, casas, context)
-#         paginator = Paginator(casas, 30)
-#         try:
-#             pagina = paginator.page(page)
-#         except (EmptyPage, InvalidPage):
-#             pagina = paginator.page(paginator.num_pages)
-#         context['page_obj'] = pagina
+    casas = casas.select_related(
+        'municipio',
+        'municipio__uf',
+        'municipio__microrregiao',
+        'municipio__microrregiao__mesorregiao'
+    ).prefetch_related('servico_set')
 
-#     if snippet == 'lista':
-#         if fmt == 'csv':
-#             response = HttpResponse(content_type='text/csv')
-#             response['Content-Disposition'] = 'attachment; filename=casas.csv'
-#             writer = csv.writer(response)
-#             writer.writerow([
-#                 _("Casa legislativa").encode('utf8'),
-#                 _("Região").encode('utf8'),
-#                 _("Estado").encode('utf8'),
-#                 _("Mesorregião").encode('utf8'),
-#                 _("Microrregião").encode('utf8'),
-#                 _("Gerentes Interlegis").encode('utf8'),
-#                 _("Serviços").encode('utf8'),
-#             ])
-#             for c in casas:
-#                 writer.writerow([
-#                     c.nome.encode('utf8'),
-#                     c.municipio.uf.get_regiao_display().encode('utf8'),
-#                     c.municipio.uf.sigla.encode('utf8'),
-#                     c.municipio.microrregiao.mesorregiao.nome.encode('utf8'),
-#                     c.municipio.microrregiao.nome.encode('utf8'),
-#                     c.lista_gerentes(fmt='lista').encode('utf8'),
-#                     (", ".join([s.tipo_servico.nome for s in c.servico_set.filter(data_desativacao__isnull=True)])).encode('utf8'),
-#                 ])
-#             return response
-#         return render(request, 'casas/lista_casas_carteira_snippet.html', context)
-#     if snippet == 'resumo':
-#         return render(request, 'casas/resumo_carteira_snippet.html', context)
+    return casas, context
 
-#     return render(request, 'casas/painel.html', context)
+
+@login_required
+def painel_relacionamento(request):
+    page = request.GET.get('page', 1)
+    snippet = request.GET.get('snippet', '')
+    seletor = request.GET.get('s', None)
+    servidor = request.GET.get('servidor', None)
+    fmt = request.GET.get('f', 'html')
+
+    if servidor is None:
+        gerente = request.user.servidor
+    elif servidor == '_all':
+        gerente = None
+    else:
+        gerente = get_object_or_404(Servidor, pk=servidor)
+
+    if gerente is not None:
+        casas = gerente.casas_que_gerencia.all()
+
+    if gerente is None or not casas.exists():
+        casas = Orgao.objects.exclude(gerentes_interlegis=None)
+        gerente = None
+
+    tipos_servico = TipoServico.objects.all()
+    regioes = UnidadeFederativa.REGIAO_CHOICES
+
+    context = {
+        'seletor': seletor,
+        'snippet': snippet,
+        'regioes': regioes,
+        'servicos': tipos_servico,
+        'gerentes': Servidor.objects.exclude(casas_que_gerencia=None),
+        'gerente': gerente,
+        'qs_servidor': ('servidor=%s' % gerente.pk) if gerente else '',
+    }
+
+    if snippet != 'lista':
+        context['resumo'] = resumo_carteira(casas)
+
+    if snippet != 'resumo':
+        casas, context = casas_carteira(request, casas, context)
+        paginator = Paginator(casas, 30)
+        try:
+            pagina = paginator.page(page)
+        except (EmptyPage, InvalidPage):
+            pagina = paginator.page(paginator.num_pages)
+        context['page_obj'] = pagina
+
+    if snippet == 'lista':
+        if fmt == 'csv':
+            response = HttpResponse(content_type='text/csv')
+            response['Content-Disposition'] = 'attachment; filename=casas.csv'
+            writer = csv.writer(response)
+            writer.writerow([_("Casa legislativa"), _("Região"), _("Estado"),
+                             _("Mesorregião"), _("Microrregião"),
+                             _("Gerentes Interlegis"), _("Serviços"),])
+            for c in casas:
+                writer.writerow([
+                    c.nome,
+                    c.municipio.uf.get_regiao_display(),
+                    c.municipio.uf.sigla,
+                    c.municipio.microrregiao.mesorregiao.nome,
+                    c.municipio.microrregiao.nome,
+                    c.lista_gerentes(fmt='lista'),
+                    (", ".join(
+                        [s.tipo_servico.nome for s in c.servico_set.filter(
+                            data_desativacao__isnull=True)
+                        ])
+                    ),
+                ])
+            return response
+        return render(
+            request,
+            'casas/lista_casas_carteira_snippet.html',
+            context
+        )
+    if snippet == 'resumo':
+        return render(request, 'casas/resumo_carteira_snippet.html', context)
+
+    return render(request, 'casas/painel.html', context)
 
 # @login_required
 # def gerentes_interlegis(request):

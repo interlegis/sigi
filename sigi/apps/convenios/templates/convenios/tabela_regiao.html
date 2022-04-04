@@ -1,147 +1,37 @@
-{% load static from staticfiles %}
-{% load i18n %}
-<html>
-<head>
-    <title>Relatório por Região</title>
-    <style>
-        @page {
-            size: a4;
-            margin-top: 6.5cm;
-            margin-left: 1.5cm;
-            margin-right: 1cm;
-            margin-bottom: 3.5cm;
-            @frame top{
-                -pdf-frame-content: cabecalho;
-                top: 2cm;
-                margin-left: 1cm;
-                margin-right: 1cm;
-                /*height: 1cm;                */
-            }
-           /* @frame midle{
-                -pdf-frame-content: midle;
-                top: 6cm;
-                height: 1cm;
-                margin: 2cm;
-            }*/
-            @frame footer {
-                -pdf-frame-content: footerContent;
-                bottom: 2cm;
-                margin-left: 1cm;
-                margin-right: 1cm;
-                height: 1cm;
-            }
-        }        
-        body{
-            font-family: 'Helvetica';
-            font-size: 9pt;
-        }        
-        #corpo h1{
-            text-align: center;
-        }
-        #cabecalho {
-            text-align: center;
-            font-weight: bold;
-            font-size: 14pt;
-        }
-        #cabecalho .item2{
-            font-size: 13pt;
-        }
-        #cabecalho .titulo{
-            font-size: 14pt;
-        }
-        #footerContent {
-            border-top: black outset;
-            padding-top: 0.15cm;
-        }
-        #footerContent #esquerda{
-            text-align: left;            
-        }
-        #footerContent #direita{
-            text-align: right;
-            background-image: url("{% static 'img/logo-senado.png' %}");
-        }        
-        .tabela {            
-            padding-top: 0.1cm;
-            padding-left: 0.1cm;
-            border: black solid;
-            width: 2cm;
-            background-color: #B5B5B5;
-        }
-        .tabela caption{
-            text-align: center;
-            font-weight: bold;
-            font-size: 11pt;
-        }
-        .tabela th{            
-            background-color: #CFCFCF;
-            text-align: left;
-        }
-        .tabela .conteudo {
-            background-color: white;/*#E8E8E8;*/
-        }
-        .tabela .sumario{
-            font-weight: bold;
-            background-color: #CFCFCF;
-        }        
-        .tabela .cabecalho_esquerda{
-            background-color: #E8E8E8;
-            font-weight: bold;
-        }
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
 
-        
-    </style>
+{% block page_size %}A4 portrait{% endblock %}
+{% block report_name %}{% blocktranslate %}Relatório da Região {{ regiao }}{% endblocktranslate %}{% endblock %}
 
-</head>
-<body>
-    <div id="cabecalho">
-        <table>
-            <tr>
-                <td id="imagem1"><img src="{% static 'img/logo-senado.png' %}" width="80" height="80" alt="Logo Senado"/></td>
-                <td id="centro" colspan="3">{% trans 'SENADO FEDERAL' %}<br/><span class="item2">{% trans 'SINTER - Secretaria Especial do Interlegis' %}</span></td>
-                <td id="imagem2"><img src="{% static 'img/logo-interlegis.jpg' %}" width="90" height="65" alt="Logo Interlegis"/></td>
-            </tr>            
-        </table>
-        <h1 class="titulo">{{regiao}}</h1>        
-    </div>    
-    <div id="midle">
-        {% for tabela in tabelas %}
-        <table class="tabela" repeat="1">
-            <caption>{{tabela.projeto}} - {{regiao}}</caption>
-            <thead>
-                <tr>
-                    {%for item in tabela.cabecalho%}
-                    <th>{{item}}</th>
-                    {%endfor%}
-                </tr>
-            </thead>
-            <tbody>                                
-            {% for linha in tabela.linhas %}
-            <tr class="conteudo">
-                <th class="cabecalho_esquerda">{{linha.estado}}</th>
-                {% for item in linha.lista %}
-                <td>{{item}}</td>
-                {% endfor %}
-            </tr>
-            {% endfor %}
-            <tr>
-            	<th>Total</th>
-            	{% for item in tabela.sumario %}
-            	<th>{{item}}</th>
-            	{% endfor %}
-            </tr>
-            </tbody>
-        </table>
-        <br />
+{% block main_content %}
+  {% for tabela in tabelas %}
+  <table class="tabela" repeat="1">
+    <caption>{{ tabela.projeto }} - {{ regiao }}</caption>
+    <thead>
+      <tr>
+        {% for item in tabela.cabecalho %}
+        <th>{{ item }}</th>
         {% endfor %}
-    </div>    
-    <div id="footerContent">
-        <table>
-            <tr>
-                <td id="esquerda">{{data}} às {{hora}}</td>
-                <td id="direita">{% trans 'Página' %} <pdf:pagenumber /> </td>
-            </tr>
-        </table>
-    </div>
-    
-</body>
-</html>
+      </tr>
+    </thead>
+    <tbody>
+    {% for linha in tabela.linhas %}
+      <tr>
+        <th>{{ linha.estado }}</th>
+        {% for item in linha.lista %}
+          <td class="right-align">{{ item }}</td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+      <tr>
+        <th>Total</th>
+        {% for item in tabela.sumario %}
+        <th class="right-align">{{item}}</th>
+        {% endfor %}
+      </tr>
+    </tbody>
+  </table>
+  <br />
+  {% endfor %}
+{% endblock main_content %}

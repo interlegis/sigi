@@ -1,0 +1,41 @@
+{% load static i18n %}
+
+<div class="card-links">
+  <a class="waves-effect waves-light btn-small btn-flat btn-floating left" href="{% url "home_resumoseit" %}?ano={{ tabela_resumo_seit.mes_anterior.year|safe }}&mes={{ tabela_resumo_seit.mes_anterior.month|safe }}" aria-label="{% trans "Retroceder um mês" %}" data-target="card-resumoseit">
+    <i class="material-icons left">chevron_left</i>
+  </a>
+  <a class="waves-effect waves-light btn-small btn-flat btn-floating right" href="{% url "home_resumoseit" %}?ano={{ tabela_resumo_seit.proximo_mes.year|safe }}&mes={{ tabela_resumo_seit.proximo_mes.month|safe }}" aria-label="{% trans "Avançar um mês" %}" data-target="card-resumoseit">
+    <i class="material-icons right">chevron_right</i>
+  </a>
+</div>
+
+<table class="numeros servicos">
+  <tr>
+  {% for s in tabela_resumo_seit.titulos %}
+    <th>{{ s }}</th>
+  {% endfor %}
+  </tr>
+  {% for servico in tabela_resumo_seit.servicos %}
+  <tr>
+    <th>
+      <a class="waves-effect waves-light modal-trigger" href="#modal-{{ servico.nome|slugify }}">{{ servico.nome }}</a>
+      <div id="modal-{{ servico.nome|slugify }}" class="modal">
+        <div class="modal-content">
+          <h6>{{ servico.nome }}</h6>
+          <table class="numeros servicos">
+          {% for mes in servico.novos_por_mes %}
+            <tr><th>{{ mes.mes }}</th><td>{{ mes.total }}</td></tr>
+          {% endfor %}
+          </table>
+        </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat">{% translate "Close" %}</a>
+        </div>
+      </div>
+    </th>
+    <td>{{ servico.total }}</td>
+    <td>{{ servico.novos_mes_anterior }}</td>
+    <td>{{ servico.novos_mes_atual }}</td>
+  </tr>
+  {% endfor %}
+</table>

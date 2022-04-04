@@ -1,6 +1,21 @@
 {% extends "admin/index.html" %}
-{% load static %}
+{% load static i18n %}
 
- {% block content %}
-    {% include 'sigi/snippets/dashboard.html' %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/dashboard.css' %}">
 {% endblock %}
+
+{% block extrahead %}
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js" integrity="sha512-QSkVNOCYLtj73J4hbmVoOV6KVZuMluZlioC+trLpewV8qMjsWqlIQvkn1KGX2StWvPMdWGBqim1xlC8krl1EKQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+  {{ block.super }}
+{% endblock %}
+
+{% block content %}
+  {% include 'sigi/snippets/dashboard.html' %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script src="{% static 'js/dashboard.js' %}"></script>
+{% endblock footer %}

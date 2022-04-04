@@ -1,198 +1,211 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_static %}
-{% load static from staticfiles %}
-{% load thumbnail %}
-
+{% load i18n static admin_urls %}
 {% block extrastyle %}
-    {{ block.super }}
-	<link rel="stylesheet" type="text/css" href="{% static 'ocorrencias/css/jquery-ui.min.css' %}"/>
+  {{ block.super }}
+  <style>
+    #content {
+      display: block;
+    }
+    .user-image {
+      width: 64px;
+      height: 64px;
+      font-size: 64px !important;
+    }
+    commenter-image {
+      width: 32px;
+      height: 32px;
+      font-size: 32px !important;
+    }
+    .card-details, .user-name {
+      font-size: 10px;
+    }
+    .priority {
+      background-color: grey;
+    }
+    .priority {
+      background-color: antiquewhite;
+      margin-left: 5px;
+      min-width: 60px;
+    }
+    .chip>img {
+      float: left;
+      margin: 0 8px 0 -12px;
+      height: 32px;
+      width: 32px;
+      border-radius: 50%;
+    }
+  </style>
 {% endblock %}
-
-{% block extrahead %}
-    {{ block.super }}
-    <script type="text/javascript" src="{% static 'admin/js/core.js' %}" ></script>
-    <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}" ></script>
-    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}" ></script>
-    <script type="text/javascript" src="{% static 'ocorrencias/js/jquery-ui.min.js' %}" ></script>
-{% endblock %}
-
-{% block coltype %}colMS{% endblock %}
-
-{% block content_title %}<h1>{{ panel_title }}</h1>{% endblock %}
-
+{% block breadcrumbs %}{% endblock %}
 {% block content %}
-	{% url 'painel-ocorrencias' as url_painel %}
-    <div id="content-main" class="container-fluid">
-  		<div class="form-group">
-  			<div class="input-group">
-  				<input type="text" class="form-control" id="q" placeholder="{% trans 'Visitar o painel de' %}">
-  				<span class="input-group-btn">
-  					<button class="btn btn-default" type="button" onclick="window.location.href='{{ url_painel }}'">{% trans 'Meu painel' %}</button>
-  				</span>
-  			</div>
-  		</div>
-  		
-  		<div class="nav nav-pills">
-  			<span class="glyphicon glyphicon-plus"></span>
-			<a role="button" data-toggle="collapse" href="#form_ocorrencia_panel" aria-expanded="false" aria-controls="form_ocorrencia_panel">
-				{% trans "Registrar nova ocorrência" %}
-			</a>
-		</div>
-		
-		<div class="collapse panel panel-default" id='form_ocorrencia_panel'>
-			{% include 'ocorrencias/ocorrencia_form.html' %}
-		</div>
-  		
-  		{% if paineis %}
-			<ul class="nav nav-pills">
-			{% for k, v in paineis.iteritems %}
-				<li role="presentation" class="{% if k == painel %}active{% endif %}">
-					<a href="{{ url_painel }}?type=servidor&id={{ servidor.id }}&painel={{ k }}">
-					{{ v }}</a></li>
-			{% endfor %}
-			</ul>  		
-  		{% endif %}
-  		
-    	<div class="row">
-	  		<div id="ocorrencias_display" class="col-md-12">
-	  		{% for ocorrencia in ocorrencias %}
-	  			{% include 'ocorrencias/ocorrencia_snippet.html' %} 
-			{% empty %}
-				<div class="panel panel-default">
-					<div class="panel-body">
-						<p>{% trans 'Nenhuma ocorrência encontrada.' %}</p>
-					</div>
-				</div>
-			{% endfor %}
-	  		</div>
-	  	</div>
-	</div>
-	
-    <script type="text/javascript">
-		$( document ).ready(function() {
-			$.ajaxSetup({
-				beforeSend: function(xhr, settings) {
-    				if (!(/^(GET|HEAD|OPTIONS|TRACE)$/.test(settings.type)) && !this.crossDomain) {
-	    				var cookieValue = null, name = 'csrftoken';
-	    				if (document.cookie && document.cookie != '') {
-	        				var cookies = document.cookie.split(';');
-	        				for (var i = 0; i < cookies.length; i++) {
-	            				var cookie = jQuery.trim(cookies[i]);
-	            				if (cookie.substring(0, name.length + 1) == (name + '=')) {
-	                				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-	                				break;
-	            				}
-	        				}
-	    				}
-        				xhr.setRequestHeader("X-CSRFToken", cookieValue);
-    				}
-				}
-			});
-		
-			$("#q").autocomplete({
-				source: "{% url 'painel-buscanominal' %}",
-				select: function(event, ui) {
-					window.location.replace("{{ url_painel }}?type="+ui.item.origin+"&id="+ui.item.value);
-					ui.item.value = ui.item.label
-				}
-			})
-			
-			$('input[name^=ocorrencia-]').on('change', function() {
-				var $this = $(this),
-					data = {'id_ocorrencia': $this.attr('name').split('-')[1],
-					        'prioridade': $this.attr('value')};
-				    
-				    $.post('{% url "ocorrencia-mudaprioridade" %}', data, function(result) {
-				    	if (result.result == 'error') {
-				    		alert(result.message);
-				    		$this.reset();
-				    	}
-				    });
-			})
-			
-			function inclui_comentario( event ) {
-				event.preventDefault()
-				
-				var $this = $(this);
-				
-				$.post($this.attr('action'), $this.serialize(), function( result ) {
-					$('div[id=ticket_'+result.ocorrencia_id+']').html(result.ocorrencia_panel);
-					$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
-				});
-			}
-			
-			function inclui_ocorrencia( event ) {
-				event.preventDefault()
-				
-				var $this = $(this);
-				
-				$.post($this.attr('action'), $this.serialize(), function( result ) {
-					$("#form_ocorrencia_panel").html(result.ocorrencia_form);
-					if (result.result == 'success') {
-						$("#form_ocorrencia_panel").collapse('hide');
-						$("#ocorrencias_display").prepend(result.ocorrencia_panel);
-						$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
-					} 
-					$('#form_ocorrencia').on('submit', inclui_ocorrencia);
-				});
-			}
-			
-			$('form[id^=comentar_ocorrencia_').on('submit', inclui_comentario);
-			$('#form_ocorrencia').on('submit', inclui_ocorrencia);  
-		});
-		
-		function remove_anexo(link) {
-			var $this = $(link),
-			    url = $this.attr('href'),
-			    div = $("div#anexos_"+$this.attr('data-ocorrencia-id')),
-			    link = $("a#link_anexos_"+$this.attr('data-ocorrencia-id'));
-			    
-			$( 'body' ).append('<div id="dialog-confirm" title="{% trans "Excluir anexo?" %}"><p><span class="glyphicon glyphicon-alert" style="float:left; margin:0 7px 20px 0;"></span>{% trans "Este anexo será definitivamente excluído e não poderá ser recuperado. Você confirma a exclusão?" %}</p></div>');
+<div class="row">
+  <div class="col s12"><h1>{{ panel_title }}</h1></div>
+</div>
+<div class="row">
+  <div class="col s12">
+  {% for id, text in paineis.items %}
+    <a class="waves-effect waves-light btn-small{% if id != painel %} btn-flat{% endif %}" href="?painel={{ id }}">{{ text }}</a>
+  {% endfor %}
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <button class="waves-effect waves-light btn-small btn-flat modal-trigger" href="#nova_ocorrencia">{% trans "Nova ocorrência" %}</button>
+  </div>
+</div>
+<div id="nova_ocorrencia" class="modal">
+  <div class="modal-content">
+    <h4>{% trans "Nova ocorrência" %}</h4>
+    {{ ocorrencia_form }}
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+  </div>
+</div>
+{% for ocorrencia in ocorrencias %}
+<div class="row">
+  <div class="col s12">
+    <div class="card hoverable">
+      <div class="card-content">
+        <span class="card-title">
+          <a href="{% url "admin:ocorrencias_ocorrencia_change" ocorrencia.id %}"><i class="material-icons right">edit</i></a>
+          {{ ocorrencia.casa_legislativa.nome }}, {{ ocorrencia.casa_legislativa.municipio.uf.sigla }}
+          <p class="card-details">
+          {% blocktrans with data_criacao=ocorrencia.data_criacao tipo_contato=ocorrencia.tipo_contato categoria=ocorrencia.categoria status=ocorrencia.get_status_display %}
+            Criado em {{ data_criacao }} via {{ tipo_contato }} solicitando {{ categoria }}, com status {{ status }}
+          {% endblocktrans %}
+          </p>
+          <p class="card-details">
+            <strong>{% trans "Gerentes" %}:</strong>
+            {% for gerente in ocorrencia.casa_legislativa.gerentes_interlegis.all %}
+            <div class="chip">
+              {% if gerente.foto %}
+              <img src="{{ gerente.foto.url }}">
+              {% endif %}
+              <a href="./">{{ gerente.get_apelido }}</a>
+            </div>
+            {% endfor %}
+          </p>
+        </span>
+        <div class="row">
+          <div class="col s3 m1 center-align">
+            <a href="./">
+            {% if ocorrencia.servidor_registro.foto %}
+              <img class="circle user-image" src="{{ MEDIA_URL }}{{ ocorrencia.servidor_registro.foto }}"/>
+            {% else %}
+              <i class="material-icons circle user-image">account_circle</i>
+            {% endif %}
+            </a>
+            <span class="user-name">{{ ocorrencia.servidor_registro.get_apelido }}</span>
+          </div>
+          <div class="col s9 m11">
+            <p>{{ ocorrencia.descricao }}</p>
+            <div>
+              {% trans "Prioridade" %}: <a class='dropdown-trigger btn-small btn-flat' href='#' data-target='prioridade-{{ ocorrencia.id }}'>{{ ocorrencia.get_prioridade_display }}</a>
+              <ul id='prioridade-{{ ocorrencia.id }}' class='dropdown-content'>
+              {% for key, name in PRIORITY_CHOICES %}
+                {% if key != ocorrencia.prioridade %}
+                  <li><a href="#!">{{ name }}</a></li>
+                {% endif %}
+              {% endfor %}
+              </ul>
+              <a class="waves-effect waves-light btn-small btn-flat right modal-trigger" href="#modal{{ ocorrencia.id}}">{% blocktranslate count counter=ocorrencia.anexo_set.count %}Um anexo{% plural %}{{ counter }} anexos{% endblocktranslate %}</a>
+              <div id="modal{{ ocorrencia.id}}" class="modal">
+                <div class="modal-content">
+                  <h4>Anexos</h4>
+                  <ul class="collection">
+                  {% for anexo in ocorrencia.anexo_set.all %}
+                    <li  class="collection-item">
+                      <div>
+                        <a href="{{ anexo.arquivo.url }}" download>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }} | {{ anexo.descricao }}</a>
+                        <a href="#!" class="secondary-content"><i class="material-icons">delete_forever</i></a>
+                      </div>
+                    </li>
+                  {% endfor %}
+                  </ul>
+                </div>
+                <div class="modal-footer">
+                  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card-content">
+        <ul class="collection">
+          <li class="collection-item avatar">
+            {% if usuario.foto %}
+              <img class="circle commenter-image" src="{{ MEDIA_URL }}{{ servidor_registro.foto }}"/>
+            {% else %}
+              <i class="material-icons circle">account_circle</i>
+            {% endif %}
+            <form class="row" id="comentar_ocorrencia_{{ ocorrencia.id|safe }}" action="#!" method="post" data-ocorrencia-id="{{ ocorrencia.id|safe }}">
+              {% csrf_token %}
+              <p>{% trans "Comentar" %}:</p>
+              {% for field in comentario_form %}
+                {% if field.name == 'ocorrencia' %}
+                  <input type='hidden' name='ocorrencia' value='{{ ocorrencia.id|safe }}'/>
+                {% elif field.name == 'novo_status' %}
+                  <div class="input-field col m4 s12">
+                    <select name="novo_status" id="id_novo_status_{{ ocorrencia.id|safe }}" class="browser-default">
+                    {% for value, label in field.field.widget.choices %}
+                      {% if value == '' %}
+                        <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
+                      {% elif value != 1 %}
+                        {% if ocorrencia.status < 3 and value > 2 %}
+                          <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
+                        {% endif %}
+                        {% if ocorrencia.status > 2 and value == 2 %}
+                          <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                    </select>
+                  </div>
+                {% else %}
+                  <div class="input-field col m8 s12">
+                    {{ field }}
+                  </div>
+                {% endif %}
+              {% endfor %}
+              <button type="submit" class="secondary-content"><i class="material-icons">send</i></button>
+            </form>
+          </li>
+          {% for comentario in ocorrencia.comentarios.all %}
+          <li class="collection-item avatar">
+            {% if comentario.usuario.foto %}
+              <img class="circle" src="{{ MEDIA_URL }}{{ comentario.usuario.foto }}"/>
+            {% else %}
+              <i class="material-icons circle ">account_circle</i>
+            {% endif %}
+            <p>{% blocktranslate with data=comentario.data_criacao nome=comentario.usuario.get_apelido %}
+            Em {{ data }}, {{ nome }} disse:
+            {% endblocktranslate %}</p>
+            <span class="title">{{ comentario.descricao }}</span>
+            {% if comentario.novo_status %}
+            <p>{% blocktranslate with status=comentario.get_novo_status_display|default:"-" %}
+              Status: {{ status }}
+            {% endblocktranslate %}</p>
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
 
-			var dialog = $("#dialog-confirm");
-
-			dialog.dialog({
-				resizable: true,
-				modal: true,
-				buttons: {
-					"{% trans 'Excluir' %}": function() {
-						$.get(url, function(result) {
-						    if (result.result == 'error') {
-						    	alert(result.message);
-						    }
-						    if (result.result == 'success') {
-						    	div.html(result.anexos_panel);
-						    	link.html(result.link_label);
-						    }
-						});
-						dialog.dialog( 'destroy' );
-          			},
-          			"{% trans 'Cancelar' %}": function() {
-          				dialog.dialog( 'destroy' );
-        			}
-      			}
-			});
-			return false;
-		}
-		
-		function dismissAddAnexoPopup(win, ocorrencia_id) {
-			var div = $("div#anexos_"+ocorrencia_id),
-				    link = $("a#link_anexos_"+ocorrencia_id);
-				    
-			win.close();
-				    
-			$.get('{% url "ocorrencia-anexosnippet" %}?ocorrencia_id='+ocorrencia_id, function( result ) {
-				div.html(result);
-			});
-		}
-		
-		function showAddAnexoPopup(link) {
-			var $this = $(link),
-			    href = $this.attr('href'),
-			    win = window.open(href, '', 'height=500,width=800,resizable=yes,scrollbars=yes');
-			    win.focus();
-			    return false;
-		}
-	</script>
-	
+{% block footer %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function(){
+      var elems = document.querySelectorAll('.dropdown-trigger');
+      var instances = M.Dropdown.init(elems, {});
+      var elems = document.querySelectorAll('.modal');
+      var instances = M.Modal.init(elems, {});
+    });
+  </script>
 {% endblock %}

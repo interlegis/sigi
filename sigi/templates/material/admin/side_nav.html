@@ -1,31 +1,21 @@
 {% load i18n material menus %}
 
 <div class="scroll-pane">
-    {% if not mobile %}
-        <i class="material-icons minimize nav-bar" aria-hidden="true" title="{% trans 'Minimize' %}">close</i>
-    {% endif %}
-    {% if available_apps %}
-        <ul class="collapsible">
-            <li>
-                <div class="card">
-                    <div class="card-image">
-                        {% if 'profile/user_picture.html'|template_exists %}
-                          {% include 'profile/user_picture.html' %}
-                        {% else %}
-                          {% include 'material/admin/user_picture.html' %}
-                        {% endif %}
-                    </div>
-                </div>
-            </li>
-            {% show_menu 'main_menu' %}
-        </ul>
-    {% else %}
-    <div class="app">
-        <div class="card">
-            <div class="card-content">
-                <p>{% trans "You don't have permission to view or edit anything." %}</>
-            </div>
-        </div>
-    </div>
-    {% endif %}
+  {% if not mobile %}
+    <i class="material-icons minimize nav-bar" aria-hidden="true" title="{% trans 'Minimize' %}">close</i>
+  {% endif %}
+  <ul class="collapsible">
+    <li>
+      <div class="card">
+        <div class="card-image">
+        {% if 'profile/user_picture.html'|template_exists %}
+          {% include 'profile/user_picture.html' %}
+        {% else %}
+          {% include 'material/admin/user_picture.html' %}
+        {% endif %}
+      </div>
+      </div>
+    </li>
+    {% show_menu 'main_menu' %}
+  </ul>
 </div>
