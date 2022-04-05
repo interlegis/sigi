@@ -33,7 +33,6 @@ INSTALLED_APPS = [
     'localflavor',
     'import_export',
     'tinymce',
-    'django_bootstrap5',
     'django.forms',
     'material',
     'material.admin',
