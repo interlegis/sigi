@@ -5,7 +5,7 @@ from itertools import cycle
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q, Count
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
@@ -42,6 +42,8 @@ def openmap(request):
                         for s, n in UnidadeFederativa.REGIAO_CHOICES]
         return render(request, 'home/openmap.html', context)
     else:
+        if request.user.is_anonymous():
+            return HttpResponseForbidden()
         tipos_orgao = request.GET.getlist('tipo_orgao', [])
         tipos_servico = request.GET.getlist('tipo_servico', [])
         tipos_convenio = request.GET.getlist('tipo_convenio', [])
