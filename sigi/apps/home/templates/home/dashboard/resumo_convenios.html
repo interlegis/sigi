@@ -6,7 +6,7 @@
 <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a>
 <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a>
 
-<table class="numeros">
+<table class="responsive-table numeros">
   <tr>
   {% for item in tabela_resumo_camara.cabecalho_topo %}
     <th>{{item}}</th>
@@ -22,7 +22,7 @@
   {% endfor %}
 </table>
 
-<table class="numeros">
+<table class="responsive-table numeros">
   <tr>
     <th>{% trans 'Total de câmaras' %}</th>
     <td>{{ tabela_resumo_camara.total_camaras }}</td>
