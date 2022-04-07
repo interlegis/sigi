@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import re
 from datetime import datetime
 import random
 from django.db import models
@@ -36,6 +37,8 @@ class TipoEvento(models.Model):
 
 class Evento(models.Model):
     STATUS_CHOICES = (
+        ('E', _(u"Em planejamento")),
+        ('G', _(u"Aguardando abertura SIGAD")),
         ('P', _(u"Previsão")),
         ('A', _(u"A confirmar")),
         ('O', _(u"Confirmado")),
@@ -51,6 +54,18 @@ class Evento(models.Model):
     descricao = models.TextField(_(u"Descrição do evento"))
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
+    num_processo = models.CharField(
+        _(u'número do processo SIGAD'),
+        max_length=20,
+        blank=True,
+        help_text=_(u'Formato:<em>XXXXX.XXXXXX/XXXX-XX</em>')
+    )
+    data_pedido = models.DateField(
+        _(u"Data do pedido"),
+        null=True,
+        blank=True,
+        help_text=_(u"Data em que o pedido do Gabinete chegou à COPERI")
+    )
     data_inicio = models.DateTimeField(
         _(u"Data/hora do Início"),
         null=True,
@@ -77,6 +92,7 @@ class Evento(models.Model):
         on_delete=models.PROTECT
     )
     local = models.TextField(_(u"Local do evento"), blank=True)
+    observacao = models.TextField(_(u"Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_(u"Público alvo"), blank=True)
     total_participantes = models.PositiveIntegerField(
         _(u"Total de participantes"),
@@ -99,6 +115,20 @@ class Evento(models.Model):
                     tipo_evento=unicode(self.tipo_evento),
                     data_inicio=self.data_inicio,
                     data_termino=self.data_termino)
+
+    def get_sigad_url(self):
+        m = re.match(
+            r'(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}',
+            self.num_processo
+        )
+        if m:
+            return (r'<a href="https://intra.senado.leg.br/'
+                    r'sigad/novo/protocolo/impressao.asp?area=processo'
+                    r'&txt_numero_orgao={orgao}'
+                    r'&txt_numero_sequencial={sequencial}'
+                    r'&txt_numero_ano={ano}"'
+                    r' target="_blank">{processo}</a>').format(processo=self.num_processo,**m.groupdict())
+        return self.num_processo
 
     def save(self, *args, **kwargs):
         if self.status != 'C':
