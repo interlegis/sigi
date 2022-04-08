@@ -58,53 +58,52 @@
     var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
     var unfiltred_options = {color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000};
 
-    $("#search-text").each(function() {
-      var search = M.Autocomplete.init(this, {
-        minLength: 3,
-        onAutocomplete: function(label) {
-          var data = search.options.ajaxdata;
-          for (k in data) {
-            if (data[k].label == label) {
-              mymap.flyTo([data[k].lat, data[k].lng], 8.5);
-              var encontrado = false;
-              mymap.eachLayer(function(layer) {
-                if (layer instanceof L.Circle) {
-                  if (layer.orgao_id == data[k].id) {
-                    layer.openPopup();
-                    encontrado = true;
-                  }
-                }
-              })
-              if (!encontrado) {
-                var mark = L.circle([data[k].lat, data[k].lng], unfiltred_options).bindTooltip(data[k].label).bindPopup("").addTo(mymap);
-                mark.orgao_id = data[k].id
-                mark.openPopup();
+    $(".search-text").on("input change", function() {
+      $resultbox = $(".search-result");
+      var $this = $(this);
+      var term = $this.val();
+
+      if (term.length < 3) {
+        $resultbox.html("");
+        $resultbox.addClass("hide");
+        return;
+      }
+
+      $.get("{% url "openmapsearch" %}", {"q": term}, function(data) {
+        $resultbox.html("");
+        for (i in data) {
+          var plain = JSON.stringify(data[i]);
+          var $item = $(`<a href="#" class="search-result-item" data-orgao='${plain}'></a>`);
+          $item.html(data[i].label);
+          $item.prop("data_item", data[i]);
+          $resultbox.append($item);
+        }
+        $resultbox.removeClass("hide");
+
+        $(".search-result-item").on("click", function() {
+          var plain = $(this).attr("data-orgao");
+          var result = JSON.parse(plain);
+          console.log(result);
+          $this.val(result.label);
+          $resultbox.html("").addClass("hide");
+          mymap.flyTo([result.lat, result.lng], 8.5);
+          var encontrado = false;
+          mymap.eachLayer(function(layer) {
+            if (layer instanceof L.Circle) {
+              if (layer.orgao_id == result.id) {
+                layer.openPopup();
+                encontrado = true;
               }
             }
+          });
+          if (!encontrado) {
+            var mark = L.circle([result.lat, result.lng], unfiltred_options).bindTooltip(result.label).bindPopup("").addTo(mymap);
+            mark.orgao_id = result.id
+            mark.openPopup();
           }
-        }
-      });
-      $(this).on("input change", function() {
-        if (this.value.length < search.options.minLength) {
-          return;
-        };
-        $.ajax({
-          url: "{% url "openmapsearch" %}",
-          data: {"q": this.value },
-          dataType: "json",
-          appendTo: "#searchform",
-          success: function(data) {
-            console.log(data);
-            var result = {};
-            for (k in data) {
-              result[data[k].label] = null;
-            }
-            search.updateData(result);
-            search.options['ajaxdata'] = data;
-          },
         });
       });
-    })
+    });
 
     $("input[type=checkbox]").change(filtra);
 
