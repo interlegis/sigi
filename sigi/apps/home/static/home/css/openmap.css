@@ -42,3 +42,9 @@ body, html, .mapbox, #map {
   height: auto;
   min-height: unset;
 }
+
+.search-result-item {
+  display: list-item;
+  padding: 3px 3px 3px 20px;
+  font-weight: bold;
+}
