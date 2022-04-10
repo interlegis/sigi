@@ -89,6 +89,7 @@ class EventoAdmin(admin.ModelAdmin):
                      'municipio__search_text', 'solicitante')
     inlines = (EquipeInline, ConviteInline, ModuloInline, AnexoInline)
     actions = ['adicionar_eventos', ]
+    save_as = True
 
     def link_sigad(self, obj):
         if obj.pk is None:
