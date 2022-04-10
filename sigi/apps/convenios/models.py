@@ -421,6 +421,15 @@ class Gescon(models.Model):
                     u"<li>Ocorrendo qualquer uma das palavras, o contrato será "
                     u"importado.</li></ul>")
     )
+    orgaos_gestores = models.TextField(
+        _(u"Órgãos gestores"),
+        default=u"SCCO",
+        help_text=_(u"Siglas de órgãos gestores que devem aparecer no campo"
+                    u"ORGAOSGESTORESTITULARES"
+                    u"<ul><li>Informe um sigla por linha.</li>"
+                    u"<li>Ocorrendo qualquer uma das siglas, o contrato será "
+                    u"importado.</li></ul>")
+    )
     email = models.EmailField(
         _(u"E-mail"),
         help_text=_(u"Caixa de e-mail para onde o relatório diário de "
@@ -475,9 +484,10 @@ class Gescon(models.Model):
             )
         )
 
-        if self.palavras == "":
-            self.add_message(_(u"Nenhuma palavra de pesquisa definida - "
-                               u"processo abortado."), True)
+        if self.palavras == "" or self.orgaos_gestores == "":
+            self.add_message(_(u"Nenhuma palavra de pesquisa ou orgãos "
+                               u"gestores definidos - processo abortado."),
+                             True)
             return
 
         if self.subespecies == "":
@@ -497,6 +507,7 @@ class Gescon(models.Model):
             return
 
         palavras = self.palavras.split()
+        orgaos = self.orgaos_gestores.split()
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
 
         for sigla_gescon, sigla_sigi in subespecies:
@@ -537,9 +548,13 @@ class Gescon(models.Model):
             contratos = response.json()
 
             # Pegar só os contratos que possuem alguma das palavras-chave
-
+            # ou algum dos órgaos gestores
+            import ipdb; ipdb.set_trace()
             nossos = [c for c in contratos
-                      if any(palavra in c['objeto'] for palavra in palavras)]
+                      if any(palavra in c['objeto'] for palavra in palavras) or
+                         any(orgao in c['orgaosGestoresTitulares']
+                             for orgao in orgaos
+                             if c['orgaosGestoresTitulares'] is not None)]
 
             self.add_message(
                 _(u"\t{count} contratos encontrados no Gescon").format(
