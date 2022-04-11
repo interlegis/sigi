@@ -549,7 +549,7 @@ class Gescon(models.Model):
 
             # Pegar só os contratos que possuem alguma das palavras-chave
             # ou algum dos órgaos gestores
-            import ipdb; ipdb.set_trace()
+
             nossos = [c for c in contratos
                       if any(palavra in c['objeto'] for palavra in palavras) or
                          any(orgao in c['orgaosGestoresTitulares']
