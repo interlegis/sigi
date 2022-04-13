@@ -43,7 +43,8 @@ class Evento(models.Model):
         ('A', _(u"A confirmar")),
         ('O', _(u"Confirmado")),
         ('R', _(u"Realizado")),
-        ('C', _(u"Cancelado"))
+        ('C', _(u"Cancelado")),
+        ('Q', _(u"Arquivado")),
     )
 
     tipo_evento = models.ForeignKey(
