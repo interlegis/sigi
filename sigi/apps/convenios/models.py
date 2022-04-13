@@ -510,6 +510,10 @@ class Gescon(models.Model):
         orgaos = self.orgaos_gestores.split()
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
 
+        lista_cnpj = {re.sub("[^\d]", "", o.cnpj).zfill(14): o
+                 for o in Orgao.objects.exclude(cnpj="")
+                 if re.sub("[^\d]", "", o.cnpj) != ''}
+
         for sigla_gescon, sigla_sigi in subespecies:
             self.add_message(_(u"\nImportando subespécie {s}".format(
                 s=sigla_gescon)))
@@ -577,7 +581,7 @@ class Gescon(models.Model):
 
                 if contrato['cnpjCpfFornecedor']:
                     cnpj = contrato['cnpjCpfFornecedor'].zfill(14)
-                    cnpj = "{}.{}.{}/{}-{}".format(cnpj[:2], cnpj[2:5],
+                    cnpj_masked = "{}.{}.{}/{}-{}".format(cnpj[:2], cnpj[2:5],
                                                    cnpj[5:8], cnpj[8:12],
                                                    cnpj[12:])
                 else:
@@ -605,11 +609,15 @@ class Gescon(models.Model):
                 orgao = None
 
                 if cnpj is not None:
-                    try:
-                        orgao = Orgao.objects.get(cnpj=cnpj)
-                    except (
-                        Orgao.DoesNotExist,
-                        Orgao.MultipleObjectsReturned) as e:
+                    if cnpj in lista_cnpj:
+                        orgao = lista_cnpj[cnpj]
+                    else:
+                        try:
+                            orgao = Orgao.objects.get(cnpj=cnpj_masked)
+                        except (
+                            Orgao.DoesNotExist,
+                            Orgao.MultipleObjectsReturned
+                        ) as e:
                             orgao = None
                             pass
 
