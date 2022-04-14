@@ -1,5 +1,5 @@
 upstream sigi_app_server {
-    server unix:/var/run/sigi/sigi.sock fail_timeout=0;
+    server unix:/srv/interlegis/socks/sigi.sock fail_timeout=0;
 }
 
 server {
@@ -12,11 +12,11 @@ server {
     error_log /var/log/sigi/sigi-error.log;
 
     location /static/ {
-        alias /srv/sigi/static/;
+        alias /srv/interlegis/sigi/static/;
     }
 
     location /media/ {
-        alias /srv/sigi/media/;
+        alias /srv/interlegis/sigi/media/;
     }
 
     location / {

@@ -10,12 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import environ
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent
 
+env = environ.Env()
+env.read_env(BASE_DIR / ".env")
+
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = env('SECRET_KEY', default="Unsafe")
+
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = env('DEBUG', default=False, cast=bool)
+
+ALLOWED_HOSTS = ['*']
+
+INTERNAL_IPS = ["127.0.0.1",]
+
+ADMINS = env('ADMINS', eval)
 
 # Application definition
 
@@ -36,7 +51,6 @@ INSTALLED_APPS = [
     'django.forms',
     'material',
     'material.admin',
-    # 'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -54,6 +68,28 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if DEBUG:
+    INSTALLED_APPS = ['debug_toolbar',] + INSTALLED_APPS
+    MIDDLEWARE = ['debug_toolbar.middleware.DebugToolbarMiddleware',] + \
+        MIDDLEWARE
+
+EMAIL_PORT=env("EMAIL_PORT", int, default=25)
+EMAIL_HOST=env("EMAIL_HOST", default="")
+EMAIL_HOST_USER=env("EMAIL_HOST_USER", default="")
+EMAIL_HOST_PASSWORD=env("EMAIL_HOST_PASSWORD", default="")
+EMAIL_SUBJECT_PREFIX=env("EMAIL_SUBJECT_PREFIX", default="[SIGI]")
+EMAIL_USE_LOCALTIME=env("EMAIL_USE_LOCALTIME", bool, default=False)
+EMAIL_USE_TLS=env("EMAIL_USE_TLS", bool, default=False)
+EMAIL_USE_SSL=env("EMAIL_USE_SSL", bool, default=False)
+EMAIL_TIMEOUT=env("EMAIL_TIMEOUT", int, default=None)
+
+# Database
+# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
+
+DATABASES = {
+    'default': env.db(),
+}
 
 ROOT_URLCONF = 'sigi.urls'
 
@@ -94,13 +130,63 @@ USE_TZ = True
 
 USE_THOUSAND_SEPARATOR = True
 
+# Password validation
+# https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
+
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
+
+if env('AUTH_LDAP_SERVER_URI', default=None):
+    AUTHENTICATION_BACKENDS = [
+        "django_auth_ldap.backend.LDAPBackend",
+        "django.contrib.auth.backends.ModelBackend",
+    ]
+    from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
+    import ldap
+    AUTH_LDAP_SERVER_URI = env('AUTH_LDAP_SERVER_URI')
+    AUTH_LDAP_BIND_DN = env('AUTH_LDAP_BIND_DN')
+    AUTH_LDAP_BIND_PASSWORD = env('AUTH_LDAP_BIND_PASSWORD')
+    AUTH_LDAP_USER = env('AUTH_LDAP_USER')
+    AUTH_LDAP_USER_SEARCH = LDAPSearch(
+        AUTH_LDAP_USER,
+        ldap.SCOPE_SUBTREE,
+        env('AUTH_LDAP_USER_SEARCH_STRING')
+    )
+    AUTH_LDAP_GROUP = env('AUTH_LDAP_GROUP')
+    AUTH_LDAP_GROUP_SEARCH = LDAPSearch(
+        AUTH_LDAP_GROUP,
+        ldap.SCOPE_SUBTREE,
+        env('AUTH_LDAP_GROUP_SEARCH_STRING')
+    )
+    AUTH_LDAP_GROUP_TYPE = GroupOfNamesType(
+        name_attr=env('AUTH_LDAP_GROUP_TYPE_STRING')
+    )
+    AUTH_LDAP_USER_ATTR_MAP = env('AUTH_LDAP_USER_ATTR_MAP', cast=eval)
+    AUTH_LDAP_PROFILE_ATTR_MAP = env('AUTH_LDAP_PROFILE_ATTR_MAP', eval)
+    AUTH_LDAP_FIND_GROUP_PERMS = env('AUTH_LDAP_FIND_GROUP_PERMS', bool)
+    AUTH_LDAP_MIRROR_GROUPS = env('AUTH_LDAP_MIRROR_GROUPS', bool)
+    AUTH_LDAP_CACHE_GROUPS = env('AUTH_LDAP_CACHE_GROUPS', bool)
+    AUTH_LDAP_GROUP_CACHE_TIMEOUT = env('AUTH_LDAP_GROUP_CACHE_TIMEOUT', int)
+    AUTH_PROFILE_MODULE = env('AUTH_PROFILE_MODULE')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / "static",]
-STATIC_ROOT = '/var/www/sigi/static/'
+STATIC_ROOT = BASE_DIR / '../static/'
 
 # Media files
 # https://docs.djangoproject.com/en/4.0/topics/files/#managing-files
@@ -126,8 +212,6 @@ MATERIAL_ADMIN_SITE = {
     'HEADER':  _('SIGI - Sistema de Informações do Interlegis'),
     'TITLE':  _('SIGI'),
     'FAVICON':  'img/favicon.ico',
-    # 'MAIN_BG_COLOR':  'color',  # Admin site main color, css color should be specified
-    # 'MAIN_HOVER_COLOR':  'color',  # Admin site main hover color, css color should be specified
     'PROFILE_PICTURE':  'img/interlegis.jpeg',  # Admin site profile picture (path to static should be specified)
     'PROFILE_BG':  'img/engitec.jpeg',  # Admin site profile background (path to static should be specified)
     'LOGIN_LOGO':  'img/interlegis.jpeg',  # Admin site logo on login page (path to static should be specified)
@@ -135,15 +219,8 @@ MATERIAL_ADMIN_SITE = {
     'SHOW_THEMES':  False,  #  Show default admin themes button
     'TRAY_REVERSE': False,  # Hide object-tools and additional-submit-line by default
     'NAVBAR_REVERSE': False,  # Hide side navbar by default
-    # 'SHOW_COUNTS': True, # Show instances counts for each model
-    # 'APP_ICONS': {  # Set icons for applications(lowercase), including 3rd party apps, {'application_name': 'material_icon_name', ...}
-    #     'sites': 'send',
-    # },
-    # 'MODEL_ICONS': {  # Set icons for models(lowercase), including 3rd party models, {'model_name': 'material_icon_name', ...}
-    #     'site': 'contact_mail',
-    # }
 }
 
 # SIGI specific settings
 
-MENU_FILE = BASE_DIR / 'settings/menu_conf.yaml'
+MENU_FILE = BASE_DIR / 'menu_conf.yaml'

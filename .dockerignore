@@ -1,0 +1,15 @@
+media
+data
+env
+static
+.git
+.gitignore
+*.log
+~*
+*.pyc
+.cache
+.project
+.vscode
+.travis.yml
+.env
+.idea

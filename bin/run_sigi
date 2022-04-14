@@ -1,28 +1,26 @@
 #!/bin/bash
 
+# This script expects the following ENV variables:
+# $SOCKS : Path to the dir that holds unix socket file
+#           - Defined as /srv/interlegis/socks in Dockerfile
+# $HOME  : Path to app home work dir.
+#           - Defined as /srv/interlegis/sigi in Dockerfile
+
 NAME="sigi"
-DJANGODIR=/srv/sigi
-VENVDIR=/srv/.virtualenvs/sigi/bin
-SOCKFILE=/var/run/sigi/sigi.sock
-USER=sigi
-GROUP=sigi
+SOCKFILE=$SOCKS/sigi.sock
 NUM_WORKERS=3 # = 2 * CPUs + 1
 DJANGO_SETTINGS_MODULE=sigi.settings
 DJANGO_WSGI_MODULE=sigi.wsgi
 
 echo "Starting $NAME as `whoami`"
 
-cd $DJANGODIR
+cd ${HOME}
 export DJANGO_SETTINGS_MODULE=$DJANGO_SETTINGS_MODULE
-export PYTHONPATH=$DJANGODIR:$PYTHONPATH
+export PYTHONPATH=${HOME}:$PYTHONPATH
 
-RUNDIR=$(dirname $SOCKFILE)
-test -d $RUNDIR || mkdir -p $RUNDIR
-
-exec ${VENVDIR}/gunicorn ${DJANGO_WSGI_MODULE}:application \
+exec gunicorn ${DJANGO_WSGI_MODULE}:application \
 --name $NAME \
 --workers $NUM_WORKERS \
---user=$USER --group=$GROUP \
 --log-level=debug \
 --timeout=180 \
 --graceful-timeout=180 \

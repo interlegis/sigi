@@ -1,11 +1,14 @@
+gunicorn==20.1.0
 ipython==8.2.0
 Pillow==9.1.0
-psycopg2==2.9.3
+psycopg2-binary==2.9.3
 requests==2.27.1
 weasyprint==54.3
 Django==4.0.3
+django-auth-ldap==4.0.0
+django-environ==0.8.1
 django-extensions==3.1.5
-django-import-export==2.7.1
+django-import-export==2.8.0
 django-localflavor==3.1
 django-material-admin==1.8.6
 django-tinymce==3.4.0

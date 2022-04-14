@@ -1,0 +1,34 @@
+version: "3.3"
+
+services:
+  sigidb:
+    image: postgres:alpine3.15
+    volumes:
+      - ../data/db:/var/lib/postgresql/data
+    environment:
+      - LANG=pt_BR.UTF-8
+      - POSTGRES_NAME=sigi
+      - POSTGRES_USER=sigi
+      - POSTGRES_PASSWORD=sigi
+      - PGDATA=/var/lib/postgresql/data
+    networks:
+      - sigi-net
+  sigi:
+    build:
+      context: ${PWD}/
+      dockerfile: docker/Dockerfile
+    ports:
+      - "8000:80"
+    volumes:
+      - ../data/media:/srv/interlegis/sigi/media
+    environment:
+      - LANG=pt_BR.UTF-8
+      - DATABASE_URL=psql://sigi:sigi@sigidb:5432/sigi
+    depends_on:
+      - sigidb
+    networks:
+      - sigi-net
+networks:
+  sigi-net:
+    name: sigi-net
+    driver: bridge
