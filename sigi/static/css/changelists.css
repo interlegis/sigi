@@ -1,0 +1,22 @@
+.side-wrapper {
+  width: 100%;
+}
+#changelist {
+  width:100%
+}
+
+.float-filter {
+  right: 0;
+  left: auto;
+  position: fixed;
+  width: 300px;
+  top: 0;
+  margin: 0;
+  height: calc(100% + 60px);
+  padding-bottom: 60px;
+  background-color: #fff;
+  z-index: 999;
+  overflow-y: auto;
+  will-change: transform;
+  backface-visibility: hidden;
+}
