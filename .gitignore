@@ -37,7 +37,8 @@ fotos
 *.db
 db.*
 /media
-/static/
+/static
+/data
 
 # Ignoring IDE's files
 .idea/
