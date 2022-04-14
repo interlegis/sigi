@@ -17,7 +17,7 @@ function setlinks() {
   $('.modal').modal();
   $('.dropdown-trigger').dropdown();
   $('.collapsible').collapsible();
-  $("a[data-target]").off('click').on('click', function(e) {
+  $("a.dashlink[data-target]").off('click').on('click', function(e) {
     e.preventDefault();
     var $this = $(this);
     var target = $("#"+$this.attr('data-target'));

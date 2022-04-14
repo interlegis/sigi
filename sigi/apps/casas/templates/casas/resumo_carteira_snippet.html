@@ -19,13 +19,13 @@
       <div class="collapsible-body">
         <ul>
           <li>
-            <a href="{% url "casas-carteira" %}?servidor=_all&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
+            <a class="dashlink" href="{% url "casas-carteira" %}?servidor=_all&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
               {% trans "Todo o Interlegis" %}
             </a>
           </li>
           {% for g in gerentes %}
             <li>
-              <a href="{% url "casas-carteira" %}?servidor={{ g.pk|safe }}&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
+              <a class="dashlink" href="{% url "casas-carteira" %}?servidor={{ g.pk|safe }}&snippet={{ snippet }}&s={{ seletor }}" data-target="card-carteira">
                 {{g.nome_completo }}
               </a>
             </li>

@@ -18,13 +18,13 @@
     <div class="collapsible-body">
       <ul>
         <li>
-          <a href="{% url "home_chartperformance" %}?servidor=_all" data-target="performance-chart">
+          <a class="dashlink" href="{% url "home_chartperformance" %}?servidor=_all" data-target="performance-chart">
             {% trans "Todo o Interlegis" %}
           </a>
         </li>
         {% for g in gerentes %}
           <li>
-            <a href="{% url "home_chartperformance" %}?servidor={{ g.pk|safe }}" data-target="performance-chart">
+            <a class="dashlink" href="{% url "home_chartperformance" %}?servidor={{ g.pk|safe }}" data-target="performance-chart">
               {{g.nome_completo }}
             </a>
           </li>
