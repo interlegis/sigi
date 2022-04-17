@@ -1,3 +1,14 @@
+admin_menu:
+  - title: Superusuários
+    icon: settings
+    children:
+    - title: Usuários
+      view_name: admin:auth_user_changelist
+    - title: Grupos
+      view_name: admin:auth_group_changelist
+    - title: Importar Gescon
+      view_name: importar-gescon
+
 main_menu:
   - title: Municípios
     icon: location_city

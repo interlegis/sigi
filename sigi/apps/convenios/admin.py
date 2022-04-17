@@ -94,7 +94,7 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
         'report_convenios_camaras',
         'report_convenios_assembleia',
     ]
-    
+
     def get_queryset(self, request):
         queryset = super(ConvenioAdmin, self).get_queryset(request)
         print (queryset)
@@ -222,8 +222,8 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
 
 @admin.register(Gescon)
 class GesconAdmin(admin.ModelAdmin):
-    list_display = ('url_gescon', 'email', 'ultima_importacao')
-    readonly_fields = ('ultima_importacao',)
+    list_display = ('url_gescon', 'email',)
+    exclude = ['ultima_importacao',]
 
 admin.site.register(Projeto)
 admin.site.register(StatusConvenio)

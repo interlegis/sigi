@@ -1,18 +1,42 @@
 {% extends 'admin/base_site.html' %}
 {% load i18n %}
 
-{% block content_title %}<h1>{% trans 'Importar dados do Gescon' %}</h1>{% endblock %}
-{% block object-tools-items %}
-<li class="nav-item"><a class="nav-link active" href="{% url 'importar-gescon' %}?action=importar">Importar</a></li>
-<li class="nav-item"><a class="nav-link" href="{% url 'admin:convenios_gescon_change' gescon.id %}">Configurações</a></li>
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+  <h6>{% trans 'Importar dados do Gescon' %}</h6>
+</div>
 {% endblock %}
+
+{% block object-tools-items %}{% endblock %}
+
 {% block content %}
+<div class="module filtered" id="changelist">
+  <p class="paginator"></p>
+  <ul class="pagination">
+    <li class="active">
+      <a href="{% url 'importar-gescon' %}?action=importar">
+        <i class="material-icons left">cloud_download</i>
+        {% trans "Importar" %}
+      </a>
+    </li>
+    <li  class="active">
+      <a href="{% url 'admin:convenios_gescon_change' gescon.id %}">
+        <i class="material-icons left">perm_data_setting</i>
+        {% trans "Configurações" %}
+      </a>
+    </li>
+  </ul>
   {% if gescon.ultima_importacao %}
+  <blockquote>
     <pre><code>{{ gescon.ultima_importacao }}</code></pre>
+  </blockquote>
   {% else %}
     {% blocktrans %}
-    <p class="alert alert-danger"><strong>Nenhuma importação anterior foi realizada!</strong></p>
-    <p class="">Configure a conexão com o Gescon para realizar a primeira importação.</p>
+    <blockquote>
+      <p><strong>Nenhuma importação anterior foi realizada!</strong></p>
+      <p>Configure a conexão com o Gescon para realizar a primeira importação.</p>
+    </blockquote>
     {% endblocktrans %}
   {% endif %}
+</div>
 {% endblock %}

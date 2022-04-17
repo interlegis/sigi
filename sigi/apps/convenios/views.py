@@ -2,7 +2,8 @@ import csv
 
 import datetime
 # from django.contrib import messages
-# from django.http.response import HttpResponseForbidden
+from django.contrib import admin
+from django.http.response import HttpResponseForbidden
 # from django.conf import settings
 # from django.core.paginator import Paginator, InvalidPage, EmptyPage
 # from django.http import HttpResponse, HttpResponseRedirect
@@ -129,6 +130,22 @@ def casas_estado_to_tabela(casas, convenios, regiao):
         "sumario": sumario,
     }
 
+@login_required
+def importar_gescon(request):
+    if not request.user.is_superuser:
+        return HttpResponseForbidden()
+
+    context = admin.site.each_context(request)
+
+    action = request.GET.get('action', "")
+    gescon = Gescon.load()
+
+    if action == 'importar':
+        gescon.importa_contratos()
+
+    context['gescon'] = gescon
+
+    return render(request, "convenios/importar_gescon.html", context)
 
 
 
@@ -381,16 +398,4 @@ def export_csv(request):
 
     return response
 
-@login_required
-def importar_gescon(request):
-    if not request.user.is_superuser:
-        return HttpResponseForbidden()
-
-    action = request.GET.get('action', "")
-    gescon = Gescon.load()
-
-    if action == 'importar':
-        gescon.importa_contratos()
-
-    return render(request, "convenios/importar_gescon.html", {'gescon': gescon})
 """

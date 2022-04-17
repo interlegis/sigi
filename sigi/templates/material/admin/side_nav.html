@@ -16,6 +16,9 @@
       </div>
       </div>
     </li>
+    {% if user.is_superuser %}
+      {% show_menu 'admin_menu' %}
+    {% endif %}
     {% show_menu 'main_menu' %}
   </ul>
 </div>
