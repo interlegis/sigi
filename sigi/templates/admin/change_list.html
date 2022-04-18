@@ -11,7 +11,7 @@
 {% block breadcrumbs %}
   {% block search %}{% search_form cl %}{% endblock %}
   <form id="changelist-form" method="post"{% if cl.formset.is_multipart %} enctype="multipart/form-data"{% endif %} novalidate>{% csrf_token %}
-    <div class="breadcrumbs">
+    <div class="">
       <div id="changelist-form">
       {% if action_form and actions_on_top and cl.show_admin_actions %}
         {% admin_actions %}
