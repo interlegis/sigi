@@ -3,6 +3,8 @@ from sigi.apps.eventos import views
 
 urlpatterns = [
     path('calendario/', views.calendario, name='eventos-calendario'),
+    path('evento/<int:id>/declaracao/', views.declaracao,
+        name='evento-declaracao'),
 ]
 
 # from django.conf.urls import patterns, url

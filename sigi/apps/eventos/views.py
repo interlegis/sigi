@@ -1,9 +1,14 @@
 import calendar
 import datetime
 import locale
+from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.http import HttpResponse
+from django.shortcuts import render, get_object_or_404
+from django.template import Template, Context
 from django.utils.translation import to_locale, get_language, gettext as _
+from django_weasyprint.utils import django_url_fetcher
+from weasyprint import HTML
 from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
 from sigi.apps.eventos.forms import SelecionaModeloForm
 from sigi.apps.servidores.models import Servidor
@@ -400,36 +405,42 @@ def calendario(request):
 
 #     return response
 
-# @login_required
-# def declaracao(request, id):
-#     if request.method == 'POST':
-#         form = SelecionaModeloForm(request.POST)
-#         if form.is_valid():
-#             evento = get_object_or_404(Evento, id=id)
-#             modelo = form.cleaned_data['modelo']
-#             template_string = (
-#                 """
-#                 {% extends "eventos/declaracao_pdf.html" %}
-#                 {% block text_body %}""" +
-#                 modelo.texto + """
-#                 {% endblock %}
-#                 """
-#             )
-#             context = Context(
-#                 {'pagesize': modelo.formato,
-#                  'pagemargin': modelo.margem,
-#                  'evento': evento,
-#                  'data': datetime.date.today(),
-#                 }
-#             )
-#             template = Template(template_string)
-#             # return HttpResponse(template.render(context))
-#             return pdf_renderer(template, context, 'declaracao.pdf')
-#     else:
-#         form = SelecionaModeloForm()
+@login_required
+def declaracao(request, id):
+    if request.method == 'POST':
+        form = SelecionaModeloForm(request.POST)
+        if form.is_valid():
+            evento = get_object_or_404(Evento, id=id)
+            modelo = form.cleaned_data['modelo']
+            template_string = (
+                """
+                {% extends "eventos/declaracao_pdf.html" %}
+                {% block text_body %}""" +
+                modelo.texto + """
+                {% endblock %}
+                """
+            )
+            context = Context({
+                'pagesize': modelo.formato,
+                'pagemargin': modelo.margem,
+                'evento': evento,
+                'data': datetime.date.today(),
+            })
+            string = Template(template_string).render(context)
+            # return HttpResponse(string)
+            response = HttpResponse(headers={
+                'Content-Type': "application/pdf",
+                'Content-Disposition': 'attachment; filename="declaração.pdf"'
+            })
+            pdf = HTML(string=string, url_fetcher=django_url_fetcher,
+                 encoding="utf-8", base_url=request.build_absolute_uri('/'))
+            pdf.write_pdf(target=response)
+            return response
+    else:
+        form = SelecionaModeloForm()
 
-#     return render(
-#         request,
-#         'eventos/seleciona_modelo.html',
-#         {'form': form, 'evento_id': id}
-#     )
+    context = site.each_context(request)
+    context['form'] = form
+    context['evento_id'] = id
+
+    return render(request, 'eventos/seleciona_modelo.html', context)

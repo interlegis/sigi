@@ -21,18 +21,17 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
     list_display = ('nome', 'formato')
     formfield_overrides = {HTMLField: {'widget': AdminTinyMCE}}
 
-
-class EquipeInline(admin.TabularInline):
+class EquipeInline(admin.StackedInline):
     model = Equipe
 
-class ConviteInline(admin.TabularInline):
+class ConviteInline(admin.StackedInline):
     model = Convite
     raw_id_fields = ('casa',)
 
-class ModuloInline(admin.TabularInline):
+class ModuloInline(admin.StackedInline):
     model = Modulo
 
-class AnexoInline(admin.TabularInline):
+class AnexoInline(admin.StackedInline):
     model = Anexo
     exclude = ('data_pub',)
 
