@@ -21,7 +21,6 @@ from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
 class OrgaoExportResourse(LabeledResourse):
     presidente = Field(column_name='presidente')
     telefone = Field(column_name='telefone')
-    num_parlamentares = Field(column_name='num_parlamentares')
     # servicos_seit = Field(column_name='servicos_seit')
     contato = Field(column_name='contato')
     class Meta:
@@ -29,8 +28,7 @@ class OrgaoExportResourse(LabeledResourse):
         fields = ('municipio__codigo_ibge', 'cnpj', 'municipio__codigo_tse',
                   'nome', 'municipio__nome', 'municipio__uf__sigla',
                   'presidente', 'logradouro', 'bairro', 'cep', 'telefone',
-                  'pagina_web', 'email', 'num_parlamentares',
-                  'ult_alt_endereco', 'contato')
+                  'pagina_web', 'email', 'ult_alt_endereco', 'contato')
         export_order = fields
 
     def dehydrate_presidente(self, orgao):
@@ -38,9 +36,6 @@ class OrgaoExportResourse(LabeledResourse):
 
     def dehydrate_telefone(self, orgao):
         return orgao.telefone
-
-    def dehydrate_num_parlamentares(self, orgao):
-        return orgao.num_parlamentares
 
     # def dehydrate_servicos_seit(self, orgao):
     #     servicos = [s.tipo_servico.nome for s in orgao.servico_set.filter(
@@ -262,8 +257,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     queryset = queryset_ascii
     fieldsets = (
         (None, {
-            'fields': ('tipo', 'nome', 'sigla', 'cnpj', 'num_parlamentares',
-                       'gerentes_interlegis')
+            'fields': ('tipo', 'nome', 'sigla', 'cnpj', 'gerentes_interlegis')
         }),
         (_('Endereço'), {
             'fields': ('data_instalacao', 'logradouro', 'bairro',
@@ -278,7 +272,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         }),
     )
     raw_id_fields = ('municipio',)
-    readonly_fields = ['num_parlamentares', 'gerentes_interlegis',]
+    readonly_fields = ['gerentes_interlegis',]
     search_fields = ('search_text', 'sigla', 'cnpj', 'bairro', 'logradouro',
                      'cep', 'municipio__nome', 'municipio__uf__nome',
                      'municipio__codigo_ibge', 'pagina_web', 'observacoes')

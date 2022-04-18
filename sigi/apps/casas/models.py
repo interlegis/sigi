@@ -148,9 +148,7 @@ class Orgao(models.Model):
 
     @property
     def num_parlamentares(self):
-        if not self.legislatura_set.exists():
-            return 0
-        return self.legislatura_set.latest('data_inicio').total_parlamentares
+        return 0
 
     @property
     def telefone(self):
