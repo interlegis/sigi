@@ -1,10 +1,12 @@
-{% extends "base_change_form.html" %}
+{% extends "admin/change_form.html" %}
 {% load i18n %}
 
 {% block object-tools-items %}
-    <li><a href="declaracao/">
-        <span class="glyphicon glyphicon-print"></span>
-        {% trans 'Declaração' %}
-    </a></li>
-    {{ block.super }}
+  <div class="collection-item">
+    <a href="{% url 'evento-declaracao' object_id %}">
+      <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+      {% trans "Declaração" %}
+    </a>
+  </div>
+  {{ block.super }}
 {% endblock %}

@@ -1,44 +1,50 @@
-{% extends 'base_change_form.html' %}
+{% extends 'admin/change_form.html' %}
 {% load i18n %}
 
 {% block form_top %}
-{% if adminform.form.instance.user %}
-<fieldset style="background:transparent" id="fieldset-2" class="_module _aligned">
-    <legend>
-        {% trans 'Dados do LDAP' %}
-    </legend>
-    <div class="fields">
-        <div class="row"><div class="control-group">
-                <div class="col-md-12 form-group ">
-                        <div class="control-label col-md-3">
-                            <label>{% trans 'Primeiro Nome' %}:</label>
-                        </div>
-                        <div class="controls col-md-9">
-                            <p class="form-control-static">{{adminform.form.instance.user.first_name}}</p>
-                        </div>
+  {% if adminform.form.instance.user %}
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{% trans 'Dados do LDAP' %}</span>
+        <fieldset id="fieldset-ldap-fields" class="_module _aligned">
+          <div class="fields">
+            <div class="control-group">
+              <div class="form-group">
+                <div class="control-label">
+                  <label>{% trans 'Primeiro Nome' %}:</label>
                 </div>
-        </div></div>
-        <div class="row"><div class="control-group">
-                <div class="col-md-12 form-group ">
-                        <div class="control-label col-md-3">
-                            <label>{% trans 'Último Nome' %}:</label>
-                        </div>
-                        <div class="controls col-md-9">
-                            <p class="form-control-static">{{adminform.form.instance.user.last_name}}</p>
-                        </div>
+                <div class="controls">
+                  <p class="form-control-static">
+                    {{adminform.form.instance.user.first_name}}
+                  </p>
                 </div>
-        </div></div>
-        <div class="row"><div class="control-group">
-                <div class="col-md-12 form-group ">
-                        <div class="control-label col-md-3">
-                            <label>{% trans 'Email Principal' %}:</label>
-                        </div>
-                        <div class="controls col-md-9">
-                            <p class="form-control-static">{{adminform.form.instance.user.email}}</p>
-                        </div>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="form-group">
+                <div class="control-label">
+                  <label>{% trans 'Último Nome' %}:</label>
                 </div>
-        </div></div>
+                <div class="controls">
+                  <p class="form-control-static">
+                    {{adminform.form.instance.user.last_name}}
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div class="control-group">
+              <div class="form-group">
+                <div class="control-label">
+                  <label>{% trans 'Email Principal' %}:</label>
+                </div>
+                <div class="controls">
+                  <p class="form-control-static">{{adminform.form.instance.user.email}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </fieldset>
+      </div>
     </div>
-</fieldset>
-{% endif %}
+  {% endif %}
 {% endblock %}
