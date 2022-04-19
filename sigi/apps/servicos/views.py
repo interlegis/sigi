@@ -163,7 +163,7 @@ def adicionar_servicos_carrinho(request, queryset=None, id=None):
             if id not in lista:
                 lista.append(id)
         request.session['carrinho_servicos'] = lista
-        
+
 def carrinhoOrGet_for_qs(request):
     """
        Verifica se existe convênios na sessão se não verifica get e retorna qs correspondente.
@@ -248,7 +248,7 @@ def visualizar_carrinho(request):
             'query_str': '?' + request.META['QUERY_STRING']
         }
     )
-    
+
 def get_for_qs(get, qs):
     kwargs = {}
     ids = 0
@@ -283,7 +283,8 @@ def export_csv(request):
         return HttpResponseRedirect('../')
 
     atributos = [_(u"Casa Legislativa"), _(u"Contato Interlegis"), _(u"Produto"),
-                 _(u"Data de Ativação"), ]
+                 _(u"Data de Ativação"), _(u"Data da Última Atualização"),
+                 _(u"Erro na atualização"),]
 
     if request.POST:
         atributos = request.POST.getlist("itens_csv_selected")
@@ -296,11 +297,11 @@ def export_csv(request):
         col_titles.insert(pos, _(u"email"))
         pos+=1
         col_titles.insert(pos, _(u"telefone"))
-    
+
     if _(u"Contato Interlegis") in col_titles:
         pos = col_titles.index(_(u"Contato Interlegis")) + 1
         col_titles.insert(pos, _(u"Email do contato"))
-        
+
     csv_writer.writerow([s.encode("utf-8") for s in col_titles])
 
     for servico in servicos:
@@ -328,6 +329,13 @@ def export_csv(request):
                 if servico.data_ativacao:
                     data = servico.data_ativacao.strftime("%d/%m/%Y")
                 lista.append(data.encode("utf-8"))
+            elif _(u"Data da Última Atualização") == atributo:
+                if servico.data_ultimo_uso:
+                    lista.append(servico.data_ultimo_uso.strftime("%d/%m/%Y").encode("utf-8"))
+                else:
+                    lista.append("")
+            elif _(u"Erro na atualização") == atributo:
+                lista.append(servico.erro_atualizacao.encode("utf-8"))
             else:
                 pass
 
