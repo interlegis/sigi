@@ -13,9 +13,16 @@ from django.urls import path
 from django.utils.translation import gettext as _, ngettext
 from import_export import resources
 from import_export.admin import ExportMixin
+from import_export.fields import Field
 from import_export.forms import ExportForm
 from import_export.signals import post_export
 from sigi.apps.utils import field_label
+
+class ValueField(Field):
+    def get_value(self, obj):
+        if self.attribute is None:
+            return None
+        return obj[self.attribute]
 
 class ExportFormFields(ExportForm):
    def __init__(self, formats, field_list, *args, **kwargs):
@@ -50,6 +57,13 @@ class LabeledResourse(resources.ModelResource):
     def export(self, queryset=None, selected_fields=None, *args, **kwargs):
         self.selected_fields = selected_fields
         return super().export(queryset, *args, **kwargs)
+
+class ValueLabeledResource(LabeledResourse):
+    DEFAULT_RESOURCE_FIELD = ValueField
+
+    def export(self, queryset=None, selected_fields=None, *args, **kwargs):
+        queryset = queryset.values(*selected_fields)
+        return super().export(queryset, selected_fields, *args, **kwargs)
 
 class CartExportMixin(ExportMixin):
     to_encoding = 'utf-8'

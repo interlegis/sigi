@@ -1,10 +1,14 @@
 import string
 from math import log10
 from django import forms
+from django.db.models import Q
 from django.contrib import admin
 from django.contrib.admin.options import IncorrectLookupParameters
 from django.utils.translation import ngettext, gettext as _
 from django.core.exceptions import ValidationError
+
+class NotEmptyableField(Exception):
+    pass
 
 
 class AlphabeticFilter(admin.SimpleListFilter):
@@ -19,6 +23,70 @@ class AlphabeticFilter(admin.SimpleListFilter):
             return queryset.filter(
                 (self.parameter_name + '__istartswith', self.value())
             )
+
+class EmptyFilter(admin.FieldListFilter):
+    EMPTY_STRING = _("Em branco")
+    NOT_EMPTY_STRING = _("Preenchido")
+
+    def __init__(self, field, request, params, model, model_admin, field_path):
+        self.model = model
+        self.model_admin = model_admin
+        self.parameter_name = f'{field_path}__empty'
+
+        if (not field.null) and (not field.blank):
+            raise NotEmptyableField(
+                f"Field {field.name} cannot be empty nor null"
+            )
+
+        super().__init__(field, request, params, model, model_admin, field_path)
+
+    def lookups(self):
+        return (
+            ("1", self.EMPTY_STRING),
+            ("0", self.NOT_EMPTY_STRING),
+        )
+
+    def value(self):
+        return self.used_parameters.get(self.parameter_name)
+
+    def choices(self, changelist):
+        yield {
+            'selected': self.value() is None,
+            'query_string': changelist.get_query_string(remove=[
+                self.parameter_name]),
+            'display': _('All'),
+        }
+
+        for value, display in self.lookups():
+            yield {
+                'selected': self.value() == value,
+                'query_string': changelist.get_query_string(
+                    {self.parameter_name: value}),
+                'display': display,
+            }
+
+    def expected_parameters(self):
+        return [self.parameter_name,]
+
+    def queryset(self, request, queryset):
+        val = self.value()
+
+        if val is None:
+            return queryset
+
+        val = bool(int(val))
+
+        filter = Q()
+
+        if self.field.null:
+            filter = filter | Q(**{f"{self.field_path}__isnull": val})
+        if self.field.blank:
+            if val:
+                filter = filter | Q(**{f"{self.field_path}__exact": ""})
+            else:
+                filter = filter | ~Q(**{f"{self.field_path}__exact": ""})
+
+        return queryset.filter(filter)
 
 class RangeFilter(admin.FieldListFilter):
     num_faixas = 4

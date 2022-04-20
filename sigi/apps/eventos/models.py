@@ -1,3 +1,4 @@
+import re
 from datetime import datetime
 from django.db import models
 from django.db.models import Sum
@@ -33,11 +34,14 @@ class TipoEvento(models.Model):
 
 class Evento(models.Model):
     STATUS_CHOICES = (
+        ('E', _(u"Em planejamento")),
+        ('G', _(u"Aguardando abertura SIGAD")),
         ('P', _("Previsão")),
         ('A', _("A confirmar")),
         ('O', _("Confirmado")),
         ('R', _("Realizado")),
-        ('C', _("Cancelado"))
+        ('C', _("Cancelado")),
+        ('Q', _("Arquivado")),
     )
 
     tipo_evento = models.ForeignKey(
@@ -48,6 +52,18 @@ class Evento(models.Model):
     descricao = models.TextField(_("Descrição do evento"))
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_("Solicitante"), max_length=100)
+    num_processo = models.CharField(
+        _(u'número do processo SIGAD'),
+        max_length=20,
+        blank=True,
+        help_text=_(u'Formato:<em>XXXXX.XXXXXX/XXXX-XX</em>')
+    )
+    data_pedido = models.DateField(
+        _(u"Data do pedido"),
+        null=True,
+        blank=True,
+        help_text=_(u"Data em que o pedido do Gabinete chegou à COPERI")
+    )
     data_inicio = models.DateTimeField(
         _("Data/hora do Início"),
         null=True,
@@ -74,6 +90,7 @@ class Evento(models.Model):
         on_delete=models.PROTECT
     )
     local = models.TextField(_("Local do evento"), blank=True)
+    observacao = models.TextField(_(u"Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)
     total_participantes = models.PositiveIntegerField(
         _("Total de participantes"),
@@ -96,6 +113,20 @@ class Evento(models.Model):
             f"de {self.data_inicio} a {self.data_termino}"
         )
 
+    def get_sigad_url(self):
+        m = re.match('(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>'
+                     '\d{4})-\d{2}', self.num_processo)
+        if m:
+            return ('<a href="https://intra.senado.leg.br/'
+                    'sigad/novo/protocolo/impressao.asp?area=processo'
+                    '&txt_numero_orgao={orgao}'
+                    '&txt_numero_sequencial={sequencial}'
+                    '&txt_numero_ano={ano}"'
+                    ' target="_blank">{processo}</a>').format(
+                        processo=self.num_processo,**m.groupdict()
+            )
+        return self.num_processo
+
     def save(self, *args, **kwargs):
         if self.status != 'C':
             self.data_cancelamento = None
@@ -105,7 +136,7 @@ class Evento(models.Model):
                                     "data de início"))
         total = self.convite_set.aggregate(total=Sum('qtde_participantes'))
         total = total['total']
-        if (total is not None) or (total > 0):
+        if total and total > 0:
             self.total_participantes = total
         return super(Evento, self).save(*args, **kwargs)
 

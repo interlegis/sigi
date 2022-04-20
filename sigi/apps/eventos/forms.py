@@ -6,10 +6,10 @@ class EventoAdminForm(forms.ModelForm):
     class Meta:
         model = Evento
         fields = ('tipo_evento', 'nome', 'descricao', 'virtual', 'solicitante',
-                  'data_inicio', 'data_termino', 'carga_horaria',
-                  'casa_anfitria', 'municipio', 'local', 'publico_alvo',
-                  'total_participantes', 'status', 'data_cancelamento',
-                  'motivo_cancelamento', )
+                  'num_processo', 'data_pedido', 'data_inicio', 'data_termino',
+                  'carga_horaria', 'casa_anfitria', 'municipio', 'observacao',
+                  'local', 'publico_alvo', 'total_participantes', 'status',
+                  'data_cancelamento', 'motivo_cancelamento', )
 
     def clean(self):
         cleaned_data = super(EventoAdminForm, self).clean()

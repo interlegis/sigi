@@ -381,6 +381,15 @@ class Gescon(models.Model):
                     "<li>Ocorrendo qualquer uma das palavras, o contrato será "
                     "importado.</li></ul>")
     )
+    orgaos_gestores = models.TextField(
+        _("Órgãos gestores"),
+        default="SCCO",
+        help_text=_("Siglas de órgãos gestores que devem aparecer no campo"
+                    "ORGAOSGESTORESTITULARES"
+                    "<ul><li>Informe um sigla por linha.</li>"
+                    "<li>Ocorrendo qualquer uma das siglas, o contrato será "
+                    "importado.</li></ul>")
+    )
     email = models.EmailField(
         _("E-mail"),
         help_text=_("Caixa de e-mail para onde o relatório diário de "
@@ -429,16 +438,13 @@ class Gescon(models.Model):
     def importa_contratos(self):
         self.ultima_importacao = ""
         self.add_message(
-            _("Importação iniciada em {:%d/%m/%Y %H:%M:%S}\n"
-              "==========================================\n").format(
-                datetime.now()
-            )
+            _(f"Importação iniciada em {datetime.now():%d/%m/%Y %H:%M:%S}\n"
+              "==========================================================\n")
         )
 
-        if self.palavras == "":
-            self.add_message(_("Nenhuma palavra de pesquisa definida - "
-                               "processo abortado."), True)
-            return
+        if self.palavras == "" or self.orgaos_gestores == "":
+            self.add_message(_("Nenhuma palavra de pesquisa ou orgãos "
+                               "gestores definidos - processo abortado."), True)
 
         if self.subespecies == "":
             self.add_message(_("Nenhuma subespécie definida - processo "
@@ -457,11 +463,14 @@ class Gescon(models.Model):
             return
 
         palavras = self.palavras.split()
+        orgaos = self.orgaos_gestores.split()
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
+        lista_cnpj = {re.sub("[^\d]", "", o.cnpj).zfill(14): o
+                      for o in Orgao.objects.exclude(cnpj="")
+                      if re.sub("[^\d]", "", o.cnpj) != ''}
 
         for sigla_gescon, sigla_sigi in subespecies:
-            self.add_message(_("\nImportando subespécie {s}".format(
-                s=sigla_gescon)))
+            self.add_message(_(f"\nImportando subespécie {sigla_gescon}"))
             url = self.url_gescon.format(s=sigla_gescon)
 
             projeto = Projeto.objects.get(sigla=sigla_sigi)
@@ -469,42 +478,34 @@ class Gescon(models.Model):
             try:
                 response = requests.get(url, verify=False)
             except Exception as e:
-                self.add_message(
-                    _("\tErro ao acessar {url}: {errmsg}").format(
-                        url=url,
-                        errmsg=e.message.decode("utf8")
-                    )
-                )
+                self.add_message(_(f"\tErro ao acessar {url}: {e.message}"))
                 continue
 
             if not response.ok:
                 self.add_message(
-                    _("\tErro ao acessar {url}: {reason}").format(
-                        url=url,
-                        reason=response.reason
-                    )
+                    _(f"\tErro ao acessar {url}: {response.reason}")
                 )
                 continue
 
             if not 'application/json' in response.headers.get('Content-Type'):
-                self.add_message(_("\tResultado da consulta à {url} não "
-                                   "retornou dados em formato json").format(
-                                       url=url
-                                   )
-                )
+                self.add_message(_(f"\tResultado da consulta à {url} não "
+                                   "retornou dados em formato json"))
                 continue
 
             contratos = response.json()
 
             # Pegar só os contratos que possuem alguma das palavras-chave
 
-            nossos = [c for c in contratos
-                      if any(palavra in c['objeto'] for palavra in palavras)]
+            nossos = [
+                c for c in contratos
+                if any(palavra in c['objeto'] for palavra in palavras) or
+                   any(orgao in c['orgaosGestoresTitulares']
+                       for orgao in orgaos
+                       if c['orgaosGestoresTitulares'] is not None)
+            ]
 
             self.add_message(
-                _("\t{count} contratos encontrados no Gescon").format(
-                    count=len(nossos)
-                )
+                _(f"\t{len(nossos)} contratos encontrados no Gescon")
             )
 
             novos = 0
@@ -514,17 +515,14 @@ class Gescon(models.Model):
 
             for contrato in nossos:
                 numero = contrato['numero'].zfill(8)
-                numero = "{}/{}".format(numero[:4], numero[4:])
+                numero = f"{numero[:4]}/{numero[4:]}"
                 sigad = contrato['processo'].zfill(17)
-                sigad = "{}.{}/{}-{}".format(sigad[:5], sigad[5:11],
-                                             sigad[11:15], sigad[15:])
-
+                sigad = f"{sigad[:5]}.{sigad[5:11]}/{sigad[11:15]}-{sigad[15:]}"
 
                 if contrato['cnpjCpfFornecedor']:
                     cnpj = contrato['cnpjCpfFornecedor'].zfill(14)
-                    cnpj = "{}.{}.{}/{}-{}".format(cnpj[:2], cnpj[2:5],
-                                                   cnpj[5:8], cnpj[8:12],
-                                                   cnpj[12:])
+                    cnpj_masked = (f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/"
+                                   f"{cnpj[8:12]}-{cnpj[12:]}")
                 else:
                     cnpj = None
 
@@ -541,8 +539,8 @@ class Gescon(models.Model):
 
                 if (cnpj is None) and (nome is None):
                     self.add_message(
-                        _("\tO contrato {numero} no Gescon não informa o CNPJ "
-                          "nem o nome do órgão.").format(numero=numero)
+                        _(f"\tO contrato {numero} no Gescon não informa o CNPJ"
+                          "nem o nome do órgão.")
                     )
                     erros += 1
                     continue
@@ -550,13 +548,16 @@ class Gescon(models.Model):
                 orgao = None
 
                 if cnpj is not None:
-                    try:
-                        orgao = Orgao.objects.get(cnpj=cnpj)
-                    except (
-                        Orgao.DoesNotExist,
-                        Orgao.MultipleObjectsReturned) as e:
-                            orgao = None
-                            pass
+                    if cnpj in lista_cnpj:
+                        orgao = lista_cnpj[cnpj]
+                    else:
+                        try:
+                            orgao = Orgao.objects.get(cnpj=cnpj_masked)
+                        except (
+                            Orgao.DoesNotExist,
+                            Orgao.MultipleObjectsReturned) as e:
+                                orgao = None
+                                pass
 
                 if (orgao is None) and (nome is not None):
                     try:
@@ -569,14 +570,11 @@ class Gescon(models.Model):
 
                 if orgao is None:
                     self.add_message(
-                        _("\tÓrgão não encontrado no SIGI ou mais de um órgão"
-                          "encontrado com o mesmo CNPJ ou nome. Favor "
-                          "regularizar o cadastro: CNPJ: {cnpj}, "
-                          "Nome: {nome}".format(
-                              cnpj=contrato['cnpjCpfFornecedor'],
-                              nome=contrato['nomeFornecedor']
-                          )
-                        )
+                        _(f"\tÓrgão não encontrado no SIGI ou mais de um órgão"
+                          f"encontrado com o mesmo CNPJ ou nome. Favor "
+                          f"regularizar o cadastro: "
+                          f"CNPJ: {contrato['cnpjCpfFornecedor']}, "
+                          f"Nome: {contrato['nomeFornecedor']}")
                     )
                     erros += 1
                     continue
@@ -628,15 +626,9 @@ class Gescon(models.Model):
                     convenio.observacao_gescon = ''
                     if convenio.casa_legislativa != orgao:
                         self.add_message(
-                            _("\tO órgao no convênio {url} diverge do que "
-                              "consta no Gescon ({cnpj}, {nome})").format(
-                                  url=reverse('admin:%s_%s_change' % (
-                                      convenio._meta.app_label,
-                                      convenio._meta.model_name),
-                                              args=[convenio.id]),
-                                  cnpj=cnpj,
-                                  nome=contrato['nomeFornecedor']
-                              )
+                            _(f"\tO órgao no convênio {convenio.id} diverge do "
+                              f"que consta no Gescon ({cnpj}, "
+                              f"{contrato['nomeFornecedor']})")
                         )
                         convenio.observacao_gescon = _(
                             'ERRO: Órgão diverge do Gescon. Não atualizado!'
@@ -647,19 +639,12 @@ class Gescon(models.Model):
 
                     if convenio.num_processo_sf != sigad:
                         self.add_message(
-                            _("\tO contrato Gescon nº {numero} corresponde"
-                              " ao convênio SIGI {url}, mas o NUP sigad "
-                              "diverge (Gescon: {sigad_gescon}, "
-                              "SIGI: {sigad_sigi}). CORRIGIDO!").format(
-                                  numero=numero,
-                                  url=reverse('admin:%s_%s_change' % (
-                                      convenio._meta.app_label,
-                                      convenio._meta.model_name),
-                                              args=[convenio.id]),
-                                  sigad_gescon=sigad,
-                                  sigad_sigi=convenio.num_processo_sf
-                                  )
-                            )
+                            _(f"\tO contrato Gescon nº {numero} corresponde"
+                              f" ao convênio SIGI {convenio.id}, mas o NUP "
+                              f"sigad diverge (Gescon: {sigad}, "
+                              f"SIGI: {convenio.num_processo_sf}). "
+                              "CORRIGIDO!")
+                        )
                         convenio.num_processo_sf = sigad
                         convenio.observacao_gescon += _(
                             "Número do SIGAD atualizado.\n"
@@ -668,19 +653,11 @@ class Gescon(models.Model):
 
                     if convenio.num_convenio != numero:
                         self.add_message(
-                            _("\tO contrato Gescon ID {id} corresponde ao "
-                              "convênio SIGI {url}, mas o número do convênio"
-                              " diverge (Gescon: {numero_gescon}, SIGI: "
-                              "{numero_sigi}). CORRIGIDO!").format(
-                                  id=contrato['id'],
-                                  url=reverse('admin:%s_%s_change' % (
-                                      convenio._meta.app_label,
-                                      convenio._meta.model_name),
-                                              args=[convenio.id]
-                                  ),
-                                  numero_gescon=numero,
-                                  numero_sigi=convenio.num_convenio
-                              )
+                            _(f"\tO contrato Gescon ID {contrato['id']} "
+                              f"corresponde ao convênio SIGI {convenio.id}, "
+                              "mas o número do convênio diverge ("
+                              f"Gescon: {numero}, SIGI: {convenio.num_convenio}"
+                              "). CORRIGIDO!")
                         )
                         convenio.num_convenio = numero
                         convenio.observacao_gescon += _(
@@ -713,44 +690,28 @@ class Gescon(models.Model):
                         convenio.save()
                     except Exception as e:
                         self.add_message(
-                            _("Ocorreu um erro ao salvar o convênio {url} no "
-                              "SIGI. Alguma informação do Gescon pode ter "
-                              "quebrado o sistema. Informe ao suporte. Erro:"
-                              "{errmsg}").format(
-                                  url=reverse('admin:%s_%s_change' % (
-                                      convenio._meta.app_label,
-                                      convenio._meta.model_name),
-                                      args=[convenio.id]
-                                  ),
-                                  errmsg=e.message.decode("utf8")
-                              )
+                            _("Ocorreu um erro ao salvar o convênio "
+                              f"{convenio.id} no SIGI. Alguma informação do "
+                              "Gescon pode ter quebrado o sistema. Informe ao "
+                              f"suporte. Erro: {e.message}")
                         )
                         erros += 1
                         continue
 
                     atualizados += 1
                 else:
-                    self.add_message(_("\tExistem {count} convênios no SIGI "
-                                       "que correspondem ao mesmo contrato no "
-                                       "Gescon (contrato {numero}, sigad "
-                                       "{sigad})").format(
-                                           count=chk,
-                                           numero=numero,
-                                           sigad=sigad
-                                       )
+                    self.add_message(
+                        _(f"\tExistem {chk} convênios no SIGI que "
+                          "correspondem ao mesmo contrato no Gescon (contrato "
+                          f"{numero}, sigad {sigad})")
                     )
                     erros += 1
                     continue
 
             self.add_message(
-                _("\t{novos} novos convenios adicionados ao SIGI, "
-                  "{atualizados} atualizados, sendo {alertas} com alertas, e "
-                  "{erros} reportados com erro.").format(
-                      novos=novos,
-                      atualizados=atualizados,
-                      alertas=alertas,
-                      erros=erros
-                  )
+                _(f"\t{novos} novos convenios adicionados ao SIGI, "
+                  f"{atualizados} atualizados, sendo {alertas} com alertas, e "
+                  f"{erros} reportados com erro.")
             )
 
         self.save()
