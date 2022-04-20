@@ -97,7 +97,6 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
 
     def get_queryset(self, request):
         queryset = super(ConvenioAdmin, self).get_queryset(request)
-        print (queryset)
         return queryset
 
     def get_uf(self, obj):

@@ -104,9 +104,9 @@ class Command(BaseCommand):
         return result
 
     def sync_groups(self):
-        print "Syncing groups..."
+        print ("Syncing groups...")
         ldap_groups = self.get_ldap_groups()
-        print "\tFetched groups: %s" % len(ldap_groups)
+        print (f"\tFetched groups: {ldap_groups}")
         for ldap_group in ldap_groups:
             try:
                 group_name = ldap_group[1]['cn'][0]
@@ -118,13 +118,13 @@ class Command(BaseCommand):
                 except Group.DoesNotExist:
                     group = Group(name=group_name)
                     group.save()
-                    print "\tGroup '%s' created." % group_name
-        print "Groups are synchronized."
+                    print (f"\tGroup '{group_name}' created.")
+        print ("Groups are synchronized.")
 
     def sync_users(self):
-        print "Syncing users..."
+        print ("Syncing users...")
         ldap_users = self.get_ldap_users()
-        print "\tFetched users: %s" % len(ldap_users)
+        print (f"\tFetched users: {ldap_users}")
         def get_ldap_property(ldap_user, property_name, default_value=None):
             value = ldap_user[1].get(property_name, None)
             return value[0].decode('utf8') if value else default_value
@@ -142,8 +142,7 @@ class Command(BaseCommand):
                         user = User.objects.get(email=email)
                         old_username = user.username
                         user.username = username
-                        print "\tUser with email '%s' had his/her username updated from [%s] to [%s]." % (
-                            email, old_username, username)
+                        print (f"\tUser with email {email} had his/her username updated from [{old_username}] to [{username}].")
                     except User.DoesNotExist:
                         user = User.objects.create_user(
                             username=username,
@@ -151,17 +150,17 @@ class Command(BaseCommand):
                             last_name=last_name,
                             email=email,
                         )
-                        print "\tUser '%s' created." % username
+                        print (f"\tUser '{username}' created.")
 
                 if not user.first_name == first_name:
                     user.first_name = first_name
-                    print "\tUser '%s' first name updated." % username
+                    print (f"\tUser '{username}' first name updated.")
                 if not user.last_name == last_name:
                     user.last_name = last_name
-                    print "\tUser '%s' last name updated." % username
+                    print (f"\tUser '{username}' last name updated.")
                 if not user.email == email:
                     user.email = email
-                    print "\tUser '%s' email updated." % username
+                    print (f"\tUser '{username}' email updated.")
 
                 nome_completo = get_ldap_property(ldap_user, 'cn', '')
                 try:
@@ -171,13 +170,13 @@ class Command(BaseCommand):
                         servidor = Servidor.objects.get(nome_completo=nome_completo)
                     except Servidor.DoesNotExist:
                         servidor = user.servidor_set.create(nome_completo=nome_completo)
-                        print "\tServidor '%s' created." % nome_completo
+                        print (f"\tServidor '{nome_completo}' created.")
                 else:
                     if not servidor.nome_completo == nome_completo:
                         servidor.nome_completo = nome_completo
-                        print "\tFull name of Servidor '%s' updated." % nome_completo
+                        print (f"\tFull name of Servidor '{nome_completo}' updated.")
 
                 servidor.user = user
                 servidor.save()
                 user.save()
-        print "Users are synchronized."
+        print ("Users are synchronized.")

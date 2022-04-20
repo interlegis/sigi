@@ -104,7 +104,7 @@ class Command(BaseCommand):
                     nome_completo="%s %s" % (user.first_name, user.last_name)
                 )
             except MigrationError as e:
-                print ", ".join(row)
+                print (", ".join(row))
                 continue
 
             # mapeando dados simples
