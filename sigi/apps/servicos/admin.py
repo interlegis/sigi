@@ -114,7 +114,6 @@ class ServicoAtivoFilter(admin.SimpleListFilter):
 class ServicoAdmin(BaseModelAdmin):
     change_list_template = "servico/change_list.html"
     form = ServicoFormAdmin
-    actions = ['calcular_data_uso', ]
     list_display = ('casa_legislativa', 'get_codigo_interlegis', 'get_uf', 'tipo_servico', 'hospedagem_interlegis',
                     'data_ativacao', 'data_desativacao', 'getUrl', 'data_ultimo_uso', 'get_link_erro')
     fieldsets = ((None, {
@@ -139,7 +138,7 @@ class ServicoAdmin(BaseModelAdmin):
         'casa_legislativa__municipio__uf',
     )
     list_display_links = []
-    actions = ['adicionar_servicos']
+    actions = ['adicionar_servicos', 'calcular_data_uso', ]
     ordering = ('casa_legislativa__municipio__uf', 'casa_legislativa', 'tipo_servico',)
     inlines = (LogServicoInline,)
     search_fields = ('casa_legislativa__search_text',)
@@ -187,7 +186,7 @@ class ServicoAdmin(BaseModelAdmin):
         return HttpResponseRedirect('.')
     adicionar_servicos.short_description = _(u"Armazenar serviços no carrinho para exportar")
 
-    
+
     def calcular_data_uso(self, request, queryset):
         for servico in queryset:
             servico.atualiza_data_uso()
@@ -253,7 +252,7 @@ class ServicoAdmin(BaseModelAdmin):
             obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
 
         return obj
-    
+
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data
         request.GET._mutable = True
@@ -265,7 +264,7 @@ class ServicoAdmin(BaseModelAdmin):
             request,
             extra_context={'query_str': '?' + request.META['QUERY_STRING']}
         )
-        
+
     def adicionar_servicos(self, request, queryset):
         if 'carrinho_servicos' in request.session:
             q1 = len(request.session['carrinho_servicos'])
