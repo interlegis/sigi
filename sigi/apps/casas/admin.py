@@ -91,7 +91,7 @@ class PresidenteInline(admin.StackedInline):
         "cep",
         "redes_sociais",
     )
-    raw_id_fields = ("municipio",)
+    autocomplete_fields = ("municipio",)
     readonly_fields = ("ult_alteracao",)
     extra = 1
     max_num = 1
@@ -128,7 +128,7 @@ class ContatoInterlegisInline(admin.StackedInline):
         "desativado",
         "observacoes",
     )
-    raw_id_fields = ("municipio",)
+    autocomplete_fields = ("municipio",)
     readonly_fields = ("ult_alteracao",)
     extra = 1
     inlines = (TelefonesInline,)
@@ -167,7 +167,7 @@ class FuncionariosInline(admin.StackedInline):
         "desativado",
         "observacoes",
     )
-    raw_id_fields = ("municipio",)
+    autocomplete_fields = ("municipio",)
     readonly_fields = ("ult_alteracao",)
     extra = 1
     inlines = (TelefonesInline,)
@@ -463,7 +463,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
             },
         ),
     )
-    raw_id_fields = ("municipio",)
+    autocomplete_fields = ("municipio",)
     readonly_fields = [
         "gerentes_interlegis",
     ]

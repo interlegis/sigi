@@ -105,7 +105,7 @@ class ServidorAdmin(admin.ModelAdmin):
         "servico__nome",
         "servico__sigla",
     )
-    raw_id_fields = ("user",)
+    autocomplete_fields = ("user",)
     fieldsets = (
         (
             None,

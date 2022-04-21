@@ -113,7 +113,7 @@ class EquipeInline(admin.StackedInline):
 
 class ConviteInline(admin.StackedInline):
     model = Convite
-    raw_id_fields = ("casa",)
+    autocomplete_fields = ("casa",)
 
 
 class ModuloInline(admin.StackedInline):
@@ -150,7 +150,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "municipio__uf",
         "solicitante",
     )
-    raw_id_fields = (
+    autocomplete_fields = (
         "casa_anfitria",
         "municipio",
     )
