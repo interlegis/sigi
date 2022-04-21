@@ -1,8 +1,15 @@
 .side-wrapper {
   width: 100%;
 }
+
 #changelist {
-  width:100%
+  width: 100%
+}
+
+.actions {
+  background-color: transparent;
+  box-shadow: none;
+  padding: 0 5px;
 }
 
 .float-filter {
