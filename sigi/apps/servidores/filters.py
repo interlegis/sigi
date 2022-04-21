@@ -5,11 +5,12 @@ from sigi.apps.servidores.models import Servico
 
 class ServicoFilter(admin.SimpleListFilter):
     title = _("Subordinados à")
-    parameter_name = 'subordinado__id__exact'
+    parameter_name = "subordinado__id__exact"
 
     def lookups(self, request, model_admin):
-        return ([('None', _("Nenhum"))] +
-                [(s.id, s.nome) for s in Servico.objects.exclude(servico=None)])
+        return [("None", _("Nenhum"))] + [
+            (s.id, s.nome) for s in Servico.objects.exclude(servico=None)
+        ]
 
     def queryset(self, request, queryset):
         if self.value():

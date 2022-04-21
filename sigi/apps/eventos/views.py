@@ -13,38 +13,37 @@ from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
 from sigi.apps.eventos.forms import SelecionaModeloForm
 from sigi.apps.servidores.models import Servidor
 
+
 @login_required
 def calendario(request):
-    mes_pesquisa = int(request.GET.get('mes', datetime.date.today().month))
-    ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
-    formato = request.GET.get('fmt', 'html')
+    mes_pesquisa = int(request.GET.get("mes", datetime.date.today().month))
+    ano_pesquisa = int(request.GET.get("ano", datetime.date.today().year))
+    formato = request.GET.get("fmt", "html")
 
     meses = {}
-    lang = to_locale(get_language())+'.UTF-8'
+    lang = to_locale(get_language()) + ".UTF-8"
     locale.setlocale(locale.LC_ALL, lang)
 
-    for ano, mes in Evento.objects.values_list(
-        'data_inicio__year', 'data_inicio__month').order_by(
-            'data_inicio__year', 'data_inicio__month').distinct(
-                'data_inicio__year', 'data_inicio__month'):
+    for ano, mes in (
+        Evento.objects.values_list("data_inicio__year", "data_inicio__month")
+        .order_by("data_inicio__year", "data_inicio__month")
+        .distinct("data_inicio__year", "data_inicio__month")
+    ):
         if ano in meses:
             meses[ano][mes] = calendar.month_name[mes]
         else:
             meses[ano] = {mes: calendar.month_name[mes]}
 
     context = {
-        'ano_pesquisa': ano_pesquisa,
-        'mes_pesquisa': mes_pesquisa,
-        'meses': meses,
-        'eventos': Evento.objects.filter(
-            data_inicio__year=ano_pesquisa,
-            data_inicio__month=mes_pesquisa
-        )
+        "ano_pesquisa": ano_pesquisa,
+        "mes_pesquisa": mes_pesquisa,
+        "meses": meses,
+        "eventos": Evento.objects.filter(
+            data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
+        ),
     }
 
-    return render(request, 'eventos/calendario.html', context)
-
-
+    return render(request, "eventos/calendario.html", context)
 
 
 # @login_required
@@ -405,42 +404,52 @@ def calendario(request):
 
 #     return response
 
+
 @login_required
 def declaracao(request, id):
-    if request.method == 'POST':
+    if request.method == "POST":
         form = SelecionaModeloForm(request.POST)
         if form.is_valid():
             evento = get_object_or_404(Evento, id=id)
-            modelo = form.cleaned_data['modelo']
+            modelo = form.cleaned_data["modelo"]
             template_string = (
                 """
                 {% extends "eventos/declaracao_pdf.html" %}
-                {% block text_body %}""" +
-                modelo.texto + """
+                {% block text_body %}"""
+                + modelo.texto
+                + """
                 {% endblock %}
                 """
             )
-            context = Context({
-                'pagesize': modelo.formato,
-                'pagemargin': modelo.margem,
-                'evento': evento,
-                'data': datetime.date.today(),
-            })
+            context = Context(
+                {
+                    "pagesize": modelo.formato,
+                    "pagemargin": modelo.margem,
+                    "evento": evento,
+                    "data": datetime.date.today(),
+                }
+            )
             string = Template(template_string).render(context)
             # return HttpResponse(string)
-            response = HttpResponse(headers={
-                'Content-Type': "application/pdf",
-                'Content-Disposition': 'attachment; filename="declaração.pdf"'
-            })
-            pdf = HTML(string=string, url_fetcher=django_url_fetcher,
-                 encoding="utf-8", base_url=request.build_absolute_uri('/'))
+            response = HttpResponse(
+                headers={
+                    "Content-Type": "application/pdf",
+                    "Content-Disposition": 'attachment; filename="declaração.pdf"',
+                }
+            )
+            pdf = HTML(
+                string=string,
+                url_fetcher=django_url_fetcher,
+                encoding="utf-8",
+                base_url=request.build_absolute_uri("/"),
+            )
             pdf.write_pdf(target=response)
             return response
     else:
         form = SelecionaModeloForm()
 
     context = site.each_context(request)
-    context['form'] = form
-    context['evento_id'] = id
+    context["form"] = form
+    context["evento_id"] = id
 
-    return render(request, 'eventos/seleciona_modelo.html', context)
+    return render(request, "eventos/seleciona_modelo.html", context)

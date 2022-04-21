@@ -10,22 +10,25 @@ from material.admin.widgets import MaterialAdminTextareaWidget
 from django.contrib.admin.widgets import AutocompleteSelect
 from django.contrib import admin
 
+
 class AjaxSelect(forms.TextInput):
     url = ""
+
     def __init__(self, url, attrs=None):
         super(AjaxSelect, self).__init__(attrs)
         self.url = url
 
     def render(self, name, value, attrs=None):
         if value is None:
-            value = ''
+            value = ""
         final_attrs = self.build_attrs(attrs, type=self.input_type)
-        code_attrs = self.build_attrs(type='hidden', name=name,
-                                      id='hidden_'+name)
-        if value != '':
-            final_attrs['value'] = force_str(self._format_value(value))
-        result = format_html('<input{0} />', flatatt(final_attrs)) + "\n"
-        result = result + format_html('<input{0} />', flatatt(code_attrs))
+        code_attrs = self.build_attrs(
+            type="hidden", name=name, id="hidden_" + name
+        )
+        if value != "":
+            final_attrs["value"] = force_str(self._format_value(value))
+        result = format_html("<input{0} />", flatatt(final_attrs)) + "\n"
+        result = result + format_html("<input{0} />", flatatt(code_attrs))
         js = """
                   <script type="text/javascript">
                       $( document ).ready(function() {
@@ -37,34 +40,54 @@ class AjaxSelect(forms.TextInput):
                             }
                         })
                       });
-                  </script>""" % {'name': name, 'url': self.url}
+                  </script>""" % {
+            "name": name,
+            "url": self.url,
+        }
         result = result + mark_safe(js)
         return result
+
 
 class AnexoForm(forms.ModelForm):
     class Meta:
         model = Anexo
-        fields = ['ocorrencia', 'descricao', 'arquivo',]
-        widgets = {'ocorrencia': forms.HiddenInput()}
+        fields = [
+            "ocorrencia",
+            "descricao",
+            "arquivo",
+        ]
+        widgets = {"ocorrencia": forms.HiddenInput()}
+
 
 class ComentarioForm(forms.ModelForm):
     class Meta:
         model = Comentario
-        fields = ['ocorrencia', 'descricao', 'novo_status',]
+        fields = [
+            "ocorrencia",
+            "descricao",
+            "novo_status",
+        ]
         widgets = {
-            'ocorrencia': forms.HiddenInput(),
-            'descricao': MaterialAdminTextareaWidget(),
+            "ocorrencia": forms.HiddenInput(),
+            "descricao": MaterialAdminTextareaWidget(),
         }
+
 
 class OcorrenciaForm(forms.ModelForm):
     class Meta:
         model = Ocorrencia
-        fields = ['casa_legislativa', 'categoria', 'tipo_contato', 'assunto',
-                  'prioridade', 'ticket', 'descricao',]
+        fields = [
+            "casa_legislativa",
+            "categoria",
+            "tipo_contato",
+            "assunto",
+            "prioridade",
+            "ticket",
+            "descricao",
+        ]
         widgets = {
-            'casa_legislativa': AutocompleteSelect(
-                Ocorrencia.casa_legislativa.field,
-                admin.site
+            "casa_legislativa": AutocompleteSelect(
+                Ocorrencia.casa_legislativa.field, admin.site
             )
         }
         # widgets = {

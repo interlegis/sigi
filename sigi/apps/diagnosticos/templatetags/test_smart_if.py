@@ -19,13 +19,13 @@ class TestVar(object):
 
 
 class TestIfParser(IfParser):
-
     def create_var(self, value):
         return TestVar(value)
 
 
 class ValueHolder(object):
     pass
+
 
 VALORES = ValueHolder()
 VALORES.true = TestVar(True)
@@ -100,67 +100,67 @@ def test_parse_bits():
     var = TestIfParser([False]).parse()
     assert not var.resolve({})
 
-    var = TestIfParser([False, 'or', True]).parse()
+    var = TestIfParser([False, "or", True]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([False, 'and', True]).parse()
+    var = TestIfParser([False, "and", True]).parse()
     assert not var.resolve({})
 
-    var = TestIfParser(['not', False, 'and', 'not', False]).parse()
+    var = TestIfParser(["not", False, "and", "not", False]).parse()
     assert var.resolve({})
 
-    var = TestIfParser(['not', 'not', True]).parse()
+    var = TestIfParser(["not", "not", True]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([1, '=', 1]).parse()
+    var = TestIfParser([1, "=", 1]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([1, 'not', '=', 1]).parse()
+    var = TestIfParser([1, "not", "=", 1]).parse()
     assert not var.resolve({})
 
-    var = TestIfParser([1, 'not', 'not', '=', 1]).parse()
+    var = TestIfParser([1, "not", "not", "=", 1]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([1, '!=', 1]).parse()
+    var = TestIfParser([1, "!=", 1]).parse()
     assert not var.resolve({})
 
-    var = TestIfParser([3, '>', 2]).parse()
+    var = TestIfParser([3, ">", 2]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([1, '<', 2]).parse()
+    var = TestIfParser([1, "<", 2]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([2, 'not', 'in', [2, 3]]).parse()
+    var = TestIfParser([2, "not", "in", [2, 3]]).parse()
     assert not var.resolve({})
 
-    var = TestIfParser([1, 'or', 1, '=', 2]).parse()
+    var = TestIfParser([1, "or", 1, "=", 2]).parse()
     assert var.resolve({})
 
 
 def test_boolean():
-    var = TestIfParser([True, 'and', True, 'and', True]).parse()
+    var = TestIfParser([True, "and", True, "and", True]).parse()
     assert var.resolve({})
-    var = TestIfParser([False, 'or', False, 'or', True]).parse()
+    var = TestIfParser([False, "or", False, "or", True]).parse()
     assert var.resolve({})
-    var = TestIfParser([True, 'and', False, 'or', True]).parse()
+    var = TestIfParser([True, "and", False, "or", True]).parse()
     assert var.resolve({})
-    var = TestIfParser([False, 'or', True, 'and', True]).parse()
+    var = TestIfParser([False, "or", True, "and", True]).parse()
     assert var.resolve({})
 
-    var = TestIfParser([True, 'and', True, 'and', False]).parse()
+    var = TestIfParser([True, "and", True, "and", False]).parse()
     assert not var.resolve({})
-    var = TestIfParser([False, 'or', False, 'or', False]).parse()
+    var = TestIfParser([False, "or", False, "or", False]).parse()
     assert not var.resolve({})
-    var = TestIfParser([False, 'or', True, 'and', False]).parse()
+    var = TestIfParser([False, "or", True, "and", False]).parse()
     assert not var.resolve({})
-    var = TestIfParser([False, 'and', True, 'or', False]).parse()
+    var = TestIfParser([False, "and", True, "or", False]).parse()
     assert not var.resolve({})
 
 
 def test_invalid():
-    pytest.raises(ValueError, TestIfParser(['not']).parse)
-    pytest.raises(ValueError, TestIfParser(['==']).parse)
-    pytest.raises(ValueError, TestIfParser([1, 'in']).parse)
-    pytest.raises(ValueError, TestIfParser([1, '>', 'in']).parse)
-    pytest.raises(ValueError, TestIfParser([1, '==', 'not', 'not']).parse)
+    pytest.raises(ValueError, TestIfParser(["not"]).parse)
+    pytest.raises(ValueError, TestIfParser(["=="]).parse)
+    pytest.raises(ValueError, TestIfParser([1, "in"]).parse)
+    pytest.raises(ValueError, TestIfParser([1, ">", "in"]).parse)
+    pytest.raises(ValueError, TestIfParser([1, "==", "not", "not"]).parse)
     pytest.raises(ValueError, TestIfParser([1, 2]).parse)

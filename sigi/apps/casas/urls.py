@@ -2,9 +2,12 @@ from django.urls import path, include
 from sigi.apps.casas import views
 
 urlpatterns = [
-    path('orgao/casas_sem_convenio_report/', views.CasasSemConvenioReport.as_view(),
-         name='casas-sem-convenio-report'),
-    path('carteira/', views.painel_relacionamento, name='casas-carteira'),
+    path(
+        "orgao/casas_sem_convenio_report/",
+        views.CasasSemConvenioReport.as_view(),
+        name="casas-sem-convenio-report",
+    ),
+    path("carteira/", views.painel_relacionamento, name="casas-carteira"),
 ]
 
 

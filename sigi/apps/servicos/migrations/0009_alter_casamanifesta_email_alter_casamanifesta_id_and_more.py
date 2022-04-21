@@ -6,53 +6,89 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicos', '0008_auto_20210519_1117'),
+        ("servicos", "0008_auto_20210519_1117"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='casamanifesta',
-            name='email',
-            field=models.EmailField(blank=True, max_length=254, verbose_name='E-mail de contato'),
+            model_name="casamanifesta",
+            name="email",
+            field=models.EmailField(
+                blank=True, max_length=254, verbose_name="E-mail de contato"
+            ),
         ),
         migrations.AlterField(
-            model_name='casamanifesta',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="casamanifesta",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='logservico',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="logservico",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='registroservico',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="registroservico",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='servico',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="servico",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='servicomanifesto',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="servicomanifesto",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="tiposervico",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='modo',
-            field=models.CharField(choices=[('H', 'Hospedagem'), ('R', 'Registro')], max_length=1, verbose_name='modo de prestação do serviço'),
+            model_name="tiposervico",
+            name="modo",
+            field=models.CharField(
+                choices=[("H", "Hospedagem"), ("R", "Registro")],
+                max_length=1,
+                verbose_name="modo de prestação do serviço",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='sigla',
-            field=models.CharField(max_length=12, verbose_name='sigla'),
+            model_name="tiposervico",
+            name="sigla",
+            field=models.CharField(max_length=12, verbose_name="sigla"),
         ),
     ]

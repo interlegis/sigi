@@ -7,14 +7,19 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servicos', '0001_initial'),
+        ("servicos", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='tiposervico',
-            name='modo',
-            field=models.CharField(default='H', max_length=1, verbose_name='Modo de presta\xe7\xe3o do servi\xe7o', choices=[('H', 'Hospedagem'), ('R', 'Registro')]),
+            model_name="tiposervico",
+            name="modo",
+            field=models.CharField(
+                default="H",
+                max_length=1,
+                verbose_name="Modo de presta\xe7\xe3o do servi\xe7o",
+                choices=[("H", "Hospedagem"), ("R", "Registro")],
+            ),
             preserve_default=False,
         ),
     ]

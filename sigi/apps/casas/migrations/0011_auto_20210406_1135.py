@@ -6,12 +6,15 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('casas', '0010_auto_20210406_1101'),
+        ("casas", "0010_auto_20210406_1101"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='tipoorgao',
-            options={'verbose_name': 'Tipo de \xf3rg\xe3o', 'verbose_name_plural': 'Tipos de \xf3rg\xe3o'},
+            name="tipoorgao",
+            options={
+                "verbose_name": "Tipo de \xf3rg\xe3o",
+                "verbose_name_plural": "Tipos de \xf3rg\xe3o",
+            },
         ),
     ]

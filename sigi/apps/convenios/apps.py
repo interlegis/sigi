@@ -1,6 +1,7 @@
 from django.apps import AppConfig
 from django.utils.translation import gettext_lazy as _
 
+
 class ConveniosConfig(AppConfig):
-    name = 'sigi.apps.convenios'
-    verbose_name = _('convênios')
+    name = "sigi.apps.convenios"
+    verbose_name = _("convênios")

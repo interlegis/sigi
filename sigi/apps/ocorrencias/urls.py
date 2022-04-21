@@ -2,11 +2,8 @@ from django.urls import path
 from sigi.apps.ocorrencias.views import painel_ocorrencias
 
 urlpatterns = [
-    path('painel/', painel_ocorrencias, name='painel-ocorrencias'),
+    path("painel/", painel_ocorrencias, name="painel-ocorrencias"),
 ]
-
-
-
 
 
 # # coding: utf-8

@@ -7,22 +7,30 @@ from django.contrib.admin.options import IncorrectLookupParameters
 from django.utils.translation import ngettext, gettext as _
 from django.core.exceptions import ValidationError
 
+
 class NotEmptyableField(Exception):
     pass
 
 
 class AlphabeticFilter(admin.SimpleListFilter):
-    title = ''
-    parameter_name = ''
+    title = ""
+    parameter_name = ""
 
     def lookups(self, request, model_admin):
-        return ((letter, letter,) for letter in string.ascii_uppercase)
+        return (
+            (
+                letter,
+                letter,
+            )
+            for letter in string.ascii_uppercase
+        )
 
     def queryset(self, request, queryset):
         if self.value():
             return queryset.filter(
-                (self.parameter_name + '__istartswith', self.value())
+                (self.parameter_name + "__istartswith", self.value())
             )
+
 
 class EmptyFilter(admin.FieldListFilter):
     EMPTY_STRING = _("Em branco")
@@ -31,7 +39,7 @@ class EmptyFilter(admin.FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.model = model
         self.model_admin = model_admin
-        self.parameter_name = f'{field_path}__empty'
+        self.parameter_name = f"{field_path}__empty"
 
         if (not field.null) and (not field.blank):
             raise NotEmptyableField(
@@ -51,22 +59,26 @@ class EmptyFilter(admin.FieldListFilter):
 
     def choices(self, changelist):
         yield {
-            'selected': self.value() is None,
-            'query_string': changelist.get_query_string(remove=[
-                self.parameter_name]),
-            'display': _('All'),
+            "selected": self.value() is None,
+            "query_string": changelist.get_query_string(
+                remove=[self.parameter_name]
+            ),
+            "display": _("All"),
         }
 
         for value, display in self.lookups():
             yield {
-                'selected': self.value() == value,
-                'query_string': changelist.get_query_string(
-                    {self.parameter_name: value}),
-                'display': display,
+                "selected": self.value() == value,
+                "query_string": changelist.get_query_string(
+                    {self.parameter_name: value}
+                ),
+                "display": display,
             }
 
     def expected_parameters(self):
-        return [self.parameter_name,]
+        return [
+            self.parameter_name,
+        ]
 
     def queryset(self, request, queryset):
         val = self.value()
@@ -88,6 +100,7 @@ class EmptyFilter(admin.FieldListFilter):
 
         return queryset.filter(filter)
 
+
 class RangeFilter(admin.FieldListFilter):
     num_faixas = 4
     parameter_name = None
@@ -95,7 +108,7 @@ class RangeFilter(admin.FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.model = model
         self.model_admin = model_admin
-        self.parameter_name = f'{field_path}__range'
+        self.parameter_name = f"{field_path}__range"
 
         super().__init__(field, request, params, model, model_admin, field_path)
 
@@ -110,22 +123,23 @@ class RangeFilter(admin.FieldListFilter):
 
     def ranges(self, model):
         tudo = model.objects.values_list(self.field_path, flat=True).order_by(
-            self.field_path)
+            self.field_path
+        )
         passo = len(tudo) // self.num_faixas
         ultimo = 0
 
         for i in range(1, self.num_faixas):
-            value = tudo[i*passo]
+            value = tudo[i * passo]
             if value > 100:
                 if value > 1000:
                     l = int(log10(value))
                 else:
-                    l = int(log10(value))-1
+                    l = int(log10(value)) - 1
                 value = value // (10**l) * (10**l)
             yield (i, ultimo, value)
             ultimo = value
 
-        yield (self.num_faixas, ultimo, tudo.last()+1)
+        yield (self.num_faixas, ultimo, tudo.last() + 1)
 
     def lookups(self, request, model_admin):
         def humanize(num):
@@ -134,27 +148,25 @@ class RangeFilter(admin.FieldListFilter):
             l = int(log10(num))
             if l < 6:
                 return ngettext(
-                    f"{num//10**3} mil",
-                    f"{num//10**3} mil",
-                    num//10**3
+                    f"{num//10**3} mil", f"{num//10**3} mil", num // 10**3
                 )
             elif l < 9:
                 return ngettext(
                     f"{num//10**6} milhão",
                     f"{num//10**6} milhões",
-                    num//10**6
+                    num // 10**6,
                 )
             elif l < 12:
                 return ngettext(
                     f"{num//10**9} bilhão",
                     f"{num//10**9} bilhões",
-                    num//10**9
+                    num // 10**9,
                 )
             else:
                 return ngettext(
                     f"{num//10**12} trilhão",
                     f"{num//10**12} trilhões",
-                    num//10**12
+                    num // 10**12,
                 )
 
         primeiro, *meio, ultimo = self.ranges(self.model)
@@ -172,22 +184,25 @@ class RangeFilter(admin.FieldListFilter):
         return self.used_parameters.get(self.parameter_name)
 
     def expected_parameters(self):
-        return [self.parameter_name,]
+        return [
+            self.parameter_name,
+        ]
 
     def choices(self, changelist):
         yield {
-            'selected': self.value() is None,
-            'query_string': changelist.get_query_string(
-                remove=[self.parameter_name]),
-            'display': _('All'),
+            "selected": self.value() is None,
+            "query_string": changelist.get_query_string(
+                remove=[self.parameter_name]
+            ),
+            "display": _("All"),
         }
         for lookup, title in self.lookup_choices:
             yield {
-                'selected': self.value() == str(lookup),
-                'query_string': changelist.get_query_string(
+                "selected": self.value() == str(lookup),
+                "query_string": changelist.get_query_string(
                     {self.parameter_name: lookup}
                 ),
-                'display': title,
+                "display": title,
             }
 
     def queryset(self, request, queryset):
@@ -195,27 +210,30 @@ class RangeFilter(admin.FieldListFilter):
             for value, min, max in self.ranges(self.model):
                 if self.value() == str(value):
                     return queryset.filter(
-                        (f'{self.field_path}__gte', min),
-                        (f'{self.field_path}__lt', max)
+                        (f"{self.field_path}__gte", min),
+                        (f"{self.field_path}__lt", max),
                     )
         except (ValueError, ValidationError) as e:
             raise IncorrectLookupParameters(e)
 
         return queryset
 
+
 class DateRangeFilter(admin.FieldListFilter):
-    template = 'admin/date_range_filter.html'
+    template = "admin/date_range_filter.html"
+
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.model = model
         self.model_admin = model_admin
-        self.lookup_kwargs = [f'{field_path}__gte', f'{field_path}__lte']
+        self.lookup_kwargs = [f"{field_path}__gte", f"{field_path}__lte"]
 
         super().__init__(field, request, params, model, model_admin, field_path)
 
         form = self.get_date_form(self.used_parameters)
         if form.is_valid():
             self.used_parameters = {
-                key: value for key,value in form.cleaned_data.items()
+                key: value
+                for key, value in form.cleaned_data.items()
                 if value is not None
             }
         else:
@@ -228,16 +246,19 @@ class DateRangeFilter(admin.FieldListFilter):
         return self.lookup_kwargs
 
     def choices(self, changelist):
-        return [{
-            'query_string': changelist.get_query_string(
-                remove=self.lookup_kwargs),
-            'form': self.get_date_form(self.used_parameters)
-        }]
+        return [
+            {
+                "query_string": changelist.get_query_string(
+                    remove=self.lookup_kwargs
+                ),
+                "form": self.get_date_form(self.used_parameters),
+            }
+        ]
 
     def get_date_form(self, context={}):
-        date_fields = {name: forms.DateField(required=False)
-                       for name in self.lookup_kwargs}
-        DateForm = type('DateForm', (forms.Form,), date_fields)
+        date_fields = {
+            name: forms.DateField(required=False) for name in self.lookup_kwargs
+        }
+        DateForm = type("DateForm", (forms.Form,), date_fields)
 
         return DateForm(context)
-

@@ -1,7 +1,18 @@
 # -*- coding: utf-8 -*-
 from django.templatetags.static import static
 from django.utils.translation import gettext as _
-from geraldo import Report, DetailBand, Label, ObjectValue, ReportGroup, ReportBand, landscape, SubReport, BAND_WIDTH, SystemField
+from geraldo import (
+    Report,
+    DetailBand,
+    Label,
+    ObjectValue,
+    ReportGroup,
+    ReportBand,
+    landscape,
+    SubReport,
+    BAND_WIDTH,
+    SystemField,
+)
 from geraldo.graphics import Image
 from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import A4
@@ -13,22 +24,22 @@ from sigi.apps.relatorios.reports import ReportDefault
 def string_to_cm(texto):
     tamanho = 0
     minEspeciais = {
-        'f': 0.1,
-        'i': 0.05,
-        'j': 0.05,
-        'l': 0.05,
-        'm': 0.2,
-        'r': 0.1,
-        't': 0.15,
+        "f": 0.1,
+        "i": 0.05,
+        "j": 0.05,
+        "l": 0.05,
+        "m": 0.2,
+        "r": 0.1,
+        "t": 0.15,
     }
     maiuEspeciais = {
-        'I': 0.05,
-        'J': 0.15,
-        'L': 0.15,
-        'P': 0.15,
+        "I": 0.05,
+        "J": 0.15,
+        "L": 0.15,
+        "P": 0.15,
     }
     for c in texto:
-        if c > 'a' and c < 'z':
+        if c > "a" and c < "z":
             if c in minEspeciais:
                 tamanho += minEspeciais[c]
             else:
@@ -52,7 +63,8 @@ class ParlamentaresLabels(Report):
       >>> report.generate_by(PDFGenerator, filename='./inline-detail-report.pdf')
 
     """
-    formato = ''
+
+    formato = ""
     y = 2
     largura_etiqueta = 7
     altura_etiqueta = 3.3
@@ -65,12 +77,14 @@ class ParlamentaresLabels(Report):
         self.formato = formato
         self.page_size = A4
 
-        if formato == '3x9_etiqueta':
+        if formato == "3x9_etiqueta":
             self.margin_top = 0.0 * cm
             self.margin_bottom = 0.0 * cm
             self.margin_left = -1 * cm
             self.margin_right = 0.0 * cm
-            self.delta = 0.4  # espaçamento entre as "strings/linhas" da etiqueta
+            self.delta = (
+                0.4  # espaçamento entre as "strings/linhas" da etiqueta
+            )
             self.start = 0.2  # valor entre a margin top e a etiqueta
         else:
             self.margin_top = 0.8 * cm
@@ -85,73 +99,101 @@ class ParlamentaresLabels(Report):
 
         my_elements = [
             Label(
-                text=_('A Sua Excelência o(a) Senhor(a)'),
-                top=(self.start + self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
+                text=_("A Sua Excelência o(a) Senhor(a)"),
+                top=(self.start + self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
             ),
             ObjectValue(
-                attribute_name='nome_completo',
-                top=(self.start + 2 * self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
-                get_value=lambda instance:
-                    instance.nome_completo or ""
+                attribute_name="nome_completo",
+                top=(self.start + 2 * self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
+                get_value=lambda instance: instance.nome_completo or "",
             ),
             ObjectValue(
-                attribute_name='logradouro',
-                top=(self.start + 3 * self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
-                get_value=lambda instance:
-                    logradouro_parlamentar(instance)
+                attribute_name="logradouro",
+                top=(self.start + 3 * self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
+                get_value=lambda instance: logradouro_parlamentar(instance),
             ),
             ObjectValue(
-                attribute_name='bairro',
-                top=(self.start + 4 * self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
-                get_value=lambda instance:
-                    bairro_parlamentar(instance)
+                attribute_name="bairro",
+                top=(self.start + 4 * self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
+                get_value=lambda instance: bairro_parlamentar(instance),
             ),
             ObjectValue(
-                attribute_name='municipio',
-                top=(self.start + 5 * self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
-                get_value=lambda instance:
-                    municipio_parlamentar(instance)
+                attribute_name="municipio",
+                top=(self.start + 5 * self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
+                get_value=lambda instance: municipio_parlamentar(instance),
             ),
             ObjectValue(
-                attribute_name='cep',
-                top=(self.start + 6 * self.delta) * cm, left=self.y * cm, width=(self.largura_etiqueta - self.y) * cm,
-                get_value=lambda instance:
-                    cep_parlamentar(instance)
+                attribute_name="cep",
+                top=(self.start + 6 * self.delta) * cm,
+                left=self.y * cm,
+                width=(self.largura_etiqueta - self.y) * cm,
+                get_value=lambda instance: cep_parlamentar(instance),
             ),
         ]
-        self.band_detail = DetailBand(width=(self.largura_etiqueta) * cm, height=(self.altura_etiqueta) * cm, margin_left=0, margin_top=0, margin_bottom=0.0 * cm, margin_right=0, elements=my_elements, display_inline=True, default_style={'fontName': 'Helvetica', 'fontSize': self.tamanho_fonte})
+        self.band_detail = DetailBand(
+            width=(self.largura_etiqueta) * cm,
+            height=(self.altura_etiqueta) * cm,
+            margin_left=0,
+            margin_top=0,
+            margin_bottom=0.0 * cm,
+            margin_right=0,
+            elements=my_elements,
+            display_inline=True,
+            default_style={
+                "fontName": "Helvetica",
+                "fontSize": self.tamanho_fonte,
+            },
+        )
 
 
 def logradouro_parlamentar(instance):
     try:
-        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.logradouro
+        return instance.mandato_set.latest(
+            "inicio_mandato"
+        ).legislatura.casa_legislativa.logradouro
     except:
         return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def bairro_parlamentar(instance):
     try:
-        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.bairro
+        return instance.mandato_set.latest(
+            "inicio_mandato"
+        ).legislatura.casa_legislativa.bairro
     except:
         return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def municipio_parlamentar(instance):
     try:
-        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.municipio
+        return instance.mandato_set.latest(
+            "inicio_mandato"
+        ).legislatura.casa_legislativa.municipio
     except:
         return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 def cep_parlamentar(instance):
     try:
-        return instance.mandato_set.latest('inicio_mandato').legislatura.casa_legislativa.cep
+        return instance.mandato_set.latest(
+            "inicio_mandato"
+        ).legislatura.casa_legislativa.cep
     except:
         return _("<<PARLAMENTAR SEM MANDATO - impossivel definir endereço>>")
 
 
 class CasasLegislativasReport(ReportDefault):
-    title = _('Relatório de Casas Legislativas')
+    title = _("Relatório de Casas Legislativas")
     height = 80 * cm
     page_size = landscape(A4)
 
@@ -162,23 +204,58 @@ class CasasLegislativasReport(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements = [
-            Image(filename=ReportDefault.band_page_header.BASE_DIR + static('img/logo-interlegis.jpg'),
-                  left=23.5 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
-                  width=4.2 * cm, height=3 * cm,
-                  ),
-            Image(filename=ReportDefault.band_page_header.BASE_DIR + static('img/logo-senado.png'),
-                  left=1 * cm, right=1 * cm, top=0.1 * cm, bottom=1 * cm,
-                  width=3 * cm, height=3 * cm,
-                  ),
-            Label(text=_("SENADO FEDERAL"), top=1 * cm, left=0, width=BAND_WIDTH,
-                  style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
-                  ),
-            Label(text=_("SINTER - Secretaria Especial do Interlegis"), top=1.5 * cm, left=0, width=BAND_WIDTH,
-                  style={'fontName': 'Helvetica-Bold', 'fontSize': 13, 'alignment': TA_CENTER}
-                  ),
+            Image(
+                filename=ReportDefault.band_page_header.BASE_DIR
+                + static("img/logo-interlegis.jpg"),
+                left=23.5 * cm,
+                right=1 * cm,
+                top=0.1 * cm,
+                bottom=1 * cm,
+                width=4.2 * cm,
+                height=3 * cm,
+            ),
+            Image(
+                filename=ReportDefault.band_page_header.BASE_DIR
+                + static("img/logo-senado.png"),
+                left=1 * cm,
+                right=1 * cm,
+                top=0.1 * cm,
+                bottom=1 * cm,
+                width=3 * cm,
+                height=3 * cm,
+            ),
+            Label(
+                text=_("SENADO FEDERAL"),
+                top=1 * cm,
+                left=0,
+                width=BAND_WIDTH,
+                style={
+                    "fontName": "Helvetica-Bold",
+                    "fontSize": 14,
+                    "alignment": TA_CENTER,
+                },
+            ),
+            Label(
+                text=_("SINTER - Secretaria Especial do Interlegis"),
+                top=1.5 * cm,
+                left=0,
+                width=BAND_WIDTH,
+                style={
+                    "fontName": "Helvetica-Bold",
+                    "fontSize": 13,
+                    "alignment": TA_CENTER,
+                },
+            ),
             SystemField(
-                expression='%(report_title)s', top=2.5 * cm, left=0, width=BAND_WIDTH,
-                style={'fontName': 'Helvetica-Bold', 'fontSize': 14, 'alignment': TA_CENTER}
+                expression="%(report_title)s",
+                top=2.5 * cm,
+                left=0,
+                width=BAND_WIDTH,
+                style={
+                    "fontName": "Helvetica-Bold",
+                    "fontSize": 14,
+                    "alignment": TA_CENTER,
+                },
             ),
             Label(
                 text=_("UF"),
@@ -210,8 +287,6 @@ class CasasLegislativasReport(ReportDefault):
                 left=label_left[5] * cm,
                 top=label_top,
             ),
-
-
         ]
 
     class band_page_footer(ReportDefault.band_page_footer):
@@ -223,44 +298,44 @@ class CasasLegislativasReport(ReportDefault):
 
         elements = [
             ObjectValue(
-                attribute_name='municipio.uf.sigla',
+                attribute_name="municipio.uf.sigla",
                 left=label_left[0] * cm,
                 width=1 * cm,
             ),
             ObjectValue(
-                attribute_name='municipio.nome',
+                attribute_name="municipio.nome",
                 left=label_left[1] * cm,
             ),
             ObjectValue(
-                attribute_name='presidente',
+                attribute_name="presidente",
                 left=label_left[2] * cm,
             ),
             ObjectValue(
-                attribute_name='logradouro',
+                attribute_name="logradouro",
                 left=label_left[3] * cm,
-                get_value=lambda instance: instance.logradouro + ' - ' + instance.bairro,
+                get_value=lambda instance: instance.logradouro
+                + " - "
+                + instance.bairro,
             ),
             ObjectValue(
-                attribute_name='pagina_web',
+                attribute_name="pagina_web",
                 left=label_left[4] * cm,
             ),
             ObjectValue(
-                attribute_name='email',
+                attribute_name="email",
                 left=label_left[5] * cm,
             ),
-
         ]
 
     groups = [
-        ReportGroup(attribute_name='municipio.uf',
-                    band_header=ReportBand(
-                        height=0.7 * cm,
-                        elements=[
-                            ObjectValue(attribute_name='municipio.uf')
-                        ],
-                        borders={'top': True},
-                    )
-                    )
+        ReportGroup(
+            attribute_name="municipio.uf",
+            band_header=ReportBand(
+                height=0.7 * cm,
+                elements=[ObjectValue(attribute_name="municipio.uf")],
+                borders={"top": True},
+            ),
+        )
     ]
 
 
@@ -269,7 +344,7 @@ def label_text(text):
 
 
 class InfoOrgao(ReportDefault):
-    title = _('Casa Legislativa')
+    title = _("Casa Legislativa")
 
     class band_summary(ReportBand):
         pass
@@ -278,22 +353,34 @@ class InfoOrgao(ReportDefault):
         height = 1 * cm
 
         elements = [
-            SystemField(expression=_('%(now:%d/%m/%Y)s às %(now:%H:%M)s'), top=0.3 * cm),
+            SystemField(
+                expression=_("%(now:%d/%m/%Y)s às %(now:%H:%M)s"), top=0.3 * cm
+            ),
         ]
 
     class band_detail(ReportDefault.band_detail):
 
         posicao_left = [
-            0, 1.3,  # Tipo
-            0, 1.8,  # Regiao
-            5.5, 6.8,  # U.F.
-            0, 2.3,  # Municipio
-            0, 2.4,  # Endereco
-            0, 1.6,  # Bairro
-            0, 1.3,  # CEP
-            0, 1.6,  # CNPJ
-            0, 2.3,  # Telefone
-            0, 2.7,  # Presidente
+            0,
+            1.3,  # Tipo
+            0,
+            1.8,  # Regiao
+            5.5,
+            6.8,  # U.F.
+            0,
+            2.3,  # Municipio
+            0,
+            2.4,  # Endereco
+            0,
+            1.6,  # Bairro
+            0,
+            1.3,  # CEP
+            0,
+            1.6,  # CNPJ
+            0,
+            2.3,  # Telefone
+            0,
+            2.7,  # Presidente
         ]
         posicao_top = [
             0.5,  # Tipo
@@ -311,17 +398,16 @@ class InfoOrgao(ReportDefault):
         height = 30 * cm
 
         display_inline = True
-        default_style = {'fontName': 'Helvetica', 'fontSize': 14}
+        default_style = {"fontName": "Helvetica", "fontSize": 14}
 
         elements = [
-
             Label(
                 text=label_text(_("Tipo")),
                 left=posicao_left[0] * cm,
                 top=posicao_top[0] * cm,
             ),
             ObjectValue(
-                attribute_name='tipo.nome',
+                attribute_name="tipo.nome",
                 left=posicao_left[1] * cm,
                 top=posicao_top[0] * cm,
                 width=6 * cm,
@@ -332,12 +418,16 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[1] * cm,
             ),
             ObjectValue(
-                attribute_name='municipio.uf.regiao',
+                attribute_name="municipio.uf.regiao",
                 left=posicao_left[3] * cm,
                 top=posicao_top[1] * cm,
-                get_value=lambda instance:
-                {'SL': _('Sul'), 'SD': _('Sudeste'), 'CO': _('Centro-Oeste'), 'NE': _('Nordeste'), 'NO': _('Norte'), }
-                [instance.municipio.uf.regiao]
+                get_value=lambda instance: {
+                    "SL": _("Sul"),
+                    "SD": _("Sudeste"),
+                    "CO": _("Centro-Oeste"),
+                    "NE": _("Nordeste"),
+                    "NO": _("Norte"),
+                }[instance.municipio.uf.regiao],
             ),
             Label(
                 text=label_text(_("UF")),
@@ -345,7 +435,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[2] * cm,
             ),
             ObjectValue(
-                attribute_name='municipio.uf',
+                attribute_name="municipio.uf",
                 left=posicao_left[5] * cm,
                 top=posicao_top[2] * cm,
             ),
@@ -355,7 +445,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[3] * cm,
             ),
             ObjectValue(
-                attribute_name='municipio.nome',
+                attribute_name="municipio.nome",
                 left=posicao_left[7] * cm,
                 top=posicao_top[3] * cm,
                 width=20 * cm,
@@ -367,7 +457,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[4] * cm,
             ),
             ObjectValue(
-                attribute_name='logradouro',
+                attribute_name="logradouro",
                 left=posicao_left[9] * cm,
                 top=posicao_top[4] * cm,
                 width=20 * cm,
@@ -378,7 +468,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[5] * cm,
             ),
             ObjectValue(
-                attribute_name='bairro',
+                attribute_name="bairro",
                 left=posicao_left[11] * cm,
                 top=posicao_top[5] * cm,
             ),
@@ -388,7 +478,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[6] * cm,
             ),
             ObjectValue(
-                attribute_name='cep',
+                attribute_name="cep",
                 left=posicao_left[13] * cm,
                 top=posicao_top[6] * cm,
             ),
@@ -398,7 +488,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[7] * cm,
             ),
             ObjectValue(
-                attribute_name='cnpj',
+                attribute_name="cnpj",
                 left=posicao_left[15] * cm,
                 top=posicao_top[7] * cm,
             ),
@@ -408,7 +498,7 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[8] * cm,
             ),
             ObjectValue(
-                attribute_name='telefone',
+                attribute_name="telefone",
                 left=posicao_left[17] * cm,
                 top=posicao_top[8] * cm,
             ),
@@ -418,12 +508,13 @@ class InfoOrgao(ReportDefault):
                 top=posicao_top[9] * cm,
             ),
             ObjectValue(
-                attribute_name='presidente',
+                attribute_name="presidente",
                 left=posicao_left[19] * cm,
                 top=posicao_top[9] * cm,
                 width=20 * cm,
             ),
         ]
+
     # Telefones
     tel_top = 2 * cm
     tel_left = [0, 3, 5]
@@ -436,14 +527,14 @@ class InfoOrgao(ReportDefault):
     subreports = [
         # Telefones
         SubReport(
-            queryset_string='%(object)s.telefones.all()',
+            queryset_string="%(object)s.telefones.all()",
             band_header=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 12},
+                default_style={"fontName": "Helvetica", "fontSize": 12},
                 height=2.5 * cm,
                 elements=[
                     Label(
                         text=_("Telefone(s)"),
-                        style={'fontSize': 14, 'alignment': TA_CENTER},
+                        style={"fontSize": 14, "alignment": TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
@@ -451,100 +542,167 @@ class InfoOrgao(ReportDefault):
                     Label(text=_("Tipo"), left=tel_left[1] * cm, top=tel_top),
                     Label(text=_("Nota"), left=tel_left[2] * cm, top=tel_top),
                 ],
-                borders={'bottom': True},
+                borders={"bottom": True},
             ),
             band_detail=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 11},
+                default_style={"fontName": "Helvetica", "fontSize": 11},
                 height=0.5 * cm,
                 elements=[
-                    ObjectValue(attribute_name='__unicode__', left=tel_left[0] * cm),
-                    ObjectValue(attribute_name='tipo', left=tel_left[1] * cm,
-                                get_value=lambda instance:
-                                {'F': _('Fixo'), 'M': _('Móvel'), 'X': _('Fax'), 'I': _('Indefinido')}[instance.tipo],
-                                ),
-                    ObjectValue(attribute_name='nota', left=tel_left[2] * cm),
+                    ObjectValue(
+                        attribute_name="__unicode__", left=tel_left[0] * cm
+                    ),
+                    ObjectValue(
+                        attribute_name="tipo",
+                        left=tel_left[1] * cm,
+                        get_value=lambda instance: {
+                            "F": _("Fixo"),
+                            "M": _("Móvel"),
+                            "X": _("Fax"),
+                            "I": _("Indefinido"),
+                        }[instance.tipo],
+                    ),
+                    ObjectValue(attribute_name="nota", left=tel_left[2] * cm),
                 ],
-                #borders = {'all':True},
+                # borders = {'all':True},
             ),
         ),
         # Contatos
         SubReport(
-            queryset_string='%(object)s.funcionario_set.all()',
+            queryset_string="%(object)s.funcionario_set.all()",
             band_header=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 12},
+                default_style={"fontName": "Helvetica", "fontSize": 12},
                 height=2.5 * cm,
                 elements=[
                     Label(
                         text=_("Contato(s)"),
-                        style={'fontSize': 14, 'alignment': TA_CENTER},
+                        style={"fontSize": 14, "alignment": TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
                     Label(text=_("Nome"), left=cont_left[0] * cm, top=cont_top),
                     Label(text=_("Nota"), left=cont_left[1] * cm, top=cont_top),
-                    Label(text=_("E-mail"), left=cont_left[2] * cm, top=cont_top),
+                    Label(
+                        text=_("E-mail"), left=cont_left[2] * cm, top=cont_top
+                    ),
                 ],
-                borders={'bottom': True, 'top': True},
+                borders={"bottom": True, "top": True},
             ),
             band_detail=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 11},
+                default_style={"fontName": "Helvetica", "fontSize": 11},
                 height=0.5 * cm,
                 elements=[
-                    ObjectValue(attribute_name='nome', left=cont_left[0] * cm),
-                    ObjectValue(attribute_name='nota', left=cont_left[1] * cm),
-                    ObjectValue(attribute_name='email', left=cont_left[2] * cm),
+                    ObjectValue(attribute_name="nome", left=cont_left[0] * cm),
+                    ObjectValue(attribute_name="nota", left=cont_left[1] * cm),
+                    ObjectValue(attribute_name="email", left=cont_left[2] * cm),
                 ],
-                #borders = {'all':True},
+                # borders = {'all':True},
             ),
         ),
         # Convenios
         SubReport(
-            queryset_string='%(object)s.convenio_set.all()',
+            queryset_string="%(object)s.convenio_set.all()",
             band_header=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 12},
+                default_style={"fontName": "Helvetica", "fontSize": 12},
                 height=2.5 * cm,
                 elements=[
                     Label(
                         text=_("Convênio(s)"),
-                        style={'fontSize': 14, 'alignment': TA_CENTER},
+                        style={"fontSize": 14, "alignment": TA_CENTER},
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_("Projeto"), left=convenio_left[0] * cm, top=convenio_top),
-                    Label(text=_("Nº Convenio"), left=convenio_left[1] * cm, top=convenio_top),
-                    Label(text=_("Nº Processo SF"), left=convenio_left[2] * cm, top=convenio_top),
-                    Label(text=_("Adesão"), left=convenio_left[3] * cm, top=convenio_top),
-                    Label(text=_("Convênio"), left=convenio_left[4] * cm, top=convenio_top),
-                    Label(text=_("Equipada"), left=convenio_left[5] * cm, top=convenio_top),
-                    Label(text=_("Data D.O."), left=convenio_left[6] * cm, top=convenio_top),
+                    Label(
+                        text=_("Projeto"),
+                        left=convenio_left[0] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Nº Convenio"),
+                        left=convenio_left[1] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Nº Processo SF"),
+                        left=convenio_left[2] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Adesão"),
+                        left=convenio_left[3] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Convênio"),
+                        left=convenio_left[4] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Equipada"),
+                        left=convenio_left[5] * cm,
+                        top=convenio_top,
+                    ),
+                    Label(
+                        text=_("Data D.O."),
+                        left=convenio_left[6] * cm,
+                        top=convenio_top,
+                    ),
                 ],
-                borders={'bottom': True}
+                borders={"bottom": True},
             ),
             band_detail=ReportBand(
-                default_style={'fontName': 'Helvetica', 'fontSize': 11},
+                default_style={"fontName": "Helvetica", "fontSize": 11},
                 height=0.5 * cm,
                 elements=[
-                    ObjectValue(attribute_name='projeto.sigla', left=convenio_left[0] * cm),
-                    ObjectValue(attribute_name='num_convenio', left=convenio_left[1] * cm),
-                    ObjectValue(attribute_name='num_processo_sf', left=convenio_left[2] * cm),
-                    ObjectValue(attribute_name='data_adesao', left=convenio_left[3] * cm,
-                                get_value=lambda instance:
-                                instance.data_adesao.strftime('%d/%m/%Y') if instance.data_adesao is not None else '-'
-                                ),
-                    ObjectValue(attribute_name='data_retorno_assinatura', left=convenio_left[4] * cm,
-                                get_value=lambda instance:
-                                instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
-                                ),
-                    ObjectValue(attribute_name='data_termo_aceite', left=convenio_left[5] * cm,
-                                get_value=lambda instance:
-                                instance.data_termo_aceite.strftime('%d/%m/%Y') if instance.data_termo_aceite is not None else '-'
-                                ),
-                    ObjectValue(attribute_name='data_pub_diario', left=convenio_left[6] * cm,
-                                get_value=lambda instance:
-                                instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
-                                ),
+                    ObjectValue(
+                        attribute_name="projeto.sigla",
+                        left=convenio_left[0] * cm,
+                    ),
+                    ObjectValue(
+                        attribute_name="num_convenio",
+                        left=convenio_left[1] * cm,
+                    ),
+                    ObjectValue(
+                        attribute_name="num_processo_sf",
+                        left=convenio_left[2] * cm,
+                    ),
+                    ObjectValue(
+                        attribute_name="data_adesao",
+                        left=convenio_left[3] * cm,
+                        get_value=lambda instance: instance.data_adesao.strftime(
+                            "%d/%m/%Y"
+                        )
+                        if instance.data_adesao is not None
+                        else "-",
+                    ),
+                    ObjectValue(
+                        attribute_name="data_retorno_assinatura",
+                        left=convenio_left[4] * cm,
+                        get_value=lambda instance: instance.data_retorno_assinatura.strftime(
+                            "%d/%m/%Y"
+                        )
+                        if instance.data_retorno_assinatura is not None
+                        else "-",
+                    ),
+                    ObjectValue(
+                        attribute_name="data_termo_aceite",
+                        left=convenio_left[5] * cm,
+                        get_value=lambda instance: instance.data_termo_aceite.strftime(
+                            "%d/%m/%Y"
+                        )
+                        if instance.data_termo_aceite is not None
+                        else "-",
+                    ),
+                    ObjectValue(
+                        attribute_name="data_pub_diario",
+                        left=convenio_left[6] * cm,
+                        get_value=lambda instance: instance.data_pub_diario.strftime(
+                            "%d/%m/%Y"
+                        )
+                        if instance.data_pub_diario is not None
+                        else "-",
+                    ),
                 ],
-                #borders = {'all':True},
+                # borders = {'all':True},
             ),
-        )
+        ),
     ]

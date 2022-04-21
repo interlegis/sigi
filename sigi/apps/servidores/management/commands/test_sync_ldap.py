@@ -10,7 +10,6 @@ pytestmark = pytest.mark.django_db
 
 
 class StubCommand(Command):
-
     def __init__(self, users):
         super(StubCommand, self).__init__()
         self.users = users
@@ -20,69 +19,172 @@ class StubCommand(Command):
 
 
 def create_stub_user(username, nome_completo, first_name, last_name, email):
-    user = G(User, username=username, first_name=first_name, last_name=last_name, email=email)
+    user = G(
+        User,
+        username=username,
+        first_name=first_name,
+        last_name=last_name,
+        email=email,
+    )
     user.servidor.nome_completo = nome_completo
     return user
 
+
 ALEX_LDAP, BRUNO_LDAP, RITA_LDAP = [
-    ('...',
-        {'cn': ['Alex Lima'],
-         'givenName': ['Alex'],
-         'sAMAccountName': ['alexlima'],
-         'sn': ['Lima'],
-         'userPrincipalName': ['alexlima@interlegis.leg.br']}),
-
-    ('...',
-        {'cn': ['Bruno Almeida Prado'],
-         'givenName': ['Bruno'],
-         'sAMAccountName': ['bruno'],
-         'sn': ['Almeida Prado'],
-         'userPrincipalName': ['bruno@interlegis.leg.br']}),
-
-    ('...',
-        {'cn': ['Cl\xc3\xa1udia de C\xc3\xa1ssia'],
-         'givenName': ['Cl\xc3\xa1udia'],
-         'sAMAccountName': ['claudia'],
-         'sn': ['de C\xc3\xa1ssia'],
-         'userPrincipalName': ['claudia@interlegis.leg.br']}),
+    (
+        "...",
+        {
+            "cn": ["Alex Lima"],
+            "givenName": ["Alex"],
+            "sAMAccountName": ["alexlima"],
+            "sn": ["Lima"],
+            "userPrincipalName": ["alexlima@interlegis.leg.br"],
+        },
+    ),
+    (
+        "...",
+        {
+            "cn": ["Bruno Almeida Prado"],
+            "givenName": ["Bruno"],
+            "sAMAccountName": ["bruno"],
+            "sn": ["Almeida Prado"],
+            "userPrincipalName": ["bruno@interlegis.leg.br"],
+        },
+    ),
+    (
+        "...",
+        {
+            "cn": ["Cl\xc3\xa1udia de C\xc3\xa1ssia"],
+            "givenName": ["Cl\xc3\xa1udia"],
+            "sAMAccountName": ["claudia"],
+            "sn": ["de C\xc3\xa1ssia"],
+            "userPrincipalName": ["claudia@interlegis.leg.br"],
+        },
+    ),
 ]
 
 
-@pytest.mark.parametrize("before, ldap_users, after, messages", [
-    # new user from ldap is created
-    ([],
-     [ALEX_LDAP],
-     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
-     '''
+@pytest.mark.parametrize(
+    "before, ldap_users, after, messages",
+    [
+        # new user from ldap is created
+        (
+            [],
+            [ALEX_LDAP],
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                )
+            ],
+            """
 User 'alexlima' created.
 Users are synchronized.
-     '''),
-
-    # nothing changes
-    ([('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
-     [ALEX_LDAP],
-     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br')],
-     '''
+     """,
+        ),
+        # nothing changes
+        (
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                )
+            ],
+            [ALEX_LDAP],
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                )
+            ],
+            """
 Users are synchronized.
-     '''),
-
-    # unicode encoding from LDAP data works well
-    ([('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
-     [RITA_LDAP],
-     [('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
-     '''
+     """,
+        ),
+        # unicode encoding from LDAP data works well
+        (
+            [
+                (
+                    "claudia",
+                    "Cláudia de Cássia",
+                    "Cláudia",
+                    "de Cássia",
+                    "claudia@interlegis.leg.br",
+                )
+            ],
+            [RITA_LDAP],
+            [
+                (
+                    "claudia",
+                    "Cláudia de Cássia",
+                    "Cláudia",
+                    "de Cássia",
+                    "claudia@interlegis.leg.br",
+                )
+            ],
+            """
 Users are synchronized.
-     '''),
-
-    # update: full name, first name, last name, email
-    ([('alexlima', '___', '___', '___', '___', ),
-      ('bruno', 'Bruno Almeida Prado', '___', 'Almeida Prado', '___', ),
-      ('claudia', '___', 'Cláudia', '___', 'claudia@interlegis.leg.br', )],
-     [ALEX_LDAP, BRUNO_LDAP, RITA_LDAP],
-     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
-      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
-      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
-     '''
+     """,
+        ),
+        # update: full name, first name, last name, email
+        (
+            [
+                (
+                    "alexlima",
+                    "___",
+                    "___",
+                    "___",
+                    "___",
+                ),
+                (
+                    "bruno",
+                    "Bruno Almeida Prado",
+                    "___",
+                    "Almeida Prado",
+                    "___",
+                ),
+                (
+                    "claudia",
+                    "___",
+                    "Cláudia",
+                    "___",
+                    "claudia@interlegis.leg.br",
+                ),
+            ],
+            [ALEX_LDAP, BRUNO_LDAP, RITA_LDAP],
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                ),
+                (
+                    "bruno",
+                    "Bruno Almeida Prado",
+                    "Bruno",
+                    "Almeida Prado",
+                    "bruno@interlegis.leg.br",
+                ),
+                (
+                    "claudia",
+                    "Cláudia de Cássia",
+                    "Cláudia",
+                    "de Cássia",
+                    "claudia@interlegis.leg.br",
+                ),
+            ],
+            """
 User 'alexlima' first name updated.
 User 'alexlima' last name updated.
 User 'alexlima' email updated.
@@ -93,30 +195,69 @@ Full name of Servidor 'Bruno Almeida Prado' updated.
 User 'claudia' last name updated.
 Full name of Servidor 'Cláudia de Cássia' updated.
 Users are synchronized.
-      '''),
-
-    # update username (username from LDAP not in base, so match user by email and update username)
-    # TODO: is this functionality really necessary? If not remove this and corresponding code
-
-    # connect servidor with nome_completo to user
-    # TODO: is this functionality really necessary? If not remove this and corresponding code
-
-    # create new servidor with nome_completo and connect to user
-    # TODO: is this functionality really necessary? If not remove this and corresponding code
-
-
-    # user not present in ldap is NOT deleted
-    ([('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
-      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
-      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
-     [ALEX_LDAP, RITA_LDAP],
-     [('alexlima', 'Alex Lima', 'Alex', 'Lima', 'alexlima@interlegis.leg.br', ),
-      ('bruno', 'Bruno Almeida Prado', 'Bruno', 'Almeida Prado', 'bruno@interlegis.leg.br', ),
-      ('claudia', 'Cláudia de Cássia', 'Cláudia', 'de Cássia', 'claudia@interlegis.leg.br', )],
-     '''
+      """,
+        ),
+        # update username (username from LDAP not in base, so match user by email and update username)
+        # TODO: is this functionality really necessary? If not remove this and corresponding code
+        # connect servidor with nome_completo to user
+        # TODO: is this functionality really necessary? If not remove this and corresponding code
+        # create new servidor with nome_completo and connect to user
+        # TODO: is this functionality really necessary? If not remove this and corresponding code
+        # user not present in ldap is NOT deleted
+        (
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                ),
+                (
+                    "bruno",
+                    "Bruno Almeida Prado",
+                    "Bruno",
+                    "Almeida Prado",
+                    "bruno@interlegis.leg.br",
+                ),
+                (
+                    "claudia",
+                    "Cláudia de Cássia",
+                    "Cláudia",
+                    "de Cássia",
+                    "claudia@interlegis.leg.br",
+                ),
+            ],
+            [ALEX_LDAP, RITA_LDAP],
+            [
+                (
+                    "alexlima",
+                    "Alex Lima",
+                    "Alex",
+                    "Lima",
+                    "alexlima@interlegis.leg.br",
+                ),
+                (
+                    "bruno",
+                    "Bruno Almeida Prado",
+                    "Bruno",
+                    "Almeida Prado",
+                    "bruno@interlegis.leg.br",
+                ),
+                (
+                    "claudia",
+                    "Cláudia de Cássia",
+                    "Cláudia",
+                    "de Cássia",
+                    "claudia@interlegis.leg.br",
+                ),
+            ],
+            """
 Users are synchronized.
-      '''),
-])
+      """,
+        ),
+    ],
+)
 def test_sync_users(before, ldap_users, after, messages, capsys):
 
     # setup
@@ -127,12 +268,18 @@ def test_sync_users(before, ldap_users, after, messages, capsys):
 
     command = StubCommand(ldap_users)
     command.sync_users()
-    users = User.objects.all().order_by('username')
+    users = User.objects.all().order_by("username")
     for user, expected in zip(users, after):
-        real = user.username, user.servidor.nome_completo, user.first_name, user.last_name, user.email
+        real = (
+            user.username,
+            user.servidor.nome_completo,
+            user.first_name,
+            user.last_name,
+            user.email,
+        )
         assert real == expected
 
     # feedbak messages
     out, err = capsys.readouterr()
     assert out.strip() == messages.strip()
-    assert err == ''
+    assert err == ""

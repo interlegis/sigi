@@ -28,12 +28,21 @@ from sigi.apps.servicos.models import Servico
 
 
 class Command(BaseCommand):
-    help = _('Atualiza a informação de data de último serviço dos serviços SEIT hospedados no Interlegis.')
+    help = _(
+        "Atualiza a informação de data de último serviço dos serviços SEIT hospedados no Interlegis."
+    )
 
     def handle(self, *args, **options):
-        verbosity = int(options['verbosity'])
-        queryset = Servico.objects.exclude(url="").exclude(tipo_servico__string_pesquisa="")
+        verbosity = int(options["verbosity"])
+        queryset = Servico.objects.exclude(url="").exclude(
+            tipo_servico__string_pesquisa=""
+        )
         for obj in queryset:
             obj.atualiza_data_uso()
-            if ((verbosity == 1) and (obj.data_ultimo_uso is None)) or (verbosity > 1):
-                self.stdout.write("%s \t %s \t %s\n" % (obj.url, obj.data_ultimo_uso, obj.erro_atualizacao))
+            if ((verbosity == 1) and (obj.data_ultimo_uso is None)) or (
+                verbosity > 1
+            ):
+                self.stdout.write(
+                    "%s \t %s \t %s\n"
+                    % (obj.url, obj.data_ultimo_uso, obj.erro_atualizacao)
+                )

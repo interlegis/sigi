@@ -24,7 +24,13 @@
 import csv
 import os
 from django.core.management.base import BaseCommand, CommandError
-from sigi.apps.contatos.models import Municipio, UnidadeFederativa, Mesorregiao, Microrregiao
+from sigi.apps.contatos.models import (
+    Municipio,
+    UnidadeFederativa,
+    Mesorregiao,
+    Microrregiao,
+)
+
 
 class Command(BaseCommand):
     args = "data_file.csv"
@@ -40,8 +46,14 @@ class Command(BaseCommand):
 
     * Os nomes dos campos devem ser grafados exatamente como descrito."""
 
-    campos = {'cod_uf', 'cod_mesorregiao', 'nome_mesorregiao', 'cod_microrregiao',
-              'nome_microrregiao', 'cod_municipio'}
+    campos = {
+        "cod_uf",
+        "cod_mesorregiao",
+        "nome_mesorregiao",
+        "cod_microrregiao",
+        "nome_microrregiao",
+        "cod_municipio",
+    }
 
     def handle(self, *args, **options):
         if len(args) != 1:
@@ -50,51 +62,86 @@ class Command(BaseCommand):
         file_name = args[0]
 
         if not os.path.isfile(file_name):
-            raise CommandError("Arquivo %s não encontrado" % [file_name,])
+            raise CommandError(
+                "Arquivo %s não encontrado"
+                % [
+                    file_name,
+                ]
+            )
 
-        with open(file_name, 'rb') as csvfile:
+        with open(file_name, "rb") as csvfile:
             reader = csv.DictReader(csvfile)
 
             if not self.campos.issubset(reader.fieldnames):
-                raise CommandError("O arquivo não possui todos os campos obrigatórios")
+                raise CommandError(
+                    "O arquivo não possui todos os campos obrigatórios"
+                )
 
             erros = 0
 
             for reg in reader:
                 try:
-                    uf = UnidadeFederativa.objects.get(codigo_ibge=reg['cod_uf'])
+                    uf = UnidadeFederativa.objects.get(
+                        codigo_ibge=reg["cod_uf"]
+                    )
                 except UnidadeFederativa.DoesNotExist:
-                    self.stdout.write("(Linha %s): não existe UF com código IBGE '%s'" %
-                                      (reader.line_num, reg['cod_uf'],))
+                    self.stdout.write(
+                        "(Linha %s): não existe UF com código IBGE '%s'"
+                        % (
+                            reader.line_num,
+                            reg["cod_uf"],
+                        )
+                    )
                     erros = erros + 1
                     continue
 
                 try:
-                    municipio = Municipio.objects.get(codigo_ibge=reg['cod_municipio'])
+                    municipio = Municipio.objects.get(
+                        codigo_ibge=reg["cod_municipio"]
+                    )
                 except Municipio.DoesNotExist:
-                    self.stdout.write("(Linha %s): não existe Município com código IBGE '%s'" %
-                                      (reader.line_num, reg['cod_municipio'],))
+                    self.stdout.write(
+                        "(Linha %s): não existe Município com código IBGE '%s'"
+                        % (
+                            reader.line_num,
+                            reg["cod_municipio"],
+                        )
+                    )
                     erros = erros + 1
                     continue
 
-                cod_meso = reg['cod_uf'] + reg['cod_mesorregiao']
-                cod_micro = cod_meso + reg['cod_microrregiao']
+                cod_meso = reg["cod_uf"] + reg["cod_mesorregiao"]
+                cod_micro = cod_meso + reg["cod_microrregiao"]
 
                 if Mesorregiao.objects.filter(codigo_ibge=cod_meso).exists():
                     meso = Mesorregiao.objects.get(codigo_ibge=cod_meso)
                 else:
-                    meso = Mesorregiao(codigo_ibge=cod_meso, uf=uf, nome=reg['nome_mesorregiao'])
-                meso.nome = reg['nome_mesorregiao']
+                    meso = Mesorregiao(
+                        codigo_ibge=cod_meso,
+                        uf=uf,
+                        nome=reg["nome_mesorregiao"],
+                    )
+                meso.nome = reg["nome_mesorregiao"]
                 meso.save()
 
                 if Microrregiao.objects.filter(codigo_ibge=cod_micro).exists():
                     micro = Microrregiao.objects.get(codigo_ibge=cod_micro)
                 else:
-                    micro = Microrregiao(codigo_ibge=cod_micro, mesorregiao=meso, nome=reg['nome_microrregiao'])
-                micro.nome = reg['nome_microrregiao']
+                    micro = Microrregiao(
+                        codigo_ibge=cod_micro,
+                        mesorregiao=meso,
+                        nome=reg["nome_microrregiao"],
+                    )
+                micro.nome = reg["nome_microrregiao"]
                 micro.save()
 
                 municipio.microrregiao = micro
                 municipio.save()
 
-            self.stdout.write("Importação concluída. %s erros em %s linhas" % (erros, reader.line_num,))
+            self.stdout.write(
+                "Importação concluída. %s erros em %s linhas"
+                % (
+                    erros,
+                    reader.line_num,
+                )
+            )

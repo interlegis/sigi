@@ -6,23 +6,38 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servidores', '0007_auto_20210430_0735'),
+        ("servidores", "0007_auto_20210430_0735"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='servico',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="servico",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
         migrations.AlterField(
-            model_name='servidor',
-            name='foto',
-            field=models.ImageField(blank=True, height_field='foto_altura', upload_to='fotos/servidores', width_field='foto_largura'),
+            model_name="servidor",
+            name="foto",
+            field=models.ImageField(
+                blank=True,
+                height_field="foto_altura",
+                upload_to="fotos/servidores",
+                width_field="foto_largura",
+            ),
         ),
         migrations.AlterField(
-            model_name='servidor',
-            name='id',
-            field=models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID'),
+            model_name="servidor",
+            name="id",
+            field=models.BigAutoField(
+                auto_created=True,
+                primary_key=True,
+                serialize=False,
+                verbose_name="ID",
+            ),
         ),
     ]

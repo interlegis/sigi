@@ -6,12 +6,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('ocorrencias', '0007_remove_comentario_encaminhar_setor_and_more'),
+        ("ocorrencias", "0007_remove_comentario_encaminhar_setor_and_more"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='categoria',
-            name='setor_responsavel',
+            model_name="categoria",
+            name="setor_responsavel",
         ),
     ]

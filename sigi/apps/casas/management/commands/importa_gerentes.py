@@ -29,6 +29,7 @@ from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import Municipio
 
+
 class Command(BaseCommand):
     args = "data_file.csv"
     help = """Importa dados de atribuição de gerencia de relacionamentos de um arquivo CSV.
@@ -39,7 +40,7 @@ class Command(BaseCommand):
 
     * Os nomes dos campos devem ser grafados exatamente como descrito."""
 
-    campos = {'cod_municipio', 'user_id'}
+    campos = {"cod_municipio", "user_id"}
 
     def handle(self, *args, **options):
         if len(args) != 1:
@@ -48,13 +49,20 @@ class Command(BaseCommand):
         file_name = args[0]
 
         if not os.path.isfile(file_name):
-            raise CommandError("Arquivo %s não encontrado" % [file_name,])
+            raise CommandError(
+                "Arquivo %s não encontrado"
+                % [
+                    file_name,
+                ]
+            )
 
-        with open(file_name, 'rb') as csvfile:
+        with open(file_name, "rb") as csvfile:
             reader = csv.DictReader(csvfile)
 
             if not self.campos.issubset(reader.fieldnames):
-                raise CommandError("O arquivo não possui todos os campos obrigatórios")
+                raise CommandError(
+                    "O arquivo não possui todos os campos obrigatórios"
+                )
 
             Orgao.gerentes_interlegis.through.objects.all().delete()
 
@@ -63,36 +71,39 @@ class Command(BaseCommand):
             for reg in reader:
                 try:
                     municipio = Municipio.objects.get(
-                        codigo_ibge=reg['cod_municipio']
+                        codigo_ibge=reg["cod_municipio"]
                     )
                 except Municipio.DoesNotExist:
-                    self.stdout.write("{linha}: não existe Município com "
-                                      "código IBGE {ibge}'".format(
-                                          linha=reader.line_num,
-                                          ibge=reg['cod_municipio'])
+                    self.stdout.write(
+                        "{linha}: não existe Município com "
+                        "código IBGE {ibge}'".format(
+                            linha=reader.line_num, ibge=reg["cod_municipio"]
+                        )
                     )
                     erros = erros + 1
                     continue
 
                 try:
                     gerente = Servidor.objects.get(
-                        user__username=reg['user_id']
+                        user__username=reg["user_id"]
                     )
                 except Servidor.DoesNotExist:
-                    self.stdout.write("({linha}): não existe Servidor com "
-                                      "userid {userid}".format(
-                                          linha=reader.line_num,
-                                          userid=reg['user_id'])
+                    self.stdout.write(
+                        "({linha}): não existe Servidor com "
+                        "userid {userid}".format(
+                            linha=reader.line_num, userid=reg["user_id"]
+                        )
                     )
                     erros = erros + 1
                     continue
 
                 for casa in municipio.orgao_set.filter(
-                    tipo__sigla__in=['AL', 'CM']):
+                    tipo__sigla__in=["AL", "CM"]
+                ):
                     casa.gerentes_interlegis.add(gerente)
                     casa.save()
 
-            self.stdout.write("Importação concluída. {erros} erros em {linhas}"
-                              " linhas".format(erros=erros,
-                                                linhas=reader.line_num)
+            self.stdout.write(
+                "Importação concluída. {erros} erros em {linhas}"
+                " linhas".format(erros=erros, linhas=reader.line_num)
             )

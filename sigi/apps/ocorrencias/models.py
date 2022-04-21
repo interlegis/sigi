@@ -7,15 +7,16 @@ from django.utils.safestring import mark_safe
 
 class Categoria(models.Model):
     nome = models.CharField(_("Categoria"), max_length=50)
-    descricao = models.TextField(_('descrição'), blank=True, null=True)
+    descricao = models.TextField(_("descrição"), blank=True, null=True)
 
     class Meta:
-        verbose_name = _('Categoria')
-        verbose_name_plural = _('Categorias')
-        ordering = ('nome',)
+        verbose_name = _("Categoria")
+        verbose_name_plural = _("Categorias")
+        ordering = ("nome",)
 
     def __str__(self):
         return self.nome
+
 
 class TipoContato(models.Model):
     descricao = models.CharField(_("Descrição"), max_length=50)
@@ -27,125 +28,125 @@ class TipoContato(models.Model):
     def __str__(self):
         return self.descricao
 
+
 class Ocorrencia(models.Model):
-    STATUS_ABERTO    = 1
-    STATUS_REABERTO  = 2
+    STATUS_ABERTO = 1
+    STATUS_REABERTO = 2
     STATUS_RESOLVIDO = 3
-    STATUS_FECHADO   = 4
+    STATUS_FECHADO = 4
     STATUS_DUPLICADO = 5
 
     STATUS_CHOICES = (
-        (STATUS_ABERTO   , _('Aberto')),
-        (STATUS_REABERTO , _('Reaberto')),
-        (STATUS_RESOLVIDO, _('Resolvido')),
-        (STATUS_FECHADO  , _('Fechado')),
-        (STATUS_DUPLICADO, _('Duplicado')),
+        (STATUS_ABERTO, _("Aberto")),
+        (STATUS_REABERTO, _("Reaberto")),
+        (STATUS_RESOLVIDO, _("Resolvido")),
+        (STATUS_FECHADO, _("Fechado")),
+        (STATUS_DUPLICADO, _("Duplicado")),
     )
 
     PRIORITY_CHOICES = (
-        (1, _('Altíssimo')),
-        (2, _('Alto')),
-        (3, _('Normal')),
-        (4, _('Baixo')),
-        (5, _('Baixíssimo')),
+        (1, _("Altíssimo")),
+        (2, _("Alto")),
+        (3, _("Normal")),
+        (4, _("Baixo")),
+        (5, _("Baixíssimo")),
     )
 
     casa_legislativa = models.ForeignKey(
-        'casas.Orgao',
+        "casas.Orgao",
         on_delete=models.CASCADE,
-        verbose_name=_('Casa Legislativa')
+        verbose_name=_("Casa Legislativa"),
     )
     data_criacao = models.DateField(
-        _('Data de criação'),
-        null=True,
-        blank=True,
-        auto_now_add=True
+        _("Data de criação"), null=True, blank=True, auto_now_add=True
     )
     data_modificacao = models.DateField(
-        _('Data de modificação'),
-        null=True,
-        blank=True,
-        auto_now=True
+        _("Data de modificação"), null=True, blank=True, auto_now=True
     )
     categoria = models.ForeignKey(
-        Categoria,
-        on_delete=models.PROTECT,
-        verbose_name=_('Categoria')
+        Categoria, on_delete=models.PROTECT, verbose_name=_("Categoria")
     )
     tipo_contato = models.ForeignKey(
-        TipoContato,
-        on_delete=models.PROTECT,
-        verbose_name=_("Tipo de contato")
+        TipoContato, on_delete=models.PROTECT, verbose_name=_("Tipo de contato")
     )
-    assunto = models.CharField(_('Assunto'), max_length=200)
-    status = models.IntegerField(
-        _('Status'),
-        choices=STATUS_CHOICES,
-        default=1
-    )
+    assunto = models.CharField(_("Assunto"), max_length=200)
+    status = models.IntegerField(_("Status"), choices=STATUS_CHOICES, default=1)
     prioridade = models.IntegerField(
-        _('Prioridade'),
-        choices=PRIORITY_CHOICES,
-        default=3
+        _("Prioridade"), choices=PRIORITY_CHOICES, default=3
     )
-    descricao = models.TextField(_('descrição'), blank=True,)
-    resolucao = models.TextField(_('resolução'), blank=True,)
+    descricao = models.TextField(
+        _("descrição"),
+        blank=True,
+    )
+    resolucao = models.TextField(
+        _("resolução"),
+        blank=True,
+    )
     servidor_registro = models.ForeignKey(
-        'servidores.Servidor',
+        "servidores.Servidor",
         on_delete=models.PROTECT,
-        verbose_name=_("Servidor que registrou a ocorrência")
+        verbose_name=_("Servidor que registrou a ocorrência"),
     )
     ticket = models.PositiveIntegerField(
-        _('Número do ticket'),
+        _("Número do ticket"),
         blank=True,
         null=True,
-        help_text=_("Número do ticket no osTicket")
+        help_text=_("Número do ticket no osTicket"),
     )
 
     class Meta:
-        verbose_name = _('ocorrência')
-        verbose_name_plural = _('ocorrências')
-        ordering = ['prioridade', 'data_modificacao', 'data_criacao', ]
+        verbose_name = _("ocorrência")
+        verbose_name_plural = _("ocorrências")
+        ordering = [
+            "prioridade",
+            "data_modificacao",
+            "data_criacao",
+        ]
 
     def __str__(self):
         return _(f"{self.casa_legislativa}: {self.assunto}")
 
     def clean(self):
-        if (self.ticket is not None
-            and Ocorrencia.objects.exclude(pk=self.pk).filter(
-                ticket=self.ticket).exists()
+        if (
+            self.ticket is not None
+            and Ocorrencia.objects.exclude(pk=self.pk)
+            .filter(ticket=self.ticket)
+            .exists()
         ):
-            raise ValidationError({'ticket': _("Já existe ocorrência "
-                                               "registrada para este ticket")})
+            raise ValidationError(
+                {
+                    "ticket": _(
+                        "Já existe ocorrência " "registrada para este ticket"
+                    )
+                }
+            )
         return super(Ocorrencia, self).clean()
 
     def get_ticket_url(self):
         return mark_safe(settings.OSTICKET_URL % self.ticket)
 
+
 class Comentario(models.Model):
     ocorrencia = models.ForeignKey(
         Ocorrencia,
         on_delete=models.CASCADE,
-        verbose_name=_('Ocorrência'),
-        related_name='comentarios'
+        verbose_name=_("Ocorrência"),
+        related_name="comentarios",
     )
     data_criacao = models.DateTimeField(
-        _('Data de criação'),
-        null=True,
-        blank=True,
-        auto_now_add=True
+        _("Data de criação"), null=True, blank=True, auto_now_add=True
     )
-    descricao = models.TextField(_('Descrição'), blank=True, null=True)
+    descricao = models.TextField(_("Descrição"), blank=True, null=True)
     usuario = models.ForeignKey(
-        'servidores.Servidor',
+        "servidores.Servidor",
         on_delete=models.PROTECT,
-        verbose_name=_('Usuário')
+        verbose_name=_("Usuário"),
     )
     novo_status = models.IntegerField(
-        _('Novo status'),
+        _("Novo status"),
         choices=Ocorrencia.STATUS_CHOICES,
         blank=True,
-        null=True
+        null=True,
     )
 
     def save(self, *args, **kwargs):
@@ -154,32 +155,28 @@ class Comentario(models.Model):
             self.ocorrencia.save()
         super(Comentario, self).save(*args, **kwargs)
 
+
 class Anexo(models.Model):
     ocorrencia = models.ForeignKey(
-        Ocorrencia,
-        on_delete=models.CASCADE,
-        verbose_name=_('ocorrência')
+        Ocorrencia, on_delete=models.CASCADE, verbose_name=_("ocorrência")
     )
     arquivo = models.FileField(
-        _('Arquivo anexado'),
-        upload_to='apps/ocorrencia/anexo/arquivo',
-        max_length=500
+        _("Arquivo anexado"),
+        upload_to="apps/ocorrencia/anexo/arquivo",
+        max_length=500,
     )
-    descricao = models.CharField(
-        _('descrição do anexo'),
-        max_length=70
-    )
+    descricao = models.CharField(_("descrição do anexo"), max_length=70)
     data_pub = models.DateTimeField(
-        _('data da publicação do anexo'),
+        _("data da publicação do anexo"),
         null=True,
         blank=True,
-        auto_now_add=True
+        auto_now_add=True,
     )
 
     class Meta:
-        ordering = ('-data_pub',)
-        verbose_name =  _('Anexo')
-        verbose_name_plural =_('Anexos')
+        ordering = ("-data_pub",)
+        verbose_name = _("Anexo")
+        verbose_name_plural = _("Anexos")
 
     def __str__(self):
         return _(f"{self.arquivo.name}: {self.descricao}")

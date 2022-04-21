@@ -13,12 +13,12 @@ from django import template
 register = template.Library()
 
 
-#==============================================================================
+# ==============================================================================
 # Calculation objects
-#==============================================================================
+# ==============================================================================
+
 
 class BaseCalc(object):
-
     def __init__(self, var1, var2=None, negate=False):
         self.var1 = var1
         self.var2 = var2
@@ -43,54 +43,48 @@ class BaseCalc(object):
 
 
 class Or(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 or var2
 
 
 class And(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 and var2
 
 
 class Equals(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 == var2
 
 
 class Greater(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 > var2
 
 
 class GreaterOrEqual(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 >= var2
 
 
 class In(BaseCalc):
-
     def calculate(self, var1, var2):
         return var1 in var2
 
 
 OPERATORS = {
-    '=': (Equals, True),
-    '==': (Equals, True),
-    '!=': (Equals, False),
-    '>': (Greater, True),
-    '>=': (GreaterOrEqual, True),
-    '<=': (Greater, False),
-    '<': (GreaterOrEqual, False),
-    'or': (Or, True),
-    'and': (And, True),
-    'in': (In, True),
+    "=": (Equals, True),
+    "==": (Equals, True),
+    "!=": (Equals, False),
+    ">": (Greater, True),
+    ">=": (GreaterOrEqual, True),
+    "<=": (Greater, False),
+    "<": (GreaterOrEqual, False),
+    "or": (Or, True),
+    "and": (And, True),
+    "in": (In, True),
 }
-BOOL_OPERATORS = ('or', 'and')
+BOOL_OPERATORS = ("or", "and")
 
 
 class IfParser(object):
@@ -111,7 +105,7 @@ class IfParser(object):
 
     def parse(self):
         if self.at_end():
-            raise self.error_class('No variables provided.')
+            raise self.error_class("No variables provided.")
         var1 = self.get_bool_var()
         while not self.at_end():
             op, negate = self.get_operator()
@@ -123,7 +117,7 @@ class IfParser(object):
         negate = True
         token = None
         pos = self.pos
-        while token is None or token == 'not':
+        while token is None or token == "not":
             if pos >= self.len:
                 if eof_message is None:
                     raise self.error_class()
@@ -152,28 +146,32 @@ class IfParser(object):
         var = self.get_var()
         if not self.at_end():
             op_token = self.get_token(lookahead=True)[0]
-            if isinstance(op_token, basestring) and (op_token not in
-                                                     BOOL_OPERATORS):
+            if isinstance(op_token, basestring) and (
+                op_token not in BOOL_OPERATORS
+            ):
                 op, negate = self.get_operator()
                 return op(var, self.get_var(), negate=negate)
         return var
 
     def get_var(self):
-        token, negate = self.get_token('Reached end of statement, still '
-                                       'expecting a variable.')
+        token, negate = self.get_token(
+            "Reached end of statement, still " "expecting a variable."
+        )
         if isinstance(token, basestring) and token in OPERATORS:
-            raise self.error_class('Expected variable, got operator (%s).' %
-                                   token)
+            raise self.error_class(
+                "Expected variable, got operator (%s)." % token
+            )
         var = self.create_var(token)
         if negate:
             return Or(var, negate=True)
         return var
 
     def get_operator(self):
-        token, negate = self.get_token('Reached end of statement, still '
-                                       'expecting an operator.')
+        token, negate = self.get_token(
+            "Reached end of statement, still " "expecting an operator."
+        )
         if not isinstance(token, basestring) or token not in OPERATORS:
-            raise self.error_class('%s is not a valid operator.' % token)
+            raise self.error_class("%s is not a valid operator." % token)
         if self.at_end():
             raise self.error_class('No variable provided after "%s".' % token)
         op, true = OPERATORS[token]
@@ -182,9 +180,10 @@ class IfParser(object):
         return op, negate
 
 
-#==============================================================================
+# ==============================================================================
 # Actual templatetag code.
-#==============================================================================
+# ==============================================================================
+
 
 class TemplateIfParser(IfParser):
     error_class = template.TemplateSyntaxError
@@ -198,7 +197,6 @@ class TemplateIfParser(IfParser):
 
 
 class SmartIfNode(template.Node):
-
     def __init__(self, var, nodelist_true, nodelist_false=None):
         self.nodelist_true, self.nodelist_false = nodelist_true, nodelist_false
         self.var = var
@@ -208,7 +206,7 @@ class SmartIfNode(template.Node):
             return self.nodelist_true.render(context)
         if self.nodelist_false:
             return self.nodelist_false.render(context)
-        return ''
+        return ""
 
     def __repr__(self):
         return "<Smart If node>"
@@ -230,7 +228,7 @@ class SmartIfNode(template.Node):
         return nodes
 
 
-@register.tag('if')
+@register.tag("if")
 def smart_if(parser, token):
     """
     A smarter {% if %} tag for django templates.
@@ -249,10 +247,10 @@ def smart_if(parser, token):
     """
     bits = token.split_contents()[1:]
     var = TemplateIfParser(parser, bits).parse()
-    nodelist_true = parser.parse(('else', 'endif'))
+    nodelist_true = parser.parse(("else", "endif"))
     token = parser.next_token()
-    if token.contents == 'else':
-        nodelist_false = parser.parse(('endif',))
+    if token.contents == "else":
+        nodelist_false = parser.parse(("endif",))
         parser.delete_first_token()
     else:
         nodelist_false = None

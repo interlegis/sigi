@@ -4,7 +4,7 @@ from django.contrib.admin.views.main import ChangeList
 
 class ClearAllFilter(object):
     title = None
-    template = 'clear_all_filter.html'
+    template = "clear_all_filter.html"
 
     def __init__(self, disabled):
         self.disabled = disabled
@@ -17,10 +17,10 @@ class ClearAllFilter(object):
 
 
 class BaseChangeList(ChangeList):
-
     def get_filters(self, request):
-        (filter_specs, has_filters, lookup_params,
-         use_distinct) = super(BaseChangeList, self).get_filters(request)
+        (filter_specs, has_filters, lookup_params, use_distinct) = super(
+            BaseChangeList, self
+        ).get_filters(request)
         if filter_specs:
             clear_all_disabled = not self.get_filters_params()
             filter_specs = [ClearAllFilter(clear_all_disabled)] + filter_specs

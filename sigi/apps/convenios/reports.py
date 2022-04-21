@@ -1,11 +1,17 @@
 from django.utils.translation import gettext as _
-from geraldo import ReportBand, ObjectValue, Label, ReportGroup, FIELD_ACTION_SUM
+from geraldo import (
+    ReportBand,
+    ObjectValue,
+    Label,
+    ReportGroup,
+    FIELD_ACTION_SUM,
+)
 from reportlab.lib.units import cm
 
 from sigi.apps.relatorios.reports import ReportDefault
 
 
-#from abc import ABCMeta
+# from abc import ABCMeta
 
 
 class CasasAderidasReport(object):
@@ -25,7 +31,7 @@ class SemEquipamentosReport(object):
 
 
 class ConvenioReport(ReportDefault):
-    title = _('Relatório de Parcerias')
+    title = _("Relatório de Parcerias")
 
     class band_page_header(ReportDefault.band_page_header):
 
@@ -86,40 +92,41 @@ class ConvenioReport(ReportDefault):
 
         elements = [
             ObjectValue(
-                attribute_name='casa_legislativa.municipio.uf.sigla',
-                left=label_left[0] * cm
+                attribute_name="casa_legislativa.municipio.uf.sigla",
+                left=label_left[0] * cm,
             ),
             ObjectValue(
-                attribute_name='casa_legislativa.municipio.nome',
-                left=label_left[1] * cm
+                attribute_name="casa_legislativa.municipio.nome",
+                left=label_left[1] * cm,
+            ),
+            ObjectValue(attribute_name="num_convenio", left=label_left[2] * cm),
+            ObjectValue(
+                attribute_name="projeto.sigla", left=label_left[3] * cm
             ),
             ObjectValue(
-                attribute_name='num_convenio',
-                left=label_left[2] * cm
-            ),
-            ObjectValue(
-                attribute_name='projeto.sigla',
-                left=label_left[3] * cm
-            ),
-            ObjectValue(
-                attribute_name='data_retorno_assinatura',
+                attribute_name="data_retorno_assinatura",
                 left=label_left[4] * cm,
-                get_value=lambda instance:
-                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
+                get_value=lambda instance: instance.data_retorno_assinatura.strftime(
+                    "%d/%m/%Y"
+                )
+                if instance.data_retorno_assinatura is not None
+                else "-",
             ),
             ObjectValue(
-                attribute_name='data_pub_diario',
+                attribute_name="data_pub_diario",
                 left=label_left[5] * cm,
-                get_value=lambda instance:
-                    instance.data_pub_diario.strftime('%d/%m/%Y') if instance.data_pub_diario is not None else '-'
+                get_value=lambda instance: instance.data_pub_diario.strftime(
+                    "%d/%m/%Y"
+                )
+                if instance.data_pub_diario is not None
+                else "-",
             ),
             ObjectValue(
-                attribute_name='casa_legislativa.nome',
-                left=label_left[6] * cm
+                attribute_name="casa_legislativa.nome", left=label_left[6] * cm
             ),
         ]
 
-    #groups = [
+    # groups = [
     #    ReportGroup(attribute_name='casa_legislativa.municipio.uf',
     #                band_header=ReportBand(
     #                    height=0.7 * cm,
@@ -131,11 +138,10 @@ class ConvenioReport(ReportDefault):
     #                    borders={'top': True},
     #                )
     #                )
-    #]
+    # ]
 
 
 class ConvenioReportSemAceite(ConvenioReport):
-
     class band_page_header(ReportDefault.band_page_header):
 
         label_top = ReportDefault.band_page_header.label_top
@@ -186,39 +192,38 @@ class ConvenioReportSemAceite(ConvenioReport):
 
         elements = [
             ObjectValue(
-                attribute_name='casa_legislativa.municipio.uf.sigla',
-                left=label_left[0] * cm
+                attribute_name="casa_legislativa.municipio.uf.sigla",
+                left=label_left[0] * cm,
             ),
             ObjectValue(
-                attribute_name='casa_legislativa.municipio.nome',
-                left=label_left[1] * cm
+                attribute_name="casa_legislativa.municipio.nome",
+                left=label_left[1] * cm,
             ),
+            ObjectValue(attribute_name="num_convenio", left=label_left[2] * cm),
             ObjectValue(
-                attribute_name='num_convenio',
-                left=label_left[2] * cm
-            ),
-            ObjectValue(
-                attribute_name='projeto.sigla',
+                attribute_name="projeto.sigla",
                 left=label_left[3],
             ),
             ObjectValue(
-                attribute_name='data_retorno_assinatura',
+                attribute_name="data_retorno_assinatura",
                 left=label_left[4] * cm,
-                get_value=lambda instance:
-                    instance.data_retorno_assinatura.strftime('%d/%m/%Y') if instance.data_retorno_assinatura is not None else '-'
+                get_value=lambda instance: instance.data_retorno_assinatura.strftime(
+                    "%d/%m/%Y"
+                )
+                if instance.data_retorno_assinatura is not None
+                else "-",
             ),
             ObjectValue(
-                attribute_name='casa_legislativa.nome',
-                left=label_left[5] * cm
+                attribute_name="casa_legislativa.nome", left=label_left[5] * cm
             ),
         ]
 
 
-float_duas_casas = lambda instance: '%.2f' % (instance)
+float_duas_casas = lambda instance: "%.2f" % (instance)
 
 
 class ConvenioReportRegiao(ReportDefault):
-    title = _('Relatório de Parcerias por Região')
+    title = _("Relatório de Parcerias por Região")
 
     class band_page_header(ReportDefault.band_page_header):
         label_top = ReportDefault.band_page_header.label_top
@@ -228,57 +233,103 @@ class ConvenioReportRegiao(ReportDefault):
         elements = list(ReportDefault.band_page_header.elements)
 
         elements += [
-            Label(text=_("UF"), left=label_left[0] * cm, top=label_top,),
-            Label(text=_("Total"), left=label_left[1] * cm, top=label_top,),
-            Label(text=_("Aderidas"), left=label_left[2] * cm, top=label_top,),
+            Label(
+                text=_("UF"),
+                left=label_left[0] * cm,
+                top=label_top,
+            ),
+            Label(
+                text=_("Total"),
+                left=label_left[1] * cm,
+                top=label_top,
+            ),
+            Label(
+                text=_("Aderidas"),
+                left=label_left[2] * cm,
+                top=label_top,
+            ),
             Label(text="%", left=label_left[3] * cm, top=label_top),
-            Label(text=_("Ñ Aderidas"), left=label_left[4] * cm, top=label_top,),
+            Label(
+                text=_("Ñ Aderidas"),
+                left=label_left[4] * cm,
+                top=label_top,
+            ),
             Label(text="%", left=label_left[5] * cm, top=label_top),
         ]
 
     class band_detail(ReportDefault.band_detail):
         label_left = [0.5, 6, 8, 10, 12, 14]
         display_inline = True
-        float_duas_casas = lambda instance: '%.2f' % (instance.porc_casas_aderidas)
-        default_style = {'fontName': 'Helvetica', 'fontSize': 11}
+        float_duas_casas = lambda instance: "%.2f" % (
+            instance.porc_casas_aderidas
+        )
+        default_style = {"fontName": "Helvetica", "fontSize": 11}
 
         elements = [
-            ObjectValue(attribute_name='estado', left=label_left[0] * cm, ),
-            ObjectValue(attribute_name='quant_casas', left=label_left[1] * cm,),
-            ObjectValue(attribute_name='quant_casas_aderidas', left=label_left[2] * cm),
-            ObjectValue(attribute_name='porc_casas_aderidas', left=label_left[3] * cm),
-            ObjectValue(attribute_name='quant_casas_nao_aderidas', left=label_left[4] * cm),
-            ObjectValue(attribute_name='porc_casas_nao_aderidas', left=label_left[5] * cm,),
+            ObjectValue(
+                attribute_name="estado",
+                left=label_left[0] * cm,
+            ),
+            ObjectValue(
+                attribute_name="quant_casas",
+                left=label_left[1] * cm,
+            ),
+            ObjectValue(
+                attribute_name="quant_casas_aderidas", left=label_left[2] * cm
+            ),
+            ObjectValue(
+                attribute_name="porc_casas_aderidas", left=label_left[3] * cm
+            ),
+            ObjectValue(
+                attribute_name="quant_casas_nao_aderidas",
+                left=label_left[4] * cm,
+            ),
+            ObjectValue(
+                attribute_name="porc_casas_nao_aderidas",
+                left=label_left[5] * cm,
+            ),
         ]
 
     class band_summary(ReportBand):
         label_left = [0.5, 6, 8, 10, 12, 14]
         elements = [
             Label(text=_("Total"), top=0.1 * cm, left=label_left[0] * cm),
-            ObjectValue(attribute_name='quant_casas', action=FIELD_ACTION_SUM, left=label_left[1] * cm, ),
-            ObjectValue(attribute_name='quant_casas_aderidas', action=FIELD_ACTION_SUM, left=label_left[2] * cm),
+            ObjectValue(
+                attribute_name="quant_casas",
+                action=FIELD_ACTION_SUM,
+                left=label_left[1] * cm,
+            ),
+            ObjectValue(
+                attribute_name="quant_casas_aderidas",
+                action=FIELD_ACTION_SUM,
+                left=label_left[2] * cm,
+            ),
             #            ObjectValue(attribute_name='porc_casas_aderidas', action=FIELD_ACTION_AVG, left=label_left[3]*cm,
             # get_value= lambda instance : lambda instance: '%.2f' %  (instance.porc_casas_aderidas),
             #            ),
-            ObjectValue(attribute_name='quant_casas_nao_aderidas', action=FIELD_ACTION_SUM, left=label_left[4] * cm),
+            ObjectValue(
+                attribute_name="quant_casas_nao_aderidas",
+                action=FIELD_ACTION_SUM,
+                left=label_left[4] * cm,
+            ),
             #            ObjectValue(attribute_name='porc_casas_nao_aderidas', left=label_left[5]*cm,
             #               get_value=lambda x: teste(),
             #            ),
         ]
-        borders = {'top': True}
+        borders = {"top": True}
 
 
 class ConvenioPorCMReport(ConvenioReport):
-    title = _('Relatório de Parcerias por Câmara Municipal')
+    title = _("Relatório de Parcerias por Câmara Municipal")
 
 
 class ConvenioPorALReport(ConvenioReport):
-    title = _('Relatório de Parcerias por Assembléia Legislativa')
+    title = _("Relatório de Parcerias por Assembléia Legislativa")
 
 
 class ConvenioReportSemAceiteCM(ConvenioReportSemAceite):
-    title = _('Relatório de Parcerias por Câmara Municipal')
+    title = _("Relatório de Parcerias por Câmara Municipal")
 
 
 class ConvenioReportSemAceiteAL(ConvenioReportSemAceite):
-    title = _('Relatório de Parcerias por Assembléia Legislativa')
+    title = _("Relatório de Parcerias por Assembléia Legislativa")

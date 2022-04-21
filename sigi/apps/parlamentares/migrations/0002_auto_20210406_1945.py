@@ -7,21 +7,23 @@ from django.db import models, migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parlamentares', '0001_initial'),
-        ('casas', '0014_auto_20210406_1945'),
+        ("parlamentares", "0001_initial"),
+        ("casas", "0014_auto_20210406_1945"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='legislatura',
-            name='casa_legislativa',
-            field=models.ForeignKey(to='casas.Orgao'),
+            model_name="legislatura",
+            name="casa_legislativa",
+            field=models.ForeignKey(to="casas.Orgao"),
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='mesadiretora',
-            name='casa_legislativa',
-            field=models.ForeignKey(verbose_name='Casa Legislativa', to='casas.Orgao'),
+            model_name="mesadiretora",
+            name="casa_legislativa",
+            field=models.ForeignKey(
+                verbose_name="Casa Legislativa", to="casas.Orgao"
+            ),
             preserve_default=True,
         ),
     ]

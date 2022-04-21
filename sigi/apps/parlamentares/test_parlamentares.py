@@ -10,7 +10,9 @@ pytestmark = pytest.mark.django_db
 
 @pytest.fixture
 def some_parliamentarians():
-    return parliamentarians_from_names(["Andre Silva", "Bartolomeu Gusmao", "Camila Carla"])
+    return parliamentarians_from_names(
+        ["Andre Silva", "Bartolomeu Gusmao", "Camila Carla"]
+    )
 
 
 def parliamentarians_from_names(names):
@@ -18,7 +20,7 @@ def parliamentarians_from_names(names):
 
 
 def test_list_all(some_parliamentarians, app):
-    response = app.get('/parlamentares/parlamentar/')
+    response = app.get("/parlamentares/parlamentar/")
     assert response.status_code == 200
 
     for x in some_parliamentarians:
@@ -26,7 +28,7 @@ def test_list_all(some_parliamentarians, app):
 
 
 def test_list_filtered_by_capital_letter(some_parliamentarians, app):
-    response = app.get('/parlamentares/parlamentar/?nome_completo=B')
+    response = app.get("/parlamentares/parlamentar/?nome_completo=B")
     assert response.status_code == 200
 
     a, b, c = some_parliamentarians

@@ -8,20 +8,32 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('servidores', '0003_auto_20210422_1729'),
+        ("servidores", "0003_auto_20210422_1729"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='servico',
-            name='responsavel',
-            field=models.ForeignKey(related_name='chefe', on_delete=django.db.models.deletion.SET_NULL, blank=True, to='servidores.Servidor', null=True),
+            model_name="servico",
+            name="responsavel",
+            field=models.ForeignKey(
+                related_name="chefe",
+                on_delete=django.db.models.deletion.SET_NULL,
+                blank=True,
+                to="servidores.Servidor",
+                null=True,
+            ),
             preserve_default=True,
         ),
         migrations.AlterField(
-            model_name='servico',
-            name='subordinado',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.SET_NULL, verbose_name='subordinado a', blank=True, to='servidores.Servico', null=True),
+            model_name="servico",
+            name="subordinado",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.SET_NULL,
+                verbose_name="subordinado a",
+                blank=True,
+                to="servidores.Servico",
+                null=True,
+            ),
             preserve_default=True,
         ),
     ]

@@ -1,9 +1,11 @@
 import csv
 
 import datetime
+
 # from django.contrib import messages
 from django.contrib import admin
 from django.http.response import HttpResponseForbidden
+
 # from django.conf import settings
 # from django.core.paginator import Paginator, InvalidPage, EmptyPage
 # from django.http import HttpResponse, HttpResponseRedirect
@@ -15,6 +17,7 @@ from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Gescon, Projeto
+
 # from sigi.apps.convenios.reports import (ConvenioReport,
 #                                          ConvenioReportSemAceite,
 #                                          ConvenioPorCMReport,
@@ -22,14 +25,15 @@ from sigi.apps.convenios.models import Convenio, Gescon, Projeto
 #                                          ConvenioReportSemAceiteAL,
 #                                          ConvenioReportSemAceiteCM)
 
+
 @login_required
 def report_regiao(request, regiao):
     REGIAO_CHOICES = dict(UnidadeFederativa.REGIAO_CHOICES)
     projetos = Projeto.objects.all()
-    camaras = Orgao.objects.filter(tipo__sigla='CM')
+    camaras = Orgao.objects.filter(tipo__sigla="CM")
 
     tabelas = list()
-    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla='CM')
+    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla="CM")
     tabela = casas_estado_to_tabela(camaras, convenios, regiao)
     tabela["projeto"] = _("Geral")
 
@@ -42,22 +46,23 @@ def report_regiao(request, regiao):
         tabelas.append(tabela)
 
     context = {
-        'tabelas': tabelas,
-        'regiao': REGIAO_CHOICES[regiao],
+        "tabelas": tabelas,
+        "regiao": REGIAO_CHOICES[regiao],
     }
 
     return WeasyTemplateResponse(
-        filename=f'relatorio_regiao_{ regiao }.pdf',
+        filename=f"relatorio_regiao_{ regiao }.pdf",
         request=request,
-        template='convenios/tabela_regiao.html',
+        template="convenios/tabela_regiao.html",
         context=context,
-        content_type='application/pdf',
+        content_type="application/pdf",
     )
+
 
 def casas_estado_to_tabela(casas, convenios, regiao):
     estados = get_list_or_404(UnidadeFederativa, regiao=regiao)
 
-    class LinhaEstado():
+    class LinhaEstado:
         pass
 
     lista = []
@@ -107,21 +112,21 @@ def casas_estado_to_tabela(casas, convenios, regiao):
         casas_regiao.count(),
         casas_regiao.exclude(convenio__in=convenios_regiao).distinct().count(),
         casas_regiao.filter(convenio__in=convenios_regiao).distinct().count(),
-        casas_regiao.filter(
-            convenio__in=convenios_regiao_publicados
-        ).distinct().count(),
-        casas_regiao.filter(
-            convenio__in=convenios_regiao_equipados
-        ).distinct().count(),
+        casas_regiao.filter(convenio__in=convenios_regiao_publicados)
+        .distinct()
+        .count(),
+        casas_regiao.filter(convenio__in=convenios_regiao_equipados)
+        .distinct()
+        .count(),
     )
 
     cabecalho_topo = (
-        _('UF'),
-        _('Câmaras municipais'),
-        _('Não Aderidas'),
-        _('Aderidas'),
-        _('Conveniadas'),
-        _('Equipadas')
+        _("UF"),
+        _("Câmaras municipais"),
+        _("Não Aderidas"),
+        _("Aderidas"),
+        _("Conveniadas"),
+        _("Equipadas"),
     )
 
     return {
@@ -130,6 +135,7 @@ def casas_estado_to_tabela(casas, convenios, regiao):
         "sumario": sumario,
     }
 
+
 @login_required
 def importar_gescon(request):
     if not request.user.is_superuser:
@@ -137,16 +143,15 @@ def importar_gescon(request):
 
     context = admin.site.each_context(request)
 
-    action = request.GET.get('action', "")
+    action = request.GET.get("action", "")
     gescon = Gescon.load()
 
-    if action == 'importar':
+    if action == "importar":
         gescon.importa_contratos()
 
-    context['gescon'] = gescon
+    context["gescon"] = gescon
 
     return render(request, "convenios/importar_gescon.html", context)
-
 
 
 """
@@ -163,18 +168,23 @@ def query_ordena(qs, o, ot):
         qs = qs.order_by("-" + aux)
     return qs
 """
+
+
 def normaliza_data(get, nome_param):
     import re
+
     if nome_param in get:
-        value = get.get(nome_param, '')
-        if value == '':
+        value = get.get(nome_param, "")
+        if value == "":
             del get[nome_param]
-        elif re.match('^\d*$', value):  # Year only
+        elif re.match("^\d*$", value):  # Year only
             # Complete with january 1st
             get[nome_param] = "%s-01-01" % value
-        elif re.match('^\d*\D\d*$', value):  # Year and month
+        elif re.match("^\d*\D\d*$", value):  # Year and month
             # Complete with 1st day of month
-            get[nome_param] = '%s-01' % value
+            get[nome_param] = "%s-01" % value
+
+
 """
 def get_for_qs(get, qs):
     kwargs = {}
