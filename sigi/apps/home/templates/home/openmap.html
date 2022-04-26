@@ -3,44 +3,49 @@
 {% load i18n %}
 
 {% block extrastyle %}
-  {{ block.super }}
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-  <link rel="stylesheet" href="{% static 'home/css/openmap.css' %}" />
-  <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css"/>
+{{ block.super }}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin="" />
+<link rel="stylesheet" href="{% static 'home/css/openmap.css' %}" />
+<link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css" />
 {% endblock %}
 
 {% block extrahead %}
-  {{ block.super }}
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
-  <meta name="robots" content="NONE,NOARCHIVE" />
-  <script type="text/javascript">
-    //<![CDATA[
-        window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin/" %}{% endfilter %}";
+{{ block.super }}
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
+<meta name="robots" content="NONE,NOARCHIVE" />
+<script type="text/javascript">
+  //<![CDATA[
+  window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin / " %}{% endfilter %}";
     //]]>
-    </script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
-    <!-- script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script -->
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
-	  <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<!-- script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script -->
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
+<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
 {% endblock %}
 
 {% block usertools %}
-  <div id="user-tools">
-    <a href="{% url 'admin:index' %}">{% trans "Entrar" %}</a>
-  </div>
+<div id="user-tools">
+  <a href="{% url 'admin:index' %}">{% trans "Entrar" %}</a>
+</div>
 {% endblock %}
 
 {% block side_nav %}
-  {% if not nav_bar_minimized %}
-  <div id="side-bar" class="hide-on-med-and-down">
-      {% include 'home/mapfilter.html' %}
-  </div>
-  {% endif %}
-  <div id="mobile-demo" class="sidenav">
+{% if not nav_bar_minimized %}
+<div id="side-bar" class="hide-on-med-and-down">
+  {% include 'home/mapfilter.html' %}
+</div>
+{% endif %}
+<div id="mobile-demo" class="sidenav">
   {% include 'home/mapfilter.html' with mobile=True %}
-  </div>
+</div>
 {% endblock %}
 
 {% block content %}
@@ -53,61 +58,16 @@
 
 {% block footer %}
 {{ block.super }}
+<script type="text/javascript" src="{% static 'js/search.js' %}"></script>
 <script>
-  $(document).ready(function(){
-    var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
-    var unfiltred_options = {color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000};
-
-    $(".search-text").on("input change", function() {
-      $resultbox = $(".search-result");
-      var $this = $(this);
-      var term = $this.val();
-
-      if (term.length < 3) {
-        $resultbox.html("");
-        $resultbox.addClass("hide");
-        return;
-      }
-
-      $.get("{% url "openmapsearch" %}", {"q": term}, function(data) {
-        $resultbox.html("");
-        for (i in data) {
-          var plain = JSON.stringify(data[i]);
-          var $item = $(`<a href="#" class="search-result-item" data-orgao='${plain}'></a>`);
-          $item.html(data[i].label);
-          $item.prop("data_item", data[i]);
-          $resultbox.append($item);
-        }
-        $resultbox.removeClass("hide");
-
-        $(".search-result-item").on("click", function() {
-          var plain = $(this).attr("data-orgao");
-          var result = JSON.parse(plain);
-          console.log(result);
-          $this.val(result.label);
-          $resultbox.html("").addClass("hide");
-          mymap.flyTo([result.lat, result.lng], 8.5);
-          var encontrado = false;
-          mymap.eachLayer(function(layer) {
-            if (layer instanceof L.Circle) {
-              if (layer.orgao_id == result.id) {
-                layer.openPopup();
-                encontrado = true;
-              }
-            }
-          });
-          if (!encontrado) {
-            var mark = L.circle([result.lat, result.lng], unfiltred_options).bindTooltip(result.label).bindPopup("").addTo(mymap);
-            mark.orgao_id = result.id
-            mark.openPopup();
-          }
-        });
-      });
-    });
+  var mymap;
+  $(document).ready(function () {
+    var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
+    var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
 
     $("input[type=checkbox]").change(filtra);
 
-    var mymap = L.map('map', {zoomSnap: 0.01}).setView([-14.235004, -51.92528], 4.5);
+    mymap = L.map('map', { zoomSnap: 0.01 }).setView([-14.235004, -51.92528], 4.5);
 
     mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
     mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
@@ -116,20 +76,20 @@
     L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
       maxZoom: 18,
       attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-          'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
       id: 'mapbox/streets-v11',
       tileSize: 512,
       zoomOffset: -1
     }).addTo(mymap);
 
-    mymap.on("popupopen", function(e) {
+    mymap.on("popupopen", function (e) {
       var popup = e.popup;
-          mark = popup._source;
+      mark = popup._source;
       $.ajax({
         type: "GET",
         url: "{% url "openmapdetail" "orgao_id" %}".replace("orgao_id", mark.orgao_id),
         encode: true
-      }).done(function(content) {
+      }).done(function (content) {
         popup.setContent(content);
       })
     })
@@ -138,8 +98,8 @@
 
     function filtra() {
       var name = $(this).attr("name"),
-          value = $(this).attr("value"),
-          checked = $(this).prop("checked");
+        value = $(this).attr("value"),
+        checked = $(this).prop("checked");
 
       if (name) {
         $(`input[type=checkbox][name=${name}][value=${value}]`).prop("checked", checked);
@@ -147,27 +107,27 @@
 
       if (value == "ignore") {
         controls = $(this).attr("data-controls");
-        $("input[type=checkbox][name='"+controls+"']").prop("disabled", checked);
+        $("input[type=checkbox][name='" + controls + "']").prop("disabled", checked);
       }
 
-      if (value=="none") {
-        $("input[type=checkbox][name='" + name +"'][value!='none']").prop("checked", !checked);
+      if (value == "none") {
+        $("input[type=checkbox][name='" + name + "'][value!='none']").prop("checked", !checked);
       } else {
         if (checked) {
-          $("input[type=checkbox][name='" + name +"'][value='none']").prop("checked", false);
+          $("input[type=checkbox][name='" + name + "'][value='none']").prop("checked", false);
         }
       }
 
-      if (name=='regiao') {
-        $("input[type=checkbox][name='uf'][data-regiao='"+value+"']").prop('checked', checked);
+      if (name == 'regiao') {
+        $("input[type=checkbox][name='uf'][data-regiao='" + value + "']").prop('checked', checked);
       }
 
-      if (name=='uf') {
+      if (name == 'uf') {
         var sigla_regiao = $(this).attr('data-regiao'),
-            regiao = $("input[type=checkbox][value='"+sigla_regiao+"']");
-        if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:checked").length == 0) {
+          regiao = $("input[type=checkbox][value='" + sigla_regiao + "']");
+        if ($("input[type=checkbox][name='uf'][data-regiao='" + sigla_regiao + "']:checked").length == 0) {
           $(regiao).prop('checked', false).prop("indeterminate", false);
-        } else if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:not(:checked)").length == 0) {
+        } else if ($("input[type=checkbox][name='uf'][data-regiao='" + sigla_regiao + "']:not(:checked)").length == 0) {
           $(regiao).prop('checked', true).prop("indeterminate", false);
         } else {
           $(regiao).prop("indeterminate", true)
@@ -176,7 +136,7 @@
 
       var formData = $("#filterForm").serializeArray();
 
-      mymap.eachLayer(function(layer) {
+      mymap.eachLayer(function (layer) {
         if (layer instanceof L.Circle) {
           mymap.removeLayer(layer);
         }
@@ -188,11 +148,11 @@
         data: formData,
         dataType: "json",
         encode: true,
-      }).done(function(returnedData) {
+      }).done(function (returnedData) {
         $("#totalOrgao").text(returnedData.length);
-        returnedData.forEach(function(casa) {
+        returnedData.forEach(function (casa) {
           if (casa[2] === null || casa[3] === null) {
-            alert(casa[1]+" está sem coordenadas geográficas e não será plotada");
+            alert(casa[1] + " está sem coordenadas geográficas e não será plotada");
           } else {
             var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup('<div class="preloader-wrapper small active"><div class="spinner-layer spinner-green-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>').addTo(mymap);
             mark.orgao_id = casa[0]
@@ -200,175 +160,197 @@
         })
       })
     }
-  })
+
+  });
+  function map_fly_to(obj) {
+    mymap.flyTo([obj.lat, obj.lng], 8.5);
+    var encontrado = false;
+    mymap.eachLayer(function (layer) {
+      if (layer instanceof L.Circle) {
+        if (layer.orgao_id == obj.id) {
+          layer.openPopup();
+          encontrado = true;
+        }
+      }
+    });
+    if (!encontrado) {
+      var mark = L.circle([result.lat, result.lng], unfiltred_options).bindTooltip(result.label).bindPopup("").addTo(mymap);
+      mark.orgao_id = result.id
+      mark.openPopup();
+    }
+  }
+
 </script>
 {% endblock %}
 
 {% comment %}
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-<head>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE|default:"en-us" }}" {% if LANGUAGE_BIDI %}dir="rtl"
+  {% endif %}>
+
+  <head>
     <title>{% trans 'SIGI' %}</title>
 
-</head>
-<body>
-  <div class="mapbox">
-    <div class="sigi-logo">
-      <div>
-        <img src="{% static 'img/interlegis_60x60.png' %}" class='img-circle'/>
-      </div>
-      <div>
-        <h3>Interlegis</h3>
-        <a href="{% url 'admin:index' %}">Voltar ao SIGI</a>
-      </div>
-    </div>
-    <div id="map">
-      <!-- open street map -->
-    </div>
+  </head>
 
-  </div>
-  <script>
-    $(document).ready(function(){
-      var options = {color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500};
-      var unfiltred_options = {color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000};
+  <body>
+    <div class="mapbox">
+      <div class="sigi-logo">
+        <div>
+          <img src="{% static 'img/interlegis_60x60.png' %}" class='img-circle' />
+        </div>
+        <div>
+          <h3>Interlegis</h3>
+          <a href="{% url 'admin:index' %}">Voltar ao SIGI</a>
+        </div>
+      </div>
+      <div id="map">
+        <!-- open street map -->
+      </div>
 
-      $("#search-text").autocomplete({
-        minLength: 3,
-        source: function(request, response) {
-          $.ajax({
-            url: "{% url "openmapsearch" %}",
-            data: {q: request.term },
-            dataType: "json",
-            appendTo: "#searchform",
-            success: function(data) {
-              console.log(data);
-              response(data);
-            },
-          })
-        },
-        select: function( event, ui ) {
-          mymap.flyTo([ui.item.lat, ui.item.lng], 8.5);
-          var encontrado = false;
-          mymap.eachLayer(function(layer) {
-            if (layer instanceof L.Circle) {
-              if (layer.orgao_id == ui.item.id) {
-                layer.openPopup();
-                encontrado = true;
+    </div>
+    <script>
+      $(document).ready(function () {
+        var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
+        var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
+
+        $("#search-text").autocomplete({
+          minLength: 3,
+          source: function (request, response) {
+            $.ajax({
+              url: "{% url "openmapsearch" %}",
+              data: { q: request.term },
+              dataType: "json",
+              appendTo: "#searchform",
+              success: function (data) {
+                console.log(data);
+                response(data);
+              },
+            })
+          },
+          select: function (event, ui) {
+            mymap.flyTo([ui.item.lat, ui.item.lng], 8.5);
+            var encontrado = false;
+            mymap.eachLayer(function (layer) {
+              if (layer instanceof L.Circle) {
+                if (layer.orgao_id == ui.item.id) {
+                  layer.openPopup();
+                  encontrado = true;
+                }
               }
-            }
-          })
-          if (!encontrado) {
+            })
+            if (!encontrado) {
               var mark = L.circle([ui.item.lat, ui.item.lng], unfiltred_options).bindTooltip(ui.item.label).bindPopup("").addTo(mymap);
               mark.orgao_id = ui.item.id
               mark.openPopup();
+            }
+
+            console.log(ui);
           }
-
-          console.log(ui);
-        }
-      });
-      $("#filterbox").on("shown.bs.collapse", function() {
-        $("#options-toggler span").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left")
-      })
-      $("#filterbox").on("hidden.bs.collapse", function() {
-        $("#options-toggler span").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right")
-      })
-
-      $("input[type=checkbox]").change(filtra);
-
-      var mymap = L.map('map', {zoomSnap: 0.01}).setView([-14.235004, -51.92528], 4.5);
-
-      mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
-      mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
-      mymap.zoomControl.setPosition("bottomright");
-
-      L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
-        maxZoom: 18,
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1
-      }).addTo(mymap);
-
-      mymap.on("popupopen", function(e) {
-        var popup = e.popup;
-            mark = popup._source;
-        $.ajax({
-          type: "GET",
-          url: "{% url "openmapdetail" 'orgao_id' %}".replace("orgao_id", mark.orgao_id),
-          encode: true
-        }).done(function(content) {
-          popup.setContent(content);
+        });
+        $("#filterbox").on("shown.bs.collapse", function () {
+          $("#options-toggler span").removeClass("glyphicon-chevron-right").addClass("glyphicon-chevron-left")
         })
-      })
+        $("#filterbox").on("hidden.bs.collapse", function () {
+          $("#options-toggler span").removeClass("glyphicon-chevron-left").addClass("glyphicon-chevron-right")
+        })
 
-      filtra();
+        $("input[type=checkbox]").change(filtra);
 
-      function filtra() {
-        var name = $(this).attr("name"),
+        var mymap = L.map('map', { zoomSnap: 0.01 }).setView([-14.235004, -51.92528], 4.5);
+
+        mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
+        mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
+        mymap.zoomControl.setPosition("bottomright");
+
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6ImNpejY4NXVycTA2emYycXBndHRqcmZ3N3gifQ.rJcFIG214AriISLbB6B5aw', {
+          maxZoom: 18,
+          attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+            'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          id: 'mapbox/streets-v11',
+          tileSize: 512,
+          zoomOffset: -1
+        }).addTo(mymap);
+
+        mymap.on("popupopen", function (e) {
+          var popup = e.popup;
+          mark = popup._source;
+          $.ajax({
+            type: "GET",
+            url: "{% url "openmapdetail" 'orgao_id' %}".replace("orgao_id", mark.orgao_id),
+            encode: true
+          }).done(function (content) {
+            popup.setContent(content);
+          })
+        })
+
+        filtra();
+
+        function filtra() {
+          var name = $(this).attr("name"),
             value = $(this).attr("value"),
             checked = $(this).prop("checked");
 
-        if (value == "ignore") {
-          controls = $(this).attr("data-controls");
-          $("input[type=checkbox][name='"+controls+"']").prop("disabled", checked);
-        }
-
-        if (value=="none") {
-          $("input[type=checkbox][name='" + name +"'][value!='none']").prop("checked", !checked);
-        } else {
-          if (checked) {
-            $("input[type=checkbox][name='" + name +"'][value='none']").prop("checked", false);
+          if (value == "ignore") {
+            controls = $(this).attr("data-controls");
+            $("input[type=checkbox][name='" + controls + "']").prop("disabled", checked);
           }
-        }
 
-        if (name='regiao') {
-          $("input[type=checkbox][name='uf'][data-regiao='"+value+"']").prop('checked', checked);
-        }
-
-        if (name='uf') {
-          var sigla_regiao = $(this).attr('data-regiao'),
-              regiao = $("input[type=checkbox][value='"+sigla_regiao+"']");
-          if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:checked").length == 0) {
-            $(regiao).prop('checked', false).prop("indeterminate", false);
-          } else if ($("input[type=checkbox][name='uf'][data-regiao='"+sigla_regiao+"']:not(:checked)").length == 0) {
-            $(regiao).prop('checked', true).prop("indeterminate", false);
+          if (value == "none") {
+            $("input[type=checkbox][name='" + name + "'][value!='none']").prop("checked", !checked);
           } else {
-            $(regiao).prop("indeterminate", true)
+            if (checked) {
+              $("input[type=checkbox][name='" + name + "'][value='none']").prop("checked", false);
+            }
           }
-        }
 
-        var formData = $("#filterForm").serializeArray();
-
-        mymap.eachLayer(function(layer) {
-          if (layer instanceof L.Circle) {
-            mymap.removeLayer(layer);
+          if (name = 'regiao') {
+            $("input[type=checkbox][name='uf'][data-regiao='" + value + "']").prop('checked', checked);
           }
-        })
 
-        $.ajax({
-          type: "GET",
-          url: "{% url "openmapdata" %}",
-          data: formData,
-          dataType: "json",
-          encode: true,
-        }).done(function(returnedData) {
-          $("#totalOrgao").text(returnedData.length);
-          returnedData.forEach(function(casa) {
-            if (casa[2] === null || casa[3] === null) {
-              alert(casa[1]+" está sem coordenadas geográficas e não será plotada");
+          if (name = 'uf') {
+            var sigla_regiao = $(this).attr('data-regiao'),
+              regiao = $("input[type=checkbox][value='" + sigla_regiao + "']");
+            if ($("input[type=checkbox][name='uf'][data-regiao='" + sigla_regiao + "']:checked").length == 0) {
+              $(regiao).prop('checked', false).prop("indeterminate", false);
+            } else if ($("input[type=checkbox][name='uf'][data-regiao='" + sigla_regiao + "']:not(:checked)").length == 0) {
+              $(regiao).prop('checked', true).prop("indeterminate", false);
             } else {
-              var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup("").addTo(mymap);
-              mark.orgao_id = casa[0]
+              $(regiao).prop("indeterminate", true)
+            }
+          }
+
+          var formData = $("#filterForm").serializeArray();
+
+          mymap.eachLayer(function (layer) {
+            if (layer instanceof L.Circle) {
+              mymap.removeLayer(layer);
             }
           })
-        })
-      }
-    })
-  </script>
-</body>
+
+          $.ajax({
+            type: "GET",
+            url: "{% url "openmapdata" %}",
+            data: formData,
+            dataType: "json",
+            encode: true,
+          }).done(function (returnedData) {
+            $("#totalOrgao").text(returnedData.length);
+            returnedData.forEach(function (casa) {
+              if (casa[2] === null || casa[3] === null) {
+                alert(casa[1] + " está sem coordenadas geográficas e não será plotada");
+              } else {
+                var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup("").addTo(mymap);
+                mark.orgao_id = casa[0]
+              }
+            })
+          })
+        }
+      })
+    </script>
+  </body>
+
 </html>
 
 {% endcomment %}
-

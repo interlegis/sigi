@@ -1,0 +1,27 @@
+{% load i18n %}
+<div class="file-field input-field">
+  {% if widget.is_initial %}
+  <div class="left" style="padding: 5px;">
+    <a href="{{ widget.value.url }}">
+      <img src="{{ widget.value.url }}" alt="{{ widget.value }}" height="60" width="60"/>
+    </a>
+  </div>
+  {% endif %}
+  <div class="btn">
+    <span>{% trans "File" %}</span>
+    <input type="{{ widget.type }}" name="{{ widget.name }}" {% include "django/forms/widgets/attrs.html" %}>
+  </div>
+  <div class="file-path-wrapper">
+    <input class="file-path validate" type="text" value="{{ widget.value }}">
+  </div>
+</div>
+{% if widget.is_initial %}
+{% if not widget.required %}
+  <p>
+    <label>
+      <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}" {% if widget.attrs.disabled %}disabled{% endif %}>
+      <span>{{ widget.clear_checkbox_label }}</span>
+    </label>
+  </p>
+{% endif %}
+{% endif %}

@@ -1,6 +1,8 @@
 from django import forms
 from django.utils.translation import gettext as _
-from sigi.apps.eventos.models import ModeloDeclaracao, Evento
+from material.admin.widgets import MaterialAdminTextareaWidget
+from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.eventos.models import Convite, ModeloDeclaracao, Evento
 
 
 class EventoAdminForm(forms.ModelForm):
@@ -46,3 +48,34 @@ class SelecionaModeloForm(forms.Form):
         required=True,
         label=_("Modelo de declaração"),
     )
+
+
+class ConviteForm(forms.ModelForm):
+    class Meta:
+        model = Convite
+        fields = ["nomes_participantes"]
+        widgets = {"nomes_participantes": MaterialAdminTextareaWidget}
+
+
+class CasaForm(forms.ModelForm):
+    class Meta:
+        model = Orgao
+        fields = ["cnpj", "logradouro", "bairro", "cep", "email", "brasao"]
+
+
+class FuncionarioForm(forms.ModelForm):
+    class Meta:
+        model = Funcionario
+        fields = [
+            "nome",
+            "sexo",
+            "cpf",
+            "identidade",
+            "nota",
+            "email",
+            "redes_sociais",
+        ]
+        widgets = {
+            "nota": MaterialAdminTextareaWidget,
+            "redes_sociais": MaterialAdminTextareaWidget,
+        }

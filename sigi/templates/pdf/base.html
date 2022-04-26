@@ -11,11 +11,15 @@
         margin: {% block page_margin %}3cm 2cm 2cm 2cm{% endblock page_margin %};
         font-family: "Helvetica, Arial, sans-serif";
         font-size: 10px;
+        {% block page-header-settings %}
         @top-right { content: url("{% static 'img/logo-interlegis.png' %}");}
         @top-left {content: url("{% static 'img/logo-senado.png' %}");}
         @top-center { content: element(header); }
+        {% endblock %}
+        {% block page-footer-settings %}
         @bottom-center { content: element(footer); }
         @bottom-right { content: "{% trans "Página: " %}" counter(page); }
+        {% endblock %}
         {% block extra_page_settings %}{% endblock extra_page_settings %}
       }
       h1 { bookmark-level: 1 }

@@ -1,16 +1,26 @@
 import calendar
 import datetime
 import locale
+from django.contrib import messages
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
+from django.utils.text import slugify
 from django.utils.translation import to_locale, get_language, gettext as _
+from django.urls import reverse
 from django_weasyprint.utils import django_url_fetcher
 from weasyprint import HTML
-from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo
-from sigi.apps.eventos.forms import SelecionaModeloForm
+from sigi.apps.casas.models import Funcionario, Orgao, Presidente
+from sigi.apps.convenios.models import Projeto
+from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo, Anexo
+from sigi.apps.eventos.forms import (
+    SelecionaModeloForm,
+    ConviteForm,
+    CasaForm,
+    FuncionarioForm,
+)
 from sigi.apps.servidores.models import Servidor
 
 
@@ -44,6 +54,191 @@ def calendario(request):
     }
 
     return render(request, "eventos/calendario.html", context)
+
+
+def evento(request, id):
+    context = site.each_context(request)
+    evento = get_object_or_404(Evento, id=id)
+    anexo_id = request.GET.getlist("anexo_id", None)
+    if anexo_id:
+        context["anexos"] = evento.anexo_set.filter(id__in=anexo_id)
+        context["active"] = "anexos"
+    else:
+        context["anexos"] = evento.anexo_set.all()
+
+    context["evento"] = evento
+    context["fields"] = [
+        "tipo_evento",
+        "descricao",
+        "virtual",
+        "publico_alvo",
+        "data_inicio",
+        "data_termino",
+        "carga_horaria",
+        "casa_anfitria",
+        "municipio",
+        "local",
+    ]
+    context["convite_fields"] = [
+        "casa",
+        "servidor",
+        "data_convite",
+        "aceite",
+        "participou",
+        "nomes_participantes",
+    ]
+    context["anexo_fields"] = ["descricao", "data_pub", "arquivo"]
+
+    return render(request, "eventos/evento.html", context)
+
+
+def convida_casa(request, evento_id, casa_id):
+    if not request.user.servidor:
+        messages.error(
+            request, _("Você não é servidor, não pode registrar convites")
+        )
+        return redirect(evento)
+
+    evento = get_object_or_404(Evento, id=evento_id)
+    casa = get_object_or_404(Orgao, id=casa_id)
+
+    projetos = Projeto.objects.exclude(texto_minuta="")
+
+    if evento.convite_set.filter(casa=casa).exists():
+        convite = evento.convite_set.get(casa=casa)
+    else:
+        convite = Convite(
+            evento=evento,
+            casa=casa,
+            servidor=request.user.servidor,
+            data_convite=datetime.date.today(),
+        )
+
+    presidente = casa.presidente or Funcionario(
+        casa_legislativa=casa, setor="presidente"
+    )
+    contato = casa.contato_interlegis or Funcionario(
+        casa_legislativa=casa, setor="contato_interlegis"
+    )
+
+    if request.method == "POST":
+        form_convite = ConviteForm(request.POST, instance=convite)
+        form_casa = CasaForm(request.POST, request.FILES, instance=casa)
+        form_presidente = FuncionarioForm(
+            request.POST, instance=presidente, prefix="presidente"
+        )
+        form_contato = FuncionarioForm(
+            request.POST, instance=contato, prefix="contato"
+        )
+
+        if all(
+            [
+                form_convite.is_valid(),
+                form_casa.is_valid(),
+                form_presidente.is_valid(),
+                form_contato.is_valid(),
+            ]
+        ):
+            contato = form_contato.save()
+            presidente = form_presidente.save()
+            casa = form_casa.save()
+            convite = form_convite.save()
+
+            proj_id = request.POST.get("save", "")
+
+            if proj_id:
+                query_str = ""
+                projeto = get_object_or_404(Projeto, id=proj_id)
+                if projeto.texto_oficio:
+                    oficio = gerar_anexo(
+                        casa,
+                        presidente,
+                        contato,
+                        path=request.build_absolute_uri("/"),
+                        nome=f"Ofício de solicitação de {projeto.sigla}",
+                        modelo="oficio_padrao.html",
+                        texto=projeto.texto_oficio,
+                    )
+                    oficio.evento = evento
+                    oficio.save()
+                    query_str += f"anexo_id={oficio.id}&"
+                if projeto.texto_minuta:
+                    minuta = gerar_anexo(
+                        casa,
+                        presidente,
+                        contato,
+                        path=request.build_absolute_uri("/"),
+                        nome=f"Minuta de {projeto.sigla}",
+                        modelo="minuta_pdf.html",
+                        texto=projeto.texto_minuta,
+                    )
+                    minuta.evento = evento
+                    minuta.save()
+                    query_str += f"anexo_id={minuta.id}"
+
+                return redirect(evento.get_absolute_url() + "?" + query_str)
+            else:
+                return redirect(evento.get_absolute_url())
+        else:
+            messages.error(_("Preencha corretamente o convite"))
+    else:
+        form_convite = ConviteForm(instance=convite)
+        form_casa = CasaForm(instance=casa)
+        form_presidente = FuncionarioForm(
+            instance=presidente, prefix="presidente"
+        )
+        form_contato = FuncionarioForm(instance=contato, prefix="contato")
+
+    context = site.each_context(request)
+    context.update(
+        {
+            "form_convite": form_convite,
+            "form_casa": form_casa,
+            "form_presidente": form_presidente,
+            "form_contato": form_contato,
+            "evento": evento,
+            "convite": convite,
+            "casa": casa,
+            "presidente": presidente,
+            "contato": contato,
+            "projetos": projetos,
+        }
+    )
+
+    return render(request, "eventos/convida_casa.html", context)
+
+
+def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
+    template_string = (
+        f'{{% extends "eventos/{modelo}" %}}'
+        "{% load pdf %}"
+        f"{{% block text_body %}}{texto}{{% endblock %}}"
+    )
+    context = Context(
+        {
+            "evento": evento,
+            "casa": casa,
+            "presidente": presidente,
+            "contato": contato,
+            "data": datetime.date.today(),
+            "doravante": casa.tipo.nome.split(" ")[0],
+        }
+    )
+    string = Template(template_string).render(context)
+    pdf = HTML(
+        string=string,
+        url_fetcher=django_url_fetcher,
+        encoding="utf-8",
+        base_url=path,
+    )
+    nome = (nome + f" da {casa.nome}")[:70]
+    anexo = Anexo(descricao=nome)
+    anexo.arquivo.name = slugify(nome) + ".pdf"
+    f = anexo.arquivo.open("wb")
+    pdf.write_pdf(target=f)
+    f.flush()
+    f.close()
+    return anexo
 
 
 # @login_required

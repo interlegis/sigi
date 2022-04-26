@@ -7,14 +7,29 @@ from django.core.mail import send_mail
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
+from tinymce.models import HTMLField
 from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor, Servico
 
 
 class Projeto(models.Model):
+    MARKUP_HELP = _(
+        "Use as seguintes marcações:<ul><li>{{ casa.nome }} para o"
+        " nome da Casa Legislativa / órgão</li>"
+        "<li>{{ casa.municipio.uf.sigla }} para a sigla da UF da "
+        "Casa legislativa</li><li>{{ presidente.nome }} "
+        "para o nome do presidente</li><li>{{ contato.nome }} para o nome "
+        "do contato Interlegis</li></ul>"
+    )
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
+    texto_oficio = HTMLField(
+        _("texto do ofício"), blank=True, help_text=MARKUP_HELP
+    )
+    texto_minuta = HTMLField(
+        _("texto da minuta"), blank=True, help_text=MARKUP_HELP
+    )
 
     def __str__(self):
         return self.sigla

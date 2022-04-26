@@ -1,0 +1,79 @@
+{% extends 'pdf/base_report.html' %}
+{% load i18n %}
+
+{% block page_margin %}4cm 2cm{% endblock page_margin %}
+
+{% block page-header-settings %}
+@top-left { content: element(logo);}
+@top-center { content: element(header);}
+{% endblock %}
+
+{% block page-footer-settings %}
+@bottom-center { content: element(footer); }
+{% endblock %}
+
+
+{% block extra_style %}
+  @media print {
+    .logo {position: running(logo);}
+  }
+
+  .logo-image {
+    display: block;
+    max-width: 120px;
+    max-height: 120px;
+  }
+
+  header {
+    font-size: 1em;
+    text-align: left;
+  }
+
+  header p {
+    margin: 5px 15px;
+  }
+
+  header h1 {
+    margin: 0 0 5px 0;
+  }
+
+  .strong {
+    font-weight: bold;
+  }
+
+  .content {
+    font-size: 1.2em;
+    line-height: 1.4em;
+    padding-bottom: 5px;
+  }
+
+  footer {
+    width: 100%;
+    text-align: center;
+  }
+{% endblock %}
+
+{% block body_content %}
+  <div id="logo" class="logo">
+    <img src="{{ casa.brasao.url }}" class="logo-image">
+  </div>
+  {{ block.super }}
+{% endblock %}
+
+{% block header %}
+  <h1>{{ casa.nome }}</h1>
+  <p class="strong">CNPJ: {{ casa.cnpj }}</p>
+  <p>{{ casa.logradouro }}, {{ casa.bairro }}</p>
+  <p>{{ casa.cep }} - {{ casa.municipio.nome }} - {{ casa.municipio.uf.nome }}</p>
+{% endblock %}
+
+{% block main_content %}
+  <div class="content">
+    {% block text_body %}{% endblock %}
+  </div>
+{% endblock %}
+
+{% block footer %}
+<p class="strong">{{ casa.nome }} - {{ casa.logradouro }} - {{ casa.bairro }}</p>
+<p>{{ casa.cep }} - {{ casa.municipio.nome }}, {{ casa.municipio.uf.sigla }}</p>
+{% endblock %}

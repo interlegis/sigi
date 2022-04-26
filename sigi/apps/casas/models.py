@@ -113,6 +113,18 @@ class Orgao(models.Model):
     data_instalacao = models.DateField(
         _("data de instalação da Casa Legislativa"), null=True, blank=True
     )
+    brasao = models.ImageField(
+        _("brasão"),
+        upload_to="imagens/casas/brasao",
+        width_field="brasao_largura",
+        height_field="brasao_altura",
+        blank=True,
+        help_text=_(
+            "Trate a imagem para que ela fique com cerca de 120x120 pixels"
+        ),
+    )
+    brasao_largura = models.SmallIntegerField(editable=False, null=True)
+    brasao_altura = models.SmallIntegerField(editable=False, null=True)
 
     class Meta:
         ordering = ("nome",)
@@ -353,6 +365,13 @@ class Funcionario(models.Model):
     )
     data_nascimento = models.DateField(
         _("data de nascimento"), blank=True, null=True
+    )
+    cpf = models.CharField(_("CPF"), max_length=20, blank=True)
+    identidade = models.CharField(
+        _("Identidade (RG)"),
+        max_length=30,
+        blank=True,
+        help_text=_("Informe o RG e o órgão emissor."),
     )
     nota = models.CharField(
         _("telefones"), max_length=250, null=True, blank=True

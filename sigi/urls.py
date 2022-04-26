@@ -22,7 +22,7 @@ urlpatterns = [
     path("admin/casas/", include("sigi.apps.casas.urls")),
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.urls")),
-    path("admin/eventos/", include("sigi.apps.eventos.urls")),
+    path("eventos/", include("sigi.apps.eventos.urls")),
     path("admin/", admin.site.urls),
     path("tinymce/", include("tinymce.urls")),
     path("", include("sigi.apps.home.urls")),

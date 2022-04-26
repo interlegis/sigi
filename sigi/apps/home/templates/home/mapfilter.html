@@ -4,7 +4,7 @@
   {% if not mobile %}
   <i class="material-icons minimize nav-bar" aria-hidden="true" title="{% trans 'Minimize' %}">close</i>
   {% endif %}
-  <form id="filterForm" action="" method="get" >
+  <form id="filterForm" action="" method="get">
     {{ csrftoken }}
   </form>
   <ul class="collapsible">
@@ -12,9 +12,9 @@
       <div class="card">
         <div class="card-image">
           {% if 'profile/user_picture.html'|template_exists %}
-            {% include 'profile/user_picture.html' %}
+          {% include 'profile/user_picture.html' %}
           {% else %}
-            {% include 'material/admin/user_picture.html' %}
+          {% include 'material/admin/user_picture.html' %}
           {% endif %}
         </div>
       </div>
@@ -25,151 +25,165 @@
           <form id="searchform" class="form-inline ui-front">
             <div class="input-field">
               <i class="material-icons prefix">search</i>
-              <input type="text" class="search-text" placeholder="{% trans "Procurar" %}" aria-label="{% trans "Procurar" %}">
-              <div class="search-result hide"></div>
+              <input type="text" class="search-text" placeholder="{% trans "Procurar" %}"
+                aria-label="{% trans "Procurar" %}" data-source="{% url 'openmapsearch' %}" data-param="q">
+              <div class="search-result hide" data-item-click="map_fly_to"></div>
           </form>
-          </div>
         </div>
       </div>
-      <small><strong>Total de Órgãos selecionados: </strong><span id="totalOrgao">-</span></small>
-    </li>
-    <li>
-      <div class="collapsible-header">{% trans "Por Tipo de órgão" %}</div>
-      <div class="collapsible-body">
-        {% for o in tipos_orgao %}
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_orgao_{{ o.sigla }}" name="tipo_orgao" value="{{ o.sigla }}" checked/>
-            <span>{{ o.nome }}</span>
-          </label>
-        </p>
-        {% endfor %}
-      </div>
-    </li>
-    <li>
-      <div class="collapsible-header">{% trans "Por Tipo de serviço" %}</div>
-      <div class="collapsible-body">
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_servico_ignore" name="ignore_tipo_servico" value="ignore" data-controls="tipo_servico" />
-            <span>{% trans "Ignorar" %}
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_servico_none" name="tipo_servico" value="none"/>
-            <span>{% trans "Nenhum serviço" %}</span>
-          </label>
-        </p>
-        {% for s in tipos_servico %}
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_servico_{{ s.sigla }}" name="tipo_servico" value="{{ s.sigla }}" checked/>
-            <span>{{ s.nome }}</span>
-          </label>
-        </p>
-        {% endfor %}
-      </div>
-    </li>
+</div>
+<small><strong>Total de Órgãos selecionados: </strong><span id="totalOrgao">-</span></small>
+</li>
+<li>
+  <div class="collapsible-header">{% trans "Por Tipo de órgão" %}</div>
+  <div class="collapsible-body">
+    {% for o in tipos_orgao %}
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_orgao_{{ o.sigla }}" name="tipo_orgao" value="{{ o.sigla }}"
+          checked />
+        <span>{{ o.nome }}</span>
+      </label>
+    </p>
+    {% endfor %}
+  </div>
+</li>
+<li>
+  <div class="collapsible-header">{% trans "Por Tipo de serviço" %}</div>
+  <div class="collapsible-body">
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_servico_ignore" name="ignore_tipo_servico" value="ignore"
+          data-controls="tipo_servico" />
+        <span>{% trans "Ignorar" %}
+      </label>
+    </p>
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_servico_none" name="tipo_servico" value="none" />
+        <span>{% trans "Nenhum serviço" %}</span>
+      </label>
+    </p>
+    {% for s in tipos_servico %}
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_servico_{{ s.sigla }}" name="tipo_servico"
+          value="{{ s.sigla }}" checked />
+        <span>{{ s.nome }}</span>
+      </label>
+    </p>
+    {% endfor %}
+  </div>
+</li>
 
-    <li>
-      <div class="collapsible-header">{% trans "Por convênio" %}</div>
-      <div class="collapsible-body">
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_convenio_ignore" name="ignore_tipo_convenio" value="ignore" data-controls="tipo_convenio" />
-            <span>{% trans "Ignorar" %}</span>
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_convenio_none" name="tipo_convenio" value="none"/>
-            <span>{% trans "Sem convênio" %}</span>
-          </label>
-        </p>
-        {% for c in tipos_convenio %}
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="tipo_convenio_{{ c.sigla }}" name="tipo_convenio" value="{{ c.sigla }}" checked/>
-            <span>{{ c.nome }}</span>
-          </label>
-        </p>
-        {% endfor %}
-      </div>
-    </li>
-    <li>
-      <div class="collapsible-header">{% trans "Por região/estado" %}</div>
-      <div class="collapsible-body">
-        {% for s, n, ufs in regioes %}
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="regiao_{{ s }}" name="regiao" value="{{ s }}"/>
-            <span>{{ n }}</span>
-          </label>
-        </p>
-        <div class="region-ufs">
-          {% for uf in ufs %}
-          <p>
-            <label>
-              <input type="checkbox" form="filterForm" id="uf_{{ uf.sigla }}" name="uf" value="{{ uf.sigla }}" data-regiao="{{ s }}" />
-              <span>{{ uf.nome }}</span>
-            </label>
-          </p>
-          {% endfor %}
-        </div>
-        {% endfor %}
-      </div>
-    </li>
+<li>
+  <div class="collapsible-header">{% trans "Por convênio" %}</div>
+  <div class="collapsible-body">
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_convenio_ignore" name="ignore_tipo_convenio" value="ignore"
+          data-controls="tipo_convenio" />
+        <span>{% trans "Ignorar" %}</span>
+      </label>
+    </p>
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_convenio_none" name="tipo_convenio" value="none" />
+        <span>{% trans "Sem convênio" %}</span>
+      </label>
+    </p>
+    {% for c in tipos_convenio %}
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="tipo_convenio_{{ c.sigla }}" name="tipo_convenio"
+          value="{{ c.sigla }}" checked />
+        <span>{{ c.nome }}</span>
+      </label>
+    </p>
+    {% endfor %}
+  </div>
+</li>
+<li>
+  <div class="collapsible-header">{% trans "Por região/estado" %}</div>
+  <div class="collapsible-body">
+    {% for s, n, ufs in regioes %}
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="regiao_{{ s }}" name="regiao" value="{{ s }}" />
+        <span>{{ n }}</span>
+      </label>
+    </p>
+    <div class="region-ufs">
+      {% for uf in ufs %}
+      <p>
+        <label>
+          <input type="checkbox" form="filterForm" id="uf_{{ uf.sigla }}" name="uf" value="{{ uf.sigla }}"
+            data-regiao="{{ s }}" />
+          <span>{{ uf.nome }}</span>
+        </label>
+      </p>
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</li>
 
-    <li>
-      <div class="collapsible-header">{% trans "Por gerente Interlegis" %}</div>
-      <div class="collapsible-body">
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="gerente_ignore" name="gerente_ignore" value="ignore" data-controls="gerente" />
-            <span>{% trans "Ignorar" %}</span>
-          </label>
-        </p>
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="gerente_none" name="gerente" value="none"/>
-            <span>{% trans "Sem gerente" %}</span>
-          </label>
-        </p>
-        {% for g in gerentes %}
-        <p>
-          <label>
-            <input type="checkbox" form="filterForm" id="gerente_{{ g.id|stringformat:"s" }}" name="gerente" value="{{ g.id|stringformat:"s" }}" checked/>
-            <span>{{ g.nome_completo }}</span>
-          </label>
-        </p>
-        {% endfor %}
-      </div>
-    </li>
-    {% if not user.is_anonymous %}
-    <li>
-      <div class="collapsible-header">{% trans "Exportação de dados" %}</div>
-      <div class="collapsible-body">
-        <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="lista" type="submit" form="filterForm">
-          <i class="material-icons">picture_as_pdf</i>
-          Listagem
-        </button>
-        <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta" type="submit" form="filterForm">
-          Exportação completa
-        </button>
-        <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_servico" type="submit" form="filterForm">
-          Exportar serviços
-        </button>
-        <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_convenio" type="submit" form="filterForm">
-          Exportar convênios
-        </button>
-        <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_contato" type="submit" form="filterForm">
-          Exportar contatos
-        </button>
-      </div>
-    </li>
-    {% endif %}
+<li>
+  <div class="collapsible-header">{% trans "Por gerente Interlegis" %}</div>
+  <div class="collapsible-body">
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="gerente_ignore" name="gerente_ignore" value="ignore"
+          data-controls="gerente" />
+        <span>{% trans "Ignorar" %}</span>
+      </label>
+    </p>
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="gerente_none" name="gerente" value="none" />
+        <span>{% trans "Sem gerente" %}</span>
+      </label>
+    </p>
+    {% for g in gerentes %}
+    <p>
+      <label>
+        <input type="checkbox" form="filterForm" id="gerente_{{ g.id|stringformat:"s" }}" name="gerente"
+          value="{{ g.id|stringformat:"s" }}" checked />
+        <span>{{ g.nome_completo }}</span>
+      </label>
+    </p>
+    {% endfor %}
+  </div>
+</li>
+{% if not user.is_anonymous %}
+<li>
+  <div class="collapsible-header">{% trans "Exportação de dados" %}</div>
+  <div class="collapsible-body">
+    <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="lista" type="submit"
+      form="filterForm">
+      <i class="material-icons">picture_as_pdf</i>
+      Listagem
+    </button>
+    <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta" type="submit"
+      form="filterForm">
+      Exportação completa
+    </button>
+    <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_servico" type="submit"
+      form="filterForm">
+      Exportar serviços
+    </button>
+    <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_convenio" type="submit"
+      form="filterForm">
+      Exportar convênios
+    </button>
+    <button class="waves-effect waves-light btn-small btn-flat" name="reptype" value="exporta_contato" type="submit"
+      form="filterForm">
+      Exportar contatos
+    </button>
+  </div>
+</li>
+{% endif %}
 
 
-  </ul>
+</ul>
 </div>

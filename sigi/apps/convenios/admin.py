@@ -2,6 +2,9 @@ from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
+from django_weasyprint.views import WeasyTemplateResponse
+from tinymce.models import HTMLField
+from tinymce.widgets import AdminTinyMCE
 from sigi.apps.convenios.models import (
     Projeto,
     StatusConvenio,
@@ -16,7 +19,6 @@ from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
-from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.utils.filters import DateRangeFilter
 
 
@@ -78,6 +80,12 @@ class AcompanhaFilter(admin.filters.RelatedFieldListFilter):
             .distinct()
         )
         self.lookup_choices = [(x.id, x) for x in servidores]
+
+
+@admin.register(Projeto)
+class ProjetoAdmin(admin.ModelAdmin):
+    list_display = ("sigla", "nome")
+    formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
 
 
 @admin.register(Convenio)
@@ -339,6 +347,5 @@ class GesconAdmin(admin.ModelAdmin):
     ]
 
 
-admin.site.register(Projeto)
 admin.site.register(StatusConvenio)
 admin.site.register(TipoSolicitacao)

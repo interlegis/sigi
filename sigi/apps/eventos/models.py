@@ -2,6 +2,7 @@ import re
 from datetime import datetime
 from django.db import models
 from django.db.models import Sum
+from django.urls import reverse
 from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio
@@ -109,6 +110,9 @@ class Evento(models.Model):
             f"{self.nome} ({self.tipo_evento}): "
             f"de {self.data_inicio} a {self.data_termino}"
         )
+
+    def get_absolute_url(self):
+        return reverse("eventos-evento", args=[self.id])
 
     def get_sigad_url(self):
         m = re.match(
