@@ -10,111 +10,140 @@
         padding-left: 15px;
         font-weight: bold;
     }
+    #content {
+      display: block !important;
+    }
+    .tab-panel {
+      background-color: #fff;
+      height: 100%;
+    }
+
+    .tab-content {
+      padding: 10px 24px;
+      height: 100%;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .tab-content::-webkit-scrollbar {
+      width: 3px;
+      background-color: #fff;
+    }
+
+    .tab-content::-webkit-scrollbar-track {
+      -webkit-box-shadow: inset 0 0 2px #fff;
+      background-color: #fff;
+      border-radius: 10px;
+    }
+
+    .tab-content::-webkit-scrollbar-thumb {
+    	border-radius: 10px;
+      -webkit-box-shadow: inset 0 0 2px var(--main-hover-color);
+      background-color: var(--main-hover-color);
+    }
+
   </style>
 {% endblock %}
 {% block content %}
 {{ block.super }}
-<div class="">
-  <div class="row">
-    <div class="col s12">
-      <h4>{{ evento.nome }}</h4>
+<div class="row">
+  <div class="col s12">
+    <h4>{{ evento.nome }}</h4>
+  </div>
+</div>
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      <li class="tab col s4"><a{% if not active %} class="active"{% endif %} href="#base">{% trans "Dados básicos" %}</a></li>
+      <li class="tab col s4"><a href="#convites">{% trans "Casas convidadas" %}</a></li>
+      <li class="tab col s4"><a{% if active %} class="active"{% endif %} href="#anexos">{% trans "Anexos" %}</a></li>
+    </ul>
+  </div>
+  <div id="base" class="col s12">
+    <div class="tab-panel">
+      <div class="tab-content">
+        <table class="responsive-table striped">
+          {% for field_name in fields %}
+          <tr>
+            <th>{{ evento|verbose_name:field_name|title }}</th>
+            <td>{{ evento|field_value:field_name }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
     </div>
   </div>
-  <div class="row">
-    <div class="col s12">
-      <ul class="tabs">
-        <li class="tab col s4"><a{% if not active %} class="active"{% endif %} href="#base">{% trans "Dados básicos" %}</a></li>
-        <li class="tab col s4"><a href="#convites">{% trans "Casas convidadas" %}</a></li>
-        <li class="tab col s4"><a{% if active %} class="active"{% endif %} href="#anexos">{% trans "Anexos" %}</a></li>
-      </ul>
-    </div>
-    <div id="base" class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <table class="responsive-table striped">
-            {% for field_name in fields %}
+  <div id="convites" class="col s12">
+    <div class="tab-panel">
+      <div class="tab-content">
+        <div class="input-field">
+          <input id="search-text" class="search-text" type="text" data-source="{% url 'openmapsearch' %}"
+            data-param="q" />
+          <label for="search">{% trans "Convidar" %}</label>
+        </div>
+        <div id="search-result" class="search-result" data-item-click="convida_casa"></div>
+        {% if evento.convite_set.count == 0 %}
+        <span class="card-title">{% trans "Nenhum convite registrado" %}</span>
+        {% else %}
+        <table class="responsive-table striped">
+          <thead>
             <tr>
-              <th>{{ evento|verbose_name:field_name|title }}</th>
-              <td>{{ evento|field_value:field_name }}</td>
+              {% for field_name in convite_fields %}
+              <th>{{ evento.convite_set.first|verbose_name:field_name|title }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for convite in evento.convite_set.all %}
+            <tr>
+              {% for field_name in convite_fields %}
+              <td>{{ convite|field_value:field_name }}</td>
+              {% endfor %}
             </tr>
             {% endfor %}
-          </table>
-        </div>
+          </tbody>
+        </table>
+        {% endif %}
       </div>
     </div>
-    <div id="convites" class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <div class="input-field">
-            <input id="search-text" class="search-text" type="text" data-source="{% url 'openmapsearch' %}"
-              data-param="q" />
-            <label for="search">{% trans "Convidar" %}</label>
-          </div>
-          <div id="search-result" class="search-result" data-item-click="convida_casa"></div>
-          {% if evento.convite_set.count == 0 %}
-          <span class="card-title">{% trans "Nenhum convite registrado" %}</span>
-          {% else %}
-          <table class="responsive-table striped">
-            <thead>
-              <tr>
-                {% for field_name in convite_fields %}
-                <th>{{ evento.convite_set.first|verbose_name:field_name|title }}</th>
-                {% endfor %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for convite in evento.convite_set.all %}
-              <tr>
-                {% for field_name in convite_fields %}
-                <td>{{ convite|field_value:field_name }}</td>
-                {% endfor %}
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% endif %}
-        </div>
-      </div>
-    </div>
-    <div id="anexos" class="col s12">
-      <div class="card">
-        <div class="card-content">
-          {% if anexos.count == 0 %}
-          <span class="card-title">{% trans "Nenhum anexo registrado" %}</span>
-          {% else %}
-          {% if active %}
-          <span class="card-title">
-            {% trans "Mostrando apenas anexos recem-criados" %}
-          </span>
-          <a href="{% url 'eventos-evento' evento.id %}#anexos">{% trans "Ver todos" %}</a>
-          {% endif %}
-          <table class="responsive-table striped">
-            <thead>
-              <tr>
-                {% with anexos.first as anexo %}
-                <th>{{ anexo|verbose_name:"descricao"|title }}</th>
-                <th>{{ anexo|verbose_name:"data_pub"|title }}</th>
-                <th>{{ anexo|verbose_name:"arquivo"|title }}</th>
-                {% endwith %}
-              </tr>
-            </thead>
-            <tbody>
-              {% for anexo in anexos.all %}
-              <tr>
-                <td>{{ anexo.descricao }}</td>
-                <td>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</td>
-                <td>
-                  <a href="{{ anexo.arquivo.url }}" target="_blank">
-                    <i class="material-icons">picture_as_pdf</i>
-                  </a>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-          {% endif %}
-        </div>
-      </div>
+  </div>
+  <div id="anexos" class="col s12">
+    <div class="tab-panel">
+      <div class="tab-content">
+        {% if anexos.count == 0 %}
+        <span class="card-title">{% trans "Nenhum anexo registrado" %}</span>
+        {% else %}
+        {% if active %}
+        <span class="card-title">
+          {% trans "Mostrando apenas anexos recem-criados" %}
+        </span>
+        <a href="{% url 'eventos-evento' evento.id %}#anexos">{% trans "Ver todos" %}</a>
+        {% endif %}
+        <table class="responsive-table striped">
+          <thead>
+            <tr>
+              {% with anexos.first as anexo %}
+              <th>{{ anexo|verbose_name:"descricao"|title }}</th>
+              <th>{{ anexo|verbose_name:"data_pub"|title }}</th>
+              <th>{{ anexo|verbose_name:"arquivo"|title }}</th>
+              {% endwith %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for anexo in anexos.all %}
+            <tr>
+              <td>{{ anexo.descricao }}</td>
+              <td>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</td>
+              <td>
+                <a href="{{ anexo.arquivo.url }}" target="_blank">
+                  <i class="material-icons">picture_as_pdf</i>
+                </a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+        {% endif %}
+      <div>
     </div>
   </div>
 </div>

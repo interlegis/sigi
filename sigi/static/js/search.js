@@ -12,17 +12,16 @@ $(document).ready(function () {
         query_param[param_name] = term;
 
         if (term.length < 3) {
-            $resultbox.html("");
+            $resultbox.empty();
             $resultbox.addClass("hide");
             return;
         }
 
         $.get(url, query_param, function (data) {
-            $resultbox.html("");
+            $resultbox.empty();
             for (i in data) {
                 var plain = JSON.stringify(data[i]);
-                var $item = $(`<a href="#" class="search-result-item" data-retrieved='${plain}'></a>`);
-                $item.html(data[i].label);
+                var $item = $(`<a href="#" class="search-result-item" data-retrieved='${plain}'>${data[i].label}</a>`);
                 $resultbox.append($item);
             }
             $resultbox.removeClass("hide");
@@ -31,7 +30,7 @@ $(document).ready(function () {
                 var plain = $(this).attr("data-retrieved");
                 var obj = JSON.parse(plain);
                 $this.val(obj.label);
-                $resultbox.html("").addClass("hide");
+                $resultbox.empty().addClass("hide");
                 callback(obj);
             });
         });

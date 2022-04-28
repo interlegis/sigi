@@ -47,7 +47,13 @@
     <div class="col s12">
       <div class="card">
         <div class="card-content">
-          <span class="card-title">{% trans "Dados do contato Interlegis" %}</span>
+          <span class="card-title">
+            {% trans "Dados do contato Interlegis" %}
+            <a href="#" id="copiar-presidente" class="waves-effect waves-light btn-small light-green accent-1 right">
+              <i class="material-icons left">content_copy</i>
+              {% trans "Copiar dados do presidente" %}
+            </a>
+          </span>
           {{ form_contato }}
         </div>
       </div>
@@ -72,4 +78,21 @@
     </div>
   </div>
 </form>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function() {
+      $("#copiar-presidente").click(function(event) {
+        event.preventDefault();
+        var dados = {{% for field in form_presidente %}
+          {{ field.name }}: $("#{{ field.id_for_label }}").val(),{% endfor %}
+        };
+        {% for field in form_contato %}
+          $("#{{ field.id_for_label }}").val(dados.{{ field.name }});
+        {% endfor %}
+      })
+    })
+  </script>
 {% endblock %}

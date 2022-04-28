@@ -208,12 +208,16 @@ def openmapsearch(request):
         tipo__legislativo=True, search_text__icontains=to_ascii(q)
     )[:10]
     dados = dados.values(
-        "id", "nome", "municipio__latitude", "municipio__longitude"
+        "id",
+        "nome",
+        "municipio__uf__sigla",
+        "municipio__latitude",
+        "municipio__longitude",
     )
     dados = [
         {
             "id": d["id"],
-            "label": d["nome"],
+            "label": f"{d['nome']} - {d['municipio__uf__sigla']}",
             "lat": d["municipio__latitude"],
             "lng": d["municipio__longitude"],
         }
