@@ -292,9 +292,8 @@ class ConveniosInline(admin.TabularInline):
 class ServicoInline(admin.TabularInline):
     model = Servico
     fields = (
+        "tipo_servico",
         "link_url",
-        "contato_tecnico",
-        "contato_administrativo",
         "hospedagem_interlegis",
         "data_ativacao",
         "data_alteracao",
@@ -302,9 +301,8 @@ class ServicoInline(admin.TabularInline):
         "link_servico",
     )
     readonly_fields = [
+        "tipo_servico",
         "link_url",
-        "contato_tecnico",
-        "contato_administrativo",
         "hospedagem_interlegis",
         "data_ativacao",
         "data_alteracao",
