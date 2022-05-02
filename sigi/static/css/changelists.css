@@ -27,3 +27,8 @@
   will-change: transform;
   backface-visibility: hidden;
 }
+
+#icon_prefix {
+  background-color: #fff;
+  font-size: 1.2rem;
+}
