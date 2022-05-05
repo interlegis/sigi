@@ -61,14 +61,13 @@
 <script type="text/javascript" src="{% static 'js/search.js' %}"></script>
 <script>
   var mymap;
+  var map_center = [-14.235004, -51.92528];
+  var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
+  var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
   $(document).ready(function () {
-    var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
-    var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
-
     $("input[type=checkbox]").change(filtra);
 
-    mymap = L.map('map', { zoomSnap: 0.01 }).setView([-14.235004, -51.92528], 4.5);
-
+    mymap = L.map('map', { zoomSnap: 0.01 }).setView(map_center, 4.5);
     mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
     mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
     mymap.zoomControl.setPosition("bottomright");
@@ -161,6 +160,20 @@
       })
     }
 
+    $("#clear-filters").click(function(event) {
+      event.preventDefault();
+      $("input[type=checkbox][name=tipo_orgao]").prop('checked', false);
+      $("input[type=checkbox][name=tipo_servico]").prop('checked', false);
+      $("input[type=checkbox][name=tipo_convenio]").prop('checked', false);
+      $("input[type=checkbox][name=regiao]").prop('checked', false);
+      $("input[type=checkbox][name=uf]").prop('checked', false);
+      $("input[type=checkbox][name=gerente]").prop('checked', false);
+      filtra();
+    });
+    $("#center-map").click(function(event) {
+      event.preventDefault();
+      mymap.flyTo(map_center, 4.5);
+    });
   });
   function map_fly_to(obj) {
     mymap.flyTo([obj.lat, obj.lng], 8.5);
@@ -174,8 +187,8 @@
       }
     });
     if (!encontrado) {
-      var mark = L.circle([result.lat, result.lng], unfiltred_options).bindTooltip(result.label).bindPopup("").addTo(mymap);
-      mark.orgao_id = result.id
+      var mark = L.circle([obj.lat, obj.lng], unfiltred_options).bindTooltip(obj.label).bindPopup("").addTo(mymap);
+      mark.orgao_id = obj.id
       mark.openPopup();
     }
   }
