@@ -96,7 +96,15 @@
             {% for convite in evento.convite_set.all %}
             <tr>
               {% for field_name in convite_fields %}
-              <td>{{ convite|field_value:field_name }}</td>
+              <td>
+                {% if forloop.first %}
+                <a href="{% url 'eventos-evento-convida' evento.id convite.casa_id %}">
+                  {{ convite|field_value:field_name }}
+                </a>
+                {% else %}
+                {{ convite|field_value:field_name }}
+                {% endif %}
+              </td>
               {% endfor %}
             </tr>
             {% endfor %}
@@ -135,7 +143,13 @@
               <td>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</td>
               <td>
                 <a href="{{ anexo.arquivo.url }}" target="_blank">
-                  <i class="material-icons">picture_as_pdf</i>
+                  <i class="material-icons">
+                  {% if 'pdf' in anexo.arquivo.path %}
+                    picture_as_pdf
+                  {% else %}
+                    file_download
+                  {% endif %}
+                  </i>
                 </a>
               </td>
             </tr>

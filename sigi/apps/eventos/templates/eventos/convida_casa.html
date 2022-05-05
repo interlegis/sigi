@@ -69,7 +69,7 @@
           </button>
           {% for proj in projetos %}
           <button class="btn waves-effect waves-light" type="submit" name="save" value="{{ proj.id }}">
-            {% blocktrans with sigla=proj.sigla %}Gerar minuta de {{ sigla}}{% endblocktrans %}
+            {% blocktrans with sigla=proj.sigla %}Salvar e gerar minuta de {{ sigla}}{% endblocktrans %}
             <i class="material-icons right">picture_as_pdf</i>
           </button>
           {% endfor %}

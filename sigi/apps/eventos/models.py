@@ -319,6 +319,9 @@ class Anexo(models.Model):
     data_pub = models.DateTimeField(
         _("data da publicação do anexo"), default=datetime.now
     )
+    convite = models.ForeignKey(
+        Convite, blank=True, null=True, on_delete=models.SET_NULL
+    )
 
     class Meta:
         ordering = ("-data_pub",)

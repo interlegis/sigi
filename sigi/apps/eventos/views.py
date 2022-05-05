@@ -7,10 +7,12 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
+from django.template.exceptions import TemplateSyntaxError
 from django.utils.text import slugify
 from django.utils.translation import to_locale, get_language, gettext as _
 from django.urls import reverse
 from django_weasyprint.utils import django_url_fetcher
+from docx import Document
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao, Presidente
 from sigi.apps.convenios.models import Projeto
@@ -102,7 +104,7 @@ def convida_casa(request, evento_id, casa_id):
     evento = get_object_or_404(Evento, id=evento_id)
     casa = get_object_or_404(Orgao, id=casa_id)
 
-    projetos = Projeto.objects.exclude(texto_minuta="")
+    projetos = Projeto.objects.exclude(modelo_minuta="")
 
     if evento.convite_set.filter(casa=casa).exists():
         convite = evento.convite_set.get(casa=casa)
@@ -147,6 +149,7 @@ def convida_casa(request, evento_id, casa_id):
             proj_id = request.POST.get("save", "")
 
             if proj_id:
+                convite.anexo_set.all().delete()
                 query_str = ""
                 projeto = get_object_or_404(Projeto, id=proj_id)
                 if projeto.texto_oficio:
@@ -162,17 +165,37 @@ def convida_casa(request, evento_id, casa_id):
                     oficio.evento = evento
                     oficio.save()
                     query_str += f"anexo_id={oficio.id}&"
-                if projeto.texto_minuta:
-                    minuta = gerar_anexo(
-                        casa,
-                        presidente,
-                        contato,
-                        path=request.build_absolute_uri("/"),
-                        nome=f"Minuta de {projeto.sigla}",
-                        modelo="minuta_pdf.html",
-                        texto=projeto.texto_minuta,
+                if projeto.modelo_minuta:
+                    doc = Document(projeto.modelo_minuta.path)
+                    doc_context = Context(
+                        {
+                            "evento": evento,
+                            "casa": casa,
+                            "presidente": presidente,
+                            "contato": contato,
+                            "data": datetime.date.today(),
+                            "doravante": casa.tipo.nome.split(" ")[0],
+                        }
                     )
-                    minuta.evento = evento
+                    for paragrafo in doc.paragraphs:
+                        run_final = None
+                        for run in paragrafo.runs:
+                            if run_final is None:
+                                run_final = run
+                            else:
+                                run_final.text += run.text
+                                run.text = ""
+                            try:
+                                run_final.text = Template(
+                                    run_final.text
+                                ).render(doc_context)
+                                run_final = None
+                            except TemplateSyntaxError:
+                                pass
+                    nome = f"Minuta de {projeto.sigla} da {casa.nome}"[:70]
+                    minuta = Anexo(descricao=nome, evento=evento)
+                    minuta.arquivo.name = slugify(nome) + ".docx"
+                    doc.save(minuta.arquivo.path)
                     minuta.save()
                     query_str += f"anexo_id={minuta.id}"
 

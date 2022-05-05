@@ -122,7 +122,7 @@ class ModuloInline(admin.StackedInline):
 
 class AnexoInline(admin.StackedInline):
     model = Anexo
-    exclude = ("data_pub",)
+    exclude = ("data_pub", "convite")
 
 
 @admin.register(Evento)

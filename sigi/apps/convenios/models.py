@@ -4,6 +4,7 @@ from datetime import datetime, date
 from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
+from django.core.validators import FileExtensionValidator
 from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
@@ -27,8 +28,14 @@ class Projeto(models.Model):
     texto_oficio = HTMLField(
         _("texto do ofício"), blank=True, help_text=MARKUP_HELP
     )
-    texto_minuta = HTMLField(
-        _("texto da minuta"), blank=True, help_text=MARKUP_HELP
+    modelo_minuta = models.FileField(
+        _("Modelo de minuta"),
+        blank=True,
+        help_text=MARKUP_HELP,
+        upload_to="convenios/minutas/",
+        validators=[
+            FileExtensionValidator,
+        ],
     )
 
     def __str__(self):
