@@ -227,6 +227,18 @@ MATERIAL_ADMIN_SITE = {
     "NAVBAR_REVERSE": False,  # Hide side navbar by default
 }
 
+# tinyMCE rich text editor settings
+# https://django-tinymce.readthedocs.io/en/latest/installation.html#configuration
+
+TINYMCE_DEFAULT_CONFIG = {
+    "theme": "silver",
+    "menubar": True,
+    "plugins": "table,code,fullscreen,hr,link,lists,advlist,paste,print,searchreplace,visualblocks,visualchars",
+    "toolbar1": "undo redo print searchreplace visualblocks visualchars | styleselect fontsizeselect	| bold italic strikethrough subscript superscript underline hr | backcolor forecolor removeformat",
+    "toolbar2": "alignleft aligncenter alignright alignjustify | numlist bullist outdent indent | link unlink |fullscreen code",
+    "toolbar3": "table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow tablerowheader | tableinsertcolbefore tableinsertcolafter tabledeletecol tablecolheader | tablemergecells tablesplitcells | tablecellbackgroundcolor tablecellbordercolor tablecellborderwidth tablecellborderstyle",
+}
+
 # SIGI specific settings
 
 MENU_FILE = BASE_DIR / "menu_conf.yaml"
