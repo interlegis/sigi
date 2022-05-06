@@ -1,3 +1,20 @@
 {% extends 'admin/change_form.html' %}
+{% load i18n static admin_modify %}
 
-{% block breadcrumbs %}{% endblock %}
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/change_form.css' %}">
+{% endblock %}
+{% block breadcrumbs %}
+  {% if not is_popup %}
+  <div class="sigi-object-tools">
+    <ul>
+      {% block object-tools-items %}
+        {% change_form_object_tools %}
+      {% endblock %}
+    </ul>
+  </div>
+  {% endif %}
+{% endblock %}
+
+{% block object-tools %}{% endblock %}
