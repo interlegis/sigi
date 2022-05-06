@@ -84,8 +84,10 @@ class ServidorAdmin(admin.ModelAdmin):
     list_display = (
         "imagem_foto",
         "nome_completo",
+        "apelido",
         "is_active",
         "servico",
+        "cargo",
     )
     list_display_links = (
         "imagem_foto",
@@ -98,6 +100,8 @@ class ServidorAdmin(admin.ModelAdmin):
     )
     search_fields = (
         "nome_completo",
+        "apelido",
+        "cargo",
         "user__email",
         "user__first_name",
         "user__last_name",
@@ -113,8 +117,10 @@ class ServidorAdmin(admin.ModelAdmin):
                 "fields": (
                     "user",
                     "nome_completo",
+                    "apelido",
                     "foto",
                     "servico",
+                    "cargo",
                 )
             },
         ),

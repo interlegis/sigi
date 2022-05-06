@@ -51,6 +51,7 @@ class Servidor(models.Model):
     servico = models.ForeignKey(
         Servico, on_delete=models.SET_NULL, blank=True, null=True
     )
+    cargo = models.CharField(max_length=100, blank=True)
     externo = models.BooleanField(_("colaborador externo"), default=False)
     orgao_origem = models.CharField(
         _("órgão de origem, "), max_length=100, blank=True

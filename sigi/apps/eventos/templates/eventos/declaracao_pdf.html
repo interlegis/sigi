@@ -1,6 +1,11 @@
 {% extends 'pdf/base_report.html' %}
 {% load i18n %}
 
+{% block page-footer-settings %}
+  {{ block.super }}
+  @bottom-right { content: ""; }
+{% endblock %}
+
 {% block page_size %}{{ pagesize }}{% endblock page_size %}
 {% block page_margin %}4cm {{ pagemargin }}cm {{ pagemargin }}cm 2cm{% endblock page_margin %}
 

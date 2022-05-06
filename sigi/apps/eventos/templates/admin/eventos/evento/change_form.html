@@ -2,11 +2,11 @@
 {% load i18n %}
 
 {% block object-tools-items %}
-  <div class="collection-item">
+  <li>
     <a href="{% url 'evento-declaracao' object_id %}">
       <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
       {% trans "Declaração" %}
     </a>
-  </div>
+  </li>
   {{ block.super }}
 {% endblock %}

@@ -166,6 +166,9 @@ class Equipe(models.Model):
     funcao = models.ForeignKey(
         Funcao, on_delete=models.PROTECT, verbose_name=_("Função na equipe")
     )
+    assina_oficio = models.BooleanField(
+        _("Assina ofício de comparecimento"), default=False
+    )
     observacoes = models.TextField(_("Observações"), blank=True)
 
     class Meta:
