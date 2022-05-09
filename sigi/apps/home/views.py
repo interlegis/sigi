@@ -33,6 +33,8 @@ from django.urls import reverse
 
 
 def openmap(request):
+    from sigi.apps.convenios.models import Projeto
+
     reptype = request.GET.get("reptype", None)
     context = site.each_context(request)
 
