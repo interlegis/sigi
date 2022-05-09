@@ -9,32 +9,58 @@ from django.urls import reverse
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from tinymce.models import HTMLField
+from sigi.apps.contatos.models import Municipio, UnidadeFederativa
+from sigi.apps.eventos.models import Evento
 from sigi.apps.utils import to_ascii
-from sigi.apps.casas.models import Orgao
+from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor, Servico
+from sigi.apps.home.views import editor_help
 
 
 class Projeto(models.Model):
-    MARKUP_HELP = _(
-        "Use as seguintes marcações:<ul><li>{{ casa.nome }} para o"
-        " nome da Casa Legislativa / órgão</li>"
-        "<li>{{ casa.municipio.uf.sigla }} para a sigla da UF da "
-        "Casa legislativa</li><li>{{ presidente.nome }} "
-        "para o nome do presidente</li><li>{{ contato.nome }} para o nome "
-        "do contato Interlegis</li></ul>"
+    OFICIO_HELP = editor_help(
+        "texto_oficio",
+        [
+            ("evento", Evento),
+            ("casa", Orgao),
+            ("presidente", Funcionario),
+            ("contato", Funcionario),
+            ("casa.municipio", Municipio),
+            ("casa.municipio.uf", UnidadeFederativa),
+            ("data", _("Data atual")),
+            ("doravante", _("CÂMARA ou ASSEMBLEIA")),
+        ],
+    )
+    MINUTA_HELP = editor_help(
+        "modelo_minuta",
+        [
+            ("evento", Evento),
+            ("casa", Orgao),
+            ("presidente", Funcionario),
+            ("contato", Funcionario),
+            ("casa.municipio", Municipio),
+            ("casa.municipio.uf", UnidadeFederativa),
+            ("data", _("Data atual")),
+            ("ente", _("Ente da federação (município/estado)")),
+            ("doravante", _("CÂMARA ou ASSEMBLEIA")),
+        ],
     )
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
     texto_oficio = HTMLField(
-        _("texto do ofício"), blank=True, help_text=MARKUP_HELP
+        _("texto do ofício"), blank=True, help_text=OFICIO_HELP
     )
     modelo_minuta = models.FileField(
         _("Modelo de minuta"),
         blank=True,
-        help_text=MARKUP_HELP,
+        help_text=MINUTA_HELP,
         upload_to="convenios/minutas/",
         validators=[
-            FileExtensionValidator,
+            FileExtensionValidator(
+                [
+                    "docx",
+                ]
+            ),
         ],
     )
 

@@ -4,16 +4,17 @@ import datetime
 from itertools import cycle
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
+from django.db import models
 from django.db.models import Q, Count
 from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
 from django.shortcuts import render, get_object_or_404
+from django.template import Template, Context
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import TipoOrgao, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import to_ascii
@@ -476,6 +477,8 @@ def report_sem_convenio(request):
 
 
 def busca_informacoes_camara():
+    from sigi.apps.convenios.models import Convenio, Projeto
+
     camaras = Orgao.objects.filter(tipo__sigla="CM")
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla="CM")
     projetos = Projeto.objects.all()
@@ -714,3 +717,29 @@ def color_palete():
     )
 
     return (colors, highlights)
+
+
+def editor_help(field_name, Field_list):
+    placeholders = []
+    for name, detail in Field_list:
+        if type(detail) is str:
+            placeholders.append([f"{{{{ {name} }}}}", detail])
+        else:
+            placeholders.append(
+                [
+                    f"{{{{ {name} }}}}",
+                    detail._meta.verbose_name.capitalize(),
+                ]
+            )
+            for field in detail._meta.fields:
+                if field.auto_created or type(field) is models.ForeignKey:
+                    pass  # Ignore FK and auto-PK
+                else:
+                    placeholders.append(
+                        [f"{{{{ {name}.{field.name} }}}}", field.verbose_name]
+                    )
+
+    return render_to_string(
+        "home/editor_help_snippet.html",
+        {"field_name": field_name, "placeholders": placeholders},
+    )
