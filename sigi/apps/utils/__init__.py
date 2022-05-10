@@ -2,6 +2,7 @@ from unicodedata import normalize
 from django.contrib import admin
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
+from django.template.loader import render_to_string
 from django.utils.encoding import force_str
 
 
@@ -62,3 +63,29 @@ def field_label(name, model):
         label = label + "/" + field_label("__".join(name[1:]), to_model)
 
     return label
+
+
+def editor_help(field_name, Field_list):
+    placeholders = []
+    for name, detail in Field_list:
+        if type(detail) is str:
+            placeholders.append([f"{{{{ {name} }}}}", detail])
+        else:
+            placeholders.append(
+                [
+                    f"{{{{ {name} }}}}",
+                    detail._meta.verbose_name.capitalize(),
+                ]
+            )
+            for field in detail._meta.fields:
+                if field.auto_created or type(field) is models.ForeignKey:
+                    pass  # Ignore FK and auto-PK
+                else:
+                    placeholders.append(
+                        [f"{{{{ {name}.{field.name} }}}}", field.verbose_name]
+                    )
+
+    return render_to_string(
+        "home/editor_help_snippet.html",
+        {"field_name": field_name, "placeholders": placeholders},
+    )

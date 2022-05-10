@@ -14,7 +14,7 @@ from sigi.apps.eventos.models import Evento
 from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor, Servico
-from sigi.apps.home.views import editor_help
+from sigi.apps.utils import editor_help
 
 
 class Projeto(models.Model):
