@@ -1,6 +1,24 @@
 $(document).ready(function () {
-  M.Tabs.init($('.tabs'), {});
   $(".dash-control").hide();
+  M.Tabs.init($('.tabs'), {});
+  $(".remove-card").off("click").on("click", function (e) {
+    e.preventDefault();
+    var $this = $(this);
+    var context = $this.parents("li");
+    $.ajax({
+      url: $this.attr("href"),
+      method: 'GET',
+      context: context,
+      success: function (data) {
+        $(this).remove();
+        M.toast({ html: data.result })
+      },
+      error: function (jqXHR, textStatus, errorThrown) {
+        console.log(errorThrown);
+        M.toast({ html: `${textStatus}: ${errorThrown}` });
+      }
+    })
+  });
   $(".tab-edit a").off("click").on("click", function (e) {
     e.preventDefault();
     $(".dash-control").toggle();
@@ -13,11 +31,12 @@ $(document).ready(function () {
           parent.children().each(function (pos) {
             dados[$(this).attr("data-card-id")] = pos + 1;
           })
-          $.get(url, dados, function () {
-            M.toast({ html: 'Ordem alterada' })
+          $.get(url, dados, function (data) {
+            M.toast({ html: data.response })
           });
         }
       });
+      $(".sortable").sortable("enable");
     } else {
       $(".sortable").sortable("disable");
     }

@@ -245,14 +245,20 @@ def card_snippet(request, card_code):
 
 @login_required
 def card_add_tab(request, tab_slug):
+    total = 0
+    categoria = tab_slug
     for card in Cards.objects.all():
         if slugify(card.categoria) == tab_slug:
-            Dashboard(
+            categoria = card.categoria
+            __, created = Dashboard.objects.update_or_create(
+                defaults={"ordem": card.ordem},
                 usuario=request.user,
                 card=card,
                 categoria=card.categoria,
-                ordem=card.ordem,
-            ).save()
+            )
+            if created:
+                total += 1
+    messages.info(request, _(f"{total} cards adicionados na aba {categoria}"))
     return HttpResponseRedirect(reverse("admin:index"))
 
 
@@ -280,17 +286,15 @@ def card_reorder(request):
         Dashboard.objects.filter(
             usuario=request.user, card__codigo=codigo, categoria=categoria
         ).update(ordem=nova_ordem)
-    return JsonResponse({"result": "Done"})
+    return JsonResponse({"result": _("Ordem alterada")})
 
 
 @login_required
 def card_remove(request, categoria, codigo):
-    dash = get_object_or_404(
-        Dashboard, categoria=categoria, card__codigo=codigo
-    )
-    dash.delete()
-    messages.success(request, _("Card removido"))
-    return HttpResponseRedirect(reverse("admin:index"))
+    count, *__ = Dashboard.objects.filter(
+        categoria=categoria, card__codigo=codigo
+    ).delete()
+    return JsonResponse({"result": _(f"{count} card(s) removido(s)")})
 
 
 @login_required
