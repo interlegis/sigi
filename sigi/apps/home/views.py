@@ -2,19 +2,28 @@ import calendar
 import csv
 import datetime
 from itertools import cycle
+from django.contrib import messages
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import PermissionDenied
 from django.db import models
 from django.db.models import Q, Count
-from django.http import HttpResponse, HttpResponseForbidden, JsonResponse
+from django.http import (
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseRedirect,
+    JsonResponse,
+)
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
+from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
 from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import TipoOrgao, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.home.models import Cards, Dashboard
 from sigi.apps.servicos.models import TipoServico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import to_ascii
@@ -225,6 +234,91 @@ def openmapsearch(request):
         for d in dados
     ]
     return JsonResponse(list(dados), safe=False)
+
+
+def card_snippet(request, card_code):
+    card = get_object_or_404(Cards, codigo=card_code)
+    if not card.default:
+        raise PermissionDenied()
+    return render(request, "home/dashboard/card.html", {"dash_cards": [card]})
+
+
+@login_required
+def card_add_tab(request, tab_slug):
+    for card in Cards.objects.all():
+        if slugify(card.categoria) == tab_slug:
+            Dashboard(
+                usuario=request.user,
+                card=card,
+                categoria=card.categoria,
+                ordem=card.ordem,
+            ).save()
+    return HttpResponseRedirect(reverse("admin:index"))
+
+
+@login_required
+def card_rename_tab(request):
+    dados = request.POST.copy()
+    dados.pop("csrfmiddlewaretoken")
+    categoria_atual = dados.pop("categoria_atual")[0]
+    categoria_nova = dados.pop("categoria_nova")[0]
+    if categoria_nova != "" and categoria_nova != categoria_atual:
+        Dashboard.objects.filter(
+            usuario=request.user, categoria=categoria_atual
+        ).update(categoria=categoria_nova)
+        messages.success(request, _("Tab renomeada com sucesso"))
+    else:
+        messages.warning(request, _("Não foi possível renomear a tab"))
+    return HttpResponseRedirect(reverse("admin:index"))
+
+
+@login_required
+def card_reorder(request):
+    dados = request.GET.copy()
+    categoria = dados.pop("categoria")[0]
+    for codigo, nova_ordem in dados.items():
+        Dashboard.objects.filter(
+            usuario=request.user, card__codigo=codigo, categoria=categoria
+        ).update(ordem=nova_ordem)
+    return JsonResponse({"result": "Done"})
+
+
+@login_required
+def card_remove(request, categoria, codigo):
+    dash = get_object_or_404(
+        Dashboard, categoria=categoria, card__codigo=codigo
+    )
+    dash.delete()
+    messages.success(request, _("Card removido"))
+    return HttpResponseRedirect(reverse("admin:index"))
+
+
+@login_required
+def card_add(request):
+    categoria = request.POST.get("categoria", None)
+    codigos = request.POST.getlist("card_id", None)
+
+    if categoria is None or codigos is None:
+        messages.error(request, _("Nenhum card adicionado!"))
+    else:
+        criados = 0
+        for codigo in codigos:
+            card = get_object_or_404(Cards, codigo=codigo)
+            dash, created = Dashboard.objects.get_or_create(
+                {"ordem": card.ordem},
+                usuario=request.user,
+                card=card,
+                categoria=categoria,
+            )
+            if created:
+                criados += 1
+        if criados > 0:
+            messages.success(
+                request, _(f"{criados} card(s) adicionado(s) na aba")
+            )
+        else:
+            messages.info(request, _("Estes cards já estão na aba"))
+    return HttpResponseRedirect(reverse("admin:index"))
 
 
 # @never_cache

@@ -1,23 +1,55 @@
 {% load i18n %}
-
 <div class="content-wrapper">
   <div class="app-list">
-    {% url "home_resumoseit" as source_url %}
-    {% include "sigi/snippets/base_card_text.html" with card_title="Serviços hospedados no Interlegis (SEIT)" data_source=source_url card_name="resumoseit" %}
-
-    {% url "home_chartseit" as source_url %}
-    {% include "sigi/snippets/base_card_chart.html" with card_title="Sazonalidade da hospedagem de serviços" data_source=source_url chart_name="evolucao-servicos" has_action_links="1" %}
-
-    {% url "casas-carteira" as source_url %}
-    {% include "sigi/snippets/base_card_text.html" with card_title="Resumo da carteira de relacionamentos" data_source=source_url|add:"?snippet=resumo&s=sim" card_name="carteira" %}
-
-    {% url "home_chartperformance" as source_url %}
-    {% include "sigi/snippets/base_card_chart.html" with card_title="Performance da gerência de carteiras" data_source=source_url chart_name="performance"  has_action_links="1" %}
-
-    {% url "home_chartcarteira" as source_url %}
-    {% include "sigi/snippets/base_card_chart.html" with card_title="Distribuição de Casas por Gerente" data_source=source_url chart_name="carteira" %}
-
-    {% url "home_resumoconvenios" as source_url %}
-    {% include "sigi/snippets/base_card_text.html" with card_title="Resumo de informações" data_source=source_url card_name="resumo-convenios" %}
+    <div class="app dash-control">
+      <div class="card lime lighten-3">
+        <form action="{% url 'home_card_rename_tab' %}" method="post">{% csrf_token %}
+          <div class="card-content white-text">
+            <input type="hidden" name="categoria_atual" value="{{ dash.label }}"/>
+            <div class="input-field">
+              <label for="id_categoria_nova">{% trans 'Renomear a aba' %}</label>
+              <input placeholder="{% trans 'Nome da aba' %}" id="id_categoria_nova" name="categoria_nova" type="text" class="validate" value="{{ dash.label }}" required>
+            </div>
+          </div>
+          <div class="card-action">
+            <button type="submit" class="waves-effect btn-flat right">{% trans "Renomear" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <ul class="sortable" data-tab-name="{{ dash.label }}" data-target-url="{% url 'home_card_reorder' %}">
+      {% for card in dash.cards %}
+        <li data-card-id="{{ card.codigo }}">
+          {% url card.nome_url as source_url %}
+          {% if card.tipo == 'C' %}
+            {% include "sigi/snippets/base_card_chart.html" with card_title=card.titulo data_source=source_url|add:"?"|add:card.query_string chart_name=card.codigo has_action_links=card.link_acao %}
+          {% else %}
+            {% include "sigi/snippets/base_card_text.html" with card_title=card.titulo data_source=source_url|add:"?"|add:card.query_string card_name=card.codigo %}
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+    <div class="app dash-control">
+      <div class="card lime lighten-3">
+        <form action="{% url 'home_add_card' %}" method="post">{% csrf_token %}
+          <div class="card-content white-text">
+            <input type="hidden" name="categoria" value="{{ dash.label }}"/>
+            <ul class="collection">
+              {% for card in sigi_dash_all_cards %}
+              <li class="collection-item">
+                <label>
+                  <input type="checkbox" name="card_id" value="{{ card.codigo }}"/>
+                  <span>{{ card.titulo }}</span>
+                </label>
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-action">
+            <button type="submit" class="waves-effect btn-flat right">{% trans "Adicionar selecionados" %}</button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>

@@ -110,6 +110,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
+                "sigi.apps.home.context_processors.dashboard",
             ],
         },
     },

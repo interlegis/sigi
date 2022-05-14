@@ -28,6 +28,32 @@ urlpatterns = [
         views.report_sem_convenio,
         name="home_reportsemconvenio",
     ),
+    path(
+        "home/dashboard/card/<slug:card_code>/",
+        views.card_snippet,
+        name="home_cardsnippet",
+    ),
+    path(
+        "home/dashboard/addtab/<slug:tab_slug>/",
+        views.card_add_tab,
+        name="home_card_add_tab",
+    ),
+    path(
+        "home/dashboard/changetab/",
+        views.card_rename_tab,
+        name="home_card_rename_tab",
+    ),
+    path(
+        "home/dashboard/reorder/",
+        views.card_reorder,
+        name="home_card_reorder",
+    ),
+    path(
+        "home/dashboard/remove/<categoria>/<slug:codigo>/",
+        views.card_remove,
+        name="home_card_remove",
+    ),
+    path("home/dashboard/addcard/", views.card_add, name="home_add_card"),
 ]
 
 # from django.conf.urls import patterns, url

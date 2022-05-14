@@ -11,8 +11,46 @@
   {{ block.super }}
 {% endblock %}
 
+{% block breadcrumbs %}
+<div class="dashbar">
+  <ul class="tabs">
+    {% if sigi_dashes|length > 1 %}
+      {% for dash in sigi_dashes %}
+        <li class="tab">
+          <a href="#dashtab-{{ dash.slug }}"{% if sigi_dash_selected == dash.slug %} class="active"{% endif %}>{{ dash.label }}</a>
+        </li>
+      {% endfor %}
+      <li class="dash-control tab-control">
+        <a href="#dashcontrol-addtab" class="waves-effect waves-light modal-trigger"><i class="material-icons tiny">add</i>{% trans "Adicionar tab" %}</a>
+      </li>
+      <li class="tab-edit right">
+        <a href="#" title="{% trans 'Modo de ediçao' %}"><i class="material-icons tiny">edit</i></a>
+      </li>
+    {% endif %}
+  </ul>
+</div>
+{% endblock %}
+
 {% block content %}
-  {% include 'sigi/snippets/dashboard.html' %}
+  <div id="dashcontrol-addtab" class="modal">
+    <div class="modal-content">
+      <h5>Adicionar nova tab</h5>
+      <p>{% trans "Selecione a categoria a ser adicionada" %}</p>
+      <ul class="collection">
+        {% for slug, label in sigi_dash_all_categories %}
+        <li class="collection-item"><div>{{ label }}<a href="{% url 'home_card_add_tab' slug %}" class="secondary-content" title="{% trans 'Adicionar' %}"><i class="material-icons">add</i></a></div></li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="modal-footer">
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+    </div>
+  </div>
+  {% for dash in sigi_dashes %}
+    <div id="dashtab-{{ dash.slug }}" class="col s12">
+      {% include 'sigi/snippets/dashboard.html' %}
+    </div>
+  {% endfor %}
 {% endblock %}
 
 {% block footer %}

@@ -18,7 +18,11 @@
       </div>
     </div>
     <div class="card-content">
-      <div class="card-title">{% block card-title %}{% translate card_title|default:"" %}{% endblock %}</div>
+      <div class="card-title">
+        <i class="material-icons left dash-control" style="cursor: move;">drag_handle</i>
+        {% block card-title %}{% translate card_title|default:"" %}{% endblock %}
+        <a href="{% url 'home_card_remove' dash.label card.codigo %}" class="dash-control" title="{% trans 'Remove este card' %}"><i class="material-icons right">close</i></a>
+      </div>
       <div class="card-content-wrapper">
       {% block card-content %}{% endblock card-content %}
       </div>
