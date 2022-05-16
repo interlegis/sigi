@@ -1,5 +1,4 @@
 import calendar
-import datetime
 import locale
 from django.contrib import messages
 from django.contrib.admin.sites import site
@@ -8,6 +7,7 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
 from django.template.exceptions import TemplateSyntaxError
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import to_locale, get_language, gettext as _
 from django.urls import reverse
@@ -28,8 +28,8 @@ from sigi.apps.servidores.models import Servidor
 
 @login_required
 def calendario(request):
-    mes_pesquisa = int(request.GET.get("mes", datetime.date.today().month))
-    ano_pesquisa = int(request.GET.get("ano", datetime.date.today().year))
+    mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
+    ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
     formato = request.GET.get("fmt", "html")
 
     meses = {}
@@ -88,7 +88,7 @@ def declaracao(request, id):
                     "pagemargin": modelo.margem,
                     "evento": evento,
                     "servidor": servidor,
-                    "data": datetime.date.today(),
+                    "data": timezone.localdate(),
                 }
             )
             string = Template(template_string).render(context)
@@ -187,7 +187,7 @@ def convida_casa(request, evento_id, casa_id):
             evento=evento,
             casa=casa,
             servidor=request.user.servidor,
-            data_convite=datetime.date.today(),
+            data_convite=timezone.localdate(),
         )
 
     presidente = casa.presidente or Funcionario(
@@ -254,7 +254,7 @@ def convida_casa(request, evento_id, casa_id):
                             "casa": casa,
                             "presidente": presidente,
                             "contato": contato,
-                            "data": datetime.date.today(),
+                            "data": timezone.localdate(),
                             "ente": ente,
                             "doravante": casa.tipo.nome.split(" ")[0],
                         }
@@ -318,7 +318,7 @@ def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
             "casa": casa,
             "presidente": presidente,
             "contato": contato,
-            "data": datetime.date.today(),
+            "data": timezone.localdate(),
             "doravante": casa.tipo.nome.split(" ")[0],
         }
     )
@@ -341,8 +341,8 @@ def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
 
 # @login_required
 # def calendario(request):
-#     mes_pesquisa = int(request.GET.get('mes', datetime.date.today().month))
-#     ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
+#     mes_pesquisa = int(request.GET.get('mes', timezone.localdate().month))
+#     ano_pesquisa = int(request.GET.get('ano', timezone.localdate().year))
 #     formato = request.GET.get('fmt', 'html')
 
 #     dia1 = datetime.date(ano_pesquisa, mes_pesquisa, 1)
@@ -426,7 +426,7 @@ def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
 
 # @login_required
 # def alocacao_equipe(request):
-#     ano_pesquisa = int(request.GET.get('ano', datetime.date.today().year))
+#     ano_pesquisa = int(request.GET.get('ano', timezone.localdate().year))
 #     formato = request.GET.get('fmt', 'html')
 
 #     data = {'ano_pesquisa': ano_pesquisa}

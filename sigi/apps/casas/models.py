@@ -1,11 +1,11 @@
-from datetime import datetime
 import random
 from string import ascii_uppercase
 from unicodedata import normalize
-from django.core.exceptions import ValidationError
-from django.utils.translation import gettext as _
 from django.contrib.contenttypes.fields import GenericRelation
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
+from django.utils.translation import gettext as _
 
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
@@ -219,7 +219,7 @@ class Orgao(models.Model):
             address_changed = True
 
         if address_changed:
-            self.ult_alt_endereco = datetime.now()
+            self.ult_alt_endereco = timezone.localtime()
 
         return super(Orgao, self).save(*args, **kwargs)
 

@@ -1,8 +1,8 @@
 import re
-from datetime import datetime
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import Municipio
@@ -320,7 +320,7 @@ class Anexo(models.Model):
     )
     descricao = models.CharField(_("descrição"), max_length=70)
     data_pub = models.DateTimeField(
-        _("data da publicação do anexo"), default=datetime.now
+        _("data da publicação do anexo"), default=timezone.localtime
     )
     convite = models.ForeignKey(
         Convite, blank=True, null=True, on_delete=models.SET_NULL

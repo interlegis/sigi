@@ -16,6 +16,7 @@ from django.http import (
 )
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
+from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
@@ -358,7 +359,7 @@ def resumo_seit(request):
 @never_cache
 @login_required
 def chart_seit(request):
-    hoje = datetime.date.today()
+    hoje = timezone.localdate()
     mes = request.GET.get("mes", hoje.month)
     ano = request.GET.get("ano", hoje.year)
 

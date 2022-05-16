@@ -1,11 +1,11 @@
 import re
 import requests
-from datetime import datetime, date
 from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.urls import reverse
+from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
 from tinymce.models import HTMLField
@@ -350,7 +350,7 @@ class Anexo(models.Model):
     )
     descricao = models.CharField(_("descrição"), max_length=70)
     data_pub = models.DateTimeField(
-        _("data da publicação do anexo"), default=datetime.now
+        _("data da publicação do anexo"), default=timezone.localtime
     )
 
     class Meta:
@@ -495,7 +495,7 @@ class Gescon(models.Model):
         self.ultima_importacao = ""
         self.add_message(
             _(
-                f"Importação iniciada em {datetime.now():%d/%m/%Y %H:%M:%S}\n"
+                f"Importação iniciada em {timezone.localtime():%d/%m/%Y %H:%M:%S}\n"
                 "==========================================================\n"
             )
         )
@@ -693,7 +693,7 @@ class Gescon(models.Model):
                         data_retorno_assinatura=contrato["inicioVigencia"],
                         data_termino_vigencia=contrato["terminoVigencia"],
                         data_pub_diario=contrato["publicacao"],
-                        atualizacao_gescon=datetime.now(),
+                        atualizacao_gescon=timezone.localtime(),
                         observacao_gescon=_(
                             "Importado integralmente do" "Gescon"
                         ),
@@ -703,7 +703,7 @@ class Gescon(models.Model):
                     continue
                 elif chk == 1:
                     convenio = convenios.get()
-                    convenio.atualizacao_gescon = datetime.now()
+                    convenio.atualizacao_gescon = timezone.localtime()
                     convenio.observacao_gescon = ""
                     if convenio.casa_legislativa != orgao:
                         self.add_message(

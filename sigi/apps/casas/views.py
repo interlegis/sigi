@@ -1,5 +1,4 @@
 import csv
-from datetime import datetime
 from functools import reduce
 
 from django.contrib import messages

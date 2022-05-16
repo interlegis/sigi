@@ -1,7 +1,5 @@
 import csv
 
-import datetime
-
 # from django.contrib import messages
 from django.contrib import admin
 from django.http.response import HttpResponseForbidden
