@@ -154,11 +154,26 @@ def evento(request, id):
 
 
 def convida_casa(request, evento_id, casa_id):
+    def processa_paragrafos(paragrafos, context):
+        for paragrafo in paragrafos:
+            run_final = None
+            for run in paragrafo.runs:
+                if run_final is None:
+                    run_final = run
+                else:
+                    run_final.text += run.text
+                    run.text = ""
+                try:
+                    run_final.text = Template(run_final.text).render(context)
+                    run_final = None
+                except TemplateSyntaxError:
+                    pass
+
     if not request.user.servidor:
         messages.error(
             request, _("Você não é servidor, não pode registrar convites")
         )
-        return redirect(evento)
+        return redirect(reverse("eventos-evento", args=[evento_id]))
 
     evento = get_object_or_404(Evento, id=evento_id)
     casa = get_object_or_404(Orgao, id=casa_id)
@@ -244,21 +259,14 @@ def convida_casa(request, evento_id, casa_id):
                             "doravante": casa.tipo.nome.split(" ")[0],
                         }
                     )
-                    for paragrafo in doc.paragraphs:
-                        run_final = None
-                        for run in paragrafo.runs:
-                            if run_final is None:
-                                run_final = run
-                            else:
-                                run_final.text += run.text
-                                run.text = ""
-                            try:
-                                run_final.text = Template(
-                                    run_final.text
-                                ).render(doc_context)
-                                run_final = None
-                            except TemplateSyntaxError:
-                                pass
+                    processa_paragrafos(doc.paragraphs, doc_context)
+                    for table in doc.tables:
+                        for row in table.rows:
+                            for cell in row.cells:
+                                processa_paragrafos(
+                                    cell.paragraphs,
+                                    doc_context,
+                                )
                     nome = f"Minuta de {projeto.sigla} da {casa.nome}"[:70]
                     minuta = Anexo(descricao=nome, evento=evento)
                     minuta.arquivo.name = slugify(nome) + ".docx"
