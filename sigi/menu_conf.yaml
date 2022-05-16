@@ -2,116 +2,114 @@ admin_menu:
   - title: Superusuários
     icon: settings
     children:
-    - title: Usuários
-      view_name: admin:auth_user_changelist
-    - title: Grupos
-      view_name: admin:auth_group_changelist
-    - title: Importar Gescon
-      view_name: importar-gescon
+      - title: Usuários
+        view_name: admin:auth_user_changelist
+      - title: Grupos
+        view_name: admin:auth_group_changelist
+      - title: Importar Gescon
+        view_name: importar-gescon
 
 main_menu:
   - title: Municípios
     icon: location_city
     children:
-    - title: Municípios
-      view_name: admin:contatos_municipio_changelist
-    - title: Unidades Federativas
-      view_name: admin:contatos_unidadefederativa_changelist
-    - title: Mesorregiões
-      view_name: admin:contatos_mesorregiao_changelist
+      - title: Municípios
+        view_name: admin:contatos_municipio_changelist
+      - title: Unidades Federativas
+        view_name: admin:contatos_unidadefederativa_changelist
+      - title: Mesorregiões
+        view_name: admin:contatos_mesorregiao_changelist
   - title: Casas e órgãos
     icon: account_balance
     children:
-    - title: Todo legislativo
-      view_name: admin:casas_orgao_changelist
-      querystr: tipo__legislativo__exact=1
-    - title: Câmaras Municipais
-      view_name: admin:casas_orgao_changelist
-      querystr: tipo__sigla__exact=CM
-    - title: Assembléias Legislativas
-      view_name: admin:casas_orgao_changelist
-      querystr: tipo__sigla__exact=AL
-    - title: Demais órgãos
-      view_name: admin:casas_orgao_changelist
-      querystr: tipo__legislativo__exact=0
+      - title: Todo legislativo
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__legislativo__exact=1
+      - title: Câmaras Municipais
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__exact=CM
+      - title: Assembléias Legislativas
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__exact=AL
+      - title: Demais órgãos
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__legislativo__exact=0
   - title: Gerência Interlegis
     icon: people
     children:
-    - title: Carteira de relacionamentos
-      view_name:
-    - title: Organizar relacionamentos
-      view_name:
-    - title: Lista de gerentes
-      view_name:
+      - title: Carteira de relacionamentos
+        view_name:
+      - title: Organizar relacionamentos
+        view_name:
+      - title: Lista de gerentes
+        view_name:
   - title: Convênios
     icon: assignment
     children:
-    - title: Convênios
-      view_name: admin:convenios_convenio_changelist
+      - title: Convênios
+        view_name: admin:convenios_convenio_changelist
   - title: Serviços SEIT
     icon: cloud_done
     children:
-    - title: Casas atendidas
-      view_name: admin:servicos_casaatendida_changelist
-    - title: Lista de serviços
-      view_name: admin:servicos_servico_changelist
+      - title: Lista de serviços
+        view_name: admin:servicos_servico_changelist
   - title: Ocorrências
     icon: comment
     children:
-    - title: Painel de ocorrências
-      view_name: painel-ocorrencias
-    - title: Registro de ocorrências
-      view_name: admin:ocorrencias_ocorrencia_changelist
-      querystr: minhas=S&status__in=1,2
+      - title: Painel de ocorrências
+        view_name: painel-ocorrencias
+      - title: Registro de ocorrências
+        view_name: admin:ocorrencias_ocorrencia_changelist
+        querystr: minhas=S&status__in=1,2
   - title: Eventos
     icon: school
     children:
-    - title: Todos os eventos
-      view_name: admin:eventos_evento_changelist
-    - title: Cursos
-      view_name: admin:eventos_evento_changelist
-      querystr: tipo_evento__categoria__exact=C
-    - title: Encontros
-      view_name: admin:eventos_evento_changelist
-      querystr: tipo_evento__categoria__exact=E
-    - title: Oficinas
-      view_name: admin:eventos_evento_changelist
-      querystr: tipo_evento__categoria__exact=O
-    - title: Seminários
-      view_name: admin:eventos_evento_changelist
-      querystr: tipo_evento__categoria__exact=S
-    - title: Visitas Interlegis
-      view_name: admin:eventos_evento_changelist
-      querystr: tipo_evento__categoria__exact=V
-    - title: Calendário mensal
-      view_name:
-    - title: Alocação de equipe
-      view_name:
+      - title: Todos os eventos
+        view_name: admin:eventos_evento_changelist
+      - title: Cursos
+        view_name: admin:eventos_evento_changelist
+        querystr: tipo_evento__categoria__exact=C
+      - title: Encontros
+        view_name: admin:eventos_evento_changelist
+        querystr: tipo_evento__categoria__exact=E
+      - title: Oficinas
+        view_name: admin:eventos_evento_changelist
+        querystr: tipo_evento__categoria__exact=O
+      - title: Seminários
+        view_name: admin:eventos_evento_changelist
+        querystr: tipo_evento__categoria__exact=S
+      - title: Visitas Interlegis
+        view_name: admin:eventos_evento_changelist
+        querystr: tipo_evento__categoria__exact=V
+      - title: Calendário mensal
+        view_name:
+      - title: Alocação de equipe
+        view_name:
   - title: Servidores
     icon: account_circle
     children:
-    - title: Serviços (unidades do ILB)
-      view_name: admin:servidores_servico_changelist
-    - title: Servidores e colaboradores
-      view_name: admin:servidores_servidor_changelist
+      - title: Serviços (unidades do ILB)
+        view_name: admin:servidores_servico_changelist
+      - title: Servidores e colaboradores
+        view_name: admin:servidores_servidor_changelist
   - title: Tabelas auxiliares
     icon: settings
     children:
-    - title: Tipos de órgãos
-      view_name: admin:casas_tipoorgao_changelist
-    - title: Acompanhamento convênios
-      view_name: admin:convenios_statusconvenio_changelist
-    - title: Tipos de serviço SEIT
-      view_name: admin:servicos_tiposervico_changelist
-    - title: Tipos de projeto
-      view_name: admin:convenios_projeto_changelist
-    - title: Categorias de ocorrências
-      view_name: admin:ocorrencias_categoria_changelist
-    - title: Tipos de contato
-      view_name: admin:ocorrencias_tipocontato_changelist
-    - title: Tipos de evento
-      view_name: admin:eventos_tipoevento_changelist
-    - title: Funções na equipe de eventos
-      view_name: admin:eventos_funcao_changelist
-    - title: Modelos de declaração
-      view_name: admin:eventos_modelodeclaracao_changelist
+      - title: Tipos de órgãos
+        view_name: admin:casas_tipoorgao_changelist
+      - title: Acompanhamento convênios
+        view_name: admin:convenios_statusconvenio_changelist
+      - title: Tipos de serviço SEIT
+        view_name: admin:servicos_tiposervico_changelist
+      - title: Tipos de projeto
+        view_name: admin:convenios_projeto_changelist
+      - title: Categorias de ocorrências
+        view_name: admin:ocorrencias_categoria_changelist
+      - title: Tipos de contato
+        view_name: admin:ocorrencias_tipocontato_changelist
+      - title: Tipos de evento
+        view_name: admin:eventos_tipoevento_changelist
+      - title: Funções na equipe de eventos
+        view_name: admin:eventos_funcao_changelist
+      - title: Modelos de declaração
+        view_name: admin:eventos_modelodeclaracao_changelist

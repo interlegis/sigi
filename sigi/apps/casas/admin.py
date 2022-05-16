@@ -293,51 +293,16 @@ class ServicoInline(admin.TabularInline):
     model = Servico
     fields = (
         "tipo_servico",
-        "link_url",
+        "url",
         "hospedagem_interlegis",
         "data_ativacao",
         "data_alteracao",
         "data_desativacao",
-        "link_servico",
+        "motivo_desativacao",
     )
-    readonly_fields = [
-        "tipo_servico",
-        "link_url",
-        "hospedagem_interlegis",
-        "data_ativacao",
-        "data_alteracao",
-        "data_desativacao",
-        "link_servico",
-    ]
-    extra = 0
-    max_num = 0
-    can_delete = False
-    ordering = ("-data_alteracao",)
-
-    def link_url(self, servico):
-        if servico.data_desativacao is not None:
-            return servico.url
-        return mark_safe(
-            f'<a href="{servico.url}" target="_blank">{servico.url}</a>'
-        )
-
-    link_url.short_description = _("URL do serviço")
-
-    def link_servico(self, obj):
-        if obj.pk is None:
-            return ""
-        opts = self.opts
-        url = reverse(
-            f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk]
-        )
-        return mark_safe(
-            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
-        )
-
-    link_servico.short_description = _("Editar Serviço")
-
-    def has_add_permission(self, request, obj):
-        return False
+    readonly_fields = ["data_alteracao"]
+    extra = 1
+    ordering = ("tipo_servico", "-data_alteracao")
 
 
 class OcorrenciaInline(admin.TabularInline):

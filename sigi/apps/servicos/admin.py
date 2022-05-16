@@ -5,16 +5,9 @@ from django.utils.safestring import mark_safe
 from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import gettext as _
 from import_export.fields import Field
-from sigi.apps.casas.admin import FuncionariosInline, GerentesInterlegisFilter
-from sigi.apps.casas.models import Orgao
-from sigi.apps.servicos.models import (
-    Servico,
-    LogServico,
-    CasaAtendida,
-    TipoServico,
-)
+from sigi.apps.casas.admin import GerentesInterlegisFilter
+from sigi.apps.servicos.models import Servico, LogServico, TipoServico
 from sigi.apps.servicos.filters import ServicoAtivoFilter, DataUtimoUsoFilter
-from sigi.apps.servicos.forms import ServicoFormAdmin
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
 
@@ -31,9 +24,6 @@ class ServicoExportResourse(LabeledResourse):
             "casa_legislativa__municipio__uf__sigla",
             "casa_legislativa__email",
             "telefone_casa",
-            "contato_tecnico__nome",
-            "contato_tecnico__email",
-            "contato_tecnico__nota",
             "tipo_servico__nome",
             "url",
             "hospedagem_interlegis",
@@ -61,21 +51,6 @@ class LogServicoInline(admin.StackedInline):
     extra = 1
 
 
-class ContatosInline(FuncionariosInline):
-    can_delete = False  # Equipe do SEIT não pode excluir pessoas de contato
-    # SEIT see all contacts, including President
-    def get_queryset(self, request):
-        return self.model.objects.all()
-
-    def get_queryset(self, request):
-        return (
-            self.model.objects.exclude(desativado=True)
-            .extra(select={"ult_null": "ult_alteracao is null"})
-            .order_by("ult_null", "-ult_alteracao")
-            # A função extra foi usada para quando existir um registro com o campo igual a null não aparecer na frente dos mais novos
-        )
-
-
 @admin.register(TipoServico)
 class TipoServicoAdmin(admin.ModelAdmin):
     list_display = (
@@ -89,15 +64,13 @@ class TipoServicoAdmin(admin.ModelAdmin):
 
 @admin.register(Servico)
 class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
-    form = ServicoFormAdmin
     actions = [
         "calcular_data_uso",
     ]
     list_display = (
-        "casa_legislativa",
-        "get_codigo_interlegis",
-        "get_uf",
         "tipo_servico",
+        "casa_legislativa",
+        "get_uf",
         "hospedagem_interlegis",
         "data_ativacao",
         "data_desativacao",
@@ -105,47 +78,17 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
         "data_ultimo_uso",
         "get_link_erro",
     )
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    "casa_legislativa",
-                    "data_ativacao",
-                )
-            },
-        ),
-        (
-            _("Serviço"),
-            {
-                "fields": (
-                    "tipo_servico",
-                    ("url", "hospedagem_interlegis"),
-                    ("nome_servidor", "porta_servico", "senha_inicial"),
-                )
-            },
-        ),
-        (
-            _("Contatos"),
-            {
-                "fields": (
-                    "contato_tecnico",
-                    "contato_administrativo",
-                )
-            },
-        ),
-        (
-            _("Alterações"),
-            {
-                "fields": (
-                    "data_alteracao",
-                    "data_desativacao",
-                    "motivo_desativacao",
-                )
-            },
-        ),
-    )
-    readonly_fields = ("casa_legislativa", "data_ativacao", "data_alteracao")
+    fields = [
+        "casa_legislativa",
+        "tipo_servico",
+        "url",
+        "hospedagem_interlegis",
+        "data_ativacao",
+        "data_alteracao",
+        "data_desativacao",
+        "motivo_desativacao",
+    ]
+    readonly_fields = ["data_alteracao"]
     list_filter = (
         "tipo_servico",
         "hospedagem_interlegis",
@@ -155,7 +98,6 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "casa_legislativa__municipio__uf",
     )
-    list_display_links = []
     ordering = (
         "casa_legislativa__municipio__uf",
         "casa_legislativa",
@@ -164,14 +106,6 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
     inlines = (LogServicoInline,)
     search_fields = ("casa_legislativa__search_text",)
     resource_class = ServicoExportResourse
-
-    def get_codigo_interlegis(self, obj):
-        return obj.casa_legislativa.codigo_interlegis
-
-    get_codigo_interlegis.short_description = _("Código Interlegis")
-    get_codigo_interlegis.admin_order_field = (
-        "casa_legislativa__codigo_interlegis"
-    )
 
     def get_uf(self, obj):
         return "%s" % (obj.casa_legislativa.municipio.uf)
@@ -225,87 +159,6 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
             "casa_legislativa__municipio__uf__codigo_ibge__exact",
         ]
 
-    def add_view(self, request, form_url="", extra_context=None):
-        id_casa = request.GET.get("id_casa", None)
-
-        if not id_casa:
-            raise Http404
-
-        return super(ServicoAdmin, self).add_view(
-            request, form_url, extra_context=extra_context
-        )
-
-    def response_add(self, request, obj):
-        opts = obj._meta
-        msg = _('The %(name)s "%(obj)s" was added successfully.') % {
-            "name": force_str(opts.verbose_name),
-            "obj": force_str(obj),
-        }
-
-        if "_addanother" in request.POST:
-            self.message_user(
-                request,
-                msg
-                + " "
-                + (
-                    _("You may add another %s below.")
-                    % force_str(opts.verbose_name)
-                ),
-            )
-            return HttpResponseRedirect(
-                request.path + "?id_casa=%s" % (obj.casa_legislativa.id,)
-            )
-        elif "_save" in request.POST:
-            self.message_user(request, msg)
-            return HttpResponseRedirect(
-                reverse(
-                    "admin:servicos_casaatendida_change",
-                    args=[obj.casa_legislativa.id],
-                )
-            )
-
-        return super(ServicoAdmin, self).response_add(request, obj)
-
-    def response_change(self, request, obj):
-        opts = obj._meta
-        msg = _('The %(name)s "%(obj)s" was changed successfully.') % {
-            "name": force_str(opts.verbose_name),
-            "obj": force_str(obj),
-        }
-
-        if "_addanother" in request.POST:
-            self.message_user(
-                request,
-                msg
-                + " "
-                + (
-                    _("You may add another %s below.")
-                    % force_str(opts.verbose_name)
-                ),
-            )
-            return HttpResponseRedirect(
-                "../add/?id_casa=%s" % (obj.casa_legislativa.id,)
-            )
-        elif "_save" in request.POST:
-            self.message_user(request, msg)
-            return HttpResponseRedirect(
-                reverse(
-                    "admin:servicos_casaatendida_change",
-                    args=[obj.casa_legislativa.id],
-                )
-            )
-
-        return super(ServicoAdmin, self).response_change(request, obj)
-
-    def save_form(self, request, form, change):
-        obj = super(ServicoAdmin, self).save_form(request, form, change)
-        if not change:
-            id_casa = request.GET.get("id_casa", None)
-            if not id_casa:
-                raise Http404
-            obj.casa_legislativa = Orgao.objects.get(pk=id_casa)
-        return obj
-
     def changelist_view(self, request, extra_context=None):
         from sigi.apps.convenios.views import normaliza_data
 
@@ -318,83 +171,3 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
             request,
             extra_context={"query_str": "?" + request.META["QUERY_STRING"]},
         )
-
-
-@admin.register(CasaAtendida)
-class CasaAtendidaAdmin(admin.ModelAdmin):
-    actions = None
-    list_display = (
-        "codigo_interlegis",
-        "nome",
-        "get_servicos",
-    )
-    ordering = ["nome"]
-    fieldsets = (
-        (
-            "Casa Legislativa",
-            {
-                "fields": (
-                    ("codigo_interlegis", "nome"),
-                    ("logradouro", "bairro", "municipio", "cep"),
-                    ("email", "pagina_web"),
-                )
-            },
-        ),
-    )
-    readonly_fields = ("nome", "logradouro", "bairro", "municipio", "cep")
-    inlines = (ContatosInline,)
-    list_filter = (
-        "tipo",
-        "servico__tipo_servico",
-        "municipio__uf__nome",
-        "servico__casa_legislativa__convenio__projeto",
-    )
-    search_fields = (
-        "search_text",
-        "cnpj",
-        "bairro",
-        "logradouro",
-        "cep",
-        "municipio__nome",
-        "municipio__uf__nome",
-        "municipio__codigo_ibge",
-        "pagina_web",
-        "observacoes",
-    )
-
-    def get_servicos(self, obj):
-        result = [
-            f"{servico.tipo_servico.nome} ({servico.status_servico}). "
-            f"Contato: {servico.contato_administrativo.nome}"
-            for servico in obj.servico_set.all()
-        ]
-
-        return mark_safe("<ul><li>" + "</li><li>".join(result) + "</li></ul>")
-
-    get_servicos.short_description = _("Serviços")
-
-    def lookup_allowed(self, lookup, value):
-        return super(CasaAtendidaAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in [
-            "municipio__uf__codigo_ibge__exact",
-            "servico__tipo_servico__id__exact",
-        ]
-
-    def change_view(self, request, object_id, extra_context=None):
-        # Se a Casa ainda não é atendida, gerar o código interlegis para ela
-        # Assim ela passa a ser uma casa atendida
-        casa = Orgao.objects.get(id=object_id)
-
-        if casa.codigo_interlegis == "":
-            casa.gerarCodigoInterlegis()
-
-        return super(CasaAtendidaAdmin, self).change_view(
-            request, object_id, extra_context=extra_context
-        )
-
-    def has_add_permission(self, request):
-        return False  # Nunca é permitido inserir uma nova Casa Legislativa por aqui
-
-    def has_delete_permission(self, request, obj=None):
-        return False  # Nunca deletar casas por aqui

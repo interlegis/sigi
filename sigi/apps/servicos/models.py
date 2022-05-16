@@ -6,9 +6,7 @@ from django.utils.translation import gettext as _
 
 class TipoServico(models.Model):
     MODO_CHOICES = (("H", _("Hospedagem")), ("R", _("Registro")))
-    email_help = """Use:<br/>
-                        {url} para incluir a URL do serviço,<br/>
-                        {senha} para incluir a senha inicial do serviço"""
+    email_help = "Use a marcação {url} para incluir a URL do serviço,<br/>"
     string_pesquisa_help = (
         "Parâmetros da pesquisa para averiguar a data da "
         "última atualização do serviço. Formato:<br/>"
@@ -24,13 +22,13 @@ class TipoServico(models.Model):
         _("string de pesquisa"), blank=True, help_text=string_pesquisa_help
     )
     template_email_ativa = models.TextField(
-        _("Template de email de ativação"), help_text=email_help, blank=True
+        _("template de email de ativação"), help_text=email_help, blank=True
     )
     template_email_altera = models.TextField(
-        _("Template de email de alteração"), help_text=email_help, blank=True
+        _("template de email de alteração"), help_text=email_help, blank=True
     )
     template_email_desativa = models.TextField(
-        _("Template de email de desativação"),
+        _("template de email de desativação"),
         help_text=email_help
         + _("<br/>{motivo} para incluir o motivo da desativação do serviço"),
         blank=True,
@@ -42,8 +40,8 @@ class TipoServico(models.Model):
         return self.servico_set.filter(data_desativacao=None).count()
 
     class Meta:
-        verbose_name = _("Tipo de serviço")
-        verbose_name_plural = _("Tipos de serviço")
+        verbose_name = _("tipo de serviço")
+        verbose_name_plural = _("tipos de serviço")
 
     def __str__(self):
         return self.nome
@@ -54,38 +52,11 @@ class Servico(models.Model):
         Orgao, on_delete=models.PROTECT, verbose_name=_("Casa Legislativa")
     )
     tipo_servico = models.ForeignKey(
-        TipoServico, on_delete=models.PROTECT, verbose_name=_("Tipo de serviço")
-    )
-    contato_tecnico = models.ForeignKey(
-        Funcionario,
-        on_delete=models.PROTECT,
-        verbose_name=_("Contato técnico"),
-        related_name="contato_tecnico",
-    )
-    contato_administrativo = models.ForeignKey(
-        Funcionario,
-        on_delete=models.PROTECT,
-        verbose_name=_("Contato administrativo"),
-        related_name="contato_administrativo",
+        TipoServico, on_delete=models.PROTECT, verbose_name=_("tipo de serviço")
     )
     url = models.URLField(_("URL do serviço"), blank=True)
     hospedagem_interlegis = models.BooleanField(
         _("Hospedagem no Interlegis?"), default=False
-    )
-    nome_servidor = models.CharField(
-        _("Hospedado em"),
-        max_length=60,
-        blank=True,
-        help_text=_(
-            "Se hospedado no Interlegis, informe o nome do servidor."
-            "<br/>Senão, informe o nome do provedor de serviços."
-        ),
-    )
-    porta_servico = models.PositiveSmallIntegerField(
-        _("Porta de serviço (instância)"), blank=True, null=True
-    )
-    senha_inicial = models.CharField(
-        _("Senha inicial"), max_length=33, blank=True
     )
     data_ativacao = models.DateField(_("Data de ativação"), default=date.today)
     data_alteracao = models.DateField(
@@ -285,10 +256,7 @@ class Servico(models.Model):
             body = self.tipo_servico.template_email_desativa
         elif (
             self.tipo_servico != original.tipo_servico
-            or self.contato_tecnico != original.contato_tecnico
             or self.url != original.url
-            or self.nome_servidor != original.nome_servidor
-            or self.senha_inicial != original.senha_inicial
         ):
             # Serviço foi alterado
             subject = _("INTERLEGIS - Alteração de serviço %s") % (
@@ -301,10 +269,8 @@ class Servico(models.Model):
             return  # sem enviar email
 
         # Prepara e envia o email
-        body = (
-            body.replace("{url}", self.url)
-            .replace("{senha}", self.senha_inicial)
-            .replace("{motivo}", self.motivo_desativacao)
+        body = body.replace("{url}", self.url).replace(
+            "{motivo}", self.motivo_desativacao
         )
 
         #        send_mail(subject, body, DEFAULT_FROM_EMAIL, \
@@ -330,21 +296,6 @@ class LogServico(models.Model):
     class Meta:
         verbose_name = _("Log do serviço")
         verbose_name_plural = _("Logs do serviço")
-
-
-class CasaAtendidaManager(models.Manager):
-    def get_queryset(self):
-        qs = super(CasaAtendidaManager, self).get_queryset()
-        qs = qs.exclude(codigo_interlegis="")
-        return qs
-
-
-class CasaAtendida(Orgao):
-    class Meta:
-        proxy = True
-        verbose_name_plural = _("Casas atendidas")
-
-    objects = CasaAtendidaManager()
 
 
 class CasaManifesta(models.Model):
