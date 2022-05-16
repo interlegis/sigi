@@ -75,6 +75,8 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
         "data_ativacao",
         "data_desativacao",
         "getUrl",
+        "data_verificacao",
+        "resultado_verificacao",
         "data_ultimo_uso",
         "get_link_erro",
     )
@@ -94,6 +96,7 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
         "hospedagem_interlegis",
         ("data_ativacao", DateRangeFilter),
         ("data_desativacao", ServicoAtivoFilter),
+        "resultado_verificacao",
         DataUtimoUsoFilter,
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "casa_legislativa__municipio__uf",

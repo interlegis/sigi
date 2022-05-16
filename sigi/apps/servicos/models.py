@@ -1,4 +1,4 @@
-from datetime import date
+from django.utils import timezone
 from django.db import models
 from sigi.apps.casas.models import Orgao, Funcionario
 from django.utils.translation import gettext as _
@@ -48,6 +48,14 @@ class TipoServico(models.Model):
 
 
 class Servico(models.Model):
+    RESULTADO_CHOICES = (
+        ("N", _("Não verificado")),
+        ("F", _("Funcionando")),
+        ("U", _("Nunca foi usado")),
+        ("D", _("Acesso negado")),
+        ("O", _("Fora do ar")),
+        ("I", _("Dados imcompatíveis - não é serviço Interlegis")),
+    )
     casa_legislativa = models.ForeignKey(
         Orgao, on_delete=models.PROTECT, verbose_name=_("Casa Legislativa")
     )
@@ -58,7 +66,9 @@ class Servico(models.Model):
     hospedagem_interlegis = models.BooleanField(
         _("Hospedagem no Interlegis?"), default=False
     )
-    data_ativacao = models.DateField(_("Data de ativação"), default=date.today)
+    data_ativacao = models.DateField(
+        _("Data de ativação"), default=timezone.localdate
+    )
     data_alteracao = models.DateField(
         _("Data da última alteração"), blank=True, null=True, auto_now=True
     )
@@ -67,6 +77,15 @@ class Servico(models.Model):
     )
     motivo_desativacao = models.TextField(
         _("Motivo da desativação"), blank=True
+    )
+    data_verificacao = models.DateTimeField(
+        _("data da última verificação"), blank=True, null=True
+    )
+    resultado_verificacao = models.CharField(
+        _("resultado da verificação"),
+        choices=RESULTADO_CHOICES,
+        default="N",
+        max_length=1,
     )
     data_ultimo_uso = models.DateField(
         _("Data da última utilização"),
@@ -99,6 +118,8 @@ class Servico(models.Model):
 
         def reset():
             if self.data_ultimo_uso is not None:
+                self.data_verificacao = None
+                self.resultado_verificacao = "N"
                 self.data_ultimo_uso = None
                 self.erro_atualizacao = ""
                 self.save()
@@ -109,6 +130,7 @@ class Servico(models.Model):
             if len(param_pesquisa) != 3:
                 return {
                     "data": "",
+                    "resultado": "N",
                     "erro": _("String de pesquisa mal configurada"),
                     "comment": _("Corrija a string de pesquisa"),
                 }
@@ -124,6 +146,7 @@ class Servico(models.Model):
             except Exception as e:
                 return {
                     "data": "",
+                    "resultado": "O",
                     "erro": str(e),
                     "comment": _(
                         "Não foi possível conectar com o servidor. "
@@ -135,6 +158,7 @@ class Servico(models.Model):
             if req.status_code != 200:
                 return {
                     "data": "",
+                    "resultado": "D",
                     "erro": req.reason,
                     "comment": _(
                         "Não foi possível receber os dados do "
@@ -150,6 +174,7 @@ class Servico(models.Model):
                 else:
                     return {
                         "data": "",
+                        "resultado": "N",
                         "erro": _("String de pesquisa mal configurada"),
                         "comment": "",
                     }
@@ -159,6 +184,7 @@ class Servico(models.Model):
                         if (len(data) - 1) < c:
                             return {
                                 "data": "",
+                                "resultado": "U",
                                 "erro": _("Sem dados para verificação"),
                                 "comment": _("Parece que nunca foi usado"),
                             }
@@ -173,10 +199,16 @@ class Servico(models.Model):
                     data = data.firstChild.nodeValue
                 data = data[:10]
                 data = data.replace("/", "-")
-                return {"data": data, "erro": "", "comment": ""}
+                return {
+                    "data": data,
+                    "resultado": "F",
+                    "erro": "",
+                    "comment": "",
+                }
             except Exception as e:
                 return {
                     "data": "",
+                    "resultado": "I",
                     "erro": str(e),
                     "comment": _(
                         "Parece que não é um {tipo}".format(
@@ -194,6 +226,7 @@ class Servico(models.Model):
         if not url:
             reset()
             self.erro_atualizacao = _("Serviço sem URL")
+            self.data_verificacao = timezone.localtime()
             self.save()
             return
 
@@ -206,6 +239,12 @@ class Servico(models.Model):
             resultados.append(ultimo_uso(url, string_pesquisa))
 
         data = max([r["data"] for r in resultados])
+        resultado = {r["resultado"] for r in resultados}
+
+        if "F" in resultado:
+            self.resultado_verificacao = "F"
+        else:
+            self.resultado_verificacao = resultado.pop()
 
         if data == "":
             # Nenhuma busca deu resultado, guardar log de erro
@@ -213,20 +252,19 @@ class Servico(models.Model):
             self.erro_atualizacao = "<br/>".join(
                 set(
                     [
-                        "{erro} ({comment})".format(
-                            erro=r["erro"], comment=r["comment"]
-                        )
+                        f"{r['erro']} ({r['comment']})"
                         for r in resultados
                         if r["erro"] != "" and r["comment"] != ""
                     ]
                 )
             )
-            self.save()
         else:
             # Atualiza a maior data de atualização
             self.data_ultimo_uso = data[:10]  # Apenas YYYY-MM-DD
             self.erro_atualizacao = ""
-            self.save()
+
+        self.data_verificacao = timezone.localtime()
+        self.save()
 
         return
 
@@ -287,7 +325,7 @@ class LogServico(models.Model):
         Servico, on_delete=models.CASCADE, verbose_name=_("Serviço")
     )
     descricao = models.CharField(_("Breve descrição da ação"), max_length=60)
-    data = models.DateField(_("Data da ação"), default=date.today)
+    data = models.DateField(_("Data da ação"), default=timezone.localdate)
     log = models.TextField(_("Log da ação"))
 
     def __str__(self):
