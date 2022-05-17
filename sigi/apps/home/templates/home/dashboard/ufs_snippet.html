@@ -1,0 +1,29 @@
+{% load static i18n %}
+
+<ul class="collapsible uf_selector">
+  <li>
+    <div class="collapsible-header">
+      {% if uf %}
+        {{ uf.nome }}
+      {% else %}
+        {% trans "Todo o país" %}
+      {% endif %}
+    </div>
+    <div class="collapsible-body">
+      <ul>
+        <li>
+          <a class="dashlink" href="{% url "home_chartusoservico" %}?uf=_all" data-target="chartusoservico">
+            {% trans "Todo o país" %}
+          </a>
+        </li>
+        {% for uf in ufs %}
+          <li>
+            <a class="dashlink" href="{% url "home_chartusoservico" %}?uf={{ uf.sigla|safe }}" data-target="chartusoservico-chart">
+              {{uf.nome|title }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </li>
+</ul>

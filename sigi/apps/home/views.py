@@ -410,16 +410,27 @@ def chart_seit(request):
 @login_required
 def chart_uso_servico(request):
     colors, highlights = color_palete()
+    ufs = UnidadeFederativa.objects.all()
+    sigla_uf = request.GET.get("uf", "_all")
+
+    if sigla_uf != "_all":
+        uf = get_object_or_404(UnidadeFederativa, sigla=sigla_uf)
+    else:
+        uf = None
+
     counts = {
         f"{key}_count": Count("servico", Q(servico__resultado_verificacao=key))
         for key, *__ in Servico.RESULTADO_CHOICES
     }
 
-    queryset = (
-        TipoServico.objects.exclude(string_pesquisa="")
-        .filter(servico__data_desativacao=None)
-        .annotate(**counts)
+    queryset = TipoServico.objects.exclude(string_pesquisa="").filter(
+        servico__data_desativacao=None
     )
+
+    if uf is not None:
+        queryset = queryset.filter(servico__casa_legislativa__municipio__uf=uf)
+
+    queryset = queryset.annotate(**counts)
 
     chart = {
         "data": {
@@ -435,7 +446,12 @@ def chart_uso_servico(request):
                 for key, label in Servico.RESULTADO_CHOICES
             ],
             "labels": list(queryset.values_list("sigla", flat=True)),
-        }
+        },
+        "actionblock": render_to_string(
+            "home/dashboard/ufs_snippet.html",
+            context={"ufs": ufs, "uf": uf},
+            request=request,
+        ),
     }
 
     return JsonResponse(chart)
