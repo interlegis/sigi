@@ -25,7 +25,7 @@ from sigi.apps.casas.models import TipoOrgao, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.home.models import Cards, Dashboard
-from sigi.apps.servicos.models import TipoServico
+from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import to_ascii
 
@@ -404,6 +404,41 @@ def chart_seit(request):
     }
 
     return JsonResponse(data)
+
+
+@never_cache
+@login_required
+def chart_uso_servico(request):
+    colors, highlights = color_palete()
+    counts = {
+        f"{key}_count": Count("servico", Q(servico__resultado_verificacao=key))
+        for key, *__ in Servico.RESULTADO_CHOICES
+    }
+
+    queryset = (
+        TipoServico.objects.exclude(string_pesquisa="")
+        .filter(servico__data_desativacao=None)
+        .annotate(**counts)
+    )
+
+    chart = {
+        "data": {
+            "datasets": [
+                {
+                    "type": "bar",
+                    "label": label,
+                    "data": list(
+                        queryset.values_list(f"{key}_count", flat=True)
+                    ),
+                    "backgroundColor": next(colors),
+                }
+                for key, label in Servico.RESULTADO_CHOICES
+            ],
+            "labels": list(queryset.values_list("sigla", flat=True)),
+        }
+    }
+
+    return JsonResponse(chart)
 
 
 # @never_cache

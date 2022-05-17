@@ -20,13 +20,13 @@
           <a href="#dashtab-{{ dash.slug }}"{% if sigi_dash_selected == dash.slug %} class="active"{% endif %}>{{ dash.label }}</a>
         </li>
       {% endfor %}
-      <li class="dash-control tab-control">
-        <a href="#dashcontrol-addtab" class="waves-effect waves-light modal-trigger"><i class="material-icons tiny">add</i>{% trans "Adicionar tab" %}</a>
-      </li>
-      <li class="tab-edit right">
-        <a href="#" title="{% trans 'Modo de ediçao' %}"><i class="material-icons tiny">edit</i></a>
-      </li>
     {% endif %}
+    <li class="dash-control tab-control">
+      <a href="#dashcontrol-addtab" class="waves-effect waves-light modal-trigger"><i class="material-icons tiny">add</i>{% trans "Adicionar tab" %}</a>
+    </li>
+    <li class="tab-edit right">
+      <a href="#" title="{% trans 'Modo de ediçao' %}"><i class="material-icons tiny">edit</i></a>
+    </li>
   </ul>
 </div>
 {% endblock %}

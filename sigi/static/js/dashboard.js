@@ -1,6 +1,10 @@
 $(document).ready(function () {
   $(".dash-control").hide();
-  M.Tabs.init($('.tabs'), {});
+  try {
+    M.Tabs.init($('.tabs'), {});
+  } catch {
+    // fail gracefully
+  }
   $(".remove-card").off("click").on("click", function (e) {
     e.preventDefault();
     var $this = $(this);

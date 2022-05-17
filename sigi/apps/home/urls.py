@@ -11,6 +11,11 @@ urlpatterns = [
     path("home/resumoseit/", views.resumo_seit, name="home_resumoseit"),
     path("home/chartseit/", views.chart_seit, name="home_chartseit"),
     path(
+        "home/cartusoservico/",
+        views.chart_uso_servico,
+        name="home_chartusoservico",
+    ),
+    path(
         "home/chartperformance/",
         views.chart_performance,
         name="home_chartperformance",
