@@ -77,7 +77,7 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
             if self.value() == "err":
                 queryset = queryset.exclude(erro_atualizacao="")
             elif self.value() == "year":
-                limite = date.today() - timedelta(days=365)
+                limite = date.today() - timedelta(days=366)
                 queryset = queryset.filter(data_ultimo_uso__lte=limite)
             else:
                 de = date.today() - (
@@ -89,14 +89,14 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                     if self.value() == "month"
                     else timedelta(days=30)
                     if self.value() == "week"
-                    else timedelta(days=0)
+                    else timedelta(days=6)
                 )
                 ate = date.today() - (
-                    timedelta(days=6 * 30)
+                    timedelta(days=6 * 30 + 1)
                     if self.value() == "semester"
-                    else timedelta(days=3 * 30)
+                    else timedelta(days=3 * 30 + 1)
                     if self.value() == "quarter"
-                    else timedelta(days=30)
+                    else timedelta(days=31)
                     if self.value() == "month"
                     else timedelta(days=7)
                     if self.value() == "week"

@@ -409,7 +409,7 @@ def chart_seit(request):
 @never_cache
 @login_required
 def chart_uso_servico(request):
-    colors, highlights = color_palete()
+    colors, *__ = color_palete()
     ufs = UnidadeFederativa.objects.all()
     sigla_uf = request.GET.get("uf", "_all")
 
@@ -452,6 +452,61 @@ def chart_uso_servico(request):
             context={"ufs": ufs, "uf": uf},
             request=request,
         ),
+    }
+
+    return JsonResponse(chart)
+
+
+@never_cache
+@login_required
+def chart_atualizacao_servicos(request):
+    colors, *__ = color_palete()
+    intervalos = [
+        ("Na semana", 7),
+        ("No mês", 30),
+        ("No trimestre", 3 * 30),
+        ("No semestre", 6 * 30),
+        ("No ano", 365),
+        ("Mais de ano", None),
+    ]
+
+    counts = {}
+    hoje = timezone.localdate()
+    ate = hoje
+
+    for label, dias in intervalos:
+        if dias is not None:
+            de = hoje - datetime.timedelta(days=dias)
+            counts[slugify(label)] = Count(
+                "servico", Q(servico__data_ultimo_uso__range=(de, ate))
+            )
+            ate = de - datetime.timedelta(days=1)
+        else:
+            counts[slugify(label)] = Count(
+                "servico", Q(servico__data_ultimo_uso__lte=ate)
+            )
+
+    queryset = (
+        TipoServico.objects.exclude(string_pesquisa="")
+        .filter(servico__data_desativacao=None)
+        .annotate(**counts)
+    )
+
+    chart = {
+        "data": {
+            "datasets": [
+                {
+                    "type": "bar",
+                    "label": ts.sigla,
+                    "data": [
+                        getattr(ts, slugify(label)) for label, *__ in intervalos
+                    ],
+                    "backgroundColor": next(colors),
+                }
+                for ts in queryset
+            ],
+            "labels": [label for label, *__ in intervalos],
+        }
     }
 
     return JsonResponse(chart)

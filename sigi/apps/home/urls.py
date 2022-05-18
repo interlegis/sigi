@@ -11,9 +11,14 @@ urlpatterns = [
     path("home/resumoseit/", views.resumo_seit, name="home_resumoseit"),
     path("home/chartseit/", views.chart_seit, name="home_chartseit"),
     path(
-        "home/cartusoservico/",
+        "home/chartusoservico/",
         views.chart_uso_servico,
         name="home_chartusoservico",
+    ),
+    path(
+        "home/chartatualizacao/",
+        views.chart_atualizacao_servicos,
+        name="home_chartatualizacao",
     ),
     path(
         "home/chartperformance/",
