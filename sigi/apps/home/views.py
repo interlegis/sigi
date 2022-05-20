@@ -2,6 +2,7 @@ import calendar
 import csv
 import datetime
 from itertools import cycle
+from random import randint, seed
 from django.contrib import messages
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
@@ -16,6 +17,7 @@ from django.http import (
 )
 from django.shortcuts import render, get_object_or_404
 from django.template.loader import render_to_string
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
@@ -24,6 +26,7 @@ from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import TipoOrgao, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
+from sigi.apps.eventos.models import TipoEvento, Evento
 from sigi.apps.home.models import Cards, Dashboard
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.servidores.models import Servidor
@@ -36,12 +39,27 @@ from sigi.apps.utils import to_ascii
 # from sigi.apps.servicos.models import TipoServico
 # from sigi.apps.servidores.models import Servidor
 # from django.http.response import JsonResponse, HttpResponse
-from django.urls import reverse
-
 # from sigi.shortcuts import render_to_pdf
 # import csv
 
 
+getcolor = (
+    lambda s=None: f"#{randint(32,255):02x}{randint(32,255):02x}"
+    f"{randint(32,255):02x}"
+    if s is None
+    else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
+    f"{randint(32,255):02x}"
+)
+gethighlight = (
+    lambda s=None: f"#{randint(32,255):02x}{randint(32,255):02x}"
+    f"{randint(32,255):02x}c0"
+    if s is None
+    else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
+    f"{randint(32,255):02x}c0"
+)
+################################################################################
+# Views e funções do mapa de atuação do Interlegis
+################################################################################
 def openmap(request):
     reptype = request.GET.get("reptype", None)
     context = site.each_context(request)
@@ -237,6 +255,9 @@ def openmapsearch(request):
     return JsonResponse(list(dados), safe=False)
 
 
+################################################################################
+# Views de visualização e edição do dashboard
+################################################################################
 def card_snippet(request, card_code):
     card = get_object_or_404(Cards, codigo=card_code)
     if not card.default:
@@ -326,13 +347,11 @@ def card_add(request):
     return HttpResponseRedirect(reverse("admin:index"))
 
 
-# @never_cache
-# @login_required
-# def index(request):
-#     context = {'gerentes': Servidor.objects.exclude(casas_que_gerencia=None)}
-#     return render(request, 'index.html', context)
+################################################################################
+# Cards do dashboard
+################################################################################
 
-
+# Geral ########################################################################
 @never_cache
 @login_required
 def resumo_convenios(request):
@@ -340,6 +359,7 @@ def resumo_convenios(request):
     return render(request, "home/dashboard/resumo_convenios.html", context)
 
 
+# Serviços #####################################################################
 @never_cache
 @login_required
 def resumo_seit(request):
@@ -409,7 +429,6 @@ def chart_seit(request):
 @never_cache
 @login_required
 def chart_uso_servico(request):
-    colors, *__ = color_palete()
     ufs = UnidadeFederativa.objects.all()
     sigla_uf = request.GET.get("uf", "_all")
 
@@ -441,7 +460,7 @@ def chart_uso_servico(request):
                     "data": list(
                         queryset.values_list(f"{key}_count", flat=True)
                     ),
-                    "backgroundColor": next(colors),
+                    "backgroundColor": getcolor(label),
                 }
                 for key, label in Servico.RESULTADO_CHOICES
             ],
@@ -460,7 +479,6 @@ def chart_uso_servico(request):
 @never_cache
 @login_required
 def chart_atualizacao_servicos(request):
-    colors, *__ = color_palete()
     intervalos = [
         ("Na semana", 7),
         ("No mês", 30),
@@ -501,7 +519,7 @@ def chart_atualizacao_servicos(request):
                     "data": [
                         getattr(ts, slugify(label)) for label, *__ in intervalos
                     ],
-                    "backgroundColor": next(colors),
+                    "backgroundColor": getcolor(ts.nome),
                 }
                 for ts in queryset
             ],
@@ -512,25 +530,10 @@ def chart_atualizacao_servicos(request):
     return JsonResponse(chart)
 
 
-# @never_cache
-# @login_required
-# def chart_convenios(request):
-#     q = request.GET.get('q', 'all')
-#     convenios = Convenio.objects.all()
-#     if q == 'assinados':
-#         convenios = convenios.exclude(data_retorno_assinatura=None)
-#     data = {
-#         'type': 'pie',
-#         'options': {'responsive': False, 'maintainAspectRatio': False},
-#         'data': grafico_convenio_projeto(convenios),
-#     }
-#     return JsonResponse(data)
-
-
+# Gerente ######################################################################
 @never_cache
 @login_required
 def chart_carteira(request):
-    colors, highlights = color_palete()
     gerentes = Servidor.objects.exclude(casas_que_gerencia=None).annotate(
         total_casas=Count("casas_que_gerencia")
     )
@@ -542,7 +545,9 @@ def chart_carteira(request):
             "datasets": [
                 {
                     "data": [g.total_casas for g in gerentes],
-                    "backgroundColor": [next(highlights) for g in gerentes],
+                    "backgroundColor": [
+                        gethighlight(g.get_apelido()) for g in gerentes
+                    ],
                 }
             ],
         },
@@ -581,7 +586,7 @@ def chart_performance(request):
             "labels": [_("Utilizam serviços"), _("Não utilizam serviços")],
             "datasets": [
                 {
-                    "label": "SeiLaQueIsso",
+                    "label": _("Uso dos serviços"),
                     "data": [
                         casas.exclude(servico=None).count(),
                         casas.filter(servico=None).count(),
@@ -600,6 +605,125 @@ def chart_performance(request):
     return JsonResponse(data)
 
 
+# Eventos ######################################################################
+@never_cache
+@login_required
+def eventos_status(request):
+    queryset = Evento.objects.values("status").annotate(total=Count("id", Q()))
+    statuses = dict(Evento.STATUS_CHOICES)
+
+    chart = {
+        "type": "doughnut",
+        "data": {
+            "datasets": [
+                {
+                    "label": _("Eventos por status"),
+                    "data": [e["total"] for e in queryset],
+                    "backgroundColor": [
+                        getcolor(statuses[e["status"]]) for e in queryset
+                    ],
+                }
+            ],
+            "labels": [statuses[e["status"]] for e in queryset],
+        },
+    }
+    return JsonResponse(chart)
+
+
+@never_cache
+@login_required
+def eventos_categoria(request):
+    queryset = (
+        TipoEvento.objects.filter(evento__status="R")
+        .values("categoria")
+        .annotate(total=Count("evento"))
+    )
+    categorias = dict(TipoEvento.CATEGORIA_CHOICES)
+
+    chart = {
+        "type": "doughnut",
+        "data": {
+            "datasets": [
+                {
+                    "label": _("Eventos por categoria"),
+                    "data": [e["total"] for e in queryset],
+                    "backgroundColor": [
+                        getcolor(categorias[e["categoria"]]) for e in queryset
+                    ],
+                }
+            ],
+            "labels": [categorias[e["categoria"]] for e in queryset],
+        },
+    }
+    return JsonResponse(chart)
+
+
+@never_cache
+@login_required
+def eventos_ano(request):
+    mes = request.GET.get("mes", timezone.localdate().month)
+    ano = request.GET.get("ano", timezone.localdate().year)
+
+    mes = datetime.date(year=int(ano), month=int(mes), day=1)
+    mes_anterior = mes - datetime.timedelta(days=1)
+    proximo_mes = mes + datetime.timedelta(
+        days=calendar.monthrange(mes.year, mes.month)[1]
+    )
+
+    meses = []
+    counts = {}
+    start = mes
+
+    for i in range(12):
+        meses.append(start)
+        counts[f"{start:%m/%Y}"] = Count(
+            "evento",
+            Q(
+                evento__data_inicio__year=start.year,
+                evento__data_inicio__month=start.month,
+            ),
+        )
+        start = (start - datetime.timedelta(days=1)).replace(day=1)
+
+    queryset = (
+        TipoEvento.objects.filter(evento__status="R")
+        .values("categoria")
+        .annotate(**counts)
+    )
+    categorias = dict(TipoEvento.CATEGORIA_CHOICES)
+
+    chart = {
+        "type": "line",
+        "prevlink": reverse("eventos_ano")
+        + f"?ano={mes_anterior.year}&mes={mes_anterior.month}",
+        "nextlink": reverse("eventos_ano")
+        + f"?ano={proximo_mes.year}&mes={proximo_mes.month}",
+        "options": {
+            "bezierCurve": False,
+            "datasetFill": False,
+            "pointDot": False,
+            "responsive": True,
+        },
+        "data": {
+            "labels": [f"{mes: %m/%Y}" for mes in reversed(meses)],
+            "datasets": [
+                {
+                    "label": categorias[rec["categoria"]],
+                    "borderColor": getcolor(categorias[rec["categoria"]]),
+                    "backgroundColor": getcolor(categorias[rec["categoria"]]),
+                    "data": [rec[f"{mes:%m/%Y}"] for mes in reversed(meses)],
+                }
+                for rec in queryset
+            ],
+        },
+    }
+
+    return JsonResponse(chart)
+
+
+################################################################################
+# Views de apoio e relatórios
+################################################################################
 @never_cache
 @login_required
 def report_sem_convenio(request):
@@ -796,25 +920,7 @@ def sem_convenio():
     }
 
 
-# def grafico_convenio_projeto(convenios):
-#     colors, highlights = color_palete()
-#     projetos = Projeto.objects.all()
-#     lista_projetos = [{'label': projeto.sigla,
-#                        'value': convenios.filter(projeto=projeto).count(),
-#                        'color': colors.next(),
-#                        'highlight': highlights.next()}
-#                       for projeto in projetos]
-#     # remove projetos sem convenio
-#     lista_projetos = [x for x in lista_projetos if x['value'] > 0]
-
-#     # print lista_projetos
-#     # total_convenios = "Total: " + str(convenios.count())
-#     # lista_projetos.insert(0, total_convenios)
-#     return lista_projetos
-
-
 def busca_informacoes_seit(mes_atual=None):
-    colors, highlights = color_palete()
     if mes_atual is None:
         mes_atual = datetime.date.today().replace(day=1)
     mes_anterior = mes_atual - datetime.timedelta(days=1)
@@ -847,7 +953,7 @@ def busca_informacoes_seit(mes_atual=None):
         for mes in meses:
             por_mes.append(
                 {
-                    "mes": "%02d/%s" % (mes.month, mes.year),
+                    "mes": f"{mes:%m/%Y}",
                     "total": tipo_servico.servico_set.filter(
                         data_ativacao__year=mes.year,
                         data_ativacao__month=mes.month,
@@ -874,18 +980,11 @@ def busca_informacoes_seit(mes_atual=None):
                     data_ativacao__month=mes_atual.month,
                 ).count(),
                 "novos_por_mes": por_mes,
-                "cor": next(colors),
+                "cor": getcolor(tipo_servico.nome),
             }
         )
 
     return result
-
-
-# def busca_informacoes_diagnostico():
-#     return [
-#         {'title': _('Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
-#         {'title': _('Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
-#     ]
 
 
 def color_palete():
@@ -920,3 +1019,46 @@ def color_palete():
     )
 
     return (colors, highlights)
+
+
+# @never_cache
+# @login_required
+# def index(request):
+#     context = {'gerentes': Servidor.objects.exclude(casas_que_gerencia=None)}
+#     return render(request, 'index.html', context)
+
+# def grafico_convenio_projeto(convenios):
+#     colors, highlights = color_palete()
+#     projetos = Projeto.objects.all()
+#     lista_projetos = [{'label': projeto.sigla,
+#                        'value': convenios.filter(projeto=projeto).count(),
+#                        'color': colors.next(),
+#                        'highlight': highlights.next()}
+#                       for projeto in projetos]
+#     # remove projetos sem convenio
+#     lista_projetos = [x for x in lista_projetos if x['value'] > 0]
+
+#     # print lista_projetos
+#     # total_convenios = "Total: " + str(convenios.count())
+#     # lista_projetos.insert(0, total_convenios)
+#     return lista_projetos
+
+# @never_cache
+# @login_required
+# def chart_convenios(request):
+#     q = request.GET.get('q', 'all')
+#     convenios = Convenio.objects.all()
+#     if q == 'assinados':
+#         convenios = convenios.exclude(data_retorno_assinatura=None)
+#     data = {
+#         'type': 'pie',
+#         'options': {'responsive': False, 'maintainAspectRatio': False},
+#         'data': grafico_convenio_projeto(convenios),
+#     }
+#     return JsonResponse(data)
+
+# def busca_informacoes_diagnostico():
+#     return [
+#         {'title': _('Diagnósticos digitados'), 'count': Diagnostico.objects.count()},
+#         {'title': _('Diagnósticos publicados'), 'count': Diagnostico.objects.filter(publicado=True).count()},
+#     ]
