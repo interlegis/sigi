@@ -240,7 +240,7 @@ class Convenio(models.Model):
 
         if self.data_retorno_assinatura is not None:
             if self.data_termino_vigencia is not None:
-                if date.today() >= self.data_termino_vigencia:
+                if timezone.localdate() >= self.data_termino_vigencia:
                     return _("Vencido")
             return _("Vigente")
 
@@ -687,7 +687,7 @@ class Gescon(models.Model):
                         projeto=projeto,
                         num_processo_sf=sigad,
                         num_convenio=numero,
-                        data_sigi=date.today(),
+                        data_sigi=timezone.localdate(),
                         data_sigad=contrato["assinatura"],
                         observacao=contrato["objeto"],
                         data_retorno_assinatura=contrato["inicioVigencia"],
