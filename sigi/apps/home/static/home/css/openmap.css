@@ -1,12 +1,17 @@
-body, html, .mapbox, #map {
+body,
+html,
+.mapbox,
+#map {
   height: 100%;
   width: 100%;
 }
+
 #content {
   height: 91%;
 }
+
 .filterwrap {
-  background-color: rgba(255,255,255,0.5);
+  background-color: rgba(255, 255, 255, 0.5);
   position: absolute;
   top: 0;
   left: 0;
@@ -15,13 +20,15 @@ body, html, .mapbox, #map {
   max-height: 100%;
   overflow-y: auto;
 }
+
 .region-ufs {
   margin-left: 15px;
 }
+
 .autocomplete-content {
   max-width: 300px;
-  -webkit-box-shadow: 0 1px 2px rgba(0,0,0,.05);
-  box-shadow: 0 1px 2px rgba(0,0,0,.05);
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
   border-color: #ddd;
   margin-bottom: 20px;
   background-color: #fff;
@@ -30,6 +37,7 @@ body, html, .mapbox, #map {
   padding: 15px;
   z-index: 99999 !important;
 }
+
 .dropdown-content li>span {
   font-size: 13px;
   line-height: 13px;
@@ -47,4 +55,16 @@ body, html, .mapbox, #map {
   display: list-item;
   padding: 3px 3px 3px 20px;
   font-weight: bold;
+}
+
+li>a.center-map,
+li>a.clear-filters {
+  padding: 0px;
+}
+
+li>a.center-map>i.material-icons,
+li>a.clear-filters>i.material-icons {
+  color: var(--main-bg-color);
+  border-color: var(--main-bg-color);
+  margin: 0px 10px 0px 0px;
 }
