@@ -1,13 +1,11 @@
 {% load i18n %}
 {% with choice=choices.0 %}
 <div class="col s12">
-  <form method="get" action="{{ choice.query_string|iriencode }}">
-    <label>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</label>
-    <button class="btn-floating btn-small right pulse waves-effect waves-light" type="submit"><i class="material-icons tiny">send</i></button>
-    <a href="{{ choice.query_string|iriencode }}">{% trans 'All' %}</a>
-    {% for field in choice.form %}
-      <input id="{{ field.id }}" name="{{ field.name }}" type="text" class="datepicker" value="{{ field.value|default_if_none:''|date:"SHORT_DATE_FORMAT" }}"/>
-    {% endfor %}
-  </form>
+  <label>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</label>
+  <p></p><a href="{{ choice.query_string|iriencode }}">{% trans 'All' %}</a></p>
+  {% for field in choice.form %}
+    {{ field }}
+    <!-- input id="{{ field.id }}" name="{{ field.name }}" type="text" class="datepicker admin_filter" value="{{ field.value|default_if_none:''|date:'SHORT_DATE_FORMAT' }}" placeholder="{{ field.label }}" data-clear="{{ choice.query_string|iriencode }}"/ -->
+  {% endfor %}
 </div>
 {% endwith %}

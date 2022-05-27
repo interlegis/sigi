@@ -251,13 +251,32 @@ class DateRangeFilter(admin.FieldListFilter):
                 "query_string": changelist.get_query_string(
                     remove=self.lookup_kwargs
                 ),
-                "form": self.get_date_form(self.used_parameters),
+                "form": self.get_date_form(self.used_parameters, changelist),
             }
         ]
 
-    def get_date_form(self, context={}):
+    def get_date_form(self, context={}, changelist=None):
         date_fields = {
-            name: forms.DateField(required=False) for name in self.lookup_kwargs
+            name: forms.DateField(
+                required=False,
+                label=(_("De") if "__gte" in name else _("Até")),
+                widget=forms.DateInput(
+                    attrs={
+                        "class": "datepicker admin_filter",
+                        "placeholder": (
+                            _("De") if "__gte" in name else _("Até")
+                        ),
+                        "data-clear": changelist.get_query_string(
+                            remove=[
+                                name,
+                            ]
+                        )
+                        if changelist
+                        else "",
+                    }
+                ),
+            )
+            for name in self.lookup_kwargs
         }
         DateForm = type("DateForm", (forms.Form,), date_fields)
 

@@ -30,7 +30,7 @@
       <ul>
         {% block object-tools-items %}
         <li>
-          <a href="#" data-target="float-filter" class="btn-floating tooltipped waves-effect waves-light sidenav-trigger" data-position="left" data-tooltip="{% trans 'Filter' %}">
+          <a href="#float-filter" class="btn-floating tooltipped waves-effect waves-light modal-trigger" data-position="left" data-tooltip="{% trans 'Filter' %}">
             <i class="material-icons" aria-hidden="true">filter_list</i>
           </a>
         </li>
@@ -67,13 +67,25 @@
       {% block pagination %}{% pagination cl %}{% endblock %}
     </div>
     {% block side_wrapper %}
-    <div id="float-filter" class="float-filter hide">
-      <div id="side-wrapper" class="side-wrapper">
-        <div class="card">
-          {% block filters %}
-            {{ block.super }}
-          {% endblock %}
-        </div>
+    <div id="float-filter" class="modal">
+      <div id="side-wrapper" class="modal-content">
+        {% block filters %}
+          {% if cl.has_filters %}
+            <h4>{% trans 'Filter' %}</h4>
+            <div class="row">
+              <div class="col s12">
+                <a href="?">{% trans "Clear all filters" %}</a>
+              </div>
+            </div>
+            <div class="row">
+              {% for spec in cl.filter_specs %}{% admin_list_filter cl spec %}{% endfor %}
+            </div>
+          {% endif %}
+        {% endblock %}
+      </div>
+      <div class="modal-footer">
+        <a href="#!" class="modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
+        <a id="apply-filters" href="#" class="waves-effect waves-green btn-flat">{% trans 'Filtrar' %}</a>
       </div>
     </div>
     {% endblock %}
@@ -88,15 +100,15 @@
     $(document).ready(function(){
       $('.fixed-action-btn').floatingActionButton();
       M.Tooltip.init($('.tooltipped'), {});
-      $('.float-filter').each(function() {
-        var id=this.id;
-        $(`[data-target="${id}"]`).on("click", function(e) {
-          e.preventDefault();
-          console.log('Rodou aqui também');
-          var targetid = $(this).attr('data-target');
-          $(`#${targetid}`).toggleClass('hide');
-        });
-      });
+      document.addEventListener('DOMContentLoaded', function() {
+      M.Modal.init($(".modal"), {});
+  });
+
+  // Or with jQuery
+
+  $(document).ready(function(){
+    $('.modal').modal();
+  });
     });
   </script>
 {% endblock footer %}
