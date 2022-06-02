@@ -10,7 +10,7 @@ Django==1.7.10
 easy-thumbnails==2.2
 eav-django==1.4.7
 gunicorn==19.3.0
-html5lib==0.9999999
+html5lib==0.99999999
 Pillow==2.9.0
 pisa==3.0.33
 psycopg2==2.6.1
