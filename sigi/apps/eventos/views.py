@@ -1,3 +1,4 @@
+from datetime import datetime
 import calendar
 import locale
 from django.contrib import messages
@@ -30,7 +31,7 @@ from sigi.apps.servidores.models import Servidor
 def calendario(request):
     mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
     ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
-    formato = request.GET.get("fmt", "html")
+    formato = request.GET.get("fmt", "cal")
 
     meses = {}
     lang = to_locale(get_language()) + ".UTF-8"
@@ -46,14 +47,43 @@ def calendario(request):
         else:
             meses[ano] = {mes: calendar.month_name[mes]}
 
-    context = {
-        "ano_pesquisa": ano_pesquisa,
-        "mes_pesquisa": mes_pesquisa,
-        "meses": meses,
-        "eventos": Evento.objects.filter(
-            data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
-        ),
-    }
+    eventos = Evento.objects.filter(
+        data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
+    )
+
+    context = site.each_context(request) or {}
+
+    if formato == "cal":
+        semanas = calendar.Calendar().monthdatescalendar(
+            ano_pesquisa, mes_pesquisa
+        )
+        for semana in semanas:
+            for dia in semana:
+                if dia.month == mes_pesquisa:
+                    semana[dia.weekday()] = (
+                        dia.day,
+                        [
+                            e
+                            for e in eventos
+                            if e.data_inicio.day
+                            <= dia.day
+                            <= e.data_termino.day
+                        ],
+                    )
+                else:
+                    semana[dia.weekday()] = ("", [])
+        context["semanas"] = semanas
+
+    context.update(
+        {
+            "ano_pesquisa": ano_pesquisa,
+            "mes_pesquisa": mes_pesquisa,
+            "formato": formato,
+            "meses": meses,
+            "day_names": calendar.day_abbr,
+            "eventos": eventos,
+        }
+    )
 
     return render(request, "eventos/calendario.html", context)
 

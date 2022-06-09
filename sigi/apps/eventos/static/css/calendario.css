@@ -1,0 +1,42 @@
+#content {
+    display: block;
+}
+
+.data-evento {
+    font-size: 0.6em;
+    color: var(--body-quiet-color);
+    display: block;
+}
+
+.tipo-evento {
+    font-size: 0.6em;
+    color: var(--body-quiet-color);
+    display: block;
+    margin-bottom: 8px;
+}
+
+.card-title {
+    font-size: 20px !important;
+    margin-bottom: -6px !important;
+}
+
+.card .card-content p {
+    margin: 12px;
+}
+
+a.format-selector .material-icons {
+    line-height: 48px;
+}
+
+table {
+    table-layout: fixed;
+}
+
+table td,
+table td * {
+    vertical-align: top;
+}
+
+span.numero-dia {
+    font-size: 0.5em;
+}

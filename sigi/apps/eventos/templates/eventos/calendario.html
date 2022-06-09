@@ -2,11 +2,24 @@
 {% load i18n %}
 {% load static %}
 
+{% block extrastyle %}
+	{{ block.super }}
+	<link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
 {% block coltype %}colMS{% endblock %}
 
 {% block content %}
 	<div class="row">
-		<div class="col s12">
+		<div class="col s1">
+			{% if formato == 'cal' %}
+				<a class="format-selector" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=tab" title="{% trans 'Formato de lista' %}"><i class="material-icons">view_list</i></a>
+			{% else %}
+				<a class="format-selector" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=cal" title="{% trans 'Formato de calendário' %}"><i class="material-icons">date_range</i></a>
+			{% endif %}
+		</div>
+		<div class="col s11">
 			<ul class="tabs">
 			{% for ano in meses %}
 				<li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
@@ -16,76 +29,25 @@
 		{% for ano, lista in meses.items %}
 		<div id="tab-{{ ano|safe }}" class="col s12">
 			{% for mes, nome in lista.items %}
-			<a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}">{{ nome }}</a>
+			<a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}&fmt={{ formato }}">{{ nome }}</a>
 			{% endfor %}
 		</div>
 		{% endfor %}
 	</div>
-
-	{% for evento in eventos %}
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">{{ evento.nome }}</span>
-          <p>Os detalhes virão aqui</p>
-        </div>
-      </div>
-    </div>
-  </div>
-	{% endfor %}
-
-
-
+	{% if formato == "cal" %}
+		{% include "eventos/snippets/calendario_cal.html" %}
+	{% else %}
+		{% include "eventos/snippets/calendario_lista.html" %}
+	{% endif %}
+	{% include "eventos/snippets/calendario_modals.html" %}
 {% endblock %}
 
 {% block footer %}
   {{ block.super }}
 	<script>
 		$(document).ready(function(){
-			var elements = $('.tabs');
-			M.Tabs.init(elements, {});
+			M.Tabs.init($('.tabs'), {});
+			M.Modal.init($(".modal"), {});
 		});
 	</script>
 {% endblock %}
-
-{% comment %}
-{% block extrastyle %}
-    <style type="text/css">
-		th {
-		    text-align: center !important;
-		    vertical-align: bottom !important;
-		}
-
-		.status-P { background-color: #ffffb0}
-        .status-A { background-color: #a6ebff}
-        .status-O { background-color: #c2ffc2}
-        .status-R { background-color: #ffdaa6}
-        .status-C { background-color: #d98f8d}
-
-    </style>
-    {{ block.super }}
-{% endblock %}
-
-{% block extrahead %}
-    {{ block.super }}
-{% endblock %}
-
-{% block coltype %}colMS{% endblock %}
-
-{% block content_title %}<h1>{% blocktrans %}Eventos de {{ mes_pesquisa }}/{{ ano_pesquisa }}{% endblocktrans %}</h1>{% endblock %}
-
-{% block object-tools-items %}
-	{% if prev_button %}
-		<li><a href="?mes={{ prev_button.mes|safe }}&ano={{ prev_button.ano|safe }}">{% trans "Mês anterior" %}</a></li>
-	{% endif %}
-	{% if next_button %}
-		<li><a href="?mes={{ next_button.mes|safe }}&ano={{ next_button.ano|safe }}">{% trans "Próximo mês" %}</a></li>
-	{% endif %}
-	<li><a href="?mes={{ mes_pesquisa|safe }}&ano={{ ano_pesquisa|safe }}&fmt=pdf" target="_blank">{% trans "Exportar para PDF" %}</a></li>
-{% endblock %}
-
-{% block content %}
-	{% include "eventos/calendario_snippet.html" %}
-{% endblock %}
-{% endcomment %}

@@ -1,0 +1,60 @@
+{% load i18n %}
+
+{% for evento in eventos %}
+  <div id="modal{{ evento.id|safe }}" class="modal">
+    <div class="modal-content">
+      <h6>{{ evento.nome }}</h6>
+      <span class="data-evento">{{ evento.data_inicio }} a {{ evento.data_termino }}</span>
+      <span class="tipo-evento">
+        {{ evento.tipo_evento }} -
+        {{ evento.tipo_evento.get_categoria_display }} -
+        {{ evento.get_status_display }}
+        {% if evento.virtual %} {% trans "na modalidade virtual" %}{% endif %}
+        {% if evento.casa_anfitria %} {% trans "em" %} {{ evento.casa_anfitria }}{% endif %}
+      </span>
+      <p>{{ evento.descricao }}</p>
+      <p>{% trans "Solicitante" %}: {{ evento.solicitante }}</p>
+      {% if evento.equipe_set.all %}
+      <p>
+        {% trans "Equipe" %}:
+        {% for membro in evento.equipe_set.all %}
+          {{ membro.membro }} ({{ membro.funcao }})
+          {% if not forloop.last %} - {% endif %}
+        {% endfor %}
+      </p>
+      {% endif %}
+      {% if evento.convite_set %}
+        <table class="stripped">
+          <caption>{% trans "Casas covidadas" %}</caption>
+          <thead>
+            <tr>
+              <td>Casa</td>
+              <td>UF</td>
+              <td>Aceitou</td>
+              <td>Participou</td>
+              <td>Participantes</td>
+            </tr>
+          </thead>
+          {% for convite in evento.convite_set.all %}
+            <tr>
+              <td>{{ convite.casa.nome }}</td>
+              <td>{{ convite.casa.municipio.uf }}</td>
+              <td>{% if convite.aceite %}<i class="material-icons tiny">check</i>{% endif %}</td>
+              <td>{% if convite.participou %}<i class="material-icons tiny">check</i>{% endif %}</td>
+              <td>
+                {% for nome in convite.nomes_participantes.splitlines %}
+                  {{ nome }}{% if not forloop.last %}, {% endif %}
+                {% endfor %}
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      {% endif %}
+    </div>
+    <div class="modal-footer">
+      <a href="{{ evento.get_absolute_url }}" class="modal-close waves-effect waves-green btn-flat">{% trans "Ver no site" %}</a>
+      <a href="{% url 'admin:eventos_evento_change' evento.id %}" class="modal-close waves-effect waves-green btn-flat">{% trans "Editar" %}</a>
+      <a href="#!" class="modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
+    </div>
+  </div>
+{% endfor %}
