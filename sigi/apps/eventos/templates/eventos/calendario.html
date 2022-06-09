@@ -11,15 +11,24 @@
 {% block coltype %}colMS{% endblock %}
 
 {% block content %}
+	<div class="fixed-action-btn">
+		<a class="btn-floating">
+			<i class="large material-icons">mode_edit</i>
+		</a>
+		<ul>
+			<li>
+				{% if formato == 'cal' %}
+					<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=tab" title="{% trans 'Formato de lista' %}"><i class="material-icons">view_list</i></a>
+				{% else %}
+					<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=cal" title="{% trans 'Formato de calendário' %}"><i class="material-icons">date_range</i></a>
+				{% endif %}
+			<li>
+				<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&pdf=1"><i class="material-icons">picture_as_pdf</i></a>
+			</li>
+		</ul>
+	</div>
 	<div class="row">
-		<div class="col s1">
-			{% if formato == 'cal' %}
-				<a class="format-selector" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=tab" title="{% trans 'Formato de lista' %}"><i class="material-icons">view_list</i></a>
-			{% else %}
-				<a class="format-selector" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=cal" title="{% trans 'Formato de calendário' %}"><i class="material-icons">date_range</i></a>
-			{% endif %}
-		</div>
-		<div class="col s11">
+		<div class="col s12">
 			<ul class="tabs">
 			{% for ano in meses %}
 				<li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
@@ -48,6 +57,7 @@
 		$(document).ready(function(){
 			M.Tabs.init($('.tabs'), {});
 			M.Modal.init($(".modal"), {});
+			M.FloatingActionButton.init($(".fixed-action-btn"), {hoverEnabled: false});
 		});
 	</script>
 {% endblock %}

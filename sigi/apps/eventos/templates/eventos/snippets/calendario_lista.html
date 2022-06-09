@@ -26,7 +26,37 @@
           {% endfor %}
         </p>
         {% endif %}
-        <a class="modal-trigger right" href="#modal{{ evento.id|safe }}">{% trans "Ver detalhes" %}</a>
+        {% if pdf %}
+          {% if evento.convite_set %}
+            <table class="stripped">
+              <caption>{% trans "Casas covidadas" %}</caption>
+              <thead>
+                <tr>
+                  <td>Casa</td>
+                  <td>UF</td>
+                  <td>Aceitou</td>
+                  <td>Participou</td>
+                  <td>Participantes</td>
+                </tr>
+              </thead>
+              {% for convite in evento.convite_set.all %}
+                <tr>
+                  <td>{{ convite.casa.nome }}</td>
+                  <td>{{ convite.casa.municipio.uf }}</td>
+                  <td>{% if convite.aceite %}<i class="material-icons tiny">check</i>{% endif %}</td>
+                  <td>{% if convite.participou %}<i class="material-icons tiny">check</i>{% endif %}</td>
+                  <td>
+                    {% for nome in convite.nomes_participantes.splitlines %}
+                      {{ nome }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </table>
+          {% endif %}
+        {% else %}
+          <a class="modal-trigger right" href="#modal{{ evento.id|safe }}">{% trans "Ver detalhes" %}</a>
+        {% endif %}
       </div>
     </div>
   </div>

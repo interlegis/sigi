@@ -13,6 +13,7 @@ from django.utils.text import slugify
 from django.utils.translation import to_locale, get_language, gettext as _
 from django.urls import reverse
 from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.views import WeasyTemplateResponse
 from docx import Document
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao, Presidente
@@ -32,6 +33,7 @@ def calendario(request):
     mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
     ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
     formato = request.GET.get("fmt", "cal")
+    pdf = bool(request.GET.get("pdf", 0))
 
     meses = {}
     lang = to_locale(get_language()) + ".UTF-8"
@@ -53,7 +55,7 @@ def calendario(request):
 
     context = site.each_context(request) or {}
 
-    if formato == "cal":
+    if formato == "cal" or pdf:
         semanas = calendar.Calendar().monthdatescalendar(
             ano_pesquisa, mes_pesquisa
         )
@@ -85,7 +87,18 @@ def calendario(request):
         }
     )
 
-    return render(request, "eventos/calendario.html", context)
+    if pdf:
+        context["title"] = _("Calendário de eventos")
+        context["pdf"] = True
+        return WeasyTemplateResponse(
+            filename="calendario_mensal.pdf",
+            request=request,
+            template="eventos/calendario_pdf.html",
+            context=context,
+            content_type="application/pdf",
+        )
+    else:
+        return render(request, "eventos/calendario.html", context)
 
 
 @login_required
@@ -368,91 +381,6 @@ def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
     f.close()
     return anexo
 
-
-# @login_required
-# def calendario(request):
-#     mes_pesquisa = int(request.GET.get('mes', timezone.localdate().month))
-#     ano_pesquisa = int(request.GET.get('ano', timezone.localdate().year))
-#     formato = request.GET.get('fmt', 'html')
-
-#     dia1 = datetime.date(ano_pesquisa, mes_pesquisa, 1)
-#     mes_anterior = dia1 - datetime.timedelta(days=1)
-#     mes_seguinte = dia1.replace(day=28) + datetime.timedelta(days=4) # Ugly hack
-#     mes_seguinte = mes_seguinte.replace(day=1)
-
-#     data = {'mes_pesquisa': mes_pesquisa, 'ano_pesquisa': ano_pesquisa}
-
-#     if Evento.objects.filter(data_inicio__year=mes_anterior.year,
-#                              data_inicio__month=mes_anterior.month).exists():
-#         data['prev_button'] = {'mes': mes_anterior.month, 'ano': mes_anterior.year }
-
-#     if Evento.objects.filter(data_inicio__year=mes_seguinte.year,
-#                              data_inicio__month=mes_seguinte.month).exists():
-#         data['next_button'] = {'mes': mes_seguinte.month, 'ano': mes_seguinte.year }
-
-#     c = calendar.Calendar(6)
-#     dates = reduce(lambda x,y: x+y, c.monthdatescalendar(ano_pesquisa, mes_pesquisa))
-
-#     eventos = []
-
-#     for evento in Evento.objects.filter(data_inicio__year=ano_pesquisa,
-#                                         data_inicio__month=mes_pesquisa).order_by('data_inicio'):
-#         start = dates.index(evento.data_inicio.date())
-#         if not evento.data_termino.date() in dates:
-#             lastday = dates[-1]
-#             while lastday < evento.data_termino.date():
-#                 lastday = lastday + datetime.timedelta(days=1)
-#                 dates.append(lastday)
-#         eventos.append({'evento': evento, 'start': start})
-
-#     # Calcula a distância dos eventos para as bordas do calendário
-#     for evento in eventos:
-#         end = dates.index(evento['evento'].data_termino.date())
-#         evento['duration'] = end-evento['start']+1
-#         evento['close'] = len(dates)-end-1
-
-#     # Agrupa os eventos em linhas para melhorar a visualização
-#     linhas = []
-
-#     for evento in eventos:
-#         encaixado = False
-#         for linha in linhas:
-#             sobrepoe = False
-#             for e in linha:
-#                 if (((evento['evento'].data_inicio.date() >= e['evento'].data_inicio.date()) and
-#                      (evento['evento'].data_inicio.date() <= e['evento'].data_termino.date())) or
-#                     ((evento['evento'].data_termino.date() >= e['evento'].data_inicio.date()) and
-#                      (evento['evento'].data_termino.date() <= e['evento'].data_termino.date()))):
-#                     sobrepoe = True
-#                     break
-#             if not sobrepoe:
-#                 # Adiona o evento em uma linha que ele não sobrepoe nenhum outro
-#                 linha.append(evento)
-#                 encaixado = True
-#                 break
-#         if not encaixado:
-#             # Adiciona uma nova linha porque este evento não se encaixa em nenhuma existente
-#             linhas.append([evento])
-
-#     # Recalcula as distâncias dos eventos por linha para encaixar no calendário
-#     for linha in linhas:
-#         anterior = None
-#         for evento in linha:
-#             if anterior is None:
-#                 anterior = evento
-#                 continue
-#             anterior['close'] = (evento['evento'].data_inicio.date() - anterior['evento'].data_termino.date()).days-1
-#             evento['start'] = 0
-#             anterior = evento
-
-#     data['dates'] = dates
-#     data['eventos'] = eventos
-#     data['linhas'] = linhas
-
-#     if formato == 'pdf':
-#         return render_to_pdf('eventos/calendario_pdf.html', data )
-
-#     return render(request, 'eventos/calendario.html', data)
 
 # @login_required
 # def alocacao_equipe(request):
