@@ -40,7 +40,8 @@ def calendario(request):
     locale.setlocale(locale.LC_ALL, lang)
 
     for ano, mes in (
-        Evento.objects.values_list("data_inicio__year", "data_inicio__month")
+        Evento.objects.exclude(data_inicio=None)
+        .values_list("data_inicio__year", "data_inicio__month")
         .order_by("data_inicio__year", "data_inicio__month")
         .distinct("data_inicio__year", "data_inicio__month")
     ):
