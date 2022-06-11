@@ -3,6 +3,9 @@ from sigi.apps.eventos import views
 
 urlpatterns = [
     path("calendario/", views.calendario, name="eventos-calendario"),
+    path(
+        "alocacaoequipe/", views.alocacao_equipe, name="eventos-alocacao-equipe"
+    ),
     path("evento/<int:id>/", views.evento, name="eventos-evento"),
     path(
         "evento/<int:evento_id>/convite/<casa_id>/",

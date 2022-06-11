@@ -1,0 +1,44 @@
+<div class="table-responsive">
+	<table class="striped{% if semana_pesquisa %} fixed{% endif %}">
+		<thead>
+			<tr>
+				{% for coluna in cabecalho %}
+					<th>
+						{% if mode == "html" and not semana_pesquisa and forloop.counter0 >= 1 and forloop.counter0 <= cabecalho|length|add:-2 %}
+							<a href="?ano={{ ano_pesquisa|safe }}&mes={% if mes_pesquisa %}{{ mes_pesquisa|safe }}&semana={% endif %}{{ forloop.counter0 }}">{{ coluna }}</a>
+						{% else %}
+							{% if semana_pesquisa  and forloop.counter0 >= 1 %}
+								{{ coluna|date:"SHORT_DATE_FORMAT" }}
+							{% else %}
+								{{ coluna }}
+							{% endif %}
+						{% endif %}
+					</th>
+				{% endfor %}
+			</tr>
+		</thead>
+		<tbody>
+		{% for linha in linhas %}
+			<tr>
+				{% for coluna in linha %}
+					{% if forloop.first %}
+						<th>{{ coluna }}</th>
+					{% elif forloop.last and not semana_pesquisa %}
+						<th>{{ coluna }}</th>
+					{% else %}
+						<td>
+							{% if semana_pesquisa %}
+								{% for evento in coluna %}
+									<p><a class="modal-trigger" href="#modal{{ evento.id }}">{{ evento.nome }}</a></p>
+								{% endfor %}
+							{% else %}
+								{{ coluna }}
+							{% endif %}
+						</td>
+					{% endif %}
+				{% endfor %}
+			</tr>
+		{% endfor %}
+		</tbody>
+	</table>
+</div>

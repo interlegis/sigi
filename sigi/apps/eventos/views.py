@@ -1,16 +1,24 @@
-from datetime import datetime
 import calendar
+import csv
 import locale
+from datetime import datetime
+from functools import reduce
+from typing import OrderedDict
 from django.contrib import messages
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
 from django.template.exceptions import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.text import slugify
-from django.utils.translation import to_locale, get_language, gettext as _
+from django.utils.translation import (
+    to_locale,
+    get_language,
+    ngettext,
+    gettext as _,
+)
 from django.urls import reverse
 from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
@@ -383,79 +391,188 @@ def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
     return anexo
 
 
-# @login_required
-# def alocacao_equipe(request):
-#     ano_pesquisa = int(request.GET.get('ano', timezone.localdate().year))
-#     formato = request.GET.get('fmt', 'html')
+@login_required
+def alocacao_equipe(request):
+    ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
+    mes_pesquisa = int(request.GET.get("mes", 0))
+    semana_pesquisa = int(request.GET.get("semana", 0))
+    formato = request.GET.get("fmt", "html")
 
-#     data = {'ano_pesquisa': ano_pesquisa}
+    lang = to_locale(get_language()) + ".UTF-8"
+    locale.setlocale(locale.LC_ALL, lang)
 
-#     if Evento.objects.filter(data_inicio__year=ano_pesquisa-1).exists():
-#         data['prev_button'] = {'ano': ano_pesquisa - 1 }
+    dados = []
+    eventos = Evento.objects.exclude(status="C").prefetch_related("equipe_set")
 
-#     if Evento.objects.filter(data_inicio__year=ano_pesquisa+1).exists():
-#         data['next_button'] = {'ano': ano_pesquisa + 1 }
+    num_cols = 12
 
-#     dados = []
+    if mes_pesquisa > 0:
+        semanas = [
+            [s[0], s[-1]]
+            for s in calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )
+        ]
+        num_cols = len(semanas)
+        if semana_pesquisa > 0:
+            dias = calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )[semana_pesquisa - 1]
+            num_cols = len(dias)
+            eventos = eventos.filter(
+                data_inicio__gte=dias[0], data_inicio__lte=dias[-1]
+            )
+        else:
+            eventos = eventos.filter(
+                data_inicio__gte=semanas[0][0], data_inicio__lte=semanas[-1][-1]
+            )
+    else:
+        eventos = eventos.filter(data_inicio__year=ano_pesquisa)
 
-#     for evento in Evento.objects.filter(data_inicio__year=ano_pesquisa).exclude(status='C').prefetch_related('equipe_set'):
-#         for p in evento.equipe_set.all():
-#             registro = None
-#             for r in dados:
-#                 if r[0] == p.membro.pk:
-#                     registro = r
-#                     break
-#             if not registro:
-#                 registro = [p.membro.pk, p.membro.nome_completo, [{'dias': 0, 'eventos': 0} for x in range(1,13)]]
-#                 dados.append(registro)
+    for evento in eventos:
+        for p in evento.equipe_set.all():
+            registro = None
+            for r in dados:
+                if r[0] == p.membro.pk:
+                    registro = r
+                    break
+            if not registro:
+                if semana_pesquisa > 0:
+                    registro = [
+                        p.membro.pk,
+                        p.membro.nome_completo,
+                        OrderedDict([(dia, []) for dia in dias]),
+                    ]
+                else:
+                    registro = [
+                        p.membro.pk,
+                        p.membro.nome_completo,
+                        [{"dias": 0, "eventos": 0} for __ in range(num_cols)],
+                    ]
+                dados.append(registro)
 
-#             registro[2][evento.data_inicio.month-1]['dias'] += (evento.data_termino - evento.data_inicio).days + 1
-#             registro[2][evento.data_inicio.month-1]['eventos'] += 1
+            if mes_pesquisa > 0:
+                if semana_pesquisa > 0:
+                    for dia in dias:
+                        if (
+                            evento.data_inicio.date()
+                            <= dia
+                            <= evento.data_termino.date()
+                        ):
+                            registro[2][dia].append(evento)
+                else:
+                    for idx, [inicio, fim] in enumerate(semanas):
+                        if inicio <= evento.data_inicio.date() <= fim:
+                            registro[2][idx]["dias"] += (
+                                min(fim, evento.data_termino.date())
+                                - evento.data_inicio.date()
+                            ).days + 1
+                            registro[2][idx]["eventos"] += 1
+                        elif inicio <= evento.data_termino.date() <= fim:
+                            registro[2][idx]["dias"] += (
+                                min(fim, evento.data_termino.date())
+                                - evento.data_inicio.date()
+                            ).days + 1
+                            registro[2][idx]["eventos"] += 1
+            else:
+                registro[2][evento.data_inicio.month - 1]["dias"] += (
+                    evento.data_termino - evento.data_inicio
+                ).days + 1
+                registro[2][evento.data_inicio.month - 1]["eventos"] += 1
 
-#     dados.sort(lambda x, y: cmp(x[1], y[1]))
+    dados.sort(key=lambda x: x[1])
 
-#     lang = (translation.to_locale(translation.get_language())+'.utf8').encode()
-#     locale.setlocale(locale.LC_ALL, lang)
-#     meses = [calendar.month_name[m] for m in range(1,13)]
+    meses = list(calendar.month_abbr)[1:]
+    linhas = []
 
-#     linhas = [[_("Servidor")] + meses + ['total']]
+    if semana_pesquisa:
+        linhas = [
+            [registro[1]] + list(registro[2].values()) for registro in dados
+        ]
+    else:
+        for r in dados:
+            r[2].append(
+                reduce(
+                    lambda x, y: {
+                        "dias": x["dias"] + y["dias"],
+                        "eventos": x["eventos"] + y["eventos"],
+                    },
+                    r[2],
+                )
+            )
+            linhas.append(
+                [r[1]]
+                + [
+                    _(
+                        ngettext("%(dias)s dia", "%(dias)s dias", d["dias"])
+                        + " em "
+                        + ngettext(
+                            "%(eventos)s evento",
+                            "%(eventos)s eventos",
+                            d["eventos"],
+                        )
+                    )
+                    % d
+                    if d["dias"] > 0 or d["eventos"] > 0
+                    else ""
+                    for d in r[2]
+                ]
+            )
 
-#     for r in dados:
-#         r[2].append(reduce(lambda x,y:{'dias': x['dias'] + y['dias'],
-#                                     'eventos': x['eventos'] + y['eventos']}, r[2]))
-#         linhas.append([r[1]] +
-#                        [_(ungettext("%(dias)s dia", "%(dias)s dias", d['dias']) + " em " +
-#                           ungettext("%(eventos)s evento", "%(eventos)s eventos", d['eventos'])
-#                         ) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in r[2]])
+    context = site.each_context(request) or {}
+    context.update(
+        {
+            "anos": Evento.objects.exclude(data_inicio=None)
+            .order_by("data_inicio__year")
+            .distinct("data_inicio__year")
+            .values_list("data_inicio__year", flat=True),
+            "ano_pesquisa": ano_pesquisa,
+            "linhas": linhas,
+        }
+    )
+    if mes_pesquisa > 0:
+        context["mes_pesquisa"] = mes_pesquisa
+        context["meses"] = meses
+        if semana_pesquisa > 0:
+            cabecalho = [_("Servidor")] + dias
+            context["semana_pesquisa"] = semana_pesquisa
+            context["eventos"] = eventos
+        else:
+            cabecalho = (
+                [_("Servidor")]
+                + [
+                    _(f"de {inicio:%d/%m} a {fim:%d/%m}")
+                    for inicio, fim in semanas
+                ]
+                + ["total"]
+            )
+    else:
+        cabecalho = [_("Servidor")] + meses + ["total"]
 
-# #     for registro in Servidor.objects.filter(equipe_evento__evento__data_inicio__year=ano_pesquisa).exclude(equipe_evento__evento__status='C').distinct():
-# #         dados = [{'dias': 0, 'eventos': 0} for x in range(1,13)]
-# #         for part in registro.equipe_evento.filter(evento__data_inicio__year=ano_pesquisa).exclude(evento__status='C'):
-# #             dados[part.evento.data_inicio.month-1]['dias'] +=  (part.evento.data_termino -
-# #                                                                 part.evento.data_inicio).days + 1
-# #             dados[part.evento.data_inicio.month-1]['eventos'] += 1
-# #         dados.append([registro.nome_completo] + [_(ungettext("%(dias)s dia", "%(dias)s dias", d['dias']) + " em " + ungettext("%(eventos)s evento", "%(eventos)s eventos", d['eventos'])) % d if d['dias'] > 0 or d['eventos'] > 0 else '' for d in dados])
+    context["cabecalho"] = cabecalho
 
-#     data['linhas'] = linhas
+    if formato == "pdf":
+        context["title"] = _("Alocação de equipe")
+        context["pdf"] = True
+        return WeasyTemplateResponse(
+            # filename="alocacao_equipe.pdf",
+            request=request,
+            template="eventos/alocacao_equipe_pdf.html",
+            context=context,
+            content_type="application/pdf",
+        )
+    elif formato == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response[
+            "Content-Disposition"
+        ] = 'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
+        writer = csv.writer(response)
+        writer.writerow(cabecalho)
+        writer.writerows(linhas)
+        return response
 
-#     if formato == 'pdf':
-#         return render_to_pdf('eventos/alocacao_equipe_pdf.html', data)
-#     elif formato == 'csv':
-#         response = HttpResponse(content_type='text/csv')
-#         response['Content-Disposition'] = 'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
-#         writer = csv.writer(response)
-#         asc_list = [[s.encode('utf-8') if isinstance(s, unicode) else s for s in l] for l in linhas]
-#         writer.writerows(asc_list)
-#         return response
-#     elif formato == 'json':
-#         result = {'ano': ano_pesquisa,
-#                   'equipe': [{'pk': d[0],
-#                               'nome_completo': d[1],
-#                               'meses': {m[0]: m[1] for m in zip(meses+['total'], d[2])}
-#                              } for d in dados]}
-#         return JsonResponse(result)
+    return render(request, "eventos/alocacao_equipe.html", context)
 
-#     return render(request, 'eventos/alocacao_equipe.html', data)
 
 # # Views e functions para carrinho de exportação
 

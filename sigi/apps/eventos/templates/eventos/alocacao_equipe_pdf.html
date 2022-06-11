@@ -1,63 +1,22 @@
-{% extends "base_report.html" %}
-{% load static from staticfiles %}
+{% extends "pdf/base_report.html" %}
+{% load static %}
 {% load i18n %}
 
-{% block extra_head %}
-<style>
-	@page {
-        size: A4 landscape;
-        margin: 1cm;
-    }
-    
-    * { font-size: 10px;}
-    
-    a {
-    	color: black;
-    	text-decoration: none;
-    }
-    
-    dt {
-		font-weight: 700;
+{% block page_size %}A4 landscape{% endblock %}
+{% block extra_style %}
+	{{ block.super }}
+	a {
+		color: black;
+		text-decoration: none;
 	}
-	
-	dd {
-		margin-left: 2mm;
-	}
-    
-	table, th, td {
-	   border: 1px solid #ddd;
-	}
-	
-	table {
-    	border-collapse: collapse;
-	}
-	  
-	th {
-	    text-align: center;
-	    vertical-align: bottom;
-	    background-color: #f1f1f1;
-	}
-	
-	td {
-		width: 6%;
-	}
-	
-	
-	td, th {
-    	padding: 2px;
-    	vertical-align: center;
-	}
-	
-	td:first-child { width: 22%; font-weight: bolder; }		
-	td:last-child { font-weight: bolder; }
-	
-</style>
-<title>{% blocktrans %}Alocação de equipe em {{ ano_pesquisa }}{% endblocktrans %}</title>
 {% endblock %}
 
-{% block report %}
-	<h1>{% blocktrans %}Alocação de equipe em {{ ano_pesquisa }}{% endblocktrans %}</h1>
-	{% include "eventos/alocacao_equipe_snippet.html" %} 
+{% block main_content %}
+	<h4>
+		{% if mes_pesquisa %}
+			{% blocktrans with mes=mes_pesquisa|safe ano=ano_pesquisa|safe %}Alocação de equipe em {{ mes }}/{{ ano }}{% endblocktrans %}</h4>
+		{% else %}
+			{% blocktrans with ano=ano_pesquisa|safe %}Alocação de equipe em {{ ano }}{% endblocktrans %}</h4>
+		{% endif %}
+	{% include "eventos/snippets/alocacao_equipe_snippet.html" %}
 {% endblock %}
-</body>
-</html>

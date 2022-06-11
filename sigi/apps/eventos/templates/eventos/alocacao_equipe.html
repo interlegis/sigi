@@ -1,16 +1,21 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_static %}
-{% load static from staticfiles %}
-{% load thumbnail %}
+{% load static i18n %}
 
 {% block extrastyle %}
-    <style type="text/css">
-		th { vertical-align: bottom !important; text-align: center !important; background-color: #f1f1f1; }
-		td { width: 6%; vertical-align: bottom !important; }
-		td:first-child { width: 22%; font-weight: bolder; }		
-		td:last-child { font-weight: bolder; }
-    </style>
-    {{ block.super }}
+{{ block.super }}
+	<style type="text/css">
+		.table-responsive {
+			overflow: auto;
+			width: 100%;
+		}
+		table {
+			width: auto;
+		}
+		table.fixed {
+			table-layout: fixed;
+		}
+	</style>
+	<link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
 {% endblock %}
 
 {% block extrahead %}
@@ -19,20 +24,56 @@
 
 {% block coltype %}colMS{% endblock %}
 
-{% block content_title %}<h1>{% blocktrans %}Alocação de equipe em {{ ano_pesquisa }}{% endblocktrans %}</h1>{% endblock %}
+{% block content_title %}
+	{% if mes_pesquisa %}
+		{% for mes in meses %}
+			{% if forloop.counter == mes_pesquisa %}
+				<h5>{% blocktrans with ano=ano_pesquisa|safe mes=mes %}Alocação de equipe em {{ mes }} de {{ ano }}{% endblocktrans %}</h5>
+			{% endif %}
+		{% endfor %}
+	{% else %}
+		<h5>{% blocktrans with ano=ano_pesquisa|safe %}Alocação de equipe em {{ ano }}{% endblocktrans %}</h5>
+	{% endif %}
+{% endblock %}
 
-{% block object-tools-items %}
-	{% if prev_button %}
-		<li><a href="?ano={{ prev_button.ano|safe }}">{% trans "Ano anterior" %}</a></li>
+{% block breadcrumbs %}
+	<div class="breadcrumbs">
+		{% for ano in anos %}
+			<a class="btn-flat btn-small{% if ano == ano_pesquisa and not mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}">{{ ano|safe }}</a>
+		{% endfor %}
+	</div>
+	{% if mes_pesquisa %}
+		<div class="breadcrumbs">
+			{% for mes in meses %}
+				<a class="btn-flat btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ forloop.counter|safe }}">{{ mes|safe }}</a>
+			{% endfor %}
+		</div>
 	{% endif %}
-	{% if next_button %}
-		<li><a href="?ano={{ next_button.ano|safe }}">{% trans "Próximo ano" %}</a></li>
-	{% endif %}
-	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=pdf" target="_blank">{% trans "Exportar para PDF" %}</a></li>
-	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=csv">{% trans "Exportar para CSV" %}</a></li>
-	<li><a href="?ano={{ ano_pesquisa|safe }}&fmt=json" target="_blank">{% trans "Exportar para Json" %}</a></li>
 {% endblock %}
 
 {% block content %}
-	{% include "eventos/alocacao_equipe_snippet.html" %}
+	<div class="fixed-action-btn">
+		<a class="btn-floating">
+			<i class="large material-icons">print</i>
+		</a>
+		<ul>
+			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=pdf" title="{% trans "Exportar para PDF" %}"><i class="material-icons">picture_as_pdf</i></a></li>
+			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=csv" title="{% trans "Exportar para CSV" %}"><i class="material-icons">file_download</i></a></li>
+		</ul>
+	</div>
+	{% include "eventos/snippets/alocacao_equipe_snippet.html" with mode="html" %}
+
+	{% if semana_pesquisa %}
+		{% include "eventos/snippets/calendario_modals.html" %}
+	{% endif %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+	<script>
+		$(document).ready(function(){
+			M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+			M.Modal.init($(".modal"));
+		})
+	</script>
 {% endblock %}

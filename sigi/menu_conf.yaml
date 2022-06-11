@@ -86,7 +86,7 @@ main_menu:
       - title: Calendário mensal
         view_name: eventos-calendario
       - title: Alocação de equipe
-        view_name:
+        view_name: eventos-alocacao-equipe
   - title: Servidores
     icon: account_circle
     children:
