@@ -1,0 +1,11 @@
+{% load i18n %}
+
+{% if presidente.foto %}
+  <div class="presidente-foto">
+    <img class="materialboxed" width="120" src="{{ presidente.foto.url }}" alt="{{ presidente.nome_completo }}">
+    <script>$(document).ready(function(){M.Materialbox.init($('.materialboxed'));})</script>
+{% endif %}
+<span class="card-title">{% trans "Complemente os dados do presidente" %}</span>
+{% if presidente.foto %}</div>{% endif %}
+{{ form_presidente }}
+<input type="hidden" name="id_presidente" value="{{ presidente.id|safe }}">

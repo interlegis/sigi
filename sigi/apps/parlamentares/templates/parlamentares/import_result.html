@@ -1,0 +1,37 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+<style>
+    #content {
+      display: block;
+    }
+    .submit-row>a {
+      color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}
+<h4>{% trans "Importação de dados do TSE agendada" %}</h4>
+{% endblock %}
+{% block content %}
+<div class="container">
+  <p>
+    {% blocktrans %}
+        A importação foi agendada com sucesso e o arquivo do TSE
+        será processado em breve. Ao concluir a importação, o SIGI
+        enviará um e-mail para você e para os administradores do
+        sistema, avisando dos resultados do processo.
+      {% endblocktrans %}
+  </p>
+</div>
+<div class="submit-row">
+  <a class="btn waves-effect waves-light" href="{% url opts|admin_urlname:'changelist' %}">
+    <i class="material-icons left">navigate_before</i>
+    {% trans "Voltar" %}
+  </a>
+</div>
+{% endblock %}

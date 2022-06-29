@@ -55,7 +55,9 @@
 
 {% block body_content %}
   <div id="logo" class="logo">
-    <img src="{{ casa.brasao.url }}" class="logo-image">
+    {% if casa.brasao %}
+      <img src="{{ casa.brasao.url }}" class="logo-image">
+    {% endif %}
   </div>
   {{ block.super }}
 {% endblock %}

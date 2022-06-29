@@ -1,98 +1,152 @@
 {% extends "admin/base_site.html" %}
 {% load i18n static %}
 
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'css/convite.css' %}">
+{% endblock %}
+
 {% block content %}
-{{ block.super }}
-<form action="" method="post" name="convite" enctype="multipart/form-data">{% csrf_token %}
-  <div class="row">
-    <div class="col s12">
-      <h5>
-        {% blocktranslate with casa_nome=casa.nome evento_nome=evento.nome %}
-        Convidar {{ casa_nome }} para {{ evento_nome }}
-        {% endblocktranslate %}
-      </h5>
+  {{ block.super }}
+  <form action="" method="post" name="convite" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col s12">
+        <h5>
+          {% blocktranslate with casa_nome=casa.nome evento_nome=evento.nome %}
+          Convidar {{ casa_nome }} para {{ evento_nome }}
+          {% endblocktranslate %}
+        </h5>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">{% trans "Convite" %}</span>
-          {{ form_convite }}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Convite" %}</span>
+            {{ form_convite }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">{% trans "Casa" %}</span>
-          {{ form_casa }}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Casa" %}</span>
+            {{ form_casa }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">{% trans "Dados do presidente" %}</span>
-          {{ form_presidente }}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Identifique o presidente" %}</span>
+            <div class="row">
+              <div class="col s12">
+                <div class="row">
+                  <div class="input-field col s12">
+                    <i class="material-icons prefix">search</i>
+                    <input type="text" id="busca_parlamentar" class="autocomplete"{% if presidente %} value="{{ presidente.nome_completo }}"{% endif %}>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="center-align hide" id="load_presidente_form">
+              <div class="preloader-wrapper small active">
+                <div class="spinner-layer spinner-green-only">
+                  <div class="circle-clipper left">
+                    <div class="circle"></div>
+                  </div><div class="gap-patch">
+                    <div class="circle"></div>
+                  </div><div class="circle-clipper right">
+                    <div class="circle"></div>
+                  </div>
+                </div>
+              </div>
+              <p>{% trans "Carregando dados do parlamentar..." %}</p>
+            </div>
+            <div id="presidente-form">
+              {% if form_presidente %}
+                {% include "eventos/snippets/form_presidente_snippet.html" %}
+              {% endif %}
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-content">
-          <span class="card-title">
-            {% trans "Dados do contato Interlegis" %}
-            <a href="#" id="copiar-presidente" class="waves-effect waves-light btn-small light-green accent-1 right">
-              <i class="material-icons left">content_copy</i>
-              {% trans "Copiar dados do presidente" %}
-            </a>
-          </span>
-          {{ form_contato }}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">
+              {% trans "Dados do contato Interlegis" %}
+              <a href="#" id="copiar-presidente" class="waves-effect waves-light btn-small light-green accent-1 right">
+                <i class="material-icons left">content_copy</i>
+                {% trans "Copiar dados do presidente" %}
+              </a>
+            </span>
+            {{ form_contato }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col s12">
-      <div class="card">
-        <div class="card-action">
-          <button class="btn waves-effect waves-light" type="submit" name="save">
-            {% trans "Save" %}
-            <i class="material-icons right">send</i>
-          </button>
-          {% for proj in projetos %}
-          <button class="btn waves-effect waves-light" type="submit" name="save" value="{{ proj.id }}">
-            {% blocktrans with sigla=proj.sigla %}Salvar e gerar minuta de {{ sigla}}{% endblocktrans %}
-            <i class="material-icons right">picture_as_pdf</i>
-          </button>
-          {% endfor %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-action">
+            <button class="btn waves-effect waves-light" type="submit" name="save">
+              {% trans "Save" %}
+              <i class="material-icons right">send</i>
+            </button>
+            {% for proj in projetos %}
+            <button class="btn waves-effect waves-light" type="submit" name="save" value="{{ proj.id }}">
+              {% blocktrans with sigla=proj.sigla %}Salvar e gerar minuta de {{ sigla}}{% endblocktrans %}
+              <i class="material-icons right">picture_as_pdf</i>
+            </button>
+            {% endfor %}
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</form>
+  </form>
 {% endblock %}
 
 {% block footer %}
   {{ block.super }}
   <script>
-    $(document).ready(function() {
-      $("#copiar-presidente").click(function(event) {
-        event.preventDefault();
-        var dados = {{% for field in form_presidente %}
-          {{ field.name }}: $("#{{ field.id_for_label }}").val(),{% endfor %}
-        };
-        {% for field in form_contato %}
-          $("#{{ field.id_for_label }}").val(dados.{{ field.name }});
-        {% endfor %}
+      $(document).ready(function() {
+        $("#copiar-presidente").click(function(event) {
+          event.preventDefault();
+          var campos = [['nome_completo', 'nome'], ['cpf', 'cpf'], ['identidade', 'identidade'], ['telefones', 'nota'], ['email', 'email']];
+          for (var x=0; x<campos.length; x++) {
+            $(`#id_contato-${campos[x][1]}`).val($(`#id_presidente-${campos[x][0]}`).val());
+            }
+        });
+        $.ajax("{% url 'parlamentar-json' casa.id %}", {
+          dataType: 'json',
+          success: function(data) {
+            function complete(nome) {
+              $("#load_presidente_form").removeClass("hide")
+              $("div#presidente-form").html("");
+              $.get(`/eventos/evento/presidente/${data[nome]["id"]}/`, function(html) {
+                $("div#presidente-form").html(html);
+                $("#load_presidente_form").addClass("hide")
+              })
+            }
+            var options = {};
+            for (nome in data) {options[nome] = data[nome]["foto"]};
+            M.Autocomplete.init(
+              $('input#busca_parlamentar'),
+              {data: options,
+                onAutocomplete: complete });
+          },
+          error: function(jqXHR, textStatus) {
+            alert(`Erro ao carregar parlamentares, com status ${textStatus}`);
+          }
+        })
       })
-    })
   </script>
 {% endblock %}

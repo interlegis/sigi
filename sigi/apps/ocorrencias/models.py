@@ -116,7 +116,7 @@ class Ocorrencia(models.Model):
             raise ValidationError(
                 {
                     "ticket": _(
-                        "Já existe ocorrência " "registrada para este ticket"
+                        "Já existe ocorrência registrada para este ticket"
                     )
                 }
             )

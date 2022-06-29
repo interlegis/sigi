@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "sigi.apps.home",
     "sigi.apps.inventario",
     "sigi.apps.ocorrencias",
+    "sigi.apps.parlamentares",
     "sigi.apps.servicos",
     "sigi.apps.servidores",
     "sigi.apps.utils",

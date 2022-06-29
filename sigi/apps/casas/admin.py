@@ -1,12 +1,13 @@
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
 from import_export.fields import Field
 from sigi.apps.casas.forms import OrgaoForm
-from sigi.apps.casas.models import Orgao, Presidente, Funcionario, TipoOrgao
+from sigi.apps.casas.models import Orgao, Funcionario, TipoOrgao
 from sigi.apps.casas.filters import (
     GerentesInterlegisFilter,
     ConvenioFilter,
@@ -16,8 +17,10 @@ from sigi.apps.casas.filters import (
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
+from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
 
@@ -75,79 +78,30 @@ class TelefonesInline(GenericTabularInline):
     extra = 1
 
 
-class PresidenteInline(admin.StackedInline):
-    model = Presidente
+class ParlamentarInline(admin.StackedInline):
+    model = Parlamentar
     fields = (
-        "nome",
-        "sexo",
+        "foto",
+        "nome_parlamentar",
+        "nome_completo",
+        "partido",
+        "presidente",
         "data_nascimento",
         "cpf",
         "identidade",
-        "nota",
+        "telefones",
         "email",
-        "tempo_de_servico",
-        "ult_alteracao",
-        "endereco",
-        "municipio",
-        "bairro",
-        "cep",
         "redes_sociais",
-    )
-    autocomplete_fields = ("municipio",)
-    readonly_fields = ("ult_alteracao",)
-    extra = 1
-    max_num = 1
-    verbose_name_plural = _("Presidente")
-
-    def get_queryset(self, request):
-        return (
-            self.model.objects.exclude(desativado=True)
-            .extra(select={"ult_null": "ult_alteracao is null"})
-            .order_by("ult_null", "-ult_alteracao")
-            # A função extra foi usada para quando existir um registro com o
-            # campo igual a null não aparecer na frente dos mais novos
-        )
-
-
-class ContatoInterlegisInline(admin.StackedInline):
-    model = Funcionario
-    fields = (
-        "nome",
-        "sexo",
-        "data_nascimento",
-        "cpf",
-        "identidade",
-        "nota",
-        "email",
-        "cargo",
-        "funcao",
-        "setor",
-        "tempo_de_servico",
         "ult_alteracao",
-        "endereco",
-        "municipio",
-        "bairro",
-        "cep",
-        "redes_sociais",
-        "desativado",
-        "observacoes",
     )
-    autocomplete_fields = ("municipio",)
     readonly_fields = ("ult_alteracao",)
-    extra = 1
-    inlines = (TelefonesInline,)
-    verbose_name_plural = _("Contato(s) Interlegis Vigente(s)")
+    extra = 0
 
-    def get_queryset(self, request):
-        return (
-            self.model.objects.filter(setor="contato_interlegis")
-            .extra(select={"ult_null": "ult_alteracao is null"})
-            .order_by("-ult_alteracao")
-        )
+    def has_add_permission(self, request, *args, **kwargs):
+        return False
 
-    def get_extra(self, request, obj=None, **kwargs):
-        extra = 0
-        return extra
+    def has_delete_permission(self, request, *args, **kwargs):
+        return False
 
 
 class FuncionariosInline(admin.StackedInline):
@@ -174,15 +128,11 @@ class FuncionariosInline(admin.StackedInline):
     autocomplete_fields = ("municipio",)
     readonly_fields = ("ult_alteracao",)
     extra = 1
-    inlines = (TelefonesInline,)
-    verbose_name_plural = _("Outros Contatos da Casa")
+    verbose_name_plural = _("Contatos da Casa")
 
     def get_queryset(self, request):
         return (
-            self.model.objects.exclude(
-                cargo="Presidente",
-            )
-            .exclude(desativado=True)
+            self.model.objects.exclude(desativado=True)
             .extra(select={"ult_null": "ult_alteracao is null"})
             .order_by("ult_null", "-ult_alteracao")
             # A função extra foi usada para quando existir um registro com
@@ -190,71 +140,46 @@ class FuncionariosInline(admin.StackedInline):
         )
 
 
-class ConveniosInline(admin.TabularInline):
+class ConveniosInline(admin.StackedInline):
     model = Convenio
-    fieldsets = (
-        (
-            None,
-            {
-                "fields": (
-                    (
-                        "link_sigad",
-                        "status_convenio",
-                        "num_convenio",
-                        "projeto",
-                        "observacao",
-                    ),
-                    (
-                        "data_retorno_assinatura",
-                        "data_pub_diario",
-                    ),
-                    ("get_anexos",),
-                    ("link_convenio",),
-                )
-            },
-        ),
-    )
-    readonly_fields = [
-        "link_convenio",
+    fields = (
+        "num_processo_sf",
         "link_sigad",
         "status_convenio",
         "num_convenio",
         "projeto",
         "observacao",
-        "data_adesao",
         "data_retorno_assinatura",
-        "data_termo_aceite",
+        "data_termino_vigencia",
         "data_pub_diario",
-        "data_devolucao_via",
-        "data_postagem_correio",
-        "data_devolucao_sem_assinatura",
-        "data_retorno_sem_assinatura",
+        "data_sigad",
+        "data_solicitacao",
+        "get_anexos",
+    )
+    readonly_fields = [
+        "link_sigad",
+        "status_convenio",
         "get_anexos",
     ]
+    ordering = ("-data_retorno_assinatura",)
     extra = 0
     can_delete = False
-    ordering = ("-data_retorno_assinatura",)
+    show_change_link = True
 
-    def has_add_permission(self, request, obj):
-        return False
-
+    @admin.display(description=_("Anexos"))
     def get_anexos(self, obj):
         return mark_safe(
-            "<br/>".join(
-                [
-                    f'<a href="{a.arquivo.url}" target="_blank">{a}</a>'
-                    for a in obj.anexo_set.all()
-                ]
+            render_to_string(
+                "admin/casas/anexo_convenio_snippet.html",
+                context={"anexos": obj.anexo_set.all()},
             )
         )
 
-    get_anexos.short_description = _("Anexos")
-
+    @admin.display(description=_("Status do convênio"))
     def status_convenio(self, obj):
         if obj.pk is None:
             return ""
         status = obj.get_status()
-
         if status in ["Vencido", "Desistência", "Cancelado"]:
             label = r"danger"
         elif status == "Vigente":
@@ -263,33 +188,16 @@ class ConveniosInline(admin.TabularInline):
             label = r"warning"
         else:
             label = r"info"
-
         return mark_safe(f'<p class="label label-{label}">{status}</p>')
 
-    status_convenio.short_description = _("Status do convênio")
-
-    def link_convenio(self, obj):
-        if obj.pk is None:
-            return ""
-        opts = self.opts
-        url = reverse(
-            f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk]
-        )
-        return mark_safe(
-            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
-        )
-
-    link_convenio.short_description = _("Editar convenio")
-
+    @admin.display(description=_("Ver no SIGAD"))
     def link_sigad(self, obj):
         if obj.pk is None:
             return ""
-        return mark_safe(obj.get_sigad_url())
-
-    link_sigad.short_description = _("Processo no Senado")
+        return mark_safe(obj.get_sigad_url(display_type="icone"))
 
 
-class ServicoInline(admin.TabularInline):
+class ServicoInline(admin.StackedInline):
     model = Servico
     fields = (
         "tipo_servico",
@@ -301,45 +209,38 @@ class ServicoInline(admin.TabularInline):
         "motivo_desativacao",
     )
     readonly_fields = ["data_alteracao"]
-    extra = 1
     ordering = ("tipo_servico", "-data_alteracao")
+    extra = 0
+    show_change_link = True
 
 
-class OcorrenciaInline(admin.TabularInline):
+class OcorrenciaInline(admin.StackedInline):
     model = Ocorrencia
     fields = (
         "data_criacao",
+        "categoria",
+        "tipo_contato",
         "assunto",
         "prioridade",
         "status",
+        "descricao",
+        "resolucao",
+        "ticket",
         "data_modificacao",
-        "link_editar",
     )
     readonly_fields = (
         "data_criacao",
-        "assunto",
-        "prioridade",
-        "status",
         "data_modificacao",
-        "link_editar",
     )
-    extra = 0
-    max_num = 0
-    can_delete = False
     ordering = ("-data_modificacao",)
+    extra = 0
+    can_delete = False
+    show_change_link = True
 
-    def link_editar(self, obj):
-        if obj.pk is None:
-            return ""
-        opts = self.opts
-        url = reverse(
-            f"admin:{opts.app_label}_{opts.model_name}_change", args=[obj.pk]
-        )
-        return mark_safe(
-            f'<a href="{url}"><i class="material-icons Tiny">edit</i></a>'
-        )
-
-    link_editar.short_description = _("Editar")
+    def has_add_permission(self, request, obj):
+        if Servidor.objects.filter(user=request.user).exists():
+            return super().has_add_permission(request, obj)
+        return False
 
 
 @admin.register(Orgao)
@@ -348,8 +249,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     resource_class = OrgaoExportResourse
     inlines = (
         TelefonesInline,
-        PresidenteInline,
-        ContatoInterlegisInline,
+        ParlamentarInline,
         FuncionariosInline,
         ConveniosInline,
         ServicoInline,
@@ -365,6 +265,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         "get_servicos",
     )
     list_display_links = (
+        "id",
         "sigla",
         "nome",
     )
@@ -463,6 +364,20 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     def get_queryset(self, request):
         queryset = super(OrgaoAdmin, self).get_queryset(request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
+
+    def save_related(self, request, form, formsets, change):
+        for formset in formsets:
+            if formset.model == Ocorrencia:
+                formset.save(commit=False)
+                for obj in formset.new_objects:
+                    if (
+                        not hasattr(obj, "servidor_registro")
+                        or obj.servidor_registro is None
+                    ):
+                        obj.servidor_registro = Servidor.objects.get(
+                            user=request.user
+                        )
+        return super().save_related(request, form, formsets, change)
 
     def get_uf(self, obj):
         return obj.municipio.uf.nome

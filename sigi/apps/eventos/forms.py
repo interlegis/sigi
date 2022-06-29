@@ -3,6 +3,7 @@ from django.utils.translation import gettext as _
 from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.eventos.models import Convite, ModeloDeclaracao, Evento
+from sigi.apps.parlamentares.models import Parlamentar
 
 
 class EventoAdminForm(forms.ModelForm):
@@ -78,4 +79,26 @@ class FuncionarioForm(forms.ModelForm):
         widgets = {
             "nota": MaterialAdminTextareaWidget,
             "redes_sociais": MaterialAdminTextareaWidget,
+        }
+
+
+class ParlamentarForm(forms.ModelForm):
+    class Meta:
+        model = Parlamentar
+        fields = [
+            "nome_completo",
+            "nome_parlamentar",
+            "data_nascimento",
+            "cpf",
+            "identidade",
+            "telefones",
+            "email",
+            "redes_sociais",
+            "observacoes",
+        ]
+        widgets = {
+            "nome_completo": forms.HiddenInput,
+            "redes_sociais": MaterialAdminTextareaWidget,
+            "observacoes": MaterialAdminTextareaWidget,
+            "status_mandato": forms.RadioSelect,
         }

@@ -1,0 +1,11 @@
+{% extends "admin/cart/change_list_cart_export.html" %}
+{% load admin_urls i18n %}
+
+{% block object-tools-items %}
+  <li>
+    <a class="btn-floating tooltipped waves-effect waves-light" href="{% url opts|admin_urlname:'import' %}{{cl.get_query_string}}" data-position="left" data-tooltip="{% trans "Importar dados do TSE" %}">
+      <i class="material-icons">file_upload</i>
+    </a>
+  </li>
+{{ block.super }}
+{% endblock %}

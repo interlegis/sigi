@@ -149,7 +149,7 @@ class Orgao(models.Model):
 
     @property
     def num_parlamentares(self):
-        return 0
+        return self.parlamentar_set.count()
 
     @property
     def telefone(self):
@@ -160,28 +160,11 @@ class Orgao(models.Model):
 
     @property
     def presidente(self):
-        try:
-            if self.funcionario_set.filter(setor="presidente").count() > 1:
-                return self.funcionario_set.filter(setor="presidente")[0]
-            else:
-                return self.funcionario_set.get(setor="presidente")
-        except Funcionario.DoesNotExist:
-            return None
+        return self.parlamentar_set.filter(presidente=True).first()
 
     @property
     def contato_interlegis(self):
-        try:
-            if (
-                self.funcionario_set.filter(setor="contato_interlegis").count()
-                > 1
-            ):
-                return self.funcionario_set.filter(setor="contato_interlegis")[
-                    0
-                ]
-            else:
-                return self.funcionario_set.get(setor="contato_interlegis")
-        except Funcionario.DoesNotExist:
-            return None
+        return self.funcionario_set.filter(setor="contato_interlegis").first()
 
     def __str__(self):
         return self.nome
@@ -308,23 +291,3 @@ class Funcionario(models.Model):
 
     def __str__(self):
         return self.nome
-
-
-class PresidenteManager(models.Manager):
-    def get_queryset(self):
-        qs = super(PresidenteManager, self).get_queryset()
-        qs = qs.filter(setor="presidente")
-        return qs
-
-
-class Presidente(Funcionario):
-    class Meta:
-        proxy = True
-
-    objects = PresidenteManager()
-
-    def save(self, *args, **kwargs):
-        self.setor = "presidente"
-        self.cargo = "Presidente"
-        self.funcao = "Presidente"
-        return super(Presidente, self).save(*args, **kwargs)

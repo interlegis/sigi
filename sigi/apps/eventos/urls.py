@@ -17,6 +17,11 @@ urlpatterns = [
         views.declaracao,
         name="evento-declaracao",
     ),
+    path(
+        "evento/presidente/<int:presidente_id>/",
+        views.presidente_form,
+        name="presidente-form-snippet",
+    ),
 ]
 
 # from django.conf.urls import patterns, url

@@ -1,0 +1,36 @@
+{% load i18n %}
+<!DOCTYPE html>
+{% get_current_language as LANGUAGE_CODE %}{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html
+  lang="{{ LANGUAGE_CODE|default:"
+  en-us
+  " }}"
+  dir="{{ LANGUAGE_BIDI|yesno:'rtl,ltr,auto' }}"
+>
+  <head>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <h4>Resultado da importação de dados de parlamentares</h4>
+    <table>
+      {% for key, value in json_data.items %}
+      <tr>
+        <th>{{ key }}</th>
+        <td>{{ value }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+    <br>
+    <ul>
+      {% for row in result %}
+    {% if row|first == '*' %}
+      <li>
+        <h5>{{ row }}</h5>
+      </li>
+      {% else %}
+      <li>{{ row }}</li>
+      {% endif %}
+  {% endfor %}
+    </ul>
+  </body>
+</html>

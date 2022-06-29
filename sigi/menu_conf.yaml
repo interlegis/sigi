@@ -31,8 +31,8 @@ main_menu:
       - title: Assembléias Legislativas
         view_name: admin:casas_orgao_changelist
         querystr: tipo__sigla__exact=AL
-      # - title: Parlamentares
-      #   view_name: admin:parlamentares_parlamentar_changelist
+      - title: Parlamentares
+        view_name: admin:parlamentares_parlamentar_changelist
       - title: Demais órgãos
         view_name: admin:casas_orgao_changelist
         querystr: tipo__legislativo__exact=0
@@ -115,5 +115,5 @@ main_menu:
         view_name: admin:eventos_funcao_changelist
       - title: Modelos de declaração
         view_name: admin:eventos_modelodeclaracao_changelist
-      # - title: Partidos políticos
-      #   view_name: admin:parlamentares_partido_changelist
+      - title: Partidos políticos
+        view_name: admin:parlamentares_partido_changelist

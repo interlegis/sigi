@@ -79,6 +79,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name="coliga\xe7\xe3o",
                         to="parlamentares.Coligacao",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -120,7 +121,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "casa_legislativa",
-                    models.ForeignKey(to="casas.CasaLegislativa"),
+                    models.ForeignKey(
+                        to="casas.CasaLegislativa", on_delete=models.CASCADE
+                    ),
                 ),
             ],
             options={
@@ -159,10 +162,17 @@ class Migration(migrations.Migration):
                         verbose_name="afastado",
                     ),
                 ),
-                ("cargo", models.ForeignKey(to="parlamentares.Cargo")),
+                (
+                    "cargo",
+                    models.ForeignKey(
+                        to="parlamentares.Cargo", on_delete=models.CASCADE
+                    ),
+                ),
                 (
                     "legislatura",
-                    models.ForeignKey(to="parlamentares.Legislatura"),
+                    models.ForeignKey(
+                        to="parlamentares.Legislatura", on_delete=models.CASCADE
+                    ),
                 ),
             ],
             options={},
@@ -180,7 +190,12 @@ class Migration(migrations.Migration):
                         primary_key=True,
                     ),
                 ),
-                ("cargo", models.ForeignKey(to="parlamentares.Cargo")),
+                (
+                    "cargo",
+                    models.ForeignKey(
+                        to="parlamentares.Cargo", on_delete=models.CASCADE
+                    ),
+                ),
             ],
             options={
                 "ordering": ("parlamentar",),
@@ -206,6 +221,7 @@ class Migration(migrations.Migration):
                     models.ForeignKey(
                         verbose_name="Casa Legislativa",
                         to="casas.CasaLegislativa",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -346,13 +362,16 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "legislatura",
-                    models.ForeignKey(to="parlamentares.Legislatura"),
+                    models.ForeignKey(
+                        to="parlamentares.Legislatura", on_delete=models.CASCADE
+                    ),
                 ),
                 (
                     "mesa_diretora",
                     models.ForeignKey(
                         verbose_name="Mesa Diretora",
                         to="parlamentares.MesaDiretora",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -366,13 +385,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="membromesadiretora",
             name="mesa_diretora",
-            field=models.ForeignKey(to="parlamentares.MesaDiretora"),
+            field=models.ForeignKey(
+                to="parlamentares.MesaDiretora", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="membromesadiretora",
             name="parlamentar",
-            field=models.ForeignKey(to="parlamentares.Parlamentar"),
+            field=models.ForeignKey(
+                to="parlamentares.Parlamentar", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -382,13 +405,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="mandato",
             name="parlamentar",
-            field=models.ForeignKey(to="parlamentares.Parlamentar"),
+            field=models.ForeignKey(
+                to="parlamentares.Parlamentar", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="mandato",
             name="partido",
-            field=models.ForeignKey(to="parlamentares.Partido"),
+            field=models.ForeignKey(
+                to="parlamentares.Partido", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AlterUniqueTogether(
@@ -398,13 +425,17 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="composicaocoligacao",
             name="partido",
-            field=models.ForeignKey(to="parlamentares.Partido"),
+            field=models.ForeignKey(
+                to="parlamentares.Partido", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name="coligacao",
             name="legislatura",
-            field=models.ForeignKey(to="parlamentares.Legislatura"),
+            field=models.ForeignKey(
+                to="parlamentares.Legislatura", on_delete=models.CASCADE
+            ),
             preserve_default=True,
         ),
     ]

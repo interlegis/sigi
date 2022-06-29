@@ -11,6 +11,7 @@ from django.utils.translation import gettext as _
 from tinymce.models import HTMLField
 from sigi.apps.contatos.models import Municipio, UnidadeFederativa
 from sigi.apps.eventos.models import Evento
+from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor, Servico
@@ -23,7 +24,7 @@ class Projeto(models.Model):
         [
             ("evento", Evento),
             ("casa", Orgao),
-            ("presidente", Funcionario),
+            ("presidente", Parlamentar),
             ("contato", Funcionario),
             ("casa.municipio", Municipio),
             ("casa.municipio.uf", UnidadeFederativa),
@@ -36,7 +37,7 @@ class Projeto(models.Model):
         [
             ("evento", Evento),
             ("casa", Orgao),
-            ("presidente", Funcionario),
+            ("presidente", Parlamentar),
             ("contato", Funcionario),
             ("casa.municipio", Municipio),
             ("casa.municipio.uf", UnidadeFederativa),
@@ -263,20 +264,27 @@ class Convenio(models.Model):
             return ""
         return obj.get_sigad_url()
 
-    def get_sigad_url(self):
+    def get_sigad_url(self, display_type="numero"):
         m = re.match(
             r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}",
             self.num_processo_sf,
         )
         if m:
             orgao, sequencial, ano = m.groups()
+            if display_type == "numero":
+                display = self.num_processo_sf
+            else:
+                display = "<i class='material-icons'>visibility</i>"
             return (
                 f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
                 f"impressao.asp?area=processo&txt_numero_orgao={orgao}"
                 f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '
-                f'target="_blank">{self.num_processo_sf}</a>'
+                f'target="_blank">{display}</a>'
             )
-        return self.num_processo_sf
+        if display_type == "numero":
+            return self.num_processo_sf
+        else:
+            return "<i class='material-icons'>visibility_off</i>"
 
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None

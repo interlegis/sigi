@@ -1,0 +1,10 @@
+{% load i18n %}
+{% if not anexos %}
+  <p>{% trans "Nenhum anexo no convênio" %}</p>
+{% else %}
+  <div class="collection">
+    {% for anexo in anexos %}
+      <a href="{{ anexo.arquivo.url }}" target="_blank" class="collection-item">{{ anexo }}</a>
+    {% endfor %}
+  </div>
+{% endif %}

@@ -1,13 +1,13 @@
 import calendar
 import csv
 import locale
-from datetime import datetime
 from functools import reduce
 from typing import OrderedDict
+from django import forms
 from django.contrib import messages
 from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
+from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
 from django.template.exceptions import TemplateSyntaxError
@@ -24,15 +24,17 @@ from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
 from docx import Document
 from weasyprint import HTML
-from sigi.apps.casas.models import Funcionario, Orgao, Presidente
+from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.convenios.models import Projeto
-from sigi.apps.eventos.models import Evento, Equipe, Convite, Modulo, Anexo
+from sigi.apps.eventos.models import Evento, Convite, Anexo
 from sigi.apps.eventos.forms import (
     SelecionaModeloForm,
     ConviteForm,
     CasaForm,
     FuncionarioForm,
+    ParlamentarForm,
 )
+from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servidores.models import Servidor
 
 
@@ -215,6 +217,8 @@ def convida_casa(request, evento_id, casa_id):
                 else:
                     run_final.text += run.text
                     run.text = ""
+                if run_final.text.count("{{") != run_final.text.count("}}"):
+                    continue
                 try:
                     run_final.text = Template(run_final.text).render(context)
                     run_final = None
@@ -242,17 +246,23 @@ def convida_casa(request, evento_id, casa_id):
             data_convite=timezone.localdate(),
         )
 
-    presidente = casa.presidente or Funcionario(
-        casa_legislativa=casa, setor="presidente"
-    )
     contato = casa.contato_interlegis or Funcionario(
         casa_legislativa=casa, setor="contato_interlegis"
     )
+    presidente = casa.presidente
+    parlamentares = casa.parlamentar_set.all()
 
     if request.method == "POST":
+        id_presidente = request.POST.get("id_presidente", None)
+
+        if id_presidente is None:
+            messages.error(request, _("Presidente não foi identificado"))
+            return redirect(".")
+        presidente = get_object_or_404(Parlamentar, id=id_presidente)
+
         form_convite = ConviteForm(request.POST, instance=convite)
         form_casa = CasaForm(request.POST, request.FILES, instance=casa)
-        form_presidente = FuncionarioForm(
+        form_presidente = ParlamentarForm(
             request.POST, instance=presidente, prefix="presidente"
         )
         form_contato = FuncionarioForm(
@@ -267,8 +277,13 @@ def convida_casa(request, evento_id, casa_id):
                 form_contato.is_valid(),
             ]
         ):
-            contato = form_contato.save()
-            presidente = form_presidente.save()
+            contato = form_contato.save(commit=False)
+            contato.setor = "contato_interlegis"
+            contato.save()
+            presidente = form_presidente.save(commit=False)
+            presidente.status_mandato = "E"
+            presidente.presidente = True
+            presidente.save()
             casa = form_casa.save()
             convite = form_convite.save()
 
@@ -321,7 +336,9 @@ def convida_casa(request, evento_id, casa_id):
                                 )
                     nome = f"Minuta de {projeto.sigla} da {casa.nome}"[:70]
                     minuta = Anexo(descricao=nome, evento=evento)
-                    minuta.arquivo.name = slugify(nome) + ".docx"
+                    minuta.arquivo.name = (
+                        f"{Anexo.arquivo.field.upload_to}/{slugify(nome)}.docx"
+                    )
                     doc.save(minuta.arquivo.path)
                     minuta.save()
                     query_str += f"anexo_id={minuta.id}"
@@ -330,32 +347,50 @@ def convida_casa(request, evento_id, casa_id):
             else:
                 return redirect(evento.get_absolute_url())
         else:
-            messages.error(_("Preencha corretamente o convite"))
+            messages.error(request, _("Preencha corretamente o convite"))
     else:
         form_convite = ConviteForm(instance=convite)
         form_casa = CasaForm(instance=casa)
-        form_presidente = FuncionarioForm(
-            instance=presidente, prefix="presidente"
-        )
         form_contato = FuncionarioForm(instance=contato, prefix="contato")
+        if presidente:
+            form_presidente = ParlamentarForm(
+                instance=presidente, prefix="presidente"
+            )
+        else:
+            form_presidente = ""
 
-    context = site.each_context(request)
+    context = site.each_context(request) or {}
     context.update(
         {
             "form_convite": form_convite,
             "form_casa": form_casa,
-            "form_presidente": form_presidente,
             "form_contato": form_contato,
+            "form_presidente": form_presidente,
             "evento": evento,
             "convite": convite,
             "casa": casa,
             "presidente": presidente,
             "contato": contato,
             "projetos": projetos,
+            "parlamentares": parlamentares,
         }
     )
 
     return render(request, "eventos/convida_casa.html", context)
+
+
+@login_required
+def presidente_form(request, presidente_id):
+    presidente = get_object_or_404(Parlamentar, pk=presidente_id)
+    form = ParlamentarForm(instance=presidente, prefix="presidente")
+    return render(
+        request,
+        "eventos/snippets/form_presidente_snippet.html",
+        {
+            "form_presidente": form,
+            "presidente": presidente,
+        },
+    )
 
 
 def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):

@@ -1,43 +1,51 @@
-# -*- coding: utf-8 -*-
+import csv
+import json
+from django.db import transaction
 from django.contrib import admin
-from django.contrib.contenttypes import generic
+from django.contrib import messages
+from django.contrib.contenttypes.admin import GenericTabularInline
+from django.core.files.temp import NamedTemporaryFile
 from django.http import HttpResponseRedirect, HttpResponse
+from django.shortcuts import redirect, render
+from django.urls import path, reverse
+from django.utils import timezone
 from django.utils.html import escape, escapejs
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-
-from sigi.apps.contatos.models import Telefone
-from sigi.apps.parlamentares.models import (
-    Partido,
-    Parlamentar,
-    Mandato,
-    Legislatura,
-    Coligacao,
-    ComposicaoColigacao,
-    SessaoLegislativa,
-    MesaDiretora,
-    Cargo,
-    MembroMesaDiretora,
-)
-from sigi.apps.parlamentares.views import adicionar_parlamentar_carrinho
-from sigi.apps.utils.base_admin import BaseModelAdmin
+from sigi.apps.casas.models import Orgao
+from sigi.apps.parlamentares.jobs import import_path, json_path
+from sigi.apps.parlamentares.models import Partido, Parlamentar
+from sigi.apps.parlamentares.forms import ImportForm
 from sigi.apps.utils.filters import AlphabeticFilter
+from sigi.apps.utils.mixins import (
+    ImportCartExportMixin,
+    CartExportMixin,
+    LabeledResourse,
+)
 
 
-class MandatosInline(admin.TabularInline):
-    model = Mandato
-    extra = 1
-    raw_id_fields = ("legislatura", "partido")
-
-
-class TelefonesInline(generic.GenericTabularInline):
-    model = Telefone
-    extra = 2
-
-
-class PartidoAdmin(BaseModelAdmin):
-    list_display = ("nome", "sigla")
-    list_display_links = ("nome", "sigla")
-    search_fields = ("nome", "sigla")
+class ParlamentarResource(LabeledResourse):
+    class Meta:
+        model = Parlamentar
+        fields = (
+            "casa_legislativa__nome",
+            "casa_legislativa__municipio__uf__sigla",
+            "partido__legenda",
+            "partido__sigla",
+            "partido__nome",
+            "presidente",
+            "nome_completo",
+            "nome_parlamentar",
+            "data_nascimento",
+            "cpf",
+            "identidade",
+            "telefones",
+            "email",
+            "redes_sociais",
+            "ult_alteracao",
+            "observacoes",
+        )
+        export_order = fields
 
 
 class ParlamentarNomeCompletoFilter(AlphabeticFilter):
@@ -45,221 +53,145 @@ class ParlamentarNomeCompletoFilter(AlphabeticFilter):
     parameter_name = "nome_completo"
 
 
-class ParlamentarAdmin(BaseModelAdmin):
-    inlines = (TelefonesInline, MandatosInline)
-    list_display = ("nome_completo", "nome_parlamentar", "sexo")
-    list_display_links = ("nome_completo", "nome_parlamentar")
-    list_filter = (ParlamentarNomeCompletoFilter,)
-    actions = [
-        "adiciona_parlamentar",
-    ]
+@admin.register(Partido)
+class PartidoAdmin(ImportCartExportMixin, admin.ModelAdmin):
+    list_display = ("legenda", "nome", "sigla")
+    search_fields = ("legenda", "nome", "sigla")
+
+
+@admin.register(Parlamentar)
+class ParlamentarAdmin(CartExportMixin, admin.ModelAdmin):
+    resource_class = ParlamentarResource
+    change_list_template = (
+        "admin/parlamentares/parlamentar/cart/"
+        "change_list_import_cart_export.html"
+    )
+    list_display = (
+        "get_foto",
+        "nome_completo",
+        "casa_legislativa",
+        "status_mandato",
+        "get_uf",
+        "partido",
+    )
+    list_filter = (
+        "casa_legislativa__municipio__uf",
+        ("casa_legislativa__tipo", admin.RelatedOnlyFieldListFilter),
+        "partido",
+        "status_mandato",
+        "presidente",
+        ParlamentarNomeCompletoFilter,
+    )
     fieldsets = (
         (
-            None,
+            _("mandato"),
             {
-                "fields": ("nome_completo", "nome_parlamentar", "sexo"),
+                "fields": (
+                    "casa_legislativa",
+                    "ano_eleicao",
+                    "partido",
+                    "presidente",
+                )
             },
         ),
-        #        (_('Endereço'), {
-        #            'fields': ('logradouro', 'bairro', 'municipio', 'cep'),
-        #        }),
         (
-            _("Outras informações"),
+            _("dados pessoais"),
             {
-                "fields": ("data_nascimento", "email", "pagina_web", "foto"),
+                "fields": (
+                    "nome_completo",
+                    "nome_parlamentar",
+                    "foto",
+                    "data_nascimento",
+                    "cpf",
+                    "identidade",
+                ),
             },
+        ),
+        (
+            _("contatos"),
+            {"fields": ("telefones", "email", "redes_sociais")},
         ),
     )
-    radio_fields = {"sexo": admin.VERTICAL}
-    #    raw_id_fields = ('municipio',)
+    autocomplete_fields = ("casa_legislativa",)
     search_fields = (
         "nome_completo",
         "nome_parlamentar",
         "email",
-        "pagina_web",
+        "casa_legislativa__search_text",
     )
 
-    def adiciona_parlamentar(self, request, queryset):
-        if "carrinho_parlametar" in request.session:
-            q1 = len(request.session["carrinho_parlamentar"])
+    def get_urls(self):
+        urls = super().get_urls()
+        info = self.get_model_info()
+        my_urls = [
+            path(
+                "import/",
+                self.admin_site.admin_view(self.import_action),
+                name="%s_%s_import" % info,
+            ),
+            path(
+                "import_result/",
+                self.admin_site.admin_view(self.result_import_action),
+                name="%s_%s_import_result" % info,
+            ),
+        ]
+        return my_urls + urls
+
+    @admin.display(
+        description=_("UF"), ordering="casa_legislativa__municipio__uf__nome"
+    )
+    def get_uf(self, obj):
+        return obj.casa_legislativa.municipio.uf.nome
+
+    @mark_safe
+    @admin.display(description=_("Foto"))
+    def get_foto(self, obj):
+        if obj.foto:
+            return f'<img class="circle" src="{obj.foto.url}" style="width: 58px; height: 58px;"/>'
         else:
-            q1 = 0
-        adicionar_parlamentar_carrinho(request, queryset=queryset)
-        q2 = len(request.session["carrinho_parlamentar"])
-        quant = q2 - q1
-        if quant:
-            self.message_user(
-                request, _("%s Parlamentares adicionados no carrinho") % (quant)
+            return (
+                '<i class="material-icons medium grey-text">account_circle</i>'
             )
-        else:
-            self.message_user(
-                request,
-                _(
-                    "Os parlamentares selecionadas já foram adicionadas anteriormente"
-                ),
+
+    def import_action(self, request, *args, **kwargs):
+        def save_file(uploaded, destination_path):
+            with open(destination_path / uploaded.name, "wb") as dst_file:
+                for chunck in uploaded:
+                    dst_file.write(chunck)
+                dst_file.flush()
+
+        form = ImportForm(request.POST, request.FILES)
+        context = admin.site.each_context(request) or {}
+        context["opts"] = self.model._meta
+        context["form"] = form
+        context["last_result"] = import_path / "result.html"
+        if request.method == "POST" and form.is_valid():
+            json_data = {
+                "upload_time": timezone.localtime(),
+                "user_id": request.user.id,
+                "tipo_candidatos": form.cleaned_data["tipo_candidatos"],
+                "suplentes": form.cleaned_data["suplentes"],
+                "codificacao": form.cleaned_data["codificacao"],
+                "sigla_uf": form.cleaned_data["uf_importar"],
+            }
+            if form.cleaned_data["arquivo_tse"]:
+                save_file(form.cleaned_data["arquivo_tse"], import_path)
+                json_data["resultados"] = form.cleaned_data["arquivo_tse"].name
+            if form.cleaned_data["arquivo_redes"]:
+                save_file(form.cleaned_data["arquivo_redes"], import_path)
+                json_data["redes_sociais"] = form.cleaned_data[
+                    "arquivo_redes"
+                ].name
+            if form.cleaned_data["arquivo_fotos"]:
+                save_file(form.cleaned_data["arquivo_fotos"], import_path)
+                json_data["fotos"] = form.cleaned_data["arquivo_fotos"].name
+            json_path.write_text(json.dumps(json_data, default=str))
+            return redirect(
+                reverse("admin:%s_%s_import_result" % self.get_model_info())
             )
-        return HttpResponseRedirect(".")
+        return render(request, "parlamentares/import.html", context)
 
-    adiciona_parlamentar.short_description = _(
-        "Armazenar parlamentar no carrinho para exportar"
-    )
-
-
-class MandatoAdmin(BaseModelAdmin):
-    list_display = (
-        "parlamentar",
-        "legislatura",
-        "partido",
-        "inicio_mandato",
-        "fim_mandato",
-        "is_afastado",
-    )
-    list_filter = ("is_afastado", "partido")
-    search_fields = (
-        "legislatura__numero",
-        "parlamentar__nome_completo",
-        "parlamentar__nome_parlamentar",
-        "partido__nome",
-        "partido__sigla",
-    )
-    raw_id_fields = ("parlamentar", "legislatura", "partido")
-
-
-#    radio_fields = {'suplencia': admin.VERTICAL}
-
-
-class MandatoInline(admin.TabularInline):
-    model = Mandato
-    raw_id_fields = [
-        "parlamentar",
-    ]
-
-
-class LegislaturaAdmin(BaseModelAdmin):
-    date_hierarchy = "data_inicio"
-    list_display = (
-        "numero",
-        "casa_legislativa",
-        "uf",
-        "data_inicio",
-        "data_fim",
-        "data_eleicao",
-        "total_parlamentares",
-    )
-    raw_id_fields = ("casa_legislativa",)
-    list_display_links = ("numero",)
-    list_filter = ("casa_legislativa__municipio__uf",)
-    search_fields = (
-        "casa_legislativa__nome",
-        "casa_legislativa__municipio__nome",
-    )
-    inlines = (MandatoInline,)
-
-    def uf(self, obj):
-        return obj.casa_legislativa.municipio.uf.sigla
-
-    uf.short_description = _("UF")
-    uf.admin_order_field = "casa_legislativa__municipio__uf"
-
-    def lookup_allowed(self, lookup, value):
-        return super(LegislaturaAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in ["casa_legislativa__municipio__uf__codigo_ibge__exact"]
-
-    def response_change(self, request, obj):
-        response = super(LegislaturaAdmin, self).response_change(request, obj)
-        if "_popup" in request.POST:
-            response = HttpResponse(
-                '<script type="text/javascript">opener.dismissAddAnotherPopup(window, "%s", "%s");</script>'
-                %
-                # escape() calls force_unicode.
-                (escape(obj.pk), escapejs(obj))
-            )
-        return response
-
-
-class ColigacaoAdmin(BaseModelAdmin):
-    list_display = ("nome", "legislatura", "numero_votos")
-    list_display_links = ("nome",)
-    raw_id_fields = ("legislatura",)
-    search_fields = ("nome", "legislatura__numero")
-
-
-class ComposicaoColigacaoAdmin(BaseModelAdmin):
-    list_display = ("coligacao", "partido")
-    list_display_links = ("coligacao", "partido")
-    list_filter = ("partido",)
-    raw_id_fields = ("coligacao", "partido")
-    search_fields = ("coligacao__nome", "partido__nome", "partido__sigla")
-
-
-class SessaoLegislativaAdmin(BaseModelAdmin):
-    list_display = (
-        "numero",
-        "mesa_diretora",
-        "legislatura",
-        "tipo",
-        "data_inicio",
-        "data_fim",
-    )
-    list_display_links = ("numero",)
-    list_filter = ("tipo",)
-    fieldsets = (
-        (None, {"fields": ("numero", "mesa_diretora", "legislatura", "tipo")}),
-        (
-            None,
-            {
-                "fields": (
-                    ("data_inicio", "data_fim"),
-                    ("data_inicio_intervalo", "data_fim_intervalo"),
-                )
-            },
-        ),
-    )
-    radio_fields = {"tipo": admin.VERTICAL}
-    raw_id_fields = ("mesa_diretora", "legislatura")
-    search_fields = ("numero", "mesa_diretora__casa_legislativa__nome")
-
-
-class CargoAdmin(BaseModelAdmin):
-    list_display = ("descricao",)
-    search_fields = ("descricao",)
-
-
-class MembroMesaDiretoraInline(admin.TabularInline):
-    model = MembroMesaDiretora
-    max_num = 11
-    extra = 4
-    raw_id_fields = ("parlamentar", "cargo")
-
-
-class MembroMesaDiretoraAdmin(BaseModelAdmin):
-    list_display = ("parlamentar", "cargo", "mesa_diretora")
-    list_display_links = ("parlamentar",)
-    list_filter = ("cargo",)
-    raw_id_fields = ("parlamentar", "cargo", "mesa_diretora")
-    search_fields = (
-        "cargo__descricao",
-        "parlamentar__nome_completo",
-        "parlamentar__nome_parlamentar",
-        "mesa_diretora__casa_legislativa__nome",
-    )
-
-
-class MesaDiretoraAdmin(BaseModelAdmin):
-    inlines = (MembroMesaDiretoraInline,)
-    raw_id_fields = ("casa_legislativa",)
-    list_display = ("id", "casa_legislativa")
-    search_fields = ("casa_legislativa__nome",)
-
-
-admin.site.register(Partido, PartidoAdmin)
-admin.site.register(Parlamentar, ParlamentarAdmin)
-admin.site.register(Mandato, MandatoAdmin)
-admin.site.register(Legislatura, LegislaturaAdmin)
-admin.site.register(Coligacao, ColigacaoAdmin)
-admin.site.register(ComposicaoColigacao, ComposicaoColigacaoAdmin)
-admin.site.register(SessaoLegislativa, SessaoLegislativaAdmin)
-admin.site.register(MesaDiretora, MesaDiretoraAdmin)
-admin.site.register(Cargo, CargoAdmin)
-admin.site.register(MembroMesaDiretora, MembroMesaDiretoraAdmin)
+    def result_import_action(self, request, *args, **kwargs):
+        context = admin.site.each_context(request) or {}
+        context["opts"] = self.model._meta
+        return render(request, "parlamentares/import_result.html", context)

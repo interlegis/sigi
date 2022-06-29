@@ -57,8 +57,8 @@
 			<i class="large material-icons">print</i>
 		</a>
 		<ul>
-			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=pdf" title="{% trans "Exportar para PDF" %}"><i class="material-icons">picture_as_pdf</i></a></li>
-			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=csv" title="{% trans "Exportar para CSV" %}"><i class="material-icons">file_download</i></a></li>
+			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=pdf" title="{% trans 'Exportar para PDF' %}" target="_blank"><i class="material-icons">picture_as_pdf</i></a></li>
+			<li><a class="btn-floating" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=csv" title="{% trans 'Exportar para CSV' %}" target="_blank"><i class="material-icons">file_download</i></a></li>
 		</ul>
 	</div>
 	{% include "eventos/snippets/alocacao_equipe_snippet.html" with mode="html" %}

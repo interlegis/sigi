@@ -1,23 +1,15 @@
 import csv
 from functools import reduce
-
-from django.contrib import messages
-from sigi.apps.utils import to_ascii
-
-from django.conf import settings
+from django.db.models import Count, Q
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
-from django.db.models import Count, Q
 from django.http import (
     HttpResponse,
     HttpResponseRedirect,
-    HttpResponseForbidden,
 )
 from django.shortcuts import render, get_object_or_404
 from django.utils.translation import gettext as _, ngettext
-from django.views.generic import View
 from django_weasyprint.views import WeasyTemplateView
-
 from sigi.apps.casas.forms import PortfolioForm, AtualizaCasaForm
 from sigi.apps.casas.models import Orgao, TipoOrgao, Funcionario
 from sigi.apps.servidores.models import Servidor

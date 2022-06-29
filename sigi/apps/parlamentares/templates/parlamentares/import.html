@@ -1,0 +1,94 @@
+{% extends "admin/base_site.html" %}
+{% load i18n admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+<style>
+    #content {
+      display: block;
+    }
+    .submit-row>a {
+      color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block content_title %}
+<h4>{% trans "Importar dados do TSE" %}</h4>
+{% endblock %}
+{% block content %}
+<form method="post" enctype="multipart/form-data">
+  {% csrf_token %}
+  <div class="container">
+    {% if last_result.exists %}
+    <div class="breadcrumbs">
+      <a href="{{ MEDIA_URL }}parlamentares/parlamentar/import/result.html" target="_blank">
+        <i class="material-icons left">visibility</i>
+        {% trans "Visualizar o resultado da última importação" %}
+      </a>
+    </div>
+    {% endif %}
+    {{ form }}
+    <div class="submit-row">
+      <button class="btn waves-effect waves-light" type="submit" name="import">
+        <i class="material-icons left">done</i>
+        {% trans "Agendar importação" %}
+      </button>
+      <a class="btn waves-effect waves-light" href="{% url opts|admin_urlname:'changelist' %}">
+        <i class="material-icons left">navigate_before</i>
+        {% trans "Voltar" %}
+      </a>
+    </div>
+  </form>
+  <div class="container">
+    <h6>{% trans "ATENÇÃO" %}</h6>
+    <ul class="collection">
+      <li class="collection-item">
+        {% blocktrans %}
+        A importação é um processo demorado, principalmente se o arquivo for
+        muito grande. Por isso a importação não será realizada imediatamente
+        agora, mas de forma assíncrona. Quando o sistema concluir o processo de
+        importação, um e-mail com um resumo dos resultados será enviado para
+        você e para os administradores do SIGI.{% endblocktrans %}
+      </li>
+      {% if last_result.exists %}
+      <li class="collection-item">
+        {% blocktrans %}
+        O resumo dos resultados da última importação realizada pelo sistema
+        pode ser{% endblocktrans %}
+        <a href="{{ MEDIA_URL }}parlamentares/parlamentar/import/result.html" target="_blank">
+          {% trans "visualizado aqui" %}
+        </a>
+      </li>
+      {% endif %}
+      <li class="collection-item">
+        {% trans "Os arquivos de resultados das eleiçoes podem ser encontrados no" %}
+        <a href="https://dadosabertos.tse.jus.br/" target="_blank">{% trans "Portal de dados abertos do TSE" %}</a>
+      </li>
+      <li class="collection-item">
+        {% blocktrans %}
+        Os arquivos no formato CSV devem ser
+        <em>EXTRAÍDOS</em>
+        do ZIP baixado do TSE.
+        Não envie o ZIP inteiro, pois o SIGI não consegue descompactar.
+        Já os arquivos que contêm as fotos
+        <em>DEVEM</em>
+        ser enviados em formato ZIP.{% endblocktrans %}
+      </li>
+      <li class="collection-item">
+        {% blocktrans %}
+        O CSV do TSE vem com os caracteres codificados em 'LATIN 1' (iso-8859-1).
+        O SIGI trabalha com codificação UTF-8. O SIGI tenta fazer a conversão
+        se você selecionar LATIN 1, mas o ideal é que você faça a conversão
+        manualmente antes de importar. Para isso, pode usar o Excel ou
+        Libreoffice-calc.{% endblocktrans %}
+        <blockquote>
+          {% trans "Se estiver usando Linux, comande:" %}
+          <br>
+          <code>iconv -f iso8859-1 -t utf-8 arquivo_tse.csv -o arquivo_convertido.csv</code>
+        </blockquote>
+      </li>
+    </ul>
+  </div>
+  {% endblock %}
