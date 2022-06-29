@@ -133,7 +133,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):
         if not change:
             obj.servidor_registro = Servidor.objects.get(user=request.user)
-        obj.save()
+        super().save_model(request, obj, form, change)
 
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
