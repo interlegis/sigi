@@ -3,12 +3,21 @@
 <p>{% for field in hidden_fields %}{{ field }}{% endfor %}</p>
 {% endif %}
 {% for field, errors in fields %}
-<div{% with classes=field.css_classes %} class="{% if field.widget_type != 'clearablefile' %}input-field {% endif %}{{ classes }}" {% endwith %}>
+<div{% with classes=field.css_classes %} class="input-field {{ classes }}" {% endwith %}>
   <small class="error">
     {{ errors }}
   </small>
-  {% if field.label %}{{ field.label_tag }}{% endif %}
-  {{ field }}
+  {% if field.widget_type == 'checkbox' %}
+    <p>
+      <label>
+        {{ field }}
+        <span>{{ field.label }}</span>
+      </label>
+    </p>
+  {% else %}
+    {% if field.label %}{{ field.label_tag }}{% endif %}
+    {{ field }}
+  {% endif %}
   {% if field.help_text %}
   <small class="helptext">{{ field.help_text|safe }}</small>
   {% endif %}

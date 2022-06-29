@@ -1,9 +1,8 @@
-{% load i18n %}
-<div class="file-field input-field">
+{% load i18n file_image %}
+<div class="file-field">
   {% if widget.is_initial %}
   <div class="left" style="padding: 5px;">
-    <a href="{{ widget.value.url }}">
-      <img src="{{ widget.value.url }}" alt="{{ widget.value }}" height="60" width="60"/>
+    <img src="{{ widget.value|file_image }}" alt="{{ widget.value }}" height="60" width="60" {% if widget.value|is_image %} class="materialboxed"{% endif %}/>
     </a>
   </div>
   {% endif %}
@@ -16,12 +15,13 @@
   </div>
 </div>
 {% if widget.is_initial %}
-{% if not widget.required %}
+  <em class="right">{% trans "Download" %}: <a href="{{ widget.value.url }}">{{ widget.value.url }}</a></em>
   <p>
+  {% if not widget.required %}
     <label>
       <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}" {% if widget.attrs.disabled %}disabled{% endif %}>
       <span>{{ widget.clear_checkbox_label }}</span>
     </label>
+  {% endif %}
   </p>
-{% endif %}
 {% endif %}

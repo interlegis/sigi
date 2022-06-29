@@ -4,6 +4,7 @@
 {% block theme %}
   <link rel="stylesheet" type="text/css" href="{% static 'material/admin/css/base_site-green.min.css' %}">
   <link rel="stylesheet" type="text/css" href="{% static 'material/admin/css/base_site-theme.min.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-adjusts.css' %}">
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
@@ -28,4 +29,9 @@
     {% trans 'Log out' %}
     <i class="material-icons" aria-hidden="true">exit_to_app</i>
   </a>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script src="{% static 'js/materialize-inits.js' %}"></script>
 {% endblock %}
