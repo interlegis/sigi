@@ -1,0 +1,10 @@
+{% load i18n %}
+{% load admin_urls %}
+
+{% if has_import_permission %}
+<li>
+  <a class="btn-floating tooltipped waves-effect waves-light" href="{% url opts|admin_urlname:'import' %}{{cl.get_query_string}}" data-position="left" data-tooltip="{% trans "Import" %}">
+    <i class="material-icons">file_upload</i>
+  </a>
+</li>
+{% endif %}

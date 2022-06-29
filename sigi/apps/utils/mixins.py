@@ -12,7 +12,7 @@ from django.template.response import TemplateResponse
 from django.urls import path
 from django.utils.translation import gettext as _, ngettext
 from import_export import resources
-from import_export.admin import ExportMixin
+from import_export.admin import ImportMixin, ExportMixin
 from import_export.fields import Field
 from import_export.forms import ExportForm
 from import_export.signals import post_export
@@ -241,6 +241,15 @@ class CartExportMixin(ExportMixin):
         context["opts"] = self.model._meta
         request.current_app = self.admin_site.name
         return TemplateResponse(request, [self.export_template_name], context)
+
+
+class ImportCartExportMixin(ImportMixin, CartExportMixin):
+    """
+    Import and export mixin.
+    """
+
+    #: template for change_list view
+    change_list_template = "admin/cart/change_list_import_cart_export.html"
 
 
 class CartExportReportMixin(CartExportMixin):

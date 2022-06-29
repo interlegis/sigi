@@ -14,7 +14,7 @@
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
-{% block content_title %}<h6>{% blocktrans with name=opts.verbose_name_plural %}Exportar {{ name }}{% endblocktrans %}</h6>{% endblock %}
+{% block content_title %}<h4>{% blocktrans with name=opts.verbose_name_plural %}Exportar {{ name }}{% endblocktrans %}</h4>{% endblock %}
 {% block content %}
 <form action="" method="POST" novalidate>{% csrf_token %}
   <div class="container">
