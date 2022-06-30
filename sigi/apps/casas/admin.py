@@ -324,8 +324,9 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
             _("Outras informações"),
             {
                 "fields": (
-                    "observacoes",
+                    "telefone_geral",
                     "horario_funcionamento",
+                    "observacoes",
                     "foto",
                     "brasao",
                 ),

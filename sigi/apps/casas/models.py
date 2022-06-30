@@ -100,6 +100,13 @@ class Orgao(models.Model):
     ult_alt_endereco = models.DateTimeField(
         _("última alteração do endereço"), null=True, blank=True, editable=True
     )
+    telefone_geral = models.CharField(
+        _("telefone geral"),
+        max_length=64,
+        blank=True,
+        default="",
+        help_text=_("Exemplo: <em>(31)8851-9898</em>."),
+    )
     telefones = GenericRelation("contatos.Telefone")
     foto = models.ImageField(
         _("foto"),
@@ -153,10 +160,12 @@ class Orgao(models.Model):
 
     @property
     def telefone(self):
-        telefones = self.telefones.all()
-        if telefones:
-            return telefones[0]
-        return None
+        if self.telefone_geral:
+            return self.telefone_geral
+        telefone = self.telefones.first()
+        if telefone:
+            return telefone.numero
+        return ""
 
     @property
     def presidente(self):

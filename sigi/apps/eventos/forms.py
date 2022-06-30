@@ -61,7 +61,15 @@ class ConviteForm(forms.ModelForm):
 class CasaForm(forms.ModelForm):
     class Meta:
         model = Orgao
-        fields = ["cnpj", "logradouro", "bairro", "cep", "email", "brasao"]
+        fields = [
+            "cnpj",
+            "logradouro",
+            "bairro",
+            "cep",
+            "telefone_geral",
+            "email",
+            "brasao",
+        ]
 
 
 class FuncionarioForm(forms.ModelForm):
