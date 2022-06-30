@@ -177,7 +177,6 @@ class Job(MinutelyJob):
             for row in reader:
                 total += 1
                 if (total % 1000) == 0:
-                    print(total)
                 if not (
                     row["CD_CARGO"] in cargos
                     and row["CD_SIT_TOT_TURNO"] in cod_situacao
@@ -316,7 +315,6 @@ class Job(MinutelyJob):
                 return result
 
             sequenciais = {n[3:14]: n for n in zip_file.namelist()}
-            print(f"Importar {len(sequenciais)} fotos")
             parlamentares = Parlamentar.objects.filter(
                 sequencial_tse__in=sequenciais.keys()
             )
@@ -324,7 +322,6 @@ class Job(MinutelyJob):
             total = len(zip_file.namelist())
             imported = parlamentares.count()
             skiped = total - imported
-            print(f"{imported} parlamentares encontrados")
 
             if imported <= 0:
                 result["erros"].append(
