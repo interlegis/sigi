@@ -176,7 +176,6 @@ class Job(MinutelyJob):
 
             for row in reader:
                 total += 1
-                if (total % 1000) == 0:
                 if not (
                     row["CD_CARGO"] in cargos
                     and row["CD_SIT_TOT_TURNO"] in cod_situacao
