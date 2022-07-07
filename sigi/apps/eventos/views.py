@@ -10,7 +10,6 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
-from django.template.exceptions import TemplateSyntaxError
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import (
@@ -22,7 +21,6 @@ from django.utils.translation import (
 from django.urls import reverse
 from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
-from docx import Document
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.convenios.models import Projeto
@@ -208,23 +206,6 @@ def evento(request, id):
 
 
 def convida_casa(request, evento_id, casa_id):
-    def processa_paragrafos(paragrafos, context):
-        for paragrafo in paragrafos:
-            run_final = None
-            for run in paragrafo.runs:
-                if run_final is None:
-                    run_final = run
-                else:
-                    run_final.text += run.text
-                    run.text = ""
-                if run_final.text.count("{{") != run_final.text.count("}}"):
-                    continue
-                try:
-                    run_final.text = Template(run_final.text).render(context)
-                    run_final = None
-                except TemplateSyntaxError:
-                    pass
-
     if not request.user.servidor:
         messages.error(
             request, _("Você não é servidor, não pode registrar convites")
@@ -294,52 +275,39 @@ def convida_casa(request, evento_id, casa_id):
                 query_str = ""
                 projeto = get_object_or_404(Projeto, id=proj_id)
                 if projeto.texto_oficio:
-                    oficio = gerar_anexo(
+                    oficio = Anexo(
+                        evento=evento,
+                        descricao=f"Ofício de solicitação de {projeto.sigla}",
+                    )
+                    sigla_casa = casa.sigla or "".join(
+                        [
+                            w[0].upper()
+                            for w in casa.nome.replace("de", "").split()
+                        ]
+                    )
+                    oficio.arquivo.name = (
+                        f"{Anexo.arquivo.field.upload_to}/"
+                        f"oficio_{projeto.sigla}_{sigla_casa}.pdf"
+                    )
+                    projeto.gerar_oficio(
+                        oficio.arquivo,
                         casa,
                         presidente,
                         contato,
-                        path=request.build_absolute_uri("/"),
-                        nome=f"Ofício de solicitação de {projeto.sigla}",
-                        modelo="oficio_padrao.html",
-                        texto=projeto.texto_oficio,
+                        request.build_absolute_uri("/"),
                     )
-                    oficio.evento = evento
                     oficio.save()
                     query_str += f"anexo_id={oficio.id}&"
                 if projeto.modelo_minuta:
-                    doc = Document(projeto.modelo_minuta.path)
-                    if casa.tipo.sigla == "CM":
-                        ente = (
-                            f"Município de {casa.municipio.nome}, "
-                            f"{casa.municipio.uf.sigla}"
-                        )
-                    else:
-                        ente = f"Estado de {casa.municipio.uf.nome}"
-                    doc_context = Context(
-                        {
-                            "evento": evento,
-                            "casa": casa,
-                            "presidente": presidente,
-                            "contato": contato,
-                            "data": timezone.localdate(),
-                            "ente": ente,
-                            "doravante": casa.tipo.nome.split(" ")[0],
-                        }
-                    )
-                    processa_paragrafos(doc.paragraphs, doc_context)
-                    for table in doc.tables:
-                        for row in table.rows:
-                            for cell in row.cells:
-                                processa_paragrafos(
-                                    cell.paragraphs,
-                                    doc_context,
-                                )
                     nome = f"Minuta de {projeto.sigla} da {casa.nome}"[:70]
                     minuta = Anexo(descricao=nome, evento=evento)
                     minuta.arquivo.name = (
-                        f"{Anexo.arquivo.field.upload_to}/{slugify(nome)}.docx"
+                        f"{Anexo.arquivo.field.upload_to}/"
+                        f"minuta_{projeto.sigla}_{sigla_casa}.docx"
                     )
-                    doc.save(minuta.arquivo.path)
+                    projeto.gerar_minuta(
+                        minuta.arquivo.path, casa, presidente, contato
+                    )
                     minuta.save()
                     query_str += f"anexo_id={minuta.id}"
 
@@ -391,39 +359,6 @@ def presidente_form(request, presidente_id):
             "presidente": presidente,
         },
     )
-
-
-def gerar_anexo(casa, presidente, contato, path, modelo, nome, texto):
-    template_string = (
-        f'{{% extends "eventos/{modelo}" %}}'
-        "{% load pdf %}"
-        f"{{% block text_body %}}{texto}{{% endblock %}}"
-    )
-    context = Context(
-        {
-            "evento": evento,
-            "casa": casa,
-            "presidente": presidente,
-            "contato": contato,
-            "data": timezone.localdate(),
-            "doravante": casa.tipo.nome.split(" ")[0],
-        }
-    )
-    string = Template(template_string).render(context)
-    pdf = HTML(
-        string=string,
-        url_fetcher=django_url_fetcher,
-        encoding="utf-8",
-        base_url=path,
-    )
-    nome = (nome + f" da {casa.nome}")[:70]
-    anexo = Anexo(descricao=nome)
-    anexo.arquivo.name = slugify(nome) + ".pdf"
-    f = anexo.arquivo.open("wb")
-    pdf.write_pdf(target=f)
-    f.flush()
-    f.close()
-    return anexo
 
 
 @login_required

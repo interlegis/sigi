@@ -57,6 +57,9 @@ class Servidor(models.Model):
         _("órgão de origem, "), max_length=100, blank=True
     )
     qualificacoes = models.TextField(_("qualificações"), blank=True)
+    sigi = models.BooleanField(
+        _("Servidor SIGI"), default=False, editable=False
+    )
 
     class Meta:
         ordering = ("nome_completo",)

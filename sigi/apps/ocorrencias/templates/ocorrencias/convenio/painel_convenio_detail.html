@@ -1,0 +1,245 @@
+{% extends "admin/base_block.html" %}
+{% load i18n model_fields %}
+
+{% block content %}
+  <div class="row">
+    <div class="col s12">
+      <form action="" method="post" name="ocorrencia">
+        {% csrf_token %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Resumo da ocorrência" %}</span>
+            <table>
+              <tbody>
+                {% for campo in campos_ocorrencia %}
+                <tr>
+                  <th>{{ ocorrencia|verbose_name:campo|capfirst }}</th>
+                  <td>{{ ocorrencia|field_value:campo|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            {{ ocorrencia_form }}
+          </div>
+          <div class="card-action">
+            <button class="btn waves-effect waves-light" type="submit" name="salva_ocorrencia">
+              {% trans "Salvar" %}
+              <i class="material-icons left">save</i>
+            </button>
+            <a class="btn waves-effect waves-light white-text" href="{% url 'painel-convenio' %}">{% trans "Voltar ao painel" %}</a>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  {% if infos.aplicados %}
+    {% if 'casa_legislativa' in infos.aplicados and 'presidente' in infos.aplicados and 'contato' in infos.aplicados %}
+      <p class=""> {% trans "Todas as alterações foram aplicadas" %}</p>
+    {% else %}
+      <ul>
+        {% if 'casa_legislativa' in infos.aplicados %}
+          <li>As alterações nos dados da Casa Legislativa foram aplicadas</li>
+        {% endif %}
+        {% if 'presidente' in infos.aplicados %}
+          <li>As alterações nos dados do Presidente foram aplicadas</li>
+        {% endif %}
+        {% if 'contato' in infos.aplicados %}
+          <li>As alterações nos dados do Contato Interlegis foram aplicadas</li>
+        {% endif %}
+      </ul>
+    {% endif %}
+  {% endif %}
+
+  {% if 'casa_legislativa' not in infos.aplicados %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Casa legislativa" %}</span>
+            <table class="striped">
+              <thead>
+                <tr>
+                  <th>{% trans "Campo" %}</th>
+                  <th>{% trans "Valor original" %}</th>
+                  <th>{% trans "Valor alterado" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key, value in infos.casa_legislativa.items %}
+                <tr>
+                  <th>{{ casa|verbose_name:key|capfirst }}</th>
+                  <td>{{ casa|field_value:key|default:"-" }}</td>
+                  <td>{{ value|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+                <tr>
+                  <th>Foto</th>
+                  <td>{% if casa.foto %}<img src="{{ casa.foto.url }}" width=120 height=120/>{% else %}{% trans "Sem imagem" %}{% endif %}</td>
+                  <td>{% if ocorrencia.casa_foto %}<img src="{{ ocorrencia.casa_foto.url }}" width=120 height=120/>{% else %}{% trans "Sem alteração" %}{% endif %}
+                </tr>
+                <tr>
+                  <th>Brasão</th>
+                  <td>{% if casa.brasao %}<img src="{{ casa.brasao.url }}" width=120 height=120/>{% else %}{% trans "Sem imagem" %}{% endif %}</td>
+                  <td>{% if ocorrencia.casa_brasao %}<img src="{{ ocorrencia.casa_brasao.url }}" width=120 height=120/>{% else %}{% trans "Sem alteração" %}{% endif %}
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card-action">
+            <a class="btn waves-effect waves-light white-text" href="?apply=casa">{% trans "Aplicar mudanças na Casa Legislativa" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if 'presidente' not in infos.aplicados %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Presidente" %}</span>
+            {% if casa.presidente %}
+              <p>{% trans "Presidente anterior" %}: {{ casa.presidente.nome_completo }}</p>
+            {% else %}
+              <p>{% trans "A Casa não tinha Presidente definido anteriormente" %}</p>
+            {% endif %}
+            <p>{% trans "Presidente selecionado" %}: {{ novo_presidente.nome_completo }}</p>
+            <table class="striped">
+              <thead>
+                <tr>
+                  <th>{% trans "Campo" %}</th>
+                  <th>{% trans "Valor original" %}</th>
+                  <th>{% trans "Valor alterado" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key, value in infos.presidente.items %}
+                <tr>
+                  <th>{{ novo_presidente|verbose_name:key|capfirst }}</th>
+                  <td>{{ novo_presidente|field_value:key|default:"-" }}</td>
+                  <td>{{ value|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-action">
+            <a class="btn waves-effect waves-light white-text" href="?apply=presidente">{% trans "Aplicar mudanças no Parlamentar" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if 'contato' not in infos.aplicados %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Contato Interlegis" %}</span>
+            <table class="striped">
+              <thead>
+                <tr>
+                  <th>{% trans "Campo" %}</th>
+                  <th>{% trans "Valor original" %}</th>
+                  <th>{% trans "Valor alterado" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for key, value in infos.contato.items %}
+                <tr>
+                  <th>{{ contato|verbose_name:key|capfirst }}</th>
+                  <td>{{ contato|field_value:key|default:"-" }}</td>
+                  <td>{{ value|default:"-" }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+          <div class="card-action">
+            <a class="btn waves-effect waves-light white-text" href="?apply=contato">{% trans "Aplicar mudanças no Contato Interlegis" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{% trans "Anexos (documentos)" %}</span>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>{% trans "Data de inclusão" %}</th>
+                <th>{% trans "Descrição" %}</th>
+                <th>{% trans "Arquivo" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for anexo in ocorrencia.anexo_set.all %}
+              <tr>
+                <th>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</th>
+                <td>{{ anexo.descricao|default:"-" }}</td>
+                <td><a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a></td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{% trans "Comentários" %}</span>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>{% trans "Data" %}</th>
+                <th>{% trans "Descrição" %}</th>
+                <th>{% trans "Servidor" %}</th>
+                <th>{% trans "Novo status" %}</th>
+                <th>{% trans "Visibilidade" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for comentario in ocorrencia.comentarios.all %}
+              <tr>
+                <th>{{ comentario.data_criacao|date:"SHORT_DATETIME_FORMAT" }}</th>
+                <td>{{ comentario.descricao|default:"-" }}</td>
+                <td>{{ comentario.usuario.nome_completo|default:"-" }}</td>
+                <td>{{ comentario.get_novo_status_display|default:"-" }}</td>
+                <td>
+                  {% if comentario.interno %}
+                    <i class="material-icons green-text">visibility_off</i> Interno
+                  {% else %}
+                    <i class="material-icons red-text">visibility</i> Público
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        <div class="card-action">
+          <form action="" method="post" name="comentario">
+            {% csrf_token %}
+            {{ comentario_form }}
+            <button class="btn waves-effect waves-light" type="submit" name="salva_comentario">
+              {% trans "Comentar" %}
+              <i class="material-icons left">comment</i>
+            </button>
+      </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+{% endblock %}

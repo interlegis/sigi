@@ -175,6 +175,15 @@ class Orgao(models.Model):
     def contato_interlegis(self):
         return self.funcionario_set.filter(setor="contato_interlegis").first()
 
+    def get_sigla(self):
+        return self.sigla or "".join(
+            [
+                w[0]
+                for w in self.nome.split()
+                if w.lower() not in ["da", "de", "do"]
+            ]
+        )
+
     def __str__(self):
         return self.nome
 

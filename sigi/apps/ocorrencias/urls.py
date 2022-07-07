@@ -1,8 +1,13 @@
 from django.urls import path
-from sigi.apps.ocorrencias.views import painel_ocorrencias
+from sigi.apps.ocorrencias import views
 
 urlpatterns = [
-    path("painel/", painel_ocorrencias, name="painel-ocorrencias"),
+    path("convenio/", views.seleciona_casa, name="ocorrencias-seleciona-casa"),
+    path(
+        "ocorrencia/<int:ocorrencia_id>",
+        views.ocorrencia,
+        name="ocorrencias_ocorrencia",
+    ),
 ]
 
 

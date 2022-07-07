@@ -4,11 +4,16 @@ from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
+from django.template import Template, Context
+from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.translation import gettext as _
+from django_weasyprint.utils import django_url_fetcher
+from docx import Document
 from tinymce.models import HTMLField
+from weasyprint import HTML
 from sigi.apps.contatos.models import Municipio, UnidadeFederativa
 from sigi.apps.eventos.models import Evento
 from sigi.apps.parlamentares.models import Parlamentar
@@ -22,7 +27,6 @@ class Projeto(models.Model):
     OFICIO_HELP = editor_help(
         "texto_oficio",
         [
-            ("evento", Evento),
             ("casa", Orgao),
             ("presidente", Parlamentar),
             ("contato", Funcionario),
@@ -35,7 +39,6 @@ class Projeto(models.Model):
     MINUTA_HELP = editor_help(
         "modelo_minuta",
         [
-            ("evento", Evento),
             ("casa", Orgao),
             ("presidente", Parlamentar),
             ("contato", Funcionario),
@@ -70,6 +73,84 @@ class Projeto(models.Model):
 
     class Meta:
         ordering = ("nome",)
+
+    def gerar_oficio(self, file_object, casa, presidente, contato, path):
+        texto = self.texto_oficio
+        template_string = (
+            '{% extends "convenios/oficio_padrao.html" %}'
+            "{% load pdf %}"
+            f"{{% block text_body %}}{texto}{{% endblock %}}"
+        )
+        context = Context(
+            {
+                "casa": casa,
+                "presidente": presidente,
+                "contato": contato,
+                "data": timezone.localdate(),
+                "doravante": casa.tipo.nome.split(" ")[0],
+            }
+        )
+        string = Template(template_string).render(context)
+        pdf = HTML(
+            string=string,
+            url_fetcher=django_url_fetcher,
+            encoding="utf-8",
+            base_url=path,
+        )
+        if file_object.closed:
+            file_object.open(mode="wb")
+        pdf.write_pdf(target=file_object)
+        file_object.flush()
+
+    def gerar_minuta(self, file_path, casa, presidente, contato):
+        doc = Document(self.modelo_minuta.path)
+
+        if casa.tipo.sigla == "CM":
+            ente = (
+                f"Município de {casa.municipio.nome}, "
+                f"{casa.municipio.uf.sigla}"
+            )
+        else:
+            ente = f"Estado de {casa.municipio.uf.nome}"
+
+        doc_context = Context(
+            {
+                "casa": casa,
+                "presidente": presidente,
+                "contato": contato,
+                "data": timezone.localdate(),
+                "ente": ente,
+                "doravante": casa.tipo.nome.split(" ")[0],
+            }
+        )
+
+        self.processa_paragrafos(doc.paragraphs, doc_context)
+        for table in doc.tables:
+            for row in table.rows:
+                for cell in row.cells:
+                    self.processa_paragrafos(
+                        cell.paragraphs,
+                        doc_context,
+                    )
+
+        doc.save(file_path)
+
+    def processa_paragrafos(self, paragrafos, context):
+        for paragrafo in paragrafos:
+            run_final = None
+            for run in paragrafo.runs:
+                if run_final is None:
+                    run_final = run
+                else:
+                    run_final.text += run.text
+                    run.text = ""
+                if run_final.text.count("{{") != run_final.text.count("}}"):
+                    continue
+                try:
+                    run_final.text = Template(run_final.text).render(context)
+                    run_final = None
+                except TemplateSyntaxError:
+                    pass
 
 
 class StatusConvenio(models.Model):

@@ -63,6 +63,8 @@ main_menu:
       - title: Registro de ocorrências
         view_name: admin:ocorrencias_ocorrencia_changelist
         querystr: minhas=S&status__in=1,2
+      - title: Solicitações de convênio
+        view_name: painel-convenio
   - title: Eventos
     icon: school
     children:

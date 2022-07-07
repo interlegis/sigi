@@ -1,0 +1,69 @@
+#content {
+    display: block;
+}
+
+#container.indent {
+    padding-left: unset;
+}
+
+.main-content {
+    margin-top: 24px;
+}
+
+.card .card-content p {
+    margin: 0 0 1em 0;
+}
+
+.search-result {
+    padding: 3em;
+}
+
+.search-result-item {
+    display: list-item;
+    list-style-type: none;
+    padding: 3px 3px 3px 20px;
+    font-weight: bold;
+}
+
+.tab-panel {
+    background-color: #fff;
+    height: 100%;
+}
+
+.tab-content {
+    padding: 10px 24px;
+    height: 100%;
+    overflow-y: auto;
+    scrollbar-width: thin;
+}
+
+.tab-content::-webkit-scrollbar {
+    width: 3px;
+    background-color: #fff;
+}
+
+.tab-content::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 2px #fff;
+    background-color: #fff;
+    border-radius: 10px;
+}
+
+.tab-content::-webkit-scrollbar-thumb {
+    border-radius: 10px;
+    -webkit-box-shadow: inset 0 0 2px var(--main-hover-color);
+    background-color: var(--main-hover-color);
+}
+
+span.title {
+    color: var(--main-bg-color);
+    border-color: var(--main-bg-color);
+    display: block;
+    line-height: 32px;
+    margin-bottom: 8px;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.dropdown-content.select-dropdown {
+    top: 0px !important;
+}

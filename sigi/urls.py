@@ -21,7 +21,8 @@ from django.conf.urls.static import static
 urlpatterns = [
     path("admin/casas/", include("sigi.apps.casas.urls")),
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
-    path("admin/ocorrencias/", include("sigi.apps.ocorrencias.urls")),
+    path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
+    path("ocorrencias/", include("sigi.apps.ocorrencias.urls")),
     path("eventos/", include("sigi.apps.eventos.urls")),
     path("parlamentares/", include("sigi.apps.parlamentares.urls")),
     path("admin/", admin.site.urls),

@@ -34,6 +34,7 @@
 {% block usertools %}
 <div id="user-tools">
   <a href="{% url 'admin:index' %}">{% trans "Entrar" %}</a>
+  <a href="{% url 'ocorrencias-seleciona-casa' %}">{% trans "Solicitar convênio" %}</a>
 </div>
 {% endblock %}
 
@@ -49,9 +50,23 @@
 {% endblock %}
 
 {% block content %}
-<div id="map">
-  <!-- open street map -->
-</div>
+  <div id="aviso" class="modal">
+    <div class="modal-content">
+      <h5>{% trans "Solicite seu ACT ao Interlegis!" %}</h5>
+      <p>{% trans "Para utilizar os produtos e serviços do Interlgis / Senado Federal, é necessário formalizar um Acordo de Cooperação Técnica - ACT" %}</p>
+      <p>{% trans "O ACT é o instrumento público que permite que as Casas Legislativas utilizem, sem nenhum custo, os produtos e serviços do Programa Interlegis / Senado Federal, como o domínio .LEG.br, Portal Modelo, Sistema de Automação do Processo Legislativo (SAPL), e-mail legislativo e e-Democracia." %}</p>
+      <p>{% trans "Agora ficou muito mais fácil solicitar o ACT! Basta clicar no link 'Solicitar convênio', preencher os formulários e aguardar a conclusão do Processo Administrativo." %}</p>
+      <p>{% trans "Junte-se à maior comunidade brasileira do legislativo, modernize sua Casa e propicie que o cidadão acompanhe e participe das atividades polícitas de sua Câmara!" %}</p>
+    </div>
+    <div class="modal-footer">
+      <a href="{% url 'ocorrencias-seleciona-casa' %}" class="modal-close waves-effect btn-flat">{% trans "Quero conveniar minha Casa!" %}</a>
+      <a href="#!" class="modal-close waves-effect btn-flat right">{% trans "Close" %}</a>
+    </div>
+  </div>
+
+  <div id="map">
+    <!-- open street map -->
+  </div>
 {% endblock %}
 
 {% block sidebar %}{% endblock %}
@@ -65,6 +80,10 @@
   var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
   var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
   $(document).ready(function () {
+    var aviso = M.Modal.init($('#aviso'));
+    aviso[0].open();
+
+
     $("input[type=checkbox]").change(filtra);
 
     mymap = L.map('map', { zoomSnap: 0.01 }).setView(map_center, 4.5);

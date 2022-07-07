@@ -3,8 +3,9 @@ from sigi.apps.parlamentares import views
 
 urlpatterns = [
     path(
-        "parlamentar_json/<int:casa_id>/",
-        views.parlamentar_json,
+        "parlamentarjson/<int:casa_id>/",
+        views.parlamentares_casa,
         name="parlamentar-json",
     ),
+    path("parlamentardata/", views.parlamentar_data, name="parlamentar-data"),
 ]

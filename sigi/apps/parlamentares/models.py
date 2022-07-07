@@ -92,8 +92,6 @@ class Parlamentar(models.Model):
         verbose_name_plural = _("parlamentares")
 
     def __str__(self):
-        if self.nome_parlamentar:
-            return self.nome_parlamentar
         return self.nome_completo
 
     def save(self, *args, **kwargs):

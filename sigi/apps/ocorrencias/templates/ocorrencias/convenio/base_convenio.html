@@ -1,0 +1,48 @@
+{% extends "admin/index.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'ocorrencias/css/ocorrencia.css' %}" type="text/css" />
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
+<meta name="robots" content="NONE,NOARCHIVE" />
+<script type="text/javascript">
+  //<![CDATA[
+  window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin / " %}{% endfilter %}";
+    //]]>
+</script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"
+  integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script>
+<script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
+{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+  <a href="/">{% trans "Início" %}</a>
+  <a href="{% url 'admin:index' %}">{% trans "Entrar" %}</a>
+</div>
+{% endblock %}
+
+{% block side_nav %}
+{% endblock %}
+
+{% block content %}
+<div id="content">
+  <!-- content_page -->
+</div>
+{% endblock %}
+
+{% block sidebar %}{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+<script type="text/javascript" src="{% static 'js/search.js' %}"></script>
+{% endblock %}

@@ -1,21 +1,39 @@
-# -*- coding: utf-8 -*-
-from django.http import JsonResponse, Http404
+import copy
 from django.db.models import Q, Count
-from django.utils.translation import ngettext, gettext as _
-from django.shortcuts import get_object_or_404, render, HttpResponse
+from django.contrib import messages
+from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
+from django.http import JsonResponse, Http404
+from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
 from django.template.loader import render_to_string
 from django.template import RequestContext
+from django.urls import reverse
+from django.utils import timezone
+from django.utils.translation import ngettext, gettext as _
+from django.views.decorators.http import require_POST
+from sigi.apps import ocorrencias
+from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import to_ascii
-from sigi.apps.casas.models import Orgao
+from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.servidores.models import Servidor, Servico
-from sigi.apps.ocorrencias.models import Ocorrencia, Anexo
+from sigi.apps.ocorrencias.models import (
+    Categoria,
+    Comentario,
+    Ocorrencia,
+    Anexo,
+    TipoContato,
+)
 from sigi.apps.ocorrencias.forms import (
     AnexoForm,
     ComentarioForm,
+    ComentarioInternoForm,
+    ContatoForm,
+    DocumentoForm,
+    OcorrenciaChangeForm,
     OcorrenciaForm,
+    CasaForm,
+    PresidenteForm,
 )
 from django.utils.html import escape
 
@@ -327,3 +345,351 @@ def inclui_ocorrencia(request):
     )
 
     return JsonResponse(data)
+
+
+def seleciona_casa(request):
+    context = site.each_context(request) or {}
+    casa_id = request.GET.get("casa_id", None)
+
+    if casa_id:
+        casa = get_object_or_404(Orgao, pk=casa_id)
+        categoria = get_object_or_404(Categoria, tipo="C")
+        tipo_contato = get_object_or_404(TipoContato, ind_site=True)
+
+        if request.user.is_anonymous or not (
+            request.user.is_staff and request.user.servidor is not None
+        ):
+            servidor = get_object_or_404(Servidor, sigi=True)
+        else:
+            servidor = request.user.servidor
+
+        if casa.convenio_set.filter(projeto__sigla="ACT").exists():
+            # TODO: Fluxo para Casa já conveniada
+            messages.info(request, "Já conveniada")
+            return redirect("/")
+        ocorrencia = casa.ocorrencia_set.filter(
+            categoria=categoria,
+            status__in=[Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO],
+        ).first()
+        if not ocorrencia:
+            ocorrencia = Ocorrencia(
+                casa_legislativa=casa,
+                categoria=categoria,
+                tipo_contato=tipo_contato,
+                assunto=_("Solicitação de Adesão ao Programa Interlegis"),
+                descricao=_(
+                    f"A {casa.nome} solicita adesão ao Programa Interlegis"
+                ),
+                servidor_registro=servidor,
+            )
+            ocorrencia.save()
+        return redirect(reverse("ocorrencias_ocorrencia", args=[ocorrencia.id]))
+
+    return render(request, "ocorrencias/convenio/seleciona_casa.html", context)
+
+
+def bound_copy(instance, bound_data, removes=None):
+    data = bound_data.copy()
+    if removes:
+        for remove_key in removes:
+            data.pop(remove_key)
+    for key, value in data.items():
+        setattr(instance, key, value)
+
+
+def ocorrencia(request, ocorrencia_id):
+    ANEXO_DESCRICAO = _("Solicitação de convenio assinada")
+
+    def set_instances():
+        casa.foto = ocorrencia.casa_foto if ocorrencia.casa_foto else casa.foto
+        casa.brasao = (
+            ocorrencia.casa_brasao if ocorrencia.casa_brasao else casa.brasao
+        )
+        if "casa_legislativa" in infos:
+            bound_copy(casa, infos["casa_legislativa"])
+        if "presidente" in infos:
+            bound_copy(presidente, infos["presidente"], ["id"])
+        if "contato" in infos:
+            bound_copy(contato, infos["contato"])
+
+    ocorrencia = get_object_or_404(Ocorrencia, pk=ocorrencia_id)
+    infos = ocorrencia.infos or {}
+    casa = ocorrencia.casa_legislativa
+    presidente = casa.presidente or (
+        Parlamentar.objects.get(id=infos["presidente"]["id"])
+        if "presidente" in infos
+        else Parlamentar(casa_legislativa=casa)
+    )
+    contato = casa.contato_interlegis or Funcionario(
+        casa_legislativa=casa, setor="contato_interlegis"
+    )
+    documento = (
+        ocorrencia.anexo_set.get(id=infos["documento"]["id"])
+        if "documento" in infos
+        else Anexo(ocorrencia=ocorrencia, descricao=ANEXO_DESCRICAO)
+    )
+
+    set_instances()
+
+    contato_form = ContatoForm(instance=contato, prefix="contato")
+    documento_form = DocumentoForm(instance=documento)
+
+    if request.method == "POST":
+        if "salva_casa" in request.POST:
+            casa_form = CasaForm(
+                request.POST, request.FILES, instance=casa, prefix="casa"
+            )
+            if casa_form.is_valid():
+                cleaned = casa_form.cleaned_data.copy()
+                foto = cleaned.pop("foto")
+                brasao = cleaned.pop("brasao")
+                if "foto" in casa_form.changed_data:
+                    if foto == False:
+                        if ocorrencia.casa_foto:
+                            ocorrencia.casa_foto.delete(save=True)
+                    else:
+                        ocorrencia.casa_foto = foto
+                if "brasao" in casa_form.changed_data:
+                    if brasao == False:
+                        if ocorrencia.casa_brasao:
+                            ocorrencia.casa_brasao.delete(save=True)
+                    else:
+                        ocorrencia.casa_brasao = brasao
+
+                infos["casa_legislativa"] = cleaned
+                ocorrencia.infos = infos
+                ocorrencia.save()
+            else:
+                messages.error(
+                    request,
+                    _("Corrija os erros no cadastro da Casa Legislativa"),
+                )
+        elif "salva_presidente" in request.POST:
+            presidente_form = PresidenteForm(
+                request.POST, instance=presidente, prefix="presidente"
+            )
+            if presidente_form.is_valid():
+                cleaned = presidente_form.cleaned_data.copy()
+                presidente = cleaned.pop("parlamentar")
+                cleaned["id"] = presidente.id
+                infos["presidente"] = cleaned
+                ocorrencia.infos = infos
+                ocorrencia.save()
+        elif "salva_contato" in request.POST:
+            contato_form = ContatoForm(
+                request.POST, instance=contato, prefix="contato"
+            )
+            if contato_form.is_valid():
+                infos["contato"] = contato_form.cleaned_data.copy()
+                ocorrencia.infos = infos
+                ocorrencia.save()
+        elif "salva_documento" in request.POST:
+            documento_form = DocumentoForm(
+                request.POST, request.FILES, instance=documento
+            )
+            if documento_form.is_valid():
+                documento = documento_form.save()
+                infos["documento"] = {"id": documento.id}
+                ocorrencia.infos = infos
+                ocorrencia.save()
+        elif "salva_comentario" in request.POST:
+            comentario_form = ComentarioForm(request.POST)
+            if comentario_form.is_valid():
+                comentario = comentario_form.save(commit=False)
+                comentario.ocorrencia = ocorrencia
+                comentario.usuario = ocorrencia.servidor_registro
+                if ocorrencia.status not in [
+                    ocorrencia.STATUS_ABERTO,
+                    ocorrencia.STATUS_REABERTO,
+                ]:
+                    comentario.novo_status = ocorrencia.STATUS_REABERTO
+                comentario.save()
+
+        set_instances()
+
+        if {"casa_legislativa", "presidente", "contato"}.issubset(
+            infos
+        ) and "documento" not in infos:
+            ocorrencia.anexo_set.all().delete()
+            documento = Anexo(ocorrencia=ocorrencia, descricao=ANEXO_DESCRICAO)
+            documento_form = DocumentoForm(instance=documento)
+            projeto = ocorrencia.categoria.projeto
+            oficio = Anexo(
+                ocorrencia=ocorrencia,
+                descricao=f"Solicitação de {projeto.sigla}",
+            )
+            oficio.arquivo.name = (
+                f"{Anexo.arquivo.field.upload_to}/"
+                f"solicitacao_{projeto.sigla}_{casa.get_sigla()}.pdf"
+            )
+            projeto.gerar_oficio(
+                oficio.arquivo,
+                casa,
+                presidente,
+                contato,
+                request.build_absolute_uri("/"),
+            )
+            oficio.save()
+            minuta = Anexo(
+                ocorrencia=ocorrencia, descricao=f"Minuta de {projeto.sigla}"
+            )
+            minuta.arquivo.name = (
+                f"{Anexo.arquivo.field.upload_to}/"
+                f"minuta_{projeto.sigla}_{casa.get_sigla()}.docx"
+            )
+            projeto.gerar_minuta(minuta.arquivo.path, casa, presidente, contato)
+            minuta.save()
+
+    if presidente.id:
+        bounds = {
+            f"presidente-{key}": value
+            for key, value in infos["presidente"].items()
+            if key != "id"
+        }
+        bounds["presidente-parlamentar"] = presidente
+        presidente_form = PresidenteForm(
+            bounds, instance=presidente, prefix="presidente"
+        )
+    else:
+        presidente_form = PresidenteForm(
+            instance=presidente, prefix="presidente"
+        )
+
+    context = site.each_context(request) or {}
+    context.update(
+        {
+            "ocorrencia": ocorrencia,
+            "casa_form": CasaForm(instance=casa, prefix="casa"),
+            "presidente_form": presidente_form,
+            "contato_form": contato_form,
+            "documento_form": documento_form,
+            "comentario_form": ComentarioForm(),
+            "infos": infos,
+        }
+    )
+    return render(request, "ocorrencias/convenio/ocorrencia.html", context)
+
+
+@login_required
+def painel_convenio(request, ocorrencia_id=None):
+    context = site.each_context(request) or {}
+
+    if ocorrencia_id:
+        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+
+        if request.method == "POST":
+            if "salva_ocorrencia" in request.POST:
+                ocorrencia_form = OcorrenciaChangeForm(
+                    request.POST, instance=ocorrencia
+                )
+                if ocorrencia_form.is_valid():
+                    ocorrencia = ocorrencia_form.save()
+                    if "processo_sigad" in ocorrencia_form.changed_data:
+                        Comentario(
+                            ocorrencia=ocorrencia,
+                            descricao=_(
+                                f"criado processo administrativo nº {ocorrencia.processo_sigad}"
+                            ),
+                            usuario=request.user.servidor,
+                        ).save()
+
+            if "salva_comentario" in request.POST:
+                comentario_form = ComentarioInternoForm(request.POST)
+                if comentario_form.is_valid():
+                    comentario = comentario_form.save(commit=False)
+                    comentario.ocorrencia = ocorrencia
+                    comentario.usuario = request.user.servidor
+                    comentario.save()
+
+        casa = ocorrencia.casa_legislativa
+        novo_presidente = (
+            get_object_or_404(
+                Parlamentar, id=ocorrencia.infos["presidente"]["id"]
+            )
+            if ocorrencia.infos["presidente"]
+            else None
+        )
+        contato = casa.contato_interlegis or Funcionario()
+
+        if not "aplicados" in ocorrencia.infos:
+            ocorrencia.infos["aplicados"] = []
+
+        apply = request.GET.get("apply", None)
+
+        if (
+            apply == "casa"
+            and "casa_legislativa" in ocorrencia.infos
+            and not "casa_legislativa" in ocorrencia.infos["aplicados"]
+        ):
+            casa.foto = (
+                ocorrencia.casa_foto if ocorrencia.casa_foto else casa.foto
+            )
+            casa.brasao = (
+                ocorrencia.casa_brasao
+                if ocorrencia.casa_brasao
+                else casa.brasao
+            )
+            bound_copy(casa, ocorrencia.infos["casa_legislativa"])
+            casa.save()
+            ocorrencia.infos["aplicados"].append("casa_legislativa")
+            ocorrencia.save()
+
+        if (
+            apply == "presidente"
+            and "presidente" in ocorrencia.infos
+            and "presidente" not in ocorrencia.infos["aplicados"]
+        ):
+            bound_copy(novo_presidente, ocorrencia.infos["presidente"], ["id"])
+            novo_presidente.save()
+            ocorrencia.infos["aplicados"].append("presidente")
+            ocorrencia.save()
+
+        if (
+            apply == "contato"
+            and "contato" in ocorrencia.infos
+            and "contato" not in ocorrencia.infos["aplicados"]
+        ):
+            bound_copy(contato, ocorrencia.infos["contato"])
+            contato.save()
+            ocorrencia.infos["aplicados"].append("contato")
+            ocorrencia.save()
+
+        infos = copy.deepcopy(ocorrencia.infos)
+
+        if infos["presidente"]:
+            del infos["presidente"]["id"]
+
+        context.update(
+            {
+                "ocorrencia": ocorrencia,
+                "campos_ocorrencia": [
+                    "assunto",
+                    "casa_legislativa",
+                    "categoria",
+                    "descricao",
+                    "data_criacao",
+                    "data_modificacao",
+                ],
+                "infos": infos,
+                "casa": casa,
+                "novo_presidente": novo_presidente,
+                "contato": contato,
+                "comentario_form": ComentarioInternoForm(),
+                "ocorrencia_form": OcorrenciaChangeForm(instance=ocorrencia),
+            }
+        )
+
+        return render(
+            request, "ocorrencias/convenio/painel_convenio_detail.html", context
+        )
+
+    base_query = Ocorrencia.objects.filter(
+        status__in=[Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO],
+        categoria__tipo="C",
+    )
+    ocorrencias = base_query.filter(infos__has_any_keys=Ocorrencia.INFO_KEYS)
+    ocorrencias = ocorrencias.union(
+        base_query.exclude(infos__has_any_keys=Ocorrencia.INFO_KEYS)
+    )
+    context["ocorrencias"] = ocorrencias
+    return render(request, "ocorrencias/convenio/painel_convenio.html", context)

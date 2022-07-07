@@ -1,14 +1,18 @@
 from django import forms
-from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
-from sigi.apps.servidores.models import Servico
-from django.utils.encoding import force_str
-from django.utils.html import format_html
+from django.contrib import admin
+from django.contrib.admin.widgets import AutocompleteSelect
+from django.core.validators import FileExtensionValidator
 from django.forms.utils import flatatt
 from django.urls import reverse_lazy
+from django.utils.encoding import force_str
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
+from django.utils.translation import ngettext, gettext as _
 from material.admin.widgets import MaterialAdminTextareaWidget
-from django.contrib.admin.widgets import AutocompleteSelect
-from django.contrib import admin
+from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
+from sigi.apps.servidores.models import Servico
+from sigi.apps.parlamentares.models import Parlamentar
 
 
 class AjaxSelect(forms.TextInput):
@@ -96,3 +100,98 @@ class OcorrenciaForm(forms.ModelForm):
         #         attrs={'size':100}
         #     ),
         # }
+
+
+class OcorrenciaChangeForm(forms.ModelForm):
+    class Meta:
+        model = Ocorrencia
+        fields = ["prioridade", "processo_sigad"]
+
+
+class CasaForm(forms.ModelForm):
+    class Meta:
+        model = Orgao
+        fields = [
+            "cnpj",
+            "data_instalacao",
+            "horario_funcionamento",
+            "logradouro",
+            "bairro",
+            "cep",
+            "telefone_geral",
+            "email",
+            "pagina_web",
+            "foto",
+            "brasao",
+        ]
+
+
+class PresidenteForm(forms.ModelForm):
+    parlamentar = forms.ModelChoiceField(queryset=Parlamentar.objects.none())
+
+    class Meta:
+        model = Parlamentar
+        fields = [
+            "parlamentar",
+            "data_nascimento",
+            "cpf",
+            "identidade",
+            "telefones",
+            "email",
+            "redes_sociais",
+        ]
+        widgets = {
+            "redes_sociais": MaterialAdminTextareaWidget,
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields[
+            "parlamentar"
+        ].queryset = self.instance.casa_legislativa.parlamentar_set.all()
+
+
+class ContatoForm(forms.ModelForm):
+    class Meta:
+        model = Funcionario
+        fields = [
+            "nome",
+            "sexo",
+            "cpf",
+            "identidade",
+            "nota",
+            "email",
+            "redes_sociais",
+        ]
+        widgets = {
+            "nota": MaterialAdminTextareaWidget,
+            "redes_sociais": MaterialAdminTextareaWidget,
+        }
+
+
+class DocumentoForm(forms.ModelForm):
+    arquivo = forms.FileField(
+        label=_("Solicitação assinada"),
+        help_text=_("Utilize o formato PDF apenas"),
+        validators=[
+            FileExtensionValidator(
+                ["pdf"], _("Somente arquivos em formato PDF"), "pdf_only"
+            )
+        ],
+    )
+
+    class Meta:
+        model = Anexo
+        fields = ["arquivo"]
+
+
+class ComentarioForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ["descricao"]
+
+
+class ComentarioInternoForm(forms.ModelForm):
+    class Meta:
+        model = Comentario
+        fields = ["descricao", "interno", "novo_status"]
