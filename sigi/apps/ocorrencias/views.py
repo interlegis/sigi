@@ -401,10 +401,10 @@ def ocorrencia(request, ocorrencia_id):
     ANEXO_DESCRICAO = _("Solicitação de convenio assinada")
 
     def set_instances():
-        casa.foto = ocorrencia.casa_foto if ocorrencia.casa_foto else casa.foto
-        casa.brasao = (
-            ocorrencia.casa_brasao if ocorrencia.casa_brasao else casa.brasao
-        )
+        if ocorrencia.casa_foto:
+            casa.foto = ocorrencia.casa_foto
+        if ocorrencia.casa_brasao:
+            casa.brasao = ocorrencia.casa_brasao
         if "casa_legislativa" in infos:
             bound_copy(casa, infos["casa_legislativa"])
         if "presidente" in infos:
@@ -621,14 +621,10 @@ def painel_convenio(request, ocorrencia_id=None):
             and "casa_legislativa" in ocorrencia.infos
             and not "casa_legislativa" in ocorrencia.infos["aplicados"]
         ):
-            casa.foto = (
-                ocorrencia.casa_foto if ocorrencia.casa_foto else casa.foto
-            )
-            casa.brasao = (
-                ocorrencia.casa_brasao
-                if ocorrencia.casa_brasao
-                else casa.brasao
-            )
+            if ocorrencia.casa_foto:
+                casa.foto = ocorrencia.casa_foto
+            if ocorrencia.casa_brasao:
+                casa.brasao = ocorrencia.casa_brasao
             bound_copy(casa, ocorrencia.infos["casa_legislativa"])
             casa.save()
             ocorrencia.infos["aplicados"].append("casa_legislativa")

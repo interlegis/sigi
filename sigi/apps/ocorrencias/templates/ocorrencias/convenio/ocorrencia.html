@@ -12,14 +12,14 @@
   <div class="row">
     <div class="col s12">
       <ul class="tabs">
-        {% if 'casa_legislativa' not in infos.aplicados %}<li class="tab col"><a href="#casa"{% if 'casa_legislativa' not in infos %} class="active"{% endif %}>{% trans "Casa legislativa" %}</a></li>{% endif %}
-        {% if 'presidente' not in infos.aplicados %}<li class="tab col"><a href="#presidente"{% if 'presidente' not in infos %} class="active"{% endif %}>{% trans "Presidente" %}</a></li>{% endif %}
-        {% if 'contato' not in infos.aplicados %}<li class="tab col"><a href="#contato"{% if 'contato' not in infos %} class="active"{% endif %}>{% trans "Contato Interlegis" %}</a></li>{% endif %}
+        {% if not 'aplicados' in infos or 'casa_legislativa' not in infos.aplicados %}<li class="tab col"><a href="#casa"{% if 'casa_legislativa' not in infos %} class="active"{% endif %}>{% trans "Casa legislativa" %}</a></li>{% endif %}
+        {% if not 'aplicados' in infos or 'presidente' not in infos.aplicados %}<li class="tab col"><a href="#presidente"{% if 'presidente' not in infos %} class="active"{% endif %}>{% trans "Presidente" %}</a></li>{% endif %}
+        {% if not 'aplicados' in infos or 'contato' not in infos.aplicados %}<li class="tab col"><a href="#contato"{% if 'contato' not in infos %} class="active"{% endif %}>{% trans "Contato Interlegis" %}</a></li>{% endif %}
         <li class="tab col"><a href="#documentos"{% if 'documento' not in infos %} class="active"{% endif %}>{% trans "Documentos" %}</a></li>
         <li class="tab col"><a href="#resumo"{% if 'documento' in infos %} class="active"{% endif %}>{% trans "Resumo" %}</a></li>
       </ul>
     </div>
-    {% if 'casa_legislativa' not in infos.aplicados %}
+    {% if not 'aplicados' in infos or 'casa_legislativa' not in infos.aplicados %}
       <div id="casa" class="col s12">
         <div class="tab-panel">
           <div class="tab-content">
@@ -44,7 +44,7 @@
         </div>
       </div>
     {% endif %}
-    {% if 'presidente' not in infos.aplicados %}
+    {% if not 'aplicados' in infos or 'presidente' not in infos.aplicados %}
       <div id="presidente" class="col s12">
         <div class="tab-panel">
           <div class="tab-content">
@@ -69,7 +69,7 @@
         </div>
       </div>
     {% endif %}
-    {% if 'contato' not in infos.aplicados %}
+    {% if not 'aplicados' in infos or 'contato' not in infos.aplicados %}
       <div id="contato" class="col s12 tabpanel">
         <div class="tab-panel">
           <div class="tab-content">

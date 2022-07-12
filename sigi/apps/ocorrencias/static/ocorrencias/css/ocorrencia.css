@@ -30,6 +30,10 @@
     height: 100%;
 }
 
+.tabs-content {
+    min-height: 400px !important;
+}
+
 .tab-content {
     padding: 10px 24px;
     height: 100%;
