@@ -70,6 +70,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "sigi.apps.utils.middleware.SigiAlertsMiddleware",
 ]
 
 if DEBUG:

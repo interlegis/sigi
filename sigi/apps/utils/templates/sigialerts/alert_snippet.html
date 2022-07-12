@@ -1,0 +1,90 @@
+{% load i18n %}
+<style>
+  .carrossel {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+  }
+  .carrossel .carrossel-item {
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+  }
+  .carrossel .carrossel-controls {
+      display: block;
+      text-align: center;
+  }
+
+  .carrossel .carrossel-controls .carrossel-control {
+    background-color: var(--body-quiet-color);
+    cursor: pointer;
+    height: 18px;
+    width: 18px;
+    margin: 0 6px;
+    padding: 2px;
+    border-radius: 50%;
+    display: inline-block;
+    font-size: 10px;
+    color: white;
+  }
+  .carrossel .carrossel-controls .carrossel-control.active {
+    background-color: var(--main-bg-color);
+    font-weight: 400;
+  }
+</style>
+<div class="fixed-action-btn left">
+  <a id="botao-info" class="btn-floating btn-medium modal-trigger green" href="#modal-info">
+    <i class="large material-icons">info</i>
+  </a>
+</div>
+<div id="discovery-info" class="tap-target" data-target="botao-info">
+  <div class="tap-target-content">
+    <h5>{% trans "Novidades!" %}</h5>
+    <p>
+      {% blocktranslate count counter=alertas.count|default:0 %}
+        Existe um aviso para você. Clique no botão para visualizar
+        {% plural %}
+        Existem {{ counter }} avisos para você. Clique no botão para visualizar
+      {% endblocktranslate %}
+    </p>
+  </div>
+</div>
+<div id="modal-info" class="modal">
+  <div class="modal-content">
+    <div class="carrossel">
+      {% for alerta in alertas %}
+      <div id="{{ alerta.titulo|slugify }}" class="carrossel-item">
+        <h5>{{ alerta.titulo }}</h5>
+        {{ alerta.mensagem|safe }}
+      </div>
+      {% endfor %}
+      {% if alertas.count > 1 %}
+      <div class="carrossel-controls">
+        {% for alerta in alertas %}
+        <div class="carrossel-control" title="{{ alerta.titulo }}" href="#{{ alerta.titulo|slugify }}">{{ forloop.counter }}</div>
+        {% endfor %}
+      </div>
+      {% endif %}
+  </div>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect btn-flat right">{% trans "Close" %}</a>
+  </div>
+</div>
+<script>
+  $(document).ready(function () {
+    M.Modal.init($("#modal-info"));
+    var discovery = M.TapTarget.init($("#discovery-info"));
+    discovery[0].open();
+    $(".carrossel-item").hide();
+    $(".carrossel-item").first().fadeIn();
+    $(".carrossel-control").first().addClass("active")
+    $(".carrossel-control").on("click", function() {
+      var $this = $(this);
+      $(".carrossel-control").removeClass("active");
+      $this.addClass("active");
+      $(".carrossel-item").hide();
+      $($this.attr("href")).fadeIn();
+    })
+  });
+</script>

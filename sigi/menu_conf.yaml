@@ -8,6 +8,8 @@ admin_menu:
         view_name: admin:auth_group_changelist
       - title: Importar Gescon
         view_name: importar-gescon
+      - title: Avisos do sistema
+        view_name: admin:utils_sigialert_changelist
 
 main_menu:
   - title: Municípios

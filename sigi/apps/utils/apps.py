@@ -4,4 +4,4 @@ from django.utils.translation import gettext_lazy as _
 
 class UtilsConfig(AppConfig):
     name = "sigi.apps.utils"
-    verbose_name = _("utiliátios SIGI")
+    verbose_name = _("utilitários SIGI")
