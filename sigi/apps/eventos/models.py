@@ -13,13 +13,20 @@ from tinymce.models import HTMLField
 
 
 class TipoEvento(models.Model):
+    CATEGORIA_CURSO = "C"
+    CATEGORIA_ENCONTRO = "E"
+    CATEGORIA_OFICINA = "O"
+    CATEGORIA_SEMINARIO = "S"
+    CATEGORIA_VISITA = "V"
+
     CATEGORIA_CHOICES = (
-        ("C", _("Curso")),
-        ("E", _("Encontro")),
-        ("O", _("Oficina")),
-        ("S", _("Seminário")),
-        ("V", _("Visita")),
+        (CATEGORIA_CURSO, _("Curso")),
+        (CATEGORIA_ENCONTRO, _("Encontro")),
+        (CATEGORIA_OFICINA, _("Oficina")),
+        (CATEGORIA_SEMINARIO, _("Seminário")),
+        (CATEGORIA_VISITA, _("Visita")),
     )
+
     nome = models.CharField(_("Nome"), max_length=100)
     categoria = models.CharField(
         _("Categoaria"), max_length=1, choices=CATEGORIA_CHOICES
@@ -36,15 +43,24 @@ class TipoEvento(models.Model):
 
 
 class Evento(models.Model):
+    STATUS_PLANEJAMENTO = "E"
+    STATUS_AGUARDANDOSIGAD = "G"
+    STATUS_PREVISAO = "P"
+    STATUS_ACONFIRMAR = "A"
+    STATUS_CONFIRMADO = "O"
+    STATUS_REALIZADO = "R"
+    STATUS_CANCELADO = "C"
+    STATUS_ARQUIVADO = "Q"
+
     STATUS_CHOICES = (
-        ("E", _("Em planejamento")),
-        ("G", _("Aguardando abertura SIGAD")),
-        ("P", _("Previsão")),
-        ("A", _("A confirmar")),
-        ("O", _("Confirmado")),
-        ("R", _("Realizado")),
-        ("C", _("Cancelado")),
-        ("Q", _("Arquivado")),
+        (STATUS_PLANEJAMENTO, _("Em planejamento")),
+        (STATUS_AGUARDANDOSIGAD, _("Aguardando abertura SIGAD")),
+        (STATUS_PREVISAO, _("Previsão")),
+        (STATUS_ACONFIRMAR, _("A confirmar")),
+        (STATUS_CONFIRMADO, _("Confirmado")),
+        (STATUS_REALIZADO, _("Realizado")),
+        (STATUS_CANCELADO, _("Cancelado")),
+        (STATUS_ARQUIVADO, _("Arquivado")),
     )
 
     tipo_evento = models.ForeignKey(
@@ -133,7 +149,7 @@ class Evento(models.Model):
         return self.num_processo
 
     def save(self, *args, **kwargs):
-        if self.status != "C":
+        if self.status != Evento.STATUS_CANCELADO:
             self.data_cancelamento = None
             self.motivo_cancelamento = ""
         if self.data_inicio > self.data_termino:
@@ -144,34 +160,40 @@ class Evento(models.Model):
         total = total["total"]
         if total and total > 0:
             self.total_participantes = total
-        if (
-            self.cronograma_set.count() == 0
-            and self.tipo_evento.checklist_set.count() > 0
-        ):
-            cronograma_list = []
-            for item in self.tipo_evento.checklist_set.all():
-                cronograma_list.append(
-                    Cronograma(
-                        evento=self,
-                        etapa=item.etapa,
-                        nome=item.nome,
-                        descricao=item.descricao,
-                        duracao=item.duracao,
-                        dependencia=item.dependencia,
-                        responsaveis=item.responsaveis,
-                        comunicar_inicio=item.comunicar_inicio,
-                        comunicar_termino=item.comunicar_termino,
-                        recursos=item.recursos,
+        if self.status in [
+            Evento.STATUS_PLANEJAMENTO,
+            Evento.STATUS_AGUARDANDOSIGAD,
+            Evento.STATUS_PREVISAO,
+            Evento.STATUS_ACONFIRMAR,
+        ]:
+            if (
+                self.cronograma_set.count() == 0
+                and self.tipo_evento.checklist_set.count() > 0
+            ):
+                cronograma_list = []
+                for item in self.tipo_evento.checklist_set.all():
+                    cronograma_list.append(
+                        Cronograma(
+                            evento=self,
+                            etapa=item.etapa,
+                            nome=item.nome,
+                            descricao=item.descricao,
+                            duracao=item.duracao,
+                            dependencia=item.dependencia,
+                            responsaveis=item.responsaveis,
+                            comunicar_inicio=item.comunicar_inicio,
+                            comunicar_termino=item.comunicar_termino,
+                            recursos=item.recursos,
+                        )
                     )
-                )
-            self.calcula_datas(cronograma_list)
-            for item in cronograma_list:
-                item.save()
-        elif self.cronograma_set.count() > 0:
-            cronograma_list = self.cronograma_set.all()
-            self.calcula_datas(cronograma_list)
-            for item in cronograma_list:
-                item.save()
+                self.calcula_datas(cronograma_list)
+                for item in cronograma_list:
+                    item.save()
+            elif self.cronograma_set.count() > 0:
+                cronograma_list = self.cronograma_set.all()
+                self.calcula_datas(cronograma_list)
+                for item in cronograma_list:
+                    item.save()
         super().save(*args, **kwargs)
 
     def calcula_datas(self, cronograma_list):
@@ -272,10 +294,14 @@ class Convite(models.Model):
 
 
 class Modulo(models.Model):
+    TIPO_AULA = "A"
+    TIPO_PALESTRA = "P"
+    TIPO_APRESENTACAO = "R"
+
     TIPO_CHOICES = (
-        ("A", _("Aula")),
-        ("P", _("Palestra")),
-        ("R", _("Apresentação")),
+        (TIPO_AULA, _("Aula")),
+        (TIPO_PALESTRA, _("Palestra")),
+        (TIPO_APRESENTACAO, _("Apresentação")),
     )
     evento = models.ForeignKey(
         Evento, verbose_name=_("Evento"), on_delete=models.CASCADE
