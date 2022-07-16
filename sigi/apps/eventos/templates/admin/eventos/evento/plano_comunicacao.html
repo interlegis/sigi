@@ -1,0 +1,35 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+
+{% block main_content %}
+  <h3>{% trans 'Plano de comunicação' %}</h3>
+  <table repeat="1">
+    <thead>
+      <tr>
+        <th rowspan="2">{% trans 'Responsável' %}</th>
+        <th colspan="{{ destinatarios|length }}">{% trans 'Destinatários' %}</th>
+      </tr>
+      <tr>
+        {% for d in destinatarios %}
+          <th>{{ d }}</th>
+        {% endfor %}
+      </tr>
+    </thead>
+    {% for resp, com in matrix.items %}
+      <tr>
+        <td>{{ resp }}</td>
+        {% for d, lista in com.items %}
+          <td>
+            <ul>
+              {% for item in lista %}
+                <li>{{ item }}</li>
+              {% endfor %}
+            </ul>
+          </td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

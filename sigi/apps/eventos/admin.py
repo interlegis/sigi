@@ -1,10 +1,16 @@
+import datetime
 from django.contrib import admin
 from django.http import HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
+from django.urls import path
 from django.utils.translation import gettext as _
+from django_weasyprint.views import WeasyTemplateResponse
 from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from sigi.apps.eventos.models import (
+    Checklist,
+    Cronograma,
     ModeloDeclaracao,
     Modulo,
     TipoEvento,
@@ -84,27 +90,8 @@ class EventoResource(ValueLabeledResource):
         return "Sim" if obj["convite__participou"] else "Não"
 
 
-@admin.register(TipoEvento)
-class TipoEventAdmin(admin.ModelAdmin):
-    search_fields = ("nome",)
-
-
-@admin.register(Funcao)
-class FuncaoAdmin(admin.ModelAdmin):
-    list_display = (
-        "nome",
-        "descricao",
-    )
-    search_fields = (
-        "nome",
-        "descricao",
-    )
-
-
-@admin.register(ModeloDeclaracao)
-class ModeloDeclaracaoAdmin(admin.ModelAdmin):
-    list_display = ("nome", "formato")
-    formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
+class ChecklistInline(admin.StackedInline):
+    model = Checklist
 
 
 class EquipeInline(admin.StackedInline):
@@ -123,6 +110,35 @@ class ModuloInline(admin.StackedInline):
 class AnexoInline(admin.StackedInline):
     model = Anexo
     exclude = ("data_pub", "convite")
+
+
+class CronogramaInline(admin.StackedInline):
+    model = Cronograma
+    extra = 0
+
+
+@admin.register(TipoEvento)
+class TipoEventAdmin(admin.ModelAdmin):
+    search_fields = ("nome",)
+    inlines = [ChecklistInline]
+
+
+@admin.register(Funcao)
+class FuncaoAdmin(admin.ModelAdmin):
+    list_display = (
+        "nome",
+        "descricao",
+    )
+    search_fields = (
+        "nome",
+        "descricao",
+    )
+
+
+@admin.register(ModeloDeclaracao)
+class ModeloDeclaracaoAdmin(admin.ModelAdmin):
+    list_display = ("nome", "formato")
+    formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
 
 
 @admin.register(Evento)
@@ -161,7 +177,13 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "municipio__search_text",
         "solicitante",
     )
-    inlines = (EquipeInline, ConviteInline, ModuloInline, AnexoInline)
+    inlines = (
+        EquipeInline,
+        ConviteInline,
+        ModuloInline,
+        AnexoInline,
+        CronogramaInline,
+    )
     save_as = True
 
     def link_sigad(self, obj):
@@ -179,3 +201,115 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             "tipo_evento__nome__exact",
             "tipo_evento__nome__contains",
         ]
+
+    def get_urls(self):
+        urls = super().get_urls()
+        my_urls = [
+            path(
+                "<path:object_id>/gant/",
+                self.admin_site.admin_view(self.gant_report),
+                name="%s_%s_gantreport" % self.get_model_info(),
+            ),
+            path(
+                "<path:object_id>/checklist/",
+                self.admin_site.admin_view(self.checklist_report),
+                name="%s_%s_checklistreport" % self.get_model_info(),
+            ),
+            path(
+                "<path:object_id>/comunicacao/",
+                self.admin_site.admin_view(self.plano_comunicacao),
+                name="%s_%s_comunicacaoreport" % self.get_model_info(),
+            ),
+        ]
+        return my_urls + urls
+
+    def gant_report(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        cronograma = list(
+            evento.cronograma_set.order_by("data_prevista_inicio")
+        )
+        inicio = min(
+            cronograma[0].data_prevista_inicio,
+            cronograma[0].data_inicio or cronograma[0].data_prevista_inicio,
+        )
+        termino = max(
+            cronograma[-1].data_prevista_termino,
+            cronograma[-1].data_termino or cronograma[-1].data_prevista_termino,
+        )
+        datas = [
+            inicio + datetime.timedelta(days=x)
+            for x in range((termino - inicio).days + 1)
+        ]
+        context = {
+            "cronograma": cronograma,
+            "datas": datas,
+            "hoje": datetime.date.today(),
+            "title": evento.nome,
+        }
+
+        return WeasyTemplateResponse(
+            filename="grafico-gant.pdf",
+            request=request,
+            template="admin/eventos/evento/gant_report.html",
+            context=context,
+            content_type="application/pdf",
+        )
+
+    def checklist_report(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        cronograma = list(
+            evento.cronograma_set.order_by("data_prevista_inicio")
+        )
+        context = {"cronograma": cronograma, "title": evento.nome}
+        return WeasyTemplateResponse(
+            filename="checklist.pdf",
+            request=request,
+            template="admin/eventos/evento/checklist_report.html",
+            context=context,
+            content_type="application/pdf",
+        )
+
+    def plano_comunicacao(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        matrix = {}
+        for etapa in evento.cronograma_set.order_by("data_prevista_inicio"):
+            for responsavel in etapa.responsaveis.splitlines():
+                if responsavel not in matrix:
+                    matrix[responsavel] = {}
+                for destinatario in etapa.comunicar_inicio.splitlines():
+                    if destinatario not in matrix[responsavel]:
+                        matrix[responsavel][destinatario] = []
+                    matrix[responsavel][destinatario].append(
+                        _(f"Início da etapa {etapa.nome}")
+                    )
+                for destinatario in etapa.comunicar_termino.splitlines():
+                    if destinatario not in matrix[responsavel]:
+                        matrix[responsavel][destinatario] = []
+                    matrix[responsavel][destinatario].append(
+                        _(f"Término da etapa {etapa.nome}")
+                    )
+        responsaveis = list(matrix.keys())
+        destinatarios = list(
+            {x for xs in [v.keys() for v in matrix.values()] for x in xs}
+        )
+        responsaveis.sort()
+        destinatarios.sort()
+        matrix = {
+            resp: {
+                dest: matrix[resp][dest] if dest in matrix[resp] else []
+                for dest in destinatarios
+            }
+            for resp in responsaveis
+        }
+        context = {
+            "matrix": matrix,
+            "destinatarios": destinatarios,
+            "title": evento.nome,
+        }
+        return WeasyTemplateResponse(
+            filename="comunicação.pdf",
+            request=request,
+            template="admin/eventos/evento/plano_comunicacao.html",
+            context=context,
+            content_type="application/pdf",
+        )

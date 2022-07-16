@@ -1,0 +1,125 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+
+{% block extra_style %}
+  {{ block.super }}
+  .rotate {
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    min-width: 5px;
+    width: 5px;
+    height: 6em;
+  }
+  .rotate div {
+    transform: rotate(-90.0deg);
+    margin-left: -10em;
+    margin-right: -10em;
+    #padding: 5px;
+  }
+  table, th, td {
+    border: 1px solid white;
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th,td {
+    border-bottom: 1px solid #808080;
+    padding: 4px;
+  }
+  tr:nth-child(even) {
+    background-color: white;
+  }
+
+  .atrasado {
+    background-color: #f44336; # red
+  }
+  .iniciou-atrasado {
+    background-color: #ff9800; # orange
+  }
+  .iniciar-hoje {
+    background-color: #ffe0b2; # orange-lighten-4
+  }
+  .iniciado {
+    background-color: #4caf50; # green
+  }
+  .concluido-com-atraso {
+    background-color: #ffee58; # yellow-lighten-1
+  }
+  .concluido-no-prazo {
+    background-color: #2196f3; # blue
+  }
+  .previsao {
+    background-color: #b0bec5; # blue-grey-lighten-2
+  }
+  .hoje {
+    border: 1px solid black;
+  }
+  .inicio-previsto {
+    border-left: 3px solid #ffb74d; # orange lighten-2
+  }
+  .inicio-real {
+    border-left: 3px solid #1b5e20; # green darken-4
+  }
+  .inicio-previsto.inicio-real {
+    border-left: 3px solid #4caf50; # green
+  }
+  .termino-previsto {
+    border-right: 3px solid #0d47a1; # blue darken-4
+  }
+  .termino-real {
+    border-right: 3px solid #1a237e; # indigo darken-4
+  }
+  .termino-previsto.termino-real {
+    border-right: 3px solid #2196f3; # blue
+  }
+  .legenda {
+    display: flex;
+  }
+  .legenda, .legenda>div {
+    padding: 8px;
+    font-weight: bolder;
+  }
+  .legenda>div {
+    text-align: center;
+    margin-right: 24px;
+  }
+{% endblock  %}
+{% block main_content %}
+  <div class="legenda">
+    <div>Legenda:</div>
+    <div class="previsao">{% trans "Planejado" %}</div>
+    <div class="iniciar-hoje">{% trans "Iniciar hoje" %}</div>
+    <div class="iniciado">{% trans "Iniciado" %}</div>
+    <div class="iniciou-atrasado">{% trans "Iniciou atrasado" %}</div>
+    <div class="atrasado">{% trans "Atrasado" %}</div>
+    <div class="concluido-no-prazo">{% trans "Concluído no prazo" %}</div>
+    <div class="concluido-com-atraso">{% trans "Concluído com atraso" %}</div>
+  </div>
+  <div class="legenda">
+    <div>Marcadores:</div>
+    <div class="inicio-previsto">{% trans "Início planejado" %}</div>
+    <div class="inicio-real">{% trans "Início real" %}</div>
+    <div class="termino-previsto">{% trans "Término planejado" %}</div>
+    <div class="termino-real">{% trans "Término real" %}</div>
+  </div>
+  <table repeat="1">
+    <thead>
+      <tr>
+        <th>{% trans 'Etapa' %}</th>
+        {% for data in datas  %}
+        <th class="rotate{% if data == hoje %} hoje{% endif %}"><div>{{ data|date:"SHORT_DATE_FORMAT" }}</div></th>
+        {% endfor %}
+      </tr>
+    </thead>
+    {% for etapa in cronograma %}
+      <tr>
+        <td>{{ etapa }}</td>
+        {% for data in datas %}
+          <td class="{% include 'admin/eventos/evento/gant_report_classes.html' %}"></td>
+        {% endfor %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock main_content %}

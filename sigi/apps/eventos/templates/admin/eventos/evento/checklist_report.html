@@ -1,0 +1,61 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+
+{% block main_content %}
+  <h3>{% trans 'Check list' %}</h3>
+  <table repeat="1">
+    <thead>
+      <tr>
+        <th rowspan="2">{% trans 'Etapa' %}</th>
+        <th rowspan="2">{% trans 'Descrição' %}</th>
+        <th rowspan="2">{% trans 'Duração (dias)' %}</th>
+        <th colspan="2">{% trans 'Previsão' %}</th>
+        <th colspan="2">{% trans 'Realizado' %}</th>
+        <th rowspan="2">{% trans 'Depende de' %}</th>
+        <th rowspan="2">{% trans 'Dependentes' %}</th>
+        <th rowspan="2">{% trans 'Responsáveis' %}</th>
+        <th colspan="2">{% trans 'Comunicar' %}</th>
+        <th rowspan="2">{% trans 'Recursos necessários' %}</th>
+      </tr>
+      <tr>
+        <th>{% trans 'Início' %}</th>
+        <th>{% trans 'Término' %}</th>
+        <th>{% trans 'Início' %}</th>
+        <th>{% trans 'Término' %}</th>
+        <th>{% trans 'Início' %}</th>
+        <th>{% trans 'Término' %}</th>
+      </tr>
+    </thead>
+    {% for etapa in cronograma %}
+      <tr>
+        <td>{{ etapa }}</td>
+        <td>{{ etapa.descricao }}</td>
+        <td class="center-align">{{ etapa.duracao }}</td>
+        <td class="center-align">{{ etapa.data_prevista_inicio|date:"SHORT_DATE_FORMAT" }}</td>
+        <td class="center-align">{{ etapa.data_prevista_termino|date:"SHORT_DATE_FORMAT" }}</td>
+        <td class="center-align">{{ etapa.data_inicio|date:"SHORT_DATE_FORMAT" }}</td>
+        <td class="center-align">{{ etapa.data_termino|date:"SHORT_DATE_FORMAT" }}</td>
+        <td>
+          <ul>
+            {% for e in etapa.get_dependencias %}
+              <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>
+          <ul>
+            {% for e in etapa.get_dependentes %}
+              <li>{{ e }}</li>
+            {% endfor %}
+          </ul>
+        </td>
+        <td>{{ etapa.responsaveis }}</td>
+        <td>{{ etapa.comunicar_inicio }}</td>
+        <td>{{ etapa.comunicar_termino }}</td>
+        <td>{{ etapa.recursos }}</td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% spaceless %}
+  {% if data == hoje %} hoje{% endif %}
+
+  {% if data >= etapa.data_prevista_inicio and data <= etapa.data_prevista_termino or data >= etapa.data_inicio and data <= etapa.data_termino %}
+    {% if not etapa.data_inicio and etapa.data_prevista_inicio == hoje %}
+      iniciar-hoje
+    {% elif not etapa.data_inicio and etapa.data_prevista_inicio < hoje %}
+      atrasado
+    {% elif etapa.data_termino and etapa.data_termino <= etapa.data_prevista_termino %}
+      concluido-no-prazo
+    {% elif etapa.data_termino and etapa.data_termino > etapa.data_prevista_termino %}
+      concluido-com-atraso
+    {% elif not etapa.data_termino and etapa.data_prevista_termino < hoje %}
+      atrasado
+    {% elif etapa.data_inicio and not etapa.data_termino and etapa.data_inicio <= etapa.data_prevista_inicio and etapa.data_prevista_termino <= hoje %}
+      iniciado
+    {% elif etapa.data_inicio and not etapa.data_termino and etapa.data_inicio > etapa.data_prevista_inicio and etapa.data_prevista_termino <= hoje %}
+      iniciou-atrasado
+    {% else %}
+      previsao
+    {% endif %}
+  {% endif %}
+  {% if data == etapa.data_prevista_inicio %} inicio-previsto{% endif %}
+  {% if data == etapa.data_prevista_termino %} termino-previsto{% endif %}
+  {% if data == etapa.data_inicio %} inicio-real{% endif %}
+  {% if data == etapa.data_termino %} termino-real{% endif %}
+{% endspaceless %}

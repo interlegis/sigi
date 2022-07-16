@@ -1,3 +1,4 @@
+import datetime
 import re
 from django.db import models
 from django.db.models import Sum
@@ -137,13 +138,69 @@ class Evento(models.Model):
             self.motivo_cancelamento = ""
         if self.data_inicio > self.data_termino:
             raise ValidationError(
-                _("Data de término deve ser posterior à " "data de início")
+                _("Data de término deve ser posterior à data de início")
             )
         total = self.convite_set.aggregate(total=Sum("qtde_participantes"))
         total = total["total"]
         if total and total > 0:
             self.total_participantes = total
-        return super(Evento, self).save(*args, **kwargs)
+        if (
+            self.cronograma_set.count() == 0
+            and self.tipo_evento.checklist_set.count() > 0
+        ):
+            cronograma_list = []
+            for item in self.tipo_evento.checklist_set.all():
+                cronograma_list.append(
+                    Cronograma(
+                        evento=self,
+                        etapa=item.etapa,
+                        nome=item.nome,
+                        descricao=item.descricao,
+                        duracao=item.duracao,
+                        dependencia=item.dependencia,
+                        responsaveis=item.responsaveis,
+                        comunicar_inicio=item.comunicar_inicio,
+                        comunicar_termino=item.comunicar_termino,
+                        recursos=item.recursos,
+                    )
+                )
+            self.calcula_datas(cronograma_list)
+            for item in cronograma_list:
+                item.save()
+        elif self.cronograma_set.count() > 0:
+            cronograma_list = self.cronograma_set.all()
+            self.calcula_datas(cronograma_list)
+            for item in cronograma_list:
+                item.save()
+        super().save(*args, **kwargs)
+
+    def calcula_datas(self, cronograma_list):
+        def ajusta_data(elemento, data_termino):
+            if (
+                elemento.data_prevista_termino is None
+                or elemento.data_prevista_termino > data_termino
+            ):
+                elemento.data_prevista_termino = data_termino
+            elemento.data_prevista_inicio = (
+                elemento.data_prevista_termino
+                - datetime.timedelta(days=elemento.duracao - 1)
+            )
+            for item in cronograma_list:
+                if item.etapa in elemento.dependencia:
+                    ajusta_data(
+                        item,
+                        elemento.data_prevista_inicio
+                        - datetime.timedelta(days=1),
+                    )
+
+        leafs = [
+            item
+            for item in cronograma_list
+            if len([d for d in cronograma_list if item.etapa in d.dependencia])
+            == 0
+        ]
+        for item in leafs:
+            ajusta_data(item, self.data_termino.date())
 
 
 class Funcao(models.Model):
@@ -331,3 +388,119 @@ class Anexo(models.Model):
 
     def __str__(self):
         return _(f"{self.descricao} publicado em {self.data_pub}")
+
+
+class Checklist(models.Model):
+    tipo_evento = models.ForeignKey(TipoEvento, on_delete=models.CASCADE)
+    etapa = models.CharField(_("sigla da etapa"), max_length=10)
+    nome = models.CharField(_("nome da etapa"), max_length=100)
+    descricao = models.TextField(
+        _("descrição da etapa"),
+        help_text=_("Descrição detalhada das atividades realizadas na etapa"),
+    )
+    duracao = models.PositiveBigIntegerField(_("duração (em dias)"))
+    dependencia = models.CharField(
+        _("depende da etapa"),
+        max_length=200,
+        help_text=_(
+            "Siglas das etapas que precisam ser concluídas para que esta seja iniciada. Separe cada uma com um espaço."
+        ),
+        blank=True,
+    )
+    responsaveis = models.TextField(
+        _("responsáveis pela tarefa"),
+        help_text=_("Pessoas, setores, órgãos."),
+        blank=True,
+    )
+    comunicar_inicio = models.TextField(
+        _("comunicar inicio para"),
+        help_text=_(
+            "Lista de e-mails para comunicar quando a tarefa for iniciada"
+        ),
+        blank=True,
+    )
+    comunicar_termino = models.TextField(
+        _("comunicar término para"),
+        help_text=_(
+            "Lista de e-mails para comunicar quando a tarefa for concluída"
+        ),
+        blank=True,
+    )
+    recursos = models.TextField(
+        _("recursos necessários"),
+        help_text="Lista de recursos necessários para desenvolver a tarefa",
+    )
+
+    class Meta:
+        verbose_name = _("checklist")
+        verbose_name_plural = _("checklists")
+
+    def __str__(self):
+        return _(f"{self.etapa}: {self.nome}")
+
+
+class Cronograma(models.Model):
+    evento = models.ForeignKey(Evento, on_delete=models.CASCADE)
+    etapa = models.CharField(_("sigla da etapa"), max_length=10)
+    nome = models.CharField(_("nome da etapa"), max_length=100)
+    descricao = models.TextField(
+        _("descrição da etapa"),
+        help_text=_("Descrição detalhada das atividades realizadas na etapa"),
+    )
+    duracao = models.PositiveBigIntegerField(_("duração (em dias)"))
+    data_prevista_inicio = models.DateField(
+        _("data prevista de início"), blank=True, null=True
+    )
+    data_prevista_termino = models.DateField(
+        _("data prevista de término"), blank=True, null=True
+    )
+    data_inicio = models.DateField(_("data de início"), blank=True, null=True)
+    data_termino = models.DateField(_("data de término"), blank=True, null=True)
+    dependencia = models.CharField(
+        _("depende da etapa"),
+        max_length=200,
+        help_text=_(
+            "Sigla da etapa que precisa ser concluída para que esta seja iniciada"
+        ),
+        blank=True,
+    )
+    responsaveis = models.TextField(
+        _("responsáveis pela tarefa"),
+        help_text=_("Pessoas, setores, órgãos."),
+        blank=True,
+    )
+    comunicar_inicio = models.TextField(
+        _("comunicar inicio para"),
+        help_text=_(
+            "Lista de pessoas/órgãos para comunicar quando a tarefa for iniciada. Coloque um por linha."
+        ),
+        blank=True,
+    )
+    comunicar_termino = models.TextField(
+        _("comunicar término para"),
+        help_text=_(
+            "Lista de pessoas/órgãos para comunicar quando a tarefa for concluída. Coloque um por linha."
+        ),
+        blank=True,
+    )
+    recursos = models.TextField(
+        _("recursos necessários"),
+        help_text="Lista de recursos necessários para desenvolver a tarefa",
+    )
+
+    class Meta:
+        verbose_name = _("cronograma")
+        verbose_name_plural = _("cronogramas")
+
+    def __str__(self):
+        return _(f"{self.etapa}: {self.nome}")
+
+    def get_dependencias(self):
+        return self.evento.cronograma_set.filter(
+            etapa__in=self.dependencia.split(" ")
+        )
+
+    def get_dependentes(self):
+        return self.evento.cronograma_set.filter(
+            dependencia__icontains=self.etapa
+        )
