@@ -1,0 +1,75 @@
+{% extends "admin/change_form.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .carousel-item {
+      height: auto !important;
+    }
+    form {
+      width: 100%;
+    }
+  </style>
+  {% endblock %}
+
+{% block form_top %}
+<div class="row">
+  <div class="col s12">
+    <ul class="tabs">
+      {% for fieldset in adminform %}
+      <li class="tab">
+        <a href="#{{ fieldset.name|default:'geral'|slugify }}">
+          {{ fieldset.name|default:_("Geral") }}
+        </a>
+      </li>
+      {% endfor %}
+      {% for inline_admin_formset in inline_admin_formsets %}
+      <li class="tab">
+        <a href="#{{ inline_admin_formset.opts.verbose_name_plural|slugify }}">
+          {{ inline_admin_formset.opts.verbose_name_plural|default:_("inline") }}
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</div>
+{% endblock %}
+
+{% block field_sets %}
+{% for fieldset in adminform %}
+<div id="{{ fieldset.name|default:'geral'|slugify }}" class="col s12" style="height: auto;">
+  {% include "admin/includes/fieldset.html" %}
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block inline_field_sets %}
+{% for inline_admin_formset in inline_admin_formsets %}
+<div id="{{ inline_admin_formset.opts.verbose_name_plural|default:'inline'|slugify }}" class="col s12">
+  {% include inline_admin_formset.opts.template %}
+</div>
+{% endfor %}
+{% endblock %}
+
+
+{% block footer %}
+  {{ block.super }}
+<script type="text/javascript">
+  const resize_tab_content = function($tab_parent, $tab) {
+    if ($tab_parent.height() != $tab.height()+24) {
+      $tab_parent.height($tab.height()+24);
+    }
+  }
+  $(document).ready(function(){
+    M.Tabs.init($('.tabs'),{swipeable: true, onShow: function(tab) {
+      var $tab = $(tab);
+      resize_tab_content($tab.parent(), $tab);
+    }});
+    $(".tabs-content").on("DOMSubtreeModified", function() {
+      var $tab_parent = $(this);
+      resize_tab_content($tab_parent, $tab_parent.children(".active"));
+    })
+  })
+</script>
+{% endblock %}
