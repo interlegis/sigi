@@ -78,7 +78,7 @@ class AnexoInline(admin.TabularInline):
 class EventoAdmin(admin.ModelAdmin):
     form = EventoAdminForm
     date_hierarchy = 'data_inicio'
-    list_display = ('nome', 'tipo_evento', 'status', 'link_sigad',
+    list_display = ('nome', 'tipo_evento', 'turma', 'status', 'link_sigad',
                     'data_inicio', 'data_termino', 'municipio', 'solicitante',
                     'total_participantes',)
     list_filter = ('status', SigadFilter, 'tipo_evento',

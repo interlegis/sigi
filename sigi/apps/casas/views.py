@@ -271,8 +271,8 @@ class importa_casas(View):
                 self.errors.append(reg)
                 continue
             elif orgao.count() > 1:
-                reg[self.ERROS].append("Existem {count} orgaos com esta mesma "
-                                "identificacao").format(count=orgao.count())
+                reg[self.ERROS].append(("Existem {count} orgaos com esta mesma "
+                                "identificacao").format(count=orgao.count()))
                 self.errors.append(reg)
                 continue
             else:

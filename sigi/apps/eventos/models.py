@@ -52,6 +52,7 @@ class Evento(models.Model):
         on_delete=models.PROTECT,
     )
     nome = models.CharField(_(u"Nome do evento"), max_length=100)
+    turma = models.CharField(_(u"Turma"), max_length=100, blank=True)
     descricao = models.TextField(_(u"Descrição do evento"))
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_(u"Solicitante"), max_length=100)
