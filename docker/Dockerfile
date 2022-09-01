@@ -95,8 +95,5 @@ ENV DEBIAN_FRONTEND=teletype
 
 VOLUME ["/srv/interlegis/sigi/media"]
 
-# Data migration
-RUN python manage.py migrate
-
 # Start web server
 CMD service nginx start && /srv/interlegis/sigi/bin/run_sigi
