@@ -41,8 +41,8 @@ ENV AUTH_PROFILE_MODULE=''
 
 # Install env
 ENV RUN_PACKAGES gcc locales build-essential python3-dev graphviz \
-                 libgraphviz-dev pkg-config libpq-dev postgresql-client \
-                 libsasl2-dev libldap2-dev libssl-dev vim nginx
+    libgraphviz-dev pkg-config libpq-dev postgresql-client \
+    libsasl2-dev libldap2-dev libssl-dev vim nginx
 
 # Install required packages
 RUN apt-get update && \
@@ -70,9 +70,9 @@ ADD . ${HOME}
 # Install python packages
 RUN pip install -qq --upgrade pip setuptools && \
     if [ $DEBUG = False ]; then \
-        pip install -qq -r ${HOME}/requirements/requirements.txt; \
+    pip install -qq -r ${HOME}/requirements/requirements.txt; \
     else \
-        pip install -qq -r ${HOME}/requirements/dev-requirements.txt; \
+    pip install -qq -r ${HOME}/requirements/dev-requirements.txt; \
     fi
 
 # Generate a new secret key
@@ -80,9 +80,6 @@ RUN echo $'\n\n'SECRET_KEY=`python manage.py generate_secret_key` >> ${HOME}/sig
 
 # Prepare run script to start application server
 RUN chmod +x ${HOME}/bin/run_sigi
-
-# Data migration
-RUN python manage.py migrate
 
 # Static files
 RUN python manage.py collectstatic --noinput --clear
@@ -97,4 +94,9 @@ EXPOSE 80/tcp 443/tcp
 ENV DEBIAN_FRONTEND=teletype
 
 VOLUME ["/srv/interlegis/sigi/media"]
+
+# Data migration
+RUN python manage.py migrate
+
+# Start web server
 CMD service nginx start && /srv/interlegis/sigi/bin/run_sigi
