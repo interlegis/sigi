@@ -4,6 +4,8 @@ name: default
 steps:
   - name: docker
     image: plugins/docker
+    environment:
+      DRONE_REPO_BRANCH: master
     settings:
       repo: porto.interlegis.leg.br/ilb/sigi
       registry: porto.interlegis.leg.br
