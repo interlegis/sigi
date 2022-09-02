@@ -9,9 +9,6 @@ class ImportForm(forms.Form):
         ("iso8859-1", _("LATIN 1 (iso-8859-1)")),
         ("utf-8", _("UTF-8")),
     )
-    UF_CHOICES = [
-        ("BR", _("Todo o Brasil")),
-    ] + [(uf.sigla, uf.nome) for uf in UnidadeFederativa.objects.all()]
     TIPO_CHOICES = [
         ("V", _("Vereador")),
         ("D", _("Deputado Estadual")),
@@ -35,6 +32,10 @@ class ImportForm(forms.Form):
     suplentes = forms.BooleanField(
         label=_("Importar suplentes"), required=False
     )
-    uf_importar = forms.ChoiceField(
-        label=_("Unidade Federativa"), choices=UF_CHOICES
-    )
+    uf_importar = forms.ChoiceField(label=_("Unidade Federativa"), choices=[])
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields["uf_importar"].choices = [
+            ("BR", _("Todo o Brasil")),
+        ] + [(uf.sigla, uf.nome) for uf in UnidadeFederativa.objects.all()]
