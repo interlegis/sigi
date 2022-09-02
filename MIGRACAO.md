@@ -41,21 +41,3 @@ source env/sigi/bin/activate
 ```
 **No browser use o endereço 127.0.0.1:8000/admin**
 
-Macro-tarefas:
---------------
-
-* [x] Definir ambiente python 3 e django 4.0
-* [ ] Migração dos APPS, nesta sequência:
-  * [x] servidores
-  * [x] contatos
-  * [-] casas - migração básica - falta integração com outros apps
-  * [ ] convenios
-  * [ ] parlamentares
-  * [ ] eventos
-  * [ ] servicos
-  * [ ] ocorrencias
-  * [ ] whois
-  * [ ] financeiro
-  * [x] inventario
-  * [ ] metas
-* [ ] Definição de um novo tema *bootstrapado* para o admin
