@@ -122,7 +122,7 @@ class Migration(migrations.Migration):
                 (
                     "casa_legislativa",
                     models.ForeignKey(
-                        to="casas.CasaLegislativa", on_delete=models.CASCADE
+                        to="casas.Orgao", on_delete=models.CASCADE
                     ),
                 ),
             ],
@@ -220,7 +220,7 @@ class Migration(migrations.Migration):
                     "casa_legislativa",
                     models.ForeignKey(
                         verbose_name="Casa Legislativa",
-                        to="casas.CasaLegislativa",
+                        to="casas.Orgao",
                         on_delete=models.CASCADE,
                     ),
                 ),
