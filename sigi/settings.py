@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_extensions",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -90,6 +91,7 @@ EMAIL_USE_LOCALTIME = env("EMAIL_USE_LOCALTIME", bool, default=False)
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", bool, default=False)
 EMAIL_USE_SSL = env("EMAIL_USE_SSL", bool, default=False)
 EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=None)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br")
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
@@ -112,6 +114,7 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
+                "sigi.apps.utils.context_processors.site_context",
                 "sigi.apps.home.context_processors.dashboard",
             ],
         },
@@ -187,6 +190,9 @@ if env("AUTH_LDAP_SERVER_URI", default=None):
     AUTH_LDAP_CACHE_GROUPS = env("AUTH_LDAP_CACHE_GROUPS", bool)
     AUTH_LDAP_GROUP_CACHE_TIMEOUT = env("AUTH_LDAP_GROUP_CACHE_TIMEOUT", int)
     AUTH_PROFILE_MODULE = env("AUTH_PROFILE_MODULE")
+
+LOGIN_REDIRECT_URL = "home_index"
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
