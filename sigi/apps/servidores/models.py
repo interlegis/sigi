@@ -1,7 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
 from django.db.models.signals import post_save, pre_save
+from django.contrib.auth.models import Group
+from django.dispatch import receiver
 from django.utils.translation import gettext as _
+from django_auth_ldap.backend import populate_user, LDAPBackend
 
 
 class Servico(models.Model):
@@ -92,23 +95,52 @@ User.servidor = property(
 
 # Sinal para ao criar um usuário criar um servidor
 # baseado no nome contido no LDAP
+@receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
-    if created:
+    sigla_servico = instance.ldap_user.attrs.get("department", [""])[0].split(
+        "-"
+    )[-1]
+    servico = Servico.objects.filter(sigla=sigla_servico).first()
+    if created and instance.is_staff:
         Servidor.objects.create(
             user=instance,
             nome_completo="%s %s" % (instance.first_name, instance.last_name),
+            servico=servico,
         )
+    elif (
+        not created
+        and instance.is_staff
+        and instance.servidor is not None
+        and instance.servidor.servico != servico
+    ):
+        servidor = instance.servidor
+        servidor.servico = servico
+        servidor.save()
 
-
-post_save.connect(create_user_profile, sender=User)
 
 # Hack horrível para ajustar o first_name e o last_name do User criado pelo
 # Django-ldap. Os campos first_name e last_name têm o tamanho máximo de
 # 30 caracteres, mas o LDAP não tem esse limite, e alguns usuários podem ter
-# nomes maiores que isso, o que provoca erro ao salvar o usuário.j
+# nomes maiores que isso, o que provoca erro ao salvar o usuário.
+@receiver(pre_save, sender=User)
 def ajusta_nome_usuario(sender, instance, *args, **kwargs):
     instance.first_name = instance.first_name[:30]
     instance.last_name = instance.last_name[:30]
 
 
-pre_save.connect(ajusta_nome_usuario, sender=User)
+# Identifica se um usuário do LDAP é membro da equipe (is_staff) verificando se
+# a propriedade Department, do LDAP, é uma unidade do ILB. Também desmembra
+# o campo Department para gerar os nomes dos grupos que o User vai integrar
+@receiver(populate_user, sender=LDAPBackend)
+def user_staff_and_group(user, ldap_user, **kwargs):
+    dep = ldap_user.attrs.get("department", [""])[0]
+    title = ldap_user.attrs.get("title", [""])[0]
+    group_names = [dep.split("-")[-1], title]
+    group_names.extend(title.split("-", 1))
+    group_names = [s.strip().upper() for s in group_names]
+    user.is_staff = "ILB" in dep
+    user.save()
+    user.groups.clear()
+    for name in group_names:
+        group, created = Group.objects.get_or_create(name=name)
+        user.groups.add(group)
