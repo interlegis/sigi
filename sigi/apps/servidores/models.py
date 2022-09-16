@@ -97,6 +97,8 @@ User.servidor = property(
 # baseado no nome contido no LDAP
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
+    if not hasattr(instance, "ldap_user"):
+        return
     sigla_servico = instance.ldap_user.attrs.get("department", [""])[0].split(
         "-"
     )[-1]
