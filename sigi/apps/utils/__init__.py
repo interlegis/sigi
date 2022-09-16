@@ -1,5 +1,5 @@
 from unicodedata import normalize
-from django.contrib import admin
+from django.contrib import admin as django_admin
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.template.loader import render_to_string
@@ -43,7 +43,7 @@ def queryset_ascii(self, request):
     if "q" in request.GET:
         request.GET._mutable = True
         request.GET["q"] = to_ascii(request.GET["q"])
-    return admin.ModelAdmin.get_queryset(self, request)
+    return django_admin.ModelAdmin.get_queryset(self, request)
 
 
 def field_label(name, model):
