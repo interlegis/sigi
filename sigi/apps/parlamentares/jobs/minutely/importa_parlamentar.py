@@ -23,6 +23,9 @@ class Job(MinutelyJob):
         if json_data is None:
             return
         json_data["inicio_processamento"] = str(datetime.now())
+        print(
+            f"Start importing parlamentares at {json_data['inicio_processamento']}: Details: {json_data}"
+        )
         result_final = []
         # Importa parlamentares #
         if "resultados" in json_data:
@@ -53,6 +56,7 @@ class Job(MinutelyJob):
             result_final.extend(result["erros"])
         self.remove_files(json_data)
         self.send_mail(result_final, json_data)
+        print(f"Finish import parlamentares. Final result: {result_final}")
         return
 
     def get_json_data(self):
