@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao
+from sigi.apps.contatos.models import UnidadeFederativa
 
 
 class Partido(models.Model):
@@ -86,7 +87,7 @@ class Parlamentar(models.Model):
     class Meta:
         ordering = (
             "status_mandato",
-            "presidente",
+            "-presidente",
             "nome_completo",
         )
         verbose_name_plural = _("parlamentares")
@@ -100,3 +101,39 @@ class Parlamentar(models.Model):
                 presidente=True
             ).update(presidente=False)
         return super().save(*args, **kwargs)
+
+
+class Senador(models.Model):
+    SEXO_MASCULINO = "M"
+    SEXO_FEMININO = "F"
+    SEXO_CHOICES = (
+        (SEXO_MASCULINO, _("Masculino")),
+        (SEXO_FEMININO, _("Feminino")),
+    )
+    uf = models.ForeignKey(
+        UnidadeFederativa, verbose_name=_("UF"), on_delete=models.CASCADE
+    )
+    partido = models.ForeignKey(
+        Partido,
+        verbose_name=_("partido"),
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+    codigo = models.IntegerField(_("código"), unique=True)
+    nome_parlamentar = models.CharField(_("nome parlamentar"), max_length=100)
+    nome_completo = models.CharField(_("nome completo"), max_length=100)
+    sexo = models.CharField(_("sexo"), max_length=1, choices=SEXO_CHOICES)
+    forma_tratamento = models.CharField(_("forma de tratamento"), max_length=50)
+    email = models.EmailField(_("e-mail"))
+
+    class Meta:
+        ordering = (
+            "uf",
+            "nome_parlamentar",
+        )
+        verbose_name = _("senador")
+        verbose_name_plural = _("senadores")
+
+    def __str__(self):
+        return self.nome_parlamentar

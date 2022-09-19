@@ -31,6 +31,7 @@ class TipoEvento(models.Model):
     categoria = models.CharField(
         _("Categoaria"), max_length=1, choices=CATEGORIA_CHOICES
     )
+    casa_solicita = models.BooleanField(_("casa pode solicitar"), default=False)
 
     class Meta:
         ordering = ("nome",)
@@ -68,6 +69,7 @@ class Evento(models.Model):
         on_delete=models.PROTECT,
     )
     nome = models.CharField(_("Nome do evento"), max_length=100)
+    turma = models.CharField(_("turma"), max_length=100, blank=True)
     descricao = models.TextField(_("Descrição do evento"))
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_("Solicitante"), max_length=100)
@@ -82,6 +84,13 @@ class Evento(models.Model):
         null=True,
         blank=True,
         help_text=_("Data em que o pedido do Gabinete chegou à COPERI"),
+    )
+    solicitacao = models.ForeignKey(
+        "ocorrencias.Ocorrencia",
+        blank=True,
+        null=True,
+        verbose_name=_("Solicitação de origem"),
+        on_delete=models.SET_NULL,
     )
     data_inicio = models.DateTimeField(
         _("Data/hora do Início"), null=True, blank=True
@@ -111,6 +120,13 @@ class Evento(models.Model):
         ),
     )
     status = models.CharField(_("Status"), max_length=1, choices=STATUS_CHOICES)
+    publicar = models.BooleanField(_("publicar no site"), default=False)
+    link_inscricao = models.URLField(_("link de inscrição"), blank=True)
+    contato = models.CharField(_("contato"), max_length=100, blank=True)
+    telefone = models.CharField(
+        _("tefone de contato"), max_length=30, blank=True
+    )
+    banner = models.ImageField(_("banner do evento"), blank=True, null=True)
     data_cancelamento = models.DateField(
         _("Data de cancelamento"), blank=True, null=True
     )
@@ -156,10 +172,17 @@ class Evento(models.Model):
             raise ValidationError(
                 _("Data de término deve ser posterior à data de início")
             )
+
+        super().save(*args, **kwargs)
+        save_again = False
+
         total = self.convite_set.aggregate(total=Sum("qtde_participantes"))
         total = total["total"]
+
         if total and total > 0:
             self.total_participantes = total
+            super().save(*args, **kwargs)
+
         if self.status in [
             Evento.STATUS_PLANEJAMENTO,
             Evento.STATUS_AGUARDANDOSIGAD,
@@ -194,7 +217,6 @@ class Evento(models.Model):
                 self.calcula_datas(cronograma_list)
                 for item in cronograma_list:
                     item.save()
-        super().save(*args, **kwargs)
 
     def calcula_datas(self, cronograma_list):
         def ajusta_data(elemento, data_termino):

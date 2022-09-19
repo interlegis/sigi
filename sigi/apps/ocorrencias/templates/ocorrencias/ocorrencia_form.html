@@ -1,7 +1,0 @@
-<div class="panel-body">
-	<form id="form_ocorrencia" action="{% url 'ocorrencia-incluiocorrencia' %}" method="post">
-		{% csrf_token %}
-		{{ ocorrencia_form.as_p }}
-		<input type="submit" value="Salvar"/>
-	</form>
-</div>

@@ -34,7 +34,16 @@
   <body data-admin-utc-offset="{% now 'Z' %}">
     <div id="container">
       <div id="content" class="colM">
-        {% include 'sigi/snippets/dashboard.html' %}
+        <div class="content-wrapper">
+          <div class="app-list">
+            {% url card.nome_url as source_url %}
+            {% if card.tipo == 'C' %}
+              {% include "sigi/snippets/base_card_chart.html" with card_title=card.titulo data_source=source_url|add:"?"|add:card.query_string chart_name=card.codigo has_action_links=card.link_acao %}
+            {% else %}
+              {% include "sigi/snippets/base_card_text.html" with card_title=card.titulo data_source=source_url|add:"?"|add:card.query_string card_name=card.codigo %}
+            {% endif %}
+          </div>
+        </div>
         <br class="clear">
       </div>
       <div id="footer">

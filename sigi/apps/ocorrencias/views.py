@@ -1,22 +1,26 @@
-import copy
-from django.db.models import Q, Count
+from sys import prefix
+from django.conf import settings
+import django_filters
+from django.db.models import Q
 from django.contrib import messages
-from django.contrib.admin.sites import site
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse, Http404
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.core.exceptions import ImproperlyConfigured
+from django.core.mail.message import EmailMessage
+from django.http import HttpResponseRedirect, JsonResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render, HttpResponse
 from django.template.loader import render_to_string
 from django.template import RequestContext
-from django.urls import reverse
-from django.utils import timezone
+from django.urls import reverse, reverse_lazy
+from django.utils.html import escape, quote
 from django.utils.translation import ngettext, gettext as _
 from django.views.decorators.http import require_POST
-from sigi.apps import ocorrencias
-from sigi.apps.parlamentares.models import Parlamentar
-from sigi.apps.utils import to_ascii
+from django.views.generic import TemplateView, ListView, CreateView, UpdateView
+from django_weasyprint.utils import django_url_fetcher
+from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao
-from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.servidores.models import Servidor, Servico
+from sigi.apps.eventos.models import Evento
+from sigi.apps.home.mixins import ContatoInterlegisViewMixin
 from sigi.apps.ocorrencias.models import (
     Categoria,
     Comentario,
@@ -26,6 +30,7 @@ from sigi.apps.ocorrencias.models import (
 )
 from sigi.apps.ocorrencias.forms import (
     AnexoForm,
+    AutorizaOficinaForm,
     ComentarioForm,
     ComentarioInternoForm,
     ContatoForm,
@@ -34,324 +39,740 @@ from sigi.apps.ocorrencias.forms import (
     OcorrenciaForm,
     CasaForm,
     PresidenteForm,
+    SolicitaTreinamentoForm,
 )
-from django.utils.html import escape
+from sigi.apps.parlamentares.models import Parlamentar, Senador
+from sigi.apps.servidores.models import Servidor, Servico
+from sigi.apps.utils import to_ascii
 
 
-@login_required
-def painel_ocorrencias(request):
-    painel = request.GET.get("painel", None)
-    id_servidor = request.GET.get("servidor", None)
-    id_casa = request.GET.get("casa", None)
-    page = int(request.GET.get("page", "0"))
+class PainelOcorrenciaFilter(django_filters.FilterSet):
+    status = django_filters.MultipleChoiceFilter(
+        label=_("Status"),
+        field_name="status",
+        choices=Ocorrencia.STATUS_CHOICES,
+    )
+    nome_casa = django_filters.CharFilter(
+        label=_("Nome da casa contém"),
+        field_name="casa_legislativa__search_text",
+        lookup_expr=_("icontains"),
+    )
+    gerente = django_filters.ModelChoiceFilter(
+        label=_("Casas gerenciadas por"),
+        field_name="casa_legislativa__gerentes_interlegis",
+        queryset=Servidor.objects.exclude(user__is_active=False).exclude(
+            casas_que_gerencia=None
+        ),
+    )
+    servidor = django_filters.ModelChoiceFilter(
+        label=_("Ocorrências registradas ou comentadas por"),
+        method="servidor_filter",
+        queryset=Servidor.objects.exclude(user__is_active=False).exclude(
+            ocorrencia=None, comentario=None
+        ),
+    )
+    tipo_categoria = django_filters.ChoiceFilter(
+        label=_("Tipo de ocorrência"),
+        field_name="categoria__tipo",
+        choices=Categoria.TIPO_CHOICES,
+    )
+    categoria = django_filters.ModelChoiceFilter(
+        label=_("Categoria"),
+        field_name="categoria",
+        queryset=Categoria.objects.all(),
+    )
 
-    paineis = {
-        "gerente": _("Casas que gerencio"),
-        "registro": _("Ocorrências registrados por mim"),
-        "tudo": _("Todas as ocorrências"),
-    }
+    class Meta:
+        model = Ocorrencia
+        fields = [
+            "nome_casa",
+            "gerente",
+            "servidor",
+            "tipo_categoria",
+            "categoria",
+        ]
 
-    if id_servidor is None:
-        servidor = request.user.servidor
-    else:
-        servidor = get_object_or_404(Servidor, id=id_servidor)
+    def servidor_filter(self, queryset, name, value):
+        return queryset.filter(
+            Q(servidor_registro=value) | Q(comentarios__usuario=value)
+        )
 
-    if id_casa is not None:
-        casa = get_object_or_404(Orgao, id=id_casa)
-        painel = "tudo"
-        panel_title = _(f"Ocorrências da {casa.nome}, {casa.municipio.uf.nome}")
-    else:
-        casa = None
-        if servidor:
-            is_gerente = servidor.casas_que_gerencia.exists()
-            is_registrador = (
-                servidor.ocorrencia_set.exists()
-                or servidor.comentario_set.exists()
+    def preserve_filter(self):
+        if not self.data:
+            return ""
+        data = self.data.copy()
+        filterlist = self.get_filters().keys()
+        data_keys = list(data.keys())
+        for key in data_keys:
+            if key not in filterlist:
+                data.pop(key)
+        return data.urlencode()
+
+
+def bound_copy(instance, bound_data, removes=None):
+    data = bound_data.copy()
+    if removes:
+        for remove_key in removes:
+            data.pop(remove_key)
+    for key, value in data.items():
+        setattr(instance, key, value)
+
+
+class PainelOcorrenciaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = Ocorrencia
+    context_object_name = "ocorrencias"
+    filter_class = PainelOcorrenciaFilter
+    paginate_by = 100
+    template_name = "ocorrencias/painel.html"
+    panel_title = _("Painel de ocorrências")
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_filter(self, request, queryset=None):
+        klass = self.filter_class
+        return klass(request.GET, queryset=queryset)
+
+    def get_subtitles(self, filter):
+        subts = []
+        if filter.data:
+            if filter.data.get("nome_casa"):
+                subts.append(
+                    _(f"Casas com \"{filter.data.get('nome_casa')}\" no nome")
+                )
+            if filter.data.get("gerente"):
+                gerente = Servidor.objects.get(id=filter.data.get("gerente"))
+                subts.append(
+                    _(f"Casas gerenciadas por {gerente.get_apelido()}")
+                )
+            if filter.data.get("servidor"):
+                servidor = Servidor.objects.get(id=filter.data.get("servidor"))
+                subts.append(
+                    _(f"Registradas ou comentadas por {servidor.get_apelido()}")
+                )
+            if filter.data.get("tipo_categoria"):
+                tipo = dict(Categoria.TIPO_CHOICES)[
+                    filter.data.get("tipo_categoria")
+                ]
+                subts.append(_(f"Do tipo {tipo}"))
+            if filter.data.get("categoria"):
+                categoria = Categoria.objects.get(
+                    id=filter.data.get("categoria")
+                )
+                subts.append(_(f"Da categoria {categoria.nome}"))
+            if filter.data.getlist("status"):
+                status_names = dict(Ocorrencia.STATUS_CHOICES)
+                subts.append(
+                    _("Status: ")
+                    + " - ".join(
+                        [
+                            status_names[int(s)]
+                            for s in filter.data.getlist("status")
+                        ]
+                    )
+                )
+        return subts
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        filter = self.get_filter(self.request, queryset)
+        return filter.qs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        filter = self.get_filter(self.request)
+        context["panel_title"] = self.panel_title
+        context["panel_subtitles"] = self.get_subtitles(filter)
+        context["filter"] = filter
+        context["has_add_permission"] = self.request.user.has_perm(
+            "add_ocorrencia"
+        )
+        context["has_change_permission"] = self.request.user.has_perm(
+            "change_ocorrencia"
+        )
+        return context
+
+
+class BaseOcorrenciaChangeView(
+    LoginRequiredMixin, UserPassesTestMixin, UpdateView
+):
+    template_name = "ocorrencias/ocorrencia_detail.html"
+    model = Ocorrencia
+    form_class = OcorrenciaChangeForm
+    list_filter = ""
+    # Adicionar todas as classes de form nesta tupla
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_success_url(self):
+        if not self.success_url_name:
+            raise ImproperlyConfigured(
+                "No URL to redirect to.  Provide a url name."
             )
-            panel_title = servidor.nome_completo
-        else:
-            is_gerente = False
-            is_registrador = False
-            panel_title = _("Todas as ocorrências")
 
-        if (servidor is None) or (not is_gerente and not is_registrador):
-            painel = "tudo"
-        elif not is_gerente and is_registrador:
-            painel = "registro"
-        elif is_gerente:
-            if painel is None:
-                painel = "gerente"
-
-    if painel == "gerente":
-        ocorrencias = Ocorrencia.objects.filter(
-            casa_legislativa__gerentes_interlegis=servidor
+        url = reverse(
+            self.success_url_name, kwargs={"pk": self.get_object().pk}
         )
-    elif painel == "registro":
-        ocorrencias = Ocorrencia.objects.filter(
-            servidor_registro=servidor
-        ) | Ocorrencia.objects.filter(comentarios__usuario=servidor)
-    else:  # Tudo...
-        if casa is None:  # ...de todas as Casas...
-            ocorrencias = Ocorrencia.objects.all()
-        else:  # ... ou da Casa escolhida
-            ocorrencias = casa.ocorrencia_set.all()
+        if self.list_filter:
+            return f"{url}?list_filter={quote(self.list_filter)}"
 
-    ocorrencias = ocorrencias.filter(status__in=[1, 2])
-    ocorrencias = ocorrencias.order_by("prioridade", "-data_modificacao")
-    ocorrencias = ocorrencias.select_related(
-        "casa_legislativa",
-        "casa_legislativa__municipio",
-        "casa_legislativa__municipio__uf",
-        "categoria",
-        "tipo_contato",
-        "servidor_registro",
-    )
-    ocorrencias = ocorrencias.prefetch_related(
-        "comentarios",
-        "comentarios__usuario",
-        "anexo_set",
-        "casa_legislativa__gerentes_interlegis",
-    )
-    ocorrencias = ocorrencias.annotate(total_anexos=Count("anexo"))
-
-    if page * 100 > ocorrencias.count():
-        ocorrencias = ocorrencias[-100]
-    else:
-        ocorrencias = ocorrencias[page * 100 : page * 100 + 100]
-
-    context = {
-        "paineis": paineis,
-        "painel": painel,
-        "servidor": servidor,
-        "casa": casa,
-        "ocorrencias": ocorrencias,
-        "panel_title": panel_title,
-        "comentario_form": ComentarioForm(),
-        "ocorrencia_form": OcorrenciaForm(),
-        "PRIORITY_CHOICES": Ocorrencia.PRIORITY_CHOICES,
-    }
-
-    return render(request, "ocorrencias/painel.html", context)
-
-
-@login_required
-def busca_nominal(request, origin="tudo"):
-    term = request.GET.get("term", None)
-    if term is None:
-        return JsonResponse(
-            [{"label": _("Erro na pesquisa por termo"), "value": "type=error"}],
-            safe=False,
-        )
-
-    data = []
-
-    if origin == "casa" or origin == "tudo":
-        casas = Orgao.objects.filter(
-            search_text__icontains=to_ascii(term)
-        ).select_related("municipio", "municipio__uf")[:10]
-        data += [
-            {
-                "value": c.pk,
-                "label": "%s, %s"
-                % (
-                    c.nome,
-                    c.municipio.uf.sigla,
-                ),
-                "origin": "casa",
-            }
-            for c in casas
-        ]
-
-    if origin == "servidor" or origin == "tudo":
-        servidores = Servidor.objects.filter(nome_completo__icontains=term)[:10]
-        data += [
-            {"value": s.pk, "label": s.nome_completo, "origin": "servidor"}
-            for s in servidores
-        ]
-
-    if origin == "servico" or origin == "tudo":
-        setores = Servico.objects.filter(
-            nome__icontains=term
-        ) | Servico.objects.filter(sigla__icontains=term)
-        setores = setores[:10]
-        data += [
-            {
-                "value": s.pk,
-                "label": "%s - %s" % (s.sigla, s.nome),
-                "origin": "servico",
-            }
-            for s in setores
-        ]
-
-    data = sorted(data, key=lambda d: d["label"])
-
-    return JsonResponse(data, safe=False)
-
-
-@login_required
-@require_POST
-def muda_prioridade(request):
-    id_ocorrencia = request.POST.get("id_ocorrencia", None)
-    prioridade = request.POST.get("prioridade", None)
-
-    if id_ocorrencia is None or prioridade is None:
-        return JsonResponse(
-            {"result": "error", "message": _("Erro nos parâmetros")}
-        )
-
-    if not any([int(prioridade) == p[0] for p in Ocorrencia.PRIORITY_CHOICES]):
-        return JsonResponse(
-            {"result": "error", "message": _("Valor de prioridade não aceito")}
-        )
-
-    try:
-        ocorrencia = Ocorrencia.objects.get(pk=id_ocorrencia)
-    except Exception as e:
-        return JsonResponse({"result": "error", "message": str(e)})
-
-    ocorrencia.prioridade = prioridade
-    ocorrencia.save()
-
-    return JsonResponse(
-        {"result": "success", "message": _("Prioridade alterada")}
-    )
-
-
-@login_required
-def exclui_anexo(request):
-    anexo_id = request.GET.get("anexo_id", None)
-
-    if anexo_id is None:
-        return JsonResponse(
-            {"result": "error", "message": _("Erro nos parâmetros")}
-        )
-
-    try:
-        anexo = Anexo.objects.get(pk=anexo_id)
-    except Exception as e:
-        return JsonResponse({"result": "error", "message": str(e)})
-
-    ocorrencia = anexo.ocorrencia
-    anexo.delete()
-
-    link_label = ngettext(
-        "%s arquivo anexo", "%s arquivos anexos", ocorrencia.anexo_set.count()
-    ) % (ocorrencia.anexo_set.count(),)
-
-    painel = render_to_string(
-        "ocorrencias/anexos_snippet.html",
-        {"ocorrencia": ocorrencia},
-        context_instance=RequestContext(request),
-    )
-
-    return JsonResponse(
-        {
-            "result": "success",
-            "message": _("Anexo %s excluído com sucesso" % (anexo_id,)),
-            "link_label": link_label,
-            "anexos_panel": painel,
+    def get_form_classes(self):
+        form_classes = {
+            "ocorrencia": OcorrenciaChangeForm,
+            "comentario": ComentarioInternoForm,
         }
+        if hasattr(self, "form_classes"):
+            form_classes.update(self.form_classes)
+        return form_classes
+
+    def get_form(self, name=None):
+        form_classes = self.get_form_classes()
+        if name is None:
+            name = list(form_classes.keys())[
+                list(form_classes.values()).index(self.get_form_class())
+            ]
+        form_class = form_classes[name]
+        kwargs = self.get_form_kwargs()
+        kwargs["prefix"] = name
+        if hasattr(self, f"get_{name}_form_kwargs"):
+            f = getattr(self, f"get_{name}_form_kwargs")
+            kwargs.update(f())
+        return form_class(**kwargs)
+
+    def get_comentario_form_kwargs(self):
+        ocorrencia = self.get_object()
+        if self.request.user.servidor:
+            usuario = self.request.user.servidor
+        else:
+            usuario = Servidor.objects.get(sigi=True)
+        return {"instance": Comentario(ocorrencia=ocorrencia, usuario=usuario)}
+
+    def get(self, request, *args, **kwargs):
+        self.list_filter = request.GET.get("list_filter", "")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.list_filter = request.GET.get("list_filter", "")
+        self.object = self.get_object()
+        for name in self.get_form_classes():
+            if f"save_{name}_form" in request.POST:
+                form = self.get_form(name)
+                if form.is_valid():
+                    form_valid_method = getattr(
+                        self, f"form_{name}_valid", self.form_valid
+                    )
+                    return form_valid_method(form)
+                else:
+                    form_invalid_method = getattr(
+                        self, f"form_{name}_invalid", self.form_invalid
+                    )
+                    return form_invalid_method(form)
+        messages.warning(request, _("Nenhuma alteração salva"))
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        self.object = self.get_object()
+        # Adiciona todos os forms no contexto
+        for name in self.get_form_classes():
+            if f"form_{name}" not in kwargs:
+                kwargs[f"form_{name}"] = self.get_form(name)
+        # Adiciona campos básicos da ocorrência a serem mostrados
+        kwargs["campos_ocorrencia"] = [
+            "assunto",
+            "casa_legislativa",
+            "categoria",
+            "descricao",
+            "data_criacao",
+            "data_modificacao",
+        ]
+        kwargs["list_filter"] = self.list_filter
+        return super().get_context_data(**kwargs)
+
+
+class OficinaChangeView(BaseOcorrenciaChangeView):
+    template_name = "ocorrencias/oficina/painel_oficina_detail.html"
+    form_classes = {"oficina": AutorizaOficinaForm}
+    success_url_name = "ocorrencias_painel_oficina"
+
+    def form_oficina_valid(self, form):
+        ocorrencia = form.instance
+        dados = form.cleaned_data
+        total = 0
+        for tipo_evento in dados["oficinas"]:
+            evento = Evento(
+                tipo_evento=tipo_evento,
+                nome=_(
+                    f"{tipo_evento.nome} na {ocorrencia.casa_legislativa.nome}"
+                ),
+                descricao=_(
+                    f"{tipo_evento.nome} na {ocorrencia.casa_legislativa.nome}, oriunda da Ocorrência #{ocorrencia.id}"
+                ),
+                virtual=dados["virtual"],
+                solicitante=ocorrencia.casa_legislativa.presidente.nome_completo
+                if ocorrencia.casa_legislativa.presidente
+                else "",
+                num_processo=ocorrencia.processo_sigad,
+                data_pedido=ocorrencia.data_criacao,
+                solicitacao=ocorrencia,
+                data_inicio=dados["data_inicio"],
+                data_termino=dados["data_termino"],
+                casa_anfitria=ocorrencia.casa_legislativa,
+                municipio=ocorrencia.casa_legislativa.municipio,
+                status=Evento.STATUS_ACONFIRMAR,
+            )
+            evento.save()
+            total += 1
+        messages.info(self.request, _(f"{total} evento(s) criado(s)"))
+        return HttpResponseRedirect(self.get_success_url())
+
+    def get_context_data(self, **kwargs):
+        ocorrencia = self.get_object()
+        infos = ocorrencia.infos["solicita_oficinas"]
+        senadores = Senador.objects.filter(id__in=infos["senadores"])
+        context = super().get_context_data(**kwargs)
+        context["senadores"] = senadores
+        return context
+
+
+class ConvenioChangeView(BaseOcorrenciaChangeView):
+    template_name = "ocorrencias/convenio/painel_convenio_detail.html"
+    success_url_name = "ocorrencias_painel_convenio"
+
+    def post(self, request, *args, **kwargs):
+        self.list_filter = request.GET.get("list_filter", "")
+        if (
+            "apply_casa" in request.POST
+            or "apply_presidente" in request.POST
+            or "apply_contato" in request.POST
+        ):
+            self.apply_changes(request)
+            return HttpResponseRedirect(self.get_success_url())
+        return super().post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ocorrencia = self.get_object()
+        context = super().get_context_data(**kwargs)
+        solicitacao = (
+            ocorrencia.infos["solicita_convenio"]
+            if ocorrencia.infos and "solicita_convenio" in ocorrencia.infos
+            else {}
+        )
+        if not "aplicados" in solicitacao:
+            solicitacao["aplicados"] = []
+
+        context["infos"] = solicitacao
+        context["casa"] = ocorrencia.casa_legislativa
+        context["novo_presidente"] = (
+            get_object_or_404(Parlamentar, id=solicitacao["presidente"]["id"])
+            if "presidente" in solicitacao
+            else None
+        )
+        context["contato"] = (
+            ocorrencia.casa_legislativa.contato_interlegis or Funcionario()
+        )
+        return context
+
+    def apply_changes(self, request):
+        ocorrencia = self.get_object()
+        solicitacao = (
+            ocorrencia.infos["solicita_convenio"]
+            if ocorrencia.infos and "solicita_convenio" in ocorrencia.infos
+            else {}
+        )
+        casa = ocorrencia.casa_legislativa
+        novo_presidente = (
+            get_object_or_404(Parlamentar, id=solicitacao["presidente"]["id"])
+            if "presidente" in solicitacao
+            else None
+        )
+        contato = casa.contato_interlegis or Funcionario(
+            casa_legislativa=casa, setor="contato_interlegis"
+        )
+
+        if not "aplicados" in solicitacao:
+            solicitacao["aplicados"] = []
+
+        if (
+            "apply_casa" in request.POST
+            and "casa_legislativa" in solicitacao
+            and not "casa_legislativa" in solicitacao["aplicados"]
+        ):
+            if ocorrencia.casa_foto:
+                casa.foto = ocorrencia.casa_foto
+            if ocorrencia.casa_brasao:
+                casa.brasao = ocorrencia.casa_brasao
+            bound_copy(casa, solicitacao["casa_legislativa"])
+            casa.save()
+            solicitacao["aplicados"].append("casa_legislativa")
+            ocorrencia.infos = {"solicita_convenio": solicitacao}
+            ocorrencia.save()
+            messages.info(request, _("Dados da casa aplicados com sucesso"))
+            return
+        if (
+            "apply_presidente" in request.POST
+            and "presidente" in solicitacao
+            and "presidente" not in solicitacao["aplicados"]
+        ):
+            if novo_presidente is None:
+                messages.error(
+                    request,
+                    _(
+                        "A casa não possui parlamentares - impossível aplicar "
+                        "os dados de presidente"
+                    ),
+                )
+                return
+            bound_copy(novo_presidente, solicitacao["presidente"], ["id"])
+            novo_presidente.save()
+            solicitacao["aplicados"].append("presidente")
+            ocorrencia.infos = {"solicita_convenio": solicitacao}
+            ocorrencia.save()
+            messages.info(
+                request, _("Dados do presidente aplicados com sucesso")
+            )
+            return
+        if (
+            "apply_contato" in request.POST
+            and "contato" in solicitacao
+            and "contato" not in solicitacao["aplicados"]
+        ):
+            bound_copy(contato, solicitacao["contato"])
+            contato.save()
+            solicitacao["aplicados"].append("contato")
+            ocorrencia.infos = {"solicita_convenio": solicitacao}
+            ocorrencia.save()
+            messages.info(
+                request, _("Dados do contato Interlegis aplicados com sucesso")
+            )
+
+
+################################################################################
+# Views para site público - acesso dos contatos Interlegis                     #
+################################################################################
+
+
+class BaseSelecionaCasaView(TemplateView):
+    template_name = "public/ocorrencias/seleciona_casa.html"
+    title = _("Selecionar Casa Legislativa")
+    summary = _("Selecione uma Casa Legislativa")
+    success_url = reverse_lazy("ocorrencias:ocorrencia_seleciona_casa")
+    parameter_name = "casa_id"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "title": self.title,
+                "summary": self.summary,
+                "success_url": self.success_url,
+                "parameter_name": self.parameter_name,
+            }
+        )
+        return context
+
+
+class OficinaSelecionaCasaView(BaseSelecionaCasaView):
+    title = _("Solicitar oficinas / treinamentos")
+    summary = _(
+        """
+        As Casas Legislativas podem solicitar oficinas, treinamentos e encontros
+        Interlegis, tanto na modalidade presencial, quanto à distância. Para
+        efetuar a solicitação, identifique primeiramente sua Casa Legislativa
+        (na caixa de pesquisa abaixo), e então preencha o formulário de
+        solicitação de oficinas que será apresentado em seguida. Um ofício de
+        solicitação será gerado. Você deverá fazer download desse ofício,
+        solicitar que o Presidente da Casa o assine, e então, deverá fazer
+        upload da imagem do ofício assinado, para que o Interlegis possa dar
+        seguimento ao atendimento de sua demanda. Assim que recebermos o ofício,
+        entraremos em contato com a Casa Legislativa para definirmos as melhores
+        datas e acertarmos os diversos detalhes para a realização do evento.
+        """
     )
+    success_url = reverse_lazy("ocorrencias:solicita_oficina_create")
 
 
-@login_required
-def inclui_anexo(request):
-    if request.method == "POST":
-        form = AnexoForm(request.POST, request.FILES)
-        if form.is_valid():
-            anexo = form.save()
-            return HttpResponse(
-                '<script type="text/javascript">opener.dismissAddAnexoPopup(window, "%s");</script>'
-                % escape(anexo.ocorrencia_id)
+class ConvenioSelecionaCasaView(BaseSelecionaCasaView):
+    title = _("Solicitar convênio / Acordo de Cooperação Técnica")
+    summary = _(
+        """
+        <p>Para que uma Casa Legislativa possa utilizar, gratuitamente, os
+        serviços do Interlegis / Senado Federal, é necessário formalizar um
+        convênio, na forma de um Acordo de Cooperação Técnica (ACT), conforme
+        a Lei Nº 14.133/2021 e a Lei Nº 8.666/1993.</p>
+        <p>Para solicitar o ACT, serão necessárias as seguintes informações:</p>
+        <ul>
+          <li>Dados cadastrais da Casa Legislativa, como CNPJ, endereço, e-mail,
+          telefone.</li>
+          <li>Dados cadastrais do Presidente, como nome, CPF, identidade,
+          e-mail, telefone, redes sociais.</li>
+          <li>Designação de um servidor como Contato Interlegis.</li>
+        </ul>
+        """
+    )
+    success_url = reverse_lazy("ocorrencias:solicita_convenio")
+
+
+class OcorrenciaListView(
+    ContatoInterlegisViewMixin, LoginRequiredMixin, ListView
+):
+    model = Ocorrencia
+    paginate_by = 100
+    template_name = "public/ocorrencias/ocorrencia_list.html"
+
+    def get_queryset(self):
+        casa = self.get_casa()
+        statuses = self.request.GET.getlist(
+            "status", [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]
+        )
+        if casa:
+            return casa.ocorrencia_set.exclude(interno=True).filter(
+                status__in=statuses
             )
         else:
-            ocorrencia = form.instance.ocorrencia
-    else:
-        ocorrencia_id = request.GET.get("ocorrencia_id", None)
-        ocorrencia = get_object_or_404(Ocorrencia, pk=ocorrencia_id)
-        form = AnexoForm(instance=Anexo(ocorrencia=ocorrencia))
-    return render(
-        request,
-        "ocorrencias/anexo_form.html",
-        {"form": form, "ocorrencia": ocorrencia, "is_popup": True},
-    )
+            return Ocorrencia.objects.none()
 
-
-@login_required
-def anexo_snippet(request):
-    ocorrencia_id = request.GET.get("ocorrencia_id", None)
-    ocorrencia = get_object_or_404(Ocorrencia, pk=ocorrencia_id)
-    return render(
-        request, "ocorrencias/anexos_snippet.html", {"ocorrencia": ocorrencia}
-    )
-
-
-@login_required
-@require_POST
-def inclui_comentario(request):
-    form = ComentarioForm(request.POST)
-    if form.is_valid():
-        comentario = form.save(commit=False)
-        comentario.usuario = Servidor.objects.get(user=request.user)
-        comentario.save()
-        ocorrencia = comentario.ocorrencia
-        form = ComentarioForm()
-    else:
-        ocorrencia = form.instance.ocorrencia
-
-    painel = render_to_string(
-        "ocorrencias/ocorrencia_snippet.html",
-        {
-            "ocorrencia": ocorrencia,
-            "comentario_form": form,
-        },
-        context_instance=RequestContext(request),
-    )
-
-    return JsonResponse(
-        {"ocorrencia_id": ocorrencia.id, "ocorrencia_panel": painel}
-    )
-
-
-@login_required
-@require_POST
-def inclui_ocorrencia(request):
-    form = OcorrenciaForm(request.POST)
-
-    data = {}
-
-    if form.is_valid():
-        ocorrencia = form.save(commit=False)
-        ocorrencia.servidor_registro = Servidor.objects.get(user=request.user)
-        ocorrencia.save()
-        form = OcorrenciaForm()
-        data["result"] = "success"
-        data["ocorrencia_panel"] = render_to_string(
-            "ocorrencias/ocorrencia_snippet.html",
-            {
-                "ocorrencia": ocorrencia,
-                "comentario_form": ComentarioForm(),
-                "PRIORITY_CHOICES": Ocorrencia.PRIORITY_CHOICES,
-            },
-            context_instance=RequestContext(request),
+    def post(self, request):
+        casa = self.get_casa()
+        ocorrencia = casa.ocorrencia_set.get(
+            id=request.POST.get("ocorrencia_id", None)
         )
-    else:
-        data["result"] = "error"
+        nome = request.user.get_full_name()
+        url = reverse("ocorrencias:ocorrencia_listview")
+        url = f"{url}#ocorrencia-{ocorrencia.id}"
 
-    data["ocorrencia_form"] = render_to_string(
-        "ocorrencias/ocorrencia_form.html",
-        {"ocorrencia_form": form},
-        context_instance=RequestContext(request),
-    )
+        if "comentario_save" in request.POST:
+            usuario = (
+                request.user.servidor
+                if request.user.servidor
+                else Servidor.objects.get(sigi=True)
+            )
+            comentario = Comentario(ocorrencia=ocorrencia, usuario=usuario)
+            form = ComentarioForm(request.POST, instance=comentario)
+            if form.is_valid():
+                comentario = form.save(commit=False)
+                comentario.descricao = f"({nome}): {comentario.descricao}"
+                comentario.save()
+                messages.info(request, _("Comentário salvo"))
+            else:
+                messages.error(request, _("Corrija os erros"))
+        elif "anexo_save" in request.POST:
+            anexo = Anexo(ocorrencia=ocorrencia)
+            form = AnexoForm(request.POST, request.FILES, instance=anexo)
+            if form.is_valid():
+                anexo = form.save()
+                messages.info(request, _("Anexo salvo"))
+            else:
+                messages.error(request, _("Corrija os erros"))
 
-    return JsonResponse(data)
+        return HttpResponseRedirect(url)
+
+    def get_context_data(self, **kwargs):
+        selected_status = self.request.GET.getlist(
+            "status", [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]
+        )
+        context = super().get_context_data(**kwargs)
+        context["comentario_form"] = ComentarioForm()
+        context["anexo_form"] = AnexoForm()
+        context["statuses"] = Ocorrencia.STATUS_CHOICES
+        context["selected_status"] = list(map(int, selected_status))
+        return context
 
 
-def seleciona_casa(request):
-    context = site.each_context(request) or {}
-    casa_id = request.GET.get("casa_id", None)
+class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
+    ANEXO_DESCRICAO = _("Solicitação de convenio assinada")
 
-    if casa_id:
+    model = Ocorrencia
+    template_name = "public/ocorrencias/solicita_convenio_create.html"
+    form_classes = {
+        "casa": CasaForm,
+        "presidente": PresidenteForm,
+        "contato": ContatoForm,
+        "documentos": DocumentoForm,
+        "resumo": ComentarioForm,
+    }
+
+    def get(self, request, *args, **kwargs):
+        self.tab = kwargs.get("tab", None)
+        if self.tab is None:
+            if self.pk_url_kwarg in kwargs:
+                self.set_instances()
+                self.tab = (
+                    "casa"
+                    if "casa_legislativa" not in self.infos
+                    else "presidente"
+                    if "presidente" not in self.infos
+                    else "contato"
+                    if "contato" not in self.infos
+                    else "documentos"
+                    if "documento" in self.infos
+                    else "resumo"
+                )
+            else:
+                return self.cria_solicitacao(request, *args, **kwargs)
+        self.set_instances()
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        self.tab = request.POST.get("tab", None)
+        ocorrencia = self.get_object()
+        if self.tab is None:
+            messages.error(request, "Erro na página. Dados não foram salvos")
+            return HttpResponseRedirect(
+                reverse(
+                    "ocorrencias:solicita_convenio",
+                    kwargs={"pk": ocorrencia.id},
+                )
+            )
+        self.set_instances()
+        return super().post(request, *args, **kwargs)
+
+    def get_success_url(self, tab=None):
+        obj = self.get_object()
+        if tab is None:
+            tab = self.tab
+        return reverse(
+            "ocorrencias:solicita_convenio", kwargs={"pk": obj.id, "tab": tab}
+        )
+
+    def get_form_class(self):
+        return self.form_classes[self.tab]
+
+    def form_valid(self, form):
+        if hasattr(self, f"form_valid_{self.tab}"):
+            form_valid_function = getattr(self, f"form_valid_{self.tab}")
+            next_tab = form_valid_function(form)
+            self.object.infos = {"solicita_convenio": self.infos}
+            self.object.save()
+            if {"casa_legislativa", "presidente", "contato"}.issubset(
+                self.infos
+            ) and self.tab in ["casa", "presidente", "contato"]:
+                if "documento" in self.infos:
+                    del self.infos["documento"]
+                self.object.infos = {"solicita_convenio": self.infos}
+                self.object.save()
+                self.set_instances()
+                self.object.anexo_set.all().delete()
+                projeto = self.object.categoria.projeto
+                oficio = Anexo(
+                    ocorrencia=self.object,
+                    descricao=f"Solicitação de {projeto.sigla}",
+                )
+                oficio.arquivo.name = (
+                    f"{Anexo.arquivo.field.upload_to}/"
+                    f"solicitacao_{projeto.sigla}_{self.casa.get_sigla()}.pdf"
+                )
+                projeto.gerar_oficio(
+                    oficio.arquivo,
+                    self.casa,
+                    self.presidente,
+                    self.contato,
+                    self.request.build_absolute_uri("/"),
+                )
+                oficio.save()
+                minuta = Anexo(
+                    ocorrencia=self.object,
+                    descricao=f"Minuta de {projeto.sigla}",
+                )
+                minuta.arquivo.name = (
+                    f"{Anexo.arquivo.field.upload_to}/"
+                    f"minuta_{projeto.sigla}_{self.casa.get_sigla()}.docx"
+                )
+                projeto.gerar_minuta(
+                    minuta.arquivo.path,
+                    self.casa,
+                    self.presidente,
+                    self.contato,
+                )
+                minuta.save()
+            return HttpResponseRedirect(self.get_success_url(tab=next_tab))
+        else:
+            raise ImproperlyConfigured(f"No form_valid_{self.tab} implemented")
+
+    def get_prefix(self):
+        return self.tab
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if self.tab == "casa":
+            kwargs["instance"] = self.casa
+        elif self.tab == "presidente":
+            if "presidente" in self.infos:
+                prefix = kwargs["prefix"]
+                bounds = {
+                    f"{prefix}-{key}": value
+                    for key, value in self.infos["presidente"].items()
+                    if key != "id"
+                }
+                bounds[f"{prefix}-parlamentar"] = self.presidente
+                kwargs["data"] = bounds
+            kwargs["instance"] = self.presidente
+        elif self.tab == "contato":
+            kwargs["instance"] = self.contato
+        elif self.tab == "documentos":
+            kwargs["instance"] = Anexo(
+                ocorrencia=self.object, descricao=self.ANEXO_DESCRICAO
+            )
+        elif self.tab == "resumo":
+            if self.object.status not in [
+                Ocorrencia.STATUS_ABERTO,
+                Ocorrencia.STATUS_REABERTO,
+            ]:
+                status = Ocorrencia.STATUS_REABERTO
+            else:
+                status = None
+            kwargs["instance"] = Comentario(
+                ocorrencia=self.object,
+                usuario=self.object.servidor_registro,
+                novo_status=status,
+            )
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["infos"] = self.infos
+        context["tab_name"] = self.tab
+        return context
+
+    def set_instances(self):
+        self.object = self.get_object()
+        self.casa = self.object.casa_legislativa
+        self.infos = (
+            self.object.infos["solicita_convenio"]
+            if self.object.infos and "solicita_convenio" in self.object.infos
+            else {}
+        )
+        self.presidente = self.casa.presidente or (
+            Parlamentar.objects.get(id=self.infos["presidente"]["id"])
+            if "presidente" in self.infos
+            else Parlamentar(casa_legislativa=self.casa)
+        )
+        self.contato = self.casa.contato_interlegis or Funcionario(
+            casa_legislativa=self.casa, setor="contato_interlegis"
+        )
+        if self.object.casa_foto:
+            self.casa.foto = self.object.casa_foto
+        if self.object.casa_brasao:
+            self.casa.brasao = self.object.casa_brasao
+        if "casa_legislativa" in self.infos:
+            bound_copy(self.casa, self.infos["casa_legislativa"])
+        if "presidente" in self.infos:
+            bound_copy(self.presidente, self.infos["presidente"], ["id"])
+        if "contato" in self.infos:
+            bound_copy(self.contato, self.infos["contato"])
+
+    def cria_solicitacao(self, request, *args, **kwargs):
+        casa_id = request.GET.get("casa_id", None)
+        if casa_id is None:
+            messages.error(
+                request,
+                _("Selecione uma casa legislativa para iniciar o processo"),
+            )
+            return redirect(
+                reverse(
+                    "ocorrencias:ocorrencia_convenio_seleciona_casa",
+                )
+            )
         casa = get_object_or_404(Orgao, pk=casa_id)
         categoria = get_object_or_404(Categoria, tipo="C")
         tipo_contato = get_object_or_404(TipoContato, ind_site=True)
@@ -369,7 +790,10 @@ def seleciona_casa(request):
             return redirect("/")
         ocorrencia = casa.ocorrencia_set.filter(
             categoria=categoria,
-            status__in=[Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO],
+            status__in=[
+                Ocorrencia.STATUS_ABERTO,
+                Ocorrencia.STATUS_REABERTO,
+            ],
         ).first()
         if not ocorrencia:
             ocorrencia = Ocorrencia(
@@ -381,311 +805,267 @@ def seleciona_casa(request):
                     f"A {casa.nome} solicita adesão ao Programa Interlegis"
                 ),
                 servidor_registro=servidor,
+                infos={"solicita_convenio": {}},
             )
             ocorrencia.save()
-        return redirect(reverse("ocorrencias_ocorrencia", args=[ocorrencia.id]))
-
-    return render(request, "ocorrencias/convenio/seleciona_casa.html", context)
-
-
-def bound_copy(instance, bound_data, removes=None):
-    data = bound_data.copy()
-    if removes:
-        for remove_key in removes:
-            data.pop(remove_key)
-    for key, value in data.items():
-        setattr(instance, key, value)
-
-
-def ocorrencia(request, ocorrencia_id):
-    ANEXO_DESCRICAO = _("Solicitação de convenio assinada")
-
-    def set_instances():
-        if ocorrencia.casa_foto:
-            casa.foto = ocorrencia.casa_foto
-        if ocorrencia.casa_brasao:
-            casa.brasao = ocorrencia.casa_brasao
-        if "casa_legislativa" in infos:
-            bound_copy(casa, infos["casa_legislativa"])
-        if "presidente" in infos:
-            bound_copy(presidente, infos["presidente"], ["id"])
-        if "contato" in infos:
-            bound_copy(contato, infos["contato"])
-
-    ocorrencia = get_object_or_404(Ocorrencia, pk=ocorrencia_id)
-    infos = ocorrencia.infos or {}
-    casa = ocorrencia.casa_legislativa
-    presidente = casa.presidente or (
-        Parlamentar.objects.get(id=infos["presidente"]["id"])
-        if "presidente" in infos
-        else Parlamentar(casa_legislativa=casa)
-    )
-    contato = casa.contato_interlegis or Funcionario(
-        casa_legislativa=casa, setor="contato_interlegis"
-    )
-    documento = (
-        ocorrencia.anexo_set.get(id=infos["documento"]["id"])
-        if "documento" in infos
-        else Anexo(ocorrencia=ocorrencia, descricao=ANEXO_DESCRICAO)
-    )
-
-    set_instances()
-
-    contato_form = ContatoForm(instance=contato, prefix="contato")
-    documento_form = DocumentoForm(instance=documento)
-
-    if request.method == "POST":
-        if "salva_casa" in request.POST:
-            casa_form = CasaForm(
-                request.POST, request.FILES, instance=casa, prefix="casa"
+        return redirect(
+            reverse(
+                "ocorrencias:solicita_convenio",
+                kwargs={"pk": ocorrencia.id, "tab": "casa"},
             )
-            if casa_form.is_valid():
-                cleaned = casa_form.cleaned_data.copy()
-                foto = cleaned.pop("foto")
-                brasao = cleaned.pop("brasao")
-                if "foto" in casa_form.changed_data:
-                    if foto == False:
-                        if ocorrencia.casa_foto:
-                            ocorrencia.casa_foto.delete(save=True)
-                    else:
-                        ocorrencia.casa_foto = foto
-                if "brasao" in casa_form.changed_data:
-                    if brasao == False:
-                        if ocorrencia.casa_brasao:
-                            ocorrencia.casa_brasao.delete(save=True)
-                    else:
-                        ocorrencia.casa_brasao = brasao
+        )
 
-                infos["casa_legislativa"] = cleaned
-                ocorrencia.infos = infos
-                ocorrencia.save()
+    def form_valid_casa(self, form):
+        cleaned = form.cleaned_data.copy()
+        foto = cleaned.pop("foto")
+        brasao = cleaned.pop("brasao")
+        if "foto" in form.changed_data:
+            if foto == False:
+                if self.object.casa_foto:
+                    self.object.casa_foto.delete(save=True)
             else:
-                messages.error(
-                    request,
-                    _("Corrija os erros no cadastro da Casa Legislativa"),
-                )
-        elif "salva_presidente" in request.POST:
-            presidente_form = PresidenteForm(
-                request.POST, instance=presidente, prefix="presidente"
-            )
-            if presidente_form.is_valid():
-                cleaned = presidente_form.cleaned_data.copy()
-                presidente = cleaned.pop("parlamentar")
-                cleaned["id"] = presidente.id
-                infos["presidente"] = cleaned
-                ocorrencia.infos = infos
-                ocorrencia.save()
-        elif "salva_contato" in request.POST:
-            contato_form = ContatoForm(
-                request.POST, instance=contato, prefix="contato"
-            )
-            if contato_form.is_valid():
-                infos["contato"] = contato_form.cleaned_data.copy()
-                ocorrencia.infos = infos
-                ocorrencia.save()
-        elif "salva_documento" in request.POST:
-            documento_form = DocumentoForm(
-                request.POST, request.FILES, instance=documento
-            )
-            if documento_form.is_valid():
-                documento = documento_form.save()
-                infos["documento"] = {"id": documento.id}
-                ocorrencia.infos = infos
-                ocorrencia.save()
-        elif "salva_comentario" in request.POST:
-            comentario_form = ComentarioForm(request.POST)
-            if comentario_form.is_valid():
-                comentario = comentario_form.save(commit=False)
-                comentario.ocorrencia = ocorrencia
-                comentario.usuario = ocorrencia.servidor_registro
-                if ocorrencia.status not in [
-                    ocorrencia.STATUS_ABERTO,
-                    ocorrencia.STATUS_REABERTO,
-                ]:
-                    comentario.novo_status = ocorrencia.STATUS_REABERTO
-                comentario.save()
+                self.object.casa_foto = foto
+        if "brasao" in form.changed_data:
+            if brasao == False:
+                if self.object.casa_brasao:
+                    self.object.casa_brasao.delete(save=True)
+            else:
+                self.object.casa_bocorrenciarasao = brasao
 
-        set_instances()
+        self.infos["casa_legislativa"] = cleaned
+        return "presidente"
 
-        if {"casa_legislativa", "presidente", "contato"}.issubset(
-            infos
-        ) and "documento" not in infos:
-            ocorrencia.anexo_set.all().delete()
-            documento = Anexo(ocorrencia=ocorrencia, descricao=ANEXO_DESCRICAO)
-            documento_form = DocumentoForm(instance=documento)
-            projeto = ocorrencia.categoria.projeto
-            oficio = Anexo(
-                ocorrencia=ocorrencia,
-                descricao=f"Solicitação de {projeto.sigla}",
-            )
-            oficio.arquivo.name = (
-                f"{Anexo.arquivo.field.upload_to}/"
-                f"solicitacao_{projeto.sigla}_{casa.get_sigla()}.pdf"
-            )
-            projeto.gerar_oficio(
-                oficio.arquivo,
-                casa,
-                presidente,
-                contato,
-                request.build_absolute_uri("/"),
-            )
-            oficio.save()
-            minuta = Anexo(
-                ocorrencia=ocorrencia, descricao=f"Minuta de {projeto.sigla}"
-            )
-            minuta.arquivo.name = (
-                f"{Anexo.arquivo.field.upload_to}/"
-                f"minuta_{projeto.sigla}_{casa.get_sigla()}.docx"
-            )
-            projeto.gerar_minuta(minuta.arquivo.path, casa, presidente, contato)
-            minuta.save()
+    def form_valid_presidente(self, form):
+        cleaned = form.cleaned_data.copy()
+        presidente = cleaned.pop("parlamentar")
+        cleaned["id"] = presidente.id
+        self.infos["presidente"] = cleaned
+        return "contato"
 
-    if presidente.id:
-        bounds = {
-            f"presidente-{key}": value
-            for key, value in infos["presidente"].items()
-            if key != "id"
-        }
-        bounds["presidente-parlamentar"] = presidente
-        presidente_form = PresidenteForm(
-            bounds, instance=presidente, prefix="presidente"
-        )
-    else:
-        presidente_form = PresidenteForm(
-            instance=presidente, prefix="presidente"
-        )
+    def form_valid_contato(self, form):
+        self.infos["contato"] = form.cleaned_data.copy()
+        return "documentos"
 
-    context = site.each_context(request) or {}
-    context.update(
-        {
-            "ocorrencia": ocorrencia,
-            "casa_form": CasaForm(instance=casa, prefix="casa"),
-            "presidente_form": presidente_form,
-            "contato_form": contato_form,
-            "documento_form": documento_form,
-            "comentario_form": ComentarioForm(),
-            "infos": infos,
-        }
-    )
-    return render(request, "ocorrencias/convenio/ocorrencia.html", context)
+    def form_valid_documentos(self, form):
+        documento = form.save()
+        self.infos["documento"] = {"id": documento.id}
+        return "resumo"
+
+    def form_valid_resumo(self, form):
+        comentario = form.save(commit=False)
+        comentario.ocorrencia = self.object
+        comentario.usuario = self.object.servidor_registro
+        if self.object.status not in [
+            Ocorrencia.STATUS_ABERTO,
+            Ocorrencia.STATUS_REABERTO,
+        ]:
+            comentario.novo_status = Ocorrencia.STATUS_REABERTO
+        comentario.save()
+        return "resumo"
 
 
-@login_required
-def painel_convenio(request, ocorrencia_id=None):
-    context = site.each_context(request) or {}
+class SolicitaOficinaCreateView(ContatoInterlegisViewMixin, CreateView):
+    model = Ocorrencia
+    form_class = SolicitaTreinamentoForm
+    template_name = "public/ocorrencias/solicita_treinamento_create.html"
 
-    if ocorrencia_id:
-        ocorrencia = get_object_or_404(Ocorrencia, id=ocorrencia_id)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        senadores = Senador.objects.filter(uf=self.get_casa().municipio.uf)
+        kwargs.update({"senadores": senadores})
+        return kwargs
 
-        if request.method == "POST":
-            if "salva_ocorrencia" in request.POST:
-                ocorrencia_form = OcorrenciaChangeForm(
-                    request.POST, instance=ocorrencia
-                )
-                if ocorrencia_form.is_valid():
-                    ocorrencia = ocorrencia_form.save()
-                    if "processo_sigad" in ocorrencia_form.changed_data:
-                        Comentario(
-                            ocorrencia=ocorrencia,
-                            descricao=_(
-                                f"criado processo administrativo nº {ocorrencia.processo_sigad}"
-                            ),
-                            usuario=request.user.servidor,
-                        ).save()
-
-            if "salva_comentario" in request.POST:
-                comentario_form = ComentarioInternoForm(request.POST)
-                if comentario_form.is_valid():
-                    comentario = comentario_form.save(commit=False)
-                    comentario.ocorrencia = ocorrencia
-                    comentario.usuario = request.user.servidor
-                    comentario.save()
-
-        casa = ocorrencia.casa_legislativa
-        novo_presidente = (
-            get_object_or_404(
-                Parlamentar, id=ocorrencia.infos["presidente"]["id"]
-            )
-            if ocorrencia.infos["presidente"]
-            else None
-        )
-        contato = casa.contato_interlegis or Funcionario()
-
-        if not "aplicados" in ocorrencia.infos:
-            ocorrencia.infos["aplicados"] = []
-
-        apply = request.GET.get("apply", None)
-
-        if (
-            apply == "casa"
-            and "casa_legislativa" in ocorrencia.infos
-            and not "casa_legislativa" in ocorrencia.infos["aplicados"]
-        ):
-            if ocorrencia.casa_foto:
-                casa.foto = ocorrencia.casa_foto
-            if ocorrencia.casa_brasao:
-                casa.brasao = ocorrencia.casa_brasao
-            bound_copy(casa, ocorrencia.infos["casa_legislativa"])
-            casa.save()
-            ocorrencia.infos["aplicados"].append("casa_legislativa")
-            ocorrencia.save()
-
-        if (
-            apply == "presidente"
-            and "presidente" in ocorrencia.infos
-            and "presidente" not in ocorrencia.infos["aplicados"]
-        ):
-            bound_copy(novo_presidente, ocorrencia.infos["presidente"], ["id"])
-            novo_presidente.save()
-            ocorrencia.infos["aplicados"].append("presidente")
-            ocorrencia.save()
-
-        if (
-            apply == "contato"
-            and "contato" in ocorrencia.infos
-            and "contato" not in ocorrencia.infos["aplicados"]
-        ):
-            bound_copy(contato, ocorrencia.infos["contato"])
-            contato.save()
-            ocorrencia.infos["aplicados"].append("contato")
-            ocorrencia.save()
-
-        infos = copy.deepcopy(ocorrencia.infos)
-
-        if infos["presidente"]:
-            del infos["presidente"]["id"]
-
-        context.update(
+    def get_initial(self):
+        initial = super().get_initial()
+        initial.update(
             {
-                "ocorrencia": ocorrencia,
-                "campos_ocorrencia": [
-                    "assunto",
-                    "casa_legislativa",
-                    "categoria",
-                    "descricao",
-                    "data_criacao",
-                    "data_modificacao",
-                ],
-                "infos": infos,
-                "casa": casa,
-                "novo_presidente": novo_presidente,
-                "contato": contato,
-                "comentario_form": ComentarioInternoForm(),
-                "ocorrencia_form": OcorrenciaChangeForm(instance=ocorrencia),
+                "senadores": Senador.objects.filter(
+                    uf=self.get_casa().municipio.uf
+                )
             }
         )
+        return initial
 
-        return render(
-            request, "ocorrencias/convenio/painel_convenio_detail.html", context
+    def get(self, request, *args, **kwargs):
+        casa_id = request.GET.get("casa_id", None)
+        if request.user.is_anonymous and casa_id is None:
+            return HttpResponseRedirect(
+                reverse("ocorrencias:ocorrencia_oficina_seleciona_casa")
+            )
+
+        if casa_id:
+            self.request.session["casa_id"] = casa_id
+
+        ocorrencia = Ocorrencia.objects.filter(
+            casa_legislativa=self.get_casa(),
+            status__in=[
+                Ocorrencia.STATUS_ABERTO,
+                Ocorrencia.STATUS_REABERTO,
+            ],
+            categoria__tipo="E",
+        ).first()
+        if ocorrencia:
+            messages.info(
+                request,
+                _("Existe esta solicitação de treinamento em andamento."),
+            )
+            return HttpResponseRedirect(
+                reverse(
+                    "ocorrencias:solicita_oficina_view",
+                    kwargs={"pk": ocorrencia.id},
+                )
+            )
+        return super().get(request, *args, **kwargs)
+
+    def get_success_url(self):
+        return reverse(
+            "ocorrencias:solicita_oficina_view",
+            kwargs={"pk": self.object.id},
         )
 
-    base_query = Ocorrencia.objects.filter(
-        status__in=[Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO],
-        categoria__tipo="C",
-    )
-    ocorrencias = base_query.filter(infos__has_any_keys=Ocorrencia.INFO_KEYS)
-    ocorrencias = ocorrencias.union(
-        base_query.exclude(infos__has_any_keys=Ocorrencia.INFO_KEYS)
-    )
-    context["ocorrencias"] = ocorrencias
-    return render(request, "ocorrencias/convenio/painel_convenio.html", context)
+    def form_valid(self, form):
+        casa = self.get_casa()
+        contato = self.get_contato() or Funcionario(nome="NÃO IDENTIFICADO")
+        self.object = form.save(commit=False)
+        data = form.cleaned_data
+        oficinas = form.cleaned_data["oficinas"]
+        data["oficinas"] = list(oficinas.values_list("id", flat=True))
+        senadores = form.cleaned_data["senadores"]
+        data["senadores"] = list(senadores.values_list("id", flat=True))
+        self.object.casa_legislativa = casa
+        self.object.categoria = Categoria.objects.filter(tipo="E").first()
+        self.object.tipo_contato = TipoContato.objects.filter(
+            ind_site=True
+        ).first()
+        self.object.assunto = _("Solicitação de oficinas Interlegis")
+        self.object.interno = False
+        self.object.descricao = _(
+            f"O Contato Interlegis { contato.nome } solicita a realização das "
+            f"seguites oficinas na { casa }, conforme ofício anexo:"
+        )
+        self.object.descricao = self.object.descricao + ", ".join(
+            o.nome for o in oficinas
+        )
+        self.object.servidor_registro = Servidor.objects.get(sigi=True)
+        self.object.infos = {"solicita_oficinas": data}
+        self.object.save()
+        oficio = Anexo(
+            ocorrencia=self.object,
+            descricao=_("Oficio de solicitação de oficinas"),
+        )
+        oficio.arquivo.name = (
+            f"{Anexo.arquivo.field.upload_to}/solicitacao_oficinas.pdf"
+        )
+        html = render_to_string(
+            "public/ocorrencias/oficio_oficina_pdf.html",
+            context={
+                "casa": casa,
+                "ocorrencia": self.object,
+                "oficinas": oficinas,
+            },
+        )
+        pdf = HTML(
+            string=html,
+            url_fetcher=django_url_fetcher,
+            encoding="utf-8",
+            base_url=self.request.build_absolute_uri("/"),
+        )
+        if not oficio.arquivo.closed:
+            oficio.arquivo.close()
+        oficio.arquivo.open(mode="wb")
+        pdf.write_pdf(target=oficio.arquivo)
+        oficio.arquivo.flush()
+        oficio.save()
+
+        return super().form_valid(form)
+
+
+class SolicitaOficinaView(ContatoInterlegisViewMixin, UpdateView):
+    model = Anexo
+    form_class = DocumentoForm
+    template_name = "public/ocorrencias/solicita_treinamento_view.html"
+
+    def get_success_url(self):
+        return (
+            reverse("ocorrencias:ocorrencia_listview")
+            + f"#{self.object.ocorrencia.id}"
+        )
+
+    def get_object(self, queryset=None):
+        pk = self.kwargs.get(self.pk_url_kwarg)
+        if pk is None:
+            raise AttributeError(
+                "Generic detail view %s must be called with either an object "
+                "pk or a slug in the URLconf." % self.__class__.__name__
+            )
+        try:
+            ocorrencia = Ocorrencia.objects.get(pk=pk)
+        except Ocorrencia.DoesNotExist:
+            raise Http404(
+                _("No %(verbose_name)s found matching the query")
+                % {"verbose_name": Ocorrencia._meta.verbose_name}
+            )
+        return Anexo(
+            ocorrencia=ocorrencia,
+            descricao=_("Oficio de solicitação de oficinas assinado"),
+        )
+
+    def get_casa(self):
+        if self.request.user.is_anonymous:
+            return self.get_object().ocorrencia.casa_legislativa
+        else:
+            return super().get_casa()
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        anexo = self.object
+        casa = self.get_casa()
+        senadores = anexo.ocorrencia.get_infos_senadores()
+        if casa.presidente and casa.presidente.email:
+            sender = {
+                "nome": casa.presidente.nome_completo,
+                "email": casa.presidente.email,
+                "funcao": _("Presidente"),
+            }
+        elif casa.contato_interlegis and casa.contato_interlegis.email:
+            sender = {
+                "nome": casa.contato_interlegis.nome,
+                "email": casa.contato_interlegis.email,
+                "funcao": casa.contato_interlegis,
+            }
+        else:
+            sender = {
+                "nome": "",
+                "email": settings.DEFAULT_FROM_EMAIL,
+                "funcao": _("Presidente"),
+            }
+        email = EmailMessage(
+            subject=_("Solicitação de oficinas Interlegis"),
+            from_email=sender["email"],
+            reply_to=[sender["email"]],
+        )
+        if sender["email"] != settings.DEFAULT_FROM_EMAIL:
+            email.cc = [sender["email"]]
+        email.content_subtype = "html"
+        email.attach_file(anexo.arquivo.path)
+        for senador in senadores:
+            email.to = [senador.email]
+            email.body = render_to_string(
+                "ocorrencias/oficina/email_senador.html",
+                context={"casa": casa, "senador": senador, "sender": sender},
+            )
+            email.send()
+
+        messages.info(
+            self.request,
+            _(
+                "Email enviado para os senadores "
+                + ", ".join([s.nome_parlamentar for s in senadores])
+            ),
+        )
+        return response
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["ocorrencia"] = self.get_object().ocorrencia
+        return context

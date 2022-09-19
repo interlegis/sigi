@@ -10,6 +10,7 @@ from sigi.apps.contatos.models import (
     Telefone,
     Contato,
 )
+from sigi.apps.parlamentares.models import Senador
 from sigi.apps.utils import queryset_ascii
 
 
@@ -19,6 +20,11 @@ class MesorregiaoInline(admin.TabularInline):
 
 class MicrorregiaoInline(admin.TabularInline):
     model = Microrregiao
+
+
+class SenadorInline(admin.StackedInline):
+    model = Senador
+    extra = 0
 
 
 @admin.register(UnidadeFederativa)
@@ -32,7 +38,7 @@ class UnidadeFederativaAdmin(admin.ModelAdmin):
     )
     search_fields = ("search_text", "codigo_ibge", "sigla", "regiao")
     get_queryset = queryset_ascii
-    inlines = (MesorregiaoInline,)
+    inlines = (SenadorInline, MesorregiaoInline)
 
 
 @admin.register(Mesorregiao)

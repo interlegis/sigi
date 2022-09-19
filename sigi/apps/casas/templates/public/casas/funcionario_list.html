@@ -1,0 +1,67 @@
+{% extends 'public/base_site.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .pagination span {
+      font-weight: bold;
+    }
+    .pagination i {
+      vertical-align: middle;
+      margin: 0 24px;
+      color: #000 !important;
+    }
+  </style>
+{% endblock extrastyle %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <table class="striped">
+            <tr>
+              <th>{% trans 'Setor' %}</th>
+              <th>{% trans 'Nome' %}</th>
+              <th>{% trans 'CPF' %}</th>
+              <th>{% trans 'Telefones' %}</th>
+              <th>{% trans 'E-mail' %}</th>
+            </tr>
+            {% for funcionario in object_list %}
+              <tr>
+                <td><a href="{% url 'casas:funcionario_update' funcionario.id %}">{{ funcionario.get_setor_display }}</a></td>
+                <td><a href="{% url 'casas:funcionario_update' funcionario.id %}">{{ funcionario.nome }}</a></td>
+                <td>{{ funcionario.cpf }}</td>
+                <td>{{ funcionario.nota }}</td>
+                <td>{{ funcionario.email }}</td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="card-action">
+          <div class='pagination'>
+            {% if page_obj.has_previous %}
+              <a href='{% url "casas:funcionario_listview" %}?page={{ page_obj.previous_page_number }}{% if suplentes %}&suplentes=1{% endif %}'><i class="material-icons">skip_previous</i></a>
+            {% endif %}
+            {% if page_obj.paginator.num_pages > 1 %}
+            <span>
+              {% blocktranslate with number=page_obj.number num_pages=page_obj.paginator.num_pages %}
+                Página {{ number }} de {{ num_pages }}
+              {% endblocktranslate %}
+            </span>
+            {% endif %}
+            {% if page_obj.has_next %}
+              <a href='{% url "casas:funcionario_listview" %}?page={{ page_obj.next_page_number }}{% if suplentes %}&suplentes=1{% endif %}'><i class="material-icons">skip_next</i></a>
+            {% endif %}
+            <a class="btn waves-effect waves-light white-text" href="{% url 'casas:funcionario_create' %}">
+              {% trans 'Novo' %}
+              <i class="material-icons right">create</i>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "public/base_site.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
+<link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css" />
+<link rel="stylesheet" href="{% static 'ocorrencias/css/ocorrencia.css' %}" type="text/css" />
+{% endblock %}
+
+{% block usertools %}
+<div id="user-tools">
+  <a href="/">{% trans "Início" %}</a>
+  <a href="{% url 'home_index' %}">{% trans "Entrar" %}</a>
+</div>
+{% endblock %}
+
+{% block side_nav %}{% endblock %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{{ title }}</span>
+          <p>{{ summary|safe }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{% trans "Identifique sua Casa Legislativa" %}</span>
+          <p>{% trans "Informe o nome do município ou Estado da sua Casa Legislativa" %}:</p>
+          <div class="input-field">
+            <i class="material-icons prefix">search</i>
+            <input type="text" class="search-text" placeholder="{% trans "Procurar" %}" aria-label="{% trans "Procurar" %}" data-source="{% url 'openmapsearch' %}" data-param="q">
+            <div class="search-result hide" data-item-click="seleciona_casa"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'js/search.js' %}"></script>
+  <script>
+    function seleciona_casa(data) {
+      $(location).attr("href", `{{ success_url }}?{{ parameter_name }}=${data.id}`);
+    }
+  </script>
+{% endblock %}

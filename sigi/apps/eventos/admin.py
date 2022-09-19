@@ -3,6 +3,7 @@ from django.contrib import admin
 from django.http import HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import path
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
 from import_export.fields import Field
@@ -118,8 +119,10 @@ class CronogramaInline(admin.StackedInline):
 
 
 @admin.register(TipoEvento)
-class TipoEventAdmin(admin.ModelAdmin):
-    search_fields = ("nome",)
+class TipoEventoAdmin(admin.ModelAdmin):
+    list_display = ["nome", "categoria"]
+    list_filter = ["categoria", "casa_solicita"]
+    search_fields = ["nome"]
     inlines = [ChecklistInline]
 
 
@@ -147,9 +150,12 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     resource_class = EventoResource
     date_hierarchy = "data_inicio"
     list_display = (
+        "get_banner",
         "nome",
         "tipo_evento",
+        "turma",
         "status",
+        "publicar",
         "link_sigad",
         "data_inicio",
         "data_termino",
@@ -157,8 +163,10 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "solicitante",
         "total_participantes",
     )
+    list_display_links = ["get_banner", "nome"]
     list_filter = (
         "status",
+        "publicar",
         ("num_processo", EmptyFilter),
         "tipo_evento",
         "tipo_evento__categoria",
@@ -186,13 +194,20 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     save_as = True
 
+    @admin.display(description=_("número do processo SIGAD"))
     def link_sigad(self, obj):
         if obj.pk is None:
             return ""
-        return obj.get_sigad_url()
+        return mark_safe(obj.get_sigad_url())
 
-    link_sigad.short_description = _("número do processo SIGAD")
-    link_sigad.allow_tags = True
+    @admin.display(description=_("banner"))
+    def get_banner(self, obj):
+        if obj.banner:
+            return mark_safe(
+                f'<img src="{obj.banner.url}" width="60" height="60" />'
+            )
+        else:
+            return ""
 
     def lookup_allowed(self, lookup, value):
         return super(EventoAdmin, self).lookup_allowed(

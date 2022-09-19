@@ -19,6 +19,10 @@
     {% if user.is_superuser %}
       {% show_menu 'admin_menu' %}
     {% endif %}
-    {% show_menu 'main_menu' %}
+    {% if user.is_staff %}
+      {% show_menu 'main_menu' %}
+    {% else %}
+      {% show_menu 'contato_menu' %}
+    {% endif %}
   </ul>
 </div>

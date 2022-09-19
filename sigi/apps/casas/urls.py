@@ -1,71 +1,28 @@
 from django.urls import path, include
 from sigi.apps.casas import views
 
+app_name = "casas"
+
 urlpatterns = [
+    path("orgao/update/", views.CasaUpdateView.as_view(), name="orgao_update"),
     path(
-        "orgao/casas_sem_convenio_report/",
-        views.CasasSemConvenioReport.as_view(),
-        name="casas-sem-convenio-report",
+        "funcionario/",
+        views.FuncionarioListView.as_view(),
+        name="funcionario_listview",
     ),
-    path("carteira/", views.painel_relacionamento, name="casas-carteira"),
+    path(
+        "funcionario/create/",
+        views.FuncionarioCreateView.as_view(),
+        name="funcionario_create",
+    ),
+    path(
+        "funcionario/<int:pk>/",
+        views.FuncionarioUpdateView.as_view(),
+        name="funcionario_update",
+    ),
+    path(
+        "funcionario/<int:pk>/delete/",
+        views.FuncionarioDeleteView.as_view(),
+        name="funcionario_delete",
+    ),
 ]
-
-
-"""
-from django.conf.urls import patterns, url
-from django.contrib.auth.decorators import login_required
-from sigi.apps.casas.views import importa_casas
-
-
-urlpatterns = patterns(
-    'sigi.apps.casas.views',
-
-    # Informacoes de uma casa legislativa
-    url(r'^orgao/report_complete/$', 'report_complete',
-        name='report-complete-all'),
-    url(r'^orgao/(?P<id>\w+)/report_complete/$', 'report_complete',
-        name='report-complete-id'),
-
-    # Reports Labels
-    url(r'^orgao/labels/$', 'labels_report', name='labels-report-all'),
-    url(r'^orgao/(?P<id>\w+)/labels/$', 'labels_report',
-        name='labels-report-id'),
-
-    # Reports Labels Parlamentar
-    url(r'^orgao/labels_parlamentar/$', 'labels_report_parlamentar',
-        name='lebels-report-parlamentar-all'),
-    url(r'^orgao/(?P<id>\w+)/labels_parlamentar/$', 'labels_report_parlamentar',
-        name='labels-report-parlamentar-id'),
-
-
-    # Reports labels sem presidente
-    url(r'^orgao/labels_sem_presidente/$', 'labels_report_sem_presidente',
-        name='labels-report-sem-presidente-all'),
-    url(r'^orgao/(?P<id>\w+)/labels_sem_presidente/$',
-        'labels_report_sem_presidente', name='labels-report-sem-presidente-id'),
-
-    # Reports casas sem convenio
-    url(r'^orgao/reports/$', 'report', name='casa-report'),
-    url(r'^orgao/casas_sem_convenio_report/$', 'casas_sem_convenio_report',
-        name='casas-sem-convenio-report'),
-
-    # CSV
-    url(r'^orgao/csv/$', 'export_csv', name='casa-export-csv'),  # Error
-
-    # Carrinho
-    url(r'^orgao/carrinho/$', 'visualizar_carrinho',
-        name='visualizar-carrinho'),
-    url(r'^orgao/carrinho/excluir_carrinho/$', 'excluir_carrinho',
-        name='excluir-carrinho'),  # Error
-    url(r'^orgao/carrinho/deleta_itens_carrinho$', 'deleta_itens_carrinho',
-        name='deleta-itens-carrinho'),  # Error
-    url(r'^portfolio/$', 'portfolio', name='casas-portfolio'),
-    url(r'^carteira/$', 'painel_relacionamento', name='casas-carteira'),
-
-    # Atualização por CSV
-    url(r'^orgao/importa/$', login_required(importa_casas.as_view()),
-        name='importar-casas'),
-    url(r'^gerentes/$', 'gerentes_interlegis',
-        name='gerentes_interlegis'),
-)
-"""

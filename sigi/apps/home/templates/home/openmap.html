@@ -33,8 +33,22 @@
 
 {% block usertools %}
 <div id="user-tools">
-  <a href="{% url 'admin:index' %}">{% trans "Entrar" %}</a>
-  <a href="{% url 'ocorrencias-seleciona-casa' %}">{% trans "Solicitar convênio" %}</a>
+  {% if user.is_authenticated %}
+    {% if user.is_staff %}
+      {% url 'admin:index' as entry_page %}
+    {% else %}
+      {% url 'change_password' as entry_page %}
+    {% endif %}
+    <a href="{% url 'logout' %}">
+      {% trans 'Log out' %}
+      <i class="material-icons" aria-hidden="true">exit_to_app</i>
+    </a>
+  {% else %}
+    {% url 'login' as entry_page %}
+  {% endif %}
+  <a href="{{ entry_page }}">{% trans "Entrar" %}</a>
+  <a href="{% url 'ocorrencias:ocorrencia_convenio_seleciona_casa' %}">{% trans "Solicitar convênio" %}</a>
+  <a href="{% url 'ocorrencias:ocorrencia_oficina_seleciona_casa' %}">{% trans "Solicitar oficinas" %}</a>
 </div>
 {% endblock %}
 

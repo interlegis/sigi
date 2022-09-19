@@ -10,6 +10,7 @@ from django.http.response import HttpResponseForbidden
 from django.shortcuts import render, get_list_or_404
 from django.template import Context, loader
 from django.utils.translation import gettext as _
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
@@ -25,6 +26,7 @@ from sigi.apps.convenios.models import Convenio, Gescon, Projeto
 
 
 @login_required
+@staff_member_required
 def report_regiao(request, regiao):
     REGIAO_CHOICES = dict(UnidadeFederativa.REGIAO_CHOICES)
     projetos = Projeto.objects.all()
@@ -135,11 +137,10 @@ def casas_estado_to_tabela(casas, convenios, regiao):
 
 
 @login_required
+@staff_member_required
 def importar_gescon(request):
     if not request.user.is_superuser:
         return HttpResponseForbidden()
-
-    context = admin.site.each_context(request)
 
     action = request.GET.get("action", "")
     gescon = Gescon.load()
@@ -147,7 +148,7 @@ def importar_gescon(request):
     if action == "importar":
         gescon.importa_contratos()
 
-    context["gescon"] = gescon
+    context = {"gescon": gescon}
 
     return render(request, "convenios/importar_gescon.html", context)
 

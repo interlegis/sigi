@@ -7,6 +7,25 @@
   <link rel="stylesheet" type="text/css" href="{% static 'css/materialize-adjusts.css' %}">
 {% endblock %}
 
+{% block branding %}
+  {% if user.is_staff %}
+    {% url 'admin:index' as header_url %}
+  {% else %}
+    {% url 'home_index' as header_url %}
+  {% endif %}
+  <nav class="nav-extended">
+    <div class="nav-wrapper">
+      <h1 id="site-name">
+        <a href="{{ header_url }}">
+          <strong>
+            {{ site_header }}
+          </strong>
+        </a>
+      </h1>
+    </div>
+  </nav>
+{% endblock %}
+
 {% block breadcrumbs %}{% endblock %}
 
 {% block userlinks %}
@@ -21,14 +40,16 @@
     {% endif %}
   {% endif %}
   {% if user.has_usable_password %}
-    <a href="{% url 'admin:password_change' %}">
+    <a href="{% url 'password_change' %}">
       {% trans 'Change password' %}
     </a>
   {% endif %}
-  <a href="{% url 'admin:logout' %}">
-    {% trans 'Log out' %}
-    <i class="material-icons" aria-hidden="true">exit_to_app</i>
-  </a>
+  {% if not user.is_anonymous %}
+    <a href="{% url 'logout' %}">
+      {% trans 'Log out' %}
+      <i class="material-icons" aria-hidden="true">exit_to_app</i>
+    </a>
+  {% endif %}
 {% endblock %}
 
 {% block footer %}

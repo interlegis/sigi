@@ -1,0 +1,21 @@
+{% load i18n %}
+<div class="row">
+  {% for evento in object_list %}
+  <div class="col-md-12">
+    <div style="padding: 24px;">
+      <h4 id="demo" style="margin-left:1em;">{{ evento.data_inicio|date:"SHORT_DATE_FORMAT" }}</h4>
+    </div>
+    <div class="col-md-2 hora">
+      <div class="box-hora">{{ evento.data_inicio|date:"G\hi" }}</div>
+      <br>
+    </div>
+    <div class="col-md-10">
+      <a style="color:#0095da;" href="#!">{{ evento.nome }}</a>
+      <div style="color:#666;">{% blocktrans with local=evento.local %}Local: {{ local }}{% endblocktrans %}</div>
+      <br>
+   </div>
+  </div>
+  {% empty %}
+  <div class="col-md-12">{% trans 'No events yet.' %}</div>
+  {% endfor %}
+</div>

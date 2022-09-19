@@ -47,7 +47,7 @@
   {{ block.super }}
   <script>
     function seleciona_casa(data) {
-      $(location).attr("href", `{% url 'ocorrencias-seleciona-casa' %}?casa_id=${data.id}`);
+      $(location).attr("href", `{% url 'ocorrencias:ocorrencia_convenio_seleciona_casa' %}?casa_id=${data.id}`);
     }
   </script>
 {% endblock %}

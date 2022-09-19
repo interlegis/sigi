@@ -10,9 +10,10 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext, gettext as _
 from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.eventos.models import TipoEvento
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
 from sigi.apps.servidores.models import Servico
-from sigi.apps.parlamentares.models import Parlamentar
+from sigi.apps.parlamentares.models import Parlamentar, Senador
 
 
 class AjaxSelect(forms.TextInput):
@@ -56,11 +57,9 @@ class AnexoForm(forms.ModelForm):
     class Meta:
         model = Anexo
         fields = [
-            "ocorrencia",
             "descricao",
             "arquivo",
         ]
-        widgets = {"ocorrencia": forms.HiddenInput()}
 
 
 class ComentarioForm(forms.ModelForm):
@@ -89,16 +88,10 @@ class OcorrenciaForm(forms.ModelForm):
             "ticket",
             "descricao",
         ]
-        widgets = {
-            "casa_legislativa": AutocompleteSelect(
-                Ocorrencia.casa_legislativa.field, admin.site
-            )
-        }
         # widgets = {
-        #     'casa_legislativa': AjaxSelect(
-        #         url=reverse_lazy('painel-buscacasa'),
-        #         attrs={'size':100}
-        #     ),
+        #     "casa_legislativa": AutocompleteSelect(
+        #         Ocorrencia.casa_legislativa.field, admin.site
+        #     )
         # }
 
 
@@ -106,6 +99,32 @@ class OcorrenciaChangeForm(forms.ModelForm):
     class Meta:
         model = Ocorrencia
         fields = ["prioridade", "processo_sigad"]
+
+
+class AutorizaOficinaForm(forms.ModelForm):
+    oficinas = forms.ModelMultipleChoiceField(
+        label=_("Oficinas"),
+        queryset=TipoEvento.objects.filter(casa_solicita=True),
+        required=True,
+        help_text=_("Selecione as oficinas que deseja autorizar."),
+        widget=forms.CheckboxSelectMultiple,
+    )
+    virtual = forms.BooleanField(label=_("Virtual"))
+    data_inicio = forms.DateField(label=_("Data de início"), required=True)
+    data_termino = forms.DateField(label=_("Data de término"), required=True)
+
+    class Meta:
+        model = Ocorrencia
+        fields = ["oficinas", "virtual", "data_inicio", "data_termino"]
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        autorizadas = self.instance.evento_set.values_list(
+            "tipo_evento_id", flat=True
+        )
+        self.fields["oficinas"].queryset = TipoEvento.objects.filter(
+            id__in=self.instance.infos["solicita_oficinas"]["oficinas"]
+        ).exclude(id__in=autorizadas)
 
 
 class CasaForm(forms.ModelForm):
@@ -189,9 +208,64 @@ class ComentarioForm(forms.ModelForm):
     class Meta:
         model = Comentario
         fields = ["descricao"]
+        widgets = {"descricao": MaterialAdminTextareaWidget}
 
 
 class ComentarioInternoForm(forms.ModelForm):
     class Meta:
         model = Comentario
         fields = ["descricao", "interno", "novo_status"]
+
+
+class SolicitaTreinamentoForm(forms.ModelForm):
+    MODALIDADE_CHOICES = (
+        ("R", _("Remota")),
+        ("P", _("Presencial")),
+    )
+    numero_oficio = forms.CharField(
+        max_length=50,
+        label=_("número do ofício"),
+        required=True,
+        help_text=_(
+            "Informe um número de ofício válido do protocoloco da sua "
+            "Casa Legislativa para ser impresso no ofício de solicitação."
+        ),
+    )
+    modalidade = forms.ChoiceField(
+        label=_("modalidade"),
+        choices=MODALIDADE_CHOICES,
+        initial="R",
+        required=True,
+        widget=forms.RadioSelect,
+    )
+    oficinas = forms.ModelMultipleChoiceField(
+        label=_("Oficinas"),
+        queryset=TipoEvento.objects.filter(casa_solicita=True),
+        required=True,
+        help_text=_("Selecione as oficinas que deseja participar."),
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    senadores = forms.ModelMultipleChoiceField(
+        label=_("Senadores"),
+        queryset=Senador.objects.all(),
+        required=True,
+        widget=forms.CheckboxSelectMultiple,
+        help_text=_(
+            "O ofício de solicitação precisa passar pelo gabinete de "
+            "pelo menos um Senador, para que as oficinas sejam "
+            "autorizadas. Indique os Senadores para os quais deseja "
+            "enviar o ofício de solicitação, ou deixe todos marcados "
+            "para que o ofício seja encaminhado a todos os Senadores "
+            "do seu Estado."
+        ),
+    )
+
+    class Meta:
+        model = Ocorrencia
+        fields = ["numero_oficio", "modalidade", "oficinas", "senadores"]
+
+    def __init__(self, *args, **kwargs):
+        senadores = kwargs.pop("senadores")
+        super().__init__(*args, **kwargs)
+        self.fields["senadores"].queryset = senadores

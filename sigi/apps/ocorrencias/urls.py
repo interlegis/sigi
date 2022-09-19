@@ -1,32 +1,47 @@
-from django.urls import path
+from django.urls import path, re_path
 from sigi.apps.ocorrencias import views
 
+app_name = "ocorrencias"
+
 urlpatterns = [
-    path("convenio/", views.seleciona_casa, name="ocorrencias-seleciona-casa"),
     path(
-        "ocorrencia/<int:ocorrencia_id>",
-        views.ocorrencia,
-        name="ocorrencias_ocorrencia",
+        "ocorrencia/",
+        views.OcorrenciaListView.as_view(),
+        name="ocorrencia_listview",
+    ),
+    path(
+        "ocorrencia/oficina/casa/",
+        views.OficinaSelecionaCasaView.as_view(),
+        name="ocorrencia_oficina_seleciona_casa",
+    ),
+    path(
+        "ocorrencia/oficina/create/",
+        views.SolicitaOficinaCreateView.as_view(),
+        name="solicita_oficina_create",
+    ),
+    path(
+        "ocorrencia/<int:pk>/oficina/",
+        views.SolicitaOficinaView.as_view(),
+        name="solicita_oficina_view",
+    ),
+    path(
+        "ocorrencia/convenio/casa/",
+        views.ConvenioSelecionaCasaView.as_view(),
+        name="ocorrencia_convenio_seleciona_casa",
+    ),
+    path(
+        "ocorrencia/convenio/create/",
+        views.SolicitaConvenioCreateView.as_view(),
+        name="solicita_convenio",
+    ),
+    path(
+        "ocorrencia/<int:pk>/convenio/",
+        views.SolicitaConvenioCreateView.as_view(),
+        name="solicita_convenio",
+    ),
+    re_path(
+        "ocorrencia/(?P<pk>\d+)/convenio/(?P<tab>casa|presidente|contato|documentos|resumo)/",
+        views.SolicitaConvenioCreateView.as_view(),
+        name="solicita_convenio",
     ),
 ]
-
-
-# # coding: utf-8
-# from django.conf.urls import patterns, url
-
-
-# urlpatterns = patterns(
-#     'sigi.apps.ocorrencias.views',
-#     # Painel de ocorrencias
-#     url(r'^painel/$', 'painel_ocorrencias', name='painel-ocorrencias'),
-#     url(r'^painel/buscanominal/$', 'busca_nominal', {"origin": "tudo"}, name='painel-buscanominal'),
-#     url(r'^painel/buscanominal/casa/$', 'busca_nominal', {"origin": "casa"}, name='painel-buscacasa'),
-#     url(r'^painel/buscanominal/servidor/$', 'busca_nominal', {"origin": "servidor"}, name='painel-buscaservidor'),
-#     url(r'^painel/buscanominal/servico/$', 'busca_nominal', {"origin": "servico"}, name='painel-buscaservico'),
-#     url(r'^mudaprioridade/$', 'muda_prioridade', name='ocorrencia-mudaprioridade'),
-#     url(r'^excluianexo/$', 'exclui_anexo', name='ocorrencia-excluianexo'),
-#     url(r'^incluianexo/$', 'inclui_anexo', name='ocorrencia-incluianexo'),
-#     url(r'^anexosnippet/$', 'anexo_snippet', name='ocorrencia-anexosnippet'),
-#     url(r'^incluicomentario/$', 'inclui_comentario', name='ocorrencia-incluicomentario'),
-#     url(r'^incluiocorrencia/$', 'inclui_ocorrencia', name='ocorrencia-incluiocorrencia'),
-# )

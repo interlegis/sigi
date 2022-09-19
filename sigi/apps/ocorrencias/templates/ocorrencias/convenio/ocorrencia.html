@@ -202,7 +202,7 @@
     $(document).ready(function() {
       M.Tabs.init($('.tabs'), {swipeable: true});
       $("select#id_presidente-parlamentar").on("change", function() {
-        $.get("{% url 'parlamentar-data' %}", `id=${this.value}`, function(data) {
+        $.get("{% url 'parlamentares:parlamentar_data' %}", `id=${this.value}`, function(data) {
           for(var campo of Object.keys(data[0].fields)) {
             $(`#id_presidente-${campo}`).val(data[0].fields[campo]);
           }
@@ -210,7 +210,7 @@
       })
     });
     function seleciona_casa(data) {
-      $(location).attr("href", `{% url 'ocorrencias-seleciona-casa' %}?casa_id=${data.id}`);
+      $(location).attr("href", `{% url 'ocorrencias:ocorrencia_convenio_seleciona_casa' %}?casa_id=${data.id}`);
     }
   </script>
 {% endblock %}

@@ -11,7 +11,7 @@
           <canvas id="chart-area-evolucao" data-source="{% url "home_chartseit" %}" data-legend-id="area-evolucao-legend" data-prevlink-id="area-evolucao-previlink" data-nextlink-id="area-evolucao-nextlink"></canvas>
           <div id="area-evolucao-legend"></div>
           <div>
-            <a id="area-evolucao-previlink" href="#" aria-label="{% trans "Retroceder um mês" %}" data-target="chart-area-evolucao"> 
+            <a id="area-evolucao-previlink" href="#" aria-label="{% trans "Retroceder um mês" %}" data-target="chart-area-evolucao">
               <span class="glyphicon glyphicon-chevron-left pull-left" aria-hidden="true"></span>
             </a>
             <a id="area-evolucao-nextlink" href="#" aria-label="{% trans "Avançar um mês" %}" data-target="chart-area-evolucao">
@@ -25,7 +25,7 @@
 </div>
 
 <div class="row row-flex row-flex-wrap">
-  <div id="resumo" class="col-md-6" data-source="{% url "casas-carteira" %}?snippet=resumo&s=sim"></div>
+  <div id="resumo" class="col-md-6" data-source="{% url "casas_carteira" %}?snippet=resumo&s=sim"></div>
   <div class="col-md-6">
     <div class="panel panel-primary flex-col">
       <div class="panel-heading">{% trans 'Performance da gerência de carteiras' %}</div>
@@ -34,7 +34,7 @@
           <li role="presentation"><a href="{% url "home_chartperformance" %}" data-target="chart-performance">{% trans "Todo o Interlegis" %}</a></li>
           {% for g in gerentes %}
             <li role="presentation"><a href="{% url "home_chartperformance" %}?servidor={{ g.pk }}" data-target="chart-performance">{{ g.user.first_name }}</a></li>
-          {% endfor %} 
+          {% endfor %}
         </ul>
         <div class="chartcontainer">
           <canvas id="chart-performance" data-source="{% url "home_chartperformance" %}" data-legend-id="chart-performance-all-legend"></canvas>

@@ -1,0 +1,61 @@
+{% extends 'convenios/oficio_padrao.html' %}
+{% load i18n %}
+
+{% block text_body %}
+<p>
+    {% trans "OFÍCIO Nº:" %} {{ ocorrencia.infos.solicita_oficinas.numero_oficio }}
+    <span class="right">{{ casa.municipio.nome }}, {{ casa.municipio.uf.sigla }}, {% now "DATE_FORMAT" %}.</p>
+</p>
+<br/>
+<p>{% trans "À Sua Excelência o(a) Sr(a). Senador(a)." %}</p>
+<p>{% trans "ASSUNTO:" %}<strong> {% trans "Solicitação de oficinas/encontros Interlegis." %}</strong></p>
+<br/>
+<p>{% trans "Excelentíssimo(a) Sr(a). Senador(a)," %}</p>
+<p class="justify-align">{% blocktranslate %}
+    É do conhecimento desta Câmara Municipal que o ILB-Instituto Legislativo
+    Brasileiro, gestor do programa Interlegis, tornou-se há muito a referência
+    nacional de instrumento de apoio no processo de modernização e integração
+    do Poder Legislativo brasileiro. Indubitavelmente, colabora de maneira
+    efetiva no cumprimento da Lei no. 12.527, de 2011 (sobre Acesso à
+    Informação), da Lei no. 13.709, de 2018 (sobre Proteção de Dados), e da Lei
+    Complementar no. 101, de 2000 (sobre Responsabilidade Fiscal e Transparência
+    na Gestão Pública), bem como auxilia na aderência aos marcos jurídicos
+    municipais.{% endblocktranslate %}
+</p>
+<p class="justify-align">{% blocktranslate %}
+    Da mesma forma, esta Casa reconhece que o Interlegis realiza sua missão,
+    em grande parte, com a transferência de tecnologia (disponibilização de
+    ferramentas tecnológicas para as Câmaras) e as ações de capacitação
+    (conhecidas como Oficinas e Encontros Interlegis), sem ônus direto e por
+    meio da colaboração de seus servidores especializados.{% endblocktranslate %}
+</p>
+<p class="justify-align">{% blocktranslate %}
+    Também temos ciência de que a solicitação de Oficinas e Encontros deve
+    observar as condições físicas, operacionais e de pessoal das Casas
+    legislativas.{% endblocktranslate %}
+</p>
+<p class="justify-align">{% blocktranslate %}
+    Assim, vimos solicitar a Vossa Excelência apoio para a realização dos
+    eventos a seguir, com o objetivo de habilitar os servidores desta Casa
+    legislativa e das Câmaras Municipais vizinhas para o uso dos produtos e
+    serviços do Programa Interlegis:{% endblocktranslate %}
+</p>
+<p><strong>{% trans "Na modalidade:" %}</strong>{% if ocorrencia.infos.solicita_oficinas.modalidade == 'R' %}{% trans "REMOTA (videoconferência)" %}{% else %}{% trans "PRESENCIAL" %}{% endif %}</p>
+<p><strong>{% blocktranslate count counter=oficinas|length %}A seguinte oficina:{% plural %}As seguintes oficinas:{% endblocktranslate %}</strong></p>
+<ul>{% for oficina in oficinas %}
+    <li>{{ oficina }}</li>
+{% endfor %}</ul>
+<p class="justify-align">{% blocktranslate %}
+    Confiamos também que o atendimento a esta solicitação permitirá, além da
+    qualificação técnica dos servidores, uma economia significativa de recursos
+    financeiros, tanto na área de Tecnologia da Informação quanto na capacitação
+    de Recursos Humanos.{% endblocktranslate %}
+</p>
+<br/>
+<p>{% trans "Respeitosamente," %}</p>
+<br/><br/><br/>
+<p class="center-align">_______________________________________________</p>
+<p class="center-align"><strong>{{ casa.presidente.nome_completo|upper }}</strong></p>
+<p class="center-align">{% trans "Presidente" %}</p>
+
+{% endblock %}

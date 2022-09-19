@@ -7,11 +7,14 @@ from django.utils.safestring import mark_safe
 from django.core.serializers.json import DjangoJSONEncoder
 
 from sigi.apps.convenios.models import Projeto
+from sigi.apps.eventos.models import TipoEvento
+from sigi.apps.parlamentares.models import Senador
 
 
 class Categoria(models.Model):
     TIPO_CHOICES = (
         ("C", _("Solicitação de convênio (ACT)")),
+        ("E", _("Solicitação de evento (oficina)")),
         ("O", _("Outras")),
     )
     nome = models.CharField(_("Categoria"), max_length=50)
@@ -87,7 +90,7 @@ class Ocorrencia(models.Model):
         (5, _("Baixíssimo")),
     )
 
-    INFO_KEYS = (
+    INFO_CONVENIO_KEYS = (
         ("casa_legislativa", _("Casa legislativa")),
         ("presidente", _("Presidente")),
         ("contato", _("Contato Interlegis")),
@@ -115,6 +118,14 @@ class Ocorrencia(models.Model):
     status = models.IntegerField(_("Status"), choices=STATUS_CHOICES, default=1)
     prioridade = models.IntegerField(
         _("Prioridade"), choices=PRIORITY_CHOICES, default=3
+    )
+    interno = models.BooleanField(
+        _("Interno"),
+        default=True,
+        help_text=_(
+            "Se marcado, essa ocorrência será visível apenas para servidores "
+            "do Interlegis"
+        ),
     )
     descricao = models.TextField(
         _("descrição"),
@@ -165,8 +176,8 @@ class Ocorrencia(models.Model):
         verbose_name_plural = _("ocorrências")
         ordering = [
             "prioridade",
-            "data_modificacao",
-            "data_criacao",
+            "-data_modificacao",
+            "-data_criacao",
         ]
 
     def __str__(self):
@@ -188,14 +199,49 @@ class Ocorrencia(models.Model):
             )
         return super(Ocorrencia, self).clean()
 
+    def save(self, *args, **kwargs):
+        if self.id and self.processo_sigad:
+            self.evento_set.update(num_processo=self.processo_sigad)
+        return super().save(*args, **kwargs)
+
     def get_ticket_url(self):
         return mark_safe(settings.OSTICKET_URL % self.ticket)
 
     def get_infos_details(self):
-        infos = self.infos or {}
+        if self.infos and "solicita_convenio" in self.infos:
+            infos = self.infos["solicita_convenio"]
+        else:
+            infos = {}
         return OrderedDict(
-            {key: [key in infos, label] for key, label in Ocorrencia.INFO_KEYS}
+            {
+                key: [key in infos, label]
+                for key, label in Ocorrencia.INFO_CONVENIO_KEYS
+            }
         )
+
+    def get_infos_oficinas(self):
+        if (
+            self.infos
+            and "solicita_oficinas" in self.infos
+            and "oficinas" in self.infos["solicita_oficinas"]
+        ):
+            return TipoEvento.objects.filter(
+                id__in=self.infos["solicita_oficinas"]["oficinas"]
+            )
+        else:
+            return TipoEvento.objects.none()
+
+    def get_infos_senadores(self):
+        if (
+            self.infos
+            and "solicita_oficinas" in self.infos
+            and "senadores" in self.infos["solicita_oficinas"]
+        ):
+            return Senador.objects.filter(
+                id__in=self.infos["solicita_oficinas"]["senadores"]
+            )
+        else:
+            return Senador.objects.none()
 
 
 class Comentario(models.Model):
@@ -208,7 +254,7 @@ class Comentario(models.Model):
     data_criacao = models.DateTimeField(
         _("Data de criação"), null=True, blank=True, auto_now_add=True
     )
-    descricao = models.TextField(_("Descrição"), blank=True, null=True)
+    descricao = models.TextField(_("Comentário"), blank=True, null=True)
     usuario = models.ForeignKey(
         "servidores.Servidor",
         on_delete=models.PROTECT,

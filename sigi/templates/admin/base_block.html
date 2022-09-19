@@ -5,3 +5,10 @@
   {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'css/base_block.css' %}">
 {% endblock %}
+
+{% block usertools %}
+  <div id="user-tools">
+    {% block welcome-msg %}{{ block.super }}{% endblock %}
+    {% block userlinks %}{{ block.super }}{% endblock %}
+  </div>
+{% endblock %}

@@ -2,6 +2,8 @@ from django.urls import path
 from sigi.apps.home import views
 
 urlpatterns = [
+    # Acesso público autenticado #
+    path("home/", views.HomeView.as_view(), name="home_index"),
     # mapa #
     path("", views.openmap, name="openmap"),
     path("openmapdata/", views.openmapdata, name="openmapdata"),

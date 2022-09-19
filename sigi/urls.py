@@ -19,14 +19,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path("admin/casas/", include("sigi.apps.casas.urls")),
+    path("casas/", include("sigi.apps.casas.urls")),
+    path("ocorrencias/", include("sigi.apps.ocorrencias.urls")),
+    path("parlamentares/", include("sigi.apps.parlamentares.urls")),
+    path("admin/casas/", include("sigi.apps.casas.admin_urls")),
+    path("admin/eventos/", include("sigi.apps.eventos.admin_urls")),
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
-    path("ocorrencias/", include("sigi.apps.ocorrencias.urls")),
-    path("eventos/", include("sigi.apps.eventos.urls")),
-    path("parlamentares/", include("sigi.apps.parlamentares.urls")),
     path("admin/", admin.site.urls),
     path("tinymce/", include("tinymce.urls")),
+    path("accounts/", include("sigi.apps.home.accounts_urls")),
     path("", include("sigi.apps.home.urls")),
 ]
 

@@ -1,0 +1,90 @@
+{% extends "ocorrencias/ocorrencia_detail.html" %}
+{% load i18n model_fields %}
+
+{% block content_title %}
+  <h5>{% blocktrans with casa=ocorrencia.casa_legislativa.nome %}Solicitação de oficinas da {{ casa }}{% endblocktrans %}
+  <h6>{% blocktrans with id=ocorrencia.id|safe%}Ocorrência #{{ id }}{% endblocktrans %}</h6>
+{% endblock %}
+
+{% block other_cards %}
+  <div class="row">
+    <div class="col s12">
+      <form action="{% if list_filter %}?list_filter={{ list_filter|urlencode }}{% endif %}" method="post" name="oficinas">{% csrf_token %}
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Solicitações" %}</span>
+            <blockquote>
+              <p>{% trans "Modalidade" %}: {% if ocorrencia.infos.solicita_oficinas.modalidade == 'P' %}{% trans "PRESENCIAL" %}{% else %}{% trans "REMOTA" %}{% endif %}</p>
+              <p>{% trans "Senadores" %}: {% for senador in senadores %}{{ senador.nome_completo|upper }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+            </blockquote>
+            <p>{{ form_oficina }}</p>
+          </div>
+          <div class="card-action">
+            <button class="btn waves-effect waves-light" type="submit" name="save_oficina_form">
+              {% trans "Autorizar eventos selecionados" %}
+              <i class="material-icons left">save</i>
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{% trans "Oficinas autorizadas" %}</span>
+          <table class="striped">
+            <thead>
+              <tr>
+                <th>{% trans "Nome" %}</th>
+                <th>{% trans "Turma" %}</th>
+                <th>{% trans "Status" %}</th>
+                <th>{% trans "Virtual" %}</th>
+                <th>{% trans "Data início" %}</th>
+                <th>{% trans "Data término" %}</th>
+                <th>{% trans "Equipe" %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for evento in ocorrencia.evento_set.all %}
+              <tr>
+                <th>
+                  <a href="{% url 'admin:eventos_evento_change' evento.id %}" target="_blank">
+                    {{ evento.nome }}
+                  </a>
+                  </th>
+                <td>{{ evento.turma }}</td>
+                <td>{{ evento.get_status_display }}</td>
+                <td>
+                  {% if evento.virtual %}
+                    <i class="material-icons green-color medium-icon">check_circle</i>
+                  {% else %}
+                    <i class="material-icons red-color medium-icon">highlight_off</i>
+                  {% endif %}
+                </td>
+                <td>{{ evento.data_inicio|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ evento.data_termino|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>
+                  <ul class="collection">
+                    {% for membro in evento.equipe_set.all %}
+                      <li class="collection-item avatar">
+                        {% if membro.membro.foto %}
+                          <img src="{{ membro.membro.foto.url }}" class="circle"/>
+                        {% endif %}
+                        {{ membro.membro.get_apelido }} ({{ m.funcao.nome }})
+                      </li>
+                    {% endfor %}
+                  </ul>
+                </td>
+              </tr>
+              {% empty %}
+                <tr><td colspan="6">{% trans "Nenhuma oficina autorizada ainda" %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock other_cards %}

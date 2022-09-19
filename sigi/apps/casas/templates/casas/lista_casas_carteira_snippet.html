@@ -26,27 +26,27 @@
         {% endif %}
       </form>
       <ul class="nav nav-tabs" role="tablist">
-        <li role="presentation"{% if not regiao %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}">{% trans "Todo o país" %}</a></li>
+        <li role="presentation"{% if not regiao %} class="active"{% endif %}><a href="{% url "casas_carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}">{% trans "Todo o país" %}</a></li>
         {% for k, l in regioes %}
-          <li role="presentation" {% if regiao == k %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&r={{ k }}">{{ l }}</a></li>
+          <li role="presentation" {% if regiao == k %} class="active"{% endif %}><a href="{% url "casas_carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&r={{ k }}">{{ l }}</a></li>
         {% endfor %}
       </ul>
 
       <ul class="nav nav-pills">
       {% for u in ufs %}
-        <li role="presentation" {% if u.pk == uf.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&uf={{ u.sigla }}" autocomplete="off">{{ u.nome }}</a></li>
+        <li role="presentation" {% if u.pk == uf.pk %} class="active"{% endif %}><a href="{% url "casas_carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&uf={{ u.sigla }}" autocomplete="off">{{ u.nome }}</a></li>
       {% endfor %}
       </ul>
 
       <ul class="nav nav-pills">
       {% for m in uf.mesorregiao_set.all %}
-        <li role="presentation" {% if m.pk == meso.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&meso={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
+        <li role="presentation" {% if m.pk == meso.pk %} class="active"{% endif %}><a href="{% url "casas_carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&meso={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
       {% endfor %}
       </ul>
 
       <ul class="nav nav-pills">
       {% for m in meso.microrregiao_set.all %}
-        <li role="presentation" {% if m.pk == micro.pk %} class="active"{% endif %}><a href="{% url "casas-carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&micro={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
+        <li role="presentation" {% if m.pk == micro.pk %} class="active"{% endif %}><a href="{% url "casas_carteira" %}?snippet=lista&{{ qs_servidor }}&{{ qs_servico }}&micro={{ m.pk|safe }}" autocomplete="off">{{ m.nome }}</a></li>
       {% endfor %}
       </ul>
     </div>

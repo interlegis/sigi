@@ -5,8 +5,9 @@ from functools import reduce
 from typing import OrderedDict
 from django import forms
 from django.contrib import messages
-from django.contrib.admin.sites import site
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
@@ -19,6 +20,8 @@ from django.utils.translation import (
     gettext as _,
 )
 from django.urls import reverse
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.generic import ListView
 from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
 from weasyprint import HTML
@@ -37,6 +40,7 @@ from sigi.apps.servidores.models import Servidor
 
 
 @login_required
+@staff_member_required
 def calendario(request):
     mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
     ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
@@ -62,7 +66,7 @@ def calendario(request):
         data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
     )
 
-    context = site.each_context(request) or {}
+    context = {}
 
     if formato == "cal" or pdf:
         semanas = calendar.Calendar().monthdatescalendar(
@@ -111,6 +115,7 @@ def calendario(request):
 
 
 @login_required
+@staff_member_required
 def declaracao(request, id):
     if request.method == "POST":
         form = SelecionaModeloForm(request.POST)
@@ -162,206 +167,33 @@ def declaracao(request, id):
     else:
         form = SelecionaModeloForm()
 
-    context = site.each_context(request)
-    context["form"] = form
-    context["evento_id"] = id
-
+    context = {"form": form, "evento_id": id}
     return render(request, "eventos/seleciona_modelo.html", context)
 
 
-def evento(request, id):
-    context = site.each_context(request)
-    evento = get_object_or_404(Evento, id=id)
-    anexo_id = request.GET.getlist("anexo_id", None)
-    if anexo_id:
-        context["anexos"] = evento.anexo_set.filter(id__in=anexo_id)
-        context["active"] = "anexos"
-    else:
-        context["anexos"] = evento.anexo_set.all()
+class eventoListView(ListView):
+    model = Evento
+    paginate_by = 100
+    template_name = "eventos/lista.html"
 
-    context["evento"] = evento
-    context["fields"] = [
-        "tipo_evento",
-        "descricao",
-        "virtual",
-        "publico_alvo",
-        "data_inicio",
-        "data_termino",
-        "carga_horaria",
-        "casa_anfitria",
-        "municipio",
-        "local",
-    ]
-    context["convite_fields"] = [
-        "casa",
-        "servidor",
-        "data_convite",
-        "aceite",
-        "participou",
-        "nomes_participantes",
-    ]
-    context["anexo_fields"] = ["descricao", "data_pub", "arquivo"]
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context.update({"embed": bool(self.request.GET.get("embed", False))})
+        return context
 
-    return render(request, "eventos/evento.html", context)
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return queryset.filter(
+            status=Evento.STATUS_CONFIRMADO, publicar=True
+        ).order_by("data_inicio")
 
-
-def convida_casa(request, evento_id, casa_id):
-    if not request.user.servidor:
-        messages.error(
-            request, _("Você não é servidor, não pode registrar convites")
-        )
-        return redirect(reverse("eventos-evento", args=[evento_id]))
-
-    evento = get_object_or_404(Evento, id=evento_id)
-    casa = get_object_or_404(Orgao, id=casa_id)
-
-    projetos = Projeto.objects.exclude(modelo_minuta="")
-
-    if evento.convite_set.filter(casa=casa).exists():
-        convite = evento.convite_set.get(casa=casa)
-    else:
-        convite = Convite(
-            evento=evento,
-            casa=casa,
-            servidor=request.user.servidor,
-            data_convite=timezone.localdate(),
-        )
-
-    contato = casa.contato_interlegis or Funcionario(
-        casa_legislativa=casa, setor="contato_interlegis"
-    )
-    presidente = casa.presidente
-    parlamentares = casa.parlamentar_set.all()
-
-    if request.method == "POST":
-        id_presidente = request.POST.get("id_presidente", None)
-
-        if id_presidente is None:
-            messages.error(request, _("Presidente não foi identificado"))
-            return redirect(".")
-        presidente = get_object_or_404(Parlamentar, id=id_presidente)
-
-        form_convite = ConviteForm(request.POST, instance=convite)
-        form_casa = CasaForm(request.POST, request.FILES, instance=casa)
-        form_presidente = ParlamentarForm(
-            request.POST, instance=presidente, prefix="presidente"
-        )
-        form_contato = FuncionarioForm(
-            request.POST, instance=contato, prefix="contato"
-        )
-
-        if all(
-            [
-                form_convite.is_valid(),
-                form_casa.is_valid(),
-                form_presidente.is_valid(),
-                form_contato.is_valid(),
-            ]
-        ):
-            contato = form_contato.save(commit=False)
-            contato.setor = "contato_interlegis"
-            contato.save()
-            presidente = form_presidente.save(commit=False)
-            presidente.status_mandato = "E"
-            presidente.presidente = True
-            presidente.save()
-            casa = form_casa.save()
-            convite = form_convite.save()
-
-            proj_id = request.POST.get("save", "")
-
-            if proj_id:
-                convite.anexo_set.all().delete()
-                query_str = ""
-                projeto = get_object_or_404(Projeto, id=proj_id)
-                if projeto.texto_oficio:
-                    oficio = Anexo(
-                        evento=evento,
-                        descricao=f"Ofício de solicitação de {projeto.sigla}",
-                    )
-                    sigla_casa = casa.sigla or "".join(
-                        [
-                            w[0].upper()
-                            for w in casa.nome.replace("de", "").split()
-                        ]
-                    )
-                    oficio.arquivo.name = (
-                        f"{Anexo.arquivo.field.upload_to}/"
-                        f"oficio_{projeto.sigla}_{sigla_casa}.pdf"
-                    )
-                    projeto.gerar_oficio(
-                        oficio.arquivo,
-                        casa,
-                        presidente,
-                        contato,
-                        request.build_absolute_uri("/"),
-                    )
-                    oficio.save()
-                    query_str += f"anexo_id={oficio.id}&"
-                if projeto.modelo_minuta:
-                    nome = f"Minuta de {projeto.sigla} da {casa.nome}"[:70]
-                    minuta = Anexo(descricao=nome, evento=evento)
-                    minuta.arquivo.name = (
-                        f"{Anexo.arquivo.field.upload_to}/"
-                        f"minuta_{projeto.sigla}_{sigla_casa}.docx"
-                    )
-                    projeto.gerar_minuta(
-                        minuta.arquivo.path, casa, presidente, contato
-                    )
-                    minuta.save()
-                    query_str += f"anexo_id={minuta.id}"
-
-                return redirect(evento.get_absolute_url() + "?" + query_str)
-            else:
-                return redirect(evento.get_absolute_url())
-        else:
-            messages.error(request, _("Preencha corretamente o convite"))
-    else:
-        form_convite = ConviteForm(instance=convite)
-        form_casa = CasaForm(instance=casa)
-        form_contato = FuncionarioForm(instance=contato, prefix="contato")
-        if presidente:
-            form_presidente = ParlamentarForm(
-                instance=presidente, prefix="presidente"
-            )
-        else:
-            form_presidente = ""
-
-    context = site.each_context(request) or {}
-    context.update(
-        {
-            "form_convite": form_convite,
-            "form_casa": form_casa,
-            "form_contato": form_contato,
-            "form_presidente": form_presidente,
-            "evento": evento,
-            "convite": convite,
-            "casa": casa,
-            "presidente": presidente,
-            "contato": contato,
-            "projetos": projetos,
-            "parlamentares": parlamentares,
-        }
-    )
-
-    return render(request, "eventos/convida_casa.html", context)
+    @xframe_options_exempt
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 
 
 @login_required
-def presidente_form(request, presidente_id):
-    presidente = get_object_or_404(Parlamentar, pk=presidente_id)
-    form = ParlamentarForm(instance=presidente, prefix="presidente")
-    return render(
-        request,
-        "eventos/snippets/form_presidente_snippet.html",
-        {
-            "form_presidente": form,
-            "presidente": presidente,
-        },
-    )
-
-
-@login_required
+@staff_member_required
 def alocacao_equipe(request):
     ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
     mes_pesquisa = int(request.GET.get("mes", 0))
@@ -489,17 +321,15 @@ def alocacao_equipe(request):
                 ]
             )
 
-    context = site.each_context(request) or {}
-    context.update(
-        {
-            "anos": Evento.objects.exclude(data_inicio=None)
-            .order_by("data_inicio__year")
-            .distinct("data_inicio__year")
-            .values_list("data_inicio__year", flat=True),
-            "ano_pesquisa": ano_pesquisa,
-            "linhas": linhas,
-        }
-    )
+    context = {
+        "anos": Evento.objects.exclude(data_inicio=None)
+        .order_by("data_inicio__year")
+        .distinct("data_inicio__year")
+        .values_list("data_inicio__year", flat=True),
+        "ano_pesquisa": ano_pesquisa,
+        "linhas": linhas,
+    }
+
     if mes_pesquisa > 0:
         context["mes_pesquisa"] = mes_pesquisa
         context["meses"] = meses

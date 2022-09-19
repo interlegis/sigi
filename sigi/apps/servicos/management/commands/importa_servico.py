@@ -31,7 +31,6 @@ Importa dados de serviços de arquivos TXT gerados pela COTIN.
                 or not "NAME" in reader.fieldnames
                 or not "COD_ORGAO" in reader.fieldnames
             ):
-                print(reader.fieldnames)
                 raise CommandError("Formato inválido do arquivo.")
             self.stdout.write("Estrutura parece ok.")
             self.stdout.write("Preparando dados...")

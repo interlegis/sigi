@@ -125,7 +125,7 @@
             $(`#id_contato-${campos[x][1]}`).val($(`#id_presidente-${campos[x][0]}`).val());
             }
         });
-        $.ajax("{% url 'parlamentar-json' casa.id %}", {
+        $.ajax("{% url 'parlamentares:parlamentar_json' casa.id %}", {
           dataType: 'json',
           success: function(data) {
             function complete(nome) {

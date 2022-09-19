@@ -99,6 +99,8 @@ class CartExportMixin(ExportMixin):
         else:
             if self.actions is None:
                 self.actions = []
+            else:
+                self.actions = list(self.actions)
             self.actions.append("add_to_cart")
             return super(CartExportMixin, self).get_actions(request)
 
@@ -121,9 +123,7 @@ class CartExportMixin(ExportMixin):
 
         if self._cart_viewing_name in request.session:
             extra_context["viewing_cart"] = True
-        return super(CartExportMixin, self).changelist_view(
-            request, extra_context
-        )
+        return super().changelist_view(request, extra_context)
 
     def get_urls(self):
         urls = super().get_urls()
@@ -233,9 +233,6 @@ class CartExportMixin(ExportMixin):
             return response
 
         context = self.get_export_context_data()
-
-        context.update(self.admin_site.each_context(request))
-
         context["title"] = _("Export")
         context["form"] = form
         context["opts"] = self.model._meta

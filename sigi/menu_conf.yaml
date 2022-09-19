@@ -52,6 +52,9 @@ main_menu:
     children:
       - title: Convênios
         view_name: admin:convenios_convenio_changelist
+      - title: Solicitações de convênio
+        view_name: ocorrencias_painel
+        querystr: tipo_categoria=C&status=1&status=2
   - title: Serviços SEIT
     icon: cloud_done
     children:
@@ -60,13 +63,12 @@ main_menu:
   - title: Ocorrências
     icon: comment
     children:
-      - title: Painel de ocorrências
-        view_name: painel-ocorrencias
       - title: Registro de ocorrências
-        view_name: admin:ocorrencias_ocorrencia_changelist
+        view_name: admin:ocorrencia_view_changelist
         querystr: minhas=S&status__in=1,2
-      - title: Solicitações de convênio
-        view_name: painel-convenio
+      - title: Painel de ocorrências
+        view_name: ocorrencias_painel
+        querystr: status=1&status=2
   - title: Eventos
     icon: school
     children:
@@ -88,9 +90,12 @@ main_menu:
         view_name: admin:eventos_evento_changelist
         querystr: tipo_evento__categoria__exact=V
       - title: Calendário mensal
-        view_name: eventos-calendario
+        view_name: eventos_calendario
       - title: Alocação de equipe
-        view_name: eventos-alocacao-equipe
+        view_name: eventos_alocacaoequipe
+      - title: Solicitações de eventos
+        view_name: ocorrencias_painel
+        querystr: tipo_categoria=E&status=1&status=2
   - title: Servidores
     icon: account_circle
     children:
@@ -121,3 +126,21 @@ main_menu:
         view_name: admin:eventos_modelodeclaracao_changelist
       - title: Partidos políticos
         view_name: admin:parlamentares_partido_changelist
+
+contato_menu:
+  - title: Casa legislativa
+    icon: account_balance
+    children:
+      - title: Dados cadastrais
+        view_name: casas:orgao_update
+      - title: Parlamentares
+        view_name: parlamentares:parlamentar_listview
+      - title: Contatos
+        view_name: casas:funcionario_listview
+  - title: Informações Interlegis
+    icon: cloud_done
+    children:
+      - title: Solicitar treinamentos
+        view_name: ocorrencias:solicita_oficina_create
+      - title: Ver ocorrências
+        view_name: ocorrencias:ocorrencia_listview

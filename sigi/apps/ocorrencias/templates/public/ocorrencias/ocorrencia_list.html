@@ -1,0 +1,44 @@
+{% extends 'public/base_site.html' %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'ocorrencias/css/painel_ocorrencias.css' %}">
+  <style>
+    .pagination span {
+      font-weight: bold;
+    }
+    .pagination i {
+      vertical-align: middle;
+      margin: 0 24px;
+      color: #000 !important;
+    }
+  </style>
+{% endblock extrastyle %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="breadcrumbs">
+    {% for status_code, status_label in statuses %}
+      {% if status_code in selected_status %}
+        <a class="waves-effect waves-light btn-small" href="{% url 'ocorrencias:ocorrencia_listview' %}?{% for s in selected_status %}{%if s != status_code %}status={{ s }}&{% endif %}{% endfor %}">
+          <i class="material-icons left">checked</i>
+          {{ status_label }}
+        </a>
+      {% else %}
+        <a class="waves-effect waves-light btn-small" href="{% url 'ocorrencias:ocorrencia_listview' %}?status={{ selected_status|join:'&status=' }}&status={{ status_code }}">
+        {{ status_label }}
+        </a>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% for ocorrencia in object_list %}
+    {% include 'ocorrencias/painel_snippet.html' %}
+  {% endfor %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'ocorrencias/js/painel_ocorrencias.js' %}"></script>
+{% endblock %}

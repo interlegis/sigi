@@ -1,0 +1,128 @@
+{% extends "admin/base_block.html" %}
+{% load i18n model_fields %}
+
+{% block content_title %}
+  <h5>{% blocktrans with id=ocorrencia.id|safe%}Ocorrência #{{ id }}{% endblocktrans %}</h5>
+{% endblock %}
+
+{% block content %}
+  {% csrf_token %}
+  {% block ocorrencia_card %}
+    <div class="row">
+      <div class="col s12">
+        <form action="{% if list_filter %}?list_filter={{ list_filter|urlencode }}{% endif %}" method="post" name="ocorrencia">{% csrf_token %}
+          <div class="card">
+            <div class="card-content">
+              {% block card_title %}
+              <span class="card-title">{% trans "Resumo da ocorrência" %}</span>
+              {% endblock card_title %}
+              <table>
+                <tbody>
+                  {% for campo in campos_ocorrencia %}
+                  <tr>
+                    <th>{{ ocorrencia|verbose_name:campo|capfirst }}</th>
+                    <td>{{ ocorrencia|field_value:campo|default:"-" }}</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+              {{ form }}
+            </div>
+            <div class="card-action">
+              {% block form_actions %}
+              <button class="btn waves-effect waves-light" type="submit" name="save_ocorrencia_form">
+                {% trans "Salvar" %}
+                <i class="material-icons left">save</i>
+              </button>
+              <a class="btn waves-effect waves-light white-text" href="{% url 'ocorrencias_painel' %}?{{ list_filter }}">{% trans "Voltar ao painel" %}</a>
+              {% endblock form_actions %}
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endblock ocorrencia_card %}
+
+  {% block anexos_card %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans "Anexos (documentos)" %}</span>
+            <table class="striped">
+              <thead>
+                <tr>
+                  <th>{% trans "Data de inclusão" %}</th>
+                  <th>{% trans "Descrição" %}</th>
+                  <th>{% trans "Arquivo" %}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for anexo in ocorrencia.anexo_set.all %}
+                <tr>
+                  <th>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</th>
+                  <td>{{ anexo.descricao|default:"-" }}</td>
+                  <td><a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endblock anexos_card %}
+
+  {% block comentario_card %}
+    <div class="row">
+      <div class="col s12">
+        <form action="{% if list_filter %}?list_filter={{ list_filter|urlencode }}{% endif %}" method="post" name="comentario">{% csrf_token %}
+          <div class="card">
+            <div class="card-content">
+
+              <span class="card-title">{% trans "Comentários" %}</span>
+              <table class="striped">
+                <thead>
+                  <tr>
+                    <th>{% trans "Data" %}</th>
+                    <th>{% trans "Descrição" %}</th>
+                    <th>{% trans "Servidor" %}</th>
+                    <th>{% trans "Novo status" %}</th>
+                    <th>{% trans "Visibilidade" %}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for comentario in ocorrencia.comentarios.all %}
+                  <tr>
+                    <th>{{ comentario.data_criacao|date:"SHORT_DATETIME_FORMAT" }}</th>
+                    <td>{{ comentario.descricao|default:"-" }}</td>
+                    <td>{{ comentario.usuario.nome_completo|default:"-" }}</td>
+                    <td>{{ comentario.get_novo_status_display|default:"-" }}</td>
+                    <td>
+                      {% if comentario.interno %}
+                        <i class="material-icons green-text">visibility_off</i> Interno
+                      {% else %}
+                        <i class="material-icons red-text">visibility</i> Público
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            <div class="card-action">
+              {% csrf_token %}
+              {{ form_comentario }}
+              <button class="btn waves-effect waves-light" type="submit" name="save_comentario_form">
+                {% trans "Comentar" %}
+                <i class="material-icons left">comment</i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  {% endblock comentario_card %}
+
+  {% block other_cards %}{% endblock other_cards %}
+{% endblock content %}

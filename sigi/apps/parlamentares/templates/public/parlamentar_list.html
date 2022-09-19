@@ -1,0 +1,84 @@
+{% extends 'public/base_site.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+    .pagination span {
+      font-weight: bold;
+    }
+    .pagination i {
+      vertical-align: middle;
+      margin: 0 24px;
+      color: #000 !important;
+    }
+  </style>
+{% endblock extrastyle %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="breadcrumbs">
+    {% if suplentes %}
+      <a class="waves-effect waves-light btn-small" href="{% url "parlamentares:parlamentar_listview" %}">{% trans 'Ocultar suplentes' %}</a>
+    {% else %}
+      <a class="waves-effect waves-light btn-small" href="{% url "parlamentares:parlamentar_listview" %}?suplentes=1">{% trans 'Mostrar suplentes' %}</a>
+    {% endif %}
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <table class="striped">
+            <tr>
+              <th>{% trans 'Foto' %}</th>
+              <th>{% trans 'Nome' %}</th>
+              <th>{% trans 'CPF' %}</th>
+              <th>{% trans 'Partido' %}</th>
+              <th>{% trans 'Ano eleição' %}</th>
+              <th>{% trans 'Status mandato' %}</th>
+              <th>{% trans 'Presidente' %}</th>
+            </tr>
+            {% for parlamentar in object_list %}
+              <tr>
+                <td>
+                {% if parlamentar.foto %}
+                  <a href="{% url 'parlamentares:parlamentar_update' parlamentar.id %}"><img class="circle responsive-img" src="{{ parlamentar.foto.url }}" width="33"></a>
+                {% endif %}
+                </td>
+                <td><a href="{% url 'parlamentares:parlamentar_update' parlamentar.id %}">{{ parlamentar.nome_completo }}</a></td>
+                <td>{{ parlamentar.cpf }}</td>
+                <td>{{ parlamentar.partido.nome }}</td>
+                <td>{{ parlamentar.ano_eleicao|safe }}</td>
+                <td>{{ parlamentar.get_status_mandato_display }}</td>
+                <td>
+                  {% if parlamentar.presidente %}
+                    <i class="material-icons small green-text">check</i>
+                  {% else %}
+                    <i class="material-icons tiny grey-text">highlight_off</i>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </table>
+        </div>
+        <div class="card-action">
+          <div class='pagination'>
+            {% if page_obj.has_previous %}
+              <a href='{% url "parlamentares:parlamentar_listview" %}?page={{ page_obj.previous_page_number }}{% if suplentes %}&suplentes=1{% endif %}'><i class="material-icons">skip_previous</i></a>
+            {% endif %}
+            {% if page_obj.paginator.num_pages > 1 %}
+            <span>
+              {% blocktranslate with number=page_obj.number num_pages=page_obj.paginator.num_pages %}
+                Página {{ number }} de {{ num_pages }}
+              {% endblocktranslate %}
+            </span>
+            {% endif %}
+            {% if page_obj.has_next %}
+              <a href='{% url "parlamentares:parlamentar_listview" %}?page={{ page_obj.next_page_number }}{% if suplentes %}&suplentes=1{% endif %}'><i class="material-icons">skip_next</i></a>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

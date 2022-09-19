@@ -1,0 +1,63 @@
+{% extends 'public/base_site.html' %}
+{% load i18n %}
+
+{% block content %}
+  {{ block.super }}
+  {% if ocorrencias.count > 0 %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans 'Últimas ocorrências' %}</span>
+            <ul class="collection">
+              {% for ocorrencia in ocorrencias %}
+                <li class="collection-item">
+                  <span class="badge">{{ ocorrencia.comentarios.all|length }}</span>
+                  <p><a href="{% url 'ocorrencias:ocorrencia_listview' %}#ocorrencia-{{ ocorrencia.id|safe }}">{{ ocorrencia.data_criacao|date:'SHORT_DATE_FORMAT' }} {{ ocorrencia.assunto }}</a></p>
+                </li>
+              {% endfor %}
+            </ul>
+          </div>
+          <div class="card-action">
+            <a href="{% url 'ocorrencias:ocorrencia_listview' %}">{% trans 'Ver todas' %}</a>
+            <a href="{% url 'ocorrencias:solicita_oficina_create' %}">{% trans "Solicitar treinamento" %}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+
+  {% if servicos.count > 0 %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans 'Servicos ativos' %}</span>
+            <table class="striped">
+              <tr>
+                <th>{% trans 'Serviço' %}</th>
+                <th>{% trans 'Endereço' %}</th>
+                <th>{% trans 'Ativado' %}</th>
+                <th>{% trans 'Verificado' %}</th>
+                <th>{% trans 'Resultado verificação' %}</th>
+                <th>{% trans 'Último uso' %}</th>
+              </tr>
+              {% for servico in servicos %}
+                <tr>
+                  <td>{{ servico.tipo_servico }}</td>
+                  <td>
+                    <a href="{{ servico.url }}">{{ servico.url }}</a>
+                  </td>
+                  <td>{{ servico.data_ativacao|date:'SHORT_DATE_FORMAT' }}</td>
+                  <td>{{ servico.data_verificacao|date:'SHORT_DATE_FORMAT' }}</td>
+                  <td>{{ servico.get_resultado_verificacao_display }}</td>
+                  <td>{{ servico.data_ultimo_uso|date:'SHORT_DATE_FORMAT' }}</td>
+                </tr>
+              {% endfor %}
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

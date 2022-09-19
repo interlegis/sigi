@@ -46,7 +46,7 @@ $(document).ready(function(){
   function filter_list( e ) {
     e.preventDefault();
     var form_data = $("form[name='servico-form']").serialize();
-    $("#lista").load("{% url "casas-carteira" %}?snippet=lista&"+form_data, listeners);
+    $("#lista").load("{% url "casas_carteira" %}?snippet=lista&"+form_data, listeners);
   }
 });
 </script>

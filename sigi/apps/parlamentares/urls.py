@@ -1,11 +1,23 @@
 from django.urls import path, include
 from sigi.apps.parlamentares import views
 
+app_name = "parlamentares"
+
 urlpatterns = [
     path(
-        "parlamentarjson/<int:casa_id>/",
-        views.parlamentares_casa,
-        name="parlamentar-json",
+        "parlamentar/",
+        views.ParlamentarListView.as_view(),
+        name="parlamentar_listview",
     ),
-    path("parlamentardata/", views.parlamentar_data, name="parlamentar-data"),
+    path(
+        "parlamentar/<int:pk>/",
+        views.ParlamentarUpdateView.as_view(),
+        name="parlamentar_update",
+    ),
+    path(
+        "parlamentar/<int:casa_id>/json/",
+        views.parlamentares_casa,
+        name="parlamentar_json",
+    ),
+    path("parlamentar/data/", views.parlamentar_data, name="parlamentar_data"),
 ]

@@ -1,0 +1,252 @@
+{% extends "public/base_site.html" %}
+{% load static i18n %}
+
+{% block content %}
+  {{ block.super }}
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          <span class="card-title">{{ ocorrencia.assunto }} # {{ ocorrencia.id|safe }}</span>
+          <p>
+            {% blocktrans with name=ocorrencia.casa_legislativa.nome %}
+            A solicitação da {{ name }} está na nossa base de dados
+            {% endblocktrans %}
+          </p>
+        </div>
+        <div class="card-tabs">
+          <ul class="tabs tabs-fixed-width">
+            {% if not 'aplicados' in infos or 'casa_legislativa' not in infos.aplicados %}
+              <li class="tab">
+                <a {% if tab_name == 'casa' %}class="active" {% endif %}href="{% url 'ocorrencias:solicita_convenio' pk=ocorrencia.id tab='casa' %}">{% trans "Casa legislativa" %}</a>
+              </li>
+            {% endif %}
+            {% if not 'aplicados' in infos or 'presidente' not in infos.aplicados %}
+              <li class="tab">
+                <a {% if tab_name == 'presidente' %}class="active" {% endif %}href="{% url 'ocorrencias:solicita_convenio' pk=ocorrencia.id tab='presidente' %}">{% trans "Presidente" %}</a>
+              </li>
+            {% endif %}
+            {% if not 'aplicados' in infos or 'contato' not in infos.aplicados %}
+              <li class="tab">
+                <a {% if tab_name == 'contato' %}class="active" {% endif %}href="{% url 'ocorrencias:solicita_convenio' pk=ocorrencia.id tab='contato' %}">{% trans "Contato Interlegis" %}</a>
+              </li>
+            {% endif %}
+            {% if not 'aplicados' in infos %}
+              <li class="tab">
+                <a {% if tab_name == 'documentos' %}class="active" {% endif %}href="{% url 'ocorrencias:solicita_convenio' pk=ocorrencia.id tab='documentos' %}">{% trans "Documentos" %}</a>
+              </li>
+            {% endif %}
+            <li class="tab">
+              <a {% if tab_name == 'resumo' %}class="active" {% endif %}href="{% url 'ocorrencias:solicita_convenio' pk=ocorrencia.id tab='resumo' %}">{% trans "Resumo" %}</a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+    </div>
+    {% if tab_name == 'casa' %}
+      {% if not 'aplicados' in infos or 'casa_legislativa' not in infos.aplicados %}
+        <div id="casa" class="col s12">
+          <div class="tab-panel">
+            <div class="tab-content">
+              <form action="" method="post" name="casa_legislativa" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="card">
+                  <div class="card-content">
+                    <span class="card-title">
+                      {% trans "Atualizar as informações cadastrais da Casa" %}
+                    </span>
+                    {{ form }}
+                    <div class="card-action">
+                      <button class="btn waves-effect waves-light" type="submit" name="tab" value="casa">
+                        {% trans "Save" %}
+                        <i class="material-icons right">send</i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+    {% if tab_name == 'presidente' %}
+      {% if not 'aplicados' in infos or 'presidente' not in infos.aplicados %}
+        <div id="presidente" class="col s12">
+          <div class="tab-panel">
+            <div class="tab-content">
+              <form action="" method="post" name="presidente">
+                {% csrf_token %}
+                <div class="card">
+                  <div class="card-content">
+                    <span class="card-title">
+                      {% trans "Selecionar e atualizar o presidente" %}
+                    </span>
+                    {{ form }}
+                    <div class="card-action">
+                      <button class="btn waves-effect waves-light" type="submit" name="tab" value="presidente">
+                        {% trans "Save" %}
+                        <i class="material-icons right">send</i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+    {% if tab_name == 'contato' %}
+      {% if not 'aplicados' in infos or 'contato' not in infos.aplicados %}
+        <div id="contato" class="col s12 tabpanel">
+          <div class="tab-panel">
+            <div class="tab-content">
+              <form action="" method="post" name="contato">
+                {% csrf_token %}
+                <div class="card">
+                  <div class="card-content">
+                    <span class="card-title">{% trans "Contato Interlegis" %}</span>
+                    <p>Designe um servidor da Casa Legislativa para ser o contato técnico junto ao Interlegis.</p>
+                    <p>Este servidor será o responsável por acompanhar a formalização do ACT, prestar informações e esclarecimentos, e solicitar a instalação de produtos e serviços ao Interlegis.</p>
+                    {{ form }}
+                    <div class="card-action">
+                      <button class="btn waves-effect waves-light" type="submit" name="tab" value="contato">
+                        {% trans "Save" %}
+                        <i class="material-icons right">send</i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+    {% if tab_name == "documentos" %}
+      <div id="documentos" class="col s12 tabpanel">
+        <div class="tab-panel">
+          <div class="tab-content">
+            <form action="" method="post" name="documentos" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="card">
+                <div class="card-content">
+                  <span class="card-title">{% trans "Documentos de formalização" %}</span>
+                  <p>Os documentos para formalização do convênio foram gerados e estão disponíveis abaixo.</p>
+                  <p>Você precisa realizar os seguintes passos para que possamos dar prosseguimento ao processo:</p>
+                  <ul>
+                    <li>Baixe (dowload) o ofício de solicitação do convênio.</li>
+                    <li>Providencie que o ofício de solicitação seja assinado pelo Presidente da Casa. Se for possível, assine o PDF com uma assinatura digital. Se o Presidente não possui uma assinatura digital válida, pode-se imprimir o documento, assinar com caneta azul, e escanear o documento assinado.</li>
+                    <li>Suba (upload) o ofício assinado no campo Arquivo, abaixo, em formato PDF</li>
+                    <li>O documento Minuta de ACT é a minuta do convênio que tramitará no Senado e está disponível para consulta e avaliação da consultoria jurídica da sua Casa Legislativa. Após assinatura do ACt pela diretoria do Senado, a cópia definitiva será enviada à sua Casa para colher também a assinatura do Presidente.</p>
+                  </ul>
+                  <p>Assim que recebermos o ofício devidamente assinado, iniciaremos o procedimento burocrático para formalização do convênio. Você poderá acompanhar a evolução deste processo nesta tela, na aba RESUMO</p>
+                  <table class="striped">
+                    <thead>
+                      <caption>Arquivos do processo</caption>
+                      <tr>
+                        <th>Descrição</th><th>Arquivo</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {% for anexo in ocorrencia.anexo_set.all %}
+                        <tr>
+                          <td>{{ anexo.descricao }}</td>
+                          <td><a href="{{ anexo.arquivo.url }}">{{ anexo.arquivo.name }}</a></td>
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  {{ form }}
+                  <div class="card-action">
+                    <button class="btn waves-effect waves-light" type="submit" name="tab" value="documentos">
+                      {% trans "Save" %}
+                      <i class="material-icons right">send</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+    {% if tab_name == "resumo" %}
+      <div id="resumo" class="col s12 tabpanel">
+        <div class="tab-panel">
+          <div class="tab-content">
+            <form action="" method="post" name="comentario">
+              {% csrf_token %}
+              <div class="card">
+                <div class="card-content">
+                  <table>
+                    <tr>
+                      <th>{% trans "Casa legislativa" %}</th><td>{{ ocorrencia.casa_legislativa.nome }}</td>
+                      <th>{% trans "Descrição" %}</th><td>{{ ocorrencia.descricao }}</td>
+                      <th>{% trans "Solicitado em" %}</th><td>{{ ocorrencia.data_criacao|date:"DATE_FORMAT" }}</td>
+                    </tr>
+                    <tr>
+                      <th>{% trans "Situação" %}</th><td>{{ ocorrencia.get_status_display }}</td>
+                      <th>{% trans "Prioridade" %}</th><td>{{ ocorrencia.get_prioridade_display }}</td>
+                      <th>{% trans "Última atualização" %}</th><td>{{ ocorrencia.data_modificacao|date:"DATE_FORMAT" }}</td>
+                    </tr>
+                  </table>
+                  <table>
+                    <thead>
+                      <caption><span class="card-title">{% trans "Progresso do processo" %}</span></caption>
+                      <tr><th>{% trans "Data" %}</th><th>{% trans "Descrição" %}</th><th>{% trans "Novo status" %}</th><th>{% trans "Registrado por" %}</th></tr>
+                    </thead>
+                    <tbody>
+                      {% for comentario in ocorrencia.comentarios.all %}
+                        {% if not comentario.interno %}
+                          <tr>
+                            <td>{{ comentario.data_criacao|date:"SHORT_DATE_FORMAT" }}</td>
+                            <td>{{ comentario.descricao }}</td>
+                            <td>{{ comentario.get_novo_status_display|default:"-" }}</td>
+                            <td>{{ comentario.usuario }}</td>
+                          </tr>
+                        {% endif %}
+                      {% empty %}
+                          <tr><td colspan="4">{% trans "Aguardando andamento no Senado" %}</td></tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>
+                  {{ form }}
+                  <div class="card-action">
+                    <button class="btn waves-effect waves-light" type="submit" name="tab" value="resumo">
+                      {% trans "Comentar" %}
+                      <i class="material-icons left">comment</i>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script>
+    $(document).ready(function() {
+      $("select#id_presidente-parlamentar").on("change", function() {
+        $.get("{% url 'parlamentares:parlamentar_data' %}", `id=${this.value}`, function(data) {
+          for(var campo of Object.keys(data[0].fields)) {
+            $(`#id_presidente-${campo}`).val(data[0].fields[campo]);
+          }
+        })
+      })
+    });
+    function seleciona_casa(data) {
+      $(location).attr("href", `{% url 'ocorrencias:ocorrencia_convenio_seleciona_casa' %}?casa_id=${data.id}`);
+    }
+  </script>
+{% endblock %}

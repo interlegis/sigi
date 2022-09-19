@@ -1,8 +1,8 @@
 from django import forms
 from django.utils.translation import gettext as _
 from localflavor.br.forms import BRZipCodeField
-
-from sigi.apps.casas.models import Orgao
+from material.admin.widgets import MaterialAdminTextareaWidget
+from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor
 
 
@@ -15,11 +15,6 @@ class AtualizaCasaForm(forms.Form):
 
 
 class OrgaoForm(forms.ModelForm):
-    # cnpj = BRCNPJField(
-    #    label=_('CNPJ'),
-    #    required=False,
-    #    help_text=_('Utilize o formato <em>XX.XXX.XXX/XXXX-XX</em> ou insira apenas os dígitos.')
-    # )
     cep = BRZipCodeField(
         label=_("CEP"), help_text=_("Formato") + ": <em>XXXXX-XXX</em>."
     )
@@ -27,13 +22,6 @@ class OrgaoForm(forms.ModelForm):
     class Meta:
         model = Orgao
         fields = "__all__"
-
-    # def clean(self):
-    #     cleaned_data = super(OrgaoForm, self).clean()
-    #     tipo = cleaned_data.get('tipo')
-    #     municipio = cleaned_data.get('municipio')
-    #     if tipo.legislativo:
-    #         if Orgao.objects.filter(tipo=tipo)
 
 
 class PortfolioForm(forms.Form):
@@ -52,3 +40,25 @@ class PortfolioForm(forms.Form):
     def __init__(self, label=_("Atribuir para"), *args, **kwargs):
         super(PortfolioForm, self).__init__(*args, **kwargs)
         self.fields["gerente"].label = label
+
+
+class FuncionarioForm(forms.ModelForm):
+    class Meta:
+        model = Funcionario
+        fields = [
+            "nome",
+            "cpf",
+            "identidade",
+            "sexo",
+            "data_nascimento",
+            "setor",
+            "cargo",
+            "funcao",
+            "tempo_de_servico",
+            "nota",
+            "email",
+            "redes_sociais",
+        ]
+        widgets = {
+            "redes_sociais": MaterialAdminTextareaWidget,
+        }

@@ -3,11 +3,14 @@ import csv
 import datetime
 from itertools import cycle
 from random import randint, seed
+from django import forms
+from django.conf import settings
 from django.contrib import messages
 from django.contrib.admin.sites import site
+from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db import models
 from django.db.models import Q, Count
 from django.http import (
     HttpResponse,
@@ -15,32 +18,32 @@ from django.http import (
     HttpResponseRedirect,
     JsonResponse,
 )
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render, get_object_or_404, resolve_url
 from django.template.loader import render_to_string
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _
 from django.views.decorators.cache import never_cache
+from django.views.decorators.clickjacking import xframe_options_exempt
+from django.views.generic import (
+    TemplateView,
+    UpdateView,
+    ListView,
+    DeleteView,
+    CreateView,
+)
 from django_weasyprint.views import WeasyTemplateResponse
-from sigi.apps.casas.models import TipoOrgao, Orgao
+from sigi.apps.casas.models import Funcionario, TipoOrgao, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.eventos.models import TipoEvento, Evento
 from sigi.apps.home.models import Cards, Dashboard
+from sigi.apps.ocorrencias.models import Ocorrencia
+from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servicos.models import TipoServico, Servico
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import to_ascii
-
-# from django.shortcuts import render, get_object_or_404
-# from sigi.apps.casas.models import Orgao
-# from sigi.apps.diagnosticos.models import Diagnostico
-# from sigi.apps.metas.models import Meta
-# from sigi.apps.servicos.models import TipoServico
-# from sigi.apps.servidores.models import Servidor
-# from django.http.response import JsonResponse, HttpResponse
-# from sigi.shortcuts import render_to_pdf
-# import csv
 
 
 getcolor = (
@@ -50,6 +53,7 @@ getcolor = (
     else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
     f"{randint(32,255):02x}"
 )
+
 gethighlight = (
     lambda s=None: f"#{randint(32,255):02x}{randint(32,255):02x}"
     f"{randint(32,255):02x}c0"
@@ -57,12 +61,100 @@ gethighlight = (
     else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
     f"{randint(32,255):02x}c0"
 )
+
+
+################################################################################
+# Views para controle de acesso
+################################################################################
+
+
+class LoginView(auth_views.LoginView):
+    template_name = "registration/login.html"
+
+    def get_default_redirect_url(self):
+        if self.request.user.is_staff:
+            login_redirect_url = reverse("admin:index")
+        else:
+            login_redirect_url = settings.LOGIN_REDIRECT_URL
+        return resolve_url(self.next_page or login_redirect_url)
+
+
+class LogoutView(auth_views.LogoutView):
+    template_name = "registration/logout.html"
+
+
+class PasswordChangeView(auth_views.PasswordChangeView):
+    template_name = "material/admin/password_change.html"
+
+
+class PasswordChangeDoneView(auth_views.PasswordChangeDoneView):
+    pass
+
+
+class PasswordResetView(auth_views.PasswordResetView):
+    pass
+
+
+class PasswordResetDoneView(auth_views.PasswordResetDoneView):
+    pass
+
+
+class PasswordResetConfirmView(auth_views.PasswordResetConfirmView):
+    pass
+
+
+class PasswordResetCompleteView(auth_views.PasswordResetCompleteView):
+    pass
+
+
+################################################################################
+# Views para site público - acesso dos contatos Interlegis                     #
+################################################################################
+
+
+class HomeView(LoginRequiredMixin, TemplateView):
+    template_name = "home/public_site/index.html"
+
+    def get_context_data(self, **kwargs):
+        user = self.request.user
+        casa_id = self.request.GET.get(
+            "id", self.request.session.get("casa_id", None)
+        )
+        casas = {
+            c.id: c for c in Orgao.objects.filter(funcionario__email=user.email)
+        }
+        if casa_id and int(casa_id) in casas:
+            casa = casas[int(casa_id)]
+        else:
+            if casas:
+                casa = list(casas.values())[0]
+            else:
+                casa = None
+        if casa:
+            self.request.session["casa_id"] = casa.id
+            ocorrencias = casa.ocorrencia_set.filter(
+                status__in=[
+                    Ocorrencia.STATUS_ABERTO,
+                    Ocorrencia.STATUS_REABERTO,
+                ]
+            )
+            servicos = casa.servico_set.filter(data_desativacao=None)
+        context = super().get_context_data(**kwargs)
+        context["casas"] = casas.values()
+        context["casa"] = casa
+        context["ocorrencias"] = ocorrencias[:5]
+        context["servicos"] = servicos
+        return context
+
+
 ################################################################################
 # Views e funções do mapa de atuação do Interlegis
 ################################################################################
+
+
 def openmap(request):
     reptype = request.GET.get("reptype", None)
-    context = site.each_context(request)
+    context = {}
 
     if reptype is None:
         context["tipos_orgao"] = TipoOrgao.objects.filter(legislativo=True)
@@ -258,11 +350,14 @@ def openmapsearch(request):
 ################################################################################
 # Views de visualização e edição do dashboard
 ################################################################################
+
+
+@xframe_options_exempt
 def card_snippet(request, card_code):
     card = get_object_or_404(Cards, codigo=card_code)
     if not card.default:
         raise PermissionDenied()
-    return render(request, "home/dashboard/card.html", {"dash_cards": [card]})
+    return render(request, "home/dashboard/card.html", {"card": card})
 
 
 @login_required
@@ -351,7 +446,10 @@ def card_add(request):
 # Cards do dashboard
 ################################################################################
 
+
 # Geral ########################################################################
+
+
 @never_cache
 @login_required
 def resumo_convenios(request):
@@ -360,6 +458,8 @@ def resumo_convenios(request):
 
 
 # Serviços #####################################################################
+
+
 @never_cache
 @login_required
 def resumo_seit(request):
@@ -531,6 +631,8 @@ def chart_atualizacao_servicos(request):
 
 
 # Gerente ######################################################################
+
+
 @never_cache
 @login_required
 def chart_carteira(request):
@@ -606,6 +708,8 @@ def chart_performance(request):
 
 
 # Eventos ######################################################################
+
+
 @never_cache
 @login_required
 def eventos_status(request):
@@ -724,6 +828,8 @@ def eventos_ano(request):
 ################################################################################
 # Views de apoio e relatórios
 ################################################################################
+
+
 @never_cache
 @login_required
 def report_sem_convenio(request):

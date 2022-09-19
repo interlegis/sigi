@@ -1,211 +1,99 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/base_block.html" %}
 {% load i18n static admin_urls %}
+
 {% block extrastyle %}
   {{ block.super }}
-  <style>
-    #content {
-      display: block;
-    }
-    .user-image {
-      width: 64px;
-      height: 64px;
-      font-size: 64px !important;
-    }
-    commenter-image {
-      width: 32px;
-      height: 32px;
-      font-size: 32px !important;
-    }
-    .card-details, .user-name {
-      font-size: 10px;
-    }
-    .priority {
-      background-color: grey;
-    }
-    .priority {
-      background-color: antiquewhite;
-      margin-left: 5px;
-      min-width: 60px;
-    }
-    .chip>img {
-      float: left;
-      margin: 0 8px 0 -12px;
-      height: 32px;
-      width: 32px;
-      border-radius: 50%;
-    }
-  </style>
+  <link rel="stylesheet" href="{% static 'ocorrencias/css/painel_ocorrencias.css' %}">
 {% endblock %}
-{% block breadcrumbs %}{% endblock %}
+
+{% block content_title %}
+  <h5>{{ panel_title }}</h5>
+  {% if panel_subtitles %}
+  <blockquote>
+    <h6>{% trans "Filter" %}:</h6>
+    {% for subt in panel_subtitles %}
+      <h6>{{ subt }}</h6>
+    {% endfor %}
+  {% endif %}
+  </blockquote>
+{% endblock content_title %}
+
 {% block content %}
-<div class="row">
-  <div class="col s12"><h1>{{ panel_title }}</h1></div>
-</div>
-<div class="row">
-  <div class="col s12">
-  {% for id, text in paineis.items %}
-    <a class="waves-effect waves-light btn-small{% if id != painel %} btn-flat{% endif %}" href="?painel={{ id }}">{{ text }}</a>
-  {% endfor %}
-  </div>
-</div>
-<div class="row">
-  <div class="col s12">
-    <button class="waves-effect waves-light btn-small btn-flat modal-trigger" href="#nova_ocorrencia">{% trans "Nova ocorrência" %}</button>
-  </div>
-</div>
-<div id="nova_ocorrencia" class="modal">
-  <div class="modal-content">
-    <h4>{% trans "Nova ocorrência" %}</h4>
-    {{ ocorrencia_form }}
-  </div>
-  <div class="modal-footer">
-    <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
-  </div>
-</div>
-{% for ocorrencia in ocorrencias %}
-<div class="row">
-  <div class="col s12">
-    <div class="card hoverable">
-      <div class="card-content">
-        <span class="card-title">
-          <a href="{% url "admin:ocorrencias_ocorrencia_change" ocorrencia.id %}"><i class="material-icons right">edit</i></a>
-          {{ ocorrencia.casa_legislativa.nome }}, {{ ocorrencia.casa_legislativa.municipio.uf.sigla }}
-          <p class="card-details">
-          {% blocktrans with data_criacao=ocorrencia.data_criacao tipo_contato=ocorrencia.tipo_contato categoria=ocorrencia.categoria status=ocorrencia.get_status_display %}
-            Criado em {{ data_criacao }} via {{ tipo_contato }} solicitando {{ categoria }}, com status {{ status }}
-          {% endblocktrans %}
-          </p>
-          <p class="card-details">
-            <strong>{% trans "Gerentes" %}:</strong>
-            {% for gerente in ocorrencia.casa_legislativa.gerentes_interlegis.all %}
-            <div class="chip">
-              {% if gerente.foto %}
-              <img src="{{ gerente.foto.url }}">
-              {% endif %}
-              <a href="./">{{ gerente.get_apelido }}</a>
-            </div>
-            {% endfor %}
-          </p>
-        </span>
-        <div class="row">
-          <div class="col s3 m1 center-align">
-            <a href="./">
-            {% if ocorrencia.servidor_registro.foto %}
-              <img class="circle user-image" src="{{ MEDIA_URL }}{{ ocorrencia.servidor_registro.foto }}"/>
-            {% else %}
-              <i class="material-icons circle user-image">account_circle</i>
-            {% endif %}
-            </a>
-            <span class="user-name">{{ ocorrencia.servidor_registro.get_apelido }}</span>
-          </div>
-          <div class="col s9 m11">
-            <p>{{ ocorrencia.descricao }}</p>
-            <div>
-              {% trans "Prioridade" %}: <a class='dropdown-trigger btn-small btn-flat' href='#' data-target='prioridade-{{ ocorrencia.id }}'>{{ ocorrencia.get_prioridade_display }}</a>
-              <ul id='prioridade-{{ ocorrencia.id }}' class='dropdown-content'>
-              {% for key, name in PRIORITY_CHOICES %}
-                {% if key != ocorrencia.prioridade %}
-                  <li><a href="#!">{{ name }}</a></li>
-                {% endif %}
-              {% endfor %}
-              </ul>
-              <a class="waves-effect waves-light btn-small btn-flat right modal-trigger" href="#modal{{ ocorrencia.id}}">{% blocktranslate count counter=ocorrencia.anexo_set.count %}Um anexo{% plural %}{{ counter }} anexos{% endblocktranslate %}</a>
-              <div id="modal{{ ocorrencia.id}}" class="modal">
-                <div class="modal-content">
-                  <h4>Anexos</h4>
-                  <ul class="collection">
-                  {% for anexo in ocorrencia.anexo_set.all %}
-                    <li  class="collection-item">
-                      <div>
-                        <a href="{{ anexo.arquivo.url }}" download>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }} | {{ anexo.descricao }}</a>
-                        <a href="#!" class="secondary-content"><i class="material-icons">delete_forever</i></a>
-                      </div>
-                    </li>
-                  {% endfor %}
-                  </ul>
-                </div>
-                <div class="modal-footer">
-                  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Agree</a>
+  {% block object-tools %}
+    <div class="fixed-action-btn">
+      <a class="btn-floating btn-large">
+        <i class="large material-icons">build</i>
+      </a>
+      <ul>
+        {% block object-tools-items %}
+        <li>
+          <a href="#float-filter" class="btn-floating tooltipped waves-effect waves-light modal-trigger" data-position="left" data-tooltip="{% trans 'Filter' %}">
+            <i class="material-icons" aria-hidden="true">filter_list</i>
+          </a>
+        </li>
+        {% if has_add_permission %}
+        <li>
+          <a href="{% url 'admin:ocorrencias_ocorrencia_add' %}" class="btn-floating tooltipped waves-effect waves-light" data-position="left" data-tooltip="{% trans 'Add' %}">
+            <i class="material-icons" aria-hidden="true">add</i>
+          </a>
+        </li>
+        {% endif %}
+        {% endblock %}
+      </ul>
+    </div>
+    <div id="float-filter" class="modal">
+      <form id="filter-form" method="get">
+        <div id="side-wrapper" class="modal-content">
+          {% block filters %}
+            {% if filter %}
+              <h4>{% trans 'Filter' %}</h4>
+              <div class="row">
+                <div class="col s12">
+                  <a href="?">{% trans "Clear all filters" %}</a>
                 </div>
               </div>
-            </div>
-          </div>
+              <div class="row">
+                {{ filter.form }}
+              </div>
+            {% endif %}
+          {% endblock %}
         </div>
-      </div>
-      <div class="card-content">
-        <ul class="collection">
-          <li class="collection-item avatar">
-            {% if usuario.foto %}
-              <img class="circle commenter-image" src="{{ MEDIA_URL }}{{ servidor_registro.foto }}"/>
-            {% else %}
-              <i class="material-icons circle">account_circle</i>
-            {% endif %}
-            <form class="row" id="comentar_ocorrencia_{{ ocorrencia.id|safe }}" action="#!" method="post" data-ocorrencia-id="{{ ocorrencia.id|safe }}">
-              {% csrf_token %}
-              <p>{% trans "Comentar" %}:</p>
-              {% for field in comentario_form %}
-                {% if field.name == 'ocorrencia' %}
-                  <input type='hidden' name='ocorrencia' value='{{ ocorrencia.id|safe }}'/>
-                {% elif field.name == 'novo_status' %}
-                  <div class="input-field col m4 s12">
-                    <select name="novo_status" id="id_novo_status_{{ ocorrencia.id|safe }}" class="browser-default">
-                    {% for value, label in field.field.widget.choices %}
-                      {% if value == '' %}
-                        <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
-                      {% elif value != 1 %}
-                        {% if ocorrencia.status < 3 and value > 2 %}
-                          <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
-                        {% endif %}
-                        {% if ocorrencia.status > 2 and value == 2 %}
-                          <option value="{{ value|stringformat:'s' }}">{{ label }}</option>
-                        {% endif %}
-                      {% endif %}
-                    {% endfor %}
-                    </select>
-                  </div>
-                {% else %}
-                  <div class="input-field col m8 s12">
-                    {{ field }}
-                  </div>
-                {% endif %}
-              {% endfor %}
-              <button type="submit" class="secondary-content"><i class="material-icons">send</i></button>
-            </form>
-          </li>
-          {% for comentario in ocorrencia.comentarios.all %}
-          <li class="collection-item avatar">
-            {% if comentario.usuario.foto %}
-              <img class="circle" src="{{ MEDIA_URL }}{{ comentario.usuario.foto }}"/>
-            {% else %}
-              <i class="material-icons circle ">account_circle</i>
-            {% endif %}
-            <p>{% blocktranslate with data=comentario.data_criacao nome=comentario.usuario.get_apelido %}
-            Em {{ data }}, {{ nome }} disse:
-            {% endblocktranslate %}</p>
-            <span class="title">{{ comentario.descricao }}</span>
-            {% if comentario.novo_status %}
-            <p>{% blocktranslate with status=comentario.get_novo_status_display|default:"-" %}
-              Status: {{ status }}
-            {% endblocktranslate %}</p>
-            {% endif %}
-          </li>
-          {% endfor %}
-        </ul>
-      </div>
+        <div class="modal-footer">
+          <a href="#!" class="modal-close waves-effect waves-green btn-flat">{% trans "Close" %}</a>
+          <button id="apply-filters" type="submit" class="waves-effect waves-green btn-flat">{% trans 'Filtrar' %}</button>
+        </div>
+      </form>
     </div>
-  </div>
-</div>
-{% endfor %}
+  {% endblock %}
+
+  {% block ocorrencia_cards %}
+    {% for ocorrencia in ocorrencias %}
+      {% include 'ocorrencias/painel_snippet.html' %}
+    {% endfor %}
+  {% endblock ocorrencia_cards %}
+
+  {% block paginator %}
+    {% if is_paginated %}
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="waves-effect"><a href="?{{ filter.preserve_filter }}&page={{ page_obj.previous_page_number }}"><i class="material-icons">chevron_left</i></a></li>
+        {% else %}
+          <li class="disabled"><a href="?{{ filter.preserve_filter }}"><i class="material-icons">chevron_left</i></a></li>
+        {% endif %}
+        {% for page_number in page_obj.paginator.page_range %}
+          <li class=" {% if page_number == page_obj.number %}active{% else %}waves-effect{% endif %}"><a href="?{{ filter.preserve_filter }}&page={{ page_number }}">{{ page_number }}</a></li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="waves-effect"><a href="?{{ filter.preserve_filter }}&page={{ page_obj.next_page_number }}"><i class="material-icons">chevron_right</i></a></li>
+        {% else %}
+          <li class="disabled"><a href="?{{ filter.preserve_filter }}"><i class="material-icons">chevron_right</i></a></li>
+        {% endif %}
+      </ul>
+    {% endif %}
+  {% endblock paginator %}
 {% endblock %}
 
 {% block footer %}
   {{ block.super }}
-  <script>
-    $(document).ready(function(){
-      var elems = document.querySelectorAll('.dropdown-trigger');
-      var instances = M.Dropdown.init(elems, {});
-      var elems = document.querySelectorAll('.modal');
-      var instances = M.Modal.init(elems, {});
-    });
-  </script>
+  <script type="text/javascript" src="{% static 'ocorrencias/js/painel_ocorrencias.js' %}"></script>
 {% endblock %}
