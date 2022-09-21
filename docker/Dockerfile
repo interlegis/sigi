@@ -95,11 +95,11 @@ RUN ln -s ${HOME}/etc/nginx/sites-available/sigi.vhost /etc/nginx/sites-enabled/
 RUN mkdir -p /var/log/sigi
 
 # schedule cron jobs
-RUN crontab -l | { cat; echo "* * * * * ${HOME}/manage.py runjobs minutely >> /var/log/sigi/cron.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 * * * * ${HOME}/manage.py runjobs hourly >> /var/log/sigi/cron.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 0 * * * ${HOME}/manage.py runjobs daily >> /var/log/sigi/cron.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 0 * * 0 ${HOME}/manage.py runjobs weekly >> /var/log/sigi/cron.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 0 1 * * ${HOME}/manage.py runjobs monthly >> /var/log/sigi/cron.log"; } | crontab -
+RUN crontab -l | { cat; echo "* * * * * /usr/local/bin/python ${HOME}/manage.py runjobs minutely >> /var/log/sigi/cron.log 2>&1"; } | crontab -
+RUN crontab -l | { cat; echo "0 * * * * /usr/local/bin/python ${HOME}/manage.py runjobs hourly >> /var/log/sigi/cron.log 2>&1"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 * * * /usr/local/bin/python ${HOME}/manage.py runjobs daily >> /var/log/sigi/cron.log 2>&1"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 * * 0 /usr/local/bin/python ${HOME}/manage.py runjobs weekly >> /var/log/sigi/cron.log 2>&1"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 1 * * /usr/local/bin/python ${HOME}/manage.py runjobs monthly >> /var/log/sigi/cron.log 2>&1"; } | crontab -
 
 EXPOSE 80/tcp 443/tcp
 
