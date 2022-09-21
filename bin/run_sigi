@@ -12,10 +12,9 @@ NUM_WORKERS=3 # = 2 * CPUs + 1
 DJANGO_SETTINGS_MODULE=sigi.settings
 DJANGO_WSGI_MODULE=sigi.wsgi
 
-echo "Data migrations before start..."
-cd ${HOME}
-python manage.py migrate
-echo "...done"
+echo "Preparing environment and data..."
+${HOME}/bin/prepare_environment.sh
+echo "... done!"
 
 echo "Starting $NAME as `whoami`..."
 

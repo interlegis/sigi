@@ -76,11 +76,15 @@ RUN pip install -qq --upgrade pip setuptools && \
     pip install -qq -r ${HOME}/requirements/dev-requirements.txt; \
     fi
 
+# Remove .env trash file
+RUN rm -f ${HOME}/sigi/.env
+
 # Generate a new secret key
 RUN echo $'\n\n'SECRET_KEY=`python manage.py generate_secret_key` >> ${HOME}/sigi/.env
 
 # Prepare run script to start application server
 RUN chmod +x ${HOME}/bin/run_sigi
+RUN chmod +x ${HOME}/bin/prepare_environment.sh
 
 # Static files
 RUN python manage.py collectstatic --noinput --clear
