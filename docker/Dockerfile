@@ -91,9 +91,11 @@ RUN ln -s ${HOME}/etc/nginx/sites-available/sigi.vhost /etc/nginx/sites-enabled/
 RUN mkdir -p /var/log/sigi
 
 # schedule cron jobs
-RUN crontab -l | { cat; echo "* * * * * ${HOME}/manage.py runjobs minutely >> /var/log/sigi/minutely.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 * * * * ${HOME}/manage.py runjobs hourly >> /var/log/sigi/hourly.log"; } | crontab -
-RUN crontab -l | { cat; echo "0 0 * * * ${HOME}/manage.py runjobs daily >> /var/log/sigi/daily.log"; } | crontab -
+RUN crontab -l | { cat; echo "* * * * * ${HOME}/manage.py runjobs minutely >> /var/log/sigi/cron.log"; } | crontab -
+RUN crontab -l | { cat; echo "0 * * * * ${HOME}/manage.py runjobs hourly >> /var/log/sigi/cron.log"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 * * * ${HOME}/manage.py runjobs daily >> /var/log/sigi/cron.log"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 * * 0 ${HOME}/manage.py runjobs weekly >> /var/log/sigi/cron.log"; } | crontab -
+RUN crontab -l | { cat; echo "0 0 1 * * ${HOME}/manage.py runjobs monthly >> /var/log/sigi/cron.log"; } | crontab -
 
 EXPOSE 80/tcp 443/tcp
 
@@ -102,4 +104,4 @@ ENV DEBIAN_FRONTEND=teletype
 VOLUME ["/srv/interlegis/sigi/media"]
 
 # Start web server
-CMD service nginx start && /srv/interlegis/sigi/bin/run_sigi
+CMD service cron start && service nginx start && /srv/interlegis/sigi/bin/run_sigi
