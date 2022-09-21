@@ -137,9 +137,12 @@ def ajusta_nome_usuario(sender, instance, *args, **kwargs):
 def user_staff_and_group(user, ldap_user, **kwargs):
     dep = ldap_user.attrs.get("department", [""])[0]
     title = ldap_user.attrs.get("title", [""])[0]
-    group_names = [dep.split("-")[-1], title]
-    group_names.extend(title.split("-", 1))
-    group_names = [s.strip().upper() for s in group_names]
+    deps = dep.split("-")
+    titles = [s.strip().upper() for s in title.split("-", 1)]
+    group_names = [f"{d}-{t}" for d in deps for t in titles]
+    group_names.extend(deps)
+    group_names.extend(titles)
+    group_names.extend([dep, title.upper()])
     user.is_staff = "ILB" in dep
     user.save()
     user.groups.clear()
