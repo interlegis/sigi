@@ -91,6 +91,7 @@ class Job(MinutelyJob):
         send_mail(
             subject="Resultados da importação de dados de parlamentares",
             message=txt_message,
+            from_email=settings.DEFAULT_FROM_EMAIL,
             recipient_list=recipient_list,
             html_message=html_message,
         )
@@ -127,9 +128,9 @@ class Job(MinutelyJob):
             tipo_casa = ["CM"]
             cargos = ["13"]
 
-        cod_situacao = ["1", "2", "3"]  # Eleito, por qp, por média
+        ds_situacao = ["Eleito"]
         if json_data["suplentes"]:
-            cod_situacao.append("5")  # suplente
+            ds_situacao.append("Suplente")
 
         result = {"infos": [], "erros": []}
 
@@ -142,16 +143,14 @@ class Job(MinutelyJob):
                 )
             reader = csv.DictReader(f, delimiter=";")
             fields = {
-                "ANO_ELEICAO",
-                "SG_UE",
-                "NM_UE",
-                "CD_CARGO",
-                "SQ_CANDIDATO",
-                "NM_CANDIDATO",
-                "NM_URNA_CANDIDATO",
-                "NR_PARTIDO",
-                "NM_PARTIDO",
-                "CD_SIT_TOT_TURNO",
+                "nm_municipio",
+                "cd_cargo",
+                "nm_candidato",
+                "nm_urna_candidato",
+                "sg_partido",
+                "ds_sit_totalizacao",
+                "sg_ue",
+                "sq_candidato",
             }
             try:
                 fieldnames = reader.fieldnames
@@ -181,16 +180,20 @@ class Job(MinutelyJob):
             for row in reader:
                 total += 1
                 if not (
-                    row["CD_CARGO"] in cargos
-                    and row["CD_SIT_TOT_TURNO"] in cod_situacao
+                    row["cd_cargo"] in cargos
+                    and row["ds_sit_totalizacao"] in ds_situacao
                 ):
                     skiped += 1
                     continue
-                cod_tse = row["SG_UE"]
-                legenda = int(row["NR_PARTIDO"])
+                cod_tse = row["sg_ue"]
+                sigla_partido = row["sg_partido"]
                 # Hack para 2022 - fusão de partidos #
-                if legenda in [17, 25]:
-                    legenda = 44
+                if sigla_partido in ["PSL", "DEM"]:
+                    sigla_partido = "UNIÃO"
+                if sigla_partido == "PTC":
+                    sigla_partido = "AGIR"
+                if sigla_partido == "PC do B":
+                    sigla_partido = "PCdoB"
                 try:
                     if json_data["tipo_candidatos"] == "V":
                         casa = Orgao.objects.get(
@@ -209,31 +212,30 @@ class Job(MinutelyJob):
                     result["erros"].append(
                         "Não foi encontrada a Casa Legislativa com "
                         f"o código TSE {cod_tse}. O nome do "
-                        f"ente da federação é {row['NM_UE']}. "
+                        f"ente da federação é {row['nm_municipio']}. "
                         "Corrija o cadastro do SIGI e tente novamente."
                     )
                 try:
-                    partido = Partido.objects.get(legenda=legenda)
+                    partido = Partido.objects.get(sigla=sigla_partido)
                 except:
                     # De agora em diante apenas procura erros, sem criar
                     # novos parlamentares, para agilizar o processo
                     apenas_verificar = True
                     result["erros"].append(
-                        f"O partido {row['NM_PARTIDO']} de legenda "
-                        f"{legenda} não foi encontrado no SIGI."
+                        f"O partido de sigla {sigla_partido} não foi encontrado"
+                        " no SIGI."
                     )
 
                 if not apenas_verificar:
                     Parlamentar.objects.update_or_create(
                         flag_importa="N",
-                        sequencial_tse=row["SQ_CANDIDATO"],
-                        ano_eleicao=row["ANO_ELEICAO"],
-                        nome_completo=row["NM_CANDIDATO"],
-                        nome_parlamentar=row["NM_URNA_CANDIDATO"],
+                        sequencial_tse=row["sq_candidato"],
+                        nome_completo=row["nm_candidato"],
+                        nome_parlamentar=row["nm_urna_candidato"],
                         partido=partido,
                         casa_legislativa=casa,
                         status_mandato="S"
-                        if row["CD_SIT_TOT_TURNO"] == "5"
+                        if row["ds_sit_totalizacao"] == "Suplente"
                         else "E",
                     )
                     imported += 1
