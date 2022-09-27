@@ -14,7 +14,7 @@ class UnidadeFederativa(models.Model):
         ("CO", _("Centro-Oeste")),
         ("NE", _("Nordeste")),
         ("NO", _("Norte")),
-        ("SD", _("Sudeste")),
+        ("SE", _("Sudeste")),
         ("SL", _("Sul")),
     )
     codigo_ibge = models.PositiveIntegerField(
