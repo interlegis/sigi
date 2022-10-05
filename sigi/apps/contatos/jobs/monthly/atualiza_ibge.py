@@ -1,7 +1,10 @@
+import docutils.core
 from datetime import datetime
 from django_extensions.management.jobs import MonthlyJob
 from django.conf import settings
 from django.core.mail import mail_admins
+from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 from ibge.localidades import Estados, Municipios
 from sigi.apps.contatos.models import (
     UnidadeFederativa,
@@ -12,7 +15,7 @@ from sigi.apps.contatos.models import (
 
 
 class Job(MonthlyJob):
-    help = (
+    help = _(
         "Atualiza Unidades Federativas, mesorregiões, microrregiões e "
         "municípios com dados do IBGE"
     )
@@ -33,7 +36,7 @@ class Job(MonthlyJob):
         )
         self.atualiza_ufs()
         self.atualiza_municipios()
-        self.print_report()
+        self.report()
         print(f"Término: {datetime.now(): %d/%m/%Y %H:%M:%S}")
 
     def atualiza_ufs(self):
@@ -145,53 +148,33 @@ class Job(MonthlyJob):
                 sigi_mun.save()
                 self.municipios_atualizados.append(sigi_mun)
 
-    def print_report(self):
-        report = (
-            f"\t {len(self.uf_novas)} novas UFs criadas:\n"
-            + "\n".join(
-                [
-                    f"\t{uf.codigo_ibge}: {uf.sigla} - {uf.nome}"
-                    for uf in self.uf_novas
-                ]
-            )
-            + f"\t {len(self.uf_atualizadas)} UFs atualizadas:\n"
-            + "\n".join(
-                [
-                    f"\t{uf.codigo_ibge}: {uf.sigla} - {uf.nome}"
-                    for uf in self.uf_atualizadas
-                ]
-            )
-            + f"\t {len(self.municipios_novos)} novos municipios criados:\n"
-            + "\n".join(
-                [f"\t{m.codigo_ibge}: {m.nome}" for m in self.municipios_novos]
-            )
-            + f"\t {len(self.municipios_atualizados)} municípios atualizados:\n"
-            + "\n".join(
-                [
-                    f"\t{m.codigo_ibge}: {m.nome}"
-                    for m in self.municipios_atualizados
-                ]
-            )
-            + f"\t {len(self.meso_novas)} novas mesorregiões:\n"
-            + "\n".join(
-                [f"\t{m.codigo_ibge}: {m.nome}" for m in self.meso_novas]
-            )
-            + f"\t {len(self.meso_atualizadas)} mesorregiões atualizadas:\n"
-            + "\n".join(
-                [f"\t{m.codigo_ibge}: {m.nome}" for m in self.meso_atualizadas]
-            )
-            + f"\t {len(self.micro_novas)} novas microrregiões:\n"
-            + "\n".join(
-                [f"\t{m.codigo_ibge}: {m.nome}" for m in self.micro_novas]
-            )
-            + f"\t {len(self.micro_atualizadas)} microrregiões atualizadas:\n"
-            + "\n".join(
-                [f"\t{m.codigo_ibge}: {m.nome}" for m in self.micro_atualizadas]
-            )
+    def report(self):
+        rst = render_to_string(
+            "contatos/emails/report_atualiza_ibge.rst",
+            {
+                "title": self.help,
+                "uf_novas": self.uf_novas,
+                "uf_atualizadas": self.uf_atualizadas,
+                "municipios_novos": self.municipios_novos,
+                "municipios_atualizados": self.municipios_atualizados,
+                "meso_novas": self.meso_novas,
+                "meso_atualizadas": self.meso_atualizadas,
+                "micro_novas": self.micro_novas,
+                "micro_atualizadas": self.micro_atualizadas,
+            },
         )
-        print(report)
+        html = docutils.core.publish_string(
+            rst,
+            writer_name="html5",
+            settings_overrides={
+                "input_encoding": "unicode",
+                "output_encoding": "unicode",
+            },
+        )
         mail_admins(
-            "CRON - Atualização de dados do IBGE",
-            report,
+            subject=self.help,
+            message=rst,
+            html_message=html,
             fail_silently=True,
         )
+        print(rst)
