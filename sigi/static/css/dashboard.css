@@ -118,6 +118,10 @@ table.numeros>tbody>tr>td {
     color: var(--primary);
 }
 
+.dashtab {
+    width: 100%;
+}
+
 .dash-modal-header {
     font-size: 1.2em;
     display: block;

@@ -68,6 +68,13 @@
                 {% endfor %}
               </p>
               <p>
+                <span class="strong">{% trans "Oficinas autorizadas:" %}</span>
+                {% for oficina in ocorrencia.evento_set.all %}
+                  <span class="span-list">{{ oficina }}</span>
+                {% empty %}
+                  <span class="span-list">{% trans "Nenhuma" %}</span>
+                {% endfor %}
+              <p>
                 <span class="strong">{% trans "Senadores selecionados:" %}</span>
                 {% for senador in ocorrencia.get_infos_senadores %}
                   <span class="span-list">{{ senador.nome_completo }} ({{ senador.partido.sigla }})</span>

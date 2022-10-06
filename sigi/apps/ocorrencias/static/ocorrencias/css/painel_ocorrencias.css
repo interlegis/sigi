@@ -53,6 +53,10 @@ commenter-image {
     border-radius: 12px;
 }
 
+.card-inbox p {
+    margin-bottom: 6px !important;
+}
+
 .inbox-title {
     font-weight: bold;
     text-transform: uppercase;
