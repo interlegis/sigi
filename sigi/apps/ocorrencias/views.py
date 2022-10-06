@@ -185,10 +185,10 @@ class PainelOcorrenciaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         context["panel_subtitles"] = self.get_subtitles(filter)
         context["filter"] = filter
         context["has_add_permission"] = self.request.user.has_perm(
-            "add_ocorrencia"
+            "ocorrencias.add_ocorrencia"
         )
         context["has_change_permission"] = self.request.user.has_perm(
-            "change_ocorrencia"
+            "ocorrencias.change_ocorrencia"
         )
         return context
 
