@@ -168,7 +168,11 @@ class Evento(models.Model):
         if self.status != Evento.STATUS_CANCELADO:
             self.data_cancelamento = None
             self.motivo_cancelamento = ""
-        if self.data_inicio > self.data_termino:
+        if (
+            self.data_inicio
+            and self.data_termino
+            and self.data_inicio > self.data_termino
+        ):
             raise ValidationError(
                 _("Data de término deve ser posterior à data de início")
             )

@@ -43,7 +43,7 @@ class EventoAdminForm(forms.ModelForm):
         data_inicio = cleaned_data.get("data_inicio")
         data_termino = cleaned_data.get("data_termino")
 
-        if data_inicio > data_termino:
+        if data_inicio and data_termino and data_inicio > data_termino:
             raise forms.ValidationError(
                 _("Data término deve ser posterior à data inicio"),
                 code="invalid_period",
