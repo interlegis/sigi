@@ -2,29 +2,31 @@
 {% load i18n admin_urls %}
 
 {% block object-tools-items %}
-  <li>
-    <a href="{% url 'evento-declaracao' object_id %}">
-      <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
-      {% trans "Declaração" %}
-    </a>
-  </li>
-  <li>
-    <a href="{% url opts|admin_urlname:'gantreport' object_id %}">
-      <i class="left material-icons" aria-hidden="true">insert_chart</i>
-      {% trans "Gráfico de Gant" %}
-    </a>
-  </li>
-  <li>
-    <a href="{% url opts|admin_urlname:'checklistreport' object_id %}">
-      <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
-      {% trans "Checklist" %}
-    </a>
-  </li>
-  <li>
-    <a href="{% url opts|admin_urlname:'comunicacaoreport' object_id %}">
-      <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
-      {% trans "Plano de comunicação" %}
-    </a>
-  </li>
+  {% if object_id %}
+    <li>
+      <a href="{% url 'evento-declaracao' object_id %}">
+        <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+        {% trans "Declaração" %}
+      </a>
+    </li>
+    <li>
+      <a href="{% url opts|admin_urlname:'gantreport' object_id %}">
+        <i class="left material-icons" aria-hidden="true">insert_chart</i>
+        {% trans "Gráfico de Gant" %}
+      </a>
+    </li>
+    <li>
+      <a href="{% url opts|admin_urlname:'checklistreport' object_id %}">
+        <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+        {% trans "Checklist" %}
+      </a>
+    </li>
+    <li>
+      <a href="{% url opts|admin_urlname:'comunicacaoreport' object_id %}">
+        <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+        {% trans "Plano de comunicação" %}
+      </a>
+    </li>
+  {% endif %}
   {{ block.super }}
 {% endblock %}
