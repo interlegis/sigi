@@ -34,6 +34,8 @@ INTERNAL_IPS = [
 
 ADMINS = env("ADMINS", eval)
 
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 2000
+
 # Application definition
 
 INSTALLED_APPS = [
