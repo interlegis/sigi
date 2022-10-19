@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster
+FROM python:3.8-slim-bullseye
 
 # Setup env
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -70,11 +70,7 @@ ADD . ${HOME}
 
 # Install python packages
 RUN pip install -qq --upgrade pip setuptools && \
-    if [ $DEBUG = False ]; then \
-    pip install -qq -r ${HOME}/requirements/requirements.txt; \
-    else \
-    pip install -qq -r ${HOME}/requirements/dev-requirements.txt; \
-    fi
+    pip install -qq -r ${HOME}/requirements/requirements.txt
 
 # Remove .env trash file
 RUN rm -f ${HOME}/sigi/.env
