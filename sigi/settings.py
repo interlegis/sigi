@@ -253,3 +253,5 @@ TINYMCE_DEFAULT_CONFIG = {
 # SIGI specific settings
 
 MENU_FILE = BASE_DIR / "menu_conf.yaml"
+HOSPEDAGEM_PATH = Path(env("HOSPEDAGEM_PATH", default="/tmp/HOSP/"))
+REGISTRO_PATH = Path(env("REGISTRO_PATH", default="/tmp/DNS/"))

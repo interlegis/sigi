@@ -1,3 +1,4 @@
+import black
 from django.utils import timezone
 from django.db import models
 from sigi.apps.casas.models import Orgao, Funcionario
@@ -18,6 +19,16 @@ class TipoServico(models.Model):
     modo = models.CharField(
         _("modo de prestação do serviço"), max_length=1, choices=MODO_CHOICES
     )
+    tipo_rancher = models.CharField(
+        _("tipo de objeto no Rancher"), max_length=100, blank=True
+    )
+    spec_rancher = models.CharField(
+        _("spec do serviço no Rancher"), max_length=100, blank=True
+    )
+    arquivo_rancher = models.CharField(
+        _("nome do arquivo gerado no rancher"), max_length=100, blank=True
+    )
+    prefixo_padrao = models.CharField(max_length=20, blank=True)
     string_pesquisa = models.TextField(
         _("string de pesquisa"), blank=True, help_text=string_pesquisa_help
     )
@@ -63,8 +74,12 @@ class Servico(models.Model):
         TipoServico, on_delete=models.PROTECT, verbose_name=_("tipo de serviço")
     )
     url = models.URLField(_("URL do serviço"), blank=True)
+    versao = models.CharField(_("versão"), max_length=20, blank=True)
     hospedagem_interlegis = models.BooleanField(
         _("Hospedagem no Interlegis?"), default=False
+    )
+    instancia = models.CharField(
+        _("nome da instância"), max_length=100, blank=True
     )
     data_ativacao = models.DateField(
         _("Data de ativação"), default=timezone.localdate

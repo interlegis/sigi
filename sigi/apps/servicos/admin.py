@@ -69,6 +69,7 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
     ]
     list_display = (
         "tipo_servico",
+        "versao",
         "casa_legislativa",
         "get_uf",
         "hospedagem_interlegis",
@@ -83,8 +84,10 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
     fields = [
         "casa_legislativa",
         "tipo_servico",
+        "versao",
         "url",
         "hospedagem_interlegis",
+        "instancia",
         "data_ativacao",
         "data_alteracao",
         "data_desativacao",
