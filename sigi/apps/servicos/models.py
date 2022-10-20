@@ -1,4 +1,3 @@
-import black
 from django.utils import timezone
 from django.db import models
 from sigi.apps.casas.models import Orgao, Funcionario
