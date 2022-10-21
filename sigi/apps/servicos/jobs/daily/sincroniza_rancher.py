@@ -1,7 +1,7 @@
 import datetime
 import docutils.core
 import json
-from pathlib import Path
+import shutil
 from django.conf import settings
 from django.core.mail import mail_admins
 from django.template.loader import render_to_string
@@ -30,7 +30,9 @@ class Job(DailyJob):
             generate_instance_name(o): o
             for o in Orgao.objects.filter(tipo__legislativo=True)
         }
-        print(f"\t{len(self._nomes_gerados)} órgãos que podem ter instâncias.")
+        print(
+            _(f"\t{len(self._nomes_gerados)} órgãos que podem ter instâncias.")
+        )
 
         for tipo in TipoServico.objects.filter(modo="H").exclude(
             tipo_rancher=""
@@ -43,7 +45,12 @@ class Job(DailyJob):
                 end="",
             )
             self.process(tipo)
-            print(f" Término: {datetime.datetime.now():%H:%M:%S}.")
+            print(_(f" Término: {datetime.datetime.now():%H:%M:%S}."))
+
+        try:
+            shutil.rmtree(settings.HOSPEDAGEM_PATH)
+        except Exception as e:
+            print(_(f"Erro ao excluir diretório {settings.HOSPEDAGEM_PATH}"))
 
         print("Relatório final:\n================")
         self.report()
