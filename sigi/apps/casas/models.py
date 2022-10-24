@@ -185,7 +185,7 @@ class Orgao(models.Model):
         )
 
     def __str__(self):
-        return self.nome
+        return _(f"{self.nome} ({self.municipio.uf.sigla})")
 
     def clean(self):
         if (
