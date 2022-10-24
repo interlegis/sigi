@@ -282,6 +282,16 @@ class Servico(models.Model):
 
         return
 
+    class Meta:
+        verbose_name = _("serviço SEIT")
+        verbose_name_plural = _("serviços SEIT")
+        constraints = [
+            models.UniqueConstraint(
+                fields=["tipo_servico", "instancia", "data_desativacao"],
+                name="unique_instance",
+            )
+        ]
+
     def __str__(self):
         return f"{self.tipo_servico.nome} ({self.status_servico})"
 

@@ -117,8 +117,18 @@ class Job(DailyJob):
                 )
 
             try:
-                portal = Servico.objects.get(instancia=iname, tipo_servico=tipo)
+                portal = Servico.objects.get(
+                    instancia=iname, tipo_servico=tipo, data_desativao=None
+                )
                 encontrados += 1
+            except Servico.MultipleObjectsReturned:
+                self._errors.append(
+                    _(
+                        f"Existe mais de um registro ativo da instância {iname}"
+                        f" de {tipo}."
+                    )
+                )
+                continue
             except Servico.DoesNotExist:
                 if iname in self._nomes_gerados:
                     orgao = self._nomes_gerados[iname]
