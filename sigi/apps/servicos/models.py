@@ -210,7 +210,17 @@ class Servico(models.Model):
                             data = data[c]
 
                 if param_pesquisa[1] == "xml":
-                    data = data.firstChild.nodeValue
+                    if data.hasChildNodes():
+                        data = data.firstChild.nodeValue
+                    else:
+                        data = data.nodeValue
+                if data is None or data == "":
+                    return {
+                        "data": "",
+                        "resultado": "U",
+                        "erro": _("Sem data da última atualização."),
+                        "comment": _("Parece que nunca foi usado"),
+                    }
                 data = data[:10]
                 data = data.replace("/", "-")
                 return {
