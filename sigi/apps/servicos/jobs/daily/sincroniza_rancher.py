@@ -118,7 +118,7 @@ class Job(DailyJob):
 
             try:
                 portal = Servico.objects.get(
-                    instancia=iname, tipo_servico=tipo, data_desativao=None
+                    instancia=iname, tipo_servico=tipo, data_desativacao=None
                 )
                 encontrados += 1
             except Servico.MultipleObjectsReturned:
