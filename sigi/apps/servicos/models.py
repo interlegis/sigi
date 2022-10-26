@@ -118,6 +118,9 @@ class Servico(models.Model):
             "de última atualização do serviço"
         ),
     )
+    flag_confirmado = models.BooleanField(
+        _("indica se o registro foi confirmado"), default=False
+    )
 
     @property
     def status_servico(self):

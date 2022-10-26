@@ -60,6 +60,7 @@ class TipoServicoAdmin(admin.ModelAdmin):
         "qtde_casas_atendidas",
     )
     ordering = ["id"]
+    list_display_links = ["id", "sigla"]
 
 
 @admin.register(Servico)
