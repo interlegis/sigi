@@ -924,6 +924,9 @@ def busca_informacoes_camara():
 
     convenios_com_aceite = convenios.exclude(data_termo_aceite=None)
 
+    camaras_projetos_vigentes = camaras.exclude(convenio=None).exclude(
+        convenio__data_termino_vigencia__lt="2022-10-26"
+    )
     camaras_sem_processo = camaras.filter(convenio=None)
 
     # Criacao das listas para o resumo de camaras por projeto
@@ -939,47 +942,33 @@ def busca_informacoes_camara():
     lista_convenios_em_andamento = []
     lista_camaras_equipadas = []
     for projeto in projetos:
-        conv_sem_adesao_proj = convenios_sem_adesao.filter(projeto=projeto)
-        conv_com_adesao_proj = convenios_com_adesao.filter(projeto=projeto)
         conv_assinados_proj = convenios_assinados.filter(projeto=projeto)
         conv_em_andamento_proj = convenios_em_andamento.filter(projeto=projeto)
-        conv_equipadas_proj = convenios_com_aceite.filter(projeto=projeto)
+        total = camaras.filter(convenio__projeto=projeto).count()
+        conv_assinados = camaras.filter(
+            convenio__in=conv_assinados_proj
+        ).count()
+        conv_andamento = camaras.filter(
+            convenio__in=conv_em_andamento_proj
+        ).count()
 
-        cabecalho_topo.append(projeto.sigla)
-        lista_total.append(camaras.filter(convenio__projeto=projeto).count())
-        lista_nao_aderidas.append(
-            camaras.filter(convenio__in=conv_sem_adesao_proj).count()
-        )
-        lista_aderidas.append(
-            camaras.filter(convenio__in=conv_com_adesao_proj).count()
-        )
-        lista_convenios_assinados.append(
-            camaras.filter(convenio__in=conv_assinados_proj).count()
-        )
-        lista_convenios_em_andamento.append(
-            camaras.filter(convenio__in=conv_em_andamento_proj).count()
-        )
-        lista_camaras_equipadas.append(
-            camaras.filter(convenio__in=conv_equipadas_proj).count()
-        )
+        if (total + conv_assinados + conv_andamento) > 0:
+            cabecalho_topo.append(projeto.sigla)
+            lista_total.append(total)
+            lista_convenios_assinados.append(conv_assinados)
+            lista_convenios_em_andamento.append(conv_andamento)
 
     # Cabecalho da esquerda na tabela
     cabecalho_esquerda = (
         _("Câmaras municipais"),
-        _("Câmaras municipais não aderidas"),
-        _("Câmaras municipais aderidas"),
         _("Câmaras municipais com convênios assinados"),
         _("Câmaras municipais convênios em andamento"),
-        _("Câmaras municipais equipadas"),
     )
 
     linhas = (
         lista_total,
-        lista_nao_aderidas,
-        lista_aderidas,
         lista_convenios_assinados,
         lista_convenios_em_andamento,
-        lista_camaras_equipadas,
     )
 
     # Unindo as duas listas para que o cabecalho da esquerda fique junto com sua
@@ -991,6 +980,7 @@ def busca_informacoes_camara():
         "cabecalho_topo": cabecalho_topo,
         "lista_zip": lista_zip,
         "total_camaras": camaras.count(),
+        "total_camaras_projetos_vigentes": camaras_projetos_vigentes.count(),
         "camaras_sem_processo": camaras_sem_processo.count(),
         "sem_convenio": sem_convenio(),
     }

@@ -1,5 +1,7 @@
+from django.db.models import Q
 from django.contrib import admin
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 from django_weasyprint.views import WeasyTemplateResponse
@@ -71,15 +73,26 @@ class AnexoAdmin(admin.ModelAdmin):
     )
 
 
-class AcompanhaFilter(admin.filters.RelatedFieldListFilter):
-    def __init__(self, *args, **kwargs):
-        super(AcompanhaFilter, self).__init__(*args, **kwargs)
-        servidores = (
-            Servidor.objects.filter(convenio__isnull=False)
-            .order_by("nome_completo")
-            .distinct()
+class ConvenioVigenteFilter(admin.filters.SimpleListFilter):
+    parameter_name = "vigencia"
+    title = _("Vigência")
+
+    def lookups(self, request, model_admin):
+        return (
+            ("vigentes", _("Vigentes")),
+            ("vencidos", _("Vencidos")),
         )
-        self.lookup_choices = [(x.id, x) for x in servidores]
+
+    def queryset(self, request, queryset):
+        if self.value() == "vigentes":
+            return queryset.filter(
+                Q(data_termino_vigencia__gte=timezone.localdate())
+                | Q(data_termino_vigencia=None)
+            )
+        elif self.value() == "vencidos":
+            return queryset.exclude(data_termino_vigencia=None).filter(
+                data_termino_vigencia__lt=timezone.localdate()
+            )
 
 
 @admin.register(Projeto)
@@ -166,9 +179,8 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     )
     list_filter = (
         ("data_retorno_assinatura", DateRangeFilter),
-        ("data_sigi", DateRangeFilter),
-        ("data_solicitacao", DateRangeFilter),
-        ("data_sigad", DateRangeFilter),
+        ("data_termino_vigencia", DateRangeFilter),
+        ConvenioVigenteFilter,
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "projeto",
         "casa_legislativa__tipo",
@@ -257,7 +269,7 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     def report_convenios_camaras(self, request):
         context = {
             "convenios": self.get_queryset(request).filter(
-                casa_legislativa__tipo__legislativo=False
+                casa_legislativa__tipo__sigla="CM"
             ),
             "title": _("Relatório de convenios de camaras municipais"),
         }
@@ -276,7 +288,7 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     def report_convenios_assembleia(self, request):
         context = {
             "convenios": self.get_queryset(request).filter(
-                casa_legislativa__tipo__legislativo=True
+                casa_legislativa__tipo__sigla="AL"
             ),
             "title": _("Relatório de convenios de assembleias legislativas"),
         }
