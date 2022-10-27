@@ -7,35 +7,37 @@
   <table repeat="1">
     <thead>
       <tr>
-        <th style="width: 10%;">{% trans 'UF'       %}</th>
+        <th style="width: 25%;">{% trans 'Orgão' %}</th>
         <th style="width: 20%;">{% trans 'Municipio' %}</th>
-        <th style="width:    12%;">{% trans 'Número do Convênio'       %}</th>
-        <th style="width:   8%;">{% trans 'Projeto'   %}</th>
-        <th style="width:   15%;">{% trans 'Data do Convênio'     %}</th>
-        <th style="width:    15%;">{% trans 'Data de Publicação'        %}</th>
-        <th style="width: 25%;">{% trans 'Orgão'   %}</th>
+        <th style="width: 10%;">{% trans 'UF' %}</th>
+        <th style="width:    12%;">{% trans 'Número do Convênio' %}</th>
+        <th style="width:   8%;">{% trans 'Projeto' %}</th>
+        <th style="width:   15%;">{% trans 'Data do Convênio' %}</th>
+        <th style="width:    15%;">{% trans 'Data de Publicação' %}</th>
       </tr>
     </thead>
 
      {% for convenio in convenios %}
-      {% ifchanged convenio.municipio.uf %}
-        <tr class="title_row"><td colspan="8"><h1>{{ convenio.casa.municipio.uf }}</h1></td></tr>
-
+      {% ifchanged convenio.casa_legislativa.tipo %}
+        <tr class="title_row">
+          <td colspan="8">
+            <h1>{{ convenio.casa_legislativa.tipo }}</h1>
+          </td>
+        </tr>
       {% endifchanged %}
       <tr>
+        <td>{{ convenio.casa_legislativa.nome }}</td>
+        <td>{{ convenio.casa_legislativa.municipio.nome }}</td>
         <td>{{ convenio.casa_legislativa.municipio.uf.sigla }}</td>
-        <td>{{ convenio.casa_legislativa.municipio.nome   }}</td>
-        <td>{{ convenio.num_convenio     }}</td>
-        <td>{{ convenio.projeto     }}</td>
-        <td>{{ convenio.data_retorno_assinatura}}</td>
-        <td>{{ convenio.data_pub_diario    }}</td>
-        <td>{{ convenio.casa_legislativa.nome       }}</td>
+        <td>{{ convenio.num_convenio }}</td>
+        <td>{{ convenio.projeto }}</td>
+        <td>{{ convenio.data_retorno_assinatura|date:"SHORT_DATE_FORMAT" }}</td>
+        <td>{{ convenio.data_pub_diario|date:"SHORT_DATE_FORMAT" }}</td>
       </tr>
-  
     {% endfor %}
   </table>
   <h3>Número de Convênios:
-  {{ convenios|length }} 
+  {{ convenios|length }}
   </h3>
 
 {% endblock main_content %}

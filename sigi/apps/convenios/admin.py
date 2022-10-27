@@ -201,8 +201,6 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
     resource_class = ConvenioExportResourse
     reports = [
         "report_convenios",
-        "report_convenios_camaras",
-        "report_convenios_assembleia",
     ]
 
     def get_queryset(self, request):
@@ -253,7 +251,11 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
 
     def report_convenios(self, request):
         context = {
-            "convenios": self.get_queryset(request),
+            "convenios": self.get_queryset(request).order_by(
+                "casa_legislativa__tipo",
+                "casa_legislativa__municipio__uf__sigla",
+                "data_retorno_assinatura",
+            ),
             "title": _("Relatório de convenios"),
         }
         return WeasyTemplateResponse(
@@ -265,67 +267,6 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
         )
 
     report_convenios.title = _("Relatório de convênios")
-
-    def report_convenios_camaras(self, request):
-        context = {
-            "convenios": self.get_queryset(request).filter(
-                casa_legislativa__tipo__sigla="CM"
-            ),
-            "title": _("Relatório de convenios de camaras municipais"),
-        }
-        return WeasyTemplateResponse(
-            filename="relatorio_convenios.pdf",
-            request=request,
-            template="convenios/convenios_report.html",
-            context=context,
-            content_type="application/pdf",
-        )
-
-    report_convenios_camaras.title = _(
-        "Relatório de convênios de camaras municipais"
-    )
-
-    def report_convenios_assembleia(self, request):
-        context = {
-            "convenios": self.get_queryset(request).filter(
-                casa_legislativa__tipo__sigla="AL"
-            ),
-            "title": _("Relatório de convenios de assembleias legislativas"),
-        }
-        return WeasyTemplateResponse(
-            filename="relatorio_convenios.pdf",
-            request=request,
-            template="convenios/convenios_report.html",
-            context=context,
-            content_type="application/pdf",
-        )
-
-    report_convenios_assembleia.title = _(
-        "Relatório de convênios de assembleias legislativas"
-    )
-
-    # def relatorio(self, request, queryset):
-    #     # queryset.order_by('casa_legislativa__municipio__uf')
-    #     response = HttpResponse(content_type='application/pdf')
-    #     report = ConvenioReport(queryset=queryset)
-    #     report.generate_by(PDFGenerator, filename=response)
-    #     return response
-    # relatorio.short_description = _('Exportar convênios selecionados para PDF')
-
-    # def adicionar_convenios(self, request, queryset):
-    #     if 'carrinho_convenios' in request.session:
-    #         q1 = len(request.session['carrinho_convenios'])
-    #     else:
-    #         q1 = 0
-    #     adicionar_convenios_carrinho(request, queryset=queryset)
-    #     q2 = len(request.session['carrinho_convenios'])
-    #     quant = q2 - q1
-    #     if quant:
-    #         self.message_user(request, str(q2 - q1) + _(" Convênios adicionados no carrinho"))
-    #     else:
-    #         self.message_user(request, _("Os Convênios selecionados já foram adicionadas anteriormente"))
-    #     return HttpResponseRedirect('.')
-    # adicionar_convenios.short_description = _("Armazenar convênios no carrinho para exportar")
 
     def get_actions(self, request):
         actions = super(ConvenioAdmin, self).get_actions(request)
