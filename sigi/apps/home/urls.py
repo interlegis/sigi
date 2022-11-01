@@ -27,6 +27,11 @@ urlpatterns = [
         name="home_chartatualizacao",
     ),
     path(
+        "home/chartservicosano/",
+        views.chart_servicos_ano,
+        name="home_chartservicosano",
+    ),
+    path(
         "home/chartperformance/",
         views.chart_performance,
         name="home_chartperformance",
@@ -82,16 +87,3 @@ urlpatterns = [
         name="home_reportsemconvenio",
     ),
 ]
-
-# from django.conf.urls import patterns, url
-
-
-# urlpatterns = patterns('sigi.apps.home.views',
-#     url(r'^$', 'index', name='sigi_index'),
-#     url(r'^home/chartseit/$', 'chart_seit', name="home_chartseit"),
-#     url(r'^home/chartconvenios/$', 'chart_convenios', name="home_chartconvenios"),
-#     url(r'^home/chartcarteira/$', 'chart_carteira', name="home_chartcarteira"),
-#     url(r'^home/chartperformance/$', 'chart_performance', name="home_chartperformance"),
-#     url(r'^home/report/semconvenio/$', 'report_sem_convenio', name="home_reportsemconvenio"),
-
-# )

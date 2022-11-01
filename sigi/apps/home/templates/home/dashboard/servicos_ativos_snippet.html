@@ -1,0 +1,29 @@
+{% load static i18n %}
+
+<ul class="collapsible uf_selector">
+  <li>
+    <div class="collapsible-header">
+      {% if ano %}
+        {{ ano }}
+      {% else %}
+        {% trans "Todos os anos" %}
+      {% endif %}
+    </div>
+    <div class="collapsible-body">
+      <ul>
+        <li>
+          <a class="dashlink" href="{% url "home_chartservicosano" %}" data-target="chartservicosano-chart">
+            {% trans "Todos os anos" %}
+          </a>
+        </li>
+        {% for ano in anos %}
+          <li>
+            <a class="dashlink" href="{% url "home_chartservicosano" %}?ano={{ ano|safe }}" data-target="chartservicosano-chart">
+              {{ano|safe }}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </li>
+</ul>

@@ -1,6 +1,9 @@
 import calendar
 import csv
 import datetime
+import locale
+import numpy as np
+import pandas as pd
 from itertools import cycle
 from random import randint, seed
 from django import forms
@@ -23,7 +26,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse, reverse_lazy
 from django.utils import timezone
 from django.utils.text import slugify
-from django.utils.translation import gettext as _
+from django.utils.translation import to_locale, get_language, gettext as _
 from django.views.decorators.cache import never_cache
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import (
@@ -453,7 +456,41 @@ def card_add(request):
 @never_cache
 @login_required
 def resumo_convenios(request):
-    context = {"tabela_resumo_camara": busca_informacoes_camara()}
+    tipo = request.GET.get("tipo", "CM")
+    filtros = {
+        t.sigla: t.nome
+        for t in TipoOrgao.objects.filter(sigla__in=["CM", "AL"])
+    }
+    filtros["legislativo"] = _("Todo o legislativo")
+    filtros["outros"] = _("Demais órgãos")
+
+    if tipo == "CM":
+        label_tipo = _("Câmaras Municipais")
+        tipos = [
+            tipo,
+        ]
+    elif tipo == "AL":
+        label_tipo = _("Assembleias Legislativas")
+        tipos = [
+            tipo,
+        ]
+    elif tipo == "legislativo":
+        label_tipo = _("Órgãos do legislativo")
+        tipos = TipoOrgao.objects.filter(legislativo=True).values_list(
+            "sigla", flat=True
+        )
+    else:
+        label_tipo = _("Outros órgãos")
+        tipos = TipoOrgao.objects.filter(legislativo=False).values_list(
+            "sigla", flat=True
+        )
+
+    context = {
+        "tabela_resumo_camara": busca_informacoes_camara(tipos, label_tipo),
+        "filtros": filtros,
+        "tipo": filtros[tipo],
+        "label_tipo": label_tipo,
+    }
     return render(request, "home/dashboard/resumo_convenios.html", context)
 
 
@@ -625,6 +662,78 @@ def chart_atualizacao_servicos(request):
             ],
             "labels": [label for label, *__ in intervalos],
         }
+    }
+
+    return JsonResponse(chart)
+
+
+@never_cache
+@login_required
+def chart_servicos_ano(request):
+    ano = request.GET.get("ano", None)
+    anos = (
+        Servico.objects.filter(hospedagem_interlegis=True)
+        .order_by("data_ativacao__year")
+        .values_list("data_ativacao__year", flat=True)
+        .distinct("data_ativacao__year")
+    )
+    if ano:
+        dados = list(
+            Servico.objects.filter(
+                hospedagem_interlegis=True, data_ativacao__year=ano
+            )
+            .order_by("data_ativacao__month", "tipo_servico__sigla")
+            .values("data_ativacao__month", "tipo_servico__sigla")
+            .annotate(total=Count("id"))
+        )
+        date_field = "data_ativacao__month"
+        lang = to_locale(get_language()) + ".UTF-8"
+        locale.setlocale(locale.LC_ALL, lang)
+        map_function = lambda x: _(calendar.month_abbr[x])
+    else:
+        dados = list(
+            Servico.objects.filter(hospedagem_interlegis=True)
+            .order_by("data_ativacao__year", "tipo_servico__sigla")
+            .values("data_ativacao__year", "tipo_servico__sigla")
+            .annotate(total=Count("id"))
+        )
+        date_field = "data_ativacao__year"
+        map_function = str
+
+    labels_x = list({r[date_field] for r in dados})
+    labels_x.sort()
+    labels_x = list(map(map_function, labels_x))
+
+    series = {}
+    for d in dados:
+        sigla = d["tipo_servico__sigla"]
+        label = map_function(d[date_field])
+        if sigla not in series:
+            series[sigla] = dict(zip(labels_x, [0] * len(labels_x)))
+        series[sigla][label] = d["total"]
+
+    chart = {
+        "data": {
+            "datasets": [
+                {
+                    "type": "bar",
+                    "label": s,
+                    "data": series[s],
+                    "backgroundColor": getcolor(s),
+                }
+                for s in series
+            ],
+            "labels": labels_x,
+        },
+        "options": {
+            "scales": {"x": {"stacked": True}, "y": {"stacked": True}},
+            "plugins": {"tooltip": {"mode": "index"}},
+        },
+        "actionblock": render_to_string(
+            "home/dashboard/servicos_ativos_snippet.html",
+            context={"anos": anos, "ano": ano},
+            request=request,
+        ),
     }
 
     return JsonResponse(chart)
@@ -836,17 +945,17 @@ def report_sem_convenio(request):
     modo = request.GET.get("modo", None)
     fmt = request.GET.get("f", "pdf")
 
-    sc = sem_convenio()
+    sc = sem_convenio(detalhe=True)
 
     if modo == "H":
         casas = sc["hospedagem"]
         titulo = _(
-            "Casas sem convenio que utilizam algum serviço de " "hospedagem"
+            "Casas sem convenio que utilizam algum serviço de hospedagem"
         )
     elif modo == "R":
         casas = sc["registro"]
         titulo = _(
-            "Casas sem convenio que utilizam somente serviço de " "registro"
+            "Casas sem convenio que utilizam somente serviço de registro"
         )
     else:
         casas = sc["total"]
@@ -911,109 +1020,100 @@ def report_sem_convenio(request):
         )
 
 
-def busca_informacoes_camara():
-    camaras = Orgao.objects.filter(tipo__sigla="CM")
+def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
+    camaras = Orgao.objects.filter(tipo__sigla__in=tipos)
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla="CM")
-    projetos = Projeto.objects.all()
-
     convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
     convenios_em_andamento = convenios.filter(data_retorno_assinatura=None)
-
-    convenios_sem_adesao = convenios.filter(data_adesao=None)
-    convenios_com_adesao = convenios.exclude(data_adesao=None)
-
-    convenios_com_aceite = convenios.exclude(data_termo_aceite=None)
-
+    convenios_vencidos = convenios.filter(
+        data_termino_vigencia__lt=timezone.localdate()
+    )
     camaras_projetos_vigentes = camaras.exclude(convenio=None).exclude(
-        convenio__data_termino_vigencia__lt="2022-10-26"
-    )
-    camaras_sem_processo = camaras.filter(convenio=None)
-
-    # Criacao das listas para o resumo de camaras por projeto
-
-    cabecalho_topo = [
-        "",
-    ]  # Cabecalho superior da tabela
-
-    lista_total = []
-    lista_nao_aderidas = []
-    lista_aderidas = []
-    lista_convenios_assinados = []
-    lista_convenios_em_andamento = []
-    lista_camaras_equipadas = []
-    for projeto in projetos:
-        conv_assinados_proj = convenios_assinados.filter(projeto=projeto)
-        conv_em_andamento_proj = convenios_em_andamento.filter(projeto=projeto)
-        total = camaras.filter(convenio__projeto=projeto).count()
-        conv_assinados = camaras.filter(
-            convenio__in=conv_assinados_proj
-        ).count()
-        conv_andamento = camaras.filter(
-            convenio__in=conv_em_andamento_proj
-        ).count()
-
-        if (total + conv_assinados + conv_andamento) > 0:
-            cabecalho_topo.append(projeto.sigla)
-            lista_total.append(total)
-            lista_convenios_assinados.append(conv_assinados)
-            lista_convenios_em_andamento.append(conv_andamento)
-
-    # Cabecalho da esquerda na tabela
-    cabecalho_esquerda = (
-        _("Câmaras municipais"),
-        _("Câmaras municipais com convênios assinados"),
-        _("Câmaras municipais convênios em andamento"),
+        convenio__in=convenios_vencidos
     )
 
-    linhas = (
-        lista_total,
-        lista_convenios_assinados,
-        lista_convenios_em_andamento,
-    )
+    # Dataframe do resumo de camaras por projeto #
+    dataset = {
+        d.pop("convenio__projeto__sigla"): d
+        for d in camaras.values("convenio__projeto__sigla").annotate(
+            total=Count("id"),
+            assinados=Count("id", filter=Q(convenio__in=convenios_assinados)),
+            andamento=Count(
+                "id", filter=Q(convenio__in=convenios_em_andamento)
+            ),
+            vigentes=Count("id", filter=Q(id__in=camaras_projetos_vigentes)),
+            vencidos=Count("id", filter=~Q(id__in=camaras_projetos_vigentes)),
+        )
+    }
 
-    # Unindo as duas listas para que o cabecalho da esquerda fique junto com sua
-    # respectiva linha
-    lista_zip = zip(cabecalho_esquerda, linhas)
+    if None in dataset:
+        rec_none = dataset.pop(None)
+        camaras_sem_convenio = rec_none["total"]
+    else:
+        camaras_sem_convenio = 0
+
+    df = pd.DataFrame(dataset)
+    df.rename(
+        index={
+            "total": _(f"Total de {label_tipo} conveniados"),
+            "assinados": _(f"{label_tipo} com convênios assinados"),
+            "andamento": _(f"{label_tipo} com convênios em andamento"),
+            "vigentes": _(f"{label_tipo} com convênios vigentes"),
+            "vencidos": _(f"{label_tipo} com convênios vencidos"),
+        },
+        inplace=True,
+    )
 
     # Retornando listas em forma de dicionario
     return {
-        "cabecalho_topo": cabecalho_topo,
-        "lista_zip": lista_zip,
+        "data_frame": df,
         "total_camaras": camaras.count(),
-        "total_camaras_projetos_vigentes": camaras_projetos_vigentes.count(),
-        "camaras_sem_processo": camaras_sem_processo.count(),
+        "total_camaras_convenios_vigentes": camaras_projetos_vigentes.count(),
+        "camaras_sem_convenio": camaras_sem_convenio,
         "sem_convenio": sem_convenio(),
     }
 
 
-def sem_convenio():
-    total = (
-        Orgao.objects.exclude(servico=None)
-        .filter(servico__data_desativacao=None, convenio=None)
-        .order_by("municipio__uf__sigla", "nome")
-        .distinct("municipio__uf__sigla", "nome")
-    )
-    hospedagem = (
-        Orgao.objects.exclude(servico=None)
-        .filter(
-            servico__data_desativacao=None,
-            servico__tipo_servico__modo="H",
-            convenio=None,
+def sem_convenio(detalhe=False):
+    if detalhe:
+        total = (
+            Orgao.objects.exclude(servico=None)
+            .filter(servico__data_desativacao=None, convenio=None)
+            .order_by("municipio__uf__sigla", "nome")
+            .distinct("municipio__uf__sigla", "nome")
+            .prefetch_related("servico_set", "gerentes_interlegis")
         )
-        .order_by("municipio__uf__sigla", "nome")
-        .distinct("municipio__uf__sigla", "nome")
-    )
-    reg_keys = set(total.values_list("pk", flat=True)).difference(
-        set(hospedagem.values_list("pk", flat=True))
-    )
-    registro = Orgao.objects.filter(pk__in=reg_keys).order_by(
-        "municipio__uf__sigla", "nome"
-    )
-    return {
-        "total": total,
-        "hospedagem": hospedagem,
-        "registro": registro,
-    }
+        hospedagem = (
+            Orgao.objects.exclude(servico=None)
+            .filter(
+                servico__data_desativacao=None,
+                servico__tipo_servico__modo="H",
+                convenio=None,
+            )
+            .order_by("municipio__uf__sigla", "nome")
+            .distinct("municipio__uf__sigla", "nome")
+            .prefetch_related("servico_set", "gerentes_interlegis")
+        )
+        result = {
+            "total": total,
+            "hospedagem": hospedagem,
+            "registro": total.exclude(id__in=hospedagem),
+        }
+    else:
+        result = dict(
+            Orgao.objects.exclude(servico=None)
+            .filter(servico__data_desativacao=None, convenio=None)
+            .aggregate(
+                total=Count("id", distinct=True),
+                hospedagem=Count(
+                    "id",
+                    filter=Q(servico__tipo_servico__modo="H"),
+                    distinct=True,
+                ),
+            )
+        )
+        result["registro"] = result["total"] - result["hospedagem"]
+    return result
 
 
 def busca_informacoes_seit(mes_atual=None):
