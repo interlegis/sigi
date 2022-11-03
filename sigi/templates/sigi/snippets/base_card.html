@@ -1,4 +1,4 @@
-{% load i18n %}
+{% load static i18n %}
 
 <div class="app">
   <div class="card">
@@ -21,6 +21,9 @@
       <div class="card-title">
         <i class="material-icons left dash-control" style="cursor: move;">drag_handle</i>
         {% block card-title %}{% translate card_title|default:"" %}{% endblock %}
+        <a href="{{ data_source }}&download=excel" title="{% trans 'Download como planilha' %}">
+          <img src="{% static 'img/icons/xlsx.jpg' %}" class="circle right xlsx-download"/>
+        </a>
         {% if dash %}
           <a href="{% url 'home_card_remove' dash.label card.codigo %}" class="dash-control remove-card" title="{% trans 'Remove este card' %}"><i class="material-icons right">close</i></a>
         {% endif %}

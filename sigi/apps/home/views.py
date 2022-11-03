@@ -1,9 +1,11 @@
 import calendar
 import csv
 import datetime
+import io
 import locale
 import numpy as np
 import pandas as pd
+import xlsxwriter
 from itertools import cycle
 from random import randint, seed
 from django import forms
@@ -491,6 +493,30 @@ def resumo_convenios(request):
         "tipo": filtros[tipo],
         "label_tipo": label_tipo,
     }
+
+    if request.GET.get("download", None) == "excel":
+        resumo = context["tabela_resumo_camara"]
+        df = resumo.pop("data_frame")
+        col = df.columns[0]
+        for key, value in resumo.items():
+            if type(value) is dict:
+                for k, v in value.items():
+                    df.loc[f"{key} - {k}"] = {col: v}
+            else:
+                df.loc[key] = {col: value}
+        with io.BytesIO() as output:
+            df.to_excel(output)
+            return HttpResponse(
+                output.getvalue(),
+                headers={
+                    "Content-Type": (
+                        "application/vnd.openxmlformats-officedocument."
+                        "spreadsheetml.sheet"
+                    ),
+                    "Content-Disposition": f'attachment; filename="resumo_convenios.xlsx"',
+                },
+            )
+
     return render(request, "home/dashboard/resumo_convenios.html", context)
 
 
@@ -510,6 +536,33 @@ def resumo_seit(request):
         tabela_resumo_seit = busca_informacoes_seit()
 
     context = {"tabela_resumo_seit": tabela_resumo_seit}
+
+    if request.GET.get("download", None) == "excel":
+        resumo = context["tabela_resumo_seit"]
+        series = {}
+        mes_atual = resumo["mes_atual"].strftime("%m/%Y")
+        for s in resumo["servicos"]:
+            series[s["nome"]] = {
+                "total": s["total"],
+                mes_atual: s["novos_mes_atual"],
+            }
+            series[s["nome"]].update(
+                {m["mes"]: m["total"] for m in s["novos_por_mes"]}
+            )
+        df = pd.DataFrame(series)
+        with io.BytesIO() as output:
+            df.to_excel(output)
+            return HttpResponse(
+                output.getvalue(),
+                headers={
+                    "Content-Type": (
+                        "application/vnd.openxmlformats-officedocument."
+                        "spreadsheetml.sheet"
+                    ),
+                    "Content-Disposition": f'attachment; filename="resumo_seit.xlsx"',
+                },
+            )
+
     return render(request, "home/dashboard/resumo_seit.html", context)
 
 
@@ -560,6 +613,11 @@ def chart_seit(request):
         },
     }
 
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=data, chart_type="line", file_name="chart_seit"
+        )
+
     return JsonResponse(data)
 
 
@@ -609,6 +667,11 @@ def chart_uso_servico(request):
             request=request,
         ),
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=chart, chart_type="column", file_name="uso_servico"
+        )
 
     return JsonResponse(chart)
 
@@ -663,6 +726,11 @@ def chart_atualizacao_servicos(request):
             "labels": [label for label, *__ in intervalos],
         }
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=chart, chart_type="column", file_name="atualizacao_servicos"
+        )
 
     return JsonResponse(chart)
 
@@ -736,6 +804,14 @@ def chart_servicos_ano(request):
         ),
     }
 
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart,
+            chart_type="column",
+            subtype="stacked",
+            file_name="servicos_ativados_ano",
+        )
+
     return JsonResponse(chart)
 
 
@@ -755,6 +831,7 @@ def chart_carteira(request):
             "labels": [g.get_apelido() for g in gerentes],
             "datasets": [
                 {
+                    "label": "",
                     "data": [g.total_casas for g in gerentes],
                     "backgroundColor": [
                         gethighlight(g.get_apelido()) for g in gerentes
@@ -763,6 +840,11 @@ def chart_carteira(request):
             ],
         },
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=data, chart_type="doughnut", file_name="casas_por_gerente"
+        )
 
     return JsonResponse(data)
 
@@ -813,6 +895,11 @@ def chart_performance(request):
         ),
     }
 
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=data, chart_type="doughnut", file_name="performance_gerencia"
+        )
+
     return JsonResponse(data)
 
 
@@ -840,6 +927,12 @@ def eventos_status(request):
             "labels": [statuses[e["status"]] for e in queryset],
         },
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=chart, chart_type="doughnut", file_name="eventos_status"
+        )
+
     return JsonResponse(chart)
 
 
@@ -868,6 +961,12 @@ def eventos_categoria(request):
             "labels": [categorias[e["categoria"]] for e in queryset],
         },
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=chart, chart_type="doughnut", file_name="eventos_categoria"
+        )
+
     return JsonResponse(chart)
 
 
@@ -930,6 +1029,11 @@ def eventos_ano(request):
             ],
         },
     }
+
+    if request.GET.get("download", None) == "excel":
+        return ChartDownloadResponse(
+            chart=chart, chart_type="line", file_name="eventos_ano"
+        )
 
     return JsonResponse(chart)
 
@@ -1022,8 +1126,7 @@ def report_sem_convenio(request):
 
 def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
     camaras = Orgao.objects.filter(tipo__sigla__in=tipos)
-    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla="CM")
-    convenios_assinados = convenios.exclude(data_retorno_assinatura=None)
+    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla__in=tipos)
     convenios_em_andamento = convenios.filter(data_retorno_assinatura=None)
     convenios_vencidos = convenios.filter(
         data_termino_vigencia__lt=timezone.localdate()
@@ -1036,13 +1139,18 @@ def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
     dataset = {
         d.pop("convenio__projeto__sigla"): d
         for d in camaras.values("convenio__projeto__sigla").annotate(
-            total=Count("id"),
-            assinados=Count("id", filter=Q(convenio__in=convenios_assinados)),
+            total=Count("id", distinct=True),
             andamento=Count(
-                "id", filter=Q(convenio__in=convenios_em_andamento)
+                "id",
+                filter=Q(convenio__in=convenios_em_andamento),
+                distinct=True,
             ),
-            vigentes=Count("id", filter=Q(id__in=camaras_projetos_vigentes)),
-            vencidos=Count("id", filter=~Q(id__in=camaras_projetos_vigentes)),
+            vigentes=Count(
+                "id", filter=Q(id__in=camaras_projetos_vigentes), distinct=True
+            ),
+            vencidos=Count(
+                "id", filter=~Q(id__in=camaras_projetos_vigentes), distinct=True
+            ),
         )
     }
 
@@ -1056,7 +1164,6 @@ def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
     df.rename(
         index={
             "total": _(f"Total de {label_tipo} conveniados"),
-            "assinados": _(f"{label_tipo} com convênios assinados"),
             "andamento": _(f"{label_tipo} com convênios em andamento"),
             "vigentes": _(f"{label_tipo} com convênios vigentes"),
             "vencidos": _(f"{label_tipo} com convênios vencidos"),
@@ -1215,6 +1322,47 @@ def color_palete():
     )
 
     return (colors, highlights)
+
+
+def ChartDownloadResponse(chart, chart_type, subtype=None, file_name="chart"):
+    bytes = io.BytesIO()
+    workbook = xlsxwriter.Workbook(bytes, {"in_memory": True})
+    worksheet = workbook.add_worksheet()
+    worksheet.write_column("A2", chart["data"]["labels"])
+    col = 1
+    intervals = []
+    for ds in chart["data"]["datasets"]:
+        worksheet.write(0, col, ds["label"])
+        if type(ds["data"]) is dict:
+            dados = ds["data"].values()
+        else:
+            dados = ds["data"]
+        worksheet.write_column(1, col, dados)
+        intervals.append(
+            (
+                f"=Sheet1!${chr(65+col)}$1",
+                f"=Sheet1!${chr(65+col)}$2:${chr(65+col)}${len(ds['data'])+1}",
+            )
+        )
+        col += 1
+    if subtype:
+        workchart = workbook.add_chart({"type": chart_type, "subtype": subtype})
+    else:
+        workchart = workbook.add_chart({"type": chart_type})
+    for name, values in intervals:
+        workchart.add_series({"name": name, "values": values})
+    worksheet.insert_chart(0, col + 1, workchart)
+    workbook.close()
+    return HttpResponse(
+        bytes.getvalue(),
+        headers={
+            "Content-Type": (
+                "application/vnd.openxmlformats-officedocument."
+                "spreadsheetml.sheet"
+            ),
+            "Content-Disposition": f'attachment; filename="{file_name}.xlsx"',
+        },
+    )
 
 
 # @never_cache

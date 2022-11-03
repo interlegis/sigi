@@ -127,3 +127,7 @@ table.numeros>tbody>tr>td {
     display: block;
     text-transform: uppercase;
 }
+
+.xlsx-download {
+    height: 24px;
+}
