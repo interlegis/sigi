@@ -1,5 +1,4 @@
 import datetime
-from typing import TypedDict
 import docutils.core
 import json
 import shutil
@@ -15,6 +14,7 @@ from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 
 LOG_GERAL = _("Mensagens gerais")
+IGNORES = ["_psl", "k8s", "www.", "sapl."]
 
 get_iname = lambda d: "-".join(d.split(".")[:-2])
 get_sigla_serv = lambda d: "".join(d.split(".")[-2:]).upper()
@@ -47,6 +47,19 @@ class Job(DailyJob):
                 f" Início: {datetime.datetime.now(): %d/%m/%Y %H:%M:%S}"
             )
         )
+        # TODO: Resolver
+        print("Este CRON está desativado até resolvermos questões internas")
+        return
+
+        self._log[LOG_GERAL] = get_log_entry()
+
+        if (
+            not settings.REGISTRO_PATH.exists()
+            or not settings.REGISTRO_PATH.is_dir()
+        ):
+            self.error(_(f"Arquivos de DNS não encontrados."))
+            self.report()
+            return
 
         self._nomes_gerados = {
             generate_instance_name(o): o
@@ -56,8 +69,6 @@ class Job(DailyJob):
         Servico.objects.filter(
             tipo_servico__modo="R", data_desativacao=None
         ).update(flag_confirmado=False)
-
-        self._log[LOG_GERAL] = get_log_entry()
 
         for uf in UnidadeFederativa.objects.all():
             self._log[uf] = get_log_entry()
@@ -89,8 +100,8 @@ class Job(DailyJob):
             except:
                 pass
 
-        if "_psl" in dominio:
-            # Ignorar registros _PSL sem fazer log #
+        if any([i in dominio for i in IGNORES]):
+            # Ignorar esses registros sem fazer log #
             return
 
         try:
@@ -119,49 +130,63 @@ class Job(DailyJob):
             )
             return
         except Servico.DoesNotExist:
-            if iname in self._nomes_gerados:
-                orgao = self._nomes_gerados[iname]
-                log_entry = orgao.municipio.uf
-                servico = Servico(
-                    casa_legislativa=orgao,
-                    tipo_servico=tipo,
-                    instancia=iname,
-                    data_ativacao=timezone.localdate(),
-                    flag_confirmado=True,
-                )
-                self.log_novo(servico)
+            # Tenta encontrar um registro desativado para esta instância #
+            servico = Servico.objects.filter(
+                tipo_servico=tipo, instancia=iname
+            ).first()
+            if servico is not None:
+                # Reativa o servico #
+                servico.data_desativacao = None
+                servico.instancia = iname
+                self.log_reativa(servico)
             else:
-                if nivel < 4:
-                    # Ignora registros de 3º nível ou abaixo, sem logar #
-                    return
-                try:
-                    servico = Servico.objects.get(
-                        tipo_servico=tipo,
-                        url__icontains=dominio,
-                        data_desativacao=None,
-                    )
+                servico = None
+                # Tenta encontrar um registro ativo com mesmo domínio #
+                servico = Servico.objects.filter(
+                    tipo_servico=tipo, url=dominio, data_desativacao=None
+                ).first()
+                if servico is not None:
                     self.log_update(servico)
-                except Servico.MultipleObjectsReturned:
-                    self.log_ignore(
-                        dominio,
-                        _("existe mais de um registro no SIGI deste domínio."),
-                        log_entry,
+                else:
+                    # Tenta encontrar um registro desativado com mesmo domínio #
+                    servico = Servico.objects.filter(
+                        tipo_servico=tipo, url=dominio
+                    ).first()
+                    if servico is not None:
+                        servico.instancia = iname
+                        self.log_reativa(servico)
+
+            if servico is None:
+                # Tenta criar o registro #
+                if iname in self._nomes_gerados:
+                    orgao = self._nomes_gerados[iname]
+                    log_entry = orgao.municipio.uf
+                    servico = Servico(
+                        casa_legislativa=orgao,
+                        tipo_servico=tipo,
+                        instancia=iname,
+                        data_ativacao=timezone.localdate(),
+                        flag_confirmado=True,
                     )
-                    return
-                except Servico.DoesNotExist:
+                    self.log_novo(servico)
+
+            if servico is None:
+                if nivel > 3:
+                    # Loga registro não encontrado apenas para 4º+ nível #
                     self.log_ignore(
                         dominio,
                         _("não parece pertencer a nenhum órgão"),
                         log_entry,
                     )
-                    return
-        # atualiza o serviço no SIGI
-        servico.url = dominio
-        servico.hospedagem_interlegis = True
-        servico.data_verificacao = timezone.localtime()
-        servico.resultado_verificacao = "F"  # Funcionando
-        servico.flag_confirmado = True
-        servico.save()
+            else:
+                # atualiza o serviço no SIGI
+                servico.url = dominio
+                servico.instancia = iname
+                servico.hospedagem_interlegis = True
+                servico.data_verificacao = timezone.localtime()
+                servico.resultado_verificacao = "F"  # Funcionando
+                servico.flag_confirmado = True
+                servico.save()
 
     def processa_uf(self, uf):
         file_path = settings.REGISTRO_PATH / f"{uf.sigla.lower()}.leg.br."
@@ -285,6 +310,16 @@ class Job(DailyJob):
     def log_update(self, srv):
         uf = srv.casa_legislativa.municipio.uf
         self._log[uf]["sumario"]["atualizados"] += 1
+
+    def log_reativa(self, srv):
+        orgao = srv.casa_legislativa
+        uf = orgao.municipio.uf
+        msg = _(
+            f"Instância {srv.instancia} de {srv.tipo_servico.nome} "
+            f"para {orgao.nome} ({uf.sigla}) reativada no SIGI"
+        )
+        self._log[uf]["sumario"]["atualizados"] += 1
+        self.info(msg, uf)
 
     def log_remove(self, srv):
         orgao = srv.casa_legislativa
