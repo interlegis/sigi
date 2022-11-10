@@ -17,11 +17,13 @@
     </div>
   </li>
 </ul>
-<a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a>
-<a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a>
-<a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a>
-<a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a>
-<a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a>
+<blockquote>
+  <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'CO' %}">Centro Oeste</a>
+  <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'NE' %}">Nordeste</a>
+  <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'NO' %}">Norte</a>
+  <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SD' %}">Sudeste</a>
+  <a class="waves-effect waves-light btn-small btn-flat" href="{% url 'convenios-report_regiao_pdf' 'SL' %}">Sul</a>
+</blockquote>
 
 <table class="responsive-table numeros">
   <tr>
@@ -41,21 +43,12 @@
 </table>
 
 <table class="responsive-table numeros">
-  <tr>
-    <th>{% blocktrans with label_tipo=label_tipo %}Total de {{ label_tipo }} do país{% endblocktrans %}</th>
-    <td>{{ tabela_resumo_camara.total_camaras }}</td>
-  </tr>
-
-  <tr>
-    <th>{% blocktrans with label_tipo=label_tipo %}{{ label_tipo }} com convênios vigentes{% endblocktrans %}</th>
-    <td>{{ tabela_resumo_camara.total_camaras_convenios_vigentes }}</td>
-  </tr>
-
-  <tr>
-    <th>{% blocktrans with label_tipo=label_tipo %}{{ label_tipo }} sem nenhum convênio{% endblocktrans %}</th>
-    <td>{{ tabela_resumo_camara.camaras_sem_convenio }}</td>
-  </tr>
-
+  {% for label, value in tabela_resumo_camara.totais %}
+    <tr>
+      <th>{{ label }}</th>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
   <tr>
     <th>{% trans 'Casas sem convenio que utilizam algum serviço de hospedagem' %}
       <a href="{% url "home_reportsemconvenio" %}?modo=H" target="_blank" aria-label="{% trans "Listar casas" %}" title="{% trans "Listar casas" %}"><i class="material-icons tiny">list</i></a>

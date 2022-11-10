@@ -499,8 +499,9 @@ def resumo_convenios(request):
         df = resumo.pop("data_frame")
         col = df.columns[0]
         for key, value in resumo.items():
-            if type(value) is dict:
-                for k, v in value.items():
+            if hasattr(value, "__iter__") or hasattr(value, "__getitem__"):
+                value = value.items() if hasattr(value, "items") else value
+                for k, v in value:
                     df.loc[f"{key} - {k}"] = {col: v}
             else:
                 df.loc[key] = {col: value}
@@ -1127,56 +1128,67 @@ def report_sem_convenio(request):
 def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
     camaras = Orgao.objects.filter(tipo__sigla__in=tipos)
     convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla__in=tipos)
-    convenios_em_andamento = convenios.filter(data_retorno_assinatura=None)
-    convenios_vencidos = convenios.filter(
-        data_termino_vigencia__lt=timezone.localdate()
+    convenios_vigentes = convenios.exclude(data_retorno_assinatura=None).filter(
+        Q(data_termino_vigencia__gte=timezone.localdate())
+        | Q(data_termino_vigencia=None)
     )
-    camaras_projetos_vigentes = camaras.exclude(convenio=None).exclude(
-        convenio__in=convenios_vencidos
-    )
-
-    # Dataframe do resumo de camaras por projeto #
+    convenios_andando = convenios.filter(data_retorno_assinatura=None)
+    convenios_vencidos = convenios.exclude(
+        Q(data_retorno_assinatura=None) | Q(data_termino_vigencia=None)
+    ).filter(data_termino_vigencia__lt=timezone.localdate())
     dataset = {
-        d.pop("convenio__projeto__sigla"): d
-        for d in camaras.values("convenio__projeto__sigla").annotate(
-            total=Count("id", distinct=True),
-            andamento=Count(
-                "id",
-                filter=Q(convenio__in=convenios_em_andamento),
-                distinct=True,
-            ),
-            vigentes=Count(
-                "id", filter=Q(id__in=camaras_projetos_vigentes), distinct=True
-            ),
-            vencidos=Count(
-                "id", filter=~Q(id__in=camaras_projetos_vigentes), distinct=True
-            ),
-        )
+        _(f"{label_tipo} com convênios vigentes"): {
+            k: v
+            for k, v in convenios_vigentes.values_list(
+                "projeto__sigla"
+            ).annotate(Count("casa_legislativa_id", distinct=True))
+        },
+        _(f"{label_tipo} com convênios em andamento"): {
+            k: v
+            for k, v in convenios_andando.values_list(
+                "projeto__sigla"
+            ).annotate(Count("casa_legislativa_id", distinct=True))
+        },
+        _(f"{label_tipo} com convênios vencidos"): {
+            k: v
+            for k, v in convenios_vencidos.values_list(
+                "projeto__sigla"
+            ).annotate(Count("casa_legislativa_id", distinct=True))
+        },
     }
 
-    if None in dataset:
-        rec_none = dataset.pop(None)
-        camaras_sem_convenio = rec_none["total"]
-    else:
-        camaras_sem_convenio = 0
+    ds_totais = (
+        (_(f"Total de {label_tipo} do país"), camaras.count()),
+        (
+            _(f"Total de {label_tipo} com convênio vigente"),
+            convenios_vigentes.order_by("casa_legislativa_id")
+            .distinct("casa_legislativa_id")
+            .count(),
+        ),
+        (
+            _(f"Total de {label_tipo} com convênio em andamento"),
+            convenios_andando.order_by("casa_legislativa_id")
+            .distinct("casa_legislativa_id")
+            .count(),
+        ),
+        (
+            _(f"Total de {label_tipo} com convênio vencido"),
+            convenios_vencidos.order_by("casa_legislativa_id")
+            .distinct("casa_legislativa_id")
+            .count(),
+        ),
+    )
 
-    df = pd.DataFrame(dataset)
-    df.rename(
-        index={
-            "total": _(f"Total de {label_tipo} conveniados"),
-            "andamento": _(f"{label_tipo} com convênios em andamento"),
-            "vigentes": _(f"{label_tipo} com convênios vigentes"),
-            "vencidos": _(f"{label_tipo} com convênios vencidos"),
-        },
-        inplace=True,
+    df = (
+        pd.DataFrame.from_dict(dataset, orient="index")
+        .replace(np.NaN, 0)
+        .convert_dtypes()
     )
 
     # Retornando listas em forma de dicionario
     return {
         "data_frame": df,
-        "total_camaras": camaras.count(),
-        "total_camaras_convenios_vigentes": camaras_projetos_vigentes.count(),
-        "camaras_sem_convenio": camaras_sem_convenio,
+        "totais": ds_totais,
         "sem_convenio": sem_convenio(),
     }
 

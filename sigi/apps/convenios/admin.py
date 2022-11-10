@@ -256,7 +256,7 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
                 "casa_legislativa__municipio__uf__sigla",
                 "data_retorno_assinatura",
             ),
-            "title": _("Relatório de convenios"),
+            "title": _("Relatório de parcerias"),
         }
         return WeasyTemplateResponse(
             filename="relatorio_convenios.pdf",
