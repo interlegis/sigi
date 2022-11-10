@@ -1,5 +1,6 @@
 import re
 import requests
+from pathlib import Path
 from django.db import models
 from django.db.models import Q, fields
 from django.core.mail import send_mail
@@ -97,6 +98,9 @@ class Projeto(models.Model):
             encoding="utf-8",
             base_url=path,
         )
+        file_name = Path(file_object.path)
+        if not file_name.parent.exists():
+            file_name.parent.mkdir(parents=True, exist_ok=True)
         if file_object.closed:
             file_object.open(mode="wb")
         pdf.write_pdf(target=file_object)
@@ -132,7 +136,9 @@ class Projeto(models.Model):
                         cell.paragraphs,
                         doc_context,
                     )
-
+        file_path = Path(file_path)
+        if not file_path.parent.exists():
+            file_path.mkdir(parents=True, exist_ok=True)
         doc.save(file_path)
 
     def processa_paragrafos(self, paragrafos, context):
@@ -523,6 +529,17 @@ class Gescon(models.Model):
             "importado.</li></ul>"
         ),
     )
+    palavras_excluir = models.TextField(
+        _("palavras de exclusão"),
+        default="DTCOM",
+        help_text=_(
+            "Palavras que não podem aparecer no campo OBJETO dos dados do "
+            "Gescon."
+            "<ul><li>Informe uma palavra por linha.</li>"
+            "<li>Ocorrendo qualquer uma das palavras, o contrato será "
+            "ignorado.</li></ul>"
+        ),
+    )
     orgaos_gestores = models.TextField(
         _("Órgãos gestores"),
         default="SCCO",
@@ -615,7 +632,8 @@ class Gescon(models.Model):
             )
             return
 
-        palavras = self.palavras.split()
+        palavras = self.palavras.splitlines()
+        excludentes = self.palavras_excluir.splitlines()
         orgaos = self.orgaos_gestores.split()
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
         lista_cnpj = {
@@ -658,12 +676,15 @@ class Gescon(models.Model):
             nossos = [
                 c
                 for c in contratos
-                if any(palavra in c["objeto"] for palavra in palavras)
-                or any(
-                    orgao in c["orgaosGestoresTitulares"]
-                    for orgao in orgaos
-                    if c["orgaosGestoresTitulares"] is not None
+                if (
+                    any(palavra in c["objeto"] for palavra in palavras)
+                    or any(
+                        orgao in c["orgaosGestoresTitulares"]
+                        for orgao in orgaos
+                        if c["orgaosGestoresTitulares"] is not None
+                    )
                 )
+                and not any(palavra in c["objeto"] for palavra in excludentes)
             ]
 
             self.add_message(

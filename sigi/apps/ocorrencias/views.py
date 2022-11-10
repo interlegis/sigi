@@ -830,7 +830,7 @@ class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
                 if self.object.casa_brasao:
                     self.object.casa_brasao.delete(save=True)
             else:
-                self.object.casa_bocorrenciarasao = brasao
+                self.object.casa_brasao = brasao
 
         self.infos["casa_legislativa"] = cleaned
         return "presidente"
