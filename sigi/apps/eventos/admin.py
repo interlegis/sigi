@@ -88,6 +88,7 @@ class ChecklistInline(admin.StackedInline):
 
 class EquipeInline(admin.StackedInline):
     model = Equipe
+    autocomplete_fields = ("membro", "funcao")
 
 
 class ConviteInline(admin.StackedInline):
@@ -97,6 +98,7 @@ class ConviteInline(admin.StackedInline):
 
 class ModuloInline(admin.StackedInline):
     model = Modulo
+    autocomplete_fields = ("apresentador", "monitor")
 
 
 class AnexoInline(admin.StackedInline):
@@ -167,6 +169,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     autocomplete_fields = (
         "tipo_evento",
+        "solicitacao",
         "casa_anfitria",
         "municipio",
     )

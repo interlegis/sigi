@@ -25,6 +25,7 @@ class MicrorregiaoInline(admin.TabularInline):
 class SenadorInline(admin.StackedInline):
     model = Senador
     extra = 0
+    autocomplete_fields = ("partido",)
 
 
 @admin.register(UnidadeFederativa)
@@ -53,8 +54,14 @@ class MesorregiaoAdmin(admin.ModelAdmin):
         "codigo_ibge",
         "uf__sigla",
     )
+    autocomplete_fields = ("uf",)
     get_queryset = queryset_ascii
     inlines = (MicrorregiaoInline,)
+
+
+@admin.register(Microrregiao)
+class MicrorregiaoAdmin(admin.ModelAdmin):
+    search_fields = ("search_text",)
 
 
 @admin.register(Municipio)
@@ -111,6 +118,7 @@ class MunicipioAdmin(admin.ModelAdmin):
             },
         ),
     )
+    autocomplete_fields = ("uf", "microrregiao")
     search_fields = ("search_text", "codigo_ibge", "codigo_tse", "uf__sigla")
 
 
