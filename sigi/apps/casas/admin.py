@@ -94,6 +94,7 @@ class ParlamentarInline(admin.StackedInline):
         "redes_sociais",
         "ult_alteracao",
     )
+    autocomplete_fields = ("partido",)
     readonly_fields = ("ult_alteracao",)
     extra = 0
 
@@ -228,6 +229,7 @@ class OcorrenciaInline(admin.StackedInline):
         "ticket",
         "data_modificacao",
     )
+    autocomplete_fields = ("categoria", "tipo_contato")
     readonly_fields = (
         "data_criacao",
         "data_modificacao",
@@ -241,6 +243,13 @@ class OcorrenciaInline(admin.StackedInline):
         if Servidor.objects.filter(user=request.user).exists():
             return super().has_add_permission(request, obj)
         return False
+
+
+@admin.register(TipoOrgao)
+class TipoOrgaoAdmin(admin.ModelAdmin):
+    list_display = ("sigla", "nome", "legislativo")
+    list_filter = ("legislativo",)
+    search_fields = ("sigla", "nome")
 
 
 @admin.register(Orgao)
@@ -333,7 +342,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
             },
         ),
     )
-    autocomplete_fields = ("municipio",)
+    autocomplete_fields = ("tipo", "municipio", "pesquisador")
     readonly_fields = [
         "gerentes_interlegis",
     ]
@@ -482,6 +491,3 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
-
-
-admin.site.register(TipoOrgao)

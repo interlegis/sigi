@@ -189,7 +189,11 @@ class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
         "casa_legislativa__municipio__uf",
     )
     ordering = ("casa_legislativa", "-data_retorno_assinatura")
-    autocomplete_fields = ("casa_legislativa",)
+    autocomplete_fields = (
+        "casa_legislativa",
+        "servico_gestao",
+        "servidor_gestao",
+    )
     get_queryset = queryset_ascii
     search_fields = (
         "id",

@@ -67,9 +67,6 @@ class EventoResource(ValueLabeledResource):
             "convite__casa__municipio__uf__sigla",
             "convite__casa__cep",
             "convite__casa__email",
-            "convite__aceite",
-            "convite__data_convite",
-            "convite__participou",
             "convite__qtde_participantes",
             "convite__nomes_participantes",
         )
@@ -83,12 +80,6 @@ class EventoResource(ValueLabeledResource):
 
     def dehydrate_status(self, obj):
         return dict(Evento.STATUS_CHOICES)[obj["status"]]
-
-    def dehydrate_convite__aceite(self, obj):
-        return "Sim" if obj["convite__aceite"] else "Não"
-
-    def dehydrate_convite__participou(self, obj):
-        return "Sim" if obj["convite__participou"] else "Não"
 
 
 class ChecklistInline(admin.StackedInline):
@@ -163,7 +154,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "solicitante",
         "total_participantes",
     )
-    list_display_links = ["get_banner", "nome"]
+    list_display_links = ("get_banner", "nome")
     list_filter = (
         "status",
         "publicar",
@@ -175,6 +166,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "solicitante",
     )
     autocomplete_fields = (
+        "tipo_evento",
         "casa_anfitria",
         "municipio",
     )

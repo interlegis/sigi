@@ -94,6 +94,7 @@ class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
         "data_desativacao",
         "motivo_desativacao",
     ]
+    autocomplete_fields = ("casa_legislativa",)
     readonly_fields = ["data_alteracao"]
     list_filter = (
         "tipo_servico",

@@ -196,7 +196,7 @@ class ParlamentarAdmin(CartExportMixin, admin.ModelAdmin):
             {"fields": ("telefones", "email", "redes_sociais")},
         ),
     )
-    autocomplete_fields = ("casa_legislativa",)
+    autocomplete_fields = ("casa_legislativa", "partido")
     search_fields = (
         "nome_completo",
         "nome_parlamentar",
@@ -294,6 +294,7 @@ class SenadorAdmin(ImportMixin, admin.ModelAdmin):
         "partido__sigla",
         "partido__nome",
     )
+    autocomplete_fields = ("partido",)
 
     def get_import_formats(self):
         return [SemicolonCSV]

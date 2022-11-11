@@ -54,6 +54,19 @@ class AnexosInline(admin.TabularInline):
     ]
 
 
+@admin.register(Categoria)
+class CategoriaAdmin(admin.ModelAdmin):
+    list_display = ("nome", "tipo")
+    list_filter = ("tipo",)
+    search_fields = ("nome", "descricao")
+
+
+@admin.register(TipoContato)
+class TipoContatoAdmin(admin.ModelAdmin):
+    list_display = ("descricao",)
+    search_fields = ("descricao",)
+
+
 @admin.register(Ocorrencia)
 class OcorrenciaAdmin(admin.ModelAdmin):
     list_display = (
@@ -100,7 +113,7 @@ class OcorrenciaAdmin(admin.ModelAdmin):
         ComentarioInline,
         AnexosInline,
     )
-    autocomplete_fields = ("casa_legislativa",)
+    autocomplete_fields = ("casa_legislativa", "categoria", "tipo_contato")
 
     def get_fieldsets(self, request, obj=None):
         if obj is None:
@@ -155,7 +168,3 @@ class OcorrenciaAdmin(admin.ModelAdmin):
 
     get_municipio.short_description = _("Município")
     get_municipio.admin_order_field = "casa_legislativa__municipio__nome"
-
-
-admin.site.register(Categoria)
-admin.site.register(TipoContato)

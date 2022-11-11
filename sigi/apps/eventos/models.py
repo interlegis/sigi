@@ -295,14 +295,6 @@ class Convite(models.Model):
     casa = models.ForeignKey(
         Orgao, on_delete=models.PROTECT, verbose_name=_("Casa convidada")
     )
-    servidor = models.ForeignKey(
-        Servidor,
-        on_delete=models.PROTECT,
-        verbose_name=_("Servidor que convidou"),
-    )
-    data_convite = models.DateField(_("Data do convite"))
-    aceite = models.BooleanField(_("Aceitou o convite"), default=False)
-    participou = models.BooleanField(_("Participou do evento"), default=False)
     qtde_participantes = models.PositiveIntegerField(
         _("número de participantes"), default=0
     )
@@ -313,7 +305,7 @@ class Convite(models.Model):
     )
 
     class Meta:
-        ordering = ("evento", "casa", "-data_convite")
+        ordering = ("evento", "casa")
         unique_together = ("evento", "casa")
         verbose_name = _("Casa convidada")
         verbose_name_plural = _("Casas convidadas")
