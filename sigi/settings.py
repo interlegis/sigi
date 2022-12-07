@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 import environ
 from pathlib import Path
 from django.utils.translation import gettext_lazy as _
+from django.conf.locale.pt_BR import formats as br_formats
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
@@ -221,6 +223,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 IMPORT_EXPORT_SKIP_ADMIN_LOG = True
+
+# Admin date and time short formats for pt_BR
+br_formats.DATE_FORMAT = br_formats.SHORT_DATE_FORMAT
+br_formats.DATETIME_FORMAT = br_formats.SHORT_DATETIME_FORMAT
 
 # Django Material Admin settings
 # https://github.com/MaistrenkoAnton/django-material-admin#django-material-administration
