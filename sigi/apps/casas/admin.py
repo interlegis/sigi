@@ -22,7 +22,11 @@ from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
-from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
+from sigi.apps.utils.mixins import (
+    ReturnMixin,
+    CartExportReportMixin,
+    LabeledResourse,
+)
 
 
 class OrgaoExportResourse(LabeledResourse):
@@ -78,57 +82,56 @@ class TelefonesInline(GenericTabularInline):
     extra = 1
 
 
-class ParlamentarInline(admin.StackedInline):
+class ParlamentarInline(admin.TabularInline):
     model = Parlamentar
+    template = "admin/casas/orgao/tabular.html"
     fields = (
-        "foto",
+        "get_foto",
         "nome_parlamentar",
-        "nome_completo",
-        "partido",
-        "presidente",
-        "data_nascimento",
-        "cpf",
-        "identidade",
-        "telefones",
+        "status_mandato",
+        "get_partido",
         "email",
         "redes_sociais",
-        "ult_alteracao",
+        "presidente",
     )
-    autocomplete_fields = ("partido",)
-    readonly_fields = ("ult_alteracao",)
+    readonly_fields = fields
     extra = 0
+    max_num = 0
+    show_change_link = True
+    can_delete = False
 
-    def has_add_permission(self, request, *args, **kwargs):
-        return False
+    @mark_safe
+    @admin.display(description=_("Foto"))
+    def get_foto(self, obj):
+        if obj.foto:
+            return f'<img class="circle" src="{obj.foto.url}" style="width: 58px; height: 58px;"/>'
+        else:
+            return (
+                '<i class="material-icons medium grey-text">account_circle</i>'
+            )
 
-    def has_delete_permission(self, request, *args, **kwargs):
-        return False
+    @admin.display(description=_("Partido"))
+    def get_partido(self, obj):
+        return obj.partido.sigla
 
 
-class FuncionariosInline(admin.StackedInline):
+class FuncionarioInline(admin.TabularInline):
     model = Funcionario
+    template = "admin/casas/orgao/tabular.html"
     fields = (
         "nome",
-        "sexo",
-        "data_nascimento",
         "nota",
         "email",
-        "cargo",
-        "funcao",
         "setor",
-        "tempo_de_servico",
         "ult_alteracao",
-        "endereco",
-        "municipio",
-        "bairro",
-        "cep",
         "redes_sociais",
-        "desativado",
         "observacoes",
     )
-    autocomplete_fields = ("municipio",)
-    readonly_fields = ("ult_alteracao",)
-    extra = 1
+    readonly_fields = fields
+    extra = 0
+    max_num = 0
+    show_change_link = True
+    can_delete = False
     verbose_name_plural = _("Contatos da Casa")
 
     def get_queryset(self, request):
@@ -141,40 +144,28 @@ class FuncionariosInline(admin.StackedInline):
         )
 
 
-class ConveniosInline(admin.StackedInline):
+class ConveniosInline(admin.TabularInline):
     model = Convenio
+    template = "admin/casas/orgao/tabular.html"
     fields = (
         "num_processo_sf",
         "link_sigad",
         "status_convenio",
         "num_convenio",
         "projeto",
-        "observacao",
         "data_retorno_assinatura",
         "data_termino_vigencia",
         "data_pub_diario",
         "data_sigad",
         "data_solicitacao",
-        "get_anexos",
     )
-    readonly_fields = [
-        "link_sigad",
-        "status_convenio",
-        "get_anexos",
-    ]
+    readonly_fields = fields
     ordering = ("-data_retorno_assinatura",)
+    readonly_fields = fields
     extra = 0
-    can_delete = False
+    max_num = 0
     show_change_link = True
-
-    @admin.display(description=_("Anexos"))
-    def get_anexos(self, obj):
-        return mark_safe(
-            render_to_string(
-                "admin/casas/anexo_convenio_snippet.html",
-                context={"anexos": obj.anexo_set.all()},
-            )
-        )
+    can_delete = False
 
     @admin.display(description=_("Status do convênio"))
     def status_convenio(self, obj):
@@ -198,25 +189,38 @@ class ConveniosInline(admin.StackedInline):
         return mark_safe(obj.get_sigad_url(display_type="icone"))
 
 
-class ServicoInline(admin.StackedInline):
+class ServicoInline(admin.TabularInline):
     model = Servico
+    template = "admin/casas/orgao/tabular.html"
     fields = (
-        "tipo_servico",
-        "url",
+        "get_tipo_servico",
+        "get_url",
         "hospedagem_interlegis",
         "data_ativacao",
-        "data_alteracao",
         "data_desativacao",
-        "motivo_desativacao",
+        "resultado_verificacao",
+        "data_ultimo_uso",
     )
-    readonly_fields = ["data_alteracao"]
+    readonly_fields = fields
     ordering = ("tipo_servico", "-data_alteracao")
     extra = 0
+    max_num = 0
     show_change_link = True
+    can_delete = False
+
+    @admin.display(description=_("Tipo de serviço"), ordering="tipo_servico")
+    def get_tipo_servico(self, obj):
+        return obj.tipo_servico.sigla
+
+    @mark_safe
+    @admin.display(description="Url do serviço", ordering="url")
+    def get_url(self, obj):
+        return f"<a href='{obj.url}' target='_blank'>{obj.url}</a>"
 
 
-class OcorrenciaInline(admin.StackedInline):
+class OcorrenciaInline(admin.TabularInline):
     model = Ocorrencia
+    template = "admin/casas/orgao/tabular.html"
     fields = (
         "data_criacao",
         "categoria",
@@ -224,24 +228,24 @@ class OcorrenciaInline(admin.StackedInline):
         "assunto",
         "prioridade",
         "status",
-        "descricao",
-        "resolucao",
-        "ticket",
         "data_modificacao",
     )
     autocomplete_fields = ("categoria", "tipo_contato")
-    readonly_fields = (
-        "data_criacao",
-        "data_modificacao",
-    )
+    readonly_fields = fields
     ordering = ("-data_modificacao",)
     extra = 0
-    can_delete = False
+    max_num = 0
     show_change_link = True
+    can_delete = False
 
     def has_add_permission(self, request, obj):
         if Servidor.objects.filter(user=request.user).exists():
             return super().has_add_permission(request, obj)
+        return False
+
+    def has_change_permission(self, request, obj):
+        if Servidor.objects.filter(user=request.user).exists():
+            return super().has_change_permission(request, obj)
         return False
 
 
@@ -252,6 +256,34 @@ class TipoOrgaoAdmin(admin.ModelAdmin):
     search_fields = ("sigla", "nome")
 
 
+@admin.register(Funcionario)
+class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
+    fieldsets = (
+        (None, {"fields": ("nome", "sexo", "data_nascimento")}),
+        (_("Documentos"), {"fields": ("cpf", "identidade")}),
+        (_("Contato"), {"fields": ("nota", "email", "redes_sociais")}),
+        (_("Endereço"), {"fields": ("endereco", "municipio", "bairro", "cep")}),
+        (
+            _("Vínculo"),
+            {
+                "fields": (
+                    "casa_legislativa",
+                    "cargo",
+                    "funcao",
+                    "setor",
+                    "tempo_de_servico",
+                )
+            },
+        ),
+        (
+            _("Validade"),
+            {"fields": ("ult_alteracao", "desativado", "observacoes")},
+        ),
+    )
+    readonly_fields = ("ult_alteracao",)
+    autocomplete_fields = ("casa_legislativa", "municipio")
+
+
 @admin.register(Orgao)
 class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     form = OrgaoForm
@@ -259,7 +291,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     inlines = (
         TelefonesInline,
         ParlamentarInline,
-        FuncionariosInline,
+        FuncionarioInline,
         ConveniosInline,
         ServicoInline,
         OcorrenciaInline,

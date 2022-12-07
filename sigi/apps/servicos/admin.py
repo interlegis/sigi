@@ -9,7 +9,7 @@ from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.servicos.models import Servico, LogServico, TipoServico
 from sigi.apps.servicos.filters import ServicoAtivoFilter, DataUtimoUsoFilter
 from sigi.apps.utils.filters import DateRangeFilter
-from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
+from sigi.apps.utils.mixins import ReturnMixin, CartExportMixin, LabeledResourse
 
 
 class ServicoExportResourse(LabeledResourse):
@@ -64,7 +64,7 @@ class TipoServicoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Servico)
-class ServicoAdmin(CartExportMixin, admin.ModelAdmin):
+class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
     actions = [
         "calcular_data_uso",
     ]

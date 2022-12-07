@@ -20,7 +20,11 @@ from sigi.apps.convenios.models import (
 from sigi.apps.utils import queryset_ascii
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
-from sigi.apps.utils.mixins import CartExportReportMixin, LabeledResourse
+from sigi.apps.utils.mixins import (
+    ReturnMixin,
+    CartExportReportMixin,
+    LabeledResourse,
+)
 from sigi.apps.utils.filters import DateRangeFilter
 
 
@@ -102,7 +106,7 @@ class ProjetoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Convenio)
-class ConvenioAdmin(CartExportReportMixin, admin.ModelAdmin):
+class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
     fieldsets = (
         (
             None,

@@ -2,6 +2,7 @@ import json
 import tablib
 from django.db.models import Q
 from django.contrib import admin
+from django.http import HttpResponseRedirect
 from django.shortcuts import redirect, render
 from django.urls import path, reverse
 from django.utils import timezone
@@ -16,6 +17,7 @@ from sigi.apps.parlamentares.models import Partido, Parlamentar, Senador
 from sigi.apps.parlamentares.forms import ImportForm
 from sigi.apps.utils.filters import AlphabeticFilter
 from sigi.apps.utils.mixins import (
+    ReturnMixin,
     ImportCartExportMixin,
     CartExportMixin,
     LabeledResourse,
@@ -144,7 +146,7 @@ class PartidoAdmin(ImportCartExportMixin, admin.ModelAdmin):
 
 
 @admin.register(Parlamentar)
-class ParlamentarAdmin(CartExportMixin, admin.ModelAdmin):
+class ParlamentarAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
     resource_class = ParlamentarResource
     change_list_template = (
         "admin/parlamentares/parlamentar/cart/"

@@ -12,7 +12,7 @@ from sigi.apps.ocorrencias.models import (
     TipoContato,
 )
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils.base_admin import BaseModelAdmin
+from sigi.apps.utils.mixins import ReturnMixin
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 
 
@@ -68,7 +68,7 @@ class TipoContatoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Ocorrencia)
-class OcorrenciaAdmin(admin.ModelAdmin):
+class OcorrenciaAdmin(ReturnMixin, admin.ModelAdmin):
     list_display = (
         "data_criacao",
         "casa_legislativa",
@@ -142,6 +142,16 @@ class OcorrenciaAdmin(admin.ModelAdmin):
             )
 
         return super().get_fieldsets(request, obj)
+
+    def has_add_permission(self, request):
+        if Servidor.objects.filter(user=request.user).exists():
+            return super().has_add_permission(request)
+        return False
+
+    def has_change_permission(self, request, *args, **kwargs):
+        if Servidor.objects.filter(user=request.user).exists():
+            return super().has_change_permission(request, *args, **kwargs)
+        return False
 
     def save_model(self, request, obj, form, change):
         if not change:

@@ -80,6 +80,7 @@ class Servico(models.Model):
     instancia = models.CharField(
         _("nome da instância"), max_length=100, blank=True
     )
+    apps = models.TextField(_("apps instaladas no DNS"), blank=True)
     data_ativacao = models.DateField(
         _("Data de ativação"), default=timezone.localdate
     )

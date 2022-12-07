@@ -1,0 +1,115 @@
+{% load i18n admin_urls static admin_modify %}
+<div class="js-inline-admin-formset inline-group" id="{{ inline_admin_formset.formset.prefix }}-group"
+     data-inline-type="tabular"
+     data-inline-formset="{{ inline_admin_formset.inline_formset_data }}">
+  <div class="tabular inline-related {% if forloop.last %}last-related{% endif %}">
+    {{ inline_admin_formset.formset.management_form }}
+    <fieldset class="module {{ inline_admin_formset.classes }}">
+      <legend></legend>
+      <h2>{{ inline_admin_formset.opts.verbose_name_plural|capfirst }}</h2>
+      {{ inline_admin_formset.formset.non_form_errors }}
+      <table aria-describedby="tabular inline">
+        <thead>
+          <tr>
+            <th scope="row"class="original"></th>
+            {% for field in inline_admin_formset.fields %}
+              {% if not field.widget.is_hidden %}
+                <th scope="row"class="column-{{ field.name }}{% if field.required %} required{% endif %}">{{ field.label|capfirst }}
+                  {% if field.help_text %}
+                    <i class="help help-tooltip material-icons small-icon" aria-hidden="true"
+                       title="{{ field.help_text|striptags }}">help_outline</i>
+                  {% endif %}
+                </th>
+              {% endif %}
+            {% endfor %}
+            {% if inline_admin_formset.formset.can_delete %}<th scope="row"class="center">{% trans "Delete?" %}</th>{% endif %}
+          </tr>
+        </thead>
+
+        <tbody>
+          {% for inline_admin_form in inline_admin_formset %}
+            {% if inline_admin_form.form.non_field_errors %}
+              <tr>
+                <td colspan="{{ inline_admin_form|cell_count }}">
+                  {{ inline_admin_form.form.non_field_errors }}
+                </td>
+              </tr>
+            {% endif %}
+            <tr class="form-row {% cycle 'row1' 'row2' %}
+              {% if inline_admin_form.original or inline_admin_form.show_url %}has_original{% endif %}
+              {% if forloop.last and inline_admin_formset.has_add_permission %} empty-form{% endif %}"
+              title="{{ inline_admin_form.original|default_if_none:'' }}"
+              id="{{ inline_admin_formset.formset.prefix }}-{% if not forloop.last %}{{ forloop.counter0 }}{% else %}empty{% endif %}">
+              <td class="original">
+                {% if inline_admin_form.original or inline_admin_form.show_url %}
+                  <p class="inline-show-change-link">
+                    {% if inline_admin_form.original %}
+                      {% if inline_admin_form.model_admin.show_change_link and inline_admin_form.model_admin.has_registered_model %}
+                        <a href="{% url inline_admin_form.model_admin.opts|admin_urlname:'change' inline_admin_form.original.pk|admin_urlquote %}?_return={% url opts|admin_urlname:'change' object_id|admin_urlquote %}{% if form_url %}{{ form_url }}{% endif %}">
+                          <i class="material-icons" aria-hidden="true">
+                            {% if inline_admin_formset.has_change_permission %}edit{% else %}remove_red_eye{% endif %}
+                          </i>
+                        </a>
+                      {% endif %}
+                    {% endif %}
+                    {% if inline_admin_form.show_url %}
+                      <a href="{{ inline_admin_form.absolute_url }}">{% trans "View on site" %}</a>
+                    {% endif %}
+                  </p>
+                {% endif %}
+                {% if inline_admin_form.needs_explicit_pk_field %}{{ inline_admin_form.pk_field.field }}{% endif %}
+                  {% if inline_admin_form.fk_field %}{{ inline_admin_form.fk_field.field }}{% endif %}
+                  {% spaceless %}
+                    {% for fieldset in inline_admin_form %}
+                      {% for line in fieldset %}
+                        {% for field in line %}
+                          {% if not field.is_readonly and field.field.is_hidden %}{{ field.field }}{% endif %}
+                        {% endfor %}
+                      {% endfor %}
+                    {% endfor %}
+                  {% endspaceless %}
+              </td>
+              {% for fieldset in inline_admin_form %}
+                {% for line in fieldset %}
+                  {% for field in line %}
+                    {% if field.is_readonly or not field.field.is_hidden %}
+                      <td{% if field.field.name %} class="field-{{ field.field.name }}"{% endif %}>
+                        {% if field.is_readonly %}
+                          <p>{{ field.contents }}</p>
+                        {% else %}
+                          {{ field.field.errors.as_ul }}
+                          {{ field.field }}
+                          <span></span>
+                        {% endif %}
+                      </td>
+                    {% endif %}
+                  {% endfor %}
+                {% endfor %}
+              {% endfor %}
+              {% if inline_admin_formset.formset.can_delete %}
+                <td class="delete">
+                  {% if inline_admin_form.original %}
+                    {{ inline_admin_form.deletion_field.field }}
+                  {% endif %}
+                  <i class="material-icons delete-inline-row" aria-hidden="true">delete_forever</i>
+                </td>
+              {% endif %}
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% if inline_admin_formset.has_add_permission %}
+        <div>
+          <a href="{% url inline_admin_formset.opts.opts|admin_urlname:'add' %}?{{ inline_admin_formset.formset.fk.name }}={{ object_id|admin_urlquote }}&_return={% url opts|admin_urlname:'change' object_id|admin_urlquote %}{% if form_url %}{{ form_url }}{% endif %}" class="add-inline-link">
+            <i class="material-icons" aria-hidden="true">add</i>
+            <span>
+              {% blocktrans with verbose_name=inline_admin_formset.opts.verbose_name|capfirst %}
+                Adicionar outro(a) {{ verbose_name }}
+              {% endblocktrans %}
+            </span>
+          </a>
+        </div>
+      {% endif %}
+    </fieldset>
+  </div>
+</div>

@@ -294,3 +294,32 @@ class CartExportReportMixin(CartExportMixin):
         report_view = getattr(self, name)
 
         return report_view(request)
+
+
+class ReturnMixin:
+    _return_path = None
+
+    def changeform_view(
+        self, request, object_id=None, form_url="", extra_context=None
+    ):
+        if "_return" in request.GET:
+            self._return_path = request.GET.get("_return")
+        return super().changeform_view(
+            request, object_id, form_url, extra_context
+        )
+
+    def response_post_save_add(self, request, obj):
+        if self._return_path:
+            return HttpResponseRedirect(self._return_path)
+        return super().response_post_save_add(request, obj)
+
+    def response_post_save_change(self, request, obj):
+        if self._return_path:
+            return HttpResponseRedirect(self._return_path)
+        return super().response_post_save_change(request, obj)
+
+    def response_delete(self, request, obj_display, obj_id):
+        response = super().response_delete(request, obj_display, obj_id)
+        if self._return_path:
+            return HttpResponseRedirect(self._return_path)
+        return response
