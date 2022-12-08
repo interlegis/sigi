@@ -74,7 +74,7 @@ class Orgao(models.Model):
         verbose_name=_("município"),
     )
     cep = models.CharField(_("CEP"), max_length=32)
-    email = models.EmailField(_("e-mail"), max_length=128, blank=True)
+    email = models.EmailField(_("email"), max_length=128, blank=True)
     pagina_web = models.URLField(
         _("página web"),
         help_text=_("Exemplo: <em>http://www.camarapains.mg.gov.br</em>."),

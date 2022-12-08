@@ -22,6 +22,7 @@ from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.filters import EmptyFilter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
     CartExportReportMixin,
@@ -34,6 +35,7 @@ class OrgaoExportResourse(LabeledResourse):
     telefone = Field(column_name="telefone")
     # servicos_seit = Field(column_name='servicos_seit')
     contato = Field(column_name="contato")
+    nome = Field(column_name="nome")
 
     class Meta:
         model = Orgao
@@ -55,6 +57,9 @@ class OrgaoExportResourse(LabeledResourse):
             "contato",
         )
         export_order = fields
+
+    def dehydrate_nome(self, orgao):
+        return orgao.nome[:50]
 
     def dehydrate_presidente(self, orgao):
         return orgao.presidente
@@ -319,6 +324,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         ExcluirConvenioFilter,
         ServicoFilter,
         "inclusao_digital",
+        ("email", EmptyFilter),
     )
     ordering = ("municipio__uf__nome", "nome")
     queryset = queryset_ascii
