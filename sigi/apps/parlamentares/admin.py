@@ -170,17 +170,6 @@ class ParlamentarAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
     )
     fieldsets = (
         (
-            _("mandato"),
-            {
-                "fields": (
-                    "casa_legislativa",
-                    "ano_eleicao",
-                    "partido",
-                    "presidente",
-                )
-            },
-        ),
-        (
             _("dados pessoais"),
             {
                 "fields": (
@@ -191,6 +180,19 @@ class ParlamentarAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
                     "cpf",
                     "identidade",
                 ),
+            },
+        ),
+        (
+            _("mandato"),
+            {
+                "fields": (
+                    "status_mandato",
+                    "casa_legislativa",
+                    "ano_eleicao",
+                    "partido",
+                    "presidente",
+                    "observacoes",
+                )
             },
         ),
         (
