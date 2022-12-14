@@ -1,0 +1,120 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="pt_BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    <title>Órgãos Legislativos atendidos pelo Interlegis</title>
+  </head>
+  <body>
+    <div class="mb-5">
+      <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'openmap' %}">Interlegis</a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{% url 'servicos_casas_atendidas' %}">{% trans "Tudo" %}</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" aria-current="page" href="{% url 'servicos_casas_atendidas' 'ZZ' %}">{% trans "Estrangeiros" %}</a>
+              </li>
+              {% for regiao, ufs in regioes %}
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{ regiao }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    {{ regiao }}
+                  </a>
+                  <ul class="dropdown-menu" aria-labelledby="navbarDropdown-{{ regiao }}">
+                    {% for uf in ufs %}
+                      <li><a class="dropdown-item" href="{% url 'servicos_casas_atendidas' uf.sigla %}">{{ uf.nome }}</a></li>
+                    {% endfor %}
+                  </ul>
+                </li>
+              {% endfor %}
+            </ul>
+            <ul class="navbar-nav mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link btn btn-outline-primary" aria-current="page" href="?format=csv{% if search_param %}?search={{ search_param }}{% endif %}"><i class="bi bi-filetype-pdf"></i> {% trans "Download CSV" %}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </nav>
+      <div class="container mt-3">
+        <div class="alert alert-info" role="alert">
+          {% blocktranslate count counter=tot_orgaos %}
+            Um órgão encontrado
+            {% plural %}
+            {{ counter }} órgãos encontrados
+          {% endblocktranslate %}
+          {% if uf %}
+            {% blocktranslate with uf_name=uf.nome%} em {{ uf_name}}{% endblocktranslate %}
+          {% endif %}
+          {% if search_param %}
+            {% blocktranslate with exp=search_param %} que contém <em>{{ exp }}</em>.{% endblocktranslate %}
+          {% endif %}
+        </div>
+        <form class="d-flex">
+          <div class="input-group">
+            <input class="form-control" name="search"{% if search_param %} value="{{ search_param }}"{% endif %} type="search" placeholder="{% trans "Pesquisar" %}" aria-label="{% trans "Pesquisar" %}">
+            <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
+          </div>
+        </form>
+        {% include "servicos/navigator_snippet.html" %}
+        {% for srv in page_obj %}
+          {% ifchanged srv.casa_legislativa %}
+            {% if not forloop.first %}
+              </table></div></div></div>
+            {% endif %}
+
+            {% ifchanged srv.casa_legislativa.municipio.uf %}
+              <h6 class="mt-3">{% blocktranslate with nome_uf=srv.casa_legislativa.municipio.uf.nome%}Unidade da Federação: {{ nome_uf }}{% endblocktranslate %}</h6>
+            {% endifchanged %}
+
+            <div class="card text-dark bg-light shadow mb-3">
+              <div class="card-header">
+                <div class="d-inline-flex">
+                  <div class="me-3 d-none d-lg-block">
+                    {% if srv.casa_legislativa.foto %}
+                      <img src="{{ srv.casa_legislativa.foto.url }}" style="height: 120px;" height="120"/>
+                    {% else %}
+                      <i class="bi bi-buildings" style="font-size: 5rem;"></i>
+                    {% endif %}
+                  </div>
+                  <div class="d-block">
+                    <strong>{{ srv.casa_legislativa.nome }}</strong><br/>
+                    <small>{{ srv.casa_legislativa.cnpj}} - {{ srv.casa_legislativa.tipo.nome }}</small>
+                    <address>
+                      <strong>{{ srv.casa_legislativa.logradouro }} {{ srv.casa_legislativa.bairro }}</strong><br/>
+                      {{ srv.casa_legislativa.cep }} - {{ srv.casa_legislativa.municipio.nome }}, {{ srv.casa_legislativa.municipio.uf.sigla }}<br/>
+                      <a href="mailto:{{ srv.casa_legislativa.email }}" target="_blank">{{ srv.casa_legislativa.email }}</a> - <a href="tel:{{ srv.casa_legislativa.telefone|phone2numeric }}" target="_blank">{{ srv.casa_legislativa.telefone }}</a>
+                    </address>
+                  </div>
+                </div>
+              </div>
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table table-sm">
+                    <tr>
+                      <th>{% trans "Tipo de serviço" %}</th>
+                      <th>{% trans "Data de instalação" %}</th>
+                      <th>{% trans "URL de acesso" %}</th>
+                    </tr>
+          {% endifchanged %}
+          <tr>
+            <td>{{ srv.tipo_servico.nome }}</td>
+            <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
+            <td><a href="{{ srv.url}}" target="_blank">{{ srv.url}}</a></td>
+          </tr>
+        {% endfor %}
+        </table></div></div></div>
+        {% include "servicos/navigator_snippet.html" %}
+      </div>
+    </div>
+  </body>
+</html>

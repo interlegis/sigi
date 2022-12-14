@@ -1,0 +1,14 @@
+{% load i18n %}
+{% if paginator.num_pages > 1 %}
+<div class="table-responsive">
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mt-3">
+      <li class="page-item{% if not page_obj.has_previous %} disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}1{% endif %}" aria-label="{% trans "Página anterior" %}"><i class="bi bi-chevron-double-left"></i></a></li>
+      {% for page in paginator.page_range %}
+        <li class="page-item{% if page == page_obj.number %} active{% endif %} "><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+      {% endfor %}
+      <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}1{% endif %}" aria-label="{% trans "Próxima página" %}"><i class="bi bi-chevron-double-right"></i></a></li>
+    </ul>
+  </nav>
+</div>
+{% endif %}
