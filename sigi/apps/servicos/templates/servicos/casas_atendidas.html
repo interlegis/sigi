@@ -109,7 +109,13 @@
           <tr>
             <td>{{ srv.tipo_servico.nome }}</td>
             <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
-            <td><a href="{{ srv.url}}" target="_blank">{{ srv.url}}</a></td>
+            <td>
+              {% if srv.url %}
+                <a href="{% if 'http' in srv.url %}{{ srv.url }}{% else %}http://{{ srv.url }}{% endif %}" target="_blank">{{ srv.url}}</a>
+              {% else %}
+                <p>-</p>
+              {% endif %}
+            </td>
           </tr>
         {% endfor %}
         </table></div></div></div>
