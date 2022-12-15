@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
 from import_export import resources
 from import_export.fields import Field
@@ -111,3 +112,7 @@ class CasasAtendidasListView(ListView):
                 },
             )
         return super().render_to_response(context, **response_kwargs)
+
+    @xframe_options_exempt
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
