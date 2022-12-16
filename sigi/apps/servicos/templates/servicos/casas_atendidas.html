@@ -6,13 +6,13 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.2/font/bootstrap-icons.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
-    <title>Órgãos Legislativos atendidos pelo Interlegis</title>
+    <title>{% trans "Órgãos Legislativos atendidos pelo Interlegis" %}</title>
   </head>
   <body>
     <div class="mb-5">
       <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <div class="container-fluid">
-          <a class="navbar-brand" href="{% url 'openmap' %}">Interlegis</a>
+          <a class="navbar-brand" href="{% url 'openmap' %}" target="_top">Mapa</a>
           <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
           </button>
@@ -46,6 +46,7 @@
         </div>
       </nav>
       <div class="container mt-3">
+        <h5>{% trans "Órgãos Legislativos atendidos pelo Interlegis" %}</h5>
         <div class="alert alert-info" role="alert">
           {% blocktranslate count counter=tot_orgaos %}
             Um órgão encontrado
