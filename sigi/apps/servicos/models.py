@@ -1,5 +1,6 @@
 from django.utils import timezone
 from django.db import models
+from django.db.models import Q
 from sigi.apps.casas.models import Orgao, Funcionario
 from django.utils.translation import gettext as _
 
@@ -301,7 +302,8 @@ class Servico(models.Model):
         verbose_name_plural = _("serviços SEIT")
         constraints = [
             models.UniqueConstraint(
-                fields=["tipo_servico", "instancia", "data_desativacao"],
+                fields=["tipo_servico", "instancia", "url"],
+                condition=Q(data_desativacao=None) & ~Q(instancia=""),
                 name="unique_instance",
             )
         ]
