@@ -1,8 +1,0 @@
-Observações sobre as dependências:
-==================================
-
-As novas dependências serão montadas conforme a migração progredir.
-
-
-Desevenvolvimento:
-    * pygraphviz: para usar o comando "graph_models" do "django-extensions"
