@@ -135,6 +135,8 @@ class Servico(models.Model):
         import requests
         from xml.dom.minidom import parseString
 
+        requests.packages.urllib3.disable_warnings()
+
         def reset():
             if self.data_ultimo_uso is not None:
                 self.data_verificacao = None
