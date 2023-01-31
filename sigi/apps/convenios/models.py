@@ -643,7 +643,7 @@ class Gescon(models.Model):
         }
 
         for sigla_gescon, sigla_sigi in subespecies:
-            self.add_message(_(f"\nImportando subespécie {sigla_gescon}"))
+            self.add_message(_(f"\n**Importando subespécie {sigla_gescon}**"))
             url = self.url_gescon.format(s=sigla_gescon)
 
             projeto = Projeto.objects.get(sigla=sigla_sigi)
@@ -760,8 +760,8 @@ class Gescon(models.Model):
                 if orgao is None:
                     self.add_message(
                         _(
-                            f"\tÓrgão não encontrado no SIGI ou mais de um órgão"
-                            f"encontrado com o mesmo CNPJ ou nome. Favor "
+                            f"\tÓrgão não encontrado no SIGI ou mais de um "
+                            f"órgão encontrado com o mesmo CNPJ ou nome. Favor "
                             f"regularizar o cadastro: "
                             f"CNPJ: {contrato['cnpjCpfFornecedor']}, "
                             f"Nome: {contrato['nomeFornecedor']}"
