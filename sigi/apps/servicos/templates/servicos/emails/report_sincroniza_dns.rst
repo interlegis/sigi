@@ -1,43 +1,39 @@
-{% extends 'emails/base_email.rst' %}
+{% extends 'emails/base_report.rst' %}
 {% load i18n %}
 
 {% block content %}
-
-{% trans "Resultado da sincronização dos dados de serviços de registro do SIGI com os registros encontrados no DNS." %}
-
-* {% trans "Data/hora de execução" %}: {% now 'SHORT_DATETIME_FORMAT' %}
-
-{% for uf, dados in log.items %}
+{% for uf, dados in report_data.items %}
+{% if dados.erros or dados.infos or dados.sumario.total > 0 or dados.sumario.novos > 0 or dados.sumario.atualizados > 0 or dados.sumario.desativados > 0 or dados.sumario.ignorados > 0 %}
 **{{ uf|upper }}**
 =========================================
 
-
-  **SUMÁRIO:**
-
+{% if dados.sumario.total > 0 or dados.sumario.novos > 0 or dados.sumario.atualizados > 0 or dados.sumario.desativados > 0 or dados.sumario.ignorados > 0%}
+  **{% trans "SUMÁRIO" %}:**
 
   - Total de registros no DNS: {{ dados.sumario.total }}
   - Registros criados no SIGI: {{ dados.sumario.novos }}
   - Registros atualizados no SIGI: {{ dados.sumario.atualizados }}
   - Registros desativados no SIGI: {{ dados.sumario.desativados }}
   - Registros do DNS ignorados: {{ dados.sumario.ignorados }}
+{% endif %}
+{% if dados.erros %}
 
-
-  **ERROS:**
+  **{% trans "ERROS" %}:**
 
   {% for m in dados.erros %}
   * {{ m }}
-  {% empty %}
-  *{% trans "Nenhum erro encontrado" %}*
   {% endfor %}
+{% endif %}
 
+{% if dados.infos %}
 
-  **{% trans "INFORMAÇÕES ADICIONAIS" %}**
+  **{% trans "INFORMAÇÕES ADICIONAIS" %}:**
 
   {% for m in dados.infos %}
     * {{ m }}
-  {% empty %}
-    *{% trans "Nenhuma informação adicional gerada" %}*
   {% endfor %}
+{% endif %}
+{% endif %}
 {% endfor %}
 
 {% endblock content %}

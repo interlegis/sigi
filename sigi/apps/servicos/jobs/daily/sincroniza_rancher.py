@@ -11,72 +11,49 @@ from django_extensions.management.jobs import DailyJob
 from sigi.apps.servicos import generate_instance_name
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
+from sigi.apps.utils.mixins import JobReportMixin
 
 
-class Job(DailyJob):
+class Job(JobReportMixin, DailyJob):
     help = _("Sincronização dos Serviços SEIT na infraestrutura")
-    _nomes_gerados = None
-    _errors = {}
-    _infos = {}
+    report_template = "servicos/emails/report_sincroniza_rancher.rst"
+    nomes_gerados = None
+    errors = {}
+    infos = {}
 
-    def execute(self):
+    def do_job(self):
+        self.nomes_gerados = {
+            generate_instance_name(o): o
+            for o in Orgao.objects.filter(tipo__legislativo=True)
+        }
+
+        for tipo in TipoServico.objects.filter(modo="H").exclude(
+            tipo_rancher=""
+        ):
+            self.process(tipo)
+
         try:
-            print(
-                _(
-                    "Sincroniza os serviços SEIT a partir da infraestrutura."
-                    f" Início: {datetime.datetime.now(): %d/%m/%Y %H:%M:%S}"
-                )
-            )
-            self._nomes_gerados = {
-                generate_instance_name(o): o
-                for o in Orgao.objects.filter(tipo__legislativo=True)
-            }
-            print(
-                _(
-                    f"\t{len(self._nomes_gerados)} órgãos que podem ter instâncias."
-                )
-            )
-
-            for tipo in TipoServico.objects.filter(modo="H").exclude(
-                tipo_rancher=""
-            ):
-                print(
-                    _(
-                        f"\tProcessando {tipo.nome}."
-                        f" Início: {datetime.datetime.now():%H:%M:%S}."
-                    ),
-                    end="",
-                )
-                self.process(tipo)
-                print(_(f" Término: {datetime.datetime.now():%H:%M:%S}."))
-
-            try:
-                shutil.rmtree(settings.HOSPEDAGEM_PATH)
-            except Exception as e:
-                print(
-                    _(f"Erro ao excluir diretório {settings.HOSPEDAGEM_PATH}")
-                )
-
-            print("Relatório final:\n================")
-            self.report()
-
-            print(_(f"Término: {datetime.datetime.now(): %d/%m/%Y %H:%M:%S}"))
+            shutil.rmtree(settings.HOSPEDAGEM_PATH)
         except Exception as e:
-            self.report_error(e)
+            pass
+
+        self.report_data = {
+            "erros": self.errors,
+            "infos": self.infos,
+        }
 
     def process(self, tipo):
         self.nomeia_instancias(tipo)
         NAO_CONSTA = "*não-consta-no-rancher*"
-        self._errors[tipo] = []
-        self._infos[tipo] = []
+        self.errors[tipo] = []
+        self.infos[tipo] = []
 
         file_path = settings.HOSPEDAGEM_PATH / tipo.arquivo_rancher
         if not file_path.exists() or not file_path.is_file():
-            self._errors[tipo].append(_(f"Arquivo {file_path} não encontado."))
+            self.errors[tipo].append(_(f"Arquivo {file_path} não encontado."))
             return
 
-        with open(file_path, "r") as f:
-            json_data = json.load(f)
+        json_data = json.loads(file_path.read_text())
 
         portais = [
             item
@@ -88,7 +65,7 @@ class Job(DailyJob):
         novos = 0
         desativados = 0
 
-        self._infos[tipo].append(
+        self.infos[tipo].append(
             _(f"{len(portais)} {tipo.nome} encontrados no Rancher")
         )
 
@@ -104,7 +81,7 @@ class Job(DailyJob):
                     hostname = p["spec"]["values"][tipo.spec_rancher]["domain"]
                 else:
                     hostname = NAO_CONSTA
-                    self._errors[tipo].append(
+                    self.errors[tipo].append(
                         _(
                             f"Instância {iname} de {tipo.nome} sem URL no "
                             "rancher"
@@ -120,9 +97,19 @@ class Job(DailyJob):
                     hostname = f"{tipo.prefixo_padrao}.{hostname}"
             else:
                 hostname = NAO_CONSTA
-                self._errors[tipo].append(
+                self.errors[tipo].append(
                     _(f"Instância {iname} de {tipo.nome} sem URL no rancher")
                 )
+
+            nova_versao = (
+                p["spec"]["values"]["image"]["tag"]
+                if "image" in p["spec"]["values"]
+                else ""
+            )
+            if NAO_CONSTA in hostname:
+                nova_url = ""
+            else:
+                nova_url = f"https://{hostname}/"
 
             try:
                 portal = Servico.objects.get(
@@ -130,7 +117,7 @@ class Job(DailyJob):
                 )
                 encontrados += 1
             except Servico.MultipleObjectsReturned:
-                self._errors[tipo].append(
+                self.errors[tipo].append(
                     _(
                         f"Existe mais de um registro ativo da instância {iname}"
                         f" de {tipo}."
@@ -138,23 +125,28 @@ class Job(DailyJob):
                 )
                 continue
             except Servico.DoesNotExist:
-                if iname in self._nomes_gerados:
-                    orgao = self._nomes_gerados[iname]
+                if iname in self.nomes_gerados:
+                    orgao = self.nomes_gerados[iname]
                     portal = Servico(
                         casa_legislativa=orgao,
                         tipo_servico=tipo,
                         instancia=iname,
+                        url=nova_url,
+                        versao=nova_versao,
                         data_ativacao=p["spec"]["info"]["firstDeployed"][:10],
+                        hospedagem_interlegis=True,
                     )
-                    self._infos[tipo].append(
+                    portal.save()
+                    self.admin_log_addition(portal, "Criado no Rancher")
+                    novos += 1
+                    self.infos[tipo].append(
                         _(
                             f"Criada instância {iname} de {tipo.nome} para "
                             f"{orgao.nome} ({orgao.municipio.uf.sigla})"
                         )
                     )
-                    novos += 1
                 else:
-                    self._errors[tipo].append(
+                    self.errors[tipo].append(
                         _(
                             f"{iname} ({hostname}) não parece pertencer a "
                             "nenhum órgão."
@@ -162,17 +154,34 @@ class Job(DailyJob):
                     )
                     continue
             # atualiza o serviço no SIGI
-            portal.versao = (
-                p["spec"]["values"]["image"]["tag"]
-                if "image" in p["spec"]["values"]
-                else ""
-            )
-            if NAO_CONSTA in hostname:
-                portal.url = ""
-            else:
-                portal.url = f"https://{hostname}/"
-            portal.hospedagem_interlegis = True
-            portal.save()
+            if (
+                nova_versao != portal.versao
+                or nova_url != portal.url
+                or not portal.hospedagem_interlegis
+            ):
+                message = (
+                    "Atualizado no Rancher: "
+                    + (
+                        f"Versão: de '{portal.versao}' para '{nova_versao}' "
+                        if portal.versao != nova_versao
+                        else ""
+                    )
+                    + (
+                        f"Url: de '{portal.url}' para '{nova_url}' "
+                        if portal.url != nova_url
+                        else ""
+                    )
+                    + (
+                        f"hospedagem interlegis"
+                        if not portal.hospedagem_interlegis
+                        else ""
+                    )
+                )
+                portal.versao = nova_versao
+                portal.url = nova_url
+                portal.hospedagem_interlegis = True
+                portal.save()
+                self.admin_log_change(portal, message)
 
         # Desativa portais registrados no SIGI que não estão no Rancher #
         nomes_instancias = [p["metadata"]["name"] for p in portais]
@@ -186,20 +195,19 @@ class Job(DailyJob):
                 portal.data_desativacao = timezone.localdate()
                 portal.motivo_desativacao = _("Não encontrado no Rancher")
                 portal.save()
-                self._infos[tipo].append(
+                self.admin_log_change(portal, "Desativado no Rancher")
+                self.infos[tipo].append(
                     f"{portal.instancia} ({portal.url}) de "
                     f"{portal.casa_legislativa.nome} desativado pois não "
                     "foi encontrado no Rancher."
                 )
                 desativados += 1
 
-        self._infos[tipo].append(
+        self.infos[tipo].append(
             _(f"{encontrados} {tipo.nome} do Rancher encontrados no SIGI")
         )
-        self._infos[tipo].append(
-            _(f"{novos} novos {tipo.nome} criados no SIGI")
-        )
-        self._infos[tipo].append(
+        self.infos[tipo].append(_(f"{novos} novos {tipo.nome} criados no SIGI"))
+        self.infos[tipo].append(
             _(f"{desativados} {tipo.nome} desativados no SIGI")
         )
 
@@ -211,55 +219,4 @@ class Job(DailyJob):
         ):
             s.instancia = generate_instance_name(s.casa_legislativa)
             s.save()
-
-    def report(self):
-        rst = render_to_string(
-            "servicos/emails/report_sincroniza_rancher.rst",
-            {
-                "erros": self._errors,
-                "infos": self._infos,
-                "title": _("Resultado da sincronização do SIGI com o Rancher"),
-            },
-        )
-        html = docutils.core.publish_string(
-            rst,
-            writer_name="html5",
-            settings_overrides={
-                "input_encoding": "unicode",
-                "output_encoding": "unicode",
-            },
-        )
-        mail_admins(
-            subject=self.help,
-            message=rst,
-            html_message=html,
-            fail_silently=True,
-        )
-        print(rst)
-
-    def report_error(self, error):
-        import traceback
-
-        rst = render_to_string(
-            "emails/report_error.rst",
-            {
-                "title": _("Resultado da sincronização do SIGI com o Rancher"),
-                "process_name": self.help,
-                "traceback": traceback.format_exception(error),
-            },
-        )
-        html = docutils.core.publish_string(
-            rst,
-            writer_name="html5",
-            settings_overrides={
-                "input_encoding": "unicode",
-                "output_encoding": "unicode",
-            },
-        )
-        mail_admins(
-            subject=self.help,
-            message=rst,
-            html_message=html,
-            fail_silently=True,
-        )
-        print(rst)
+            self.admin_log_change(s, "Adicionado nome automático da instância")

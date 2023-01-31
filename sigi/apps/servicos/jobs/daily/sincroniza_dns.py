@@ -12,6 +12,7 @@ from sigi.apps.servicos import generate_instance_name
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.utils.mixins import JobReportMixin
 
 LOG_GERAL = _("Mensagens gerais")
 IGNORES = ["_psl", "k8s", "www.", "sapl."]
@@ -35,33 +36,30 @@ def get_log_entry():
     }
 
 
-class Job(DailyJob):
+class Job(JobReportMixin, DailyJob):
     help = _("Sincronização dos registros de DNS da infraestrutura")
-    _nomes_gerados = None
-    _log = {}
+    report_template = "servicos/emails/report_sincroniza_dns.rst"
+    nomes_gerados = None
+    report_data = {}
 
-    def execute(self):
-        print(
-            _(
-                "Sincroniza os registros de domínio a partir do DNS."
-                f" Início: {datetime.datetime.now(): %d/%m/%Y %H:%M:%S}"
-            )
-        )
+    def do_job(self):
         # TODO: Resolver
-        print("Este CRON está desativado até resolvermos questões internas")
-        return
+        raise Exception(
+            "Este CRON está desativado até resolvermos questões internas"
+        )
 
-        self._log[LOG_GERAL] = get_log_entry()
+        self.report_data[LOG_GERAL] = get_log_entry()
+        self.report_data["reativados"] = get_log_entry()  # TODO: Remover
+        self.info("id,nome do orgao,instancia,tipo,url", "reativados")
 
         if (
             not settings.REGISTRO_PATH.exists()
             or not settings.REGISTRO_PATH.is_dir()
         ):
             self.error(_(f"Arquivos de DNS não encontrados."))
-            self.report()
             return
 
-        self._nomes_gerados = {
+        self.nomes_gerados = {
             generate_instance_name(o): o
             for o in Orgao.objects.filter(tipo__legislativo=True)
         }
@@ -71,7 +69,7 @@ class Job(DailyJob):
         ).update(flag_confirmado=False)
 
         for uf in UnidadeFederativa.objects.all():
-            self._log[uf] = get_log_entry()
+            self.report_data[uf] = get_log_entry()
             self.processa_uf(uf)
 
         self.processa_zones()
@@ -80,15 +78,11 @@ class Job(DailyJob):
         try:
             shutil.rmtree(settings.REGISTRO_PATH)
         except Exception as e:
-            print(_(f"Erro ao excluir diretório {settings.REGISTRO_PATH}"))
-
-        print("Relatório final:\n================")
-        self.report()
-        print(_(f" Término: {datetime.datetime.now():%H:%M:%S}."))
+            self.info(_(f"Erro ao excluir diretório {settings.REGISTRO_PATH}"))
 
     def processa_rec(self, dns_rec, log_entry=LOG_GERAL):
         dominio = dns_rec["name"][:-1]
-        nivel = len(dominio.split("."))
+        nivel = dominio.count(".") + 1
         iname = get_iname(dominio)
         sigla_srv = get_sigla_serv(dominio)
 
@@ -103,6 +97,25 @@ class Job(DailyJob):
         if any([i in dominio for i in IGNORES]):
             # Ignorar esses registros sem fazer log #
             return
+
+        apps = []
+        if "rrsets" in dns_rec:
+            apps = [
+                r["name"].split(".")[0]
+                for r in dns_rec["rrsets"]
+                if r["type"] != "TXT" and r["name"][:-1].count(".") + 1 > nivel
+            ]
+        else:
+            detail_file = settings.REGISTRO_PATH / f"{dominio}."
+            if detail_file.exists() and detail_file.is_file():
+                detail_data = json.loads(detail_file.read_text())
+                if "rrsets" in detail_data:
+                    apps = [
+                        r["name"].split(".")[0]
+                        for r in detail_data["rrsets"]
+                        if r["type"] != "TXT"
+                        and r["name"][:-1].count(".") + 1 > nivel
+                    ]
 
         try:
             tipo = TipoServico.objects.get(sigla=sigla_srv, modo="R")
@@ -146,6 +159,7 @@ class Job(DailyJob):
                     tipo_servico=tipo, url=dominio, data_desativacao=None
                 ).first()
                 if servico is not None:
+                    servico.instancia = iname
                     self.log_update(servico)
                 else:
                     # Tenta encontrar um registro desativado com mesmo domínio #
@@ -153,13 +167,14 @@ class Job(DailyJob):
                         tipo_servico=tipo, url=dominio
                     ).first()
                     if servico is not None:
+                        servico.data_desativacao = None
                         servico.instancia = iname
                         self.log_reativa(servico)
 
             if servico is None:
                 # Tenta criar o registro #
-                if iname in self._nomes_gerados:
-                    orgao = self._nomes_gerados[iname]
+                if iname in self.nomes_gerados:
+                    orgao = self.nomes_gerados[iname]
                     log_entry = orgao.municipio.uf
                     servico = Servico(
                         casa_legislativa=orgao,
@@ -182,6 +197,7 @@ class Job(DailyJob):
                 # atualiza o serviço no SIGI
                 servico.url = dominio
                 servico.instancia = iname
+                servico.apps = "\n".join(apps)
                 servico.hospedagem_interlegis = True
                 servico.data_verificacao = timezone.localtime()
                 servico.resultado_verificacao = "F"  # Funcionando
@@ -195,7 +211,7 @@ class Job(DailyJob):
             return
 
         registros = json.loads(file_path.read_text())["rrsets"]
-        self._log[uf]["sumario"]["total"] = len(registros)
+        self.report_data[uf]["sumario"]["total"] = len(registros)
 
         # Atualiza registros existentes e cria novos #
         for rec in registros:
@@ -239,12 +255,11 @@ class Job(DailyJob):
 
     def processa_files(self):
         file_list = list(settings.REGISTRO_PATH.iterdir())
-        self._log[LOG_GERAL]["sumario"]["total"] = len(file_list)
+        self.report_data[LOG_GERAL]["sumario"]["total"] = len(file_list)
         for file_path in file_list:
             if not file_path.is_file():
-                self._log[LOG_GERAL]["sumario"]["total"] -= 1
+                self.report_data[LOG_GERAL]["sumario"]["total"] -= 1
                 continue
-            print(file_path)
             data = json.loads(file_path.read_text())
             self.processa_rec(data)
             file_path.unlink()
@@ -262,36 +277,11 @@ class Job(DailyJob):
             servico.save()
             self.log_remove(servico)
 
-    def report(self):
-        rst = render_to_string(
-            "servicos/emails/report_sincroniza_dns.rst",
-            {
-                "log": self._log,
-                "title": _("Resultado da sincronização do SIGI com o DNS"),
-            },
-        )
-
-        html = docutils.core.publish_string(
-            rst,
-            writer_name="html5",
-            settings_overrides={
-                "input_encoding": "unicode",
-                "output_encoding": "unicode",
-            },
-        )
-        mail_admins(
-            subject=self.help,
-            message=rst,
-            html_message=html,
-            fail_silently=True,
-        )
-        print(rst)
-
     def error(self, message, log_entry=LOG_GERAL):
-        self._log[log_entry]["erros"].append(message)
+        self.report_data[log_entry]["erros"].append(message)
 
     def info(self, message, log_entry=LOG_GERAL):
-        self._log[log_entry]["infos"].append(message)
+        self.report_data[log_entry]["infos"].append(message)
 
     def log_novo(self, srv):
         orgao = srv.casa_legislativa
@@ -301,15 +291,15 @@ class Job(DailyJob):
             f"para {orgao.nome} ({uf.sigla})"
         )
         self.info(msg, uf)
-        self._log[uf]["sumario"]["novos"] += 1
+        self.report_data[uf]["sumario"]["novos"] += 1
 
     def log_ignore(self, dominio, motivo, log_entry=LOG_GERAL):
         self.error(_(f"Registro {dominio} ignorado pois {motivo}"), log_entry)
-        self._log[log_entry]["sumario"]["ignorados"] += 1
+        self.report_data[log_entry]["sumario"]["ignorados"] += 1
 
     def log_update(self, srv):
         uf = srv.casa_legislativa.municipio.uf
-        self._log[uf]["sumario"]["atualizados"] += 1
+        self.report_data[uf]["sumario"]["atualizados"] += 1
 
     def log_reativa(self, srv):
         orgao = srv.casa_legislativa
@@ -318,13 +308,15 @@ class Job(DailyJob):
             f"Instância {srv.instancia} de {srv.tipo_servico.nome} "
             f"para {orgao.nome} ({uf.sigla}) reativada no SIGI"
         )
-        self._log[uf]["sumario"]["atualizados"] += 1
+        self.report_data[uf]["sumario"]["atualizados"] += 1
         self.info(msg, uf)
+        msg = f"{srv.id},{orgao.nome},{srv.instancia},{srv.tipo_servico.nome},{srv.url}"
+        self.info(msg, "reativados")
 
     def log_remove(self, srv):
         orgao = srv.casa_legislativa
         uf = orgao.municipio.uf
-        self._log[uf]["sumario"]["desativados"] += 1
+        self.report_data[uf]["sumario"]["desativados"] += 1
         self.info(
             _(
                 f"Registro {srv.tipo_servico.sigla} {srv.instancia} ({srv.url})"

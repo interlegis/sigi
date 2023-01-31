@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block content %}
-{% blocktrans %}UM ERRO OCORREU NO PROCESSO DE IMPORTAÇÃO DE {{ process_name }}{% endblocktrans %}
+{% blocktrans %}UM ERRO OCORREU NA EXECUÇÃO DA TAREFA{% endblocktrans %}
 
 {% trans "VERIFIQUE O LOG DO SIGI PARA MAIORES DETALHES" %}
 
@@ -11,6 +11,7 @@
 ::{% autoescape off %}{% for error_row in traceback %}
   {{ error_row }}
 {% endfor %}
+
 {% endautoescape %}
 
 {% endblock content %}
