@@ -85,6 +85,7 @@ class ConvenioVigenteFilter(admin.filters.SimpleListFilter):
         return (
             ("vigentes", _("Vigentes")),
             ("vencidos", _("Vencidos")),
+            ("pendentes", _("Pendentes")),
         )
 
     def queryset(self, request, queryset):
@@ -97,6 +98,13 @@ class ConvenioVigenteFilter(admin.filters.SimpleListFilter):
             return queryset.exclude(data_termino_vigencia=None).filter(
                 data_termino_vigencia__lt=timezone.localdate()
             )
+        elif self.value() == "pendentes":
+            return queryset.filter(
+                data_retorno_assinatura=None,
+                data_devolucao_sem_assinatura=None,
+                data_retorno_sem_assinatura=None,
+            )
+        return queryset
 
 
 @admin.register(Projeto)
