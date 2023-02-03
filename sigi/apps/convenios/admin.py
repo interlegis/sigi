@@ -93,7 +93,7 @@ class ConvenioVigenteFilter(admin.filters.SimpleListFilter):
             return queryset.filter(
                 Q(data_termino_vigencia__gte=timezone.localdate())
                 | Q(data_termino_vigencia=None)
-            )
+            ).exclude(data_retorno_assinatura=None)
         elif self.value() == "vencidos":
             return queryset.exclude(data_termino_vigencia=None).filter(
                 data_termino_vigencia__lt=timezone.localdate()
