@@ -41,8 +41,6 @@ class Job(JobReportMixin, DailyJob):
 
     def do_job(self):
         self.report_data[LOG_GERAL] = get_log_entry()
-        self.report_data["reativados"] = get_log_entry()  # TODO: Remover
-        self.info("id,nome do orgao,instancia,tipo,url,motivo", "reativados")
 
         if (
             not settings.REGISTRO_PATH.exists()
@@ -309,8 +307,6 @@ class Job(JobReportMixin, DailyJob):
         )
         self.report_data[uf]["sumario"]["atualizados"] += 1
         self.info(msg, uf)
-        msg = f"{srv.id},{orgao.nome},{srv.instancia},{srv.tipo_servico.nome},{srv.url},{srv.motivo_desativacao}"
-        self.info(msg, "reativados")
 
     def log_remove(self, srv):
         orgao = srv.casa_legislativa
