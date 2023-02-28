@@ -122,7 +122,10 @@ class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
     get_uf.admin_order_field = "casa_legislativa__municipio__uf"
 
     def getUrl(self, obj):
-        return mark_safe(f'<a href="{obj.url}" target="_blank">{obj.url}</a>')
+        url = obj.url
+        if "//" not in url:
+            url = "//" + url
+        return mark_safe(f'<a href="{url}" target="_blank">{obj.url}</a>')
 
     getUrl.short_description = _("Url")
 
@@ -136,6 +139,8 @@ class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
             url += obj.tipo_servico.string_pesquisa.splitlines()[0].split(" ")[
                 0
             ]
+        elif obj.tipo_servico.modo == "R":
+            url = f"https://toolbox.googleapps.com/apps/dig/#SOA/{obj.url}"
         return mark_safe(
             f'<a href="{url}" target="_blank">{obj.erro_atualizacao}</a>'
         )

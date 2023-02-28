@@ -1,21 +1,18 @@
-import datetime
-import docutils.core
 import json
 import shutil
 from django.conf import settings
-from django.core.mail import mail_admins
-from django.template.loader import render_to_string
+from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
-from sigi.apps.servicos import generate_instance_name
+from sigi.apps.servicos import generate_instance_name, nomeia_instancias
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.utils.mixins import JobReportMixin
 
 LOG_GERAL = _("Mensagens gerais")
-IGNORES = ["_psl", "k8s", "www.", "sapl."]
+IGNORES = ["_psl", "k8s", "www.", "sapl.", "addr.arpa"]
 
 get_iname = lambda d: "-".join(d.split(".")[:-2])
 get_sigla_serv = lambda d: "".join(d.split(".")[-2:]).upper()
@@ -43,14 +40,9 @@ class Job(JobReportMixin, DailyJob):
     report_data = {}
 
     def do_job(self):
-        # TODO: Resolver
-        raise Exception(
-            "Este CRON está desativado até resolvermos questões internas"
-        )
-
         self.report_data[LOG_GERAL] = get_log_entry()
         self.report_data["reativados"] = get_log_entry()  # TODO: Remover
-        self.info("id,nome do orgao,instancia,tipo,url", "reativados")
+        self.info("id,nome do orgao,instancia,tipo,url,motivo", "reativados")
 
         if (
             not settings.REGISTRO_PATH.exists()
@@ -67,6 +59,13 @@ class Job(JobReportMixin, DailyJob):
         Servico.objects.filter(
             tipo_servico__modo="R", data_desativacao=None
         ).update(flag_confirmado=False)
+
+        nomeia_instancias(
+            servicos=Servico.objects.filter(
+                tipo_servico__modo="R", data_desativacao=None, instancia=""
+            ),
+            user=self.sys_user,
+        )
 
         for uf in UnidadeFederativa.objects.all():
             self.report_data[uf] = get_log_entry()
@@ -86,36 +85,9 @@ class Job(JobReportMixin, DailyJob):
         iname = get_iname(dominio)
         sigla_srv = get_sigla_serv(dominio)
 
-        if log_entry == LOG_GERAL:
-            try:
-                log_entry = UnidadeFederativa.objects.get(
-                    sigla=get_sigla_uf(dominio)
-                )
-            except:
-                pass
-
         if any([i in dominio for i in IGNORES]):
             # Ignorar esses registros sem fazer log #
             return
-
-        apps = []
-        if "rrsets" in dns_rec:
-            apps = [
-                r["name"].split(".")[0]
-                for r in dns_rec["rrsets"]
-                if r["type"] != "TXT" and r["name"][:-1].count(".") + 1 > nivel
-            ]
-        else:
-            detail_file = settings.REGISTRO_PATH / f"{dominio}."
-            if detail_file.exists() and detail_file.is_file():
-                detail_data = json.loads(detail_file.read_text())
-                if "rrsets" in detail_data:
-                    apps = [
-                        r["name"].split(".")[0]
-                        for r in detail_data["rrsets"]
-                        if r["type"] != "TXT"
-                        and r["name"][:-1].count(".") + 1 > nivel
-                    ]
 
         try:
             tipo = TipoServico.objects.get(sigla=sigla_srv, modo="R")
@@ -127,17 +99,37 @@ class Job(JobReportMixin, DailyJob):
             )
             return
 
+        if log_entry == LOG_GERAL:
+            try:
+                log_entry = UnidadeFederativa.objects.get(
+                    sigla=get_sigla_uf(dominio)
+                )
+            except:
+                pass
+
+        detail_file = settings.REGISTRO_PATH / f"{dominio}."
+        hospedado_interlegis = detail_file.exists() and detail_file.is_file()
+
+        filtro_base = Q(instancia=iname) | Q(url=dominio)
+        if iname in self.nomes_gerados:
+            filtro_base = filtro_base | Q(
+                casa_legislativa=self.nomes_gerados[iname]
+            )
+        filtro_base = filtro_base & Q(tipo_servico=tipo)
+
+        servico = None
+        novo = False
+
         try:
             servico = Servico.objects.get(
-                tipo_servico=tipo, instancia=iname, data_desativacao=None
+                filtro_base & Q(data_desativacao=None)
             )
-            self.log_update(servico)
         except Servico.MultipleObjectsReturned:
             self.log_ignore(
                 dominio,
                 _(
                     "existe mais de um registro no SIGI para a instância "
-                    f"{iname}"
+                    f"{iname}, domínio {dominio}"
                 ),
                 log_entry,
             )
@@ -145,33 +137,16 @@ class Job(JobReportMixin, DailyJob):
         except Servico.DoesNotExist:
             # Tenta encontrar um registro desativado para esta instância #
             servico = Servico.objects.filter(
-                tipo_servico=tipo, instancia=iname
+                filtro_base & ~Q(data_desativacao=None)
             ).first()
             if servico is not None:
                 # Reativa o servico #
-                servico.data_desativacao = None
-                servico.instancia = iname
                 self.log_reativa(servico)
+                servico.data_desativacao = None
+                servico.motivo_desativacao = ""
+                servico.instancia = iname
+                self.admin_log_change(servico, _("Reativado pelo DNS Rancher"))
             else:
-                servico = None
-                # Tenta encontrar um registro ativo com mesmo domínio #
-                servico = Servico.objects.filter(
-                    tipo_servico=tipo, url=dominio, data_desativacao=None
-                ).first()
-                if servico is not None:
-                    servico.instancia = iname
-                    self.log_update(servico)
-                else:
-                    # Tenta encontrar um registro desativado com mesmo domínio #
-                    servico = Servico.objects.filter(
-                        tipo_servico=tipo, url=dominio
-                    ).first()
-                    if servico is not None:
-                        servico.data_desativacao = None
-                        servico.instancia = iname
-                        self.log_reativa(servico)
-
-            if servico is None:
                 # Tenta criar o registro #
                 if iname in self.nomes_gerados:
                     orgao = self.nomes_gerados[iname]
@@ -179,30 +154,52 @@ class Job(JobReportMixin, DailyJob):
                     servico = Servico(
                         casa_legislativa=orgao,
                         tipo_servico=tipo,
+                        url=dominio,
                         instancia=iname,
+                        hospedagem_interlegis=hospedado_interlegis,
                         data_ativacao=timezone.localdate(),
                         flag_confirmado=True,
+                        resultado_verificacao="N",  # Não verificado
                     )
+                    servico.save()
+                    novo = True
                     self.log_novo(servico)
+                    self.admin_log_addition(servico, "Criado pelo DNS Rancher")
 
-            if servico is None:
-                if nivel > 3:
-                    # Loga registro não encontrado apenas para 4º+ nível #
-                    self.log_ignore(
-                        dominio,
-                        _("não parece pertencer a nenhum órgão"),
-                        log_entry,
-                    )
-            else:
-                # atualiza o serviço no SIGI
-                servico.url = dominio
-                servico.instancia = iname
-                servico.apps = "\n".join(apps)
-                servico.hospedagem_interlegis = True
-                servico.data_verificacao = timezone.localtime()
-                servico.resultado_verificacao = "F"  # Funcionando
-                servico.flag_confirmado = True
-                servico.save()
+        if servico is None:
+            if nivel > 3:
+                # Loga registro não encontrado apenas para 4º+ nível #
+                self.log_ignore(
+                    dominio,
+                    _("não parece pertencer a nenhum órgão"),
+                    log_entry,
+                )
+        elif not novo:
+            # atualiza o serviço no SIGI
+            updates = []
+            if servico.url != dominio:
+                updates.append(_(f"Url de '{servico.url}' para '{dominio}'"))
+            if servico.instancia != iname:
+                updates.append(
+                    _(f"Instância de '{servico.instancia}' para '{iname}'")
+                )
+            if servico.hospedagem_interlegis != hospedado_interlegis:
+                updates.append(
+                    "Veio para hospedagem no Interlegis"
+                    if hospedado_interlegis
+                    else "Passou a ser delegado"
+                )
+            servico.url = dominio
+            servico.instancia = iname
+            servico.hospedagem_interlegis = hospedado_interlegis
+            servico.flag_confirmado = True
+            servico.save()
+            if updates:
+                self.log_update(servico)
+                self.admin_log_change(
+                    servico,
+                    "Atualizado pelo DNS Rancher: " + ", ".join(updates),
+                )
 
     def processa_uf(self, uf):
         file_path = settings.REGISTRO_PATH / f"{uf.sigla.lower()}.leg.br."
@@ -269,13 +266,15 @@ class Job(JobReportMixin, DailyJob):
         for servico in Servico.objects.filter(
             tipo_servico__modo="R",
             data_desativacao=None,
-            hospedagem_interlegis=True,
             flag_confirmado=False,
         ):
             servico.data_desativacao = timezone.localdate()
             servico.motivo_desativacao = _("Não encontrado no DNS")
             servico.save()
             self.log_remove(servico)
+            self.admin_log_change(
+                servico, _("Desativado: não encontrado no DNS Rancher")
+            )
 
     def error(self, message, log_entry=LOG_GERAL):
         self.report_data[log_entry]["erros"].append(message)
@@ -310,7 +309,7 @@ class Job(JobReportMixin, DailyJob):
         )
         self.report_data[uf]["sumario"]["atualizados"] += 1
         self.info(msg, uf)
-        msg = f"{srv.id},{orgao.nome},{srv.instancia},{srv.tipo_servico.nome},{srv.url}"
+        msg = f"{srv.id},{orgao.nome},{srv.instancia},{srv.tipo_servico.nome},{srv.url},{srv.motivo_desativacao}"
         self.info(msg, "reativados")
 
     def log_remove(self, srv):
