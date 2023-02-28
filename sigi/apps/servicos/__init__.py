@@ -17,3 +17,22 @@ def generate_instance_name(orgao):
         return re.sub("\W+", "", to_ascii(orgao.nome)).lower()
     else:
         return f"{orgao.tipo.sigla.lower()}-{orgao.municipio.uf.sigla.lower()}"
+
+
+def nomeia_instancias(servicos, user=None):
+    from django.contrib.admin.models import LogEntry, CHANGE
+    from django.contrib.contenttypes.models import ContentType
+    from django.utils.translation import gettext as _
+
+    for s in servicos.filter(instancia=""):
+        s.instancia = generate_instance_name(s.casa_legislativa)
+        s.save()
+        if user:
+            LogEntry.objects.log_action(
+                user_id=user.id,
+                content_type_id=ContentType.objects.get_for_model(type(s)).pk,
+                object_id=s.id,
+                object_repr=str(s),
+                action_flag=CHANGE,
+                change_message=_("Adicionado nome automático da instância"),
+            )

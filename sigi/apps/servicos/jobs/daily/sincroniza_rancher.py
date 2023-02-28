@@ -1,14 +1,10 @@
-import datetime
-import docutils.core
 import json
 import shutil
 from django.conf import settings
-from django.core.mail import mail_admins
-from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
-from sigi.apps.servicos import generate_instance_name
+from sigi.apps.servicos import generate_instance_name, nomeia_instancias
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
 from sigi.apps.utils.mixins import JobReportMixin
@@ -43,7 +39,12 @@ class Job(JobReportMixin, DailyJob):
         }
 
     def process(self, tipo):
-        self.nomeia_instancias(tipo)
+        nomeia_instancias(
+            servicos=Servico.objects.filter(
+                tipo_servico=tipo, data_desativacao=None, instancia=""
+            ),
+            user=self.sys_user,
+        )
         NAO_CONSTA = "*não-consta-no-rancher*"
         self.errors[tipo] = []
         self.infos[tipo] = []
@@ -210,13 +211,3 @@ class Job(JobReportMixin, DailyJob):
         self.infos[tipo].append(
             _(f"{desativados} {tipo.nome} desativados no SIGI")
         )
-
-    # Preenche o nome das instâncias com o nome padrão para os serviços com
-    # este campo em branco
-    def nomeia_instancias(self, tipo):
-        for s in Servico.objects.filter(
-            tipo_servico=tipo, data_desativacao=None, instancia=""
-        ):
-            s.instancia = generate_instance_name(s.casa_legislativa)
-            s.save()
-            self.admin_log_change(s, "Adicionado nome automático da instância")
