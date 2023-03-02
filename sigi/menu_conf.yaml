@@ -48,7 +48,7 @@ main_menu:
       - title: Organizar relacionamentos
         view_name:
       - title: Lista de gerentes
-        view_name:
+        view_name: casas_gerentes
   - title: Convênios
     icon: assignment
     children:

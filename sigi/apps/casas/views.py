@@ -5,15 +5,24 @@ from django.contrib.admin.sites import site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import (
+    LoginRequiredMixin,
+    PermissionRequiredMixin,
+)
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import CreateView, DeleteView, ListView, UpdateView
+from django.views.generic import (
+    CreateView,
+    DeleteView,
+    ListView,
+    UpdateView,
+    DetailView,
+)
 from sigi.apps.casas.forms import FuncionarioForm
-from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.casas.models import Funcionario, Orgao, TipoOrgao
 from sigi.apps.home.mixins import ContatoInterlegisViewMixin
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import (
@@ -319,6 +328,63 @@ def painel_relacionamento(request):
         return render(request, "casas/resumo_carteira_snippet.html", context)
 
     return render(request, "casas/painel.html", context)
+
+
+class GerentesListView(PermissionRequiredMixin, ListView):
+    template_name = "admin/casas/gerentes_list.html"
+    _tipos = None
+
+    def get_tipos(self):
+        if self._tipos is None:
+            self._tipos = (
+                Orgao.objects.exclude(gerentes_interlegis=None)
+                .order_by("tipo_id")
+                .distinct("tipo")
+                .values_list("tipo", flat=True)
+            )
+        return self._tipos
+
+    def has_permission(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        regioes_dict = dict(UnidadeFederativa.REGIAO_CHOICES)
+        counters = {
+            f"c_{t}": Count("id", filter=Q(tipo__id=t))
+            for t in self.get_tipos()
+        }
+        gerentes = list(
+            Servidor.objects.exclude(casas_que_gerencia=None)
+            .order_by("nome_completo")
+            .annotate(tot_casas=Count("casas_que_gerencia"))
+        )
+
+        for gerente in gerentes:
+            regioes = [
+                (
+                    regioes_dict[r],
+                    t,
+                    gerente.casas_que_gerencia.filter(municipio__uf__regiao=r)
+                    .order_by("municipio__uf__nome")
+                    .values_list("municipio__uf__sigla", "municipio__uf__nome")
+                    .annotate(tot_casas=Count("*"))
+                    .annotate(**counters),
+                )
+                for r, t in gerente.casas_que_gerencia.order_by(
+                    "municipio__uf__regiao"
+                )
+                .values_list("municipio__uf__regiao")
+                .annotate(tot_casas=Count("*"))
+            ]
+            setattr(gerente, "regioes", regioes)
+        return gerentes
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["tipos_orgao"] = TipoOrgao.objects.filter(
+            id__in=self.get_tipos()
+        ).order_by("id")
+        return context
 
 
 ################################################################################

@@ -1,0 +1,93 @@
+{% extends 'public/base_site.html' %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'ocorrencias/css/painel_ocorrencias.css' %}">
+{% endblock extrastyle %}
+
+{% block content %}
+  {{ block.super }}
+  {% for gerente in object_list %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card hoverable">
+          <div class="card-content">
+            <div class="row">
+              <div class="col s3 m1 center-align">
+                {% if gerente.foto %}
+                  <img class="circle user-image" src="{{ gerente.foto.url }}"/>
+                {% else %}
+                  <i class="material-icons circle user-image">account_circle</i>
+                {% endif %}
+              </div>
+              <div class="col s9 m11">
+                <span class="card-title">
+                  {{ gerente.nome_completo }}
+                  <p class="card-details">
+                    <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}" title="{% trans "Ver no mapa" %}">
+                    {% blocktrans with total=gerente.tot_casas %}
+                    Atende a {{ total }} casas legislativas.
+                    </a>
+                    {% endblocktrans %}
+                  </p>
+                </span>
+              </div>
+            </div>
+
+            {% for regiao, tot_casas, ufs in gerente.regioes %}
+              <div class="row card-inbox">
+                <span class="inbox-title">
+                  {{ regiao }}
+                </span>
+                <p class="card-details">
+                  <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}{% for uf_rec in ufs %}&uf={{ uf_rec.0 }}{% endfor %}" title="{% trans "Ver no mapa" %}">
+                  {% blocktrans with total=tot_casas %}
+                  {{ total }} casas atendidas
+                  {% endblocktrans %}
+                  </a>
+                </p>
+                <table class="striped">
+                  <thead>
+                    <tr>
+                      <th>{% trans "Unidade da Federação" %}</th>
+                      <th class="right-align">{% trans "Total de Casas" %}</th>
+                      {% for tipo in tipos_orgao %}
+                      <th class="right-align">{{ tipo.nome }}</th>
+                      {% endfor %}
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {% for uf_rec in ufs %}
+                    <tr>
+                      {% for value in uf_rec|slice:"1:" %}
+                        {% if forloop.first %}
+                          <td>
+                            <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}&uf={{ uf_rec.0 }}" title="{% trans "Ver no mapa" %}">
+                              {{ value }}
+                            </a>
+                          </td>
+                        {% else %}
+                          <td class="right-align">
+                            {% if forloop.counter > 2 and value > 0 %}
+                              <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}&uf={{ uf_rec.0 }}&tipo_orgao={% for tipo in tipos_orgao %}{% if forloop.counter == forloop.parentloop.counter|add:-2 %}{{ tipo.sigla }}{% endif %}{% endfor %}" title="{% trans "Ver no mapa" %}">
+                                {{ value }}
+                              </a>
+                            {% else %}
+                              {{ value|default:"-" }}
+                            {% endif %}
+                          </td>
+                        {% endif %}
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}
