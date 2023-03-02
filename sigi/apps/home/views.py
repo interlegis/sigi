@@ -170,6 +170,14 @@ def openmap(request):
             (s, n, UnidadeFederativa.objects.filter(regiao=s))
             for s, n in UnidadeFederativa.REGIAO_CHOICES
         ]
+        context["pre_tipos_orgao"] = request.GET.getlist("tipo_orgao", None)
+        context["pre_tipos_servico"] = request.GET.getlist("tipo_servico", None)
+        context["pre_tipos_convenio"] = request.GET.getlist(
+            "tipo_convenio", None
+        )
+        context["pre_ufs"] = request.GET.getlist("uf", None)
+        context["pre_gerentes"] = request.GET.getlist("gerente", None)
+
         return render(request, "home/openmap.html", context)
     else:
         if request.user.is_anonymous():
