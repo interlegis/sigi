@@ -22,7 +22,7 @@ from sigi.apps.eventos.models import (
     Anexo,
 )
 from sigi.apps.eventos.forms import EventoAdminForm
-from sigi.apps.utils.filters import EmptyFilter
+from sigi.apps.utils.filters import EmptyFilter, DateRangeFilter
 from sigi.apps.utils.mixins import CartExportMixin, ValueLabeledResource
 
 
@@ -163,6 +163,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         ("num_processo", EmptyFilter),
         "tipo_evento",
         "tipo_evento__categoria",
+        ("data_inicio", DateRangeFilter),
         "virtual",
         "municipio__uf",
         "solicitante",

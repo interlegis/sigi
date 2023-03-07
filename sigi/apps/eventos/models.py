@@ -29,7 +29,7 @@ class TipoEvento(models.Model):
 
     nome = models.CharField(_("Nome"), max_length=100)
     categoria = models.CharField(
-        _("Categoaria"), max_length=1, choices=CATEGORIA_CHOICES
+        _("Categoria"), max_length=1, choices=CATEGORIA_CHOICES
     )
     casa_solicita = models.BooleanField(_("casa pode solicitar"), default=False)
 
