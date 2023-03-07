@@ -65,11 +65,16 @@ class Job(JobReportMixin, DailyJob):
             user=self.sys_user,
         )
 
+        # Remove arquivo ZONES, desnecessário para este processo #
+        zones_file = settings.REGISTRO_PATH / "ZONES"
+        if zones_file.exists() and zones_file.is_file():
+            zones_file.unlink()
+
         for uf in UnidadeFederativa.objects.all():
             self.report_data[uf] = get_log_entry()
             self.processa_uf(uf)
 
-        self.processa_zones()
+        # self.processa_zones()
         self.processa_files()
 
         try:
@@ -224,29 +229,29 @@ class Job(JobReportMixin, DailyJob):
         # Remove arquivo da UF #
         file_path.unlink()
 
-    def processa_zones(self):
-        zones_file = settings.REGISTRO_PATH / "ZONES"
-        if not zones_file.exists() or not zones_file.is_file():
-            self.error(
-                _(
-                    f"Arquivo de zonas {zones_file} não encontrado ou "
-                    "não é arquivo"
-                )
-            )
-            return
-        data = json.loads(zones_file.read_text())
-        for rec in data:
-            dominio = rec["name"][:-1]
-            self.processa_rec(rec)
-            detail_file = settings.REGISTRO_PATH / f"{dominio}."
-            if (
-                detail_file != zones_file
-                and detail_file.exists()
-                and detail_file.is_file()
-            ):
-                detail_file.unlink()
+    # def processa_zones(self):
+    #     zones_file = settings.REGISTRO_PATH / "ZONES"
+    #     if not zones_file.exists() or not zones_file.is_file():
+    #         self.error(
+    #             _(
+    #                 f"Arquivo de zonas {zones_file} não encontrado ou "
+    #                 "não é arquivo"
+    #             )
+    #         )
+    #         return
+    #     data = json.loads(zones_file.read_text())
+    #     for rec in data:
+    #         dominio = rec["name"][:-1]
+    #         self.processa_rec(rec)
+    #         detail_file = settings.REGISTRO_PATH / f"{dominio}."
+    #         if (
+    #             detail_file != zones_file
+    #             and detail_file.exists()
+    #             and detail_file.is_file()
+    #         ):
+    #             detail_file.unlink()
 
-        zones_file.unlink()
+    #     zones_file.unlink()
 
     def processa_files(self):
         file_list = list(settings.REGISTRO_PATH.iterdir())
