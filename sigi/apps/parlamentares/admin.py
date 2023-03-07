@@ -18,7 +18,7 @@ from sigi.apps.parlamentares.forms import ImportForm
 from sigi.apps.utils.filters import AlphabeticFilter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
-    ImportCartExportMixin,
+    CartImportExportMixin,
     CartExportMixin,
     LabeledResourse,
 )
@@ -140,7 +140,7 @@ class ParlamentarNomeCompletoFilter(AlphabeticFilter):
 
 
 @admin.register(Partido)
-class PartidoAdmin(ImportCartExportMixin, admin.ModelAdmin):
+class PartidoAdmin(CartImportExportMixin, admin.ModelAdmin):
     list_display = ("legenda", "nome", "sigla")
     search_fields = ("legenda", "nome", "sigla")
 
@@ -148,7 +148,7 @@ class PartidoAdmin(ImportCartExportMixin, admin.ModelAdmin):
 @admin.register(Parlamentar)
 class ParlamentarAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
     resource_class = ParlamentarResource
-    change_list_template = (
+    import_export_change_list_template = (
         "admin/parlamentares/parlamentar/cart/"
         "change_list_import_cart_export.html"
     )

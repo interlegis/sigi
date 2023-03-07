@@ -38,15 +38,23 @@ class ValueField(Field):
 
 
 class ExportFormFields(ExportForm):
-    def __init__(self, formats, field_list, *args, **kwargs):
-        super().__init__(formats, *args, **kwargs)
-        self.fields["selected_fields"] = forms.MultipleChoiceField(
-            label=_("Campos a exportar"),
-            required=True,
-            choices=field_list,
-            initial=[f[0] for f in field_list],
-            widget=forms.CheckboxSelectMultiple,
-        )
+    def __init__(self, formats, resource_classes, *args, **kwargs):
+        super().__init__(formats, resource_classes, *args, **kwargs)
+        for i, resource_klass in enumerate(resource_classes):
+            resource = resource_klass()
+            field_list = list(
+                zip(resource.get_export_order(), resource.get_export_headers())
+            )
+            self.fields[f"selected_fields_{i}"] = forms.MultipleChoiceField(
+                label=_("Campos a exportar"),
+                required=False,
+                choices=field_list,
+                initial=[f[0] for f in field_list],
+                widget=forms.CheckboxSelectMultiple,
+            )
+
+    class Media:
+        js = ("js/exportformfields.js",)
 
 
 class LabeledResourse(resources.ModelResource):
@@ -87,17 +95,20 @@ class ValueLabeledResource(LabeledResourse):
 
 class CartExportMixin(ExportMixin):
     to_encoding = "utf-8"
-    change_list_template = "admin/cart/change_list_cart_export.html"
+    import_export_change_list_template = (
+        "admin/cart/change_list_cart_export.html"
+    )
+    export_form_class = ExportFormFields
     _cart_session_name = None
     _cart_viewing_name = None
 
     def __init__(self, *args, **kwargs):
-        super(CartExportMixin, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self._cart_session_name = "cart_%s" % self.opts.model_name
         self._cart_viewing_name = "view_cart_%s" % self.opts.model_name
 
     def get_queryset(self, request):
-        qs = super(CartExportMixin, self).get_queryset(request)
+        qs = super().get_queryset(request)
         if self._cart_viewing_name in request.session:
             ids = request.session.get(self._cart_session_name, [])
             qs = qs.filter(id__in=ids)
@@ -113,7 +124,7 @@ class CartExportMixin(ExportMixin):
             else:
                 self.actions = list(self.actions)
             self.actions.append("add_to_cart")
-            return super(CartExportMixin, self).get_actions(request)
+            return super().get_actions(request)
 
     @csrf_protect_m
     def changelist_view(self, request, extra_context=None):
@@ -146,6 +157,13 @@ class CartExportMixin(ExportMixin):
             ),
         ]
         return my_urls + urls
+
+    def get_data_for_export(self, request, queryset, *args, **kwargs):
+        export_form = kwargs.get("export_form", None)
+        resource_index = self.get_resource_index(export_form)
+        field_name = f"selected_fields_{resource_index}"
+        kwargs["selected_fields"] = export_form.cleaned_data[field_name]
+        return super().get_data_for_export(request, queryset, *args, **kwargs)
 
     @csrf_protect_m
     def add_to_cart(self, request, queryset):
@@ -212,52 +230,16 @@ class CartExportMixin(ExportMixin):
         self.message_user(request, _("Carrinho vazio"))
         return HttpResponseRedirect("..")
 
-    @csrf_protect_m
-    def export_action(self, request, *args, **kwargs):
-        if not self.has_export_permission(request):
-            raise PermissionDenied
 
-        formats = self.get_export_formats()
-        resource = (self.get_export_resource_class())()
-        field_list = list(
-            zip(resource.get_export_order(), resource.get_export_headers())
-        )
-        form = ExportFormFields(formats, field_list, request.POST or None)
-        if form.is_valid():
-            file_format = formats[int(form.cleaned_data["file_format"])]()
-
-            queryset = self.get_export_queryset(request)
-            export_data = self.get_export_data(
-                file_format,
-                queryset,
-                request=request,
-                encoding=self.to_encoding,
-                selected_fields=form.cleaned_data["selected_fields"],
-            )
-            content_type = file_format.get_content_type()
-            response = HttpResponse(export_data, content_type=content_type)
-            response["Content-Disposition"] = 'attachment; filename="%s"' % (
-                self.get_export_filename(request, queryset, file_format),
-            )
-
-            post_export.send(sender=None, model=self.model)
-            return response
-
-        context = self.get_export_context_data()
-        context["title"] = _("Export")
-        context["form"] = form
-        context["opts"] = self.model._meta
-        request.current_app = self.admin_site.name
-        return TemplateResponse(request, [self.export_template_name], context)
-
-
-class ImportCartExportMixin(ImportMixin, CartExportMixin):
+class CartImportExportMixin(ImportMixin, CartExportMixin):
     """
     Import and export mixin.
     """
 
     #: template for change_list view
-    change_list_template = "admin/cart/change_list_import_cart_export.html"
+    import_export_change_list_template = (
+        "admin/cart/change_list_import_cart_export.html"
+    )
 
 
 class CartExportReportMixin(CartExportMixin):

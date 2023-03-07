@@ -30,7 +30,23 @@ from sigi.apps.utils.mixins import (
 )
 
 
-class OrgaoExportResourse(LabeledResourse):
+class OrgaoExportResourceContato(LabeledResourse):
+    class Meta:
+        model = Orgao
+        fields = ("nome", "email")
+        export_order = fields
+        name = "Exportação para aplicativo Contatos"
+
+    def dehydrate_nome(self, orgao):
+        return orgao.nome[:50]
+
+    def export(self, queryset=None, *args, **kwargs):
+        if queryset is not None:
+            queryset = queryset.exclude(email="")
+        return super().export(queryset, *args, **kwargs)
+
+
+class OrgaoExportResourseGeral(LabeledResourse):
     presidente = Field(column_name="presidente")
     telefone = Field(column_name="telefone")
     # servicos_seit = Field(column_name='servicos_seit')
@@ -57,6 +73,7 @@ class OrgaoExportResourse(LabeledResourse):
             "contato",
         )
         export_order = fields
+        name = "Exportação de uso geral"
 
     def dehydrate_nome(self, orgao):
         return orgao.nome[:50]
@@ -292,7 +309,7 @@ class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
 @admin.register(Orgao)
 class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     form = OrgaoForm
-    resource_class = OrgaoExportResourse
+    resource_classes = [OrgaoExportResourseGeral, OrgaoExportResourceContato]
     inlines = (
         TelefonesInline,
         ParlamentarInline,
