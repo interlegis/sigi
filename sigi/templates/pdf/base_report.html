@@ -15,10 +15,21 @@ h6 {font-size: 1.1em;}
 header {
   font-size: 1.4em;
   font-weight: bold;
-  text-align: center;
+  text-align: left;
 }
 header p {
   margin: 5px;
+}
+
+footer {
+  text-align: center;
+}
+footer img {
+  width: 300px;
+}
+
+footer p {
+  margin-bottom: 3px;
 }
 .report_name {
   font-size: 1.6em;
@@ -66,9 +77,14 @@ ul {
     <p class="report_name">{% block report_name %}{{ title|upper }}{% endblock report_name %}</p>{% endblock header %}
   </header>
 
-  <footer>{% block footer %}
-    <p>{% trans 'Emitido em ' %}{% now "DATETIME_FORMAT" %}</p>{% endblock footer %}
+  {% spaceless %}
+  <footer>
+    {% block footer %}
+      <p>{% trans 'Emitido em ' %}{% now "DATETIME_FORMAT" %}</p>
+      <img src="{% static 'img/logos_rodape.png' %}" />
+    {% endblock footer %}
   </footer>
+  {% endspaceless %}
 
   {% block main_content %}{% endblock main_content %}
 {% endblock body_content %}
