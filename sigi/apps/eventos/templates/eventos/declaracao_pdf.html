@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block page_size %}{{ pagesize }}{% endblock page_size %}
-{% block page_margin %}4cm {{ pagemargin }}cm {{ pagemargin }}cm 2cm{% endblock page_margin %}
+{% block page_margin %}4cm {{ pagemargin }}cm 4cm {{ pagemargin }}cm{% endblock page_margin %}
 
 {% block main_content %}
   {% for convite in evento.convite_set.all %}
