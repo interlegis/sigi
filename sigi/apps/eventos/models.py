@@ -70,7 +70,15 @@ class Evento(models.Model):
     )
     nome = models.CharField(_("Nome do evento"), max_length=100)
     turma = models.CharField(_("turma"), max_length=100, blank=True)
-    descricao = models.TextField(_("Descrição do evento"))
+    descricao = models.TextField(
+        _("Descrição do evento"),
+        default=_(
+            "solicitar Acordo de Cooperação Técnica entre a Câmara Municipal "
+            "e esta Escola de Governo do Senado Federal. Na ocasião foram "
+            "apresentados os produtos e serviços oferecidos gratuitamente pelo "
+            "Programa Interlegis"
+        ),
+    )
     virtual = models.BooleanField(_("Virtual"), default=False)
     solicitante = models.CharField(_("Solicitante"), max_length=100)
     num_processo = models.CharField(
