@@ -63,7 +63,7 @@ class Mesorregiao(models.Model):
             "uf",
             "nome",
         )
-        verbose_name = (_("mesorregião"),)
+        verbose_name = _("mesorregião")
         verbose_name_plural = _("mesorregiões")
 
     def __str__(self):
