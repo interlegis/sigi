@@ -2,6 +2,7 @@ from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.template.loader import render_to_string
 from django.urls import reverse
+from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
@@ -141,12 +142,11 @@ class FuncionarioInline(admin.TabularInline):
     model = Funcionario
     template = "admin/casas/orgao/tabular.html"
     fields = (
+        "get_setor",
         "nome",
         "nota",
-        "email",
-        "setor",
+        "get_email_link",
         "ult_alteracao",
-        "redes_sociais",
         "observacoes",
     )
     readonly_fields = fields
@@ -155,14 +155,26 @@ class FuncionarioInline(admin.TabularInline):
     show_change_link = True
     can_delete = False
     verbose_name_plural = _("Contatos da Casa")
+    ordering = ["setor", "-ult_alteracao"]
 
     def get_queryset(self, request):
-        return (
-            self.model.objects.exclude(desativado=True)
-            .extra(select={"ult_null": "ult_alteracao is null"})
-            .order_by("ult_null", "-ult_alteracao")
-            # A função extra foi usada para quando existir um registro com
-            # o campo igual a null não aparecer na frente dos mais novos
+        qs = super().get_queryset(request)
+        return qs.exclude(desativado=True)
+
+    @admin.display(description=_("setor"))
+    def get_setor(self, func):
+        if func.setor == "contato_interlegis":
+            return format_html(
+                "<span class='green lighten-5 z-depth-1'>{setor}</span>",
+                setor=func.get_setor_display(),
+            )
+        return func.get_setor_display()
+
+    @admin.display(description=_("e-mail"))
+    def get_email_link(self, func):
+        return format_html(
+            "<a href='mailto:{email}' targe='_blank'>{email}</a>",
+            email=func.email,
         )
 
 
@@ -224,7 +236,7 @@ class ServicoInline(admin.TabularInline):
         "data_ultimo_uso",
     )
     readonly_fields = fields
-    ordering = ("tipo_servico", "-data_alteracao")
+    ordering = ("-data_desativacao", "-data_ativacao", "tipo_servico")
     extra = 0
     max_num = 0
     show_change_link = True
@@ -245,12 +257,12 @@ class OcorrenciaInline(admin.TabularInline):
     template = "admin/casas/orgao/tabular.html"
     fields = (
         "data_criacao",
+        "data_modificacao",
         "categoria",
         "tipo_contato",
         "assunto",
         "prioridade",
         "status",
-        "data_modificacao",
     )
     autocomplete_fields = ("categoria", "tipo_contato")
     readonly_fields = fields
@@ -398,9 +410,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         ),
     )
     autocomplete_fields = ("tipo", "municipio", "pesquisador")
-    readonly_fields = [
-        "gerentes_interlegis",
-    ]
+    readonly_fields = ["gerentes_interlegis", "ult_alt_endereco"]
     search_fields = (
         "search_text",
         "sigla",
