@@ -2,12 +2,11 @@ import datetime
 import docutils.core
 from django.core.mail import mail_admins
 from django.utils.translation import gettext as _
-from django_extensions.management.jobs import DailyJob
 from sigi.apps.convenios.models import Gescon
-from sigi.apps.utils.management.jobs import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin, QuarterDailyJob
 
 
-class Job(JobReportMixin, DailyJob):
+class Job(JobReportMixin, QuarterDailyJob):
     help = "Carga de dados do Gescon."
 
     def do_job(self):
