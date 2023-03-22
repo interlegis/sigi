@@ -12,7 +12,7 @@ from sigi.apps.contatos.models import (
     Municipio,
 )
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils.mixins import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin
 
 
 class Job(JobReportMixin, MonthlyJob):

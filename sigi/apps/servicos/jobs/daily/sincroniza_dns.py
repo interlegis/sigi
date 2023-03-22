@@ -9,7 +9,7 @@ from sigi.apps.servicos import generate_instance_name, nomeia_instancias
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.utils.mixins import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin
 
 LOG_GERAL = _("Mensagens gerais")
 IGNORES = ["_psl", "k8s", "www.", "sapl.", "addr.arpa"]

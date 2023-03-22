@@ -7,7 +7,7 @@ from django_extensions.management.jobs import DailyJob
 from sigi.apps.servicos import generate_instance_name, nomeia_instancias
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
-from sigi.apps.utils.mixins import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin
 
 
 class Job(JobReportMixin, DailyJob):

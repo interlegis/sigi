@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
 from sigi.apps.servicos.models import Servico
-from sigi.apps.utils.mixins import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin
 
 
 class Job(JobReportMixin, DailyJob):

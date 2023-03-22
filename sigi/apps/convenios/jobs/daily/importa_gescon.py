@@ -4,7 +4,7 @@ from django.core.mail import mail_admins
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
 from sigi.apps.convenios.models import Gescon
-from sigi.apps.utils.mixins import JobReportMixin
+from sigi.apps.utils.management.jobs import JobReportMixin
 
 
 class Job(JobReportMixin, DailyJob):
