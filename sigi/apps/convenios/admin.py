@@ -200,13 +200,16 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         "equipada",
         "casa_legislativa__municipio__uf",
     )
-    ordering = ("casa_legislativa", "-data_retorno_assinatura")
+    ordering = (
+        "casa_legislativa__municipio__uf__sigla",
+        "casa_legislativa",
+        "-data_retorno_assinatura",
+    )
     autocomplete_fields = (
         "casa_legislativa",
         "servico_gestao",
         "servidor_gestao",
     )
-    get_queryset = queryset_ascii
     search_fields = (
         "id",
         "casa_legislativa__search_text",
@@ -219,9 +222,7 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         "report_convenios",
     ]
 
-    def get_queryset(self, request):
-        queryset = super(ConvenioAdmin, self).get_queryset(request)
-        return queryset
+    get_queryset = queryset_ascii
 
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla

@@ -356,7 +356,6 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         ("email", EmptyFilter),
     )
     ordering = ("municipio__uf__nome", "nome")
-    queryset = queryset_ascii
     fieldsets = (
         (
             None,
@@ -437,7 +436,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        queryset = super(OrgaoAdmin, self).get_queryset(request)
+        queryset = queryset_ascii(self, request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
     def save_related(self, request, form, formsets, change):
@@ -468,7 +467,14 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     def get_convenios(self, obj):
         return mark_safe(
             "<ul>"
-            + "".join([f"<li>{c}</li>" for c in obj.convenio_set.all()])
+            + "".join(
+                [
+                    f"<li>{c}</li>"
+                    for c in obj.convenio_set.order_by(
+                        "-data_retorno_assinatura"
+                    )
+                ]
+            )
             + "</ul>"
         )
 
