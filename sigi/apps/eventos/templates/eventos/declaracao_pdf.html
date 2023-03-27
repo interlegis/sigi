@@ -19,5 +19,8 @@
         {% endif %}
       {% endfor %}
     {% endwith %}
+    {% if not forloop.last %}
+      <div class="new-page"/>
+    {% endif %}
   {% endfor %}
 {% endblock %}
