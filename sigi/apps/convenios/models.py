@@ -1,5 +1,6 @@
 import re
 import requests
+from hashlib import md5
 from pathlib import Path
 from django.db import models
 from django.db.models import Q, fields
@@ -561,6 +562,7 @@ class Gescon(models.Model):
     ultima_importacao = models.TextField(
         _("Resultado da última importação"), blank=True
     )
+    checksums = models.JSONField(null=True)
 
     class Meta:
         verbose_name = _("Configuração do Gescon")
@@ -599,6 +601,8 @@ class Gescon(models.Model):
 
     def importa_contratos(self):
         self.ultima_importacao = ""
+        if self.checksums is None:
+            self.checksums = {}
         self.add_message(
             _(
                 f"Importação iniciada em {timezone.localtime():%d/%m/%Y %H:%M:%S}\n"
@@ -642,6 +646,8 @@ class Gescon(models.Model):
             if re.sub("[^\d]", "", o.cnpj) != ""
         }
 
+        requests.packages.urllib3.disable_warnings()
+
         for sigla_gescon, sigla_sigi in subespecies:
             self.add_message(_(f"\n**Importando subespécie {sigla_gescon}**"))
             url = self.url_gescon.format(s=sigla_gescon)
@@ -666,6 +672,17 @@ class Gescon(models.Model):
                         f"\tResultado da consulta à {url} não "
                         "retornou dados em formato json"
                     )
+                )
+                continue
+
+            md5sum = md5(response.text.encode(response.encoding)).hexdigest()
+            if (
+                sigla_gescon in self.checksums
+                and self.checksums[sigla_gescon] == md5sum
+            ):
+                self.add_message(
+                    f"Dados da subespécie {sigla_gescon} inalterados no Gescon."
+                    " Processamento desnecessário."
                 )
                 continue
 
@@ -914,6 +931,7 @@ class Gescon(models.Model):
                     f"{erros} reportados com erro."
                 )
             )
+            self.checksums[sigla_gescon] = md5sum
 
         self.save()
 
