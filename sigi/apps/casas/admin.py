@@ -22,7 +22,7 @@ from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils import asciify_q_param
 from sigi.apps.utils.filters import EmptyFilter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
@@ -436,7 +436,8 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        queryset = queryset_ascii(self, request)
+        asciify_q_param(request)
+        queryset = super().get_queryset(request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
     def save_related(self, request, form, formsets, change):

@@ -17,7 +17,7 @@ from sigi.apps.convenios.models import (
     Tramitacao,
     Gescon,
 )
-from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils import queryset_ascii, asciify_q_param
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
 from sigi.apps.utils.mixins import (
@@ -222,8 +222,6 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         "report_convenios",
     ]
 
-    get_queryset = queryset_ascii
-
     def get_uf(self, obj):
         return obj.casa_legislativa.municipio.uf.sigla
 
@@ -290,6 +288,10 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
+
+    def get_queryset(self, request):
+        asciify_q_param(request)
+        return super().get_queryset(request)
 
 
 @admin.register(EquipamentoPrevisto)
