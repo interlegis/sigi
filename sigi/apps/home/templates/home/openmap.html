@@ -5,9 +5,9 @@
 {% block extrastyle %}
 {{ block.super }}
 <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.0/themes/smoothness/jquery-ui.css" />
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-  crossorigin="" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"
+     integrity="sha256-kLaT2GOSpHechhsozzB+flnD+zUyjE2LlfWPgU04xyI="
+     crossorigin=""/>
 <link rel="stylesheet" href="{% static 'home/css/openmap.css' %}" />
 <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css" />
 {% endblock %}
@@ -25,9 +25,10 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"
   integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
 <!-- script src="https://code.jquery.com/ui/1.13.1/jquery-ui.min.js" integrity="sha256-eTyxS0rkjpLEo16uXTS0uVCS4815lc40K2iVpWDvdSY=" crossorigin="anonymous"></script -->
-<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-  crossorigin=""></script>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+     integrity="sha256-WBkoXOwTeyKclOHuWtc+i2uENFpDZ9YPdf5Hf+D7ewM="
+     crossorigin=""></script>
+<script type="text/javascript" src="https://stamen-maps.a.ssl.fastly.net/js/tile.stamen.js?v1.3.0"></script>
 <script type="text/javascript" src="{% static "admin/js/core.js" %}"></script>
 {% endblock %}
 
@@ -76,25 +77,36 @@
 <script type="text/javascript" src="{% static 'js/search.js' %}"></script>
 <script>
   var mymap;
+  var orgao_layer_group = L.layerGroup();
   var map_center = [-14.235004, -51.92528];
   var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
   var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
   $(document).ready(function () {
     $("input[type=checkbox]").change(filtra);
 
-    mymap = L.map('map', { zoomSnap: 0.01 }).setView(map_center, 4.5);
+    var base_layers = {
+      "Terrain": new L.StamenTileLayer("terrain"),
+      "Open street": L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: 'Map data and imagery &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ',
+        id: 'mapbox/streets-v11',
+        tileSize: 512,
+        zoomOffset: -1
+      }),
+      "Water color": new L.StamenTileLayer("watercolor"),
+      "Toner": new L.StamenTileLayer("toner")
+    };
+
+
+    mymap = L.map('map', { center: map_center,
+      zoom: 4.5,
+      zoomSnap: 0.01,
+      layers: [base_layers.Terrain, orgao_layer_group]});
+
     mymap.zoomControl.options.zoomInTitle = "{% trans 'Aproximar' %}";
     mymap.zoomControl.options.zoomOutTitle = "{% trans 'Afastar' %}";
     mymap.zoomControl.setPosition("bottomright");
 
-    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-        'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-      id: 'mapbox/streets-v11',
-      tileSize: 512,
-      zoomOffset: -1
-    }).addTo(mymap);
+    L.control.layers(base_layers).addTo(mymap);
 
     mymap.on("popupopen", function (e) {
       var popup = e.popup;
@@ -150,12 +162,6 @@
 
       var formData = $("#filterForm").serializeArray();
 
-      mymap.eachLayer(function (layer) {
-        if (layer instanceof L.Circle) {
-          mymap.removeLayer(layer);
-        }
-      })
-
       $.ajax({
         type: "GET",
         url: "{% url "openmapdata" %}",
@@ -164,14 +170,17 @@
         encode: true,
       }).done(function (returnedData) {
         $("#totalOrgao").text(returnedData.length);
+        var new_data_layer = L.layerGroup();
         returnedData.forEach(function (casa) {
           if (casa[2] === null || casa[3] === null) {
             alert(casa[1] + " está sem coordenadas geográficas e não será plotada");
           } else {
-            var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup('<div class="preloader-wrapper small active"><div class="spinner-layer spinner-green-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>').addTo(mymap);
+            var mark = L.circle([casa[2], casa[3]], options).bindTooltip(casa[1]).bindPopup('<div class="preloader-wrapper small active"><div class="spinner-layer spinner-green-only"><div class="circle-clipper left"><div class="circle"></div></div><div class="gap-patch"><div class="circle"></div></div><div class="circle-clipper right"><div class="circle"></div></div></div></div>').addTo(new_data_layer);
             mark.orgao_id = casa[0]
           }
-        })
+        });
+        orgao_layer_group.clearLayers();
+        orgao_layer_group.addLayer(new_data_layer);
       })
     }
 
