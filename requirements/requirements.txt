@@ -3,6 +3,7 @@ docutils==0.19
 gunicorn==20.1.0
 ibge==0.0.5
 ipython==8.11.0
+moodlepy==0.23.10
 pandas==1.5.3
 Pillow==9.4.0
 psycopg2-binary==2.9.5

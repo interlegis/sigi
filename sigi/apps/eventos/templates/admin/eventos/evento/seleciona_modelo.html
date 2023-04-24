@@ -1,5 +1,5 @@
 {% extends "admin/base_site.html" %}
-{% load i18n static %}
+{% load i18n static admin_urls %}
 
 {% block extrastyle %}
   {{ block.super }}
@@ -35,7 +35,8 @@
             <i class="material-icons">picture_as_pdf</i>
             {% trans "Imprimir" %}
           </button>
-          <a class="default waves-effect waves-light btn" role="button" href="{% url 'admin:eventos_evento_change' evento_id %}">
+          {% url opts|admin_urlname:'change' evento_id|admin_urlquote as change_url %}
+          <a class="default waves-effect waves-light btn" role="button" href="{% add_preserved_filters change_url %}">
             <i class="material-icons">undo</i>
             {% trans "Voltar" %}
           </a>

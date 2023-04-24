@@ -94,3 +94,9 @@ def editor_help(field_name, Field_list):
         "home/editor_help_snippet.html",
         {"field_name": field_name, "placeholders": placeholders},
     )
+
+
+def abreviatura(name):
+    for conector in [" da ", " de ", " do ", " das ", " dos ", " e "]:
+        name = name.replace(conector, " ")
+    return ("".join([w[0] for w in name.split()])).upper()

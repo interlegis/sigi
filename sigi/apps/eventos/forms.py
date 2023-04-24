@@ -30,7 +30,7 @@ class EventoAdminForm(forms.ModelForm):
             "total_participantes",
             "status",
             "publicar",
-            "link_inscricao",
+            "moodle_courseid",
             "contato",
             "telefone",
             "banner",

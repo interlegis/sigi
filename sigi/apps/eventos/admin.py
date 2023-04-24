@@ -1,14 +1,20 @@
 import datetime
-from django.contrib import admin
-from django.http import HttpResponseRedirect
-from django.shortcuts import get_object_or_404, render
-from django.urls import path
+import time
+from moodle import Moodle
+from django.conf import settings
+from django.contrib import admin, messages
+from django.http import HttpResponse
+from django.shortcuts import get_object_or_404, render, redirect
+from django.template import Template, Context
+from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
 from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
+from weasyprint import HTML
 from sigi.apps.eventos.models import (
     Checklist,
     Cronograma,
@@ -21,7 +27,8 @@ from sigi.apps.eventos.models import (
     Convite,
     Anexo,
 )
-from sigi.apps.eventos.forms import EventoAdminForm
+from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
+from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import EmptyFilter, DateRangeFilter
 from sigi.apps.utils.mixins import CartExportMixin, ValueLabeledResource
 
@@ -205,6 +212,21 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         else:
             return ""
 
+    def render_change_form(self, request, context, add, change, form_url, obj):
+        context.update(
+            {
+                "can_createcourse": request.user.has_perm(
+                    "eventos.createcourse_evento"
+                )
+                and obj.moodle_courseid is None
+                and obj.tipo_evento.moodle_template_courseid is not None
+                and obj.tipo_evento.moodle_categoryid is not None
+            }
+        )
+        return super().render_change_form(
+            request, context, add, change, form_url, obj
+        )
+
     def lookup_allowed(self, lookup, value):
         return super(EventoAdmin, self).lookup_allowed(
             lookup, value
@@ -216,6 +238,11 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     def get_urls(self):
         urls = super().get_urls()
         my_urls = [
+            path(
+                "<path:object_id>/declaracao/",
+                self.admin_site.admin_view(self.declaracao_report),
+                name="%s_%s_declaracaoreport" % self.get_model_info(),
+            ),
             path(
                 "<path:object_id>/gant/",
                 self.admin_site.admin_view(self.gant_report),
@@ -231,8 +258,74 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                 self.admin_site.admin_view(self.plano_comunicacao),
                 name="%s_%s_comunicacaoreport" % self.get_model_info(),
             ),
+            path(
+                "<path:object_id>/createcourse/",
+                self.admin_site.admin_view(self.create_course),
+                name="%s_%s_createcourse" % self.get_model_info(),
+            ),
         ]
         return my_urls + urls
+
+    def declaracao_report(self, request, object_id):
+        if request.method == "POST":
+            form = SelecionaModeloForm(request.POST)
+            if form.is_valid():
+                evento = get_object_or_404(Evento, id=object_id)
+                modelo = form.cleaned_data["modelo"]
+                membro = (
+                    evento.equipe_set.filter(assina_oficio=True).first()
+                    or evento.equipe_set.first()
+                )
+                if membro:
+                    servidor = membro.membro
+                else:
+                    servidor = None
+                template_string = (
+                    """
+                    {% extends "eventos/declaracao_pdf.html" %}
+                    {% block text_body %}"""
+                    + modelo.texto
+                    + """
+                    {% endblock %}
+                    """
+                )
+                context = Context(
+                    {
+                        "pagesize": modelo.formato,
+                        "pagemargin": modelo.margem,
+                        "evento": evento,
+                        "servidor": servidor,
+                        "data": evento.data_inicio.date(),
+                    }
+                )
+                string = Template(template_string).render(context)
+                # return HttpResponse(string)
+                response = HttpResponse(
+                    headers={
+                        "Content-Type": "application/pdf",
+                        "Content-Disposition": 'attachment; filename="declaração.pdf"',
+                    }
+                )
+                pdf = HTML(
+                    string=string,
+                    url_fetcher=django_url_fetcher,
+                    encoding="utf-8",
+                    base_url=request.build_absolute_uri("/"),
+                )
+                pdf.write_pdf(target=response)
+                return response
+        else:
+            form = SelecionaModeloForm()
+
+        context = {
+            "form": form,
+            "evento_id": object_id,
+            "opts": self.model._meta,
+            "preserved_filters": self.get_preserved_filters(request),
+        }
+        return render(
+            request, "admin/eventos/evento/seleciona_modelo.html", context
+        )
 
     def gant_report(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)
@@ -324,3 +417,109 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             context=context,
             content_type="application/pdf",
         )
+
+    def create_course(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
+        if evento.moodle_courseid is not None:
+            self.message_user(
+                request,
+                _("Este evento já tem curso associado no Saberes"),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+        if (
+            evento.tipo_evento.moodle_template_courseid is None
+            or evento.tipo_evento.moodle_categoryid is None
+        ):
+            self.message_user(
+                request,
+                _("Este tipo de evento não possui template no Saberes"),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+        if evento.data_inicio is None or evento.data_termino is None:
+            self.message_user(
+                request,
+                _(
+                    "O evento precisa ter datas de início e término para criar "
+                    "curso no Saberes."
+                ),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+
+        if evento.turma == "":
+            self.message_user(
+                request,
+                _(
+                    "Preencha (e salve!) o campo Turma para poder criar o "
+                    "curso no Saberes"
+                ),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+
+        api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
+        mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
+        fullname = f"{evento.nome} - {evento.turma}"
+        shortname = f"{evento.tipo_evento.nome} - {evento.turma}"
+        inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
+        fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
+        try:
+            novo_curso = mws.core.course.duplicate_course(
+                evento.tipo_evento.moodle_template_courseid,
+                fullname=fullname,
+                shortname=shortname,
+                categoryid=evento.tipo_evento.moodle_categoryid,
+                visible=0,
+            )
+            evento.moodle_courseid = novo_curso.id
+            evento.save()
+            changes = {
+                "id": novo_curso.id,
+                "summary": evento.descricao,
+                "startdate": inicio,
+                "enddate": fim,
+            }
+            res = mws.core.course.update_courses([changes])
+            membros = evento.equipe_set.exclude(
+                membro__moodle_userid=None
+            ).exclude(funcao__moodle_roleid=None)
+            equipe = []
+            for membro in membros:
+                equipe.append(
+                    {
+                        "roleid": membro.funcao.moodle_roleid,
+                        "userid": membro.membro.moodle_userid,
+                        "courseid": evento.moodle_courseid,
+                    }
+                )
+            mws.enrol.manual.enrol_users(equipe)
+            context = {
+                "evento": evento,
+                "fullname": fullname,
+                "shortname": shortname,
+                "membros": membros,
+                "opts": self.model._meta,
+                "preserved_filters": self.get_preserved_filters(request),
+            }
+            return render(
+                request, "admin/eventos/evento/createcourse.html", context
+            )
+        except Exception as e:
+            self.message_user(
+                request,
+                _(
+                    "Ocorreu um erro ao criar o curso no Saberes com "
+                    f"a mensagem {e.message}"
+                ),
+                level=messages.ERROR,
+            )
+        return redirect(change_url)

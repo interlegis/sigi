@@ -114,64 +114,7 @@ def calendario(request):
         return render(request, "eventos/calendario.html", context)
 
 
-@login_required
-@staff_member_required
-def declaracao(request, id):
-    if request.method == "POST":
-        form = SelecionaModeloForm(request.POST)
-        if form.is_valid():
-            evento = get_object_or_404(Evento, id=id)
-            modelo = form.cleaned_data["modelo"]
-            membro = (
-                evento.equipe_set.filter(assina_oficio=True).first()
-                or evento.equipe_set.first()
-            )
-            if membro:
-                servidor = membro.membro
-            else:
-                servidor = None
-            template_string = (
-                """
-                {% extends "eventos/declaracao_pdf.html" %}
-                {% block text_body %}"""
-                + modelo.texto
-                + """
-                {% endblock %}
-                """
-            )
-            context = Context(
-                {
-                    "pagesize": modelo.formato,
-                    "pagemargin": modelo.margem,
-                    "evento": evento,
-                    "servidor": servidor,
-                    "data": timezone.localdate(),
-                }
-            )
-            string = Template(template_string).render(context)
-            # return HttpResponse(string)
-            response = HttpResponse(
-                headers={
-                    "Content-Type": "application/pdf",
-                    "Content-Disposition": 'attachment; filename="declaração.pdf"',
-                }
-            )
-            pdf = HTML(
-                string=string,
-                url_fetcher=django_url_fetcher,
-                encoding="utf-8",
-                base_url=request.build_absolute_uri("/"),
-            )
-            pdf.write_pdf(target=response)
-            return response
-    else:
-        form = SelecionaModeloForm()
-
-    context = {"form": form, "evento_id": id}
-    return render(request, "eventos/seleciona_modelo.html", context)
-
-
-class eventoListView(ListView):
+class EventoListView(ListView):
     model = Evento
     paginate_by = 100
     template_name = "eventos/lista.html"

@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'material/admin/css/submit_line.min.css' %}">
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block messages %}
+  {% if error %}
+  <ul class="messagelist">
+    <li class="error">{{ error|capfirst }}</li>
+  </ul>
+  {% endif %}
+{% endblock messages %}
+
+{% block content %}
+<div class="container">
+  <div class="card">
+    <div class="card-content">
+      <span class="card-title">{% trans 'Integração SIGI x Saberes: Criação de curso' %}</span>
+      <p>
+        {% blocktrans with courseid=evento.moodle_courseid courseurl=evento.link_inscricao|urlize trimmed %}
+        Criado curso no ambiente Saberes com ID {{ courseid }}, que pode ser
+        acessado em {{ courseurl }}. O nome completo do curso é "{{ fullname }}"
+        e o nome breve é "{{ shortname }}".
+        {% endblocktrans %}
+      </p>
+      <span class="card-title">{% trans "Os seguintes servidores foram inscritos no curso:" %}</span>
+      <ul>
+      {% for membro in membros %}
+        <li>{{ membro }}</li>
+      {% endfor %}
+      </ul>
+    </div>
+    <div class="card-action">
+      <div class="submit-row">
+        <div class="open-actions">
+          {% url opts|admin_urlname:'change' evento_id|admin_urlquote as change_url %}
+          <a class="default waves-effect waves-light btn" role="button" href="{% add_preserved_filters change_url %}">
+            <i class="material-icons">undo</i>
+            {% trans "Voltar" %}
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

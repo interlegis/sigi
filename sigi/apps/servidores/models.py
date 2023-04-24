@@ -55,6 +55,12 @@ class Servidor(models.Model):
         Servico, on_delete=models.SET_NULL, blank=True, null=True
     )
     cargo = models.CharField(max_length=100, blank=True)
+    moodle_userid = models.PositiveBigIntegerField(
+        _("ID usuário Saberes"),
+        blank=True,
+        null=True,
+        help_text=_("Código do usuário no Saberes"),
+    )
     externo = models.BooleanField(_("colaborador externo"), default=False)
     orgao_origem = models.CharField(
         _("órgão de origem, "), max_length=100, blank=True
@@ -92,6 +98,7 @@ User.servidor = property(
     if Servidor.objects.filter(user=user).exists()
     else None
 )
+
 
 # Sinal para ao criar um usuário criar um servidor
 # baseado no nome contido no LDAP

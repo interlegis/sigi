@@ -121,6 +121,7 @@ class ServidorAdmin(admin.ModelAdmin):
                     "foto",
                     "servico",
                     "cargo",
+                    "moodle_userid",
                 )
             },
         ),

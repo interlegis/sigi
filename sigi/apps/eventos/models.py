@@ -32,6 +32,23 @@ class TipoEvento(models.Model):
         _("Categoria"), max_length=1, choices=CATEGORIA_CHOICES
     )
     casa_solicita = models.BooleanField(_("casa pode solicitar"), default=False)
+    moodle_template_courseid = models.PositiveBigIntegerField(
+        _("Curso protótipo"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Código do curso que serve de protótipo no Saberes para criação de "
+            "novos eventos desse tipo."
+        ),
+    )
+    moodle_categoryid = models.PositiveBigIntegerField(
+        _("Categoria do curso"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "Código da categoria no Saberes onde o curso deve ser criado."
+        ),
+    )
 
     class Meta:
         ordering = ("nome",)
@@ -129,7 +146,15 @@ class Evento(models.Model):
     )
     status = models.CharField(_("Status"), max_length=1, choices=STATUS_CHOICES)
     publicar = models.BooleanField(_("publicar no site"), default=False)
-    link_inscricao = models.URLField(_("link de inscrição"), blank=True)
+    moodle_courseid = models.PositiveBigIntegerField(
+        _("ID do curso"),
+        blank=True,
+        null=True,
+        help_text=_(
+            "ID do curso no Saberes. Este campo é preenchido automaticamente "
+            "quando o curso é criado no Saberes."
+        ),
+    )
     contato = models.CharField(_("contato"), max_length=100, blank=True)
     telefone = models.CharField(
         _("tefone de contato"), max_length=30, blank=True
@@ -145,6 +170,9 @@ class Evento(models.Model):
     class Meta:
         ordering = ("-data_inicio",)
         verbose_name, verbose_name_plural = _("Evento"), _("Eventos")
+        permissions = [
+            ("createcourse_evento", "Can create courses in Saberes platform"),
+        ]
 
     def __str__(self):
         return _(
@@ -171,6 +199,17 @@ class Evento(models.Model):
                 ' target="_blank">{processo}</a>'
             ).format(processo=self.num_processo, **m.groupdict())
         return self.num_processo
+
+    @property
+    def link_inscricao(self):
+        if self.moodle_courseid is None:
+            return ""
+        from django.conf import settings
+
+        return (
+            settings.MOODLE_BASE_URL
+            + f"/course/view.php?id={self.moodle_courseid}"
+        )
 
     def save(self, *args, **kwargs):
         if self.status != Evento.STATUS_CANCELADO:
@@ -262,6 +301,12 @@ class Evento(models.Model):
 class Funcao(models.Model):
     nome = models.CharField(_("Função na equipe de evento"), max_length=100)
     descricao = models.TextField(_("Descrição da função"))
+    moodle_roleid = models.PositiveBigIntegerField(
+        _("Papel Saberes"),
+        blank=True,
+        null=True,
+        help_text=_("Código do papel do membro da equipe no Saberes"),
+    )
 
     class Meta:
         ordering = ("nome",)

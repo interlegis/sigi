@@ -261,3 +261,8 @@ TINYMCE_DEFAULT_CONFIG = {
 MENU_FILE = BASE_DIR / "menu_conf.yaml"
 HOSPEDAGEM_PATH = Path(env("HOSPEDAGEM_PATH", default="/tmp/HOSP/"))
 REGISTRO_PATH = Path(env("REGISTRO_PATH", default="/tmp/DNS/"))
+
+# Integração com Moodle
+
+MOODLE_BASE_URL = env("MOODLE_BASE_URL", default=None)
+MOODLE_API_TOKEN = env("MOODLE_API_TOKEN", default=None)

@@ -3,26 +3,39 @@
 
 {% block object-tools-items %}
   {% if object_id %}
+    {% if can_createcourse %}
+      <li>
+        {% url opts|admin_urlname:'createcourse' object_id|admin_urlquote as tool_url %}
+        <a href="{% add_preserved_filters tool_url %}">
+          <i class="left material-icons" aria-hidden="true">create_new_folder</i>
+          {% trans "Criar curso no Saberes" %}
+        </a>
+      </li>
+    {% endif %}
     <li>
-      <a href="{% url 'evento-declaracao' object_id %}">
+      {% url opts|admin_urlname:'declaracaoreport' object_id|admin_urlquote as tool_url %}
+      <a href="{% add_preserved_filters tool_url %}">
         <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
         {% trans "Declaração" %}
       </a>
     </li>
     <li>
-      <a href="{% url opts|admin_urlname:'gantreport' object_id %}">
+      {% url opts|admin_urlname:'gantreport' object_id|admin_urlquote as tool_url %}
+      <a href="{% add_preserved_filters tool_url %}">
         <i class="left material-icons" aria-hidden="true">insert_chart</i>
         {% trans "Gráfico de Gant" %}
       </a>
     </li>
     <li>
-      <a href="{% url opts|admin_urlname:'checklistreport' object_id %}">
+      {% url opts|admin_urlname:'checklistreport' object_id|admin_urlquote as tool_url %}
+      <a href="{% add_preserved_filters tool_url %}">
         <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
         {% trans "Checklist" %}
       </a>
     </li>
     <li>
-      <a href="{% url opts|admin_urlname:'comunicacaoreport' object_id %}">
+      {% url opts|admin_urlname:'comunicacaoreport' object_id|admin_urlquote as tool_url %}
+      <a href="{% add_preserved_filters tool_url %}">
         <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
         {% trans "Plano de comunicação" %}
       </a>

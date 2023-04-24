@@ -6,9 +6,4 @@ urlpatterns = [
     path(
         "alocacaoequipe/", views.alocacao_equipe, name="eventos_alocacaoequipe"
     ),
-    path(
-        "evento/<int:id>/declaracao/",
-        views.declaracao,
-        name="evento-declaracao",
-    ),
 ]
