@@ -27,13 +27,21 @@
         acessado em {{ courseurl }}. O nome completo do curso é "{{ fullname }}"
         e o nome breve é "{{ shortname }}".
         {% endblocktrans %}
-      </p>
+      </p><br/>
       <span class="card-title">{% trans "Os seguintes servidores foram inscritos no curso:" %}</span>
       <ul>
       {% for membro in membros %}
         <li>{{ membro }}</li>
       {% endfor %}
       </ul>
+      {% if erros %}
+        <br/>
+        <span class="card-title">{% trans "OCORRERAM OS SEGUINTES ERROS:" %}</span>
+        <ul>
+          {% for erro in erros %}
+            <li>{{ erro }}</li>
+          {% endfor %}
+      {% endif %}
     </div>
     <div class="card-action">
       <div class="submit-row">

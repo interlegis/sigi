@@ -472,6 +472,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         shortname = f"{evento.tipo_evento.nome} - {evento.turma}"
         inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
         fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
+        erros = []
         try:
             novo_curso = mws.core.course.duplicate_course(
                 evento.tipo_evento.moodle_template_courseid,
@@ -482,6 +483,17 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             )
             evento.moodle_courseid = novo_curso.id
             evento.save()
+        except Exception as e:
+            self.message_user(
+                request,
+                _(
+                    "Ocorreu um erro ao criar o curso no Saberes com "
+                    f"a mensagem {e.message}"
+                ),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+        try:
             changes = {
                 "id": novo_curso.id,
                 "summary": evento.descricao,
@@ -489,6 +501,15 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                 "enddate": fim,
             }
             res = mws.core.course.update_courses([changes])
+        except Exception as e:
+            erros.append(
+                _(
+                    "Falha na tentativa de alterar o sumário e as datas de "
+                    "início e término do curso, com a seguinte mensagem: "
+                    f"{e.message}"
+                )
+            )
+        try:
             membros = evento.equipe_set.exclude(
                 membro__moodle_userid=None
             ).exclude(funcao__moodle_roleid=None)
@@ -502,24 +523,22 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                     }
                 )
             mws.enrol.manual.enrol_users(equipe)
-            context = {
-                "evento": evento,
-                "fullname": fullname,
-                "shortname": shortname,
-                "membros": membros,
-                "opts": self.model._meta,
-                "preserved_filters": self.get_preserved_filters(request),
-            }
-            return render(
-                request, "admin/eventos/evento/createcourse.html", context
-            )
         except Exception as e:
-            self.message_user(
-                request,
+            erros.append(
                 _(
-                    "Ocorreu um erro ao criar o curso no Saberes com "
-                    f"a mensagem {e.message}"
-                ),
-                level=messages.ERROR,
+                    "Falha ao tentar inscrever a equipe no curso do Saberes, "
+                    f"com a seguinte mensagem: {e.message}"
+                )
             )
-        return redirect(change_url)
+        context = {
+            "evento": evento,
+            "fullname": fullname,
+            "shortname": shortname,
+            "membros": membros,
+            "erros": erros,
+            "opts": self.model._meta,
+            "preserved_filters": self.get_preserved_filters(request),
+        }
+        return render(
+            request, "admin/eventos/evento/createcourse.html", context
+        )
