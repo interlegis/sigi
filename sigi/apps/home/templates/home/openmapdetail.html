@@ -42,6 +42,6 @@
   </tr>
   {% endif %}
   {% if orgao.servico_set.all %}
-  <tr><th>Serviços</th><td>{% for s in servicos.all %}{% if s.url %}<a href="{{ s.url }}" target="_blank">{{ s }}</a>{% else %}{{ s }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  <tr><th>Serviços</th><td>{% for s in servicos.all %}{% if s.url %}<a href="{% if '//' not in s.url %}//{% endif %}{{ s.url }}" target="_blank">{{ s }}</a>{% else %}{{ s }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
   {% endif %}
 </table>
