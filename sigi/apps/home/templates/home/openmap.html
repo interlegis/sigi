@@ -54,17 +54,28 @@
 {% endblock %}
 
 {% block side_nav %}
-{% if not nav_bar_minimized %}
-<div id="side-bar" class="hide-on-med-and-down">
-  {% include 'home/mapfilter.html' %}
-</div>
-{% endif %}
-<div id="mobile-demo" class="sidenav">
-  {% include 'home/mapfilter.html' with mobile=True %}
-</div>
 {% endblock %}
 
+{% block coltype %}{{ block.super }}{% if is_popup %} embed-map-content{% endif %}
+{% endblock %}
 {% block content %}
+  <div id="map-bar" class="map-bar">
+    <div class="inner action-buttons">
+      <a class="modal-trigger" href="#filter-modal" title="{% trans "Filtrar dados" %}"><i class="material-icons">filter_list</i></a>
+      <a href="#" class="center-map" title="{% trans 'Centralizar o mapa' %}"><i class="material-icons">my_location</i></a>
+      <a href="#" class="clear-filters" title="{% trans 'Remover todos os filtros' %}"><i class="material-icons">clear_all</i></a>
+    </div>
+    <div class="inner">
+      <form id="searchform" class="form-inline ui-front">
+        <input type="text" class="search-text" placeholder="{% trans "Procurar" %}" aria-label="{% trans "Procurar" %}" data-source="{% url 'openmapsearch' %}" data-param="q">
+        <div class="search-result hide" data-item-click="map_fly_to"></div>
+      </form>
+    </div>
+  </div>
+  <div class="map-total-bar">
+    <small><strong>Total de Órgãos selecionados: </strong><span id="totalOrgao">-</span></small>
+  </div>
+  {% include "home/mapfilter.html" %}
   <div id="map">
     <!-- open street map -->
   </div>
@@ -82,6 +93,8 @@
   var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
   var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
   $(document).ready(function () {
+    M.Modal.init($('.modal'));
+    M.Tabs.init($('.tabs'));
     $("input[type=checkbox]").change(filtra);
 
     var base_layers = {

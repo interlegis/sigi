@@ -6,10 +6,10 @@ urlpatterns = [
         "casasatendidas/",
         views.CasasAtendidasListView.as_view(),
         name="servicos_casas_atendidas",
-        kwargs={"sigla_uf": "_all_"},
+        kwargs={"param": "_all_"},
     ),
     path(
-        "casasatendidas/<str:sigla_uf>/",
+        "casasatendidas/<str:param>/",
         views.CasasAtendidasListView.as_view(),
         name="servicos_casas_atendidas",
     ),

@@ -45,8 +45,9 @@ class CasasAtendidasListView(ListView):
     paginate_by = 100
 
     def get_queryset(self):
-        sigla = self.kwargs["sigla_uf"]
+        param = self.kwargs["param"]
         search_param = self.request.GET.get("search", None)
+
         queryset = super().get_queryset()
         queryset = (
             queryset.filter(
@@ -72,15 +73,17 @@ class CasasAtendidasListView(ListView):
                 for t in search_param.split()
             ]
             queryset = queryset.filter(*filter)
-        if sigla != "_all_":
+        if param.isdigit():
+            queryset = queryset.filter(casa_legislativa__id=param)
+        elif param != "_all_":
             queryset = queryset.filter(
-                casa_legislativa__municipio__uf__sigla=sigla
+                casa_legislativa__municipio__uf__sigla=param
             )
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        sigla = self.kwargs["sigla_uf"]
+        param = self.kwargs["param"]
         context["tot_orgaos"] = (
             self.get_queryset()
             .order_by()
@@ -95,8 +98,8 @@ class CasasAtendidasListView(ListView):
             for r, regiao in UnidadeFederativa.REGIAO_CHOICES
         ]
         context["search_param"] = self.request.GET.get("search", None)
-        if sigla != "_all_":
-            context["uf"] = UnidadeFederativa.objects.get(sigla=sigla)
+        if param != "_all_" and not param.isdigit():
+            context["uf"] = UnidadeFederativa.objects.get(sigla=param)
         return context
 
     def render_to_response(self, context, **response_kwargs):

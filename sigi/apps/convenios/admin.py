@@ -256,10 +256,7 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         if not obj.id_contrato_gescon:
             return ""
         return mark_safe(
-            f"<a href='https://adm.senado.gov.br/gestao-contratos/api/"
-            f"contratos/buscaTexto/{obj.id_contrato_gescon}'>"
-            f"https://adm.senado.gov.br/gestao-contratos/api/"
-            f"{obj.id_contrato_gescon}</a>"
+            f"<a href='{obj.get_url_gescon()}'>{obj.id_contrato_gescon}</a>"
         )
 
     link_gescon.short_description = _("Download MINUTA ASSINADA do Gescon")

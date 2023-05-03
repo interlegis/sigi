@@ -1,23 +1,47 @@
-<div class="card">
-  <div class="card-header">
-    <strong>{{ orgao.nome }}</strong> <a href="{% url "admin:casas_orgao_change" orgao.id %}" title="Editar" target="_blank"><span class="glyphicon glyphicon-edit"></span></a>
-  </div>
-  <div class="card-body">
-    <table class="table-condensed">
-      <tr><th>CNPJ</th><td>{{ orgao.cnpj }}</td></tr>
-      {% if orgao.data_instalacao %}<tr><th>Data de instalação</th><td>{{ orgao.data_instalacao }}</td></tr>{% endif %}
-      <tr><th>Endereço</th><td><address>{{ orgao.logradouro }}, {{ orgao.bairro }}, {{ orgao.municipio.nome }}, {{ orgao.municipio.uf.sigla }}, CEP: {{ orgao.cep }}</address></td></tr>
-      {% if orgao.telefones.all %}<tr><th>Telefones</th><td>{% for telefone in orgao.telefones.all %}<a href="tel:{{ telefone.numero }}">{{ telefone.numero }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>{% endif %}
-      {% if orgao.email %}<tr><th>E-mail</th><td><a href="mailto:{{ orgao.email }}">{{ orgao.email }}</a></td></tr>{% endif %}
-      {% if orgao.convenio_set.all %}
-      <tr><th>Convênios</th><td>{% for c in orgao.convenio_set.all %}<a href="{% url 'admin:convenios_convenio_change' c.id %}" target="_blank">{{ c }}</a>{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+<table class="striped">
+  <tr>
+    <th colspan="2">
+      {% if user.is_staff %}
+        {% url "admin:casas_orgao_change" orgao.id as orgao_url %}
+      {% else %}
+        {% url "servicos_casas_atendidas" orgao.id as orgao_url %}
       {% endif %}
-      {% if orgao.servico_set.all %}
-      <tr><th>Serviços</th><td>{% for s in orgao.servico_set.all %}{% if s.url %}<a href="{{ s.url }}" target="_blank">{{ s }}</a>{% else %}{{ s }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
-      {% endif %}
-      {% if orgao.gerentes_interlegis.all %}
-      <tr><th>Gerentes</th><td>{% for g in orgao.gerentes_interlegis.all %}{{ g.nome_completo }}{% if not forloop.last %}, {% endif %} {% endfor %}</td></tr>
-      {% endif %}
-    </table>
-  </div>
-</div>
+      <a href="{{ orgao_url }}" target="_blank">
+        {{ orgao }}
+      </a>
+    </th>
+  </tr>
+  <tr><th>Endereço</th><td><address>{{ orgao.logradouro }}, {{ orgao.bairro }}, {{ orgao.municipio.nome }}, {{ orgao.municipio.uf.sigla }}, CEP: {{ orgao.cep }}</address></td></tr>
+  {% if telefones %}
+    <tr>
+      <th>Telefones</th>
+      <td>
+        {% for telefone in telefones %}
+          <a href="tel:{{ telefone }}">{{ telefone }}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </td>
+    </tr>
+  {% endif %}
+  {% if orgao.email %}<tr><th>E-mail</th><td><a href="mailto:{{ orgao.email }}">{{ orgao.email }}</a></td></tr>{% endif %}
+  {% if orgao.convenio_set.all %}
+  <tr>
+    <th>Convênios</th>
+    <td>
+      {% for c in orgao.convenio_set.all %}
+        {% if user.is_staff %}
+          <a href="{% url 'admin:convenios_convenio_change' c.id %}" target="_blank">
+            {{ c.projeto.sigla }} ({{ c.get_status }})
+          </a>
+        {% else %}
+            {{ c.projeto.sigla }} ({{ c.get_status }})
+        {% endif %}
+        {% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %}
+  {% if orgao.servico_set.all %}
+  <tr><th>Serviços</th><td>{% for s in servicos.all %}{% if s.url %}<a href="{{ s.url }}" target="_blank">{{ s }}</a>{% else %}{{ s }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+</table>

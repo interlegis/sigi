@@ -374,6 +374,21 @@ class Convenio(models.Model):
         else:
             return "<i class='material-icons'>visibility_off</i>"
 
+    def get_url_gescon(self):
+        if not self.id_contrato_gescon:
+            return ""
+        return (
+            "https://adm.senado.gov.br/gestao-contratos/api/contratos"
+            f"/buscaTexto/{self.id_contrato_gescon}"
+        )
+
+    def get_url_minuta(self):
+        if self.id_contrato_gescon:
+            return self.get_link_gescon()
+        if self.anexo_set.exists():
+            return self.anexo_set.first().arquivo.url
+        return ""
+
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None
         self.equipada = self.data_termo_aceite is not None

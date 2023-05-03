@@ -157,9 +157,10 @@ class HomeView(LoginRequiredMixin, TemplateView):
 ################################################################################
 
 
+@xframe_options_exempt
 def openmap(request):
     reptype = request.GET.get("reptype", None)
-    context = {}
+    context = {"is_popup": bool(int(request.GET.get("embed", 0)))}
 
     if reptype is None:
         context["tipos_orgao"] = TipoOrgao.objects.filter(legislativo=True)
@@ -330,7 +331,17 @@ def openmapdata(request):
 
 def openmapdetail(request, orgao_id):
     orgao = get_object_or_404(Orgao, id=orgao_id)
-    return render(request, "home/openmapdetail.html", {"orgao": orgao})
+    servicos = orgao.servico_set.filter(data_desativacao=None)
+    telefones = {
+        t.numero.replace(" ", "") for t in orgao.telefones.exclude(numero="")
+    }
+    telefones.add(orgao.telefone_geral.replace(" ", ""))
+    telefones.add(orgao.telefone.replace(" ", ""))
+    return render(
+        request,
+        "home/openmapdetail.html",
+        {"orgao": orgao, "servicos": servicos, "telefones": telefones},
+    )
 
 
 def openmapsearch(request):
