@@ -12,6 +12,15 @@
         </a>
       </li>
     {% endif %}
+    {% if can_updateparticipantes %}
+      <li>
+        {% url opts|admin_urlname:'updateparticipantes' object_id|admin_urlquote as tool_url %}
+        <a href="{% add_preserved_filters tool_url %}">
+          <i class="left material-icons" aria-hidden="true">contacts</i>
+          {% trans "Atualizar total participantes" %}
+        </a>
+      </li>
+    {% endif %}
     <li>
       {% url opts|admin_urlname:'declaracaoreport' object_id|admin_urlquote as tool_url %}
       <a href="{% add_preserved_filters tool_url %}">

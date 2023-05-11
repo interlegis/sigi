@@ -1,5 +1,6 @@
 import datetime
 import re
+from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Sum
 from django.urls import reverse
@@ -49,6 +50,9 @@ class TipoEvento(models.Model):
             "Código da categoria no Saberes onde o curso deve ser criado."
         ),
     )
+    prefixo_turma = models.CharField(
+        _("Prefixo para turmas"), max_length=20, blank=True
+    )
 
     class Meta:
         ordering = ("nome",)
@@ -86,7 +90,20 @@ class Evento(models.Model):
         on_delete=models.PROTECT,
     )
     nome = models.CharField(_("Nome do evento"), max_length=100)
-    turma = models.CharField(_("turma"), max_length=100, blank=True)
+    turma = models.CharField(
+        _("turma"),
+        max_length=100,
+        blank=True,
+        validators=[
+            RegexValidator(
+                "^\d{2}/\d{4}$",
+                _(
+                    "Formato inválido. Utilize nn/aaaa, onde 'nn' são dígitos "
+                    "numéricos e 'aaaa' o ano com quatro dígitos."
+                ),
+            )
+        ],
+    )
     descricao = models.TextField(
         _("Descrição do evento"),
         default=_(

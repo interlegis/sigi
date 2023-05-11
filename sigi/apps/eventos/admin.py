@@ -213,14 +213,18 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             return ""
 
     def render_change_form(self, request, context, add, change, form_url, obj):
+        perm = request.user.has_perm("eventos.createcourse_evento")
         context.update(
             {
-                "can_createcourse": request.user.has_perm(
-                    "eventos.createcourse_evento"
-                )
-                and obj.moodle_courseid is None
-                and obj.tipo_evento.moodle_template_courseid is not None
-                and obj.tipo_evento.moodle_categoryid is not None
+                "can_createcourse": (
+                    perm
+                    and obj.moodle_courseid is None
+                    and obj.tipo_evento.moodle_template_courseid is not None
+                    and obj.tipo_evento.moodle_categoryid is not None
+                ),
+                "can_updateparticipantes": (
+                    perm and obj.moodle_courseid is not None
+                ),
             }
         )
         return super().render_change_form(
@@ -237,31 +241,37 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
     def get_urls(self):
         urls = super().get_urls()
+        model_info = self.get_model_info()
         my_urls = [
             path(
                 "<path:object_id>/declaracao/",
                 self.admin_site.admin_view(self.declaracao_report),
-                name="%s_%s_declaracaoreport" % self.get_model_info(),
+                name="%s_%s_declaracaoreport" % model_info,
             ),
             path(
                 "<path:object_id>/gant/",
                 self.admin_site.admin_view(self.gant_report),
-                name="%s_%s_gantreport" % self.get_model_info(),
+                name="%s_%s_gantreport" % model_info,
             ),
             path(
                 "<path:object_id>/checklist/",
                 self.admin_site.admin_view(self.checklist_report),
-                name="%s_%s_checklistreport" % self.get_model_info(),
+                name="%s_%s_checklistreport" % model_info,
             ),
             path(
                 "<path:object_id>/comunicacao/",
                 self.admin_site.admin_view(self.plano_comunicacao),
-                name="%s_%s_comunicacaoreport" % self.get_model_info(),
+                name="%s_%s_comunicacaoreport" % model_info,
             ),
             path(
                 "<path:object_id>/createcourse/",
                 self.admin_site.admin_view(self.create_course),
-                name="%s_%s_createcourse" % self.get_model_info(),
+                name="%s_%s_createcourse" % model_info,
+            ),
+            path(
+                "<path:object_id>/updateparticipantes/",
+                self.admin_site.admin_view(self.update_participantes),
+                name="%s_%s_updateparticipantes" % model_info,
             ),
         ]
         return my_urls + urls
@@ -468,8 +478,8 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
         api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
         mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
-        fullname = f"{evento.nome} - {evento.turma}"
-        shortname = f"{evento.tipo_evento.nome} - {evento.turma}"
+        fullname = f"{evento.tipo_evento.nome} - {evento.municipio.nome}/{evento.municipio.uf.sigla} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
+        shortname = f"{abreviatura(evento.tipo_evento.nome)} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
         inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
         fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
         erros = []
@@ -542,3 +552,58 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         return render(
             request, "admin/eventos/evento/createcourse.html", context
         )
+
+    def update_participantes(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
+        if evento.moodle_courseid is None:
+            self.message_user(
+                request,
+                _("Este evento não tem curso associado no Saberes"),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+
+        api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
+        mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
+        try:
+            inscritos = mws.post(
+                "core_enrol_get_enrolled_users", courseid=evento.moodle_courseid
+            )
+        except Exception as e:
+            self.message_user(
+                request,
+                _(
+                    "Ocorreu um erro ao acessar o curso no Saberes com "
+                    f"a mensagem {e.message}"
+                ),
+                level=messages.ERROR,
+            )
+            return redirect(change_url)
+        evento.total_participantes = len(
+            list(
+                filter(
+                    lambda u: any(
+                        r["roleid"] in settings.MOODLE_STUDENT_ROLES
+                        for r in u["roles"]
+                    ),
+                    inscritos,
+                )
+            )
+        )
+        evento.save()
+        self.message_user(
+            request,
+            _(
+                f"Foram encontrados {evento.total_participantes} alunos "
+                "no Saberes"
+            ),
+            level=messages.SUCCESS,
+        )
+        return redirect(change_url)

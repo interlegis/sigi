@@ -266,3 +266,4 @@ REGISTRO_PATH = Path(env("REGISTRO_PATH", default="/tmp/DNS/"))
 
 MOODLE_BASE_URL = env("MOODLE_BASE_URL", default=None)
 MOODLE_API_TOKEN = env("MOODLE_API_TOKEN", default=None)
+MOODLE_STUDENT_ROLES = env("MOODLE_STUDENT_ROLES", eval, default=(5, 9))
