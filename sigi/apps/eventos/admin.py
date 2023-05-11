@@ -218,12 +218,13 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             {
                 "can_createcourse": (
                     perm
+                    and obj
                     and obj.moodle_courseid is None
                     and obj.tipo_evento.moodle_template_courseid is not None
                     and obj.tipo_evento.moodle_categoryid is not None
                 ),
                 "can_updateparticipantes": (
-                    perm and obj.moodle_courseid is not None
+                    perm and obj and obj.moodle_courseid is not None
                 ),
             }
         )
