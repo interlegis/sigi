@@ -99,6 +99,43 @@
                 </div>
               </div>
               <div class="card-body">
+                {% if srv.casa_legislativa.convenio_set.all %}
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <tr>
+                        <th>{% trans "Tipo de convênio" %}</th>
+                        <th>{% trans "Número" %}</th>
+                        <th>{% trans "Status" %}</th>
+                        <th>{% trans "Início da vigência" %}</th>
+                        <th>{% trans "Término da vigência" %}</th>
+                        <th>{% trans "Documentos" %}</th>
+                      </tr>
+                      {% for convenio in srv.casa_legislativa.convenio_set.all %}
+                        <tr>
+                          <td>{{ convenio.projeto.nome }}</td>
+                          <td>{{ convenio.num_convenio|default:"-" }}</td>
+                          <td>{{ convenio.get_status }}</td>
+                          <td>{{ convenio.data_retorno_assinatura|default:"-" }}</td>
+                          <td>{{ convenio.data_termino_vigencia|default:"-" }}</td>
+                          <td>
+                            <ul class="list-group">
+                              {% if convenio.id_contrato_gescon %}
+                                <li class="list-group-item">
+                                  <a href="{{ convenio.get_url_gescon }}">{% trans "Minuta assinada" %}</a>
+                                </li>
+                              {% endif %}
+                              {% for anexo in convenio.anexo_set.all %}
+                              <li class="list-group-item">
+                                <a href="{{ anexo.arquivo.url }}">{{ anexo.descricao }}</a>
+                              </li>
+                              {% endfor %}
+                            </ul>
+                          </td>
+                        </tr>
+                      {% endfor %}
+                    </table>
+                  </div>
+                {% endif %}
                 <div class="table-responsive">
                   <table class="table table-sm">
                     <tr>

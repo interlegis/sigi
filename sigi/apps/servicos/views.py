@@ -60,6 +60,7 @@ class CasasAtendidasListView(ListView):
                 "casa_legislativa__municipio__uf",
                 "casa_legislativa__tipo",
             )
+            .prefetch_related("casa_legislativa__convenio_set")
             .order_by(
                 "casa_legislativa__municipio__uf__nome",
                 "casa_legislativa__tipo__nome",
