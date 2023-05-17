@@ -151,8 +151,8 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     date_hierarchy = "data_inicio"
     list_display = (
         "get_banner",
+        "get_tipo_evento",
         "nome",
-        "tipo_evento",
         "turma",
         "status",
         "publicar",
@@ -196,6 +196,10 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         CronogramaInline,
     )
     save_as = True
+
+    @admin.display(description=_("Tipo Evento"))
+    def get_tipo_evento(self, obj):
+        return obj.tipo_evento.nome
 
     @admin.display(description=_("número do processo SIGAD"))
     def link_sigad(self, obj):
