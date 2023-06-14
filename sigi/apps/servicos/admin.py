@@ -7,13 +7,23 @@ from django.utils.translation import gettext as _
 from import_export.fields import Field
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.servicos.models import Servico, LogServico, TipoServico
-from sigi.apps.servicos.filters import ServicoAtivoFilter, DataUtimoUsoFilter
+from sigi.apps.servicos.filters import (
+    ServicoAtivoFilter,
+    DataUtimoUsoFilter,
+)
+from sigi.apps.convenios.filters import (
+    TipoProjetoFilter,
+    ExcluirTipoProjetoFilter,
+)
 from sigi.apps.utils.filters import DateRangeFilter
-from sigi.apps.utils.mixins import ReturnMixin, CartExportMixin, LabeledResourse
+from sigi.apps.utils.mixins import (
+    ReturnMixin,
+    CartExportMixin,
+    ValueLabeledResource,
+)
 
 
-class ServicoExportResourse(LabeledResourse):
-    telefone_casa = Field(column_name="Casa Legislativa/telefone")
+class ServicoExportResourse(ValueLabeledResource):
     hospedagem_interlegis = Field(column_name="hospedagem no interlegis")
 
     class Meta:
@@ -23,7 +33,7 @@ class ServicoExportResourse(LabeledResourse):
             "casa_legislativa__municipio__nome",
             "casa_legislativa__municipio__uf__sigla",
             "casa_legislativa__email",
-            "telefone_casa",
+            "casa_legislativa__telefone_geral",
             "tipo_servico__nome",
             "url",
             "hospedagem_interlegis",
@@ -32,14 +42,16 @@ class ServicoExportResourse(LabeledResourse):
             "motivo_desativacao",
             "data_ultimo_uso",
             "erro_atualizacao",
+            "casa_legislativa__convenio__projeto__sigla",
+            "casa_legislativa__convenio__num_convenio",
+            "casa_legislativa__convenio__num_processo_sf",
+            "casa_legislativa__convenio__data_retorno_assinatura",
+            "casa_legislativa__convenio__data_termino_vigencia",
         )
         export_order = fields
 
-    def dehydrate_telefone_casa(self, servico):
-        return force_str(servico.casa_legislativa.telefone)
-
     def dehydrate_hospedagem_interlegis(self, servico):
-        if servico.hospedagem_interlegis:
+        if servico["hospedagem_interlegis"]:
             return _("Sim")
         else:
             return _("Não")
@@ -105,6 +117,8 @@ class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
         DataUtimoUsoFilter,
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "casa_legislativa__municipio__uf",
+        ("casa_legislativa__convenio__projeto_id", TipoProjetoFilter),
+        ("casa_legislativa__convenio__projeto_id", ExcluirTipoProjetoFilter),
     )
     ordering = (
         "casa_legislativa__municipio__uf",
