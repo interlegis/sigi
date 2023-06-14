@@ -11,9 +11,11 @@ from sigi.apps.casas.forms import OrgaoForm
 from sigi.apps.casas.models import Orgao, Funcionario, TipoOrgao
 from sigi.apps.casas.filters import (
     GerentesInterlegisFilter,
-    ConvenioFilter,
-    ExcluirConvenioFilter,
     ServicoFilter,
+)
+from sigi.apps.convenios.filters import (
+    TipoProjetoFilter,
+    ExcluirTipoProjetoFilter,
 )
 from sigi.apps.contatos.models import Telefone
 from sigi.apps.convenios.models import Convenio
@@ -348,9 +350,9 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         "tipo",
         ("gerentes_interlegis", GerentesInterlegisFilter),
         "municipio__uf__nome",
-        ConvenioFilter,
+        ("convenio__projeto_id", TipoProjetoFilter),
         ("servico__data_desativacao", ServicoAtivoFilter),
-        ExcluirConvenioFilter,
+        ("convenio__projeto_id", ExcluirTipoProjetoFilter),
         ServicoFilter,
         "inclusao_digital",
         ("email", EmptyFilter),
