@@ -27,9 +27,9 @@ class ValueField(Field):
 
 
 class ExportFormFields(ExportForm):
-    def __init__(self, formats, resource_classes, *args, **kwargs):
-        super().__init__(formats, resource_classes, *args, **kwargs)
-        for i, resource_klass in enumerate(resource_classes):
+    def __init__(self, formats, post, resources, **kwargs):
+        super().__init__(formats, post, resources=resources, **kwargs)
+        for i, resource_klass in enumerate(resources):
             resource = resource_klass()
             field_list = list(
                 zip(resource.get_export_order(), resource.get_export_headers())
