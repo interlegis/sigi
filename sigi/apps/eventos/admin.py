@@ -187,6 +187,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "casa_anfitria__search_text",
         "municipio__search_text",
         "solicitante",
+        "num_processo",
     )
     inlines = (
         EquipeInline,
@@ -488,7 +489,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
         fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
         erros = []
-        try:
+        try:  # Criar novo curso a partir do template
             novo_curso = mws.core.course.duplicate_course(
                 evento.tipo_evento.moodle_template_courseid,
                 fullname=fullname,
@@ -508,7 +509,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                 level=messages.ERROR,
             )
             return redirect(change_url)
-        try:
+        try:  # Atualiza configuração do curso
             changes = {
                 "id": novo_curso.id,
                 "summary": evento.descricao,
@@ -524,7 +525,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                     f"{e.message}"
                 )
             )
-        try:
+        try:  # Matricular professores/membros
             membros = evento.equipe_set.exclude(
                 membro__moodle_userid=None
             ).exclude(funcao__moodle_roleid=None)
