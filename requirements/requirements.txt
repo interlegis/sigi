@@ -9,7 +9,7 @@ Pillow==9.5.0
 psycopg2-binary==2.9.6
 python-docx==0.8.11
 requests==2.31.0
-weasyprint==59.0
+weasyprint==58.0
 XlsxWriter==3.1.2
 Django==4.2.2
 django-auth-ldap==4.3.0

@@ -9,7 +9,7 @@
       @page {
         size: {% block page_size %}A4 portrait{% endblock page_size %};
         margin: {% block page_margin %}3cm 2cm 2cm 2cm{% endblock page_margin %};
-        font-family: "Helvetica, Arial, sans-serif";
+        font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;
         {% block page-header-settings %}
         @top-left {content: url("{% static 'img/logo-senado.png' %}");}
@@ -35,7 +35,7 @@
         footer {position: running(footer);}
       }
       body {
-        font-family: Helvetica, Arial, sans-serif;
+        font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;
       }
       div.new-page {
