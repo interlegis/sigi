@@ -28,27 +28,29 @@
         {% trans "Declaração" %}
       </a>
     </li>
-    <li>
-      {% url opts|admin_urlname:'gantreport' object_id|admin_urlquote as tool_url %}
-      <a href="{% add_preserved_filters tool_url %}">
-        <i class="left material-icons" aria-hidden="true">insert_chart</i>
-        {% trans "Gráfico de Gant" %}
-      </a>
-    </li>
-    <li>
-      {% url opts|admin_urlname:'checklistreport' object_id|admin_urlquote as tool_url %}
-      <a href="{% add_preserved_filters tool_url %}">
-        <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
-        {% trans "Checklist" %}
-      </a>
-    </li>
-    <li>
-      {% url opts|admin_urlname:'comunicacaoreport' object_id|admin_urlquote as tool_url %}
-      <a href="{% add_preserved_filters tool_url %}">
-        <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
-        {% trans "Plano de comunicação" %}
-      </a>
-    </li>
+    {% if object.cronograma_set.exists %}
+      <li>
+        {% url opts|admin_urlname:'gantreport' object_id|admin_urlquote as tool_url %}
+        <a href="{% add_preserved_filters tool_url %}">
+          <i class="left material-icons" aria-hidden="true">insert_chart</i>
+          {% trans "Gráfico de Gant" %}
+        </a>
+      </li>
+      <li>
+        {% url opts|admin_urlname:'checklistreport' object_id|admin_urlquote as tool_url %}
+        <a href="{% add_preserved_filters tool_url %}">
+          <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+          {% trans "Checklist" %}
+        </a>
+      </li>
+      <li>
+        {% url opts|admin_urlname:'comunicacaoreport' object_id|admin_urlquote as tool_url %}
+        <a href="{% add_preserved_filters tool_url %}">
+          <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
+          {% trans "Plano de comunicação" %}
+        </a>
+      </li>
+    {% endif %}
   {% endif %}
   {{ block.super }}
 {% endblock %}

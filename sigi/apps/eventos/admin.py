@@ -345,9 +345,20 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
     def gant_report(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
         cronograma = list(
             evento.cronograma_set.order_by("data_prevista_inicio")
         )
+        if not cronograma:
+            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um gráfico de Gant"), messages.ERROR)
+            return redirect(change_url)
+        
         inicio = min(
             cronograma[0].data_prevista_inicio,
             cronograma[0].data_inicio or cronograma[0].data_prevista_inicio,
@@ -377,9 +388,20 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
     def checklist_report(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
         cronograma = list(
             evento.cronograma_set.order_by("data_prevista_inicio")
         )
+        if not cronograma:
+            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um checklist"), messages.ERROR)
+            return redirect(change_url)
+
         context = {"cronograma": cronograma, "title": evento.nome}
         return WeasyTemplateResponse(
             filename="checklist.pdf",
@@ -391,8 +413,22 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
     def plano_comunicacao(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
+        cronograma = list(
+            evento.cronograma_set.order_by("data_prevista_inicio")
+        )
+        if not cronograma:
+            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um plano de comunicação"), messages.ERROR)
+            return redirect(change_url)
+
         matrix = {}
-        for etapa in evento.cronograma_set.order_by("data_prevista_inicio"):
+        for etapa in cronograma:
             for responsavel in etapa.responsaveis.splitlines():
                 if responsavel not in matrix:
                     matrix[responsavel] = {}
