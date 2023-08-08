@@ -15,7 +15,7 @@
         <td>
           <span class="numero-dia">{{ dia.0 }}</span>
           {% for evento in dia.1 %}
-          <p class="evento truncate {% include 'eventos/snippets/calendario_status_color.html' with status=evento.status %}">
+          <p class="evento {% include 'eventos/snippets/calendario_status_color.html' with status=evento.status %}">
             <a class="modal-trigger" href="#modal{{ evento.id|safe }}" title="{{ evento.nome }}">{{ evento.nome }}</a>
           </p>
           {% endfor %}
