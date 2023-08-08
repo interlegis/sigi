@@ -198,7 +198,7 @@ class Evento(models.Model):
         )
 
     def get_absolute_url(self):
-        return reverse("eventos-evento", args=[self.id])
+        return reverse("admin:eventos_evento_change", args=[self.id])
 
     def get_sigad_url(self):
         m = re.match(
