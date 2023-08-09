@@ -198,7 +198,6 @@ class CasasLegislativasReport(ReportDefault):
     page_size = landscape(A4)
 
     class band_page_header(ReportDefault.band_page_header):
-
         label_top = ReportDefault.band_page_header.label_top
         label_left = [0.3, 1, 5.5, 11, 17, 22]
         elements = list(ReportDefault.band_page_header.elements)
@@ -293,7 +292,6 @@ class CasasLegislativasReport(ReportDefault):
         pass
 
     class band_detail(ReportDefault.band_detail):
-
         label_left = [0.3, 1, 5.5, 11, 17, 22]
 
         elements = [
@@ -359,7 +357,6 @@ class InfoOrgao(ReportDefault):
         ]
 
     class band_detail(ReportDefault.band_detail):
-
         posicao_left = [
             0,
             1.3,  # Tipo
@@ -538,7 +535,9 @@ class InfoOrgao(ReportDefault):
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_("Número"), left=tel_left[0] * cm, top=tel_top),
+                    Label(
+                        text=_("Número"), left=tel_left[0] * cm, top=tel_top
+                    ),
                     Label(text=_("Tipo"), left=tel_left[1] * cm, top=tel_top),
                     Label(text=_("Nota"), left=tel_left[2] * cm, top=tel_top),
                 ],
@@ -579,8 +578,12 @@ class InfoOrgao(ReportDefault):
                         width=BAND_WIDTH,
                         top=1 * cm,
                     ),
-                    Label(text=_("Nome"), left=cont_left[0] * cm, top=cont_top),
-                    Label(text=_("Nota"), left=cont_left[1] * cm, top=cont_top),
+                    Label(
+                        text=_("Nome"), left=cont_left[0] * cm, top=cont_top
+                    ),
+                    Label(
+                        text=_("Nota"), left=cont_left[1] * cm, top=cont_top
+                    ),
                     Label(
                         text=_("E-mail"), left=cont_left[2] * cm, top=cont_top
                     ),
@@ -593,7 +596,9 @@ class InfoOrgao(ReportDefault):
                 elements=[
                     ObjectValue(attribute_name="nome", left=cont_left[0] * cm),
                     ObjectValue(attribute_name="nota", left=cont_left[1] * cm),
-                    ObjectValue(attribute_name="email", left=cont_left[2] * cm),
+                    ObjectValue(
+                        attribute_name="email", left=cont_left[2] * cm
+                    ),
                 ],
                 # borders = {'all':True},
             ),

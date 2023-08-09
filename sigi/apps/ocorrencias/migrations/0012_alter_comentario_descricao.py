@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ocorrencias", "0011_alter_categoria_tipo"),
     ]
@@ -13,6 +12,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="comentario",
             name="descricao",
-            field=models.TextField(blank=True, null=True, verbose_name="Comentário"),
+            field=models.TextField(
+                blank=True, null=True, verbose_name="Comentário"
+            ),
         ),
     ]

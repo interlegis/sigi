@@ -6,7 +6,6 @@ import sigi.apps.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0008_alter_servico_id_alter_servidor_foto_and_more"),
         (
@@ -53,7 +52,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="funcionario",
             name="desativado",
-            field=models.BooleanField(default=False, verbose_name="desativado"),
+            field=models.BooleanField(
+                default=False, verbose_name="desativado"
+            ),
         ),
         migrations.AlterField(
             model_name="funcionario",
@@ -86,7 +87,9 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="funcionario",
             name="nome",
-            field=models.CharField(max_length=60, verbose_name="nome completo"),
+            field=models.CharField(
+                max_length=60, verbose_name="nome completo"
+            ),
         ),
         migrations.AlterField(
             model_name="funcionario",

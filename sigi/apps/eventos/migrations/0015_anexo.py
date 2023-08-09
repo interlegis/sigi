@@ -6,7 +6,6 @@ import datetime
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0014_auto_20211124_0736"),
     ]

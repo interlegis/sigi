@@ -96,7 +96,9 @@ class Orgao(models.Model):
         null=True,
         blank=True,
     )
-    obs_pesquisa = models.TextField(_("observações do pesquisador"), blank=True)
+    obs_pesquisa = models.TextField(
+        _("observações do pesquisador"), blank=True
+    )
     ult_alt_endereco = models.DateTimeField(
         _("última alteração do endereço"), null=True, blank=True, editable=True
     )

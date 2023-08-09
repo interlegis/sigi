@@ -5,15 +5,17 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('eventos', '0021_equipe_assina_oficio'),
+        ("eventos", "0021_equipe_assina_oficio"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='anexo',
-            name='data_pub',
-            field=models.DateTimeField(default=django.utils.timezone.localtime, verbose_name='data da publicação do anexo'),
+            model_name="anexo",
+            name="data_pub",
+            field=models.DateTimeField(
+                default=django.utils.timezone.localtime,
+                verbose_name="data da publicação do anexo",
+            ),
         ),
     ]

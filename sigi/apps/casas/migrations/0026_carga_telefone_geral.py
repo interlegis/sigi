@@ -19,7 +19,6 @@ def carrega_telefone_geral(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0025_orgao_telefone_geral"),
     ]

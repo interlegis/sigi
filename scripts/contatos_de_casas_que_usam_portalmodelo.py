@@ -12,7 +12,7 @@ from sigi.apps.servicos.models import TipoServico, Servico
 #     %run scripts/contatos_de_casas_que_usam_portalmodelo.py
 #     ... verificar <ARQUIVO_CSV>
 
-ARQUIVO_CSV = '/tmp/contatos_casas_pm.csv'
+ARQUIVO_CSV = "/tmp/contatos_casas_pm.csv"
 
 
 class UnicodeWriter:
@@ -32,7 +32,7 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def clean(self, cell):
-        return unicode(cell) if cell else '-'
+        return unicode(cell) if cell else "-"
 
     def writerow(self, row):
         self.writer.writerow([self.clean(s).encode("utf-8") for s in row])
@@ -51,33 +51,61 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-pm = TipoServico.objects.get(nome=u'Portal Modelo')
-servicos = Servico.objects.filter(tipo_servico=pm, data_desativacao__isnull=True)
+pm = TipoServico.objects.get(nome="Portal Modelo")
+servicos = Servico.objects.filter(
+    tipo_servico=pm, data_desativacao__isnull=True
+)
 casas = {s.casa_legislativa for s in servicos}
 
 tipos_telefone = dict(Telefone.TELEFONE_CHOICES)
 setores_funcionarios = dict(Funcionario.SETOR_CHOICES)
 
 with open(ARQUIVO_CSV, "wb") as f:
-    writer = UnicodeWriter(f, delimiter='\t', quotechar='"', quoting=csv.QUOTE_ALL)
-    writer.writerow([
-        "casa: ID", "casa: NOME",
-        "contato: NOME", "contato: TIPO",
-        "contato: EMAIL", "contato: CARGO", "contato: FUNCAO", "contato: TELEFONES",
-    ])
+    writer = UnicodeWriter(
+        f, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL
+    )
+    writer.writerow(
+        [
+            "casa: ID",
+            "casa: NOME",
+            "contato: NOME",
+            "contato: TIPO",
+            "contato: EMAIL",
+            "contato: CARGO",
+            "contato: FUNCAO",
+            "contato: TELEFONES",
+        ]
+    )
     for casa in casas:
-        contatos = casa.funcionario_set.filter(setor__in=["contato_interlegis", "estrutura_de_ti"])
+        contatos = casa.funcionario_set.filter(
+            setor__in=["contato_interlegis", "estrutura_de_ti"]
+        )
         if not contatos:
             contatos = casa.funcionario_set.all()
         for contato in contatos:
-            writer.writerow([
-                casa.pk, casa.nome,
-                contato.nome, setores_funcionarios.get(contato.setor, '?').decode('utf-8'),
-                contato.email, contato.cargo, contato.funcao,
-                '; '.join('%s [tipo: %s]' % (t.numero, tipos_telefone.get(t.tipo)) for t in contato.telefones.all()),
-            ])
+            writer.writerow(
+                [
+                    casa.pk,
+                    casa.nome,
+                    contato.nome,
+                    setores_funcionarios.get(contato.setor, "?").decode(
+                        "utf-8"
+                    ),
+                    contato.email,
+                    contato.cargo,
+                    contato.funcao,
+                    "; ".join(
+                        "%s [tipo: %s]"
+                        % (t.numero, tipos_telefone.get(t.tipo))
+                        for t in contato.telefones.all()
+                    ),
+                ]
+            )
         if not contatos:
-            writer.writerow([
-                casa.pk, casa.nome,
-                'SEM CONTATOS CADASTRADOS',
-            ])
+            writer.writerow(
+                [
+                    casa.pk,
+                    casa.nome,
+                    "SEM CONTATOS CADASTRADOS",
+                ]
+            )

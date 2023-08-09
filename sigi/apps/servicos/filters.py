@@ -11,7 +11,9 @@ class ServicoAtivoFilter(admin.FieldListFilter):
         self.model_admin = model_admin
         self.parameter_name = f"{field_path}__isnull"
 
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
 
         self.title = _("Serviço ativo")
 

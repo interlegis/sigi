@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("ocorrencias", "0010_alter_ocorrencia_options_ocorrencia_interno"),
     ]

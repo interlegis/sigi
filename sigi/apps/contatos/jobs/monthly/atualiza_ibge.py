@@ -48,7 +48,13 @@ class Job(JobReportMixin, MonthlyJob):
         }
 
     def atualiza_ufs(self):
-        regioes_map = {"N": "NO", "NE": "NE", "SE": "SE", "S": "SL", "CO": "CO"}
+        regioes_map = {
+            "N": "NO",
+            "NE": "NE",
+            "SE": "SE",
+            "S": "SL",
+            "CO": "CO",
+        }
 
         for ibge_uf in Estados().json():
             regiao = regioes_map[ibge_uf["regiao"]["sigla"]]

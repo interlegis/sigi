@@ -20,7 +20,6 @@ def atualiza_participantes(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0011_auto_20211117_0633"),
     ]

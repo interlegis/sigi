@@ -6,7 +6,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
@@ -223,7 +222,9 @@ class Migration(migrations.Migration):
                 (
                     "data_nascimento",
                     models.DateField(
-                        null=True, verbose_name="data de nascimento", blank=True
+                        null=True,
+                        verbose_name="data de nascimento",
+                        blank=True,
                     ),
                 ),
                 (
@@ -278,7 +279,10 @@ class Migration(migrations.Migration):
                 (
                     "cpf",
                     models.CharField(
-                        max_length=11, null=True, verbose_name="CPF", blank=True
+                        max_length=11,
+                        null=True,
+                        verbose_name="CPF",
+                        blank=True,
                     ),
                 ),
                 (

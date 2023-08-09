@@ -185,7 +185,9 @@ def openmap(request):
                     "emails": ", ".join(
                         [casa.email]
                         + list(
-                            casa.funcionario_set.values_list("email", flat=True)
+                            casa.funcionario_set.values_list(
+                                "email", flat=True
+                            )
                         )
                     ).encode("utf8"),
                     "contatos": ", ".join(

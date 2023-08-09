@@ -259,7 +259,6 @@ Users are synchronized.
     ],
 )
 def test_sync_users(before, ldap_users, after, messages, capsys):
-
     # setup
     for user_setup in before:
         if type(user_setup) == tuple:

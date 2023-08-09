@@ -120,7 +120,6 @@ def categoria_detalhes(request, id_diagnostico, id_categoria):
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categoria_casa_legislativa(request, id_diagnostico):
-
     # Grava na sessão a categoria atual, para destacar que
     # era foi a última visitada.
     request.session["ultima_categoria"] = 1
@@ -159,7 +158,6 @@ def categoria_casa_legislativa(request, id_diagnostico):
 @login_required(login_url=LOGIN_REDIRECT_URL)
 @validate_diagnostico
 def categoria_contatos(request, id_diagnostico):
-
     # Grava na sessão a categoria atual, para destacar que
     # era foi a última visitada.
     request.session["ultima_categoria"] = 2
@@ -246,7 +244,10 @@ def categoria_contatos(request, id_diagnostico):
                                     number=form_telefones.instance.numero,
                                 )
                         else:
-                            for key, value in form_telefones.errors.iteritems():
+                            for (
+                                key,
+                                value,
+                            ) in form_telefones.errors.iteritems():
                                 key = form_telefones.prefix + "-id-errors"
                                 resposta["erros"][key] = value
 
@@ -345,7 +346,6 @@ def percentage(fraction, population):
 
 @login_required
 def grafico_api(request):
-
     colors = cycle(
         [
             "#7cb5ec",
@@ -380,7 +380,6 @@ def grafico_api(request):
     pergunta = get_object_or_404(Pergunta, name=pergunta_slug)
 
     if pergunta.datatype == "one":
-
         list_perguntas = pergunta.group_choices()
         list_perguntas = [
             {

@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "__first__"),
     ]
@@ -51,7 +50,9 @@ class Migration(migrations.Migration):
                 (
                     "numero_votos",
                     models.PositiveIntegerField(
-                        null=True, verbose_name="n\xfamero de votos", blank=True
+                        null=True,
+                        verbose_name="n\xfamero de votos",
+                        blank=True,
                     ),
                 ),
             ],
@@ -171,7 +172,8 @@ class Migration(migrations.Migration):
                 (
                     "legislatura",
                     models.ForeignKey(
-                        to="parlamentares.Legislatura", on_delete=models.CASCADE
+                        to="parlamentares.Legislatura",
+                        on_delete=models.CASCADE,
                     ),
                 ),
             ],
@@ -275,7 +277,9 @@ class Migration(migrations.Migration):
                 (
                     "data_nascimento",
                     models.DateField(
-                        null=True, verbose_name="data de nascimento", blank=True
+                        null=True,
+                        verbose_name="data de nascimento",
+                        blank=True,
                     ),
                 ),
                 (
@@ -363,7 +367,8 @@ class Migration(migrations.Migration):
                 (
                     "legislatura",
                     models.ForeignKey(
-                        to="parlamentares.Legislatura", on_delete=models.CASCADE
+                        to="parlamentares.Legislatura",
+                        on_delete=models.CASCADE,
                     ),
                 ),
                 (

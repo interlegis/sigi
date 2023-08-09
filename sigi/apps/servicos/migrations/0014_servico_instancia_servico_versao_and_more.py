@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0013_alter_logservico_data_alter_servico_data_ativacao"),
     ]
@@ -20,7 +19,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="servico",
             name="versao",
-            field=models.CharField(blank=True, max_length=20, verbose_name="versão"),
+            field=models.CharField(
+                blank=True, max_length=20, verbose_name="versão"
+            ),
         ),
         migrations.AddField(
             model_name="tiposervico",
@@ -40,14 +41,18 @@ class Migration(migrations.Migration):
             model_name="tiposervico",
             name="spec_rancher",
             field=models.CharField(
-                blank=True, max_length=100, verbose_name="spec do serviço no Rancher"
+                blank=True,
+                max_length=100,
+                verbose_name="spec do serviço no Rancher",
             ),
         ),
         migrations.AddField(
             model_name="tiposervico",
             name="tipo_rancher",
             field=models.CharField(
-                blank=True, max_length=100, verbose_name="tipo de objeto no Rancher"
+                blank=True,
+                max_length=100,
+                verbose_name="tipo de objeto no Rancher",
             ),
         ),
     ]

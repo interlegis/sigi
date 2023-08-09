@@ -6,55 +6,99 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('convenios', '0031_alter_projeto_modelo_minuta_and_more'),
-        ('ocorrencias', '0008_remove_categoria_setor_responsavel'),
+        ("convenios", "0031_alter_projeto_modelo_minuta_and_more"),
+        ("ocorrencias", "0008_remove_categoria_setor_responsavel"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='comentario',
-            options={'ordering': ['-data_criacao'], 'verbose_name': 'comentário', 'verbose_name_plural': 'comentários'},
+            name="comentario",
+            options={
+                "ordering": ["-data_criacao"],
+                "verbose_name": "comentário",
+                "verbose_name_plural": "comentários",
+            },
         ),
         migrations.AddField(
-            model_name='categoria',
-            name='projeto',
-            field=models.ForeignKey(blank=True, limit_choices_to=models.Q(models.Q(('texto_oficio', ''), _negated=True), models.Q(('modelo_minuta', ''), _negated=True)), null=True, on_delete=django.db.models.deletion.PROTECT, to='convenios.projeto', verbose_name='projeto'),
+            model_name="categoria",
+            name="projeto",
+            field=models.ForeignKey(
+                blank=True,
+                limit_choices_to=models.Q(
+                    models.Q(("texto_oficio", ""), _negated=True),
+                    models.Q(("modelo_minuta", ""), _negated=True),
+                ),
+                null=True,
+                on_delete=django.db.models.deletion.PROTECT,
+                to="convenios.projeto",
+                verbose_name="projeto",
+            ),
         ),
         migrations.AddField(
-            model_name='categoria',
-            name='tipo',
-            field=models.CharField(choices=[('C', 'Solicitação de convênio (ACT)'), ('O', 'Outras')], default='O', max_length=1, verbose_name='Tipo de solicitação'),
+            model_name="categoria",
+            name="tipo",
+            field=models.CharField(
+                choices=[
+                    ("C", "Solicitação de convênio (ACT)"),
+                    ("O", "Outras"),
+                ],
+                default="O",
+                max_length=1,
+                verbose_name="Tipo de solicitação",
+            ),
         ),
         migrations.AddField(
-            model_name='comentario',
-            name='interno',
-            field=models.BooleanField(default=False, verbose_name='Comentário interno'),
+            model_name="comentario",
+            name="interno",
+            field=models.BooleanField(
+                default=False, verbose_name="Comentário interno"
+            ),
         ),
         migrations.AddField(
-            model_name='ocorrencia',
-            name='casa_brasao',
-            field=models.ImageField(blank=True, null=True, upload_to='ocorrencias/img/', verbose_name='brasão da casa'),
+            model_name="ocorrencia",
+            name="casa_brasao",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                upload_to="ocorrencias/img/",
+                verbose_name="brasão da casa",
+            ),
         ),
         migrations.AddField(
-            model_name='ocorrencia',
-            name='casa_foto',
-            field=models.ImageField(blank=True, editable=False, null=True, upload_to='ocorrencias/img/', verbose_name='foto da Casa'),
+            model_name="ocorrencia",
+            name="casa_foto",
+            field=models.ImageField(
+                blank=True,
+                editable=False,
+                null=True,
+                upload_to="ocorrencias/img/",
+                verbose_name="foto da Casa",
+            ),
         ),
         migrations.AddField(
-            model_name='ocorrencia',
-            name='infos',
-            field=models.JSONField(blank=True, editable=False, encoder=django.core.serializers.json.DjangoJSONEncoder, null=True, verbose_name='dados estruturados'),
+            model_name="ocorrencia",
+            name="infos",
+            field=models.JSONField(
+                blank=True,
+                editable=False,
+                encoder=django.core.serializers.json.DjangoJSONEncoder,
+                null=True,
+                verbose_name="dados estruturados",
+            ),
         ),
         migrations.AddField(
-            model_name='ocorrencia',
-            name='processo_sigad',
-            field=models.CharField(blank=True, max_length=20, verbose_name='Nº processo SIGAD'),
+            model_name="ocorrencia",
+            name="processo_sigad",
+            field=models.CharField(
+                blank=True, max_length=20, verbose_name="Nº processo SIGAD"
+            ),
         ),
         migrations.AddField(
-            model_name='tipocontato',
-            name='ind_site',
-            field=models.BooleanField(default=False, verbose_name='Contato pelo SIGI'),
+            model_name="tipocontato",
+            name="ind_site",
+            field=models.BooleanField(
+                default=False, verbose_name="Contato pelo SIGI"
+            ),
         ),
     ]

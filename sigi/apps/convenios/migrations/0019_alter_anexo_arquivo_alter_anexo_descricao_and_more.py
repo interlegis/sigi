@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("convenios", "0018_auto_20211208_1256"),
     ]
@@ -126,7 +125,10 @@ class Migration(migrations.Migration):
             model_name="tramitacao",
             name="observacao",
             field=models.CharField(
-                blank=True, max_length=512, null=True, verbose_name="observação"
+                blank=True,
+                max_length=512,
+                null=True,
+                verbose_name="observação",
             ),
         ),
         migrations.AlterField(

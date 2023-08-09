@@ -184,7 +184,9 @@ class PlanoDiretor(models.Model):
     status = models.CharField(
         _("Status"), max_length=1, choices=STATUS_CHOICE, default="E"
     )
-    data_entrega = models.DateField(_("Data de entrega"), blank=True, null=True)
+    data_entrega = models.DateField(
+        _("Data de entrega"), blank=True, null=True
+    )
     data_implantacao = models.DateField(
         _("Data de implantação"), blank=True, null=True
     )

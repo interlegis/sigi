@@ -4,14 +4,16 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parlamentares', '0006_alter_partido_sigla'),
+        ("parlamentares", "0006_alter_partido_sigla"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='parlamentar',
-            options={'ordering': ('presidente', 'nome_completo'), 'verbose_name_plural': 'parlamentares'},
+            name="parlamentar",
+            options={
+                "ordering": ("presidente", "nome_completo"),
+                "verbose_name_plural": "parlamentares",
+            },
         ),
     ]

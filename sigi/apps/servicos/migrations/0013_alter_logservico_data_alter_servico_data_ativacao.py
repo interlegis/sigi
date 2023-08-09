@@ -5,20 +5,25 @@ import django.utils.timezone
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('servicos', '0012_servico_data_verificacao_and_more'),
+        ("servicos", "0012_servico_data_verificacao_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='logservico',
-            name='data',
-            field=models.DateField(default=django.utils.timezone.localdate, verbose_name='Data da ação'),
+            model_name="logservico",
+            name="data",
+            field=models.DateField(
+                default=django.utils.timezone.localdate,
+                verbose_name="Data da ação",
+            ),
         ),
         migrations.AlterField(
-            model_name='servico',
-            name='data_ativacao',
-            field=models.DateField(default=django.utils.timezone.localdate, verbose_name='Data de ativação'),
+            model_name="servico",
+            name="data_ativacao",
+            field=models.DateField(
+                default=django.utils.timezone.localdate,
+                verbose_name="Data de ativação",
+            ),
         ),
     ]

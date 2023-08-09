@@ -5,15 +5,19 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('eventos', '0019_alter_evento_status'),
+        ("eventos", "0019_alter_evento_status"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='anexo',
-            name='convite',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, to='eventos.convite'),
+            model_name="anexo",
+            name="convite",
+            field=models.ForeignKey(
+                blank=True,
+                null=True,
+                on_delete=django.db.models.deletion.SET_NULL,
+                to="eventos.convite",
+            ),
         ),
     ]

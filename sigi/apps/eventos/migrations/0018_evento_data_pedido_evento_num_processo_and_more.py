@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0017_alter_anexo_arquivo_alter_anexo_descricao_and_more"),
     ]

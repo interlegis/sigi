@@ -6,7 +6,6 @@ import tinymce.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0013_modelodeclaracao"),
     ]

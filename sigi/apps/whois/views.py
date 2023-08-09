@@ -89,7 +89,9 @@ def whois_query(request, dominio):
         resposta_dic["modified"] = unicode(s.data_alteracao)
         resposta_dic["tech-name"] = s.contato_tecnico.nome
         resposta_dic["tech-email"] = s.contato_tecnico.email
-        resposta_dic["tech-modified"] = unicode(s.contato_tecnico.ult_alteracao)
+        resposta_dic["tech-modified"] = unicode(
+            s.contato_tecnico.ult_alteracao
+        )
         resposta_dic["admin-name"] = s.contato_administrativo.nome
         resposta_dic["admin-email"] = s.contato_administrativo.email
         resposta_dic["admin-modified"] = unicode(

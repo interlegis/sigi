@@ -32,7 +32,9 @@ class UnidadeFederativa(models.Model):
         unique=True,
         help_text=_("Exemplo: <em>MG</em>."),
     )
-    regiao = models.CharField(_("região"), max_length=2, choices=REGIAO_CHOICES)
+    regiao = models.CharField(
+        _("região"), max_length=2, choices=REGIAO_CHOICES
+    )
     populacao = models.PositiveIntegerField(_("população"))
 
     class Meta:

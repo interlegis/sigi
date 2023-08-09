@@ -4,35 +4,47 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('eventos', '0023_cronograma_checklist'),
+        ("eventos", "0023_cronograma_checklist"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='evento',
-            name='banner',
-            field=models.ImageField(blank=True, null=True, upload_to='', verbose_name='banner do evento'),
+            model_name="evento",
+            name="banner",
+            field=models.ImageField(
+                blank=True,
+                null=True,
+                upload_to="",
+                verbose_name="banner do evento",
+            ),
         ),
         migrations.AddField(
-            model_name='evento',
-            name='contato',
-            field=models.CharField(blank=True, max_length=100, verbose_name='contato'),
+            model_name="evento",
+            name="contato",
+            field=models.CharField(
+                blank=True, max_length=100, verbose_name="contato"
+            ),
         ),
         migrations.AddField(
-            model_name='evento',
-            name='link_inscricao',
-            field=models.URLField(blank=True, verbose_name='link de inscrição'),
+            model_name="evento",
+            name="link_inscricao",
+            field=models.URLField(
+                blank=True, verbose_name="link de inscrição"
+            ),
         ),
         migrations.AddField(
-            model_name='evento',
-            name='publicar',
-            field=models.BooleanField(default=False, verbose_name='publicar no site'),
+            model_name="evento",
+            name="publicar",
+            field=models.BooleanField(
+                default=False, verbose_name="publicar no site"
+            ),
         ),
         migrations.AddField(
-            model_name='evento',
-            name='telefone',
-            field=models.CharField(blank=True, max_length=30, verbose_name='tefone de contato'),
+            model_name="evento",
+            name="telefone",
+            field=models.CharField(
+                blank=True, max_length=30, verbose_name="tefone de contato"
+            ),
         ),
     ]

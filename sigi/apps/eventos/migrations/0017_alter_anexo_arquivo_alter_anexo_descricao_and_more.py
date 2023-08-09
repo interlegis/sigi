@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0008_alter_servico_id_alter_servidor_foto_and_more"),
         ("eventos", "0016_merge"),

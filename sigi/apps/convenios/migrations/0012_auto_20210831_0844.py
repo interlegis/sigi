@@ -29,7 +29,6 @@ def migra_data_termino_vigencia(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("convenios", "0011_convenio_data_termino_vigencia"),
     ]

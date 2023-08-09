@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0001_initial"),
         ("servidores", "0001_initial"),
@@ -35,7 +34,8 @@ class Migration(migrations.Migration):
                 (
                     "descricao",
                     models.CharField(
-                        max_length="70", verbose_name="descri\xe7\xe3o do anexo"
+                        max_length="70",
+                        verbose_name="descri\xe7\xe3o do anexo",
                     ),
                 ),
                 (

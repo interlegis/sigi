@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0001_initial"),
         ("contatos", "0001_initial"),
@@ -228,7 +227,10 @@ class Migration(migrations.Migration):
                         primary_key=True,
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, verbose_name="Nome")),
+                (
+                    "nome",
+                    models.CharField(max_length=100, verbose_name="Nome"),
+                ),
             ],
             options={
                 "ordering": ("nome",),

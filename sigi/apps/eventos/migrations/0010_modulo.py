@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0007_auto_20210430_0735"),
         ("eventos", "0009_tipoevento_categoria"),
@@ -25,7 +24,10 @@ class Migration(migrations.Migration):
                         primary_key=True,
                     ),
                 ),
-                ("nome", models.CharField(max_length=100, verbose_name="Nome")),
+                (
+                    "nome",
+                    models.CharField(max_length=100, verbose_name="Nome"),
+                ),
                 (
                     "descricao",
                     models.TextField(

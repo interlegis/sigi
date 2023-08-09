@@ -16,7 +16,6 @@ def pdf_text(res):
 
 
 class SigiDataFixture(SequentialDataFixture):
-
     alphabet = string.ascii_uppercase
 
     def __init__(self):

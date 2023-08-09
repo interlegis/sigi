@@ -80,7 +80,9 @@ class EventoResource(ValueLabeledResource):
         export_order = fields
 
     def dehydrate_tipo_evento__categoria(self, obj):
-        return dict(TipoEvento.CATEGORIA_CHOICES)[obj["tipo_evento__categoria"]]
+        return dict(TipoEvento.CATEGORIA_CHOICES)[
+            obj["tipo_evento__categoria"]
+        ]
 
     def dehydrate_virtual(self, obj):
         return "Sim" if obj["virtual"] else "Não"
@@ -356,16 +358,23 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             evento.cronograma_set.order_by("data_prevista_inicio")
         )
         if not cronograma:
-            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um gráfico de Gant"), messages.ERROR)
+            self.message_user(
+                request,
+                _(
+                    "Não há um cronograma definido para a realização deste evento. Impossível gerar um gráfico de Gant"
+                ),
+                messages.ERROR,
+            )
             return redirect(change_url)
-        
+
         inicio = min(
             cronograma[0].data_prevista_inicio,
             cronograma[0].data_inicio or cronograma[0].data_prevista_inicio,
         )
         termino = max(
             cronograma[-1].data_prevista_termino,
-            cronograma[-1].data_termino or cronograma[-1].data_prevista_termino,
+            cronograma[-1].data_termino
+            or cronograma[-1].data_prevista_termino,
         )
         datas = [
             inicio + datetime.timedelta(days=x)
@@ -399,7 +408,13 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             evento.cronograma_set.order_by("data_prevista_inicio")
         )
         if not cronograma:
-            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um checklist"), messages.ERROR)
+            self.message_user(
+                request,
+                _(
+                    "Não há um cronograma definido para a realização deste evento. Impossível gerar um checklist"
+                ),
+                messages.ERROR,
+            )
             return redirect(change_url)
 
         context = {"cronograma": cronograma, "title": evento.nome}
@@ -424,7 +439,13 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             evento.cronograma_set.order_by("data_prevista_inicio")
         )
         if not cronograma:
-            self.message_user(request, _("Não há um cronograma definido para a realização deste evento. Impossível gerar um plano de comunicação"), messages.ERROR)
+            self.message_user(
+                request,
+                _(
+                    "Não há um cronograma definido para a realização deste evento. Impossível gerar um plano de comunicação"
+                ),
+                messages.ERROR,
+            )
             return redirect(change_url)
 
         matrix = {}
@@ -616,7 +637,8 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
         try:
             inscritos = mws.post(
-                "core_enrol_get_enrolled_users", courseid=evento.moodle_courseid
+                "core_enrol_get_enrolled_users",
+                courseid=evento.moodle_courseid,
             )
         except Exception as e:
             self.message_user(

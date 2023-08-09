@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0004_remove_evento_curso_moodle_id"),
         ("casas", "0014_auto_20210406_1945"),

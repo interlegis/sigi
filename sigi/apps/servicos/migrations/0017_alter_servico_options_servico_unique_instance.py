@@ -4,9 +4,11 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("servicos", "0016_prepare_unique_tipo_servico_instancia_data_desativacao"),
+        (
+            "servicos",
+            "0016_prepare_unique_tipo_servico_instancia_data_desativacao",
+        ),
     ]
 
     operations = [

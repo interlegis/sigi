@@ -4,15 +4,20 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('casas', '0024_delete_presidente'),
+        ("casas", "0024_delete_presidente"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orgao',
-            name='telefone_geral',
-            field=models.CharField(blank=True, default='', help_text='Exemplo: <em>(31)8851-9898</em>.', max_length=64, verbose_name='telefone geral'),
+            model_name="orgao",
+            name="telefone_geral",
+            field=models.CharField(
+                blank=True,
+                default="",
+                help_text="Exemplo: <em>(31)8851-9898</em>.",
+                max_length=64,
+                verbose_name="telefone geral",
+            ),
         ),
     ]

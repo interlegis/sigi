@@ -7,7 +7,6 @@ import eav.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("diagnosticos", "0001_initial"),
     ]

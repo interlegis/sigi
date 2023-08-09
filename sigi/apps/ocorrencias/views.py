@@ -148,7 +148,9 @@ class PainelOcorrenciaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
             if filter.data.get("servidor"):
                 servidor = Servidor.objects.get(id=filter.data.get("servidor"))
                 subts.append(
-                    _(f"Registradas ou comentadas por {servidor.get_apelido()}")
+                    _(
+                        f"Registradas ou comentadas por {servidor.get_apelido()}"
+                    )
                 )
             if filter.data.get("tipo_categoria"):
                 tipo = dict(Categoria.TIPO_CHOICES)[

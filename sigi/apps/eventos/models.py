@@ -32,7 +32,9 @@ class TipoEvento(models.Model):
     categoria = models.CharField(
         _("Categoria"), max_length=1, choices=CATEGORIA_CHOICES
     )
-    casa_solicita = models.BooleanField(_("casa pode solicitar"), default=False)
+    casa_solicita = models.BooleanField(
+        _("casa pode solicitar"), default=False
+    )
     moodle_template_courseid = models.PositiveBigIntegerField(
         _("Curso protótipo"),
         blank=True,
@@ -161,7 +163,9 @@ class Evento(models.Model):
             "dos participantes naquela aba."
         ),
     )
-    status = models.CharField(_("Status"), max_length=1, choices=STATUS_CHOICES)
+    status = models.CharField(
+        _("Status"), max_length=1, choices=STATUS_CHOICES
+    )
     publicar = models.BooleanField(_("publicar no site"), default=False)
     moodle_courseid = models.PositiveBigIntegerField(
         _("ID do curso"),
@@ -569,7 +573,9 @@ class Cronograma(models.Model):
         _("data prevista de término"), blank=True, null=True
     )
     data_inicio = models.DateField(_("data de início"), blank=True, null=True)
-    data_termino = models.DateField(_("data de término"), blank=True, null=True)
+    data_termino = models.DateField(
+        _("data de término"), blank=True, null=True
+    )
     dependencia = models.CharField(
         _("depende da etapa"),
         max_length=200,

@@ -127,7 +127,9 @@ class DiagnosticoAdmin(BaseEntityAdmin):
             perguntas_by_title = [
                 (p.title, p.name) for p in categoria.perguntas.all()
             ]
-            perguntas = [pergunta[1] for pergunta in sorted(perguntas_by_title)]
+            perguntas = [
+                pergunta[1] for pergunta in sorted(perguntas_by_title)
+            ]
 
             eav_fieldsets += (
                 (

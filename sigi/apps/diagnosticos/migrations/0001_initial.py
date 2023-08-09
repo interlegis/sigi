@@ -8,7 +8,6 @@ import sigi.apps.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0001_initial"),
         ("contenttypes", "0001_initial"),
@@ -235,7 +234,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "required",
-                    models.BooleanField(default=False, verbose_name="required"),
+                    models.BooleanField(
+                        default=False, verbose_name="required"
+                    ),
                 ),
                 (
                     "searched",

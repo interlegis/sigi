@@ -4,15 +4,19 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ("eventos", "0024_evento_banner_evento_contato_evento_link_inscricao_and_more"),
+        (
+            "eventos",
+            "0024_evento_banner_evento_contato_evento_link_inscricao_and_more",
+        ),
     ]
 
     operations = [
         migrations.AddField(
             model_name="evento",
             name="turma",
-            field=models.CharField(blank=True, max_length=100, verbose_name="turma"),
+            field=models.CharField(
+                blank=True, max_length=100, verbose_name="turma"
+            ),
         ),
     ]

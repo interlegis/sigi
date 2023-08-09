@@ -6,7 +6,6 @@ from django.conf import settings
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0005_auto_20210423_0904"),
     ]

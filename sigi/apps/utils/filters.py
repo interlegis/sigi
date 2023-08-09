@@ -46,7 +46,9 @@ class EmptyFilter(admin.FieldListFilter):
                 f"Field {field.name} cannot be empty nor null"
             )
 
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
 
     def lookups(self):
         return (
@@ -110,7 +112,9 @@ class RangeFilter(admin.FieldListFilter):
         self.model_admin = model_admin
         self.parameter_name = f"{field_path}__range"
 
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
 
         if self.parameter_name in params:
             value = params.pop(self.parameter_name)
@@ -227,7 +231,9 @@ class DateRangeFilter(admin.FieldListFilter):
         self.model_admin = model_admin
         self.lookup_kwargs = [f"{field_path}__gte", f"{field_path}__lte"]
 
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
 
         form = self.get_date_form(self.used_parameters)
         if form.is_valid():

@@ -6,7 +6,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -15,39 +14,127 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Cards',
+            name="Cards",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('codigo', models.CharField(max_length=20, verbose_name='código')),
-                ('tipo', models.CharField(choices=[('T', 'Tabela de dados'), ('C', 'Gráfico')], max_length=1, verbose_name='tipo')),
-                ('nome_url', models.CharField(max_length=30, verbose_name='nome da URL de dados')),
-                ('query_string', models.CharField(blank=True, max_length=100, verbose_name='query string')),
-                ('link_acao', models.BooleanField(default=False, verbose_name='possui link de ação')),
-                ('titulo', models.CharField(max_length=100, verbose_name='título')),
-                ('descricao', models.TextField(verbose_name='descrição')),
-                ('categoria', models.CharField(default='Geral', max_length=40, verbose_name='categoria')),
-                ('ordem', models.PositiveSmallIntegerField(default=0, verbose_name='posição na categoria')),
-                ('default', models.BooleanField(default=False, help_text='Indica se este card deve ser mostrado para usuários anônimos ou que não personalizaram seu dashboard', verbose_name='card padrão')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "codigo",
+                    models.CharField(max_length=20, verbose_name="código"),
+                ),
+                (
+                    "tipo",
+                    models.CharField(
+                        choices=[("T", "Tabela de dados"), ("C", "Gráfico")],
+                        max_length=1,
+                        verbose_name="tipo",
+                    ),
+                ),
+                (
+                    "nome_url",
+                    models.CharField(
+                        max_length=30, verbose_name="nome da URL de dados"
+                    ),
+                ),
+                (
+                    "query_string",
+                    models.CharField(
+                        blank=True, max_length=100, verbose_name="query string"
+                    ),
+                ),
+                (
+                    "link_acao",
+                    models.BooleanField(
+                        default=False, verbose_name="possui link de ação"
+                    ),
+                ),
+                (
+                    "titulo",
+                    models.CharField(max_length=100, verbose_name="título"),
+                ),
+                ("descricao", models.TextField(verbose_name="descrição")),
+                (
+                    "categoria",
+                    models.CharField(
+                        default="Geral",
+                        max_length=40,
+                        verbose_name="categoria",
+                    ),
+                ),
+                (
+                    "ordem",
+                    models.PositiveSmallIntegerField(
+                        default=0, verbose_name="posição na categoria"
+                    ),
+                ),
+                (
+                    "default",
+                    models.BooleanField(
+                        default=False,
+                        help_text="Indica se este card deve ser mostrado para usuários anônimos ou que não personalizaram seu dashboard",
+                        verbose_name="card padrão",
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'card',
-                'verbose_name_plural': 'cards',
-                'ordering': ('categoria', 'ordem', 'titulo'),
+                "verbose_name": "card",
+                "verbose_name_plural": "cards",
+                "ordering": ("categoria", "ordem", "titulo"),
             },
         ),
         migrations.CreateModel(
-            name='Dashboard',
+            name="Dashboard",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('categoria', models.CharField(blank=True, help_text='Deixando em branco será utilizada a categoria padrão do card', max_length=40, verbose_name='categoria personalizada')),
-                ('ordem', models.PositiveSmallIntegerField(default=0, verbose_name='posição na categoria')),
-                ('card', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='home.cards')),
-                ('usuario', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                (
+                    "categoria",
+                    models.CharField(
+                        blank=True,
+                        help_text="Deixando em branco será utilizada a categoria padrão do card",
+                        max_length=40,
+                        verbose_name="categoria personalizada",
+                    ),
+                ),
+                (
+                    "ordem",
+                    models.PositiveSmallIntegerField(
+                        default=0, verbose_name="posição na categoria"
+                    ),
+                ),
+                (
+                    "card",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to="home.cards",
+                    ),
+                ),
+                (
+                    "usuario",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'verbose_name': 'dashboard',
-                'verbose_name_plural': 'dashboards',
-                'ordering': ('usuario', 'categoria', 'ordem'),
+                "verbose_name": "dashboard",
+                "verbose_name_plural": "dashboards",
+                "ordering": ("usuario", "categoria", "ordem"),
             },
         ),
     ]

@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0018_evento_data_pedido_evento_num_processo_and_more"),
     ]

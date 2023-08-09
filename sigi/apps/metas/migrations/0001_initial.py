@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0001_initial"),
         ("convenios", "0001_initial"),
@@ -32,7 +31,10 @@ class Migration(migrations.Migration):
                         verbose_name="T\xedtulo",
                     ),
                 ),
-                ("descricao", models.TextField(verbose_name="Descri\xe7\xe3o")),
+                (
+                    "descricao",
+                    models.TextField(verbose_name="Descri\xe7\xe3o"),
+                ),
                 (
                     "data_inicio",
                     models.DateField(

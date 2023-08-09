@@ -6,7 +6,6 @@ import tinymce.models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0012_auto_20211117_0657"),
     ]

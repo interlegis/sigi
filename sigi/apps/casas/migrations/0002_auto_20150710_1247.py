@@ -4,7 +4,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0001_initial"),
         ("casas", "0001_initial"),

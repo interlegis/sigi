@@ -36,7 +36,9 @@ def pdf_renderer(template, context, filename="report.pdf"):
     pdf = pisa.CreatePDF(html, dest=response, link_callback=fetch_resources)
 
     if pdf.err:
-        return HttpResponse(_("We had some errors<pre>%s</pre>") % escape(html))
+        return HttpResponse(
+            _("We had some errors<pre>%s</pre>") % escape(html)
+        )
     return response
 
 

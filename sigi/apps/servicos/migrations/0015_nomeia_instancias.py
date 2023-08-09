@@ -17,7 +17,6 @@ def instance_names_rw(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0014_servico_instancia_servico_versao_and_more"),
     ]

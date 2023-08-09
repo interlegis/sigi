@@ -24,7 +24,6 @@ def forwards_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0011_add_servidor_sigi"),
     ]

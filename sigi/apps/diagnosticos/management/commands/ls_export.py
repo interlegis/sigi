@@ -25,7 +25,8 @@ class Command(BaseCommand):
         )
 
         setores = [
-            (i + 1, s[0], s[1]) for i, s in enumerate(Funcionario.SETOR_CHOICES)
+            (i + 1, s[0], s[1])
+            for i, s in enumerate(Funcionario.SETOR_CHOICES)
         ]
 
         if len(args) < 2:

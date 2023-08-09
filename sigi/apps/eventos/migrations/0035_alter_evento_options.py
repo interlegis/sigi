@@ -5,7 +5,10 @@ from django.db import migrations
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("eventos", "0034_funcao_moodle_roleid_tipoevento_moodle_categoryid_and_more"),
+        (
+            "eventos",
+            "0034_funcao_moodle_roleid_tipoevento_moodle_categoryid_and_more",
+        ),
     ]
 
     operations = [
@@ -14,7 +17,10 @@ class Migration(migrations.Migration):
             options={
                 "ordering": ("-data_inicio",),
                 "permissions": [
-                    ("createcourse_evento", "Can create courses in Saberes platform")
+                    (
+                        "createcourse_evento",
+                        "Can create courses in Saberes platform",
+                    )
                 ],
                 "verbose_name": "Evento",
                 "verbose_name_plural": "Eventos",

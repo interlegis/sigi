@@ -5,37 +5,58 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('servicos', '0009_alter_casamanifesta_email_alter_casamanifesta_id_and_more'),
+        (
+            "servicos",
+            "0009_alter_casamanifesta_email_alter_casamanifesta_id_and_more",
+        ),
     ]
 
     operations = [
         migrations.DeleteModel(
-            name='CasaAtendida',
+            name="CasaAtendida",
         ),
         migrations.AlterModelOptions(
-            name='tiposervico',
-            options={'verbose_name': 'tipo de serviço', 'verbose_name_plural': 'tipos de serviço'},
+            name="tiposervico",
+            options={
+                "verbose_name": "tipo de serviço",
+                "verbose_name_plural": "tipos de serviço",
+            },
         ),
         migrations.AlterField(
-            model_name='servico',
-            name='tipo_servico',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='servicos.tiposervico', verbose_name='tipo de serviço'),
+            model_name="servico",
+            name="tipo_servico",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                to="servicos.tiposervico",
+                verbose_name="tipo de serviço",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='template_email_altera',
-            field=models.TextField(blank=True, help_text='Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço', verbose_name='template de email de alteração'),
+            model_name="tiposervico",
+            name="template_email_altera",
+            field=models.TextField(
+                blank=True,
+                help_text="Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço",
+                verbose_name="template de email de alteração",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='template_email_ativa',
-            field=models.TextField(blank=True, help_text='Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço', verbose_name='template de email de ativação'),
+            model_name="tiposervico",
+            name="template_email_ativa",
+            field=models.TextField(
+                blank=True,
+                help_text="Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço",
+                verbose_name="template de email de ativação",
+            ),
         ),
         migrations.AlterField(
-            model_name='tiposervico',
-            name='template_email_desativa',
-            field=models.TextField(blank=True, help_text='Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço<br/>{motivo} para incluir o motivo da desativação do serviço', verbose_name='template de email de desativação'),
+            model_name="tiposervico",
+            name="template_email_desativa",
+            field=models.TextField(
+                blank=True,
+                help_text="Use:<br/>\n                        {url} para incluir a URL do serviço,<br/>\n                        {senha} para incluir a senha inicial do serviço<br/>{motivo} para incluir o motivo da desativação do serviço",
+                verbose_name="template de email de desativação",
+            ),
         ),
     ]

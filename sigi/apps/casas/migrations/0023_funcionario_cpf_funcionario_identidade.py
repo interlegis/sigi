@@ -4,20 +4,26 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('casas', '0022_orgao_brasao_orgao_brasao_altura_and_more'),
+        ("casas", "0022_orgao_brasao_orgao_brasao_altura_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='funcionario',
-            name='cpf',
-            field=models.CharField(blank=True, max_length=20, verbose_name='CPF'),
+            model_name="funcionario",
+            name="cpf",
+            field=models.CharField(
+                blank=True, max_length=20, verbose_name="CPF"
+            ),
         ),
         migrations.AddField(
-            model_name='funcionario',
-            name='identidade',
-            field=models.CharField(blank=True, help_text='Informe o RG e o órgão emissor.', max_length=30, verbose_name='Identidade (RG)'),
+            model_name="funcionario",
+            name="identidade",
+            field=models.CharField(
+                blank=True,
+                help_text="Informe o RG e o órgão emissor.",
+                max_length=30,
+                verbose_name="Identidade (RG)",
+            ),
         ),
     ]

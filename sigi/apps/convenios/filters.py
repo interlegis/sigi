@@ -7,7 +7,9 @@ class TipoProjetoFilter(admin.FieldListFilter):
     parameter_name = "convenio"
 
     def __init__(self, field, request, params, model, model_admin, field_path):
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
 
         self.lookup_choices = self.lookups(request, model_admin)
         if self.lookup_choices is None:
@@ -61,7 +63,9 @@ class ExcluirTipoProjetoFilter(admin.FieldListFilter):
     parameter_name = "excluir_convenio"
 
     def __init__(self, field, request, params, model, model_admin, field_path):
-        super().__init__(field, request, params, model, model_admin, field_path)
+        super().__init__(
+            field, request, params, model, model_admin, field_path
+        )
         self.title = _(f"Excluir {self.title}")
 
         self.lookup_choices = self.lookups(request, model_admin)

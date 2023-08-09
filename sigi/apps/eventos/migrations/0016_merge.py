@@ -5,7 +5,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0004_auto_20160719_0920"),
         ("eventos", "0015_anexo"),

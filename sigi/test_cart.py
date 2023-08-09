@@ -31,7 +31,6 @@ from sigi.testutils import pdf_text
 def test_add_to_cart(
     url, some_entries, form_action, name_attr, verbose_name_plural, app
 ):
-
     a, b, c = some_entries()
 
     res = app.get(url)
@@ -77,7 +76,6 @@ def test_add_to_cart(
 def test_no_selection_brings_everyone_to_the_cart(
     url, some_entries, all_expression, app
 ):
-
     some_entries()
 
     res = app.get(url + "carrinho/")

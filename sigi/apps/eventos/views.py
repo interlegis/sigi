@@ -65,13 +65,17 @@ def calendario(request):
     eventos = (
         Evento.objects.exclude(data_inicio=None)
         .exclude(data_termino=None)
-        .filter(data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa)
+        .filter(
+            data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
+        )
     )
 
     context = {}
 
     if formato == "cal" or pdf:
-        semanas = calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)
+        semanas = calendar.Calendar().monthdatescalendar(
+            ano_pesquisa, mes_pesquisa
+        )
         for semana in semanas:
             for dia in semana:
                 if dia.month == mes_pesquisa:
@@ -80,7 +84,9 @@ def calendario(request):
                         [
                             e
                             for e in eventos
-                            if e.data_inicio.day <= dia.day <= e.data_termino.day
+                            if e.data_inicio.day
+                            <= dia.day
+                            <= e.data_termino.day
                         ],
                     )
                 else:
@@ -124,9 +130,9 @@ class EventoListView(ListView):
 
     def get_queryset(self):
         queryset = super().get_queryset()
-        return queryset.filter(status=Evento.STATUS_CONFIRMADO, publicar=True).order_by(
-            "data_inicio"
-        )
+        return queryset.filter(
+            status=Evento.STATUS_CONFIRMADO, publicar=True
+        ).order_by("data_inicio")
 
     @xframe_options_exempt
     def get(self, request, *args, **kwargs):
@@ -152,20 +158,23 @@ def alocacao_equipe(request):
     if mes_pesquisa > 0:
         semanas = [
             [s[0], s[-1]]
-            for s in calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)
+            for s in calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )
         ]
         num_cols = len(semanas)
         if semana_pesquisa > 0:
-            dias = calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)[
-                semana_pesquisa - 1
-            ]
+            dias = calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )[semana_pesquisa - 1]
             num_cols = len(dias)
             eventos = eventos.filter(
                 data_inicio__gte=dias[0], data_inicio__lte=dias[-1]
             )
         else:
             eventos = eventos.filter(
-                data_inicio__gte=semanas[0][0], data_inicio__lte=semanas[-1][-1]
+                data_inicio__gte=semanas[0][0],
+                data_inicio__lte=semanas[-1][-1],
             )
     else:
         eventos = eventos.filter(data_inicio__year=ano_pesquisa)
@@ -227,7 +236,9 @@ def alocacao_equipe(request):
     linhas = []
 
     if semana_pesquisa:
-        linhas = [[registro[1]] + list(registro[2].values()) for registro in dados]
+        linhas = [
+            [registro[1]] + list(registro[2].values()) for registro in dados
+        ]
     else:
         for r in dados:
             r[2].append(
@@ -277,7 +288,10 @@ def alocacao_equipe(request):
         else:
             cabecalho = (
                 [_("Servidor")]
-                + [_(f"de {inicio:%d/%m} a {fim:%d/%m}") for inicio, fim in semanas]
+                + [
+                    _(f"de {inicio:%d/%m} a {fim:%d/%m}")
+                    for inicio, fim in semanas
+                ]
                 + ["total"]
             )
     else:

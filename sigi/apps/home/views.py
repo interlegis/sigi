@@ -126,7 +126,8 @@ class HomeView(LoginRequiredMixin, TemplateView):
             "id", self.request.session.get("casa_id", None)
         )
         casas = {
-            c.id: c for c in Orgao.objects.filter(funcionario__email=user.email)
+            c.id: c
+            for c in Orgao.objects.filter(funcionario__email=user.email)
         }
         if casa_id and int(casa_id) in casas:
             casa = casas[int(casa_id)]
@@ -172,7 +173,9 @@ def openmap(request):
             for s, n in UnidadeFederativa.REGIAO_CHOICES
         ]
         context["pre_tipos_orgao"] = request.GET.getlist("tipo_orgao", None)
-        context["pre_tipos_servico"] = request.GET.getlist("tipo_servico", None)
+        context["pre_tipos_servico"] = request.GET.getlist(
+            "tipo_servico", None
+        )
         context["pre_tipos_convenio"] = request.GET.getlist(
             "tipo_convenio", None
         )
@@ -616,7 +619,8 @@ def chart_seit(request):
         },
         "data": {
             "labels": [
-                f"{mes: %m/%Y}" for mes in reversed(tabela_resumo_seit["meses"])
+                f"{mes: %m/%Y}"
+                for mes in reversed(tabela_resumo_seit["meses"])
             ],
             "datasets": [
                 {
@@ -737,7 +741,8 @@ def chart_atualizacao_servicos(request):
                     "type": "bar",
                     "label": ts.sigla,
                     "data": [
-                        getattr(ts, slugify(label)) for label, *__ in intervalos
+                        getattr(ts, slugify(label))
+                        for label, *__ in intervalos
                     ],
                     "backgroundColor": getcolor(ts.nome),
                 }
@@ -1090,7 +1095,9 @@ def report_sem_convenio(request):
 
     if fmt == "csv":
         response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = f"attachment; filename={ titulo }.csv"
+        response[
+            "Content-Disposition"
+        ] = f"attachment; filename={ titulo }.csv"
         writer = csv.writer(response)
         writer.writerow([titulo])
         writer.writerow([""])
@@ -1146,8 +1153,12 @@ def report_sem_convenio(request):
 
 def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
     camaras = Orgao.objects.filter(tipo__sigla__in=tipos)
-    convenios = Convenio.objects.filter(casa_legislativa__tipo__sigla__in=tipos)
-    convenios_vigentes = convenios.exclude(data_retorno_assinatura=None).filter(
+    convenios = Convenio.objects.filter(
+        casa_legislativa__tipo__sigla__in=tipos
+    )
+    convenios_vigentes = convenios.exclude(
+        data_retorno_assinatura=None
+    ).filter(
         Q(data_termino_vigencia__gte=timezone.localdate())
         | Q(data_termino_vigencia=None)
     )
@@ -1377,7 +1388,9 @@ def ChartDownloadResponse(chart, chart_type, subtype=None, file_name="chart"):
         )
         col += 1
     if subtype:
-        workchart = workbook.add_chart({"type": chart_type, "subtype": subtype})
+        workchart = workbook.add_chart(
+            {"type": chart_type, "subtype": subtype}
+        )
     else:
         workchart = workbook.add_chart({"type": chart_type})
     for name, values in intervals:

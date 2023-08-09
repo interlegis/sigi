@@ -88,7 +88,10 @@ def resumo_carteira(casas):
         else:
             dados_ocorrencia["registradas"][regiao] += quantidade
             dados_ocorrencia["registradas"]["total"] += quantidade
-            if status in [Ocorrencia.STATUS_ABERTO, Ocorrencia.STATUS_REABERTO]:
+            if status in [
+                Ocorrencia.STATUS_ABERTO,
+                Ocorrencia.STATUS_REABERTO,
+            ]:
                 dados_ocorrencia["pendentes"][regiao] += quantidade
                 dados_ocorrencia["pendentes"]["total"] += quantidade
 

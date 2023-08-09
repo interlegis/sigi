@@ -298,7 +298,10 @@ class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
         (None, {"fields": ("nome", "sexo", "data_nascimento")}),
         (_("Documentos"), {"fields": ("cpf", "identidade")}),
         (_("Contato"), {"fields": ("nota", "email", "redes_sociais")}),
-        (_("Endereço"), {"fields": ("endereco", "municipio", "bairro", "cep")}),
+        (
+            _("Endereço"),
+            {"fields": ("endereco", "municipio", "bairro", "cep")},
+        ),
         (
             _("Vínculo"),
             {

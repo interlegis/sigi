@@ -4,14 +4,19 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parlamentares', '0009_parlamentar_ano_eleicao_parlamentar_flag_importa_and_more'),
+        (
+            "parlamentares",
+            "0009_parlamentar_ano_eleicao_parlamentar_flag_importa_and_more",
+        ),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='parlamentar',
-            options={'ordering': ('status_mandato', 'presidente', 'nome_completo'), 'verbose_name_plural': 'parlamentares'},
+            name="parlamentar",
+            options={
+                "ordering": ("status_mandato", "presidente", "nome_completo"),
+                "verbose_name_plural": "parlamentares",
+            },
         ),
     ]

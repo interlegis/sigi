@@ -26,7 +26,6 @@ def reverse_migration(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servidores", "0010_servidor_sigi"),
     ]

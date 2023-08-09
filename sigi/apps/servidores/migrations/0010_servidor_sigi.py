@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('servidores', '0009_servidor_cargo'),
+        ("servidores", "0009_servidor_cargo"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='servidor',
-            name='sigi',
-            field=models.BooleanField(default=False, editable=False, verbose_name='Servidor SIGI'),
+            model_name="servidor",
+            name="sigi",
+            field=models.BooleanField(
+                default=False, editable=False, verbose_name="Servidor SIGI"
+            ),
         ),
     ]

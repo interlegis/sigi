@@ -144,7 +144,9 @@ class Command(BaseCommand):
             username = get_ldap_property(ldap_user, "sAMAccountName")
             if username:
                 email = get_ldap_property(ldap_user, "userPrincipalName", "")
-                first_name = get_ldap_property(ldap_user, "givenName", username)
+                first_name = get_ldap_property(
+                    ldap_user, "givenName", username
+                )
                 last_name = get_ldap_property(ldap_user, "sn", "")[:30]
                 try:
                     user = User.objects.get(username=username)

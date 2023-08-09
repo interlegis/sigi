@@ -38,7 +38,6 @@ def dominios_rw(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0018_servico_flag_confirmado"),
     ]

@@ -117,7 +117,6 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
         # Se determinada pergunta é da categoria pesquisada,
         # então, gere o campo no formulário.
         for schema in self.instance.get_schemata(int(category)):
-
             defaults = {
                 "label": schema.title,
                 "required": schema.required,
@@ -140,7 +139,9 @@ class DiagnosticoMobileForm(BaseDynamicEntityForm):
                         "queryset": schema.get_choices(),
                         "initial": choice.pk if choice else None,
                         # if schema is required remove --------- from ui
-                        "empty_label": None if schema.required else "---------",
+                        "empty_label": None
+                        if schema.required
+                        else "---------",
                     }
                 )
 
@@ -191,7 +192,9 @@ class OrgaoMobileForm(forms.ModelForm):
 
     def save(self, commit=True):
         super(OrgaoMobileForm, self).save(commit=True)
-        self.instance.municipio.data_criacao = self.cleaned_data["data_criacao"]
+        self.instance.municipio.data_criacao = self.cleaned_data[
+            "data_criacao"
+        ]
         if commit:
             self.instance.municipio.save()
         return self.instance

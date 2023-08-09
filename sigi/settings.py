@@ -95,7 +95,9 @@ EMAIL_USE_LOCALTIME = env("EMAIL_USE_LOCALTIME", bool, default=False)
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", bool, default=False)
 EMAIL_USE_SSL = env("EMAIL_USE_SSL", bool, default=False)
 EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=None)
-DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br")
+DEFAULT_FROM_EMAIL = env(
+    "DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br"
+)
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases

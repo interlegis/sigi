@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('parlamentares', '0005_remove_coligacao_legislatura_and_more'),
+        ("parlamentares", "0005_remove_coligacao_legislatura_and_more"),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name='partido',
-            name='sigla',
-            field=models.CharField(max_length=20, verbose_name='sigla'),
+            model_name="partido",
+            name="sigla",
+            field=models.CharField(max_length=20, verbose_name="sigla"),
         ),
     ]

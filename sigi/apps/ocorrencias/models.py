@@ -112,10 +112,14 @@ class Ocorrencia(models.Model):
         Categoria, on_delete=models.PROTECT, verbose_name=_("Categoria")
     )
     tipo_contato = models.ForeignKey(
-        TipoContato, on_delete=models.PROTECT, verbose_name=_("Tipo de contato")
+        TipoContato,
+        on_delete=models.PROTECT,
+        verbose_name=_("Tipo de contato"),
     )
     assunto = models.CharField(_("Assunto"), max_length=200)
-    status = models.IntegerField(_("Status"), choices=STATUS_CHOICES, default=1)
+    status = models.IntegerField(
+        _("Status"), choices=STATUS_CHOICES, default=1
+    )
     prioridade = models.IntegerField(
         _("Prioridade"), choices=PRIORITY_CHOICES, default=3
     )

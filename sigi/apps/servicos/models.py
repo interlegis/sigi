@@ -71,7 +71,9 @@ class Servico(models.Model):
         Orgao, on_delete=models.PROTECT, verbose_name=_("Casa Legislativa")
     )
     tipo_servico = models.ForeignKey(
-        TipoServico, on_delete=models.PROTECT, verbose_name=_("tipo de serviço")
+        TipoServico,
+        on_delete=models.PROTECT,
+        verbose_name=_("tipo de serviço"),
     )
     url = models.URLField(_("URL do serviço"), blank=True)
     versao = models.CharField(_("versão"), max_length=20, blank=True)

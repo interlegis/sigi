@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("convenios", "0031_alter_projeto_modelo_minuta_and_more"),
     ]

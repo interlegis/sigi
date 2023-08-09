@@ -101,7 +101,9 @@ class SenadorImportResource(resources.ModelResource):
     def __init__(self):
         super().__init__()
         self.partidos = {p.sigla.upper(): p for p in Partido.objects.all()}
-        self.partidos.update({p.nome.upper(): p for p in Partido.objects.all()})
+        self.partidos.update(
+            {p.nome.upper(): p for p in Partido.objects.all()}
+        )
         self.ufs = {uf.sigla: uf for uf in UnidadeFederativa.objects.all()}
 
     def before_import_row(self, row, row_number=None, **kwargs):

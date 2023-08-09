@@ -4,25 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('casas', '0021_alter_orgao_options_remove_orgao_recorte_and_more'),
+        ("casas", "0021_alter_orgao_options_remove_orgao_recorte_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='orgao',
-            name='brasao',
-            field=models.ImageField(blank=True, height_field='brasao_altura', help_text='Trate a imagem para que ela fique com cerca de 120x120 pixels', upload_to='imagens/casas/brasao', verbose_name='brasão', width_field='brasao_largura'),
+            model_name="orgao",
+            name="brasao",
+            field=models.ImageField(
+                blank=True,
+                height_field="brasao_altura",
+                help_text="Trate a imagem para que ela fique com cerca de 120x120 pixels",
+                upload_to="imagens/casas/brasao",
+                verbose_name="brasão",
+                width_field="brasao_largura",
+            ),
         ),
         migrations.AddField(
-            model_name='orgao',
-            name='brasao_altura',
+            model_name="orgao",
+            name="brasao_altura",
             field=models.SmallIntegerField(editable=False, null=True),
         ),
         migrations.AddField(
-            model_name='orgao',
-            name='brasao_largura',
+            model_name="orgao",
+            name="brasao_largura",
             field=models.SmallIntegerField(editable=False, null=True),
         ),
     ]

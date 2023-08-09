@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0026_carga_telefone_geral"),
     ]
@@ -13,6 +12,8 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name="orgao",
             name="email",
-            field=models.EmailField(blank=True, max_length=128, verbose_name="email"),
+            field=models.EmailField(
+                blank=True, max_length=128, verbose_name="email"
+            ),
         ),
     ]

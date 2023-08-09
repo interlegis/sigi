@@ -42,7 +42,7 @@ class Command(BaseCommand):
             # cria um dict com a primeira e a linha atual
             pessoa = zip(fields, row)
             p = {}
-            for (name, value) in pessoa:
+            for name, value in pessoa:
                 p[name] = value.strip()
 
             user = None

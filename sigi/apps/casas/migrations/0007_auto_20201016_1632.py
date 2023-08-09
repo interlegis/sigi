@@ -4,7 +4,6 @@ from django.db import models, migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0006_remove_casalegislativa_gerente_contas"),
     ]
@@ -13,7 +12,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="funcionario",
             name="desativado",
-            field=models.BooleanField(default=False, verbose_name="Desativado"),
+            field=models.BooleanField(
+                default=False, verbose_name="Desativado"
+            ),
             preserve_default=True,
         ),
         migrations.AddField(

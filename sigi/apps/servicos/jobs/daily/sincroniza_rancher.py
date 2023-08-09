@@ -187,7 +187,9 @@ class Job(JobReportMixin, DailyJob):
         # Desativa portais registrados no SIGI que não estão no Rancher #
         nomes_instancias = [p["metadata"]["name"] for p in portais]
         for portal in Servico.objects.filter(
-            tipo_servico=tipo, data_desativacao=None, hospedagem_interlegis=True
+            tipo_servico=tipo,
+            data_desativacao=None,
+            hospedagem_interlegis=True,
         ):
             if (
                 portal.instancia == ""
@@ -207,7 +209,9 @@ class Job(JobReportMixin, DailyJob):
         self.infos[tipo].append(
             _(f"{encontrados} {tipo.nome} do Rancher encontrados no SIGI")
         )
-        self.infos[tipo].append(_(f"{novos} novos {tipo.nome} criados no SIGI"))
+        self.infos[tipo].append(
+            _(f"{novos} novos {tipo.nome} criados no SIGI")
+        )
         self.infos[tipo].append(
             _(f"{desativados} {tipo.nome} desativados no SIGI")
         )

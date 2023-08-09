@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "contatos",
@@ -27,14 +26,21 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("codigo", models.IntegerField(unique=True, verbose_name="código")),
+                (
+                    "codigo",
+                    models.IntegerField(unique=True, verbose_name="código"),
+                ),
                 (
                     "nome_parlamentar",
-                    models.CharField(max_length=100, verbose_name="nome parlamentar"),
+                    models.CharField(
+                        max_length=100, verbose_name="nome parlamentar"
+                    ),
                 ),
                 (
                     "nome_completo",
-                    models.CharField(max_length=100, verbose_name="nome completo"),
+                    models.CharField(
+                        max_length=100, verbose_name="nome completo"
+                    ),
                 ),
                 (
                     "sexo",
@@ -46,9 +52,14 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "forma_tratamento",
-                    models.CharField(max_length=50, verbose_name="forma de tratamento"),
+                    models.CharField(
+                        max_length=50, verbose_name="forma de tratamento"
+                    ),
                 ),
-                ("email", models.EmailField(max_length=254, verbose_name="e-mail")),
+                (
+                    "email",
+                    models.EmailField(max_length=254, verbose_name="e-mail"),
+                ),
                 (
                     "partido",
                     models.ForeignKey(

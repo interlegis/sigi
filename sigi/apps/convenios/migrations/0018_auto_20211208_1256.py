@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("convenios", "0017_convenio_id_contrato_gescon"),
     ]

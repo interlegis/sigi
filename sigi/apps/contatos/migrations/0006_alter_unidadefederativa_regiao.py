@@ -16,7 +16,6 @@ def acerta_sudeste_rw(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         (
             "contatos",

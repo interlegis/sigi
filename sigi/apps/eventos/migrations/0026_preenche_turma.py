@@ -21,7 +21,6 @@ def junta_turma(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("eventos", "0025_evento_turma"),
     ]

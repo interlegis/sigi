@@ -5,7 +5,6 @@ import sigi.apps.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contatos", "0002_auto_20151104_0810"),
         ("servidores", "0001_initial"),

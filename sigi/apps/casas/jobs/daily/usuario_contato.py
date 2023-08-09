@@ -39,7 +39,9 @@ class Job(JobReportMixin, DailyJob):
             )
             if created:
                 tot_news += 1
-                self.admin_log_addition(user, "Novo contato técnico habilitado")
+                self.admin_log_addition(
+                    user, "Novo contato técnico habilitado"
+                )
             else:
                 tot_updates += 1
                 self.admin_log_change(user, "Contato técnico atualizado")

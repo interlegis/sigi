@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0019_ajusta_dominios"),
     ]
@@ -13,6 +12,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="servico",
             name="apps",
-            field=models.TextField(blank=True, verbose_name="apps instaladas no DNS"),
+            field=models.TextField(
+                blank=True, verbose_name="apps instaladas no DNS"
+            ),
         ),
     ]

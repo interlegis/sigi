@@ -6,7 +6,6 @@ import sigi.apps.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("inventario", "__first__"),
         ("casas", "0001_initial"),
@@ -28,7 +27,8 @@ class Migration(migrations.Migration):
                 (
                     "arquivo",
                     models.FileField(
-                        max_length=500, upload_to="apps/convenios/anexo/arquivo"
+                        max_length=500,
+                        upload_to="apps/convenios/anexo/arquivo",
                     ),
                 ),
                 (

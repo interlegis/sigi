@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("casas", "0023_funcionario_cpf_funcionario_identidade"),
         (
@@ -70,7 +69,9 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="parlamentar",
             name="presidente",
-            field=models.BooleanField(default=False, verbose_name="presidente"),
+            field=models.BooleanField(
+                default=False, verbose_name="presidente"
+            ),
         ),
         migrations.AddField(
             model_name="parlamentar",

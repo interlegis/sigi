@@ -295,7 +295,9 @@ class Convenio(models.Model):
         _("data de devolução da via"),
         null=True,
         blank=True,
-        help_text=_("Data de devolução da via do convênio à Câmara Municipal."),
+        help_text=_(
+            "Data de devolução da via do convênio à Câmara Municipal."
+        ),
     )
     data_postagem_correio = models.DateField(
         _("data postagem correio"),
@@ -732,7 +734,9 @@ class Gescon(models.Model):
                 numero = contrato["numero"].zfill(8)
                 numero = f"{numero[:4]}/{numero[4:]}"
                 sigad = contrato["processo"].zfill(17)
-                sigad = f"{sigad[:5]}.{sigad[5:11]}/{sigad[11:15]}-{sigad[15:]}"
+                sigad = (
+                    f"{sigad[:5]}.{sigad[5:11]}/{sigad[11:15]}-{sigad[15:]}"
+                )
 
                 if contrato["cnpjCpfFornecedor"]:
                     cnpj = contrato["cnpjCpfFornecedor"].zfill(14)
@@ -904,7 +908,9 @@ class Gescon(models.Model):
                     convenio.data_retorno_assinatura = contrato[
                         "inicioVigencia"
                     ]
-                    convenio.data_termino_vigencia = contrato["terminoVigencia"]
+                    convenio.data_termino_vigencia = contrato[
+                        "terminoVigencia"
+                    ]
                     convenio.data_pub_diario = contrato["publicacao"]
                     if contrato["codTextoContrato"]:
                         convenio.id_contrato_gescon = contrato[

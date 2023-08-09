@@ -11,7 +11,7 @@ from sigi.apps.servicos.models import TipoServico, Servico
 #     %run scripts/contatos_de_casas_que_usam_portalmodelo.py
 #     ... verificar <ARQUIVO_CSV>
 
-ARQUIVO_CSV = '/tmp/casas_que_usam_LEGBR_ou_PM.csv'
+ARQUIVO_CSV = "/tmp/casas_que_usam_LEGBR_ou_PM.csv"
 
 
 class UnicodeWriter:
@@ -31,7 +31,7 @@ class UnicodeWriter:
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def clean(self, cell):
-        return unicode(cell) if cell else '-'
+        return unicode(cell) if cell else "-"
 
     def writerow(self, row):
         self.writer.writerow([self.clean(s).encode("utf-8") for s in row])
@@ -50,18 +50,28 @@ class UnicodeWriter:
             self.writerow(row)
 
 
-pm = TipoServico.objects.get(sigla=u'PM')
-leg = TipoServico.objects.get(sigla=u'LEGBR')
-servicos = Servico.objects.filter(tipo_servico__in=[pm, leg], data_desativacao__isnull=True)
+pm = TipoServico.objects.get(sigla="PM")
+leg = TipoServico.objects.get(sigla="LEGBR")
+servicos = Servico.objects.filter(
+    tipo_servico__in=[pm, leg], data_desativacao__isnull=True
+)
 
 casas = {s.casa_legislativa for s in servicos}
 
 with open(ARQUIVO_CSV, "wb") as f:
-    writer = UnicodeWriter(f, delimiter='\t', quotechar='"', quoting=csv.QUOTE_ALL)
-    writer.writerow([
-        "casa: UF", "casa: NOME",
-    ])
+    writer = UnicodeWriter(
+        f, delimiter="\t", quotechar='"', quoting=csv.QUOTE_ALL
+    )
+    writer.writerow(
+        [
+            "casa: UF",
+            "casa: NOME",
+        ]
+    )
     for casa in casas:
-        writer.writerow([
-            casa.municipio.uf, casa.nome,
-        ])
+        writer.writerow(
+            [
+                casa.municipio.uf,
+                casa.nome,
+            ]
+        )

@@ -27,7 +27,9 @@ class EavCheckboxSelectMultiple(CheckboxSelectMultiple):
 
             # Caso exista uma pergunta para abrir
             # adiciona um atripbuto no checkbox
-            schema_to_open = Escolha.objects.get(pk=option_value).schema_to_open
+            schema_to_open = Escolha.objects.get(
+                pk=option_value
+            ).schema_to_open
             if schema_to_open:
                 final_attrs["schema_to_open"] = schema_to_open.name
 

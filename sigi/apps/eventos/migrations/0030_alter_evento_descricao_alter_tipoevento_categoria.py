@@ -5,7 +5,10 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("eventos", "0029_alter_convite_options_remove_convite_aceite_and_more"),
+        (
+            "eventos",
+            "0029_alter_convite_options_remove_convite_aceite_and_more",
+        ),
     ]
 
     operations = [

@@ -70,7 +70,9 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     for estado in estados:
         linha = LinhaEstado()
 
-        convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
+        convenios_est = convenios.filter(
+            casa_legislativa__municipio__uf=estado
+        )
         convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
         convenios_est_equipados = convenios_est.exclude(data_termo_aceite=None)
 
@@ -104,7 +106,9 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     convenios_regiao = convenios.filter(
         casa_legislativa__municipio__uf__regiao=regiao
     )
-    convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
+    convenios_regiao_publicados = convenios_regiao.exclude(
+        data_pub_diario=None
+    )
     convenios_regiao_equipados = convenios_regiao.exclude(
         data_termo_aceite=None
     )

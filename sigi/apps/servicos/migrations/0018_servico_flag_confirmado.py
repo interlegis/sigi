@@ -4,7 +4,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0017_alter_servico_options_servico_unique_instance"),
     ]
@@ -14,7 +13,8 @@ class Migration(migrations.Migration):
             model_name="servico",
             name="flag_confirmado",
             field=models.BooleanField(
-                default=False, verbose_name="indica se o registro foi confirmado"
+                default=False,
+                verbose_name="indica se o registro foi confirmado",
             ),
         ),
     ]

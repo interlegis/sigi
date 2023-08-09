@@ -24,7 +24,6 @@ def mailleg_rw(apps, schema_editor):
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0021_remove_servico_unique_instance_and_more"),
     ]

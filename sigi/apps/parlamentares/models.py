@@ -32,7 +32,10 @@ class Parlamentar(models.Model):
         _("Ano de eleição"), blank=True, null=True
     )
     status_mandato = models.CharField(
-        _("status do mandato"), max_length=1, choices=STATUS_CHOICE, default="E"
+        _("status do mandato"),
+        max_length=1,
+        choices=STATUS_CHOICE,
+        default="E",
     )
     presidente = models.BooleanField(_("presidente"), default=False)
     nome_completo = models.CharField(max_length=128)
@@ -124,7 +127,9 @@ class Senador(models.Model):
     nome_parlamentar = models.CharField(_("nome parlamentar"), max_length=100)
     nome_completo = models.CharField(_("nome completo"), max_length=100)
     sexo = models.CharField(_("sexo"), max_length=1, choices=SEXO_CHOICES)
-    forma_tratamento = models.CharField(_("forma de tratamento"), max_length=50)
+    forma_tratamento = models.CharField(
+        _("forma de tratamento"), max_length=50
+    )
     email = models.EmailField(_("e-mail"))
 
     class Meta:

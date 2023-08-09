@@ -63,7 +63,9 @@ class LabeledResourse(resources.ModelResource):
         fields = self.get_fields()
         if self.selected_fields:
             fields = [
-                f for f in fields if self.get_field_name(f) in self.selected_fields
+                f
+                for f in fields
+                if self.get_field_name(f) in self.selected_fields
             ]
         return fields
 
@@ -82,7 +84,9 @@ class ValueLabeledResource(LabeledResourse):
 
 class CartExportMixin(ExportMixin):
     to_encoding = "utf-8"
-    import_export_change_list_template = "admin/cart/change_list_cart_export.html"
+    import_export_change_list_template = (
+        "admin/cart/change_list_cart_export.html"
+    )
     export_form_class = ExportFormFields
     _cart_session_name = None
     _cart_viewing_name = None
@@ -153,7 +157,9 @@ class CartExportMixin(ExportMixin):
     @csrf_protect_m
     def add_to_cart(self, request, queryset):
         if request.POST.get("select_across", "0") == "0":
-            selected_ids = set(request.POST.getlist(helpers.ACTION_CHECKBOX_NAME, []))
+            selected_ids = set(
+                request.POST.getlist(helpers.ACTION_CHECKBOX_NAME, [])
+            )
         else:
             selected_ids = set(map(str, queryset.values_list("pk", flat=True)))
 
@@ -167,14 +173,18 @@ class CartExportMixin(ExportMixin):
         if quant:
             cart_ids.update(selected_ids)
             request.session[self._cart_session_name] = list(cart_ids)
-            self.message_user(request, _("%s itens adicionados no carrinho") % quant)
+            self.message_user(
+                request, _("%s itens adicionados no carrinho") % quant
+            )
         else:
             self.message_user(
                 request, _("Os itens selecionados já estavam no carrinho")
             )
         return HttpResponseRedirect(".")
 
-    add_to_cart.short_description = _("Armazenar itens no carrinho para exportar")
+    add_to_cart.short_description = _(
+        "Armazenar itens no carrinho para exportar"
+    )
 
     @csrf_protect_m
     def remove_from_cart(self, request, queryset):
@@ -183,12 +193,16 @@ class CartExportMixin(ExportMixin):
             return HttpResponseRedirect(".")
 
         if request.POST.get("select_across", "0") == "0":
-            remove_ids = set(request.POST.getlist(helpers.ACTION_CHECKBOX_NAME))
+            remove_ids = set(
+                request.POST.getlist(helpers.ACTION_CHECKBOX_NAME)
+            )
         else:
             remove_ids = set(map(str, queryset.values_list("pk", flat=True)))
         cart_ids = set(request.session[self._cart_session_name])
 
-        request.session[self._cart_session_name] = list(cart_ids.difference(remove_ids))
+        request.session[self._cart_session_name] = list(
+            cart_ids.difference(remove_ids)
+        )
 
         self.message_user(
             request,
@@ -269,10 +283,14 @@ class CartExportReportMixin(CartExportMixin):
 class ReturnMixin:
     _return_path = None
 
-    def changeform_view(self, request, object_id=None, form_url="", extra_context=None):
+    def changeform_view(
+        self, request, object_id=None, form_url="", extra_context=None
+    ):
         if "_return" in request.GET:
             self._return_path = request.GET.get("_return")
-        return super().changeform_view(request, object_id, form_url, extra_context)
+        return super().changeform_view(
+            request, object_id, form_url, extra_context
+        )
 
     def response_post_save_add(self, request, obj):
         if self._return_path:

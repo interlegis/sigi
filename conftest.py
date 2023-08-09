@@ -7,25 +7,45 @@ DEFAULT_MARK = object()
 
 
 class SigiTestApp(DjangoTestApp):
-
-    def __init__(self, extra_environ=None, relative_to=None, default_user=None):
+    def __init__(
+        self, extra_environ=None, relative_to=None, default_user=None
+    ):
         super(SigiTestApp, self).__init__(extra_environ, relative_to)
         self.default_user = default_user
 
-    def get(self, url, params=None, headers=None, extra_environ=None,
-            status=None, expect_errors=False, user=DEFAULT_MARK, auto_follow=True,
-            content_type=None, **kwargs):
-            # note we altered the default values for user and auto_follow
+    def get(
+        self,
+        url,
+        params=None,
+        headers=None,
+        extra_environ=None,
+        status=None,
+        expect_errors=False,
+        user=DEFAULT_MARK,
+        auto_follow=True,
+        content_type=None,
+        **kwargs
+    ):
+        # note we altered the default values for user and auto_follow
 
         if user is DEFAULT_MARK:  # a trick to allow explicit user=None
             user = self.default_user
 
-        return super(SigiTestApp, self).get(url, params, headers, extra_environ,
-                                            status, expect_errors, user, auto_follow,
-                                            content_type, **kwargs)
+        return super(SigiTestApp, self).get(
+            url,
+            params,
+            headers,
+            extra_environ,
+            status,
+            expect_errors,
+            user,
+            auto_follow,
+            content_type,
+            **kwargs
+        )
 
 
-@pytest.fixture(scope='function')
+@pytest.fixture(scope="function")
 def app(request, admin_user):
     """WebTest's TestApp.
 

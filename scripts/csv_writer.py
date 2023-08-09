@@ -15,12 +15,18 @@ class CsvWriter:
     def __init__(self, f, dialect=csv.excel, encoding="utf-8"):
         # Redirect output to a queue
         self.queue = cStringIO.StringIO()
-        self.writer = csv.writer(self.queue, dialect=dialect, delimiter='\t', quotechar='"', quoting=csv.QUOTE_ALL)
+        self.writer = csv.writer(
+            self.queue,
+            dialect=dialect,
+            delimiter="\t",
+            quotechar='"',
+            quoting=csv.QUOTE_ALL,
+        )
         self.stream = f
         self.encoder = codecs.getincrementalencoder(encoding)()
 
     def clean(self, cell):
-        return unicode(cell) if cell else '-'
+        return unicode(cell) if cell else "-"
 
     def writerow(self, row):
         self.writer.writerow([self.clean(s).encode("utf-8") for s in row])

@@ -6,7 +6,6 @@ import sigi.apps.utils
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("contenttypes", "0001_initial"),
     ]
@@ -198,7 +197,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "populacao",
-                    models.PositiveIntegerField(verbose_name="popula\xe7\xe3o"),
+                    models.PositiveIntegerField(
+                        verbose_name="popula\xe7\xe3o"
+                    ),
                 ),
                 (
                     "is_polo",
@@ -386,7 +387,9 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "populacao",
-                    models.PositiveIntegerField(verbose_name="popula\xe7\xe3o"),
+                    models.PositiveIntegerField(
+                        verbose_name="popula\xe7\xe3o"
+                    ),
                 ),
             ],
             options={

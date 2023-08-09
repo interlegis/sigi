@@ -4,15 +4,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('eventos', '0020_anexo_convite'),
+        ("eventos", "0020_anexo_convite"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='equipe',
-            name='assina_oficio',
-            field=models.BooleanField(default=False, verbose_name='Assina ofício de comparecimento'),
+            model_name="equipe",
+            name="assina_oficio",
+            field=models.BooleanField(
+                default=False, verbose_name="Assina ofício de comparecimento"
+            ),
         ),
     ]

@@ -17,13 +17,12 @@ def instance_names_fw(apps, schema_editor):
 
 def instance_names_rw(apps, schema_editor):
     Servico = apps.get_model("servicos", "Servico")
-    Servico.objects.filter(instancia__startswith="instancia-desativada").update(
-        instancia=""
-    )
+    Servico.objects.filter(
+        instancia__startswith="instancia-desativada"
+    ).update(instancia="")
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
         ("servicos", "0015_nomeia_instancias"),
     ]
