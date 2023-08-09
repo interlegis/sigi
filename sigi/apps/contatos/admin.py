@@ -12,6 +12,22 @@ from sigi.apps.contatos.models import (
 )
 from sigi.apps.parlamentares.models import Senador
 from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.mixins import (
+    ReturnMixin,
+    CartExportMixin,
+    LabeledResourse,
+)
+
+
+class UnidadeFederativaResource(LabeledResourse):
+    class Meta:
+        model = UnidadeFederativa
+        fields = ("codigo_ibge", "nome", "sigla", "regiao", "populacao")
+        export_order = fields
+        name = "Exportação de Unidades Federativas"
+
+    def dehydrate_regiao(self, uf):
+        return dict(UnidadeFederativa.REGIAO_CHOICES)[uf.regiao]
 
 
 class MesorregiaoInline(admin.TabularInline):
@@ -29,8 +45,9 @@ class SenadorInline(admin.StackedInline):
 
 
 @admin.register(UnidadeFederativa)
-class UnidadeFederativaAdmin(admin.ModelAdmin):
+class UnidadeFederativaAdmin(CartExportMixin, admin.ModelAdmin):
     actions = None
+    resource_classes = [UnidadeFederativaResource]
     list_display = ("codigo_ibge", "nome", "sigla", "regiao", "populacao")
     list_display_links = ("codigo_ibge", "nome")
     list_filter = (
