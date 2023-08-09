@@ -30,6 +30,36 @@ class UnidadeFederativaResource(LabeledResourse):
         return dict(UnidadeFederativa.REGIAO_CHOICES)[uf.regiao]
 
 
+class MunicipioResource(LabeledResourse):
+    class Meta:
+        model = Municipio
+        fields = (
+            "codigo_ibge",
+            "codigo_tse",
+            "nome",
+            "uf__regiao",
+            "uf__sigla",
+            "uf__nome",
+            "microrregiao__mesorregiao__nome",
+            "microrregiao__nome",
+            "is_capital",
+            "populacao",
+            "is_polo",
+            "data_criacao",
+            "latitude",
+            "longitude",
+            "idh",
+            "pib_total",
+            "pib_percapita",
+            "pib_ano",
+        )
+        export_order = fields
+        name = "Exportação de Municípios"
+
+    def dehydrate_uf__regiao(self, municipio):
+        return dict(UnidadeFederativa.REGIAO_CHOICES)[municipio.uf.regiao]
+
+
 class MesorregiaoInline(admin.TabularInline):
     model = Mesorregiao
 
@@ -82,8 +112,9 @@ class MicrorregiaoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Municipio)
-class MunicipioAdmin(admin.ModelAdmin):
+class MunicipioAdmin(CartExportMixin, admin.ModelAdmin):
     actions = None
+    resource_classes = [MunicipioResource]
     list_display = (
         "codigo_ibge",
         "codigo_tse",
