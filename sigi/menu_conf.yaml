@@ -74,6 +74,9 @@ main_menu:
   - title: Eventos
     icon: school
     children:
+      - title: Solicitações
+        view_name: admin:eventos_solicitacao_changelist
+        querystr: status=inconcluso
       - title: Todos os eventos
         view_name: admin:eventos_evento_changelist
       - title: Cursos
@@ -95,9 +98,6 @@ main_menu:
         view_name: eventos_calendario
       - title: Alocação de equipe
         view_name: eventos_alocacaoequipe
-      - title: Solicitações de eventos
-        view_name: ocorrencias_painel
-        querystr: tipo_categoria=E&status=1&status=2
   - title: Servidores
     icon: account_circle
     children:

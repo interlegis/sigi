@@ -1,16 +1,17 @@
 import datetime
 import re
+from tinymce.models import HTMLField
+from django.contrib import admin
 from django.core.validators import RegexValidator
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum
+from django.db.models import Sum, Count
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from sigi.apps.casas.models import Orgao
+from sigi.apps.casas.models import Orgao, Servidor
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
-from django.core.exceptions import ValidationError
-from tinymce.models import HTMLField
 
 
 class TipoEvento(models.Model):
@@ -29,12 +30,14 @@ class TipoEvento(models.Model):
     )
 
     nome = models.CharField(_("Nome"), max_length=100)
+    sigla = models.CharField(_("sigla"), max_length=20, blank=True)
     categoria = models.CharField(
         _("Categoria"), max_length=1, choices=CATEGORIA_CHOICES
     )
     casa_solicita = models.BooleanField(
         _("casa pode solicitar"), default=False
     )
+    duracao = models.PositiveIntegerField(_("Duração (dias)"), default=1)
     moodle_template_courseid = models.PositiveBigIntegerField(
         _("Curso protótipo"),
         blank=True,
@@ -64,6 +67,133 @@ class TipoEvento(models.Model):
 
     def __str__(self):
         return self.nome
+
+
+class Solicitacao(models.Model):
+    casa = models.ForeignKey(
+        Orgao, verbose_name=_("casa solicitante"), on_delete=models.PROTECT
+    )
+    senador = models.CharField(_("senador solicitante"), max_length=100)
+    num_processo = models.CharField(
+        _("número do processo SIGAD"),
+        max_length=20,
+        blank=True,
+        help_text=_("Formato:<em>XXXXX.XXXXXX/XXXX-XX</em>"),
+    )
+    descricao = models.TextField(_("descrição da solicitação"))
+    data_pedido = models.DateField(
+        _("Data do pedido"),
+        help_text=_("Data em que o pedido do Gabinete chegou à COPERI"),
+    )
+    contato = models.CharField(_("pessoa de contato na Casa"), max_length=100)
+    email_contato = models.EmailField(_("e-mail do contato"), blank=True)
+    telefone_contato = models.CharField(
+        _("telefone do contato"), max_length=20, blank=True
+    )
+    whatsapp_contato = models.CharField(
+        _("whatsapp do contato"), max_length=20, blank=True
+    )
+    estimativa_casas = models.PositiveIntegerField(
+        _("estimativa de Casas participantes"),
+        help_text=_("estimativa de quantas Casas participarão dos eventos"),
+    )
+    estimativa_servidores = models.PositiveIntegerField(
+        _("estimativa de servidores participantes"),
+        help_text=_(
+            "estimativa de quantos Servidores participarão dos eventos"
+        ),
+    )
+
+    class Meta:
+        ordering = ("-data_pedido",)
+        verbose_name = _("Solicitação de eventos")
+        verbose_name_plural = _("Solicitações de eventos")
+
+    def __str__(self):
+        return _(f"{self.num_processo}: {self.casa} / Senador {self.senador}")
+
+    @admin.display(description="Status")
+    def get_status(self):
+        # TODO: Definir status do pedido com base no status de seus ítens:
+        # Aberto: Todos os itens estão em estado Solicitado
+        # Análise: Parte dos pedidos estão Autorizados/Rejeitados e o restante
+        #          está Solicitado
+        # Concluído: Nenhum pedido está em estado Solicitado
+        item_status = set(
+            self.itemsolicitado_set.distinct("status").values_list(
+                "status", flat=True
+            )
+        )
+        if {ItemSolicitado.STATUS_SOLICITADO} == item_status:
+            return _("Aberto")
+        elif ItemSolicitado.STATUS_SOLICITADO in item_status and (
+            ItemSolicitado.STATUS_AUTORIZADO in item_status
+            or ItemSolicitado.STATUS_REJEITADO in item_status
+        ):
+            return _("Análise")
+        else:
+            return _("Concluído")
+
+
+class ItemSolicitado(models.Model):
+    STATUS_SOLICITADO = "S"
+    STATUS_AUTORIZADO = "A"
+    STATUS_REJEITADO = "R"
+    STATUS_CHOICES = (
+        (STATUS_SOLICITADO, _("Solicitado")),
+        (STATUS_AUTORIZADO, _("Autorizado")),
+        (STATUS_REJEITADO, _("Rejeitado")),
+    )
+    solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE)
+    tipo_evento = models.ForeignKey(
+        TipoEvento,
+        on_delete=models.PROTECT,
+        limit_choices_to={"casa_solicita": True},
+    )
+    virtual = models.BooleanField(_("virtual"), default=False)
+    inicio_desejado = models.DateField(
+        _("início desejado"),
+        help_text=_(
+            "Data desejada para o início do evento. Pode ser solicitado pela Casa ou definido pela conveniência do Interlegis. Será usada como data de início do evento, caso seja autorizado."
+        ),
+    )
+    status = models.CharField(
+        verbose_name=_("status"),
+        choices=STATUS_CHOICES,
+        default=STATUS_SOLICITADO,
+    )
+    data_analise = models.DateTimeField(
+        _("data da autorização/rejeição"),
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    servidor = models.ForeignKey(
+        Servidor,
+        verbose_name=_("servidor analisador"),
+        help_text=_(
+            "Servidor que autorizou ou rejeitou a realização do evento"
+        ),
+        on_delete=models.PROTECT,
+        limit_choices_to={"externo": False},
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    justificativa = models.TextField(
+        verbose_name=_("Justificativa"), blank=True
+    )
+    evento = models.ForeignKey(
+        "Evento", on_delete=models.SET_NULL, null=True, editable=False
+    )
+
+    class Meta:
+        ordering = ("status",)
+        verbose_name = _("Evento solicitado")
+        verbose_name_plural = _("Eventos solicitados")
+
+    def __str__(self):
+        return _(f"{self.tipo_evento}: {self.get_status_display()}")
 
 
 class Evento(models.Model):

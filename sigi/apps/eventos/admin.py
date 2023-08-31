@@ -1,6 +1,8 @@
 import datetime
 import time
+from typing import Any
 from moodle import Moodle
+from django.db.models import Q
 from django.conf import settings
 from django.contrib import admin, messages
 from django.http import HttpResponse
@@ -21,6 +23,8 @@ from sigi.apps.eventos.models import (
     ModeloDeclaracao,
     Modulo,
     TipoEvento,
+    Solicitacao,
+    ItemSolicitado,
     Funcao,
     Evento,
     Equipe,
@@ -31,6 +35,52 @@ from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import EmptyFilter, DateRangeFilter
 from sigi.apps.utils.mixins import CartExportMixin, ValueLabeledResource
+
+
+class SolicitacaoStatusFilter(admin.SimpleListFilter):
+    title = _("status")
+    parameter_name = "status"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("aberto", _("Aberto")),
+            ("analise", _("Análise")),
+            ("inconcluso", _("Inconcluso (aberto + análise)")),
+            ("concluido", _("Concluído")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "aberto":
+            return queryset.exclude(
+                itemsolicitado__status__in=[
+                    ItemSolicitado.STATUS_AUTORIZADO,
+                    ItemSolicitado.STATUS_REJEITADO,
+                ]
+            ).distinct()
+        elif self.value() == "analise":
+            return (
+                queryset.filter(
+                    itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
+                )
+                .filter(
+                    itemsolicitado__status__in=[
+                        ItemSolicitado.STATUS_AUTORIZADO,
+                        ItemSolicitado.STATUS_REJEITADO,
+                    ]
+                )
+                .distinct()
+            )
+        elif self.value() == "inconcluso":
+            return queryset.exclude(
+                id__in=Solicitacao.objects.exclude(
+                    itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
+                ).only("id")
+            )
+        elif self.value() == "concluido":
+            return queryset.exclude(
+                itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
+            ).distinct()
+        return queryset
 
 
 class EventoResource(ValueLabeledResource):
@@ -120,12 +170,197 @@ class CronogramaInline(admin.StackedInline):
     extra = 0
 
 
+class ItemSolicitadoInline(admin.StackedInline):
+    model = ItemSolicitado
+    fields = (
+        "tipo_evento",
+        "virtual",
+        "inicio_desejado",
+        "status",
+        "justificativa",
+        "servidor",
+        "evento",
+    )
+    readonly_fields = ("servidor", "evento")
+    extra = 1
+
+
 @admin.register(TipoEvento)
 class TipoEventoAdmin(admin.ModelAdmin):
     list_display = ["nome", "categoria"]
     list_filter = ["categoria", "casa_solicita"]
     search_fields = ["nome"]
     inlines = [ChecklistInline]
+
+
+@admin.register(Solicitacao)
+class SolicitacaoAdmin(admin.ModelAdmin):
+    list_display = (
+        "num_processo",
+        "casa",
+        "senador",
+        "data_pedido",
+        "get_oficinas",
+        "get_municipio",
+        "get_uf",
+        "get_regiao",
+        "get_populacao",
+        "get_oficinas_uf",
+        "estimativa_casas",
+        "estimativa_servidores",
+        "get_status",
+    )
+    list_filter = (
+        "casa__municipio__uf",
+        "casa__municipio__uf__regiao",
+        "senador",
+        "itemsolicitado__tipo_evento",
+        SolicitacaoStatusFilter,
+    )
+    list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
+    search_fields = (
+        "casa__search_text",
+        "casa__municipio__search_text",
+        "casa__municipio__uf__search_text",
+        "senador",
+    )
+    date_hierarchy = "data_pedido"
+    inlines = (ItemSolicitadoInline,)
+    autocomplete_fields = ("casa",)
+
+    def save_formset(self, request, form, formset, change):
+        instances = formset.save(commit=False)
+
+        if hasattr(request.user, "servidor"):
+            servidor = request.user.servidor
+        else:
+            servidor = None
+
+        for item in instances:
+            if (
+                item.status == ItemSolicitado.STATUS_SOLICITADO
+                and item.evento is not None
+            ):
+                item.evento.status = Evento.STATUS_ACONFIRMAR
+                self.message_user(
+                    request,
+                    _(
+                        f"Status do evento {item.evento} alterado para "
+                        f"{item.evento.get_status_display()}"
+                    ),
+                    messages.INFO,
+                )
+            elif item.status == ItemSolicitado.STATUS_AUTORIZADO:
+                item.servidor = servidor
+                if item.evento is None:
+                    item.evento = Evento(
+                        tipo_evento=item.tipo_evento,
+                        nome=f"{item.tipo_evento} em {item.solicitacao.casa}",
+                        descricao=f"{item.tipo_evento} em {item.solicitacao.casa}",
+                        virtual=item.virtual,
+                        solicitante=item.solicitacao.senador,
+                        num_processo=item.solicitacao.num_processo,
+                        data_pedido=item.solicitacao.data_pedido,
+                        data_inicio=item.inicio_desejado,
+                        data_termino=item.inicio_desejado
+                        + datetime.timedelta(days=item.tipo_evento.duracao),
+                        casa_anfitria=item.solicitacao.casa,
+                        municipio=item.solicitacao.casa.municipio,
+                        observacao=f"Autorizado por {servidor} com a justificativa '{item.justificativa}",
+                        status=Evento.STATUS_CONFIRMADO,
+                        contato=item.solicitacao.contato,
+                        telefone=item.solicitacao.telefone_contato,
+                    )
+                    self.message_user(
+                        request,
+                        _(f"Evento {item.evento} criado automaticamente."),
+                        messages.INFO,
+                    )
+                else:
+                    item.evento.status = Evento.STATUS_CONFIRMADO
+                    self.message_user(
+                        request,
+                        _(
+                            f"Status do evento {item.evento} alterado para "
+                            f"{item.evento.get_status_display()}"
+                        ),
+                        messages.INFO,
+                    )
+            elif ItemSolicitado.STATUS_REJEITADO and item.evento is not None:
+                item.evento.status = Evento.STATUS_CANCELADO
+                item.evento.save()
+                self.message_user(
+                    request,
+                    _(
+                        f"Status do evento {item.evento} alterado para "
+                        f"{item.evento.get_status_display()}"
+                    ),
+                    messages.INFO,
+                )
+            if item.evento:
+                item.evento.tipo_evento = item.tipo_evento
+                item.evento.nome = (
+                    f"{item.tipo_evento} em {item.solicitacao.casa}"
+                )
+                item.evento.descricao = (
+                    f"{item.tipo_evento} em {item.solicitacao.casa}"
+                )
+                item.evento.virtual = item.virtual
+                item.evento.solicitante = item.solicitacao.senador
+                item.evento.num_processo = item.solicitacao.num_processo
+                item.evento.data_pedido = item.solicitacao.data_pedido
+                item.evento.data_inicio = item.inicio_desejado
+                item.evento.data_termino = (
+                    item.inicio_desejado
+                    + datetime.timedelta(days=item.tipo_evento.duracao)
+                )
+                item.evento.casa_anfitria = item.solicitacao.casa
+                item.evento.municipio = item.solicitacao.casa.municipio
+                item.evento.observacao = f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
+                item.evento.contato = item.solicitacao.contato
+                item.evento.telefone = item.solicitacao.telefone_contato
+                item.evento.save()
+            item.save()
+        return super().save_formset(request, form, formset, change)
+
+    @admin.display(description=_("Oficinas solicitadas"))
+    def get_oficinas(self, obj):
+        return mark_safe(
+            "<ul><li>"
+            + "</li><li>".join(
+                [i.tipo_evento.sigla for i in obj.itemsolicitado_set.all()]
+            )
+            + "</li></ul>"
+        )
+
+    @admin.display(
+        description=_("Município"), ordering="casa__municipio__nome"
+    )
+    def get_municipio(self, obj):
+        return obj.casa.municipio.nome
+
+    @admin.display(description=_("UF"), ordering="casa__municipio__uf__nome")
+    def get_uf(self, obj):
+        return obj.casa.municipio.uf.nome
+
+    @admin.display(
+        description=_("Região"), ordering="casa__municipio__uf__regiao"
+    )
+    def get_regiao(self, obj):
+        return obj.casa.municipio.uf.get_regiao_display()
+
+    @admin.display(
+        description=_("População"), ordering="casa__municipio__populacao"
+    )
+    def get_populacao(self, obj):
+        return obj.casa.municipio.populacao
+
+    @admin.display(description=_("Oficinas atendidas/confirmadas na UF"))
+    def get_oficinas_uf(self, obj):
+        return Evento.objects.filter(
+            status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
+            municipio__uf=obj.casa.municipio.uf,
+        ).count()
 
 
 @admin.register(Funcao)
