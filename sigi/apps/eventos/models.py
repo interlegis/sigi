@@ -73,7 +73,7 @@ class Solicitacao(models.Model):
     casa = models.ForeignKey(
         Orgao, verbose_name=_("casa solicitante"), on_delete=models.PROTECT
     )
-    senador = models.CharField(_("senador solicitante"), max_length=100)
+    senador = models.CharField(_("senador(a) solicitante"), max_length=100)
     num_processo = models.CharField(
         _("número do processo SIGAD"),
         max_length=20,
@@ -83,9 +83,17 @@ class Solicitacao(models.Model):
     descricao = models.TextField(_("descrição da solicitação"))
     data_pedido = models.DateField(
         _("Data do pedido"),
-        help_text=_("Data em que o pedido do Gabinete chegou à COPERI"),
+        help_text=_("Data em que o pedido foi realizado"),
     )
-    contato = models.CharField(_("pessoa de contato na Casa"), max_length=100)
+    data_recebido_coperi = models.DateField(
+        _("data de recebimento na COPERI"),
+        null=True,
+        blank=True,
+        help_text=_("Data em que o pedido chegou na COPERI"),
+    )
+    contato = models.CharField(
+        _("pessoa de contato na Casa"), max_length=100, blank=True
+    )
     email_contato = models.EmailField(_("e-mail do contato"), blank=True)
     telefone_contato = models.CharField(
         _("telefone do contato"), max_length=20, blank=True
@@ -148,7 +156,6 @@ class ItemSolicitado(models.Model):
     tipo_evento = models.ForeignKey(
         TipoEvento,
         on_delete=models.PROTECT,
-        limit_choices_to={"casa_solicita": True},
     )
     virtual = models.BooleanField(_("virtual"), default=False)
     inicio_desejado = models.DateField(
@@ -246,7 +253,7 @@ class Evento(models.Model):
         ),
     )
     virtual = models.BooleanField(_("Virtual"), default=False)
-    solicitante = models.CharField(_("Solicitante"), max_length=100)
+    solicitante = models.CharField(_("senador(a) solicitante"), max_length=100)
     num_processo = models.CharField(
         _("número do processo SIGAD"),
         max_length=20,
@@ -257,7 +264,13 @@ class Evento(models.Model):
         _("Data do pedido"),
         null=True,
         blank=True,
-        help_text=_("Data em que o pedido do Gabinete chegou à COPERI"),
+        help_text=_("Data em que o pedido foi realizado"),
+    )
+    data_recebido_coperi = models.DateField(
+        _("data de recebimento na COPERI"),
+        null=True,
+        blank=True,
+        help_text=_("Data em que o pedido chegou na COPERI"),
     )
     solicitacao = models.ForeignKey(
         "ocorrencias.Ocorrencia",
@@ -280,7 +293,6 @@ class Evento(models.Model):
         blank=True,
         null=True,
     )
-    municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT)
     local = models.TextField(_("Local do evento"), blank=True)
     observacao = models.TextField(_("Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)

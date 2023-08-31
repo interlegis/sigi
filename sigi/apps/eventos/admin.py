@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
 from django.urls import path, reverse
+from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.utils import django_url_fetcher
@@ -109,8 +110,6 @@ class EventoResource(ValueLabeledResource):
             "casa_anfitria__cep",
             "casa_anfitria__email",
             "local",
-            "municipio__nome",
-            "municipio__uf__sigla",
             "observacao",
             "publico_alvo",
             "total_participantes",
@@ -183,6 +182,7 @@ class ItemSolicitadoInline(admin.StackedInline):
     )
     readonly_fields = ("servidor", "evento")
     extra = 1
+    autocomplete_fields = ("tipo_evento",)
 
 
 @admin.register(TipoEvento)
@@ -200,6 +200,7 @@ class SolicitacaoAdmin(admin.ModelAdmin):
         "casa",
         "senador",
         "data_pedido",
+        "data_recebido_coperi",
         "get_oficinas",
         "get_municipio",
         "get_uf",
@@ -255,18 +256,24 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                 if item.evento is None:
                     item.evento = Evento(
                         tipo_evento=item.tipo_evento,
-                        nome=f"{item.tipo_evento} em {item.solicitacao.casa}",
-                        descricao=f"{item.tipo_evento} em {item.solicitacao.casa}",
+                        nome=_(
+                            f"{item.tipo_evento} em {item.solicitacao.casa}"
+                        ),
+                        descricao=_(
+                            f"{item.tipo_evento} em {item.solicitacao.casa}"
+                        ),
                         virtual=item.virtual,
                         solicitante=item.solicitacao.senador,
                         num_processo=item.solicitacao.num_processo,
                         data_pedido=item.solicitacao.data_pedido,
+                        data_recebido_coperi=item.solicitacao.data_recebido_coperi,
                         data_inicio=item.inicio_desejado,
                         data_termino=item.inicio_desejado
                         + datetime.timedelta(days=item.tipo_evento.duracao),
                         casa_anfitria=item.solicitacao.casa,
-                        municipio=item.solicitacao.casa.municipio,
-                        observacao=f"Autorizado por {servidor} com a justificativa '{item.justificativa}",
+                        observacao=_(
+                            f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
+                        ),
                         status=Evento.STATUS_CONFIRMADO,
                         contato=item.solicitacao.contato,
                         telefone=item.solicitacao.telefone_contato,
@@ -278,6 +285,11 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                     )
                 else:
                     item.evento.status = Evento.STATUS_CONFIRMADO
+                    item.evento.observacao += _(
+                        f"\nConfirmado por {servidor} com a justificativa: {item.justificativa}"
+                    )
+                    item.evento.data_cancelamento = None
+                    item.evento.motivo_cancelamento = ""
                     self.message_user(
                         request,
                         _(
@@ -288,7 +300,13 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                     )
             elif ItemSolicitado.STATUS_REJEITADO and item.evento is not None:
                 item.evento.status = Evento.STATUS_CANCELADO
-                item.evento.save()
+                item.evento.observacao += _(
+                    f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                )
+                item.evento.data_cancelamento = timezone.localdate()
+                item.evento.motivo_cancelamento = _(
+                    f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                )
                 self.message_user(
                     request,
                     _(
@@ -299,24 +317,25 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                 )
             if item.evento:
                 item.evento.tipo_evento = item.tipo_evento
-                item.evento.nome = (
+                item.evento.nome = _(
                     f"{item.tipo_evento} em {item.solicitacao.casa}"
                 )
-                item.evento.descricao = (
+                item.evento.descricao = _(
                     f"{item.tipo_evento} em {item.solicitacao.casa}"
                 )
                 item.evento.virtual = item.virtual
                 item.evento.solicitante = item.solicitacao.senador
                 item.evento.num_processo = item.solicitacao.num_processo
                 item.evento.data_pedido = item.solicitacao.data_pedido
+                item.evento.data_recebido_coperi = (
+                    item.solicitacao.data_recebido_coperi
+                )
                 item.evento.data_inicio = item.inicio_desejado
                 item.evento.data_termino = (
                     item.inicio_desejado
                     + datetime.timedelta(days=item.tipo_evento.duracao)
                 )
                 item.evento.casa_anfitria = item.solicitacao.casa
-                item.evento.municipio = item.solicitacao.casa.municipio
-                item.evento.observacao = f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
                 item.evento.contato = item.solicitacao.contato
                 item.evento.telefone = item.solicitacao.telefone_contato
                 item.evento.save()
@@ -359,7 +378,7 @@ class SolicitacaoAdmin(admin.ModelAdmin):
     def get_oficinas_uf(self, obj):
         return Evento.objects.filter(
             status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
-            municipio__uf=obj.casa.municipio.uf,
+            casa_anfitria__municipio__uf=obj.casa.municipio.uf,
         ).count()
 
 
@@ -396,7 +415,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "link_sigad",
         "data_inicio",
         "data_termino",
-        "municipio",
+        "get_municipio",
         "solicitante",
         "total_participantes",
     )
@@ -409,20 +428,17 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "tipo_evento__categoria",
         ("data_inicio", DateRangeFilter),
         "virtual",
-        "municipio__uf",
         "solicitante",
     )
     autocomplete_fields = (
         "tipo_evento",
-        "solicitacao",
         "casa_anfitria",
-        "municipio",
     )
     search_fields = (
         "nome",
         "tipo_evento__nome",
         "casa_anfitria__search_text",
-        "municipio__search_text",
+        "casa_anfitria__municipio__search_text",
         "solicitante",
         "num_processo",
     )
@@ -435,11 +451,22 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     save_as = True
 
-    @admin.display(description=_("Tipo Evento"))
+    @admin.display(description=_("Tipo Evento"), ordering="tipo_evento__nome")
     def get_tipo_evento(self, obj):
         return obj.tipo_evento.nome
 
-    @admin.display(description=_("número do processo SIGAD"))
+    @admin.display(
+        description=_("Município"), ordering="casa_anfitria__municipio"
+    )
+    def get_municipio(self, obj):
+        if obj.casa_anfitria:
+            return str(obj.casa_anfitria.municipio)
+        else:
+            return None
+
+    @admin.display(
+        description=_("número do processo SIGAD"), ordering="num_processo"
+    )
     def link_sigad(self, obj):
         if obj.pk is None:
             return ""
@@ -776,7 +803,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
 
         api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
         mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
-        fullname = f"{evento.tipo_evento.nome} - {evento.municipio.nome}/{evento.municipio.uf.sigla} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
+        fullname = f"{evento.tipo_evento.nome} - {evento.casa_anfitria.municipio.nome}/{evento.casa_anfitria.municipio.uf.sigla} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
         shortname = f"{abreviatura(evento.tipo_evento.nome)} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
         inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
         fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
