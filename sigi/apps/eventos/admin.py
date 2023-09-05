@@ -35,7 +35,11 @@ from sigi.apps.eventos.models import (
 from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import EmptyFilter, DateRangeFilter
-from sigi.apps.utils.mixins import CartExportMixin, ValueLabeledResource
+from sigi.apps.utils.mixins import (
+    CartExportMixin,
+    LabeledResourse,
+    ValueLabeledResource,
+)
 
 
 class SolicitacaoStatusFilter(admin.SimpleListFilter):
@@ -82,6 +86,50 @@ class SolicitacaoStatusFilter(admin.SimpleListFilter):
                 itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
             ).distinct()
         return queryset
+
+
+class SolicitacaoResource(LabeledResourse):
+    status = Field(column_name="status")
+    oficinas = Field(column_name="oficinas solicitadas")
+    oficinas_uf = Field(column_name="número de oficinas realizadas na UF")
+
+    class Meta:
+        model = Solicitacao
+        fields = (
+            "num_processo",
+            "status",
+            "senador",
+            "data_pedido",
+            "data_recebido_coperi",
+            "oficinas",
+            "casa__nome",
+            "casa__municipio__nome",
+            "casa__municipio__uf__nome",
+            "casa__municipio__uf__regiao",
+            "casa__municipio__populacao",
+            "oficinas_uf",
+            "estimativa_casas",
+            "estimativa_servidores",
+        )
+        export_order = fields
+
+    def dehydrate_status(self, obj):
+        return obj.get_status()
+
+    def dehydrate_oficinas(self, obj):
+        return ", ".join(
+            [i.tipo_evento.sigla for i in obj.itemsolicitado_set.all()]
+        )
+
+    def dehydrate_oficinas_uf(sekf, obj):
+        return Evento.objects.filter(
+            status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio__uf=obj.casa.municipio.uf,
+            data_inicio__year__gte=timezone.localdate().year - 2,
+        ).count()
+
+    def dehydrate_casa__municipio__uf__regiao(self, obj):
+        return obj.casa.municipio.uf.get_regiao_display()
 
 
 class EventoResource(ValueLabeledResource):
@@ -178,9 +226,10 @@ class ItemSolicitadoInline(admin.StackedInline):
         "status",
         "justificativa",
         "servidor",
+        "data_analise",
         "evento",
     )
-    readonly_fields = ("servidor", "evento")
+    readonly_fields = ("servidor", "data_analise", "evento")
     extra = 1
     autocomplete_fields = ("tipo_evento",)
 
@@ -194,10 +243,12 @@ class TipoEventoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Solicitacao)
-class SolicitacaoAdmin(admin.ModelAdmin):
+class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
+    resource_class = SolicitacaoResource
     list_display = (
-        "num_processo",
         "casa",
+        "get_sigad_url",
+        "get_status",
         "senador",
         "data_pedido",
         "data_recebido_coperi",
@@ -209,7 +260,6 @@ class SolicitacaoAdmin(admin.ModelAdmin):
         "get_oficinas_uf",
         "estimativa_casas",
         "estimativa_servidores",
-        "get_status",
     )
     list_filter = (
         "casa__municipio__uf",
@@ -219,6 +269,7 @@ class SolicitacaoAdmin(admin.ModelAdmin):
         SolicitacaoStatusFilter,
     )
     list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
+    list_display_links = ("casa",)
     search_fields = (
         "casa__search_text",
         "casa__municipio__search_text",
@@ -237,6 +288,8 @@ class SolicitacaoAdmin(admin.ModelAdmin):
         else:
             servidor = None
 
+        agora = timezone.localtime()
+
         for item in instances:
             if (
                 item.status == ItemSolicitado.STATUS_SOLICITADO
@@ -253,11 +306,14 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                 )
             elif item.status == ItemSolicitado.STATUS_AUTORIZADO:
                 item.servidor = servidor
+                item.data_analise = agora
                 if item.evento is None:
                     item.evento = Evento(
                         tipo_evento=item.tipo_evento,
                         nome=_(
-                            f"{item.tipo_evento} em {item.solicitacao.casa}"
+                            f"{item.tipo_evento} em {item.solicitacao.casa}"[
+                                :100
+                            ]
                         ),
                         descricao=_(
                             f"{item.tipo_evento} em {item.solicitacao.casa}"
@@ -298,27 +354,30 @@ class SolicitacaoAdmin(admin.ModelAdmin):
                         ),
                         messages.INFO,
                     )
-            elif ItemSolicitado.STATUS_REJEITADO and item.evento is not None:
-                item.evento.status = Evento.STATUS_CANCELADO
-                item.evento.observacao += _(
-                    f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
-                )
-                item.evento.data_cancelamento = timezone.localdate()
-                item.evento.motivo_cancelamento = _(
-                    f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
-                )
-                self.message_user(
-                    request,
-                    _(
-                        f"Status do evento {item.evento} alterado para "
-                        f"{item.evento.get_status_display()}"
-                    ),
-                    messages.INFO,
-                )
+            elif item.status == ItemSolicitado.STATUS_REJEITADO:
+                item.servidor = servidor
+                item.data_analise = agora
+                if item.evento is not None:
+                    item.evento.status = Evento.STATUS_CANCELADO
+                    item.evento.observacao += _(
+                        f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                    )
+                    item.evento.data_cancelamento = timezone.localdate()
+                    item.evento.motivo_cancelamento = _(
+                        f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                    )
+                    self.message_user(
+                        request,
+                        _(
+                            f"Status do evento {item.evento} alterado para "
+                            f"{item.evento.get_status_display()}"
+                        ),
+                        messages.INFO,
+                    )
             if item.evento:
                 item.evento.tipo_evento = item.tipo_evento
                 item.evento.nome = _(
-                    f"{item.tipo_evento} em {item.solicitacao.casa}"
+                    f"{item.tipo_evento} em {item.solicitacao.casa}"[:100]
                 )
                 item.evento.descricao = _(
                     f"{item.tipo_evento} em {item.solicitacao.casa}"
@@ -373,13 +432,6 @@ class SolicitacaoAdmin(admin.ModelAdmin):
     )
     def get_populacao(self, obj):
         return obj.casa.municipio.populacao
-
-    @admin.display(description=_("Oficinas atendidas/confirmadas na UF"))
-    def get_oficinas_uf(self, obj):
-        return Evento.objects.filter(
-            status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
-            casa_anfitria__municipio__uf=obj.casa.municipio.uf,
-        ).count()
 
 
 @admin.register(Funcao)

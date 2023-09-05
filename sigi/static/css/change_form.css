@@ -15,3 +15,11 @@
     color: var(--object-tools-fg);
     border-color: var(--object-tools-fg);
 }
+
+.input-field>label {
+    position: relative;
+}
+
+.readonly-label {
+    height: unset;
+}
