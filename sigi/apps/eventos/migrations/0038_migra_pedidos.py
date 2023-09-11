@@ -7,10 +7,49 @@ from sigi.apps.utils import to_ascii
 
 
 def forwards(apps, schema_editor):
+    import ipdb
+
+    ipdb.set_trace()
     TipoEvento = apps.get_model("eventos", "TipoEvento")
     Evento = apps.get_model("eventos", "Evento")
     Solicitacao = apps.get_model("eventos", "Solicitacao")
     ItemSolicitado = apps.get_model("eventos", "ItemSolicitado")
+
+    siglas = {
+        "Encontro": 2,
+        "SAPL": 4,
+        "PROCLEG": 8,
+        "SAPL-A&C": 10,
+        "PE": 11,
+        "CERIMN": 12,
+        "CI": 13,
+        "MJ": 14,
+        "PM": 15,
+        "LC": 18,
+        "SAPL-R": 19,
+        "SAPL-ICP": 20,
+        "EDEM": 22,
+        "eDEM": 22,
+        "GPS": 23,
+        "CIGE": 24,
+        "LGPD": 25,
+        "TEGLEG": 26,
+        "CICLO": 27,
+        "OUV": 32,
+        "GPM": 40,
+        "SAPL-SPVP": 41,
+        "SAAP": 42,
+        "GABP": 52,
+        "PROCMULHER": 57,
+        "RELPUB": 58,
+        "ORÇPM": 59,
+        "ARQ": 60,
+        "BOM-ATEND": 61,
+        "MIDSOC": 62,
+        "POL-LEG": 63,
+    }
+
+    m_siglas = {s.lower().replace("-", " "): k for s, k in siglas.items()}
 
     conjuncoes = [
         "oficina",
@@ -28,9 +67,14 @@ def forwards(apps, schema_editor):
         "com",
     ]
 
+    # Adiciona as siglas pré-definidas pela COPERI
+
+    for sgl, id in siglas.items():
+        TipoEvento.objects.filter(id=id).update(sigla=sgl)
+
     # Siglas para TipoEvento com as iniciais de cada palavra do nome
 
-    for t in TipoEvento.objects.all():
+    for t in TipoEvento.objects.filter(sigla=""):
         t.sigla = "".join(
             [s[:1] for s in t.nome.split(" ") if s.lower() not in conjuncoes]
         )
@@ -47,8 +91,9 @@ def forwards(apps, schema_editor):
 
     conjugados = [
         to_ascii(re.search("(\w+) e (\w+)", t.nome.lower()).group())
-        for t in TipoEvento.objects.exclude(id=35)
-        if " e " in t.nome
+        for t in TipoEvento.objects.exclude(id=35).filter(
+            nome__icontains=" e "
+        )
     ]
 
     # Tipo_evento_id 35 foi cadastrado como 'pedidos SIGAD' e todos os eventos
@@ -103,20 +148,32 @@ def forwards(apps, schema_editor):
         )
 
         for d in descricoes:
-            termos = {
-                s.strip() for s in d.strip().split(" ") if s not in conjuncoes
-            }
-            similar = min(
-                [(id, len(termos.difference(t))) for id, t in tipos.items()],
-                key=lambda x: x[1],
-            )
-            if similar and similar[1] < len(termos):
+            d = d.strip()
+            tipo_id = None
+            # Verifica se não é uma sigla pré-definida #
+            if d in m_siglas:
+                tipo_id = m_siglas[d]
+            else:
+                termos = {
+                    s.strip() for s in d.split(" ") if s not in conjuncoes
+                }
+                similar = min(
+                    [
+                        (id, len(termos.difference(t)))
+                        for id, t in tipos.items()
+                    ],
+                    key=lambda x: x[1],
+                )
+                if similar and similar[1] < len(termos):
+                    tipo_id = similar[0]
+
+            if tipo_id:
                 if not ItemSolicitado.objects.filter(
-                    solicitacao=solicitacao, tipo_evento_id=similar[0]
+                    solicitacao=solicitacao, tipo_evento_id=tipo_id
                 ).exists():
                     ItemSolicitado(
                         solicitacao=solicitacao,
-                        tipo_evento_id=similar[0],
+                        tipo_evento_id=tipo_id,
                         virtual=e.virtual,
                         inicio_desejado=e.data_inicio
                         or e.data_pedido
