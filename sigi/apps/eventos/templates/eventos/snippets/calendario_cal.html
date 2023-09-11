@@ -1,8 +1,7 @@
-{% load i18n %}
-{% load static %}
+{% load i18n static dict_get %}
 
-<div style="width: 100%;">
-  <table class="">
+<div class="calendar-wrapper">
+  <table class="calendar-table">
     <thead>
       {% for name in day_names %}
         <th>{{ name }}</th>
@@ -10,18 +9,29 @@
     </thead>
     <tbody>
       {% for semana in semanas %}
-      <tr>
-        {% for dia in semana %}
-        <td>
-          <span class="numero-dia">{{ dia.0 }}</span>
-          {% for evento in dia.1 %}
-          <p class="evento {% include 'eventos/snippets/calendario_status_color.html' with status=evento.status %}">
-            <a class="modal-trigger" href="#modal{{ evento.id|safe }}" title="{{ evento.nome }}">{{ evento.nome }}</a>
-          </p>
+        <tr class="linha-dias">
+          {% for dia in semana.datas %}
+          <td>
+            <span class="numero-dia">
+              {% if dia.month == mes_pesquisa %}{{ dia.day }}{% endif %}
+            </span>
+          </td>
           {% endfor %}
-        </td>
+        </tr>
+        {% for evento, tupla in semana.eventos %}
+          <tr class="linha-evento">
+            {% for x in ""|ljust:tupla.0|make_list %}<td></td>{% endfor %}
+            <td colspan="{{ tupla.1 }}" class="{{ categorias|get:evento.tipo_evento.categoria|get:"color" }} lighten-4">
+              <p class="evento">
+                <i class="material-icons tiny">{{ status|get:evento.status|get:"icon" }}</i>
+                <a class="modal-trigger" href="#modal{{ evento.id|safe }}" title="{{ evento.nome }}">{{ evento.nome }}</a>
+              </p>
+            </td>
+            {% for x in ""|ljust:tupla.2|make_list %}<td></td>{% endfor %}
+          </tr>
+        {% empty %}
+          <td colspan="7">&nbsp;</td>
         {% endfor %}
-      </tr>
       {% endfor %}
     </tbody>
   </table>

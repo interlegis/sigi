@@ -27,7 +27,7 @@ from django_weasyprint.views import WeasyTemplateResponse
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.convenios.models import Projeto
-from sigi.apps.eventos.models import Evento, Convite, Anexo
+from sigi.apps.eventos.models import TipoEvento, Evento
 from sigi.apps.eventos.forms import (
     SelecionaModeloForm,
     ConviteForm,
@@ -44,6 +44,12 @@ from sigi.apps.servidores.models import Servidor
 def calendario(request):
     mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
     ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
+    sel_categorias = request.GET.getlist(
+        "categoria", [c[0] for c in TipoEvento.CATEGORIA_CHOICES]
+    )
+    sel_status = request.GET.getlist(
+        "status", [s[0] for s in Evento.STATUS_CHOICES]
+    )
     formato = request.GET.get("fmt", "cal")
     pdf = bool(request.GET.get("pdf", 0))
 
@@ -66,49 +72,83 @@ def calendario(request):
         Evento.objects.exclude(data_inicio=None)
         .exclude(data_termino=None)
         .filter(
-            data_inicio__year=ano_pesquisa, data_inicio__month=mes_pesquisa
+            data_inicio__year=ano_pesquisa,
+            data_inicio__month=mes_pesquisa,
+            status__in=sel_status,
+            tipo_evento__categoria__in=sel_categorias,
         )
+        .order_by("data_inicio")
     )
 
-    context = {}
+    context = {
+        "ano_pesquisa": ano_pesquisa,
+        "mes_pesquisa": mes_pesquisa,
+        "formato": formato,
+        "sel_categorias": sel_categorias,
+        "categorias": dict(
+            map(
+                lambda x, y: (x[0], {"label": x[1], "color": y}),
+                TipoEvento.CATEGORIA_CHOICES,
+                ["red", "purple", "blue", "orange", "brown"],
+            )
+        ),
+        "sel_status": sel_status,
+        "status": dict(
+            map(
+                lambda x, y: (x[0], {"label": x[1], "icon": y}),
+                Evento.STATUS_CHOICES,
+                [
+                    "assignment",
+                    "hourglass_empty",
+                    "access_time",
+                    "thumbs_up_down",
+                    "thumb_up",
+                    "done_all",
+                    "mood_bad",
+                    "archive",
+                ],
+            )
+        ),
+        "meses": meses,
+        "day_names": calendar.day_abbr,
+        "eventos": eventos,
+    }
 
     if formato == "cal" or pdf:
-        semanas = calendar.Calendar().monthdatescalendar(
-            ano_pesquisa, mes_pesquisa
-        )
-        for semana in semanas:
-            for dia in semana:
-                if dia.month == mes_pesquisa:
-                    semana[dia.weekday()] = (
-                        dia.day,
-                        [
-                            e
-                            for e in eventos
-                            if e.data_inicio.day
-                            <= dia.day
-                            <= e.data_termino.day
-                        ],
-                    )
-                else:
-                    semana[dia.weekday()] = ("", [])
-        context["semanas"] = semanas
+        semanas = [
+            {"datas": s, "eventos": []}
+            for s in calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )
+        ]
 
-    context.update(
-        {
-            "ano_pesquisa": ano_pesquisa,
-            "mes_pesquisa": mes_pesquisa,
-            "formato": formato,
-            "meses": meses,
-            "day_names": calendar.day_abbr,
-            "eventos": eventos,
-        }
-    )
+        for e in eventos:
+            for s in semanas:
+                if not (
+                    (e.data_termino.date() < s["datas"][0])
+                    or (e.data_inicio.date() > s["datas"][-1])
+                ):
+                    start = max(s["datas"][0], e.data_inicio.date())
+                    end = min(s["datas"][-1], e.data_termino.date())
+                    s["eventos"].append(
+                        (
+                            e,
+                            (
+                                start.weekday(),
+                                end.weekday() - start.weekday() + 1,
+                                6 - end.weekday(),
+                            ),
+                        )
+                    )
+
+        context["semanas"] = semanas
 
     if pdf:
         context["title"] = _("Calendário de eventos")
         context["pdf"] = True
+        # return render(request, "eventos/calendario_pdf.html", context)
         return WeasyTemplateResponse(
-            filename="calendario_mensal.pdf",
+            filename=f"calendario_{ano_pesquisa:04}{mes_pesquisa:02}.pdf",
             request=request,
             template="eventos/calendario_pdf.html",
             context=context,

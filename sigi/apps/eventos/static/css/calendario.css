@@ -2,14 +2,18 @@
     display: block;
 }
 
+.evento {
+    padding: 0 6px;
+}
+
 .data-evento {
-    font-size: 0.6em;
+    font-size: 0.9em;
     color: var(--body-quiet-color);
     display: block;
 }
 
 .tipo-evento {
-    font-size: 0.6em;
+    font-size: 0.9em;
     color: var(--body-quiet-color);
     display: block;
     margin-bottom: 8px;
@@ -32,11 +36,27 @@ table {
     table-layout: fixed;
 }
 
-table td,
-table td * {
-    vertical-align: top;
+tr {
+    border-bottom: none;
 }
 
+tr td {
+    padding: 0px 10px;
+}
+
+tr.linha-dias {
+    background: var(--darkened-bg);
+}
+
+
 span.numero-dia {
-    font-size: 0.5em;
+    font-size: 1em;
+}
+
+tr.linha-evento {
+    background: var(--body-bg);
+}
+
+.calendar-wrapper {
+    width: 100%;
 }

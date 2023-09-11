@@ -9,13 +9,28 @@
   }
   table {
     table-layout: fixed;
-}
+  }
+  .calendar-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #d2d2d2;
+  }
+  .calendar-table td+td {
+    border-left: 1px solid #d2d2d2 !important;
+  }
   table td,
   table td * {
     vertical-align: top;
   }
+  .calendar-table tr:nth-child(even) {
+    background-color: white !important;
+  }
+  tr.linha-dias {
+    background: #d2d2d2;
+    border-top: 1px solid #d2d2d2;
+  }
   span.numero-dia {
-    font-size: 0.5em;
+    font-size: 1em;
   }
   .card {
     background-color: #fff;
@@ -33,27 +48,70 @@
     margin-bottom: -6px !important;
   }
   .data-evento {
-    font-size: 0.7em;
+    font-size: 1em;
     display: block;
   }
   .tipo-evento {
-    font-size: 0.7em;
+    font-size: 1em;
     color: var(--body-quiet-color);
     display: block;
     margin-bottom: 8px;
   }
-  .cyan.lighten-4 { background-color: #b2ebf2 !important; }
+  .evento {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  .cyan.lighten-4 { background-color: #b2ebf2!important; }
+  .red.lighten-4 { background-color: #ffcdd2!important; }
+  .purple.lighten-4 { background-color: #e1bee7!important; }
+  .blue.lighten-4 { background-color: #bbdefb!important; }
+  .orange.lighten-4 { background-color: #ffe0b2!important; }
   .brown.lighten-4 { background-color: #d7ccc8 !important; }
-  .deep-orange.lighten-4 { background-color: #ffccbc !important; }
-  .cyan.lighten-4 { background-color: #b2ebf2 !important; }
-  .green.lighten-4 { background-color: #c8e6c9 !important; }
-  .lime.lighten-4 { background-color: #f0f4c3 !important; }
+  @font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/static/material/fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2') format('woff2');
+  }  
+  i.tiny { font-size: 1rem; }
+  .material-icons {
+    font-family: "Material Icons";
+    font-weight: 400;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }  
 {% endblock %}
 
 {% block main_content %}
-	<h1>
-    {% blocktrans with month=mes_pesquisa|stringformat:"02d" year=ano_pesquisa|stringformat:"04d" %}Ref: {{ month }}/{{year}}{% endblocktrans %}
+  <h1>
+    {% blocktrans with month=mes_pesquisa|stringformat:"02d" year=ano_pesquisa|stringformat:"04d" %}Mês: {{ month }}/{{year}}{% endblocktrans %}
   </h1>
+  <table>
+    <tr>
+      <th style="width: 12em;">Categorias:</th>
+      {% for key, data in categorias.items %}
+        {% if key in sel_categorias %}<td class="{{ data.color }} lighten-4">{{ data.label }}</td>{% endif %}
+      {% endfor %}
+    </tr>
+  </table>
+  <table>
+    <tr>
+      <th style="width: 12em;">Status:</th>
+      {% for key, data in status.items %}
+        {% if key in sel_status %}<td><i class="material-icons tiny"> {{ data.icon }}</i> {{ data.label }}</td>{% endif %}
+      {% endfor %}
+    </tr>
+  </table>
+  <br/>
   {% include "eventos/snippets/calendario_cal.html" %}
   {% include "eventos/snippets/calendario_lista.html" %}
 {% endblock main_content %}

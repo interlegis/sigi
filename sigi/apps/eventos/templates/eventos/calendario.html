@@ -1,54 +1,79 @@
 {% extends "admin/base_site.html" %}
-{% load i18n %}
-{% load static %}
+{% load i18n static %}
 
 {% block extrastyle %}
-	{{ block.super }}
-	<link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 {% block coltype %}colMS{% endblock %}
 
 {% block content %}
-	<div class="fixed-action-btn">
-		<a class="btn-floating">
-			<i class="large material-icons">mode_edit</i>
-		</a>
-		<ul>
-			<li>
-				{% if formato == 'cal' %}
-					<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=tab" title="{% trans 'Formato de lista' %}"><i class="material-icons">view_list</i></a>
-				{% else %}
-					<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=cal" title="{% trans 'Formato de calendário' %}"><i class="material-icons">date_range</i></a>
-				{% endif %}
-			<li>
-				<a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&pdf=1" target="_blank"><i class="material-icons">picture_as_pdf</i></a>
-			</li>
-		</ul>
+  <div class="fixed-action-btn">
+    <a class="btn-floating">
+	  <i class="large material-icons">mode_edit</i>
+	</a>
+	<ul>
+	  <li>
+	    {% if formato == 'cal' %}
+		  <a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=tab&categoria={{ sel_categorias|join:"&categoria=" }}&status={{ sel_status|join:"&status=" }}" title="{% trans 'Formato de lista' %}"><i class="material-icons">view_list</i></a>
+		{% else %}
+		  <a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&fmt=cal&categoria={{ sel_categorias|join:"&categoria=" }}&status={{ sel_status|join:"&status=" }}" title="{% trans 'Formato de calendário' %}"><i class="material-icons">date_range</i></a>
+		{% endif %}
+	  </li>
+	  <li>
+        <a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&pdf=1&categoria={{ sel_categorias|join:"&categoria=" }}&status={{ sel_status|join:"&status=" }}" target="_blank"><i class="material-icons">picture_as_pdf</i></a>
+	  </li>
+	</ul>
+  </div>
+  <div class="row">
+    <div class="col s12">
+	  <ul class="tabs">
+	    {% for ano in meses %}
+		  <li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
+		{% endfor %}
+	  </ul>
+	</div>
+	{% for ano, lista in meses.items %}
+	  <div id="tab-{{ ano|safe }}" class="col s12">
+	    {% for mes, nome in lista.items %}
+		  <a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}&fmt={{ formato }}&categoria={{ sel_categorias|join:"&categoria=" }}&status={{ sel_status|join:"&status=" }}">{{ nome }}</a>
+		{% endfor %}
+	  </div>
+	{% endfor %}
+  </div>
+  <form id="form_flags" method="get" action="">
+	<input type="hidden" name="ano" value="{{ ano_pesquisa|safe }}"/>
+	<input type="hidden" name="mes" value="{{ mes_pesquisa|safe }}"/>
+	<input type="hidden" name="fmt" value="{{ formato }}"/>
+	<div class="row">
+	  {% for key, data in categorias.items %}
+		<div class="col s{% widthratio 12 categorias|length 1%} {{ data.color }} lighten-4">
+		  <label>
+			<input type="checkbox" class="filled-in" name="categoria" value="{{ key }}"{% if key in sel_categorias %} checked{% endif %}/>
+			<span>{{ data.label }}</span>
+		  </label>
+		</div>
+	  {% endfor %}
 	</div>
 	<div class="row">
-		<div class="col s12">
-			<ul class="tabs">
-			{% for ano in meses %}
-				<li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
-			{% endfor %}
-			</ul>
+	  {% for key, data in status.items %}
+		<div class="col s{% widthratio 12 status|length 1 %}">
+		  <label>
+			<input type="checkbox" class="filled-in" name="status" value="{{ key }}"{% if key in sel_status %} checked{% endif %}/>
+			<span><i class="material-icons tiny"> {{ data.icon }}</i> {{ data.label }}</span>
+		  </label>
 		</div>
-		{% for ano, lista in meses.items %}
-		<div id="tab-{{ ano|safe }}" class="col s12">
-			{% for mes, nome in lista.items %}
-			<a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}&fmt={{ formato }}">{{ nome }}</a>
-			{% endfor %}
-		</div>
-		{% endfor %}
+	{% endfor %}
 	</div>
-	{% if formato == "cal" %}
-		{% include "eventos/snippets/calendario_cal.html" %}
-	{% else %}
-		{% include "eventos/snippets/calendario_lista.html" %}
-	{% endif %}
-	{% include "eventos/snippets/calendario_modals.html" %}
+  </form>
+  {% if formato == "cal" %}
+    {% include "eventos/snippets/calendario_cal.html" %}
+  {% else %}
+	{% include "eventos/snippets/calendario_lista.html" %}
+  {% endif %}
+  {% include "eventos/snippets/calendario_modals.html" %}
 {% endblock %}
 
 {% block footer %}
@@ -58,6 +83,9 @@
 			M.Tabs.init($('.tabs'), {});
 			M.Modal.init($(".modal"), {});
 			M.FloatingActionButton.init($(".fixed-action-btn"), {hoverEnabled: false});
+			$("input[name='categoria']").on("change", function() {
+				$("#form_flags").submit();
+			});
 		});
 	</script>
 {% endblock %}
