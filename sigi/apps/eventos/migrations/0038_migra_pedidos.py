@@ -7,9 +7,6 @@ from sigi.apps.utils import to_ascii
 
 
 def forwards(apps, schema_editor):
-    import ipdb
-
-    ipdb.set_trace()
     TipoEvento = apps.get_model("eventos", "TipoEvento")
     Evento = apps.get_model("eventos", "Evento")
     Solicitacao = apps.get_model("eventos", "Solicitacao")
