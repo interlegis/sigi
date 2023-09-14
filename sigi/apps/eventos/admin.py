@@ -5,6 +5,7 @@ from moodle import Moodle
 from django.db.models import Q
 from django.conf import settings
 from django.contrib import admin, messages
+from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
@@ -25,6 +26,7 @@ from sigi.apps.eventos.models import (
     Modulo,
     TipoEvento,
     Solicitacao,
+    AnexoSolicitacao,
     ItemSolicitado,
     Funcao,
     Evento,
@@ -42,54 +44,7 @@ from sigi.apps.utils.mixins import (
 )
 
 
-class SolicitacaoStatusFilter(admin.SimpleListFilter):
-    title = _("status")
-    parameter_name = "status"
-
-    def lookups(self, request, model_admin):
-        return (
-            ("aberto", _("Aberto")),
-            ("analise", _("Análise")),
-            ("inconcluso", _("Inconcluso (aberto + análise)")),
-            ("concluido", _("Concluído")),
-        )
-
-    def queryset(self, request, queryset):
-        if self.value() == "aberto":
-            return queryset.exclude(
-                itemsolicitado__status__in=[
-                    ItemSolicitado.STATUS_AUTORIZADO,
-                    ItemSolicitado.STATUS_REJEITADO,
-                ]
-            ).distinct()
-        elif self.value() == "analise":
-            return (
-                queryset.filter(
-                    itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
-                )
-                .filter(
-                    itemsolicitado__status__in=[
-                        ItemSolicitado.STATUS_AUTORIZADO,
-                        ItemSolicitado.STATUS_REJEITADO,
-                    ]
-                )
-                .distinct()
-            )
-        elif self.value() == "inconcluso":
-            return queryset.exclude(
-                id__in=Solicitacao.objects.exclude(
-                    itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
-                ).only("id")
-            )
-        elif self.value() == "concluido":
-            return queryset.exclude(
-                itemsolicitado__status=ItemSolicitado.STATUS_SOLICITADO
-            ).distinct()
-        return queryset
-
-
 class SolicitacaoResource(LabeledResourse):
-    status = Field(column_name="status")
     oficinas = Field(column_name="oficinas solicitadas")
     oficinas_uf = Field(column_name="número de oficinas realizadas na UF")
 
@@ -114,7 +69,7 @@ class SolicitacaoResource(LabeledResourse):
         export_order = fields
 
     def dehydrate_status(self, obj):
-        return obj.get_status()
+        return obj.get_status_display()
 
     def dehydrate_oficinas(self, obj):
         return ", ".join(
@@ -234,6 +189,11 @@ class ItemSolicitadoInline(admin.StackedInline):
     autocomplete_fields = ("tipo_evento",)
 
 
+class AnexoSolicitacaoInline(admin.TabularInline):
+    model = AnexoSolicitacao
+    readonly_fields = ("data_pub",)
+
+
 @admin.register(TipoEvento)
 class TipoEventoAdmin(admin.ModelAdmin):
     list_display = ["nome", "categoria"]
@@ -248,7 +208,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
     list_display = (
         "casa",
         "get_sigad_url",
-        "get_status",
+        "status",
         "senador",
         "data_pedido",
         "data_recebido_coperi",
@@ -266,7 +226,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "casa__municipio__uf__regiao",
         "senador",
         "itemsolicitado__tipo_evento",
-        SolicitacaoStatusFilter,
+        "status",
     )
     list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
     list_display_links = ("casa",)
@@ -277,128 +237,252 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "senador",
     )
     date_hierarchy = "data_pedido"
-    inlines = (ItemSolicitadoInline,)
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": [
+                    "casa",
+                    "senador",
+                    "num_processo",
+                    "descricao",
+                    "data_pedido",
+                    "data_recebido_coperi",
+                ]
+            },
+        ),
+        (
+            _("Autorização"),
+            {
+                "fields": [
+                    "status",
+                    "servidor",
+                    "data_analise",
+                    "justificativa",
+                ]
+            },
+        ),
+        (
+            _("Contato da Casa"),
+            {
+                "fields": [
+                    "contato",
+                    "email_contato",
+                    "telefone_contato",
+                    "whatsapp_contato",
+                ]
+            },
+        ),
+        (
+            _("Participação esperada"),
+            {"fields": ["estimativa_casas", "estimativa_servidores"]},
+        ),
+    )
+    readonly_fields = ("servidor", "data_analise")
+    inlines = (ItemSolicitadoInline, AnexoSolicitacaoInline)
     autocomplete_fields = ("casa",)
 
-    def save_formset(self, request, form, formset, change):
-        instances = formset.save(commit=False)
-
-        if hasattr(request.user, "servidor"):
-            servidor = request.user.servidor
+    def save_model(self, request, obj, form, change):
+        if change:
+            old_obj = Solicitacao.objects.get(id=obj.id)
         else:
-            servidor = None
+            old_obj = obj
+        if (
+            obj.status != Solicitacao.STATUS_SOLICITADO
+            and obj.status != old_obj.status
+        ):
+            obj.servidor = (
+                request.user.servidor
+                if hasattr(request.user, "servidor")
+                else None
+            )
+            obj.data_analise = timezone.localtime()
+        return super().save_model(request, obj, form, change)
 
-        agora = timezone.localtime()
+    def save_formset(self, request, form, formset, change):
+        if formset.model == ItemSolicitado:
+            obj = form.instance
+            instances = formset.save(commit=False)
 
-        for item in instances:
+            if hasattr(request.user, "servidor"):
+                servidor = request.user.servidor
+            else:
+                servidor = None
+
+            agora = timezone.localtime()
+
+            for item in instances:
+                if (
+                    obj.status == Solicitacao.STATUS_SOLICITADO
+                    and item.status != ItemSolicitado.STATUS_SOLICITADO
+                ):
+                    item.status = ItemSolicitado.STATUS_SOLICITADO
+                    self.message_user(
+                        request,
+                        _(
+                            f"O item {item} teve o status mudado para "
+                            "SOLICITADO porque a solicitação ainda não foi "
+                            "autorizada"
+                        ),
+                        messages.WARNING,
+                    )
+                if (
+                    obj.status == Solicitacao.STATUS_REJEITADO
+                    and item.status != ItemSolicitado.STATUS_REJEITADO
+                ):
+                    item.status = ItemSolicitado.STATUS_REJEITADO
+                    self.message_user(
+                        request,
+                        _(
+                            f"O item {item} teve o status mudado para "
+                            "REJEITADO porque a solicitação inteira foi "
+                            "rejeitada"
+                        ),
+                        messages.WARNING,
+                    )
+                if (
+                    obj.status == Solicitacao.STATUS_CONCLUIDO
+                    and item.status == ItemSolicitado.STATUS_SOLICITADO
+                ):
+                    item.status = ItemSolicitado.STATUS_REJEITADO
+                    self.message_user(
+                        request,
+                        _(
+                            f"O item {item} teve o status mudado para "
+                            "REJEITADO porque a solicitação foi concluída e "
+                            "ele ainda estava em aberto"
+                        ),
+                        messages.WARNING,
+                    )
+
+                if (
+                    item.status == ItemSolicitado.STATUS_SOLICITADO
+                    and item.evento is not None
+                ):
+                    item.evento.status = Evento.STATUS_ACONFIRMAR
+                    self.message_user(
+                        request,
+                        _(
+                            f"Status do evento {item.evento} alterado para "
+                            f"{item.evento.get_status_display()}"
+                        ),
+                        messages.INFO,
+                    )
+                elif item.status == ItemSolicitado.STATUS_AUTORIZADO:
+                    item.servidor = servidor
+                    item.data_analise = agora
+                    if item.evento is None:
+                        item.evento = Evento(
+                            tipo_evento=item.tipo_evento,
+                            nome=_(
+                                f"{item.tipo_evento} em {item.solicitacao.casa}"[
+                                    :100
+                                ]
+                            ),
+                            descricao=_(
+                                f"{item.tipo_evento} em {item.solicitacao.casa}"
+                            ),
+                            virtual=item.virtual,
+                            solicitante=item.solicitacao.senador,
+                            num_processo=item.solicitacao.num_processo,
+                            data_pedido=item.solicitacao.data_pedido,
+                            data_recebido_coperi=item.solicitacao.data_recebido_coperi,
+                            data_inicio=item.inicio_desejado,
+                            data_termino=item.inicio_desejado
+                            + datetime.timedelta(
+                                days=item.tipo_evento.duracao
+                            ),
+                            casa_anfitria=item.solicitacao.casa,
+                            observacao=_(
+                                f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
+                            ),
+                            status=Evento.STATUS_CONFIRMADO,
+                            contato=item.solicitacao.contato,
+                            telefone=item.solicitacao.telefone_contato,
+                        )
+                        self.message_user(
+                            request,
+                            _(f"Evento {item.evento} criado automaticamente."),
+                            messages.INFO,
+                        )
+                    else:
+                        item.evento.status = Evento.STATUS_CONFIRMADO
+                        item.evento.observacao += _(
+                            f"\nConfirmado por {servidor} com a justificativa: {item.justificativa}"
+                        )
+                        item.evento.data_cancelamento = None
+                        item.evento.motivo_cancelamento = ""
+                        self.message_user(
+                            request,
+                            _(
+                                f"Status do evento {item.evento} alterado para "
+                                f"{item.evento.get_status_display()}"
+                            ),
+                            messages.INFO,
+                        )
+                elif item.status == ItemSolicitado.STATUS_REJEITADO:
+                    item.servidor = servidor
+                    item.data_analise = agora
+                    if item.evento is not None:
+                        item.evento.status = Evento.STATUS_CANCELADO
+                        item.evento.observacao += _(
+                            f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                        )
+                        item.evento.data_cancelamento = timezone.localdate()
+                        item.evento.motivo_cancelamento = _(
+                            f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
+                        )
+                        self.message_user(
+                            request,
+                            _(
+                                f"Status do evento {item.evento} alterado para "
+                                f"{item.evento.get_status_display()}"
+                            ),
+                            messages.INFO,
+                        )
+                if item.evento:
+                    item.evento.tipo_evento = item.tipo_evento
+                    item.evento.nome = _(
+                        f"{item.tipo_evento} em {item.solicitacao.casa}"[:100]
+                    )
+                    item.evento.descricao = _(
+                        f"{item.tipo_evento} em {item.solicitacao.casa}"
+                    )
+                    item.evento.virtual = item.virtual
+                    item.evento.solicitante = item.solicitacao.senador
+                    item.evento.num_processo = item.solicitacao.num_processo
+                    item.evento.data_pedido = item.solicitacao.data_pedido
+                    item.evento.data_recebido_coperi = (
+                        item.solicitacao.data_recebido_coperi
+                    )
+                    item.evento.data_inicio = item.inicio_desejado
+                    item.evento.data_termino = (
+                        item.inicio_desejado
+                        + datetime.timedelta(days=item.tipo_evento.duracao)
+                    )
+                    item.evento.casa_anfitria = item.solicitacao.casa
+                    item.evento.contato = item.solicitacao.contato
+                    item.evento.telefone = item.solicitacao.telefone_contato
+                    item.evento.save()
+                item.save()
+
             if (
-                item.status == ItemSolicitado.STATUS_SOLICITADO
-                and item.evento is not None
+                obj.status == Solicitacao.STATUS_AUTORIZADO
+                and not obj.itemsolicitado_set.filter(
+                    status=ItemSolicitado.STATUS_SOLICITADO
+                ).exists()
             ):
-                item.evento.status = Evento.STATUS_ACONFIRMAR
+                obj.status = Solicitacao.STATUS_CONCLUIDO
+                obj.save()
                 self.message_user(
                     request,
                     _(
-                        f"Status do evento {item.evento} alterado para "
-                        f"{item.evento.get_status_display()}"
+                        "Status da solicitação alterado automaticamente para "
+                        "Concluído pois não há mais itens a serem analisados"
                     ),
                     messages.INFO,
                 )
-            elif item.status == ItemSolicitado.STATUS_AUTORIZADO:
-                item.servidor = servidor
-                item.data_analise = agora
-                if item.evento is None:
-                    item.evento = Evento(
-                        tipo_evento=item.tipo_evento,
-                        nome=_(
-                            f"{item.tipo_evento} em {item.solicitacao.casa}"[
-                                :100
-                            ]
-                        ),
-                        descricao=_(
-                            f"{item.tipo_evento} em {item.solicitacao.casa}"
-                        ),
-                        virtual=item.virtual,
-                        solicitante=item.solicitacao.senador,
-                        num_processo=item.solicitacao.num_processo,
-                        data_pedido=item.solicitacao.data_pedido,
-                        data_recebido_coperi=item.solicitacao.data_recebido_coperi,
-                        data_inicio=item.inicio_desejado,
-                        data_termino=item.inicio_desejado
-                        + datetime.timedelta(days=item.tipo_evento.duracao),
-                        casa_anfitria=item.solicitacao.casa,
-                        observacao=_(
-                            f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
-                        ),
-                        status=Evento.STATUS_CONFIRMADO,
-                        contato=item.solicitacao.contato,
-                        telefone=item.solicitacao.telefone_contato,
-                    )
-                    self.message_user(
-                        request,
-                        _(f"Evento {item.evento} criado automaticamente."),
-                        messages.INFO,
-                    )
-                else:
-                    item.evento.status = Evento.STATUS_CONFIRMADO
-                    item.evento.observacao += _(
-                        f"\nConfirmado por {servidor} com a justificativa: {item.justificativa}"
-                    )
-                    item.evento.data_cancelamento = None
-                    item.evento.motivo_cancelamento = ""
-                    self.message_user(
-                        request,
-                        _(
-                            f"Status do evento {item.evento} alterado para "
-                            f"{item.evento.get_status_display()}"
-                        ),
-                        messages.INFO,
-                    )
-            elif item.status == ItemSolicitado.STATUS_REJEITADO:
-                item.servidor = servidor
-                item.data_analise = agora
-                if item.evento is not None:
-                    item.evento.status = Evento.STATUS_CANCELADO
-                    item.evento.observacao += _(
-                        f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
-                    )
-                    item.evento.data_cancelamento = timezone.localdate()
-                    item.evento.motivo_cancelamento = _(
-                        f"\nCancelado por {servidor} com a justificativa: {item.justificativa}"
-                    )
-                    self.message_user(
-                        request,
-                        _(
-                            f"Status do evento {item.evento} alterado para "
-                            f"{item.evento.get_status_display()}"
-                        ),
-                        messages.INFO,
-                    )
-            if item.evento:
-                item.evento.tipo_evento = item.tipo_evento
-                item.evento.nome = _(
-                    f"{item.tipo_evento} em {item.solicitacao.casa}"[:100]
-                )
-                item.evento.descricao = _(
-                    f"{item.tipo_evento} em {item.solicitacao.casa}"
-                )
-                item.evento.virtual = item.virtual
-                item.evento.solicitante = item.solicitacao.senador
-                item.evento.num_processo = item.solicitacao.num_processo
-                item.evento.data_pedido = item.solicitacao.data_pedido
-                item.evento.data_recebido_coperi = (
-                    item.solicitacao.data_recebido_coperi
-                )
-                item.evento.data_inicio = item.inicio_desejado
-                item.evento.data_termino = (
-                    item.inicio_desejado
-                    + datetime.timedelta(days=item.tipo_evento.duracao)
-                )
-                item.evento.casa_anfitria = item.solicitacao.casa
-                item.evento.contato = item.solicitacao.contato
-                item.evento.telefone = item.solicitacao.telefone_contato
-                item.evento.save()
-            item.save()
+
         return super().save_formset(request, form, formset, change)
 
     @admin.display(description=_("Oficinas solicitadas"))

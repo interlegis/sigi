@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import datetime
 import re
 from tinymce.models import HTMLField
@@ -71,6 +72,16 @@ class TipoEvento(models.Model):
 
 
 class Solicitacao(models.Model):
+    STATUS_SOLICITADO = "S"
+    STATUS_AUTORIZADO = "A"
+    STATUS_REJEITADO = "R"
+    STATUS_CONCLUIDO = "C"
+    STATUS_CHOICES = (
+        (STATUS_SOLICITADO, _("Solicitado")),
+        (STATUS_AUTORIZADO, _("Autorizado")),
+        (STATUS_REJEITADO, _("Rejeitado")),
+        (STATUS_CONCLUIDO, _("Concluído")),
+    )
     casa = models.ForeignKey(
         Orgao, verbose_name=_("casa solicitante"), on_delete=models.PROTECT
     )
@@ -91,6 +102,33 @@ class Solicitacao(models.Model):
         null=True,
         blank=True,
         help_text=_("Data em que o pedido chegou na COPERI"),
+    )
+    status = models.CharField(
+        _("Status"),
+        max_length=1,
+        choices=STATUS_CHOICES,
+        default=STATUS_SOLICITADO,
+    )
+    servidor = models.ForeignKey(
+        Servidor,
+        verbose_name=_("servidor analisador"),
+        help_text=_(
+            "Servidor que autorizou ou rejeitou a realização do evento"
+        ),
+        on_delete=models.PROTECT,
+        limit_choices_to={"externo": False},
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    data_analise = models.DateTimeField(
+        _("data de autorização/rejeição"),
+        blank=True,
+        null=True,
+        editable=False,
+    )
+    justificativa = models.TextField(
+        verbose_name=_("Justificativa"), blank=True
     )
     contato = models.CharField(
         _("pessoa de contato na Casa"), max_length=100, blank=True
@@ -120,28 +158,6 @@ class Solicitacao(models.Model):
 
     def __str__(self):
         return _(f"{self.num_processo}: {self.casa} / Senador {self.senador}")
-
-    @admin.display(description="Status")
-    def get_status(self):
-        # TODO: Definir status do pedido com base no status de seus ítens:
-        # Aberto: Todos os itens estão em estado Solicitado
-        # Análise: Parte dos pedidos estão Autorizados/Rejeitados e o restante
-        #          está Solicitado
-        # Concluído: Nenhum pedido está em estado Solicitado
-        item_status = set(
-            self.itemsolicitado_set.distinct("status").values_list(
-                "status", flat=True
-            )
-        )
-        if {ItemSolicitado.STATUS_SOLICITADO} == item_status:
-            return _("Aberto")
-        elif ItemSolicitado.STATUS_SOLICITADO in item_status and (
-            ItemSolicitado.STATUS_AUTORIZADO in item_status
-            or ItemSolicitado.STATUS_REJEITADO in item_status
-        ):
-            return _("Análise")
-        else:
-            return _("Concluído")
 
     @admin.display(description=_("SIGAD"), ordering="num_processo")
     def get_sigad_url(self):
@@ -254,6 +270,27 @@ class ItemSolicitado(models.Model):
 
     def __str__(self):
         return _(f"{self.tipo_evento}: {self.get_status_display()}")
+
+
+class AnexoSolicitacao(models.Model):
+    solicitacao = models.ForeignKey(
+        Solicitacao, on_delete=models.CASCADE, verbose_name=_("evento")
+    )
+    arquivo = models.FileField(
+        upload_to="apps/eventos/solicitacao/anexo/arquivo", max_length=500
+    )
+    descricao = models.CharField(_("descrição"), max_length=70)
+    data_pub = models.DateTimeField(
+        _("data da publicação do anexo"), default=timezone.localtime
+    )
+
+    class Meta:
+        ordering = ("-data_pub",)
+        verbose_name = _("Anexo")
+        verbose_name_plural = _("Anexos")
+
+    def __str__(self):
+        return _(f"{self.descricao} publicado em {self.data_pub}")
 
 
 class Evento(models.Model):

@@ -76,7 +76,7 @@ main_menu:
     children:
       - title: Solicitações
         view_name: admin:eventos_solicitacao_changelist
-        querystr: status=inconcluso
+        querystr: status__exact=S
       - title: Todos os eventos
         view_name: admin:eventos_evento_changelist
       - title: Cursos
