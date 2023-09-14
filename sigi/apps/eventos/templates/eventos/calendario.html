@@ -83,7 +83,7 @@
 			M.Tabs.init($('.tabs'), {});
 			M.Modal.init($(".modal"), {});
 			M.FloatingActionButton.init($(".fixed-action-btn"), {hoverEnabled: false});
-			$("input[name='categoria']").on("change", function() {
+			$("#form_flags input:checkbox").on("change", function() {
 				$("#form_flags").submit();
 			});
 		});
