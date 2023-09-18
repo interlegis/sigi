@@ -143,12 +143,14 @@ class Solicitacao(models.Model):
     estimativa_casas = models.PositiveIntegerField(
         _("estimativa de Casas participantes"),
         help_text=_("estimativa de quantas Casas participarão dos eventos"),
+        default=0,
     )
     estimativa_servidores = models.PositiveIntegerField(
         _("estimativa de servidores participantes"),
         help_text=_(
             "estimativa de quantos Servidores participarão dos eventos"
         ),
+        default=0,
     )
 
     class Meta:
@@ -185,6 +187,7 @@ class Solicitacao(models.Model):
         counters = Evento.objects.filter(
             status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
             casa_anfitria__municipio__uf=self.casa.municipio.uf,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
         ).aggregate(
             total=Count("id"),
             no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),

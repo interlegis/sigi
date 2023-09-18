@@ -19,6 +19,7 @@ from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from weasyprint import HTML
+from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.eventos.models import (
     Checklist,
     Cronograma,
@@ -110,6 +111,7 @@ class EventoResource(ValueLabeledResource):
             "casa_anfitria__bairro",
             "casa_anfitria__municipio__nome",
             "casa_anfitria__municipio__uf__sigla",
+            "casa_anfitria__municipio__uf__regiao",
             "casa_anfitria__cep",
             "casa_anfitria__email",
             "local",
@@ -141,6 +143,11 @@ class EventoResource(ValueLabeledResource):
 
     def dehydrate_status(self, obj):
         return dict(Evento.STATUS_CHOICES)[obj["status"]]
+
+    def dehydrate_casa_anfitria__municipio__uf__regiao(self, obj):
+        return dict(UnidadeFederativa.REGIAO_CHOICES)[
+            obj["casa_anfitria__municipio__uf__regiao"]
+        ]
 
 
 class ChecklistInline(admin.StackedInline):
@@ -543,15 +550,18 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     date_hierarchy = "data_inicio"
     list_display = (
         "get_banner",
+        "publicar",
         "get_tipo_evento",
         "nome",
         "turma",
         "status",
-        "publicar",
-        "link_sigad",
+        "get_link_sigad",
         "data_inicio",
         "data_termino",
         "get_municipio",
+        "get_uf",
+        "get_regiao",
+        "get_populacao",
         "solicitante",
         "total_participantes",
     )
@@ -562,6 +572,8 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         ("num_processo", EmptyFilter),
         "tipo_evento",
         "tipo_evento__categoria",
+        "casa_anfitria__municipio__uf",
+        "casa_anfitria__municipio__uf__regiao",
         ("data_inicio", DateRangeFilter),
         "virtual",
         "solicitante",
@@ -587,6 +599,21 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     save_as = True
 
+    @admin.display(description=_("banner"))
+    def get_banner(self, obj):
+        if obj.banner:
+            return mark_safe(
+                f'<img src="{obj.banner.url}" width="60" height="60" />'
+            )
+        else:
+            return ""
+
+    @admin.display(description=_("SIGAD"), ordering="num_processo")
+    def get_link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return mark_safe(obj.get_sigad_url())
+
     @admin.display(description=_("Tipo Evento"), ordering="tipo_evento__nome")
     def get_tipo_evento(self, obj):
         return obj.tipo_evento.nome
@@ -596,26 +623,38 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     def get_municipio(self, obj):
         if obj.casa_anfitria:
-            return str(obj.casa_anfitria.municipio)
+            return obj.casa_anfitria.municipio.nome
         else:
             return None
 
     @admin.display(
-        description=_("número do processo SIGAD"), ordering="num_processo"
+        description=_("UF"), ordering="casa_anfitria__municipio__uf"
     )
-    def link_sigad(self, obj):
-        if obj.pk is None:
-            return ""
-        return mark_safe(obj.get_sigad_url())
-
-    @admin.display(description=_("banner"))
-    def get_banner(self, obj):
-        if obj.banner:
-            return mark_safe(
-                f'<img src="{obj.banner.url}" width="60" height="60" />'
-            )
+    def get_uf(self, obj):
+        if obj.casa_anfitria:
+            return obj.casa_anfitria.municipio.uf.nome
         else:
-            return ""
+            return None
+
+    @admin.display(
+        description=_("Região"),
+        ordering="casa_anfitria__municipio__uf__regiao",
+    )
+    def get_regiao(self, obj):
+        if obj.casa_anfitria:
+            return obj.casa_anfitria.municipio.uf.get_regiao_display()
+        else:
+            return None
+
+    @admin.display(
+        description=_("População"),
+        ordering="casa_anfitria__municipio__populacao",
+    )
+    def get_populacao(self, obj):
+        if obj.casa_anfitria:
+            return obj.casa_anfitria.municipio.populacao
+        else:
+            return None
 
     def render_change_form(self, request, context, add, change, form_url, obj):
         perm = request.user.has_perm("eventos.createcourse_evento")
