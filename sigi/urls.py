@@ -14,10 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from rest_framework.schemas import get_schema_view
-from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.urls import path, include
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path("casas/", include("sigi.apps.casas.urls")),
@@ -30,13 +31,29 @@ urlpatterns = [
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
     path("admin/", admin.site.urls),
     path(
-        "api/",
+        "api/doc/schema.yaml",
         get_schema_view(
             title="SIGI Open API Schema",
             description="API for SIGI opendata",
             version="1.0.0",
         ),
         name="openapi-schema",
+    ),
+    path(
+        "api/doc/swagger-ui/",
+        TemplateView.as_view(
+            template_name="sigi/api/swagger-ui.html",
+            extra_context={"schema_url": "openapi-schema"},
+        ),
+        name="swagger-ui",
+    ),
+    path(
+        "api/doc/redoc/",
+        TemplateView.as_view(
+            template_name="sigi/api/redoc.html",
+            extra_context={"schema_url": "openapi-schema"},
+        ),
+        name="redoc",
     ),
     path("api/eventos/", include("sigi.apps.eventos.api_urls")),
     path("tinymce/", include("tinymce.urls")),
