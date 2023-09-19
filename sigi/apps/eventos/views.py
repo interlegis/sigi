@@ -2,6 +2,7 @@ import calendar
 import csv
 import locale
 from functools import reduce
+from rest_framework import mixins, generics
 from typing import OrderedDict
 from django import forms
 from django.contrib import messages
@@ -35,6 +36,7 @@ from sigi.apps.eventos.forms import (
     FuncionarioForm,
     ParlamentarForm,
 )
+from sigi.apps.eventos.serializers import EventoSerializer
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servidores.models import Servidor
 
@@ -362,201 +364,27 @@ def alocacao_equipe(request):
     return render(request, "eventos/alocacao_equipe.html", context)
 
 
-# # Views e functions para carrinho de exportação
+class ApiEventoAbstract:
+    queryset = (
+        Evento.objects.filter(publicar=True)
+        .exclude(data_inicio=None)
+        .exclude(data_termino=None)
+        .order_by("-data_inicio")
+    )
+    serializer_class = EventoSerializer
 
-# def query_ordena(qs, o):
-#     from sigi.apps.eventos.admin import EventoAdmin
-#     list_display = EventoAdmin.list_display
-#     order_fields = []
 
-#     for order_number in o.split('.'):
-#         order_number = int(order_number)
-#         order = ''
-#         if order_number != abs(order_number):
-#             order_number = abs(order_number)
-#             order = '-'
-#         order_fields.append(order + list_display[order_number - 1])
-#     qs = qs.order_by(*order_fields)
-#     return qs
+class ApiEventoList(ApiEventoAbstract, generics.ListAPIView):
+    """
+    Lista de eventos, oficinas e cursos realizados pelo ILB / Interlegis
+    """
 
-# def get_for_qs(get, qs):
-#     kwargs = {}
-#     for k, v in get.iteritems():
-#         if str(k) not in ('page', 'pop', 'q', '_popup', 'o', 'ot'):
-#             kwargs[str(k)] = v
-#     qs = qs.filter(**kwargs)
-#     if 'o' in get:
-#         qs = query_ordena(qs, get['o'])
-#     return qs
+    pass
 
-# def carrinhoOrGet_for_qs(request):
-#     if 'carrinho_eventos' in request.session:
-#         ids = request.session['carrinho_eventos']
-#         qs = Evento.objects.filter(pk__in=ids)
-#     else:
-#         qs = Evento.objects.all()
-#         if request.GET:
-#             qs = get_for_qs(request.GET, qs)
-#     return qs
 
-# def adicionar_eventos_carrinho(request, queryset=None, id=None):
-#     if request.method == 'POST':
-#         ids_selecionados = request.POST.getlist('_selected_action')
-#         if 'carrinho_eventos' not in request.session:
-#             request.session['carrinho_eventos'] = ids_selecionados
-#         else:
-#             lista = request.session['carrinho_eventos']
-#             # Verifica se id já não está adicionado
-#             for id in ids_selecionados:
-#                 if id not in lista:
-#                     lista.append(id)
-#             request.session['carrinho_eventos'] = lista
+class ApiEventoRetrieve(ApiEventoAbstract, generics.RetrieveAPIView):
+    """
+    Recupera um evento pelo id
+    """
 
-# @login_required
-# def visualizar_carrinho(request):
-#     qs = carrinhoOrGet_for_qs(request)
-#     paginator = Paginator(qs, 100)
-
-#     try:
-#         page = int(request.GET.get('page', '1'))
-#     except ValueError:
-#         page = 1
-
-#     try:
-#         paginas = paginator.page(page)
-#     except (EmptyPage, InvalidPage):
-#         paginas = paginator.page(paginator.num_pages)
-
-#     carrinhoIsEmpty = not('carrinho_eventos' in request.session)
-
-#     return render(
-#         request,
-#         'eventos/carrinho.html',
-#         {
-#             'carIsEmpty': carrinhoIsEmpty,
-#             'paginas': paginas,
-#             'query_str': '?' + request.META['QUERY_STRING']
-#         }
-#     )
-
-# @login_required
-# def excluir_carrinho(request):
-#     if 'carrinho_eventos' in request.session:
-#         del request.session['carrinho_eventos']
-#         messages.info(request, 'O carrinho foi esvaziado')
-#     return HttpResponseRedirect('../../')
-
-# @login_required
-# def deleta_itens_carrinho(request):
-#     if request.method == 'POST':
-#         ids_selecionados = request.POST.getlist('_selected_action')
-#         removed = 0
-#         if 'carrinho_eventos' in request.session:
-#             lista = request.session['carrinho_eventos']
-#             for item in ids_selecionados:
-#                 lista.remove(item)
-#                 removed += 1
-#             if lista:
-#                 request.session['carrinho_eventos'] = lista
-#             else:
-#                 del lista
-#                 del request.session['carrinho_eventos']
-#         messages.info(request, "{0} itens removidos do carrinho".format(removed))
-#     return HttpResponseRedirect('.')
-
-# @login_required
-# def export_csv(request):
-#     def rm_rows(lista,reg):
-#         for a in lista:
-#             if a in lista:
-#                 reg.pop(a,None)
-#             else:
-#                 pass
-
-#     def serialize(r, field):
-#         value = (getattr(r, 'get_{0}_display'.format(field.name), None) or
-#                  getattr(r, field.name, ""))
-#         if callable(value):
-#             value = value()
-#         if value is None:
-#             value = ""
-#         return unicode(value).encode('utf8')
-
-#     eventos = carrinhoOrGet_for_qs(request)
-#     eventos.select_related('equipe', 'convite')
-
-#     if not eventos:
-#         messages.info(request, _("Nenhum evento a exportar"))
-#         return HttpResponseRedirect('../')
-
-#     max_equipe = max([e.equipe_set.count() for e in eventos])
-
-#     mun_casa = 'Município da Casa Anfitriã'.encode('utf8')
-#     uf_casa = 'UF da Casa Anfitriã'.encode('utf8')
-#     reg_casa = 'Região da Casa Anfitriã'.encode('utf8')
-
-#     head = [f.verbose_name.encode('utf8') for f in Evento._meta.fields]
-#     head.extend([mun_casa, uf_casa, reg_casa])
-#     head.extend([f.verbose_name.encode('utf8')+"_{0}".format(i+1)
-#         for i in range(max_equipe) for f in Equipe._meta.fields
-#         if f.name not in ('id', 'evento')])
-#     head.extend([f.verbose_name.encode('utf8') for f in Convite._meta.fields
-#         if f.name not in ('id', 'evento')])
-#     head.extend([f.verbose_name.encode('utf8') for f in Modulo._meta.fields
-#         if f.name not in ('id', 'evento')])
-
-#     response = HttpResponse(content_type='text/csv')
-#     response['Content-Disposition'] = 'attachment; filename=eventos.csv'
-#     rm_list = ['Descrição do evento', 'Local do evento', 'Público alvo', 'Motivo do cancelamento', 'Descrição do módulo']
-
-#     for a in head:
-#         if 'Observações_' in a:
-#             rm_list.append(a)
-
-#     for a in rm_list:
-#         if a in head:
-#             head.remove(a)
-#         else:
-#             pass
-#     writer = csv.DictWriter(response, fieldnames=head)
-#     writer.writeheader()
-
-#     for evento in eventos:
-#         reg = {f.verbose_name.encode('utf8'): serialize(evento, f)
-#                for f in Evento._meta.fields}
-#         if evento.casa_anfitria is None:
-#             reg[mun_casa] = ""
-#             reg[uf_casa] = ""
-#             reg[reg_casa] = ""
-#         else:
-#             reg[mun_casa] = evento.casa_anfitria.municipio.nome.encode('utf8')
-#             reg[uf_casa] = evento.casa_anfitria.municipio.uf.sigla.\
-#                 encode('utf8')
-#             reg[reg_casa] = evento.casa_anfitria.municipio.uf.\
-#                 get_regiao_display().encode('utf8')
-
-#         idx = 1
-#         for membro in evento.equipe_set.all():
-#             reg.update(
-#                 {
-#                     "{0}_{1}".format(f.verbose_name.encode('utf8'), idx):
-#                         serialize(membro, f) for f in Equipe._meta.fields
-#                         if f.name not in ('id', 'evento')
-#                 }
-#             )
-#             idx += 1
-#         for convite in evento.convite_set.all():
-#             reg.update(
-#                 {f.verbose_name.encode('utf8'): serialize(convite, f)
-#                  for f in Convite._meta.fields
-#                  if f.name not in ('id', 'evento')}
-#             )
-#             rm_rows(rm_list,reg)
-#             writer.writerow(reg)
-
-#         if evento.convite_set.count() == 0:
-#             rm_rows(rm_list,reg)
-
-#             writer.writerow(reg)
-
-#     return response
+    pass

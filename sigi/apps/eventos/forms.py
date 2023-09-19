@@ -30,6 +30,11 @@ class EventoAdminForm(forms.ModelForm):
             "status",
             "publicar",
             "moodle_courseid",
+            "chave_inscricao",
+            "perfil_aluno",
+            "observacao_inscricao",
+            "contato_inscricao",
+            "telefone_inscricao",
             "contato",
             "telefone",
             "banner",
@@ -41,11 +46,20 @@ class EventoAdminForm(forms.ModelForm):
         cleaned_data = super(EventoAdminForm, self).clean()
         data_inicio = cleaned_data.get("data_inicio")
         data_termino = cleaned_data.get("data_termino")
+        publicar = cleaned_data.get("publicar")
 
         if data_inicio and data_termino and data_inicio > data_termino:
             raise forms.ValidationError(
                 _("Data término deve ser posterior à data inicio"),
                 code="invalid_period",
+            )
+
+        if publicar and (data_inicio is None or data_termino is None):
+            raise forms.ValidationError(
+                _(
+                    "Para publicar no site é preciso ter data início e data término"
+                ),
+                code="cannot_publish",
             )
 
 

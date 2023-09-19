@@ -547,7 +547,60 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
 class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     form = EventoAdminForm
     resource_class = EventoResource
-    date_hierarchy = "data_inicio"
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "tipo_evento",
+                    "nome",
+                    "turma",
+                    "descricao",
+                    "virtual",
+                    "solicitante",
+                    "num_processo",
+                    "data_pedido",
+                    "data_recebido_coperi",
+                    "data_inicio",
+                    "data_termino",
+                    "carga_horaria",
+                    "casa_anfitria",
+                    "contato",
+                    "telefone",
+                    "observacao",
+                )
+            },
+        ),
+        (
+            _("Status"),
+            {
+                "fields": (
+                    "status",
+                    "total_participantes",
+                    "data_cancelamento",
+                    "motivo_cancelamento",
+                )
+            },
+        ),
+        (
+            _("Portal/Saberes"),
+            {
+                "fields": (
+                    "publicar",
+                    "publico_alvo",
+                    "local",
+                    "moodle_courseid",
+                    "chave_inscricao",
+                    "perfil_aluno",
+                    "observacao_inscricao",
+                    "contato_inscricao",
+                    "telefone_inscricao",
+                    "banner",
+                )
+            },
+        ),
+    )
+
     list_display = (
         "get_banner",
         "publicar",
@@ -578,6 +631,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "virtual",
         "solicitante",
     )
+    date_hierarchy = "data_inicio"
     autocomplete_fields = (
         "tipo_evento",
         "casa_anfitria",

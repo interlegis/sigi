@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "import_export",
     "tinymce",
     "django.forms",
+    "rest_framework",
     "material",
     "material.admin",
     "django.contrib.auth",
@@ -256,6 +257,16 @@ TINYMCE_DEFAULT_CONFIG = {
     "toolbar1": "undo redo print searchreplace visualblocks visualchars | styleselect fontsizeselect	| bold italic strikethrough subscript superscript underline hr | backcolor forecolor removeformat",
     "toolbar2": "alignleft aligncenter alignright alignjustify | numlist bullist outdent indent | link unlink |fullscreen code",
     "toolbar3": "table tabledelete | tableprops tablerowprops tablecellprops | tableinsertrowbefore tableinsertrowafter tabledeleterow tablerowheader | tableinsertcolbefore tableinsertcolafter tabledeletecol tablecolheader | tablemergecells tablesplitcells | tablecellbackgroundcolor tablecellbordercolor tablecellborderwidth tablecellborderstyle",
+}
+
+# Rest Framework settings
+
+REST_FRAMEWORK = {
+    "DEFAULT_RENDERER_CLASSES": [
+        "rest_framework.renderers.JSONRenderer",
+    ],
+    "DEFAULT_PAGINATION_CLASS": "sigi.apps.utils.pagination.SigiPageNumberPagination",
+    "PAGE_SIZE": 100,
 }
 
 # SIGI specific settings

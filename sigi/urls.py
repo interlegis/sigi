@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from rest_framework.schemas import get_schema_view
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -28,6 +29,16 @@ urlpatterns = [
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
     path("admin/", admin.site.urls),
+    path(
+        "api/",
+        get_schema_view(
+            title="SIGI Open API Schema",
+            description="API for SIGI opendata",
+            version="1.0.0",
+        ),
+        name="openapi-schema",
+    ),
+    path("api/eventos/", include("sigi.apps.eventos.api_urls")),
     path("tinymce/", include("tinymce.urls")),
     path("accounts/", include("sigi.apps.home.accounts_urls")),
     path("", include("sigi.apps.home.urls")),

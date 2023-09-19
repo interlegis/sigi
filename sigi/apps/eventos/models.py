@@ -411,9 +411,52 @@ class Evento(models.Model):
             "quando o curso é criado no Saberes."
         ),
     )
-    contato = models.CharField(_("contato"), max_length=100, blank=True)
+    chave_inscricao = models.CharField(
+        _("chave de inscrição"), max_length=100, blank=True
+    )
+    perfil_aluno = models.URLField(
+        _("Link do perfil do aluno"),
+        blank=True,
+        help_text=_(
+            "Link completo da página de perfil do aluno deste curso no Saberes"
+        ),
+    )
+    observacao_inscricao = models.TextField(
+        _("Observações para inscrição"),
+        blank=True,
+        help_text=_(
+            "Mais detalhes para ajudar o aluno a se inscrever no curso"
+        ),
+    )
+    contato_inscricao = models.CharField(
+        _("contato para inscrição"),
+        max_length=100,
+        blank=True,
+        help_text=_(
+            "pessoa ou setor responsável por dar suporte aos alunos no "
+            "processo de inscrição"
+        ),
+    )
+    telefone_inscricao = models.CharField(
+        _("telefone do contato"),
+        max_length=30,
+        blank=True,
+        help_text=_(
+            "telefone da pessoa ou setor responsável por dar suporte aos "
+            "alunos no processo de inscrição"
+        ),
+    )
+    contato = models.CharField(
+        _("contato"),
+        max_length=100,
+        blank=True,
+        help_text=_("pessoa de contato na casa anfitriã"),
+    )
     telefone = models.CharField(
-        _("tefone de contato"), max_length=30, blank=True
+        _("tefone de contato"),
+        max_length=30,
+        blank=True,
+        help_text=_("telefone da pessoa de contato na casa anfitriã"),
     )
     banner = models.ImageField(_("banner do evento"), blank=True, null=True)
     data_cancelamento = models.DateField(
