@@ -18,7 +18,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from django.views.generic import TemplateView
+from django.views.generic import TemplateView, RedirectView
 
 urlpatterns = [
     path("casas/", include("sigi.apps.casas.urls")),
@@ -31,10 +31,18 @@ urlpatterns = [
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
     path("admin/", admin.site.urls),
     path(
+        "api/",
+        RedirectView.as_view(pattern_name="swagger-ui", permanent=False),
+    ),
+    path(
+        "api/doc/",
+        RedirectView.as_view(pattern_name="swagger-ui", permanent=False),
+    ),
+    path(
         "api/doc/schema.yaml",
         get_schema_view(
-            title="SIGI Open API Schema",
-            description="API for SIGI opendata",
+            title="SIGI rest API Schema",
+            description="REST API for SIGI opendata",
             version="1.0.0",
         ),
         name="openapi-schema",
