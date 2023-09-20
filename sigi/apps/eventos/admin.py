@@ -110,6 +110,7 @@ class EventoResource(ValueLabeledResource):
             "casa_anfitria__logradouro",
             "casa_anfitria__bairro",
             "casa_anfitria__municipio__nome",
+            "casa_anfitria__municipio__populacao",
             "casa_anfitria__municipio__uf__sigla",
             "casa_anfitria__municipio__uf__regiao",
             "casa_anfitria__cep",
@@ -125,7 +126,9 @@ class EventoResource(ValueLabeledResource):
             "equipe__funcao__nome",
             "convite__casa__nome",
             "convite__casa__municipio__nome",
+            "convite__casa__municipio__populacao",
             "convite__casa__municipio__uf__sigla",
+            "convite__casa__municipio__uf__regiao",
             "convite__casa__cep",
             "convite__casa__email",
             "convite__qtde_participantes",
@@ -134,20 +137,39 @@ class EventoResource(ValueLabeledResource):
         export_order = fields
 
     def dehydrate_tipo_evento__categoria(self, obj):
-        return dict(TipoEvento.CATEGORIA_CHOICES)[
-            obj["tipo_evento__categoria"]
-        ]
+        return (
+            dict(TipoEvento.CATEGORIA_CHOICES)[obj["tipo_evento__categoria"]]
+            if obj["tipo_evento__categoria"]
+            else None
+        )
 
     def dehydrate_virtual(self, obj):
         return "Sim" if obj["virtual"] else "Não"
 
     def dehydrate_status(self, obj):
-        return dict(Evento.STATUS_CHOICES)[obj["status"]]
+        return (
+            dict(Evento.STATUS_CHOICES)[obj["status"]]
+            if obj["status"]
+            else None
+        )
 
     def dehydrate_casa_anfitria__municipio__uf__regiao(self, obj):
-        return dict(UnidadeFederativa.REGIAO_CHOICES)[
-            obj["casa_anfitria__municipio__uf__regiao"]
-        ]
+        return (
+            dict(UnidadeFederativa.REGIAO_CHOICES)[
+                obj["casa_anfitria__municipio__uf__regiao"]
+            ]
+            if obj["casa_anfitria__municipio__uf__regiao"]
+            else None
+        )
+
+    def dehydrate_convite__casa__municipio__uf__regiao(self, obj):
+        return (
+            dict(UnidadeFederativa.REGIAO_CHOICES)[
+                obj["convite__casa__municipio__uf__regiao"]
+            ]
+            if obj["convite__casa__municipio__uf__regiao"]
+            else None
+        )
 
 
 class ChecklistInline(admin.StackedInline):
