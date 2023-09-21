@@ -36,7 +36,10 @@ from sigi.apps.eventos.forms import (
     FuncionarioForm,
     ParlamentarForm,
 )
-from sigi.apps.eventos.serializers import EventoSerializer
+from sigi.apps.eventos.serializers import (
+    EventoSerializer,
+    EventoListSerializer,
+)
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servidores.models import Servidor
 
@@ -379,7 +382,7 @@ class ApiEventoList(ApiEventoAbstract, generics.ListAPIView):
     Lista de eventos, oficinas e cursos realizados pelo ILB / Interlegis
     """
 
-    pass
+    serializer_class = EventoListSerializer
 
 
 class ApiEventoRetrieve(ApiEventoAbstract, generics.RetrieveAPIView):

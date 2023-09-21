@@ -1,3 +1,5 @@
+import base64
+import magic
 from rest_framework import serializers
 from sigi.apps.eventos.models import Evento
 
@@ -9,6 +11,7 @@ class EventoSerializer(serializers.ModelSerializer):
     casa_municipio = serializers.SerializerMethodField("get_casa_municipio")
     casa_uf = serializers.SerializerMethodField("get_casa_uf")
     casa_cep = serializers.SerializerMethodField("get_casa_cep")
+    banner_base64 = serializers.SerializerMethodField("get_banner_base64")
 
     class Meta:
         model = Evento
@@ -34,6 +37,7 @@ class EventoSerializer(serializers.ModelSerializer):
             "contato_inscricao",
             "telefone_inscricao",
             "banner",
+            "banner_base64",
         ]
 
     def get_casa_nome(self, obj):
@@ -65,3 +69,31 @@ class EventoSerializer(serializers.ModelSerializer):
         if obj.casa_anfitria:
             return obj.casa_anfitria.cep
         return ""
+
+    def get_banner_base64(self, obj):
+        if obj.banner:
+            mime_type = magic.from_file(obj.banner.path, mime=True)
+            obj.banner.file.seek(0)  # Garante que está no início do arquivo
+            b64str = (base64.b64encode(obj.banner.file.read())).decode("ascii")
+            return f"data:{mime_type};base64, {b64str}"
+        return None
+
+
+class EventoListSerializer(EventoSerializer):
+    class Meta:
+        model = Evento
+        fields = [
+            "id",
+            "nome",
+            "turma",
+            "data_inicio",
+            "data_termino",
+            "carga_horaria",
+            "local",
+            "casa_nome",
+            "casa_logradouro",
+            "casa_bairro",
+            "casa_municipio",
+            "casa_uf",
+            "casa_cep",
+        ]
