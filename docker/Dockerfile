@@ -44,7 +44,7 @@ ENV MOODLE_API_TOKEN=''
 
 # Install env
 ENV RUN_PACKAGES gcc locales build-essential python3-dev graphviz \
-    libgraphviz-dev pkg-config libpq-dev postgresql-client \
+    libgraphviz-dev pkg-config libmagic-dev libpq-dev postgresql-client \
     libsasl2-dev libldap2-dev libssl-dev vim nginx cron
 
 # Install required packages
