@@ -458,7 +458,11 @@ class Evento(models.Model):
         blank=True,
         help_text=_("telefone da pessoa de contato na casa anfitriã"),
     )
-    banner = models.ImageField(_("banner do evento"), blank=True, null=True)
+    banner = models.ImageField(
+        _("banner do evento"),
+        blank=True,
+        upload_to="apps/eventos/evento/banner/",
+    )
     data_cancelamento = models.DateField(
         _("Data de cancelamento"), blank=True, null=True
     )
