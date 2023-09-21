@@ -188,7 +188,7 @@ class ConveniosInline(admin.TabularInline):
         "link_sigad",
         "status_convenio",
         "num_convenio",
-        "projeto",
+        "get_projeto",
         "data_retorno_assinatura",
         "data_termino_vigencia",
         "data_pub_diario",
@@ -223,6 +223,12 @@ class ConveniosInline(admin.TabularInline):
         if obj.pk is None:
             return ""
         return mark_safe(obj.get_sigad_url(display_type="icone"))
+
+    @admin.display(description=_("Tipo de convênio"))
+    def get_projeto(self, obj):
+        if obj.pk is None:
+            return ""
+        return obj.projeto.sigla
 
 
 class ServicoInline(admin.TabularInline):
