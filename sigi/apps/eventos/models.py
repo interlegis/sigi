@@ -39,6 +39,15 @@ class TipoEvento(models.Model):
     casa_solicita = models.BooleanField(
         _("casa pode solicitar"), default=False
     )
+    gerar_turma = models.BooleanField(
+        _("Gerar turma"),
+        default=True,
+        help_text=_(
+            "Se o campo 'turma' for deixado em branco, o sistema deve gerar "
+            "um número de turma automaticamente, com base no ano da data de "
+            "início do evento?"
+        ),
+    )
     duracao = models.PositiveIntegerField(_("Duração (dias)"), default=1)
     moodle_template_courseid = models.PositiveBigIntegerField(
         _("Curso protótipo"),
@@ -335,6 +344,11 @@ class Evento(models.Model):
                 ),
             )
         ],
+        help_text=_(
+            "Se deixado em branco e o evento tiver status CONFIRMADO e "
+            "data de início definida, o número da turma será "
+            "gerado automaticamente."
+        ),
     )
     descricao = models.TextField(
         _("Descrição do evento"),
@@ -527,15 +541,34 @@ class Evento(models.Model):
                 _("Data de término deve ser posterior à data de início")
             )
 
-        super().save(*args, **kwargs)
-        save_again = False
+        if (
+            self.turma == ""
+            and self.data_inicio
+            and self.status == Evento.STATUS_CONFIRMADO
+            and self.tipo_evento.gerar_turma
+        ):
+            ano = self.data_inicio.year
+            ultimo_evento = (
+                Evento.objects.filter(
+                    tipo_evento=self.tipo_evento,
+                    turma__regex=f"\d{{2}}/{ano:04}$",
+                )
+                .order_by("turma")
+                .last()
+            )
+            if ultimo_evento is None:
+                proximo = 1
+            else:
+                proximo = int(ultimo_evento.turma[:2]) + 1
+            self.turma = f"{proximo:02}/{ano:04}"
 
-        total = self.convite_set.aggregate(total=Sum("qtde_participantes"))
-        total = total["total"]
-
+        total = self.convite_set.aggregate(total=Sum("qtde_participantes"))[
+            "total"
+        ]
         if total and total > 0:
             self.total_participantes = total
-            super().save(*args, **kwargs)
+
+        super().save(*args, **kwargs)
 
         if self.status in [
             Evento.STATUS_PLANEJAMENTO,
