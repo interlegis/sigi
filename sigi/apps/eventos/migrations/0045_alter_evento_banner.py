@@ -11,9 +11,10 @@ def forwards(apps, schema_editor):
     for e in Evento.objects.exclude(banner="").exclude(banner=None):
         old_file = Path(e.banner.path)
         if old_file.exists():
-            new_file = upload_to / e.banner.name
-            old_file.rename(new_file)
-            e.banner = str(new_file.resolve())
+            new_file = upload_to / old_file.name
+            if not old_file.samefile(new_file):
+                old_file.rename(new_file)
+                e.banner = str(new_file.resolve())
         else:
             e.banner = ""
         e.save()
@@ -24,9 +25,10 @@ def backwards(apps, schema_editor):
     for e in Evento.objects.exclude(banner="").exclude(banner=None):
         new_file = Path(e.banner.path)
         if new_file.exists():
-            old_file = settings.MEDIA_ROOT / e.banner.name
-            new_file.rename(old_file)
-            e.banner = str(old_file.resolve())
+            old_file = settings.MEDIA_ROOT / new_file.name
+            if not old_file.samefile(new_file):
+                new_file.rename(old_file)
+                e.banner = str(old_file.resolve())
         else:
             e.banner = ""
         e.save()
