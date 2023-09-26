@@ -562,13 +562,15 @@ class Evento(models.Model):
                 proximo = int(ultimo_evento.turma[:2]) + 1
             self.turma = f"{proximo:02}/{ano:04}"
 
+        # É preciso salvar para poder usar o relacionamento com convites #
+        super().save(*args, **kwargs)
         total = self.convite_set.aggregate(total=Sum("qtde_participantes"))[
             "total"
         ]
-        if total and total > 0:
+        if total and total > 0 and total != self.total_participantes:
             self.total_participantes = total
-
-        super().save(*args, **kwargs)
+            # Salva de novo se o total de participantes mudou #
+            super().save(*args, **kwargs)
 
         if self.status in [
             Evento.STATUS_PLANEJAMENTO,
