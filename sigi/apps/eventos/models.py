@@ -438,6 +438,19 @@ class Evento(models.Model):
     observacao_inscricao = models.TextField(
         _("Observações para inscrição"),
         blank=True,
+        default=_(
+            "Passo a passo para a inscrição:<BR>"
+            "1. Acesse a plataforma Saberes para ir direto ao curso.<BR>"
+            "2. Para efetivar a matrícula, insira a CHAVE DE INSCRIÇÃO "
+            "indicada acima.<BR>"
+            "3. Dentro da plataforma Saberes, preencha o PERFIL DO ESTUDANTE "
+            "e junte-se ao grupo do Whatsapp para receber informações.<BR>"
+            "4. No dia da Oficina, leve seu notebook com mouse, "
+            "se possível.<BR>"
+            "ATENÇÃO: as inscrições ficarão abertas até o dia anterior ao "
+            "início da Oficina (14h), ou até atingir o número máximo de "
+            "participantes."
+        ),
         help_text=_(
             "Mais detalhes para ajudar o aluno a se inscrever no curso"
         ),
@@ -446,6 +459,7 @@ class Evento(models.Model):
         _("contato para inscrição"),
         max_length=100,
         blank=True,
+        default=_("Central de Atendimento - Oficinas."),
         help_text=_(
             "pessoa ou setor responsável por dar suporte aos alunos no "
             "processo de inscrição"
@@ -453,8 +467,9 @@ class Evento(models.Model):
     )
     telefone_inscricao = models.CharField(
         _("telefone do contato"),
-        max_length=30,
+        max_length=60,
         blank=True,
+        default=_("(61)3303-2026 ; (61)99862-7973 (zap)"),
         help_text=_(
             "telefone da pessoa ou setor responsável por dar suporte aos "
             "alunos no processo de inscrição"
