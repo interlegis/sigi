@@ -89,8 +89,6 @@ class SolicitacaoResource(LabeledResourse):
 
 
 class EventoResource(ValueLabeledResource):
-    # categoria_evento = Field(column_name="tipo_evento__categoria")
-    # status = Field(column_name="status")
     class Meta:
         model = Evento
         fields = (
@@ -119,6 +117,9 @@ class EventoResource(ValueLabeledResource):
             "observacao",
             "publico_alvo",
             "total_participantes",
+            "inscritos_saberes",
+            "aprovados_saberes",
+            "data_sincronizacao",
             "status",
             "data_cancelamento",
             "motivo_cancelamento",
@@ -594,11 +595,14 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             },
         ),
         (
-            _("Status"),
+            _("Status/participação"),
             {
                 "fields": (
                     "status",
                     "total_participantes",
+                    "inscritos_saberes",
+                    "aprovados_saberes",
+                    "data_sincronizacao",
                     "data_cancelamento",
                     "motivo_cancelamento",
                 )
@@ -665,6 +669,11 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "casa_anfitria__municipio__search_text",
         "solicitante",
         "num_processo",
+    )
+    readonly_fields = (
+        "inscritos_saberes",
+        "aprovados_saberes",
+        "data_sincronizacao",
     )
     inlines = (
         EquipeInline,
@@ -1146,41 +1155,33 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             )
             return redirect(change_url)
 
-        api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
-        mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
         try:
-            inscritos = mws.post(
-                "core_enrol_get_enrolled_users",
-                courseid=evento.moodle_courseid,
-            )
-        except Exception as e:
+            evento.sincroniza_saberes()
+        except Evento.SaberesSyncException as e:
             self.message_user(
                 request,
-                _(
-                    "Ocorreu um erro ao acessar o curso no Saberes com "
-                    f"a mensagem {e.message}"
-                ),
+                _(f"Erro ao sincronizar dados do Saberes: '{e.message}'"),
                 level=messages.ERROR,
             )
             return redirect(change_url)
-        evento.total_participantes = len(
-            list(
-                filter(
-                    lambda u: any(
-                        r["roleid"] in settings.MOODLE_STUDENT_ROLES
-                        for r in u["roles"]
-                    ),
-                    inscritos,
-                )
-            )
-        )
-        evento.save()
+
         self.message_user(
             request,
             _(
-                f"Foram encontrados {evento.total_participantes} alunos "
-                "no Saberes"
+                f"Foram encontrados {evento.inscritos_saberes} alunos "
+                f"no Saberes. Destes, {evento.aprovados_saberes} concluíram."
             ),
             level=messages.SUCCESS,
         )
+        if evento.total_participantes != evento.inscritos_saberes:
+            self.message_user(
+                request,
+                _(
+                    "O total de participantes ficou em "
+                    f"{evento.total_participantes} alunos, pois o campo "
+                    "já estava preenchido."
+                ),
+                level=messages.WARNING,
+            )
+
         return redirect(change_url)

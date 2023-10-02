@@ -1,7 +1,9 @@
 from collections.abc import Iterable
 import datetime
 import re
+from moodle import Moodle
 from tinymce.models import HTMLField
+from django.conf import settings
 from django.contrib import admin
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
@@ -306,6 +308,11 @@ class AnexoSolicitacao(models.Model):
 
 
 class Evento(models.Model):
+    class SaberesSyncException(Exception):
+        @property
+        def message(self):
+            return str(self)
+
     STATUS_PLANEJAMENTO = "E"
     STATUS_AGUARDANDOSIGAD = "G"
     STATUS_PREVISAO = "P"
@@ -404,13 +411,37 @@ class Evento(models.Model):
     observacao = models.TextField(_("Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)
     total_participantes = models.PositiveIntegerField(
-        _("Total de participantes"),
+        _("total de participantes"),
         default=0,
         help_text=_(
             "Se informar quantidade de participantes na aba de "
             "convites, este campo será ajustado com a somatória "
-            "dos participantes naquela aba."
+            "dos participantes naquela aba. Senão, será igual ao número de "
+            "inscritos no Saberes."
         ),
+    )
+    inscritos_saberes = models.PositiveIntegerField(
+        _("inscritos no Saberes"),
+        default=0,
+        help_text=_(
+            "Número de pessoas que se inscreveram no evento no Saberes. "
+            "Computado via integração SIGI x Saberes."
+        ),
+        editable=False,
+    )
+    aprovados_saberes = models.PositiveIntegerField(
+        _("aprovados no Saberes"),
+        default=0,
+        help_text=_(
+            "Número de pessoas que concluíram o curso no Saberes. "
+            "Computado via integração SIGI x Saberes."
+        ),
+        editable=False,
+    )
+    data_sincronizacao = models.DateTimeField(
+        _("data da última sincronização com Saberes"),
+        null=True,
+        editable=False,
     )
     status = models.CharField(
         _("Status"), max_length=1, choices=STATUS_CHOICES
@@ -543,6 +574,69 @@ class Evento(models.Model):
             + f"/course/view.php?id={self.moodle_courseid}"
         )
 
+    def sincroniza_saberes(self):
+        if self.moodle_courseid is None:
+            raise Evento.SaberesSyncException(
+                _("Este evento não tem curso associado no Saberes"),
+            )
+
+        api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
+        mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
+        try:
+            inscritos = mws.post(
+                "core_enrol_get_enrolled_users",
+                courseid=self.moodle_courseid,
+            )
+        except Exception as e:
+            raise Evento.SaberesSyncException(
+                _(
+                    "Ocorreu um erro ao acessar o curso no Saberes com "
+                    f"a mensagem {e.message}"
+                ),
+            )
+        participantes = list(
+            filter(
+                lambda u: any(
+                    r["roleid"] in settings.MOODLE_STUDENT_ROLES
+                    for r in u["roles"]
+                ),
+                inscritos,
+            )
+        )
+
+        aprovados = 0
+        for participante in participantes:
+            try:
+                completion_data = mws.post(
+                    "core_completion_get_course_completion_status",
+                    courseid=self.moodle_courseid,
+                    userid=participante["id"],
+                )
+            except Exception:
+                completion_data = None
+
+            if completion_data and (
+                completion_data["completionstatus"]["completed"]
+                or any(
+                    filter(
+                        lambda c: c["type"]
+                        == settings.MOODLE_COMPLETE_CRITERIA_TYPE
+                        and c["complete"],
+                        completion_data["completionstatus"]["completions"],
+                    )
+                )
+            ):
+                aprovados += 1
+
+        self.inscritos_saberes = len(participantes)
+        self.aprovados_saberes = aprovados
+        self.data_sincronizacao = timezone.localtime()
+
+        if self.total_participantes == 0:
+            self.total_participantes = self.inscritos_saberes
+
+        self.save()
+
     def save(self, *args, **kwargs):
         if self.status != Evento.STATUS_CANCELADO:
             self.data_cancelamento = None
@@ -579,13 +673,15 @@ class Evento(models.Model):
 
         # É preciso salvar para poder usar o relacionamento com convites #
         super().save(*args, **kwargs)
-        total = self.convite_set.aggregate(total=Sum("qtde_participantes"))[
-            "total"
-        ]
-        if total and total > 0 and total != self.total_participantes:
-            self.total_participantes = total
-            # Salva de novo se o total de participantes mudou #
-            super().save(*args, **kwargs)
+
+        if self.total_participantes == 0:
+            total = self.convite_set.aggregate(
+                total=Sum("qtde_participantes")
+            )["total"]
+            if total and total > 0 and total != self.total_participantes:
+                self.total_participantes = total
+                # Salva de novo se o total de participantes mudou #
+                super().save(*args, **kwargs)
 
         if self.status in [
             Evento.STATUS_PLANEJAMENTO,

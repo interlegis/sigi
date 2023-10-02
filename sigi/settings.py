@@ -280,3 +280,9 @@ REGISTRO_PATH = Path(env("REGISTRO_PATH", default="/tmp/DNS/"))
 MOODLE_BASE_URL = env("MOODLE_BASE_URL", default=None)
 MOODLE_API_TOKEN = env("MOODLE_API_TOKEN", default=None)
 MOODLE_STUDENT_ROLES = env("MOODLE_STUDENT_ROLES", eval, default=(5, 9))
+# See [webroot]/completion/criteria/completion_criteria.php moodle code
+# Search for COMPLETION_CRITERIA_TYPE_GRADE const definition
+# define('COMPLETION_CRITERIA_TYPE_GRADE', 6);
+MOODLE_COMPLETE_CRITERIA_TYPE = env(
+    "MOODLE_COMPLETE_CRITERIA_TYPE", int, default=6  # Type Grade
+)
