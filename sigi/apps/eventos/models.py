@@ -411,13 +411,13 @@ class Evento(models.Model):
     observacao = models.TextField(_("Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)
     total_participantes = models.PositiveIntegerField(
-        _("total de participantes"),
+        _("total de participantes/aprovados"),
         default=0,
         help_text=_(
-            "Se informar quantidade de participantes na aba de "
-            "convites, este campo será ajustado com a somatória "
-            "dos participantes naquela aba. Senão, será igual ao número de "
-            "inscritos no Saberes."
+            "Se existe evento relacionado no saberes, mostra o número de "
+            "participantes aprovados naquela plataforma. Senão, mostra a "
+            "somatória de participantes das Casas convidadas ou o número "
+            "de participantes informado manualmente pelo usuário."
         ),
     )
     inscritos_saberes = models.PositiveIntegerField(
@@ -632,8 +632,10 @@ class Evento(models.Model):
         self.aprovados_saberes = aprovados
         self.data_sincronizacao = timezone.localtime()
 
-        if self.total_participantes == 0:
-            self.total_participantes = self.inscritos_saberes
+        # O total de participantes em eventos que possuem curso no Saberes
+        # é sempre o número de aprovados no Saberes, independente do que o
+        # usuário tenha digitado nesse campo ou no inline de casas convidadas
+        self.total_participantes = self.aprovados_saberes
 
         self.save()
 
@@ -671,10 +673,15 @@ class Evento(models.Model):
                 proximo = int(ultimo_evento.turma[:2]) + 1
             self.turma = f"{proximo:02}/{ano:04}"
 
-        # É preciso salvar para poder usar o relacionamento com convites #
+        # É preciso salvar para poder usar o relacionamento com convites
         super().save(*args, **kwargs)
 
-        if self.total_participantes == 0:
+        if self.total_participantes == 0 and self.moodle_courseid is None:
+            # Só calcula total_participantes se não tem curso relacionado
+            # no ambiente Saberes. Se tiver curso no saberes, este campo será
+            # preenchido com o total de aprovados quando da sincronização
+            # veja o método self.sincroniza.saberes()
+
             total = self.convite_set.aggregate(
                 total=Sum("qtde_participantes")
             )["total"]
