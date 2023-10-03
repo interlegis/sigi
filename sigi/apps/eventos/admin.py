@@ -1173,15 +1173,5 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             ),
             level=messages.SUCCESS,
         )
-        if evento.total_participantes != evento.inscritos_saberes:
-            self.message_user(
-                request,
-                _(
-                    "O total de participantes ficou em "
-                    f"{evento.total_participantes} alunos, pois o campo "
-                    "já estava preenchido."
-                ),
-                level=messages.WARNING,
-            )
 
         return redirect(change_url)
