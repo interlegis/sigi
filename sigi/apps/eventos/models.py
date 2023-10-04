@@ -320,7 +320,7 @@ class Evento(models.Model):
     STATUS_SOBRESTADO = "Q"
 
     STATUS_CHOICES = (
-        (STATUS_PREVISTO, _("Previto")),
+        (STATUS_PREVISTO, _("Previsto")),
         (STATUS_AUTORIZADO, _("Autorizado")),
         (STATUS_REALIZADO, _("Realizado")),
         (STATUS_CANCELADO, _("Cancelado")),

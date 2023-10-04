@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
             name="status",
             field=models.CharField(
                 choices=[
-                    ("P", "Previto"),
+                    ("P", "Previsto"),
                     ("O", "Autorizado"),
                     ("R", "Realizado"),
                     ("C", "Cancelado"),
