@@ -79,7 +79,7 @@ class SolicitacaoResource(LabeledResourse):
 
     def dehydrate_oficinas_uf(sekf, obj):
         return Evento.objects.filter(
-            status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
             casa_anfitria__municipio__uf=obj.casa.municipio.uf,
             data_inicio__year__gte=timezone.localdate().year - 2,
         ).count()
@@ -389,7 +389,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
                     item.status == ItemSolicitado.STATUS_SOLICITADO
                     and item.evento is not None
                 ):
-                    item.evento.status = Evento.STATUS_ACONFIRMAR
+                    item.evento.status = Evento.STATUS_PREVISTO
                     self.message_user(
                         request,
                         _(
@@ -426,7 +426,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
                             observacao=_(
                                 f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
                             ),
-                            status=Evento.STATUS_CONFIRMADO,
+                            status=Evento.STATUS_AUTORIZADO,
                             contato=item.solicitacao.contato,
                             telefone=item.solicitacao.telefone_contato,
                         )
@@ -436,7 +436,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
                             messages.INFO,
                         )
                     else:
-                        item.evento.status = Evento.STATUS_CONFIRMADO
+                        item.evento.status = Evento.STATUS_AUTORIZADO
                         item.evento.observacao += _(
                             f"\nConfirmado por {servidor} com a justificativa: {item.justificativa}"
                         )

@@ -90,7 +90,7 @@ class Solicitacao(models.Model):
     STATUS_CHOICES = (
         (STATUS_SOLICITADO, _("Solicitado")),
         (STATUS_AUTORIZADO, _("Autorizado")),
-        (STATUS_REJEITADO, _("Rejeitado")),
+        (STATUS_REJEITADO, _("Não autorizado")),
         (STATUS_CONCLUIDO, _("Concluído")),
     )
     casa = models.ForeignKey(
@@ -196,7 +196,7 @@ class Solicitacao(models.Model):
     def get_oficinas_uf(self):
         ano_corrente = timezone.localdate().year
         counters = Evento.objects.filter(
-            status__in=[Evento.STATUS_CONFIRMADO, Evento.STATUS_REALIZADO],
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
             casa_anfitria__municipio__uf=self.casa.municipio.uf,
             tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
         ).aggregate(
@@ -227,7 +227,7 @@ class ItemSolicitado(models.Model):
     STATUS_CHOICES = (
         (STATUS_SOLICITADO, _("Solicitado")),
         (STATUS_AUTORIZADO, _("Autorizado")),
-        (STATUS_REJEITADO, _("Rejeitado")),
+        (STATUS_REJEITADO, _("Não autorizado")),
     )
     solicitacao = models.ForeignKey(Solicitacao, on_delete=models.CASCADE)
     tipo_evento = models.ForeignKey(
@@ -313,24 +313,18 @@ class Evento(models.Model):
         def message(self):
             return str(self)
 
-    STATUS_PLANEJAMENTO = "E"
-    STATUS_AGUARDANDOSIGAD = "G"
-    STATUS_PREVISAO = "P"
-    STATUS_ACONFIRMAR = "A"
-    STATUS_CONFIRMADO = "O"
+    STATUS_PREVISTO = "P"
+    STATUS_AUTORIZADO = "O"
     STATUS_REALIZADO = "R"
     STATUS_CANCELADO = "C"
-    STATUS_ARQUIVADO = "Q"
+    STATUS_SOBRESTADO = "Q"
 
     STATUS_CHOICES = (
-        (STATUS_PLANEJAMENTO, _("Em planejamento")),
-        (STATUS_AGUARDANDOSIGAD, _("Aguardando abertura SIGAD")),
-        (STATUS_PREVISAO, _("Previsão")),
-        (STATUS_ACONFIRMAR, _("A confirmar")),
-        (STATUS_CONFIRMADO, _("Confirmado")),
+        (STATUS_PREVISTO, _("Previto")),
+        (STATUS_AUTORIZADO, _("Autorizado")),
         (STATUS_REALIZADO, _("Realizado")),
         (STATUS_CANCELADO, _("Cancelado")),
-        (STATUS_ARQUIVADO, _("Arquivado")),
+        (STATUS_SOBRESTADO, _("Sobrestado")),
     )
 
     tipo_evento = models.ForeignKey(
@@ -655,7 +649,7 @@ class Evento(models.Model):
         if (
             self.turma == ""
             and self.data_inicio
-            and self.status == Evento.STATUS_CONFIRMADO
+            and self.status == Evento.STATUS_AUTORIZADO
             and self.tipo_evento.gerar_turma
         ):
             ano = self.data_inicio.year
@@ -690,12 +684,7 @@ class Evento(models.Model):
                 # Salva de novo se o total de participantes mudou #
                 super().save(*args, **kwargs)
 
-        if self.status in [
-            Evento.STATUS_PLANEJAMENTO,
-            Evento.STATUS_AGUARDANDOSIGAD,
-            Evento.STATUS_PREVISAO,
-            Evento.STATUS_ACONFIRMAR,
-        ]:
+        if self.status == Evento.STATUS_PREVISTO:
             if (
                 self.cronograma_set.count() == 0
                 and self.tipo_evento.checklist_set.count() > 0

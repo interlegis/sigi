@@ -321,7 +321,7 @@ class OficinaChangeView(BaseOcorrenciaChangeView):
                 data_termino=dados["data_termino"],
                 casa_anfitria=ocorrencia.casa_legislativa,
                 municipio=ocorrencia.casa_legislativa.municipio,
-                status=Evento.STATUS_ACONFIRMAR,
+                status=Evento.STATUS_PREVISTO,
             )
             evento.save()
             total += 1

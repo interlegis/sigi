@@ -103,10 +103,7 @@ def calendario(request):
                 lambda x, y: (x[0], {"label": x[1], "icon": y}),
                 Evento.STATUS_CHOICES,
                 [
-                    "assignment",
-                    "hourglass_empty",
                     "access_time",
-                    "thumbs_up_down",
                     "thumb_up",
                     "done_all",
                     "mood_bad",
@@ -176,7 +173,7 @@ class EventoListView(ListView):
     def get_queryset(self):
         queryset = super().get_queryset()
         return queryset.filter(
-            status=Evento.STATUS_CONFIRMADO, publicar=True
+            status=Evento.STATUS_AUTORIZADO, publicar=True
         ).order_by("data_inicio")
 
     @xframe_options_exempt

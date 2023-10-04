@@ -31,8 +31,4 @@ class Migration(migrations.Migration):
         ("eventos", "0047_alter_evento_contato_inscricao_and_more"),
     ]
 
-    operations = [
-        migrations.RunPython(
-            forwards,
-        )
-    ]
+    operations = [migrations.RunPython(forwards)]
