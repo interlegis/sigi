@@ -1,8 +1,9 @@
 import datetime
 import time
 from typing import Any
+from django.db.models.query import QuerySet
 from moodle import Moodle
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
@@ -19,6 +20,7 @@ from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from weasyprint import HTML
+from sigi.apps.convenios.models import Convenio
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.eventos.models import (
     Checklist,
@@ -43,6 +45,23 @@ from sigi.apps.utils.mixins import (
     LabeledResourse,
     ValueLabeledResource,
 )
+
+
+class ActVigenteFilter(admin.SimpleListFilter):
+    title = _("ACT vigente")
+    parameter_name = "act_vigente"
+
+    def lookups(self, request, model_admin):
+        return (
+            (("yes"), _("Yes")),
+            ("no", _("No")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "yes":
+            return queryset.exclude(act_id=None)
+        if self.value() == "no":
+            return queryset.filter(act_id=None)
 
 
 class SolicitacaoResource(LabeledResourse):
@@ -240,6 +259,8 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "get_sigad_url",
         "status",
         "senador",
+        "get_act",
+        "get_data_termino_vigencia_act",
         "data_pedido",
         "data_recebido_coperi",
         "get_oficinas",
@@ -257,6 +278,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "senador",
         "itemsolicitado__tipo_evento",
         "status",
+        ActVigenteFilter,
     )
     list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
     list_display_links = ("casa",)
@@ -311,6 +333,26 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
     readonly_fields = ("servidor", "data_analise")
     inlines = (ItemSolicitadoInline, AnexoSolicitacaoInline)
     autocomplete_fields = ("casa",)
+
+    def get_queryset(self, request):
+        acts = Convenio.objects.filter(
+            casa_legislativa=OuterRef("casa"),
+            projeto__sigla="ACT",
+            data_retorno_assinatura__lte=timezone.localdate(),
+            data_termino_vigencia__gte=timezone.localdate(),
+        ).order_by("data_termino_vigencia")
+        qs = self.model._default_manager.get_queryset()
+        qs = qs.annotate(
+            act_id=Subquery(acts.values("id")[:1]),
+            act_num=Subquery(acts.values("num_convenio")[:1]),
+            act_data_termino_vigencia=Subquery(
+                acts.values("data_termino_vigencia")[:1]
+            ),
+        )
+        ordering = self.get_ordering(request)
+        if ordering:
+            qs = qs.order_by(*ordering)
+        return qs
 
     def save_model(self, request, obj, form, change):
         if change:
@@ -546,6 +588,24 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
     )
     def get_populacao(self, obj):
         return obj.casa.municipio.populacao
+
+    @admin.display(description=_("ACT vigente"), ordering="act_num")
+    def get_act(self, obj):
+        if obj.act_id:
+            change_url = reverse(
+                "admin:convenios_convenio_change", args=[obj.act_id]
+            )
+            return mark_safe(
+                f"<a href='{change_url}' target='_blank'>" f"{obj.act_num}</a>"
+            )
+        return None
+
+    @admin.display(
+        description=_("Término vigência ACT"),
+        ordering="act_data_termino_vigencia",
+    )
+    def get_data_termino_vigencia_act(self, obj):
+        return obj.act_data_termino_vigencia
 
 
 @admin.register(Funcao)
