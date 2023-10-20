@@ -174,12 +174,19 @@ if env("AUTH_LDAP_SERVER_URI", default=None):
     from django_auth_ldap.config import LDAPSearch, GroupOfNamesType
     import ldap
 
+    LDAP_GET_ALL_USERS = env(
+        "LDAP_GET_ALL_USERS",
+        default="(&(department=*ILB*)(!(title=*Desligad*))(!(title=*inativ*)))",
+    )
+
     AUTH_LDAP_SERVER_URI = env("AUTH_LDAP_SERVER_URI")
     AUTH_LDAP_BIND_DN = env("AUTH_LDAP_BIND_DN")
     AUTH_LDAP_BIND_PASSWORD = env("AUTH_LDAP_BIND_PASSWORD")
     AUTH_LDAP_USER = env("AUTH_LDAP_USER")
     AUTH_LDAP_USER_SEARCH = LDAPSearch(
-        AUTH_LDAP_USER, ldap.SCOPE_SUBTREE, env("AUTH_LDAP_USER_SEARCH_STRING")
+        AUTH_LDAP_USER,
+        ldap.SCOPE_ONELEVEL,
+        env("AUTH_LDAP_USER_SEARCH_STRING"),
     )
     AUTH_LDAP_GROUP = env("AUTH_LDAP_GROUP")
     AUTH_LDAP_GROUP_SEARCH = LDAPSearch(

@@ -39,7 +39,7 @@ class Servico(models.Model):
 
 class Servidor(models.Model):
     user = models.ForeignKey(
-        User, on_delete=models.CASCADE, null=True, blank=True
+        User, on_delete=models.SET_NULL, null=True, blank=True
     )
     nome_completo = models.CharField(max_length=128)
     apelido = models.CharField(max_length=50, blank=True)
@@ -69,6 +69,7 @@ class Servidor(models.Model):
     sigi = models.BooleanField(
         _("Servidor SIGI"), default=False, editable=False
     )
+    ldap_dn = models.CharField(max_length=200, blank=True, editable=False)
 
     class Meta:
         ordering = ("nome_completo",)
@@ -106,25 +107,14 @@ User.servidor = property(
 def create_user_profile(sender, instance, created, **kwargs):
     if not hasattr(instance, "ldap_user"):
         return
-    sigla_servico = instance.ldap_user.attrs.get("department", [""])[0].split(
-        "-"
-    )[-1]
-    servico = Servico.objects.filter(sigla=sigla_servico).first()
-    if created and instance.is_staff:
-        Servidor.objects.create(
-            user=instance,
-            nome_completo="%s %s" % (instance.first_name, instance.last_name),
-            servico=servico,
-        )
-    elif (
-        not created
-        and instance.is_staff
-        and instance.servidor is not None
-        and instance.servidor.servico != servico
-    ):
-        servidor = instance.servidor
-        servidor.servico = servico
-        servidor.save()
+
+    from sigi.apps.servidores.utils import servidor_create_or_update
+
+    result, servidor = servidor_create_or_update(
+        instance.ldap_user.attrs, commit=False
+    )
+    servidor.user = instance
+    servidor.save()
 
 
 # Hack horrível para ajustar o first_name e o last_name do User criado pelo
@@ -141,18 +131,7 @@ def ajusta_nome_usuario(sender, instance, *args, **kwargs):
 # a propriedade Department, do LDAP, é uma unidade do ILB. Também desmembra
 # o campo Department para gerar os nomes dos grupos que o User vai integrar
 @receiver(populate_user, sender=LDAPBackend)
-def user_staff_and_group(user, ldap_user, **kwargs):
-    dep = ldap_user.attrs.get("department", [""])[0]
-    title = ldap_user.attrs.get("title", [""])[0]
-    deps = dep.split("-")
-    titles = [s.strip().upper() for s in title.split("-", 1)]
-    group_names = [f"{d}-{t}" for d in deps for t in titles]
-    group_names.extend(deps)
-    group_names.extend(titles)
-    group_names.extend([dep, title.upper()])
-    user.is_staff = "ILB" in dep
-    user.save()
-    user.groups.clear()
-    for name in group_names:
-        group, created = Group.objects.get_or_create(name=name)
-        user.groups.add(group)
+def populate_user_from_ldap(user, ldap_user, **kwargs):
+    from sigi.apps.servidores.utils import user_staff_and_group
+
+    user_staff_and_group(user, ldap_user.attrs)

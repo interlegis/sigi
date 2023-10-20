@@ -1,70 +1,61 @@
-# coding: utf-8
-from django.contrib.auth.models import User, Group
-from sigi.apps.servidores.models import Servidor
 from django.core.management.base import BaseCommand
+from sigi.apps.servidores.models import Servidor
+from sigi.apps.servidores.utils import mescla_servidores
 
 
 class Command(BaseCommand):
-    help = "Transfere os dados do servidor OLD para o servidor NEW."
-    args = "old_id new_id"
+    help = "Transfere os dados do servidor SOURCE para o servidor TARGET."
+
+    def add_arguments(self, parser):
+        parser.add_argument(
+            "source_id",
+            help="ID do servidor que será removido",
+            nargs=1,
+            type=int,
+        )
+        parser.add_argument(
+            "target_id",
+            help="ID do servidor que receberá os dados do que será removido",
+            nargs=1,
+            type=int,
+        )
 
     def handle(self, *args, **options):
-        if len(args) != 2:
-            self.stderr.write("Informe old_id e new_id")
+        source_id = options["source_id"][0]
+        target_id = options["target_id"][0]
+
+        try:
+            servidor_source = Servidor.objects.get(id=source_id)
+        except Servidor.DoesNotExist:
+            self.stdout.write(
+                self.style.WARNING(f"Não existe servidor com ID {source_id}")
+            )
             return
-
-        old_id = args[0]
-        new_id = args[1]
-
-        old = Servidor.objects.get(id=old_id)
-        new = Servidor.objects.get(id=new_id)
+        try:
+            servidor_target = Servidor.objects.get(id=target_id)
+        except Servidor.DoesNotExist:
+            self.stdout.write(
+                self.style.WARNING(f"Não existe servidor com ID {target_id}")
+            )
+            return
 
         self.stdout.write(
             self.style.WARNING(
-                "Transferir dados de {old_name} para {new_name}".format(
-                    old_name=old.nome_completo, new_name=new.nome_completo
-                )
+                f"Transferir dados de {servidor_source.nome_completo} "
+                f"para {servidor_target.nome_completo}"
             )
         )
 
-        self.stdout.write("\t* Transferindo a carteira de atendimento...")
-        for casa in old.casas_que_gerencia.all():
-            new.casas_que_gerencia.add(casa)
-            old.casas_que_gerencia.remove(casa)
+        resp = input("Continuar? [sim / NÃO]: ")
 
-        self.stdout.write("\t* Transferindo ocorrências registradas...")
-        old.ocorrencia_set.all().update(servidor_registro=new)
+        if resp.lower() != "sim":
+            self.stdout.write(self.style.NOTICE("Abortado!"))
+            return
 
-        self.stdout.write("\t* Transferindo comentários de ocorrências...")
-        old.comentario_set.all().update(usuario=new)
-
-        self.stdout.write("\t* Transferindo convênios geridos...")
-        old.convenio_set.all().update(servidor_gestao=new)
-
-        self.stdout.write("\t* Transferindo convênios acompanhados...")
-        old.convenio_set.all().update(acompanha=new)
-
-        self.stdout.write("\t* Transferindo participação em eventos...")
-        old.equipe_evento.all().update(membro=new)
-
-        self.stdout.write("\t* Transferindo convites para eventos...")
-        old.convite_set.all().update(servidor=new)
-
-        self.stdout.write("\t* Transferindo diagnósticos...")
-        old.diagnostico_set.all().update(responsavel=new)
-
-        self.stdout.write("\t* Transferindo participação em diagnósticos...")
-        old.equipe_set.all().update(membro=new)
-
-        self.stdout.write("\t* Transferindo dados de autenticação...")
-
-        if new.user:
-            old.user.logentry_set.all().update(user=new)
-            old.user.delete()
-        else:
-            new.user = old.user
-            new.save()
-            old.user = None
-            old.save()
+        mescla_servidores(
+            servidor_source=servidor_source,
+            servidor_target=servidor_target,
+            verbose=True,
+        )
 
         self.stdout.write("Concluído!")
