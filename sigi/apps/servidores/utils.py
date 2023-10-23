@@ -147,6 +147,7 @@ def user_staff_and_group(user, ldap_attrs):
     group_names.extend(titles)
     group_names.extend([dep, title.upper()])
     user.is_staff = "ILB" in dep
+    user.is_active = user.is_staff
     user.save()
     user.groups.clear()
     if user.is_staff:
