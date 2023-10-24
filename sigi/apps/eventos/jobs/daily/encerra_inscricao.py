@@ -21,7 +21,7 @@ class Job(JobReportMixin, DailyJob):
 
         encerrar_inscricao = (
             Evento.objects.exclude(publicar=False)
-            .filter(data_inicio__gte=hoje)
+            .filter(data_inicio__lte=hoje)
             .exclude(chave_inscricao=INSCRICOES_ENCERRADAS)
         )
         encerrar_inscricao.update(chave_inscricao=INSCRICOES_ENCERRADAS)
