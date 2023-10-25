@@ -915,7 +915,9 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                 pdf.write_pdf(target=response)
                 return response
         else:
-            form = SelecionaModeloForm()
+            form = SelecionaModeloForm(
+                initial={"modelo": ModeloDeclaracao.objects.first().id}
+            )
 
         context = {
             "form": form,
