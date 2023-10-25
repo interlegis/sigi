@@ -39,7 +39,7 @@ from sigi.apps.eventos.models import (
 )
 from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
 from sigi.apps.utils import abreviatura
-from sigi.apps.utils.filters import EmptyFilter, DateRangeFilter
+from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import (
     CartExportMixin,
     LabeledResourse,
@@ -708,7 +708,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
     list_filter = (
         "status",
         "publicar",
-        ("num_processo", EmptyFilter),
+        ("num_processo", admin.EmptyFieldListFilter),
         "tipo_evento",
         "tipo_evento__categoria",
         "casa_anfitria__municipio__uf",
@@ -716,6 +716,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         ("data_inicio", DateRangeFilter),
         "virtual",
         "solicitante",
+        ("moodle_courseid", admin.EmptyFieldListFilter),
     )
     date_hierarchy = "data_inicio"
     autocomplete_fields = (

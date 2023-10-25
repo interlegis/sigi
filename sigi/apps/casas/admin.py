@@ -25,7 +25,6 @@ from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import asciify_q_param
-from sigi.apps.utils.filters import EmptyFilter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
     CartExportReportMixin,
@@ -364,7 +363,7 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
         ("convenio__projeto_id", ExcluirTipoProjetoFilter),
         ServicoFilter,
         "inclusao_digital",
-        ("email", EmptyFilter),
+        ("email", admin.EmptyFieldListFilter),
     )
     ordering = ("municipio__uf__nome", "nome")
     fieldsets = (
