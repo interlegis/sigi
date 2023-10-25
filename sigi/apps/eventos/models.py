@@ -634,6 +634,18 @@ class Evento(models.Model):
         self.save()
 
     def save(self, *args, **kwargs):
+        # Força que a casa anfitriã de todas as visitas seja Senado
+        # Gertik #165751
+        if self.tipo_evento.categoria == TipoEvento.CATEGORIA_VISITA:
+            self.casa_anfitria = Orgao.objects.get(tipo__sigla="SF")
+        # Limpa casas convidadas se a categoria do evento for Oficina
+        # e está vinculado com um curso no Saberes.
+        # Gertik #165984: https://gertiq.senado.leg.br/redmine/issues/165984#3em-seguida-DELETAR-as-Casas-convidadas-DOS-registros-de-OFICINAS
+        if (
+            self.tipo_evento.categoria == TipoEvento.CATEGORIA_OFICINA
+            and self.moodle_courseid is not None
+        ):
+            self.convite_set.all().delete()
         if self.status != Evento.STATUS_CANCELADO:
             self.data_cancelamento = None
             self.motivo_cancelamento = ""
