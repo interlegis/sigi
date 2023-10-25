@@ -25,8 +25,6 @@ class Job(JobReportMixin, DailyJob):
             .exclude(chave_inscricao=INSCRICOES_ENCERRADAS)
         )
 
-        total_encerrar = encerrar_inscricao.count()
-
         self.report_data.append(_("Inscrições encerradas"))
         self.report_data.append("---------------------")
         self.report_data.append("")
@@ -35,12 +33,13 @@ class Job(JobReportMixin, DailyJob):
         )
         self.report_data.append("")
 
-        encerrar_inscricao.update(chave_inscricao=INSCRICOES_ENCERRADAS)
+        total_encerrar = encerrar_inscricao.update(
+            chave_inscricao=INSCRICOES_ENCERRADAS
+        )
 
         despublicar = Evento.objects.exclude(publicar=False).filter(
             data_termino__lte=anteontem
         )
-        total_despublicar = despublicar.count()
 
         self.report_data.append(_("Despublicados"))
         self.report_data.append("-------------")
@@ -48,7 +47,7 @@ class Job(JobReportMixin, DailyJob):
         self.report_data.extend([f"{e.nome} ({e.id})" for e in despublicar])
         self.report_data.append("")
 
-        despublicar.update(publicar=False)
+        total_despublicar = despublicar.update(publicar=False)
 
         self.report_data.append(_("RESUMO"))
         self.report_data.append("------")

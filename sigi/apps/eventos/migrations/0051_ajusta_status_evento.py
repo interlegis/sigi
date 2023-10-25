@@ -42,4 +42,4 @@ class Migration(migrations.Migration):
         ("eventos", "0050_alter_evento_total_participantes"),
     ]
 
-    operations = [migrations.RunPython(forwards)]
+    operations = [migrations.RunPython(forwards, migrations.RunPython.noop)]
