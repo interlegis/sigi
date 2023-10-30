@@ -1,9 +1,9 @@
 import datetime
 import time
-from typing import Any
-from django.db.models.query import QuerySet
 from moodle import Moodle
-from django.db.models import Q, OuterRef, Subquery
+from typing import Any
+from django.db import models
+from django.db.models import F, OuterRef, Subquery
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
@@ -53,7 +53,7 @@ class ActVigenteFilter(admin.SimpleListFilter):
 
     def lookups(self, request, model_admin):
         return (
-            (("yes"), _("Yes")),
+            ("yes", _("Yes")),
             ("no", _("No")),
         )
 
@@ -62,6 +62,28 @@ class ActVigenteFilter(admin.SimpleListFilter):
             return queryset.exclude(act_id=None)
         if self.value() == "no":
             return queryset.filter(act_id=None)
+
+
+class NumeroParticipantesFilter(admin.SimpleListFilter):
+    title = _("Inscritos x Aprovados")
+    parameter_name = "inscritos_x_aprovados"
+
+    def lookups(self, request, model_admin):
+        return (
+            ("sem_inscritos", _("Sem inscritos")),
+            ("sem_aprovados", _("Sem aprovados")),
+            ("diferenca_10", _("Diferença >= dez")),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == "sem_inscritos":
+            return queryset.filter(inscritos_saberes=0)
+        if self.value() == "sem_aprovados":
+            return queryset.filter(aprovados_saberes=0)
+        if self.value() == "diferenca_10":
+            return queryset.annotate(
+                diferenca=F("inscritos_saberes") - F("aprovados_saberes")
+            ).filter(diferenca__gte=10)
 
 
 class SolicitacaoResource(LabeledResourse):
@@ -717,6 +739,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         "virtual",
         "solicitante",
         ("moodle_courseid", admin.EmptyFieldListFilter),
+        NumeroParticipantesFilter,
     )
     date_hierarchy = "data_inicio"
     autocomplete_fields = (
