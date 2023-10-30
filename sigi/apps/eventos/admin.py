@@ -3,7 +3,7 @@ import time
 from moodle import Moodle
 from typing import Any
 from django.db import models
-from django.db.models import F, OuterRef, Subquery
+from django.db.models import F, OuterRef, Subquery, Count, Q
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
@@ -287,13 +287,17 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "data_recebido_coperi",
         "get_oficinas",
         "get_municipio",
-        "get_uf",
-        "get_regiao",
         "get_populacao",
+        "get_oficinas_municipio",
+        "get_uf",
         "get_oficinas_uf",
+        "get_regiao",
+        "get_microrregiao",
+        "get_oficinas_microrregiao",
         "estimativa_casas",
         "estimativa_servidores",
     )
+    list_display_links = ("casa",)
     list_filter = (
         "casa__municipio__uf",
         "casa__municipio__uf__regiao",
@@ -303,7 +307,6 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         ActVigenteFilter,
     )
     list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
-    list_display_links = ("casa",)
     search_fields = (
         "casa__search_text",
         "casa__municipio__search_text",
@@ -606,10 +609,74 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         return obj.casa.municipio.uf.get_regiao_display()
 
     @admin.display(
+        description=_("Microrregião"), ordering="casa__municipio__microrregiao"
+    )
+    def get_microrregiao(self, obj):
+        return obj.casa.municipio.microrregiao
+
+    @admin.display(
+        description=_("Oficinas atendidas/confirmadas na microrregião")
+    )
+    def get_oficinas_microrregiao(self, obj):
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio__microrregiao=obj.casa.municipio.microrregiao,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
+
+    @admin.display(
         description=_("População"), ordering="casa__municipio__populacao"
     )
     def get_populacao(self, obj):
         return obj.casa.municipio.populacao
+
+    @admin.display(
+        description=_("Oficinas atendidas/confirmadas no município")
+    )
+    def get_oficinas_municipio(self, obj):
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio=obj.casa.municipio,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
 
     @admin.display(description=_("ACT vigente"), ordering="act_num")
     def get_act(self, obj):
@@ -621,6 +688,33 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
                 f"<a href='{change_url}' target='_blank'>" f"{obj.act_num}</a>"
             )
         return None
+
+    @admin.display(description=_("Oficinas atendidas/confirmadas na UF"))
+    def get_oficinas_uf(self, obj):
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio__uf=obj.casa.municipio.uf,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
 
     @admin.display(
         description=_("Término vigência ACT"),

@@ -8,7 +8,7 @@ from django.contrib import admin
 from django.core.validators import RegexValidator
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.db.models import Sum, Count, Q
+from django.db.models import Sum
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
@@ -191,33 +191,6 @@ class Solicitacao(models.Model):
                 ).format(processo=self.num_processo, **m.groupdict())
             )
         return self.num_processo
-
-    @admin.display(description=_("Oficinas atendidas/confirmadas na UF"))
-    def get_oficinas_uf(self):
-        ano_corrente = timezone.localdate().year
-        counters = Evento.objects.filter(
-            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
-            casa_anfitria__municipio__uf=self.casa.municipio.uf,
-            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
-        ).aggregate(
-            total=Count("id"),
-            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
-            dois_anos=Count(
-                "id",
-                filter=Q(data_inicio__year__gte=ano_corrente - 1),
-            ),
-            tres_anos=Count(
-                "id",
-                filter=Q(data_inicio__year__gte=ano_corrente - 2),
-            ),
-        )
-        return _(
-            (
-                "Total: {total}, no ano corrente: {no_ano}, "
-                "nos dois últimos anos: {dois_anos}, "
-                "nos três últimos anos: {tres_anos}"
-            ).format(**counters)
-        )
 
 
 class ItemSolicitado(models.Model):
