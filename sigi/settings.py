@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "sigi.apps.casas",
     "sigi.apps.contatos",
     "sigi.apps.convenios",
+    "sigi.apps.espacos",
     "sigi.apps.eventos",
     "sigi.apps.home",
     "sigi.apps.inventario",
@@ -132,7 +133,7 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "sigi.wsgi.application"
 
-
+167808
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 

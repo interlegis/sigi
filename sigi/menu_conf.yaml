@@ -71,6 +71,14 @@ main_menu:
       - title: Painel de ocorrências
         view_name: ocorrencias_painel
         querystr: status=1&status=2
+  - title: Reserva de espaços
+    icon: event
+    children:
+      - title: Reservas
+        view_name: admin:espacos_reserva_changelist
+        querystr: status=A
+      - title: Agenda de reservas
+        view_name: espacos_agenda
   - title: Eventos
     icon: school
     children:
@@ -128,6 +136,10 @@ main_menu:
         view_name: admin:eventos_modelodeclaracao_changelist
       - title: Partidos políticos
         view_name: admin:parlamentares_partido_changelist
+      - title: Espaços para eventos
+        view_name: admin:espacos_espaco_changelist
+      - title: Recursos para eventos
+        view_name: admin:espacos_recurso_changelist
 
 contato_menu:
   - title: Casa legislativa

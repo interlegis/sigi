@@ -9,10 +9,18 @@ ACTION_LIST = {
     "calcular_data_uso": "functions",
 }
 
+ACTION_PREFIXES = {
+    "cancelar": "cancel",
+    "ativar": "check_circle",
+}
+
 
 @register.simple_tag
 def action_icon(action_name):
     if action_name in ACTION_LIST:
         return ACTION_LIST[action_name]
     else:
-        return "play_arrow"
+        for prefix in ACTION_PREFIXES:
+            if prefix in action_name:
+                return ACTION_PREFIXES[prefix]
+    return "play_arrow"

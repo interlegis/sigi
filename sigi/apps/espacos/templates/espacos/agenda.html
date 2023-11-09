@@ -1,0 +1,44 @@
+{% extends "eventos/calendario.html" %}
+{% load i18n static sigi_tags %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+	tr.linha-evento {
+		border-bottom: 1px solid var(--hairline-color);
+	}
+	tr td {
+		border-left: 1px solid var(--hairline-color);
+	}
+  </style>
+{% endblock %}
+
+{% block content %}
+  <div class="fixed-action-btn">
+    <a class="btn-floating">
+	  <i class="large material-icons">mode_edit</i>
+	</a>
+	<ul>
+	  <li>
+        <a class="btn-floating btn-small" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&pdf=1" target="_blank"><i class="material-icons">picture_as_pdf</i></a>
+	  </li>
+	</ul>
+  </div>
+  <div class="row">
+    <div class="col s12">
+	  <ul class="tabs">
+	    {% for ano in meses %}
+		  <li class="tab col"><a {% if ano == ano_pesquisa %}class="active"{% endif %} href="#tab-{{ ano|safe }}">{{ ano| safe }}</a></li>
+		{% endfor %}
+	  </ul>
+	</div>
+	{% for ano, lista in meses.items %}
+	  <div id="tab-{{ ano|safe }}" class="col s12">
+	    {% for mes, nome in lista.items %}
+		  <a class="waves-effect waves-light btn-flat btn-small{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}">{{ nome }}</a>
+		{% endfor %}
+	  </div>
+	{% endfor %}
+  </div>
+  {% include "espacos/snippets/agenda_cal.html" %}
+{% endblock %}

@@ -26,6 +26,7 @@ urlpatterns = [
     path("parlamentares/", include("sigi.apps.parlamentares.urls")),
     path("servicos/", include("sigi.apps.servicos.urls")),
     path("admin/casas/", include("sigi.apps.casas.admin_urls")),
+    path("admin/espacos/", include("sigi.apps.espacos.admin_urls")),
     path("admin/eventos/", include("sigi.apps.eventos.admin_urls")),
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),

@@ -1,0 +1,108 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n sigi_tags %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+
+{% block extra_style %}
+  {{ block.super }}
+  blockquote {
+    margin: 20px 0;
+    padding-left: 1.5rem;
+    border-left: 5px solid #ee6e73;
+    font-size: 1.1 rem;
+    font-weight: bold;
+  }
+  a {
+    color: black;
+    text-decoration: none;
+  }
+  table {
+    table-layout: fixed;
+  }
+  .calendar-table {
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #d2d2d2;
+  }
+  .calendar-table td+td {
+    border-left: 1px solid #d2d2d2 !important;
+  }
+  table td,
+  table td * {
+    vertical-align: top;
+  }
+  .calendar-table tr:nth-child(even) {
+    background-color: white !important;
+  }
+  tr.linha-dias {
+    background: #d2d2d2;
+    border-top: 1px solid #d2d2d2;
+  }
+  tr.linha-evento {
+    border-bottom: 1px solid #d2d2d2;
+  }
+  span.numero-dia {
+    font-size: 1em;
+  }
+  .card {
+    background-color: #fff;
+    padding: 15px;
+    margin: 10px 0;
+  }
+  .card .card-content .card-title {
+    display: block;
+    line-height: 32px;
+    margin-bottom: 8px;
+    font-weight: 300;
+  }
+  .card-title {
+    font-size: 20px !important;
+    margin-bottom: -6px !important;
+  }
+  .data-evento {
+    font-size: 1em;
+    display: block;
+  }
+  .tipo-evento {
+    font-size: 1em;
+    color: var(--body-quiet-color);
+    display: block;
+    margin-bottom: 8px;
+  }
+  .evento {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  .cyan.lighten-4 { background-color: #b2ebf2!important; }
+  .red.lighten-4 { background-color: #ffcdd2!important; }
+  .purple.lighten-4 { background-color: #e1bee7!important; }
+  .blue.lighten-4 { background-color: #bbdefb!important; }
+  .orange.lighten-4 { background-color: #ffe0b2!important; }
+  .brown.lighten-4 { background-color: #d7ccc8 !important; }
+  @font-face {
+    font-family: 'Material Icons';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/static/material/fonts/flUhRq6tzZclQEJ-Vdg-IuiaDsNc.woff2') format('woff2');
+  }  
+  i.tiny { font-size: 1rem; }
+  .material-icons {
+    font-family: "Material Icons";
+    font-weight: 400;
+    font-style: normal;
+    font-size: 24px;
+    line-height: 1;
+    letter-spacing: normal;
+    text-transform: none;
+    display: inline-block;
+    white-space: nowrap;
+    word-wrap: normal;
+    direction: ltr;
+    -webkit-font-feature-settings: "liga";
+    -webkit-font-smoothing: antialiased;
+  }  
+{% endblock %}
+
+{% block main_content %}
+  {% include "espacos/snippets/agenda_cal.html" %}
+{% endblock main_content %}
