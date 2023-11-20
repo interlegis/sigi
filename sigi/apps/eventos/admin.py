@@ -419,6 +419,7 @@ class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
         "casa__municipio__search_text",
         "casa__municipio__uf__search_text",
         "senador",
+        "num_processo",
     )
     date_hierarchy = "data_pedido"
     fieldsets = (
