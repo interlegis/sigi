@@ -1,0 +1,285 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n sigi_tags %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+
+{% block extra_style %}
+  {{ block.super }}
+  aside {
+    margin-left: 8px;
+    font-size: 0.8em;
+    color: #666;
+  }
+  blockquote {
+    margin: 12px 0 12px;
+    padding-left: 1.5rem;
+    border-left: 5px solid #ee6e73;
+    font-size: 1.4em;
+    font-weight: bold;
+  }
+  tr:nth-child(even) {
+    background-color: initial;
+  }
+  .even-row {
+    background-color: #d2d2d2 !important;
+  }
+
+  .sessao-resumo {
+    align-items: stretch;
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 24px;
+  }
+  .card-resumo {
+    background-color: #eeeeef;
+    border-radius: 2px;
+    box-sizing: border-box;
+    margin: 6px;
+    flex-basis: 49%;
+    padding: 0 6px 6px 6px;
+    position: relative;
+    width: 100%;
+  }
+  .card-resumo.full {
+    flex-basis: 98%;
+  }
+
+  .index-cell {
+    width: 2em;
+    text-align: center;
+  }
+  .label-resumo {
+    min-width: 30em;
+  }
+{% endblock %}
+
+{% block main_content %}
+  <table repeat="2">
+    <thead>
+      <tr>
+        <th>{% trans "ID saberes" %}</th>
+        <th>{% trans "Membro da equipe" %}</th>
+        <th>{% trans "Qtde eventos" %}</th>
+        <th>{% trans "Qtde diárias" %}</th>
+        <th>{% trans "Valor médio diária" %}</th>
+        <th>{% trans "Total diárias" %}</th>
+        <th>{% trans "Total passagens" %}</th>
+        <th>{% trans "Total" %}</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for servidor in servidores %}
+        <tr>
+          <td>{{ servidor.moodle_id }}</td>
+          <td>{{ servidor.nome_completo }}</td>
+          <td class="right-align">{{ servidor.qtde_eventos|default:"-" }}</td>
+          <td class="right-align">{{ servidor.qtde_diarias|default:"-" }}</td>
+          <td class="right-align">{{ servidor.media_diarias|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_diarias|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_passagens|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_custo|default:"-" }}</td>
+        </tr>
+      {% endfor %}
+      <tr>
+        <th colspan="2" class="right-align">{% trans "Totais" %}</th>
+        <th class="right-align">{{ totais.qtde_eventos|default:"-" }}</th>
+        <th class="right-align">{{ totais.qtde_diarias|default:"-" }}</th>
+        <th class="right-align">{{ totais.media_diarias|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_diarias|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_passagens|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_custo|default:"-" }}</th>
+      </tr>
+  </tbody>
+  </table>
+
+  {# Resumo do relatório #}
+
+  <div class="sessao-resumo">
+    <div class="card-resumo">
+      <blockquote>{% trans "Dados gerais" %}</blockquote>
+      <table>
+        <tr>
+          <th class="index-cell">{% cycle "A" "B" "C" "D" "E" "F" "G" "H" "I" "J" "K" "L" "M" "N" "O" "P" "Q" "R" "S" "T" "U" "V" "W" "X" "Y" "Z" as letra %}</th>
+          <th class="label-resumo">{% trans "Quantidade de eventos" %}</th>
+          <td class="right-align">{{ resumo.qtde_oficinas|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total de participantes" %}</th>
+          <td class="right-align">{{ resumo.tot_participantes|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Média de participantes por evento" %} [B / A]</th>
+          <td class="right-align">{{ resumo.media_participantes|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Mínimo de participantes" %}</th>
+          <td class="right-align">{{ resumo.min_participantes|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Máximo de participantes" %}</th>
+          <td class="right-align">{{ resumo.max_participantes|default:"-" }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card-resumo">
+      <blockquote>{% trans "Equipes" %}</blockquote>
+      <table>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total de servidores em missão" %}</th>
+          <td class="right-align">{{ resumo.tot_servidores|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Tamanho médio das equipes [F / A]" %}</th>
+          <td class="right-align">{{ resumo.media_membros|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Menor equipe" %}</th>
+          <td class="right-align">{{ resumo.min_membros|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Maior equipe" %}</th>
+          <td class="right-align">{{ resumo.max_membros|default:"-" }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card-resumo">
+      <blockquote>{% trans "Tempo" %}</blockquote>
+      <table>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total de dias de evento" %}</th>
+          <td class="right-align">{{ resumo.tot_dias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Duração média dos eventos (dias) [J / A]" %}</th>
+          <td class="right-align">{{ resumo.media_dias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total de diárias" %}</th>
+          <td class="right-align">{{ resumo.tot_diarias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Média de diárias por evento [L / A]" %}</th>
+          <td class="right-align">{{ resumo.media_diarias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Antecedência média na emissão de passagens" %}</th>
+          <td class="right-align">{{ resumo.media_antecedencia|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Menor antecedência" %}</th>
+          <td class="right-align">{{ resumo.min_antecedencia|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Maior antecedência" %}</th>
+          <td class="right-align">{{ resumo.max_antecedencia|default:"-" }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card-resumo">
+      <blockquote>{% trans "Custos" %}</blockquote>
+      <table>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Custo total" %}</th>
+          <td class="right-align">{{ resumo.tot_custo_total|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total com diárias" %}</th>
+          <td class="right-align">{{ resumo.tot_custo_diarias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Total com passagens" %}</th>
+          <td class="right-align">{{ resumo.tot_custo_passagens|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Custo médio dos eventos [Q / A]" %}</th>
+          <td class="right-align">{{ resumo.media_custo_total|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Custo médio de diárias por evento [R / A]" %}</th>
+          <td class="right-align">{{ resumo.media_custo_diarias|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Custo médio de passagens por evento [S / A]" %}</th>
+          <td class="right-align">{{ resumo.media_custo_passagens|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Custo médio por participante [Q / B]" %}</th>
+          <td class="right-align">{{ resumo.media_custo_participantes|default:"-" }}</td>
+        </tr>
+        <tr>
+          <th class="index-cell">{% cycle letra %}</th>
+          <th class="label-resumo">{% trans "Gasto médio por membro da equipe" %}</th>
+          <td class="right-align">{{ resumo.media_custo_membro|default:"-" }}</td>
+        </tr>
+      </table>
+    </div>
+    <div class="card-resumo full">
+      <blockquote>{% trans "Custos por região" %}</blockquote>
+      <table>
+        <thead>
+          <tr>
+            <th rowspan="2" class="center-align">{% trans "Região" %}</th>
+            <th colspan="4" class="center-align">{% trans "Custos com diárias" %}</th>
+            <th colspan="4" class="center-align">{% trans "Custos com passagens" %}</th>
+            <th colspan="4" class="center-align">{% trans "Custo total" %}</th>
+          </tr>
+          <tr>
+            <th class="right-align">{% trans "Mínimo" %}</th>
+            <th class="right-align">{% trans "Médio" %}</th>
+            <th class="right-align">{% trans "Máximo" %}</th>
+            <th class="right-align">{% trans "Total" %}</th>
+            <th class="right-align">{% trans "Mínimo" %}</th>
+            <th class="right-align">{% trans "Médio" %}</th>
+            <th class="right-align">{% trans "Máximo" %}</th>
+            <th class="right-align">{% trans "Total" %}</th>
+            <th class="right-align">{% trans "Mínimo" %}</th>
+            <th class="right-align">{% trans "Médio" %}</th>
+            <th class="right-align">{% trans "Máximo" %}</th>
+            <th class="right-align">{% trans "Total" %}</th>
+        </thead>
+        <tbody>
+          {% for data in custos_regiao %}
+            <tr>
+              <th>{{ data.nome }}</th>
+              <td class="right-align">{{ data.extrato.tot_diarias.min|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.mean|default:"-"|floatformat:2 }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.max|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.sum|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.min|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.mean|default:"-"|floatformat:2 }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.max|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.sum|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.min|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.mean|default:"-"|floatformat:2 }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.max|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.sum|default:"-" }}</td>
+            </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+{% endblock %}

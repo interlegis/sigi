@@ -757,6 +757,26 @@ class Equipe(models.Model):
     assina_oficio = models.BooleanField(
         _("Assina ofício de comparecimento"), default=False
     )
+    qtde_diarias = models.PositiveIntegerField(
+        _("quantidade de diárias"), blank=True, null=True
+    )
+    valor_diaria = models.DecimalField(
+        _("valor da diária (R$)"),
+        max_digits=14,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
+    emissao_passagens = models.DateField(
+        _("data de emissão das passagens"), blank=True, null=True
+    )
+    total_passagens = models.DecimalField(
+        _("valor total das passagens"),
+        max_digits=14,
+        decimal_places=2,
+        blank=True,
+        null=True,
+    )
     observacoes = models.TextField(_("Observações"), blank=True)
 
     class Meta:

@@ -34,5 +34,5 @@ def sum(value, arg):
 
 
 @register.simple_tag
-def setvar(val=None):
-    return val
+def multiply(value, arg):
+    return value * arg

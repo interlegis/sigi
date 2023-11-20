@@ -25,7 +25,6 @@
         {% for espaco, reservas in semana.reservas.items %}
           <tr class="linha-evento">
             <th>{{ espaco.sigla }}</th>
-            {% setvar 0 as last_pos %}
             {% for reserva, tupla in reservas %}
               {% for x in ""|ljust:tupla.0|make_list %}<td></td>{% endfor %}
               <td colspan="{{ tupla.1 }}" class="blue lighten-4">
@@ -40,7 +39,6 @@
               {% if forloop.last %}
                 {% for x in ""|ljust:tupla.2|make_list %}<td></td>{% endfor %}
               {% endif %}
-              {% setvar last_pos|sum:tupla.1 as last_pos %}
             {% empty %}
               {% for x in "1234567"|make_list %}<td></td>{% endfor %}
             {% endfor %}

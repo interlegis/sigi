@@ -1,9 +1,24 @@
 import datetime
+import pandas as pd
 import time
 from moodle import Moodle
 from typing import Any
 from django.db import models
-from django.db.models import F, OuterRef, Subquery, Count, Q
+from django.db.models import (
+    F,
+    OuterRef,
+    Subquery,
+    Count,
+    Q,
+    Sum,
+    Avg,
+    Min,
+    Max,
+    Prefetch,
+    Case,
+    When,
+)
+from django.db.models.functions import ExtractDay, Cast
 from django.conf import settings
 from django.contrib import admin, messages
 from django.core.exceptions import ValidationError
@@ -38,10 +53,12 @@ from sigi.apps.eventos.models import (
     Anexo,
 )
 from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
+from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import (
     CartExportMixin,
+    CartExportReportMixin,
     LabeledResourse,
     ValueLabeledResource,
 )
@@ -833,7 +850,7 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Evento)
-class EventoAdmin(CartExportMixin, admin.ModelAdmin):
+class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
     form = EventoAdminForm
     resource_class = EventoResource
     fieldsets = (
@@ -951,6 +968,7 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
         CronogramaInline,
     )
     save_as = True
+    reports = ["custos_eventos_report", "custos_servidor_report"]
 
     @admin.display(description=_("banner"))
     def get_banner(self, obj):
@@ -1070,6 +1088,11 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
                 "<path:object_id>/updateparticipantes/",
                 self.admin_site.admin_view(self.update_participantes),
                 name="%s_%s_updateparticipantes" % model_info,
+            ),
+            path(
+                "<path:object_id>/custos/",
+                self.admin_site.admin_view(self.custos_report),
+                name="%s_%s_custos" % model_info,
             ),
         ]
         return my_urls + urls
@@ -1282,6 +1305,296 @@ class EventoAdmin(CartExportMixin, admin.ModelAdmin):
             context=context,
             content_type="application/pdf",
         )
+
+    def custos_report(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        change_url = (
+            reverse(
+                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
+            )
+            + "?"
+            + self.get_preserved_filters(request)
+        )
+
+        if not evento.equipe_set.filter(
+            Q(valor_diaria__gte=0) | Q(total_passagens__gte=0)
+        ).exists():
+            self.message_user(
+                request,
+                _("Não há valores de diárias e passagens para este evento"),
+                messages.ERROR,
+            )
+            return redirect(change_url)
+
+        membros = Equipe.objects.filter(evento=evento).annotate(
+            antecedencia_passagens=(
+                ExtractDay(F("evento__data_inicio") - F("emissao_passagens"))
+            ),
+            total_diarias=(F("qtde_diarias") * F("valor_diaria")),
+            total_gasto=(F("total_diarias") + F("total_passagens")),
+        )
+        my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
+        total_equipe = membros.aggregate(
+            num_membros=Count("membro_id", distinct=True),
+            tot_qtde_diarias=Sum("qtde_diarias"),
+            media_qtde_diarias=Cast(
+                F("tot_qtde_diarias")
+                / 1.0
+                / F("num_membros"),  # divide por 1.0 para forçar float
+                output_field=my_decimal_field,
+            ),
+            tot_valor_diarias=Sum("total_diarias"),
+            media_diarias=Cast(
+                F("tot_valor_diarias") / F("tot_qtde_diarias"),
+                output_field=my_decimal_field,
+            ),
+            tot_passagens=Sum("total_passagens"),
+            media_passagens=Cast(
+                F("tot_passagens") / F("num_membros"),
+                output_field=my_decimal_field,
+            ),
+            tot_gastos=Sum("total_gasto"),
+            media_antecedencia=Avg("antecedencia_passagens"),
+        )
+
+        context = {
+            "evento": evento,
+            "membros": membros,
+            "total_equipe": total_equipe,
+        }
+
+        return WeasyTemplateResponse(
+            filename=f"custos{evento.nome.replace(' ','')}-{timezone.localdate()}.pdf",
+            request=request,
+            template="admin/eventos/evento/custos_report.html",
+            context=context,
+            content_type="application/pdf",
+        )
+
+    def custos_eventos_report(self, request):
+        my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
+        equipe_qs = Equipe.objects.annotate(
+            total_diarias=(F("qtde_diarias") * F("valor_diaria")),
+            antecedencia=ExtractDay(
+                F("evento__data_inicio") - F("emissao_passagens")
+            ),
+        )
+        eventos = (
+            self.get_queryset(request)
+            .annotate(
+                duracao_dias=(
+                    ExtractDay(F("data_termino") - F("data_inicio")) + 1
+                ),
+                qtde_diarias=Sum("equipe__qtde_diarias"),
+                vlr_tot_diarias=Sum(
+                    F("equipe__qtde_diarias") * F("equipe__valor_diaria")
+                ),
+                vlr_tot_passagens=Sum("equipe__total_passagens"),
+                custo_total=F("vlr_tot_diarias") + F("vlr_tot_passagens"),
+                custo_medio_participante=Cast(
+                    Case(
+                        When(total_participantes__lte=0, then=0),
+                        default=F("custo_total") / F("total_participantes"),
+                        output_field=my_decimal_field,
+                    ),
+                    output_field=my_decimal_field,
+                ),
+                custo_medio_membro=Cast(
+                    F("custo_total") / Count("equipe__membro"),
+                    output_field=my_decimal_field,
+                ),
+                tot_membros=Count("equipe"),
+            )
+            .prefetch_related(
+                Prefetch(
+                    "equipe_set", queryset=equipe_qs, to_attr="equipe_ext"
+                )
+            )
+        )
+        resumo = eventos.aggregate(
+            qtde_oficinas=Count("id"),
+            tot_participantes=Sum("total_participantes"),
+            media_participantes=Cast(
+                1.0 * F("tot_participantes") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            min_participantes=Min("total_participantes"),
+            max_participantes=Max("total_participantes"),
+            tot_servidores=Sum("tot_membros"),
+            media_membros=Cast(
+                1.0 * Sum("tot_membros") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            min_membros=Min("tot_membros"),
+            max_membros=Max("tot_membros"),
+            tot_dias=Sum("duracao_dias"),
+            media_dias=Cast(
+                1.0 * F("tot_dias") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            tot_diarias=Sum("qtde_diarias"),
+            media_diarias=Cast(
+                1.0 * F("tot_diarias") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            tot_custo_total=Sum("custo_total"),
+            tot_custo_diarias=Sum("vlr_tot_diarias"),
+            tot_custo_passagens=Sum("vlr_tot_passagens"),
+            media_custo_total=Cast(
+                F("tot_custo_total") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            media_custo_diarias=Cast(
+                F("tot_custo_diarias") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            media_custo_passagens=Cast(
+                F("tot_custo_passagens") / F("qtde_oficinas"),
+                output_field=my_decimal_field,
+            ),
+            media_custo_participantes=Cast(
+                F("tot_custo_total") / F("tot_participantes"),
+                output_field=my_decimal_field,
+            ),
+            media_custo_membro=Cast(
+                F("tot_custo_total") / Sum("tot_membros"),
+                output_field=my_decimal_field,
+            ),
+        )
+        resumo.update(
+            eventos.aggregate(
+                media_antecedencia=Avg(
+                    ExtractDay(
+                        F("data_inicio") - F("equipe__emissao_passagens")
+                    )
+                ),
+                min_antecedencia=Min(
+                    ExtractDay(
+                        F("data_inicio") - F("equipe__emissao_passagens")
+                    )
+                ),
+                max_antecedencia=Max(
+                    ExtractDay(
+                        F("data_inicio") - F("equipe__emissao_passagens")
+                    )
+                ),
+            )
+        )
+
+        f_valor_diarias = F("equipe__qtde_diarias") * F("equipe__valor_diaria")
+        f_custo_total = (f_valor_diarias) + F("equipe__total_passagens")
+
+        extrato = (
+            self.get_queryset(request)
+            .order_by("casa_anfitria__municipio__uf__regiao")
+            .annotate(
+                regiao=F("casa_anfitria__municipio__uf__regiao"),
+                tot_diarias=Sum(f_valor_diarias),
+                tot_passagens=Sum("equipe__total_passagens"),
+                tot_custo=Sum(f_custo_total),
+            )
+            .values("regiao", "tot_diarias", "tot_passagens", "tot_custo")
+        )
+
+        df = (
+            pd.DataFrame(extrato)
+            .set_index("regiao")
+            .groupby("regiao")
+            .aggregate(["sum", "min", "max", "mean"])
+            .fillna(0)
+        )
+
+        custos_regiao = [
+            {
+                "nome": nome,
+                "extrato": df.loc[sigla] if sigla in df.index else None,
+            }
+            for sigla, nome in UnidadeFederativa.REGIAO_CHOICES
+        ]
+
+        context = {
+            "eventos": eventos,
+            "resumo": resumo,
+            "custos_regiao": custos_regiao,
+            "title": _("Custos por eventos"),
+        }
+        return WeasyTemplateResponse(
+            filename=f"custos_eventos-{timezone.localdate()}.pdf",
+            request=request,
+            template="admin/eventos/custos_eventos_report.html",
+            context=context,
+            content_type="application/pdf",
+        )
+
+    custos_eventos_report.title = _("Custos por eventos")
+
+    def custos_servidor_report(self, request):
+        equipe_qs = Equipe.objects.filter(
+            evento__in=self.get_queryset(request)
+        )
+        f_total_diarias = F("equipe_evento__qtde_diarias") * F(
+            "equipe_evento__valor_diaria"
+        )
+        my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
+
+        servidores = (
+            Servidor.objects.distinct()
+            .filter(equipe_evento__evento__in=self.get_queryset(request))
+            .prefetch_related(
+                Prefetch(
+                    "equipe_evento", queryset=equipe_qs, to_attr="equipe_ext"
+                )
+            )
+            .annotate(
+                qtde_eventos=Count("equipe_evento"),
+                qtde_diarias=Sum("equipe_evento__qtde_diarias"),
+                media_diarias=Cast(
+                    Sum(f_total_diarias / F("equipe_evento__qtde_diarias")),
+                    output_field=my_decimal_field,
+                ),
+                total_diarias=Sum(f_total_diarias),
+                total_passagens=Sum("equipe_evento__total_passagens"),
+                total_custo=Sum(
+                    F("equipe_evento__total_passagens") + f_total_diarias
+                ),
+            )
+        )
+        totais = (
+            Servidor.objects.distinct()
+            .filter(equipe_evento__evento__in=self.get_queryset(request))
+            .prefetch_related(
+                Prefetch(
+                    "equipe_evento", queryset=equipe_qs, to_attr="equipe_ext"
+                )
+            )
+            .aggregate(
+                qtde_eventos=Count("equipe_evento"),
+                qtde_diarias=Sum("equipe_evento__qtde_diarias"),
+                media_diarias=Cast(
+                    Avg(f_total_diarias / F("equipe_evento__qtde_diarias")),
+                    output_field=my_decimal_field,
+                ),
+                total_diarias=Sum(f_total_diarias),
+                total_passagens=Sum("equipe_evento__total_passagens"),
+                total_custo=Sum(
+                    F("equipe_evento__total_passagens") + f_total_diarias
+                ),
+            )
+        )
+        context = {
+            "servidores": servidores,
+            "totais": totais,
+            "title": _("Custos por servidor"),
+        }
+        return WeasyTemplateResponse(
+            filename=f"custos_servidor-{timezone.localdate()}.pdf",
+            request=request,
+            template="admin/eventos/custos_servidor_report.html",
+            context=context,
+            content_type="application/pdf",
+        )
+
+    custos_servidor_report.title = _("Custos por servidor")
 
     def create_course(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)

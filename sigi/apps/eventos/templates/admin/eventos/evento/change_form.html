@@ -22,6 +22,14 @@
       </li>
     {% endif %}
     <li>
+      {% url opts|admin_urlname:'custos' object_id|admin_urlquote as tool_url %}
+      <a href="{% add_preserved_filters tool_url %}">
+        <i class="left material-icons" aria-hidden="true">attach_money</i>
+        {% trans "Custos" %}
+      </a>
+    </li>
+
+    <li>
       {% url opts|admin_urlname:'declaracaoreport' object_id|admin_urlquote as tool_url %}
       <a href="{% add_preserved_filters tool_url %}">
         <i class="left material-icons" aria-hidden="true">picture_as_pdf</i>
