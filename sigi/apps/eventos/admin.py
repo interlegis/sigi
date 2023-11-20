@@ -87,8 +87,16 @@ class NumeroParticipantesFilter(admin.SimpleListFilter):
 
 
 class SolicitacaoResource(LabeledResourse):
+    act_vigente = Field(column_name="ACT vigente")
+    data_termino_act = Field(column_name="término vigência ACT")
     oficinas = Field(column_name="oficinas solicitadas")
-    oficinas_uf = Field(column_name="número de oficinas realizadas na UF")
+    oficinas_municipio = Field(
+        column_name="oficinas atendidas/confirmadas no município"
+    )
+    oficinas_uf = Field(column_name="oficinas atendidas/confirmadas na UF")
+    oficinas_microrregiao = Field(
+        column_name="oficinas atendidas/confirmadas na microrregião"
+    )
 
     class Meta:
         model = Solicitacao
@@ -96,15 +104,20 @@ class SolicitacaoResource(LabeledResourse):
             "num_processo",
             "status",
             "senador",
+            "act_vigente",
+            "data_termino_act",
             "data_pedido",
             "data_recebido_coperi",
             "oficinas",
             "casa__nome",
             "casa__municipio__nome",
-            "casa__municipio__uf__nome",
-            "casa__municipio__uf__regiao",
             "casa__municipio__populacao",
+            "oficinas_municipio",
+            "casa__municipio__uf__nome",
             "oficinas_uf",
+            "casa__municipio__uf__regiao",
+            "casa__municipio__microrregiao__nome",
+            "oficinas_microrregiao",
             "estimativa_casas",
             "estimativa_servidores",
         )
@@ -113,17 +126,94 @@ class SolicitacaoResource(LabeledResourse):
     def dehydrate_status(self, obj):
         return obj.get_status_display()
 
+    def dehydrate_act_vigente(self, obj):
+        return obj.act_num
+
+    def dehydrate_data_termino_act(self, obj):
+        return obj.act_data_termino_vigencia
+
     def dehydrate_oficinas(self, obj):
         return ", ".join(
             [i.tipo_evento.sigla for i in obj.itemsolicitado_set.all()]
         )
 
+    def dehydrate_oficinas_municipio(self, obj):
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio=obj.casa.municipio,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
+
     def dehydrate_oficinas_uf(sekf, obj):
-        return Evento.objects.filter(
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
             status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
             casa_anfitria__municipio__uf=obj.casa.municipio.uf,
-            data_inicio__year__gte=timezone.localdate().year - 2,
-        ).count()
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
+
+    def dehydrate_oficinas_microrregiao(self, obj):
+        ano_corrente = timezone.localdate().year
+        counters = Evento.objects.filter(
+            status__in=[Evento.STATUS_AUTORIZADO, Evento.STATUS_REALIZADO],
+            casa_anfitria__municipio__microrregiao=obj.casa.municipio.microrregiao,
+            tipo_evento__categoria=TipoEvento.CATEGORIA_OFICINA,
+        ).aggregate(
+            total=Count("id"),
+            no_ano=Count("id", filter=Q(data_inicio__year=ano_corrente)),
+            dois_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 1),
+            ),
+            tres_anos=Count(
+                "id",
+                filter=Q(data_inicio__year__gte=ano_corrente - 2),
+            ),
+        )
+        return _(
+            (
+                "Total: {total}, no ano corrente: {no_ano}, "
+                "nos dois últimos anos: {dois_anos}, "
+                "nos três últimos anos: {tres_anos}"
+            ).format(**counters)
+        )
 
     def dehydrate_casa__municipio__uf__regiao(self, obj):
         return obj.casa.municipio.uf.get_regiao_display()
