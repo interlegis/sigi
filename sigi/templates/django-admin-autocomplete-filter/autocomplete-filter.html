@@ -1,0 +1,9 @@
+{% load i18n %}
+
+<div class="col s12">
+  <label>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</label>
+  <div class="related-wrapper">
+    {{ spec.rendered_widget }}
+    {{ spec.field }}
+  </div>
+</div>

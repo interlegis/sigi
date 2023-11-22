@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "material",
     "material.admin",
+    "admin_auto_filters",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",

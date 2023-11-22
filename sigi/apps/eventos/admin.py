@@ -57,6 +57,7 @@ from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import (
+    AsciifyQParameter,
     CartExportMixin,
     CartExportReportMixin,
     LabeledResourse,
@@ -381,7 +382,7 @@ class TipoEventoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Solicitacao)
-class SolicitacaoAdmin(CartExportMixin, admin.ModelAdmin):
+class SolicitacaoAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
     resource_class = SolicitacaoResource
     list_display = (
         "casa",
@@ -851,7 +852,7 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Evento)
-class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
+class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
     form = EventoAdminForm
     resource_class = EventoResource
     fieldsets = (

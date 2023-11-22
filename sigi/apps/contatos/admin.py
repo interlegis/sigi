@@ -1,6 +1,6 @@
+from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.utils.translation import gettext as _
-
 from sigi.apps.utils.filters import RangeFilter
 from sigi.apps.contatos.models import (
     UnidadeFederativa,
@@ -11,12 +11,17 @@ from sigi.apps.contatos.models import (
     Contato,
 )
 from sigi.apps.parlamentares.models import Senador
-from sigi.apps.utils import queryset_ascii
+from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
     CartExportMixin,
     LabeledResourse,
 )
+
+
+class MicrorregiaoFilter(AutocompleteFilter):
+    title = _("Microrregião")
+    field_name = "microrregiao"
 
 
 class UnidadeFederativaResource(LabeledResourse):
@@ -75,7 +80,9 @@ class SenadorInline(admin.StackedInline):
 
 
 @admin.register(UnidadeFederativa)
-class UnidadeFederativaAdmin(CartExportMixin, admin.ModelAdmin):
+class UnidadeFederativaAdmin(
+    AsciifyQParameter, CartExportMixin, admin.ModelAdmin
+):
     actions = None
     resource_classes = [UnidadeFederativaResource]
     list_display = ("codigo_ibge", "nome", "sigla", "regiao", "populacao")
@@ -85,12 +92,11 @@ class UnidadeFederativaAdmin(CartExportMixin, admin.ModelAdmin):
         ("populacao", RangeFilter),
     )
     search_fields = ("search_text", "codigo_ibge", "sigla", "regiao")
-    get_queryset = queryset_ascii
     inlines = (SenadorInline, MesorregiaoInline)
 
 
 @admin.register(Mesorregiao)
-class MesorregiaoAdmin(admin.ModelAdmin):
+class MesorregiaoAdmin(AsciifyQParameter, admin.ModelAdmin):
     actions = None
     list_display = ("codigo_ibge", "uf", "nome")
     list_display_links = ("codigo_ibge", "nome")
@@ -102,17 +108,16 @@ class MesorregiaoAdmin(admin.ModelAdmin):
         "uf__sigla",
     )
     autocomplete_fields = ("uf",)
-    get_queryset = queryset_ascii
     inlines = (MicrorregiaoInline,)
 
 
 @admin.register(Microrregiao)
-class MicrorregiaoAdmin(admin.ModelAdmin):
+class MicrorregiaoAdmin(AsciifyQParameter, admin.ModelAdmin):
     search_fields = ("search_text",)
 
 
 @admin.register(Municipio)
-class MunicipioAdmin(CartExportMixin, admin.ModelAdmin):
+class MunicipioAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
     actions = None
     resource_classes = [MunicipioResource]
     list_display = (
@@ -120,6 +125,8 @@ class MunicipioAdmin(CartExportMixin, admin.ModelAdmin):
         "codigo_tse",
         "nome",
         "uf",
+        "get_regiao",
+        "microrregiao",
         "is_capital",
         "populacao",
         "is_polo",
@@ -136,8 +143,8 @@ class MunicipioAdmin(CartExportMixin, admin.ModelAdmin):
         ("populacao", RangeFilter),
         "uf__regiao",
         "uf",
+        MicrorregiaoFilter,
     )
-    get_queryset = queryset_ascii
     fieldsets = (
         (
             None,
@@ -168,6 +175,10 @@ class MunicipioAdmin(CartExportMixin, admin.ModelAdmin):
     )
     autocomplete_fields = ("uf", "microrregiao")
     search_fields = ("search_text", "codigo_ibge", "codigo_tse", "uf__sigla")
+
+    @admin.display(description=_("Região"), ordering="uf__regiao")
+    def get_regiao(self, obj):
+        return obj.uf.get_regiao_display()
 
 
 @admin.register(Telefone)

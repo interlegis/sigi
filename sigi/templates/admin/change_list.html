@@ -100,15 +100,7 @@
     $(document).ready(function(){
       $('.fixed-action-btn').floatingActionButton();
       M.Tooltip.init($('.tooltipped'), {});
-      document.addEventListener('DOMContentLoaded', function() {
-      M.Modal.init($(".modal"), {});
-  });
-
-  // Or with jQuery
-
-  $(document).ready(function(){
-    $('.modal').modal();
-  });
+      M.Modal.init($(".modal"), {dismissible: false});
     });
   </script>
 {% endblock footer %}

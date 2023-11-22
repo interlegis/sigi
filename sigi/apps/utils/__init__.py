@@ -39,18 +39,6 @@ def to_ascii(txt, codif="utf-8"):
     )
 
 
-def asciify_q_param(request):
-    if "q" in request.GET:
-        request.GET._mutable = True
-        request.GET["q"] = to_ascii(request.GET["q"])
-        request.GET._mutable = False
-
-
-def queryset_ascii(self, request):
-    asciify_q_param(request)
-    return django_admin.ModelAdmin.get_queryset(self, request)
-
-
 def field_label(name, model):
     name = name.split("__")
     try:

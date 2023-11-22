@@ -17,7 +17,7 @@ from sigi.apps.convenios.models import (
     Tramitacao,
     Gescon,
 )
-from sigi.apps.utils import queryset_ascii, asciify_q_param
+from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
 from sigi.apps.utils.mixins import (
@@ -114,7 +114,9 @@ class ProjetoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Convenio)
-class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
+class ConvenioAdmin(
+    AsciifyQParameter, ReturnMixin, CartExportReportMixin, admin.ModelAdmin
+):
     fieldsets = (
         (
             None,
@@ -285,10 +287,6 @@ class ConvenioAdmin(ReturnMixin, CartExportReportMixin, admin.ModelAdmin):
         if "delete_selected" in actions:
             del actions["delete_selected"]
         return actions
-
-    def get_queryset(self, request):
-        asciify_q_param(request)
-        return super().get_queryset(request)
 
 
 @admin.register(EquipamentoPrevisto)

@@ -16,7 +16,7 @@ from import_export.admin import ImportMixin, ExportMixin
 from import_export.fields import Field
 from import_export.forms import ExportForm
 from import_export.signals import post_export
-from sigi.apps.utils import field_label
+from sigi.apps.utils import field_label, to_ascii
 
 
 class ValueField(Field):
@@ -100,7 +100,7 @@ class CartExportMixin(ExportMixin):
         qs = super().get_queryset(request)
         if self._cart_viewing_name in request.session:
             ids = request.session.get(self._cart_session_name, [])
-            qs = qs.filter(id__in=ids)
+            qs = qs.filter(pk__in=ids)
         return qs
 
     def get_actions(self, request):
@@ -307,3 +307,14 @@ class ReturnMixin:
         if self._return_path:
             return HttpResponseRedirect(self._return_path)
         return response
+
+class AsciifyQParameter:
+    def asciify_q_param(self, request):
+        if "q" in request.GET:
+            request.GET._mutable = True
+            request.GET["q"] = to_ascii(request.GET["q"])
+            request.GET._mutable = False
+    
+    def get_queryset(self, request):
+        self.asciify_q_param(request)
+        return super().get_queryset(request)

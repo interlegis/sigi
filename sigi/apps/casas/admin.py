@@ -24,7 +24,7 @@ from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils import asciify_q_param
+from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
     CartExportReportMixin,
@@ -329,7 +329,7 @@ class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
 
 
 @admin.register(Orgao)
-class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
+class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
     form = OrgaoForm
     resource_classes = [OrgaoExportResourseGeral, OrgaoExportResourceContato]
     inlines = (
@@ -446,7 +446,6 @@ class OrgaoAdmin(CartExportReportMixin, admin.ModelAdmin):
     ]
 
     def get_queryset(self, request):
-        asciify_q_param(request)
         queryset = super().get_queryset(request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
