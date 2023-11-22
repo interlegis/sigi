@@ -1053,7 +1053,11 @@ class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
             custo_total=(F("equipe__qtde_diarias") * F("equipe__valor_diaria"))
             + F("equipe__total_passagens"),
             custo_participante=Cast(
-                F("custo_total") / F("total_participantes"),
+                Case(
+                    When(total_participantes__lte=0, then=None),
+                    default=F("custo_total") / F("total_participantes"),
+                    output_field=my_decimal_field,
+                ),
                 output_field=my_decimal_field,
             ),
         )
