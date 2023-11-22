@@ -927,6 +927,8 @@ class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
         "get_populacao",
         "solicitante",
         "total_participantes",
+        "get_custo_total",
+        "get_custo_participantes",
     )
     list_display_links = ("get_banner", "nome")
     list_filter = (
@@ -943,6 +945,12 @@ class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
         ("moodle_courseid", admin.EmptyFieldListFilter),
         NumeroParticipantesFilter,
     )
+    list_select_related = [
+        "tipo_evento",
+        "casa_anfitria",
+        "casa_anfitria__municipio",
+        "casa_anfitria__municipio__uf",
+    ]
     date_hierarchy = "data_inicio"
     autocomplete_fields = (
         "tipo_evento",
@@ -1027,6 +1035,28 @@ class EventoAdmin(CartExportReportMixin, admin.ModelAdmin):
             return obj.casa_anfitria.municipio.populacao
         else:
             return None
+
+    @admin.display(description=_("Custo total"), ordering="custo_total")
+    def get_custo_total(self, obj):
+        return obj.custo_total
+
+    @admin.display(
+        description=_("Custo por participante"), ordering="custo_participante"
+    )
+    def get_custo_participantes(self, obj):
+        return obj.custo_participante
+
+    def get_queryset(self, request):
+        my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
+        queryset = super().get_queryset(request)
+        return queryset.annotate(
+            custo_total=(F("equipe__qtde_diarias") * F("equipe__valor_diaria"))
+            + F("equipe__total_passagens"),
+            custo_participante=Cast(
+                F("custo_total") / F("total_participantes"),
+                output_field=my_decimal_field,
+            ),
+        )
 
     def render_change_form(self, request, context, add, change, form_url, obj):
         perm = request.user.has_perm("eventos.createcourse_evento")
