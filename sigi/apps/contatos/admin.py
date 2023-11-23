@@ -137,12 +137,12 @@ class MunicipioAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
     )
     list_display_links = ("codigo_ibge", "codigo_tse", "nome")
     list_filter = (
+        "uf",
         "is_capital",
         "is_polo",
         ("idh", RangeFilter),
         ("populacao", RangeFilter),
         "uf__regiao",
-        "uf",
         MicrorregiaoFilter,
     )
     fieldsets = (
