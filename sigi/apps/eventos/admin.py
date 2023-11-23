@@ -1051,13 +1051,14 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
         queryset = super().get_queryset(request)
         return queryset.annotate(
-            custo_total=(F("equipe__qtde_diarias") * F("equipe__valor_diaria"))
-            + F("equipe__total_passagens"),
+            custo_total=Sum(
+                (F("equipe__qtde_diarias") * F("equipe__valor_diaria"))
+                + F("equipe__total_passagens")
+            ),
             custo_participante=Cast(
                 Case(
                     When(total_participantes__lte=0, then=None),
                     default=F("custo_total") / F("total_participantes"),
-                    output_field=my_decimal_field,
                 ),
                 output_field=my_decimal_field,
             ),
