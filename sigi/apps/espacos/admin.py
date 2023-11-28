@@ -1,5 +1,6 @@
 from django.contrib import admin, messages
 from django.urls import path, reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, ngettext
 from django.shortcuts import get_object_or_404, redirect
 from import_export.fields import Field
@@ -68,16 +69,23 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
     list_display = [
         "get_status",
         "proposito",
+        "get_link_sigad",
         "get_espaco",
         "inicio",
         "termino",
+        "virtual",
         "solicitante",
         "contato",
         "telefone_contato",
     ]
     list_display_links = ["get_status", "proposito"]
-    list_filter = ["status", "espaco"]
-    search_fields = ["proposito", "espaco__nome", "espaco__sigla"]
+    list_filter = ["status", "espaco", "virtual"]
+    search_fields = [
+        "proposito",
+        "espaco__nome",
+        "espaco__sigla",
+        "num_processo",
+    ]
     date_hierarchy = "inicio"
     actions = ["cancelar_action", "reativar_action"]
     fieldsets = [
@@ -88,6 +96,17 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
                 "fields": (
                     "espaco",
                     "proposito",
+                    "num_processo",
+                    "virtual",
+                    "data_pedido",
+                    "total_participantes",
+                )
+            },
+        ),
+        (
+            _("Detalhes"),
+            {
+                "fields": (
                     "inicio",
                     "termino",
                     "informacoes",
@@ -122,6 +141,12 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
     @admin.display(description=_("Espaço"), ordering="espaco")
     def get_espaco(self, obj):
         return obj.espaco.sigla
+
+    @admin.display(description=_("SIGAD"), ordering="num_processo")
+    def get_link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return mark_safe(obj.get_sigad_url())
 
     def cancelar_reserva(self, request, object_id):
         reserva = get_object_or_404(Reserva, id=object_id)

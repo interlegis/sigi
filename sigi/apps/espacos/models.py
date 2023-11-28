@@ -1,3 +1,4 @@
+import re
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext as _
@@ -48,7 +49,7 @@ class Reserva(models.Model):
     )
 
     status = models.CharField(
-        _("Status"),
+        _("status"),
         max_length=1,
         choices=STATUS_CHOICES,
         default=STATUS_ATIVO,
@@ -65,8 +66,19 @@ class Reserva(models.Model):
             "reunião, aula, apresentação, etc.)"
         ),
     )
-    inicio = models.DateTimeField(_("Data/hora de início"))
-    termino = models.DateTimeField(_("Data/hora de término"))
+    virtual = models.BooleanField(_("virtual"), default=False)
+    total_participantes = models.PositiveIntegerField(
+        _("total de participantes"), default=0
+    )
+    data_pedido = models.DateField(_("data do pedido"), blank=True, null=True)
+    inicio = models.DateTimeField(_("data/hora de início"))
+    termino = models.DateTimeField(_("data/hora de término"))
+    num_processo = models.CharField(
+        _("número do processo SIGAD"),
+        max_length=20,
+        blank=True,
+        help_text=_("Formato:<em>XXXXX.XXXXXX/XXXX-XX</em>"),
+    )
     informacoes = models.TextField(
         _("informações adicionais"),
         blank=True,
@@ -76,10 +88,11 @@ class Reserva(models.Model):
         ),
     )
     solicitante = models.CharField(
-        _("solicitante"),
+        _("senador/autoridade solicitante"),
         max_length=100,
         help_text=_(
-            "indique o nome da pessoa ou setor solicitante da reserva"
+            "indique o nome do Senador, autoridade, pessoa ou setor "
+            "solicitante da reserva"
         ),
     )
     contato = models.CharField(
@@ -129,6 +142,23 @@ class Reserva(models.Model):
                 )
             )
         return super().clean()
+
+    def get_sigad_url(self):
+        m = re.match(
+            "(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
+            "\d{4})-\d{2}",
+            self.num_processo,
+        )
+        if m:
+            return (
+                '<a href="https://intra.senado.leg.br/'
+                "sigad/novo/protocolo/impressao.asp?area=processo"
+                "&txt_numero_orgao={orgao}"
+                "&txt_numero_sequencial={sequencial}"
+                '&txt_numero_ano={ano}"'
+                ' target="_blank">{processo}</a>'
+            ).format(processo=self.num_processo, **m.groupdict())
+        return self.num_processo
 
 
 class RecursoSolicitado(models.Model):

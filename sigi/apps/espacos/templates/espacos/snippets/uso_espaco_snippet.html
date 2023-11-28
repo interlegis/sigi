@@ -4,10 +4,14 @@
   <thead>
     <tr>
       <th rowspan="2">{% trans "Espaço" %}</th>
+      <th rowspan="2">{% trans "SIGAD" %}</th>
+      <th rowspan="2">{% trans "Data pedido" %}</th>
+      <th rowspan="2">{% trans "Virtual" %}</th>
       <th rowspan="2">{% trans "Data início" %}</th>
       <th rowspan="2">{% trans "Data término" %}</th>
       <th rowspan="2">{% trans "Propósito" %}</th>
-      <th rowspan="2">{% trans "Solicitante" %}</th>
+      <th rowspan="2">{% trans "Total participantes" %}</th>
+      <th rowspan="2">{% trans "Autoridade solicitante" %}</th>
       <th colspan="2">{% trans "Contato" %}</th>
       <th rowspan="2">{% trans "Informações adicionais" %}</th>
       <th rowspan="2">{% trans "Recursos solicitados" %}</th>
@@ -23,9 +27,13 @@
         {% ifchanged reserva.espaco %}
           <th rowspan="{{ rowspans|get:reserva.espaco.id }}">{{ reserva.espaco.nome }}</th>
         {% endifchanged %}
+        <td>{{ reserva.num_processo }}</td>
+        <td>{{ reserva.data_pedido|default:"-" }}</td>
+        <td>{{ reserva.virtual|yesno }}</td>
         <td>{{ reserva.inicio }}</td>
         <td>{{ reserva.termino }}</td>
         <td>{{ reserva.proposito }}</td>
+        <td>{{ reserva.total_participantes|default:"-" }}</td>
         <td>{{ reserva.solicitante }}</td>
         <td>{{ reserva.contato }}</td>
         <td>{{ reserva.telefone_contato }}</td>
