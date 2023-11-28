@@ -5,12 +5,15 @@ from django.contrib import admin
 from django.contrib.admin import helpers
 from django.contrib.admin.options import csrf_protect_m
 from django.contrib.admin.utils import pretty_name
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied, ImproperlyConfigured
 from django.http import Http404
 from django.http.response import HttpResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
 from django.urls import path
+from django.utils import timezone
 from django.utils.translation import gettext as _, ngettext
+from django_weasyprint.views import WeasyTemplateResponse
 from import_export import resources
 from import_export.admin import ImportMixin, ExportMixin
 from import_export.fields import Field
@@ -308,13 +311,63 @@ class ReturnMixin:
             return HttpResponseRedirect(self._return_path)
         return response
 
+
 class AsciifyQParameter:
     def asciify_q_param(self, request):
         if "q" in request.GET:
             request.GET._mutable = True
             request.GET["q"] = to_ascii(request.GET["q"])
             request.GET._mutable = False
-    
+
     def get_queryset(self, request):
         self.asciify_q_param(request)
         return super().get_queryset(request)
+
+
+class StaffMemberRequiredMixin(UserPassesTestMixin):
+    def test_func(self):
+        return self.request.user.is_staff
+
+
+class ReportViewMixin:
+    html_template_name = None
+    pdf_template_name = None
+    report_title = _("Report")
+    pagesize = None
+    attachment = True
+
+    def _is_pdf(self):
+        return bool(self.request.GET.get("pdf", 0))
+
+    def get_template_names(self):
+        if self.html_template_name is None or self.pdf_template_name is None:
+            raise ImproperlyConfigured(
+                "TemplateResponseMixin requires either a definition of "
+                "'html_template_name' and 'pdf_template_name' or an "
+                "implementation of 'get_template_names()'"
+            )
+        if self._is_pdf():
+            return [self.pdf_template_name]
+        else:
+            return [self.html_template_name]
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["title"] = self.report_title
+        context["pdf"] = self._is_pdf()
+        if self.pagesize:
+            context["pagesize"] = self.pagesize
+        return context
+
+    def render_to_response(self, context, **response_kwargs):
+        self.response_class = TemplateResponse
+        self.content_type = None
+        if self._is_pdf():
+            self.content_type = "application/pdf"
+            self.response_class = WeasyTemplateResponse
+            response_kwargs.setdefault(
+                "filename",
+                f"{self.report_title.lower()}-{timezone.localdate()}.pdf",
+            )
+            response_kwargs.setdefault("attachment", self.attachment)
+        return super().render_to_response(context, **response_kwargs)

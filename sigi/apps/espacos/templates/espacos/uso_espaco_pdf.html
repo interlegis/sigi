@@ -1,0 +1,19 @@
+{% extends "pdf/base_report.html" %}
+{% load i18n static %}
+
+{% block extra_style %}
+  {{ block.super }}
+  h4 {
+    margin: 20px 0;
+    padding-left: 1.5rem;
+    border-left: 5px solid #ee6e73;
+  }
+{% endblock %}
+
+{% block main_content %}
+  <h4>
+    {% blocktranslate%}Semana de {{ data_inicio }} a {{ data_termino }}{% endblocktranslate %}
+  </h4>
+  <br/>
+  {% include "espacos/snippets/uso_espaco_snippet.html" %}
+{% endblock %}

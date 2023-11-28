@@ -7,7 +7,7 @@
     <meta name="author" content="Interlegis">
     <style type="text/css">
       @page {
-        size: {% block page_size %}A4 portrait{% endblock page_size %};
+        size: {% block page_size %}{{ pagesize|default:"A4 portrait" }}{% endblock page_size %};
         margin: {% block page_margin %}3cm 2cm 2cm 2cm{% endblock page_margin %};
         font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;

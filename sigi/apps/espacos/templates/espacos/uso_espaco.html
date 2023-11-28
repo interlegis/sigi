@@ -1,0 +1,56 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static "css/calendario.css" %}">
+  <style>
+    tr {
+      border-bottom: 1px solid var(--border-color);
+    }
+    th {
+      background: var(--darkened-bg);
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+{% block coltype %}colMS{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col s12">
+      <form method="get" action="">
+        <div class="card">
+          <div class="card-content">
+            {{ form }}
+          </div>
+          <div class="card-action">
+            <button class="btn waves-effect waves-light" type="submit">
+              {% trans "View" %}
+              <i class="material-icons right">send</i>
+            </button>            
+            <button class="btn waves-effect waves-light" type="submit" name="pdf" value="1">
+              {% trans "PDF" %}
+              <i class="material-icons right">picture_as_pdf</i>
+            </button>            
+          </div>
+        </div>
+	    </form>
+	  </div>
+  </div>
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <div class="card-content">
+          {% include "espacos/snippets/uso_espaco_snippet.html" %}
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  {{ form.media }}  
+{% endblock %}

@@ -79,6 +79,8 @@ main_menu:
         querystr: status=A
       - title: Agenda de reservas
         view_name: espacos_agenda
+      - title: Uso dos espaços
+        view_name: espacos_usoespaco
   - title: Eventos
     icon: school
     children:

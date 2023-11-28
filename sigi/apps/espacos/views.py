@@ -2,29 +2,24 @@ import calendar
 import locale
 from typing import Any
 from django import http
-from django.db.models import Q
-from django.template.response import TemplateResponse
+from django.db.models import Q, Count
 from django.utils import timezone
 from django.utils.translation import (
     to_locale,
     get_language,
-    ngettext,
     gettext as _,
 )
 from django.views.generic.base import TemplateView
-from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.espacos.models import Espaco, Reserva
+from sigi.apps.espacos.forms import UsoEspacoReportForm
+from sigi.apps.utils.mixins import ReportViewMixin, StaffMemberRequiredMixin
 
 
-class Agenda(TemplateView):
-    def _is_pdf(self):
-        return bool(self.request.GET.get("pdf", 0))
-
-    def get_template_names(self):
-        if self._is_pdf():
-            return ["espacos/agenda_pdf.html"]
-        else:
-            return ["espacos/agenda.html"]
+class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
+    html_template_name = "espacos/agenda.html"
+    pdf_template_name = "espacos/agenda_pdf.html"
+    report_title = _("Reserva de espaços do ILB")
+    pagesize = "A4 landscape"
 
     def get_context_data(self, **kwargs):
         mes_pesquisa = int(
@@ -108,19 +103,59 @@ class Agenda(TemplateView):
         context["semanas"] = semanas
         context["day_names"] = calendar.day_abbr
 
-        if self._is_pdf():
-            context["pdf"] = True
-            context["title"] = _("Reserva de espaços do ILB")
-
         return context
 
-    def render_to_response(self, context, **response_kwargs):
-        self.response_class = TemplateResponse
-        self.content_type = None
-        if self._is_pdf():
-            self.content_type = "application/pdf"
-            self.response_class = WeasyTemplateResponse
-            response_kwargs.setdefault(
-                "filename", f"agenda-{timezone.localdate()}.pdf"
+
+class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
+    html_template_name = "espacos/uso_espaco.html"
+    pdf_template_name = "espacos/uso_espaco_pdf.html"
+    report_title = _("Uso dos espaços")
+    pagesize = "A4 landscape"
+
+    def get_context_data(self, **kwargs):
+        form = UsoEspacoReportForm(self.request.GET)
+        if form.is_valid():
+            data_inicio = form.cleaned_data["data_inicio"]
+            data_fim = form.cleaned_data["data_fim"]
+            sel_espacos = form.cleaned_data["espaco"]
+        else:
+            form = UsoEspacoReportForm(
+                initial={"espaco": Espaco.objects.all()}
             )
-        return super().render_to_response(context, **response_kwargs)
+            semana = form.get_semana()
+            data_inicio = semana["first"]
+            data_fim = semana["last"]
+            sel_espacos = None
+
+        if not sel_espacos:
+            sel_espacos = Espaco.objects.all()
+
+        reservas = (
+            Reserva.objects.filter(
+                status=Reserva.STATUS_ATIVO, espaco__in=sel_espacos
+            )
+            .filter(
+                Q(inicio__range=(data_inicio, data_fim))
+                | Q(termino__range=(data_inicio, data_fim))
+            )
+            .order_by("espaco", "inicio", "termino")
+        )
+        rowspans = dict(
+            reservas.order_by("espaco")
+            .values_list("espaco")
+            .annotate(Count("espaco"))
+        )
+
+        context = super().get_context_data(**kwargs)
+        context.update(
+            {
+                "reservas": reservas,
+                "rowspans": rowspans,
+                "form": form,
+                "data_inicio": data_inicio,
+                "data_termino": data_fim,
+                "sel_espacos": sel_espacos,
+            }
+        )
+
+        return context

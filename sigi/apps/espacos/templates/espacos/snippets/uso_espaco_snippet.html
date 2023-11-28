@@ -1,0 +1,43 @@
+{% load i18n static sigi_tags dict_get %}
+
+<table class="calendar-table" repeat="2">
+  <thead>
+    <tr>
+      <th rowspan="2">{% trans "Espaço" %}</th>
+      <th rowspan="2">{% trans "Data início" %}</th>
+      <th rowspan="2">{% trans "Data término" %}</th>
+      <th rowspan="2">{% trans "Propósito" %}</th>
+      <th rowspan="2">{% trans "Solicitante" %}</th>
+      <th colspan="2">{% trans "Contato" %}</th>
+      <th rowspan="2">{% trans "Informações adicionais" %}</th>
+      <th rowspan="2">{% trans "Recursos solicitados" %}</th>
+    </tr>
+    <tr>
+      <th>{% trans "Nome" %}</th>
+      <th>{% trans "Telefone" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for reserva in reservas %}
+      <tr>
+        {% ifchanged reserva.espaco %}
+          <th rowspan="{{ rowspans|get:reserva.espaco.id }}">{{ reserva.espaco.nome }}</th>
+        {% endifchanged %}
+        <td>{{ reserva.inicio }}</td>
+        <td>{{ reserva.termino }}</td>
+        <td>{{ reserva.proposito }}</td>
+        <td>{{ reserva.solicitante }}</td>
+        <td>{{ reserva.contato }}</td>
+        <td>{{ reserva.telefone_contato }}</td>
+        <td>{{ reserva.informacoes }}</td>
+        <td>
+          <ul>
+            {% for recurso in reserva.recursosolicitado_set.all %}
+              <li>{{ recurso.quantidade}} {{ recurso.recurso }} ( {{ recurso.observacoes }})</li>
+            {% endfor %}
+          </ul>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
