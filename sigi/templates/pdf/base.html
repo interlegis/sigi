@@ -16,6 +16,7 @@
         @top-center { content: element(header); }
         {% endblock %}
         {% block page-footer-settings %}
+        @bottom-left { content: element(footerLeft); }
         @bottom-center { content: element(footer); }
         @bottom-right { content: "{% trans "Página: " %}" counter(page); }
         {% endblock %}
@@ -33,6 +34,10 @@
       @media print {
         header {position: running(header);}
         footer {position: running(footer);}
+        .footerLeft {
+          text-align: center;
+          position: running(footerLeft);
+        }
       }
       body {
         font-family: "Helvetica", "Arial", "sans-serif";

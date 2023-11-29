@@ -25,11 +25,12 @@ footer {
   text-align: right;
 }
 footer img {
-  width: {% if "landscape" in pagesize %}257{% else %}170{% endif %}mm;
+  width: 105mm;
 }
 
 .report_name {
   font-size: 1.6em;
+  margin-top: 5px;
 }
 
 table {
@@ -70,6 +71,7 @@ ul {
 {% endblock extra_style %}
 
 {% block body_content %}
+{% spaceless %}
   <header>
     {% block header %}
       <p>{% trans 'SENADO FEDERAL' %}</p>
@@ -77,12 +79,16 @@ ul {
       <p class="report_name">{% block report_name %}{{ title|upper }}{% endblock report_name %}</p>
     {% endblock header %}
   </header>
-
-  {% spaceless %}
+  <div class="footerLeft">
+    {% block footer_text %}
+      {% trans 'Emitido em' %}
+      <br/>
+      {% now "DATETIME_FORMAT" %}
+    {% endblock footer_text %}
+  </div>
   <footer>
     {% block footer %}
       {% block footer_image %}<img src="{% static 'img/logos_rodape.png' %}" />{% endblock footer_image %}
-      {% block footer_text %}<p>{% trans 'Emitido em ' %}{% now "DATETIME_FORMAT" %}</p>{% endblock footer_text %}
     {% endblock footer %}
   </footer>
   {% endspaceless %}
