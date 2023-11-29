@@ -2,7 +2,7 @@ import calendar
 import locale
 from typing import Any
 from django import http
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Prefetch
 from django.utils import timezone
 from django.utils.translation import (
     to_locale,
@@ -109,7 +109,7 @@ class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
 class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
     html_template_name = "espacos/uso_espaco.html"
     pdf_template_name = "espacos/uso_espaco_pdf.html"
-    report_title = _("Uso dos espaços")
+    report_title = _("Uso dos espaços - Auditórios e Salas")
     pagesize = "A4 landscape"
 
     def get_context_data(self, **kwargs):
@@ -130,27 +130,34 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         if not sel_espacos:
             sel_espacos = Espaco.objects.all()
 
-        reservas = (
-            Reserva.objects.filter(
-                status=Reserva.STATUS_ATIVO, espaco__in=sel_espacos
-            )
+        reservas_qs = (
+            Reserva.objects.filter(status=Reserva.STATUS_ATIVO)
             .filter(
                 Q(inicio__range=(data_inicio, data_fim))
                 | Q(termino__range=(data_inicio, data_fim))
             )
-            .order_by("espaco", "inicio", "termino")
+            .order_by("inicio", "termino")
         )
-        rowspans = dict(
-            reservas.order_by("espaco")
-            .values_list("espaco")
-            .annotate(Count("espaco"))
+        espacos = (
+            sel_espacos.filter(reserva__status=Reserva.STATUS_ATIVO)
+            .filter(
+                Q(reserva__inicio__range=(data_inicio, data_fim))
+                | Q(reserva__termino__range=(data_inicio, data_fim))
+            )
+            .distinct()
+            .prefetch_related(
+                Prefetch(
+                    "reserva_set",
+                    queryset=reservas_qs,
+                    to_attr="reservas",
+                )
+            )
         )
 
         context = super().get_context_data(**kwargs)
         context.update(
             {
-                "reservas": reservas,
-                "rowspans": rowspans,
+                "espacos": espacos,
                 "form": form,
                 "data_inicio": data_inicio,
                 "data_termino": data_fim,

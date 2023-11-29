@@ -11,9 +11,15 @@
 {% endblock %}
 
 {% block main_content %}
-  <h4>
-    {% blocktranslate%}Semana de {{ data_inicio }} a {{ data_termino }}{% endblocktranslate %}
-  </h4>
-  <br/>
-  {% include "espacos/snippets/uso_espaco_snippet.html" %}
+  {% for espaco in espacos %}
+    <h4>
+      {% blocktranslate%}Semana de {{ data_inicio }} a {{ data_termino }}{% endblocktranslate %}
+    </h4>
+    <h5>{{ espaco.nome }}</h5>
+    <br/>
+    {% include "espacos/snippets/uso_espaco_snippet.html" with reservas=espaco.reservas %}
+    {% if not forloop.last %}
+      <div class="new-page"></div>
+    {% endif %}
+  {% endfor %}
 {% endblock %}

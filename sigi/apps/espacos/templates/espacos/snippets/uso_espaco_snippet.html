@@ -3,7 +3,6 @@
 <table class="calendar-table" repeat="2">
   <thead>
     <tr>
-      <th rowspan="2">{% trans "Espaço" %}</th>
       <th rowspan="2">{% trans "SIGAD" %}</th>
       <th rowspan="2">{% trans "Data pedido" %}</th>
       <th rowspan="2">{% trans "Virtual" %}</th>
@@ -24,9 +23,6 @@
   <tbody>
     {% for reserva in reservas %}
       <tr>
-        {% ifchanged reserva.espaco %}
-          <th rowspan="{{ rowspans|get:reserva.espaco.id }}">{{ reserva.espaco.nome }}</th>
-        {% endifchanged %}
         <td>{{ reserva.num_processo }}</td>
         <td>{{ reserva.data_pedido|default:"-" }}</td>
         <td>{{ reserva.virtual|yesno }}</td>
