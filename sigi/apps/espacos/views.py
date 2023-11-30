@@ -111,6 +111,7 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
     pdf_template_name = "espacos/uso_espaco_pdf.html"
     report_title = _("Uso dos espaços - Auditórios e Salas")
     pagesize = "A4 landscape"
+    attachment = False
 
     def get_context_data(self, **kwargs):
         form = UsoEspacoReportForm(self.request.GET)
@@ -118,6 +119,8 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
             data_inicio = form.cleaned_data["data_inicio"]
             data_fim = form.cleaned_data["data_fim"]
             sel_espacos = form.cleaned_data["espaco"]
+            virtual = form.cleaned_data["virtual"]
+            agrupar_espacos = form.cleaned_data["agrupar_espacos"]
         else:
             form = UsoEspacoReportForm(
                 initial={"espaco": Espaco.objects.all()}
@@ -125,39 +128,53 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
             semana = form.get_semana()
             data_inicio = semana["first"]
             data_fim = semana["last"]
+            virtual = UsoEspacoReportForm.VIRTUAL_ALL
+            agrupar_espacos = False
             sel_espacos = None
 
         if not sel_espacos:
             sel_espacos = Espaco.objects.all()
 
+        if virtual == UsoEspacoReportForm.VIRTUAL_VIRTUAL:
+            q_virtual = Q(virtual=True)
+        elif virtual == UsoEspacoReportForm.VIRTUAL_PRESENCIAL:
+            q_virtual = Q(virtual=False)
+        else:
+            q_virtual = Q()
+
         reservas_qs = (
-            Reserva.objects.filter(status=Reserva.STATUS_ATIVO)
+            Reserva.objects.filter(q_virtual, status=Reserva.STATUS_ATIVO)
             .filter(
                 Q(inicio__range=(data_inicio, data_fim))
                 | Q(termino__range=(data_inicio, data_fim))
             )
             .order_by("inicio", "termino")
         )
-        espacos = (
-            sel_espacos.filter(reserva__status=Reserva.STATUS_ATIVO)
-            .filter(
-                Q(reserva__inicio__range=(data_inicio, data_fim))
-                | Q(reserva__termino__range=(data_inicio, data_fim))
-            )
-            .distinct()
-            .prefetch_related(
-                Prefetch(
-                    "reserva_set",
-                    queryset=reservas_qs,
-                    to_attr="reservas",
+
+        if agrupar_espacos:
+            espacos = (
+                sel_espacos.filter(q_virtual, reserva__status=Reserva.STATUS_ATIVO)
+                .filter(
+                    Q(reserva__inicio__range=(data_inicio, data_fim))
+                    | Q(reserva__termino__range=(data_inicio, data_fim))
+                )
+                .distinct()
+                .prefetch_related(
+                    Prefetch(
+                        "reserva_set",
+                        queryset=reservas_qs,
+                        to_attr="reservas",
+                    )
                 )
             )
-        )
+        else:
+            espacos = None
 
         context = super().get_context_data(**kwargs)
         context.update(
             {
                 "espacos": espacos,
+                "reservas": reservas_qs,
                 "form": form,
                 "data_inicio": data_inicio,
                 "data_termino": data_fim,
