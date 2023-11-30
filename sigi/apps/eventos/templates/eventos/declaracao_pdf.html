@@ -6,14 +6,23 @@
   @bottom-right { content: ""; }
 {% endblock %}
 
+{% block extra_style %}
+  {{ block.super }}
+  .text-box {
+    padding: 24px 0;
+  }
+{% endblock extra_style %}
+
 {% block page_size %}{{ pagesize }}{% endblock page_size %}
-{% block page_margin %}4cm {{ pagemargin }}cm 4cm {{ pagemargin }}cm{% endblock page_margin %}
+{% block page_margin %}3cm {{ pagemargin }}cm 2cm {{ pagemargin }}cm{% endblock page_margin %}
 
 {% block main_content %}
   {% for convite in evento.convite_set.all %}
     {% with convite.casa as casa %}
       {% for nome in convite.nomes_participantes.splitlines %}
-        {% block text_body %}{% endblock %}
+        <div class="text-box">
+          {% block text_body %}{% endblock %}
+        </div>
         {% if not forloop.last %}
           <div class="new-page"/>
         {% endif %}
