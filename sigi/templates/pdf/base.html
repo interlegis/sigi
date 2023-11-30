@@ -43,6 +43,15 @@
         font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;
       }
+      div.page-border {
+        position:fixed;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        border-top: 2px solid #037036;
+        border-bottom: 2px solid #037036;
+      }
       div.new-page {
         break-before: always;
       }
@@ -67,9 +76,10 @@
       {% block extra_style %}{% endblock extra_style %}
     </style>
     {% block extra_head %}{% endblock extra_head %}
-    <title>{% block title %}{% endblock title %}</title>
+    <title>{% block title %}{{ title|default:"SIGI report" }}{% endblock title %}</title>
   </head>
   <body class="{% block body_class %}{% endblock body_class %}">
+    <div class="page-border"></div>
     {% block body_content %}{% endblock body_content %}
   </body>
 </html>
