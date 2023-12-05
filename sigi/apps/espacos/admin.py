@@ -1,4 +1,6 @@
+from typing import Any
 from django.contrib import admin, messages
+from django.http.request import HttpRequest
 from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, ngettext
@@ -10,6 +12,7 @@ from sigi.apps.espacos.models import (
     Reserva,
     RecursoSolicitado,
 )
+from sigi.apps.espacos.forms import ReservaAdminForm
 from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
 
 
@@ -65,6 +68,7 @@ class RecursoAdmin(admin.ModelAdmin):
 
 @admin.register(Reserva)
 class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
+    form = ReservaAdminForm
     resource_classes = [ReservaResource]
     list_display = [
         "get_status",
@@ -87,7 +91,6 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
         "num_processo",
     ]
     date_hierarchy = "inicio"
-    actions = ["cancelar_action", "reativar_action"]
     fieldsets = [
         (None, {"fields": ("status",)}),
         (
@@ -95,6 +98,7 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
             {
                 "fields": (
                     "espaco",
+                    "evento",
                     "proposito",
                     "num_processo",
                     "virtual",
@@ -119,20 +123,24 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
         ),
     ]
     autocomplete_fields = ["espaco"]
-    readonly_fields = ("status",)
+    readonly_fields = ("evento",)
     inlines = [RecursoSolicitadoInline]
 
-    def get_urls(self):
-        urls = super().get_urls()
-        model_info = self.get_model_info()
-        my_urls = [
-            path(
-                "<path:object_id>/cancel/",
-                self.admin_site.admin_view(self.cancelar_reserva),
-                name="%s_%s_cancel" % model_info,
-            )
-        ]
-        return my_urls + urls
+    def get_readonly_fields(self, request, obj=None):
+        if obj and hasattr(obj, "evento"):
+            if not hasattr(self, "_readonly_evento_alerted"):
+                self.message_user(
+                    request,
+                    _(
+                        f"Esta reserva está vinculada ao evento '{obj.evento}'. "
+                        "Apenas os recursos solicitados podem ser editados. "
+                        "Os demais campos devem ser alterados no evento."
+                    ),
+                    level=messages.ERROR,
+                )
+                self._readonly_evento_alerted = True
+            return self.get_fields(request)
+        return super().get_readonly_fields(request, obj)
 
     @admin.display(description=_("Status"), ordering="status", boolean=True)
     def get_status(self, obj):
@@ -147,37 +155,3 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
         if obj.pk is None:
             return ""
         return mark_safe(obj.get_sigad_url())
-
-    def cancelar_reserva(self, request, object_id):
-        reserva = get_object_or_404(Reserva, id=object_id)
-        reserva.status = Reserva.STATUS_CANCELADO
-        reserva.save()
-        return redirect(
-            reverse(
-                "admin:%s_%s_change" % self.get_model_info(), args=[object_id]
-            )
-            + "?"
-            + self.get_preserved_filters(request)
-        )
-
-    @admin.action(description=_("Cancelar as reservas selecionadas"))
-    def cancelar_action(self, request, queryset):
-        count = queryset.update(status=Reserva.STATUS_CANCELADO)
-        self.message_user(
-            request,
-            ngettext(
-                "Uma reserva cancelada", f"{count} reservas canceladas", count
-            ),
-            messages.SUCCESS,
-        )
-
-    @admin.action(description=_("Reativar as reservas selecionadas"))
-    def reativar_action(self, request, queryset):
-        count = queryset.update(status=Reserva.STATUS_ATIVO)
-        self.message_user(
-            request,
-            ngettext(
-                "Uma reserva reativada", f"{count} reservas reativadas", count
-            ),
-            messages.SUCCESS,
-        )

@@ -1,12 +1,24 @@
+from collections.abc import Mapping
+from typing import Any
 from django import forms
+from django.core.files.base import File
+from django.db.models.base import Model
+from django.forms.utils import ErrorList
 from django.utils.translation import gettext as _
 from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.espacos.models import Espaco, Reserva
 from sigi.apps.eventos.models import Convite, ModeloDeclaracao, Evento
 from sigi.apps.parlamentares.models import Parlamentar
 
 
 class EventoAdminForm(forms.ModelForm):
+    espaco = forms.ModelChoiceField(
+        label=_("Reservar espaço"),
+        required=False,
+        queryset=Espaco.objects.all(),
+    )
+
     class Meta:
         model = Evento
         fields = (
@@ -23,6 +35,7 @@ class EventoAdminForm(forms.ModelForm):
             "data_termino",
             "carga_horaria",
             "casa_anfitria",
+            "espaco",
             "observacao",
             "local",
             "publico_alvo",
@@ -42,8 +55,13 @@ class EventoAdminForm(forms.ModelForm):
             "motivo_cancelamento",
         )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance.reserva:
+            self.initial["espaco"] = self.instance.reserva.espaco
+
     def clean(self):
-        cleaned_data = super(EventoAdminForm, self).clean()
+        cleaned_data = super().clean()
         data_inicio = cleaned_data.get("data_inicio")
         data_termino = cleaned_data.get("data_termino")
         publicar = cleaned_data.get("publicar")
@@ -57,10 +75,26 @@ class EventoAdminForm(forms.ModelForm):
         if publicar and (data_inicio is None or data_termino is None):
             raise forms.ValidationError(
                 _(
-                    "Para publicar no site é preciso ter data início e data término"
+                    "Para publicar no site é preciso ter data início e "
+                    "data término"
                 ),
                 code="cannot_publish",
             )
+
+        espaco = cleaned_data["espaco"]
+        if (self.instance.reserva is None) and (espaco is None):
+            return
+        if self.instance.reserva is None:
+            self.instance.reserva = Reserva(espaco=espaco)
+        elif espaco is None:
+            self.instance.reserva = None
+        else:
+            self.instance.reserva.espaco = espaco
+
+        if self.instance.reserva:
+            self.instance.update_reserva()
+
+        return cleaned_data
 
 
 class SelecionaModeloForm(forms.Form):

@@ -873,6 +873,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                     "data_termino",
                     "carga_horaria",
                     "casa_anfitria",
+                    "espaco",
                     "contato",
                     "telefone",
                     "observacao",
@@ -1133,6 +1134,40 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             ),
         ]
         return my_urls + urls
+
+    def save_model(self, request, obj, form, change):
+        if change:
+            reserva_original = self.get_object(request, obj.pk).reserva
+        super().save_model(request, obj, form, change)
+        if change:
+            if reserva_original is None and obj.reserva is not None:
+                self.message_user(
+                    request,
+                    _(
+                        f"Reserva do espaço '{obj.reserva.espaco}' criada para "
+                        "este evento.",
+                    ),
+                    level=messages.SUCCESS,
+                )
+            if reserva_original is not None:
+                if obj.reserva is None:
+                    self.message_user(
+                        request,
+                        _(
+                            f"Reserva do espaço '{reserva_original.espaco}' "
+                            "excluída.",
+                        ),
+                        level=messages.SUCCESS,
+                    )
+                else:
+                    self.message_user(
+                        request,
+                        _(
+                            f"Reserva do espaço '{obj.reserva.espaco}' "
+                            "atualizada.",
+                        ),
+                        level=messages.SUCCESS,
+                    )
 
     def declaracao_report(self, request, object_id):
         if request.method == "POST":

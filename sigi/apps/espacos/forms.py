@@ -4,7 +4,14 @@ from django import forms
 from material.admin.widgets import MaterialAdminDateWidget
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext as _
-from sigi.apps.espacos.models import Espaco
+from sigi.apps.espacos.models import Espaco, Reserva
+
+
+class ReservaAdminForm(forms.ModelForm):
+    class Meta:
+        model = Reserva
+        widgets = {"status": forms.RadioSelect}
+        fields = "__all__"
 
 
 class UsoEspacoReportForm(forms.Form):

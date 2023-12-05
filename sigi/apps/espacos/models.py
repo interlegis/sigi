@@ -1,6 +1,8 @@
 import re
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
 
@@ -53,7 +55,6 @@ class Reserva(models.Model):
         max_length=1,
         choices=STATUS_CHOICES,
         default=STATUS_ATIVO,
-        editable=False,
     )
     espaco = models.ForeignKey(
         Espaco, verbose_name=_("espaço"), on_delete=models.PROTECT
@@ -126,22 +127,35 @@ class Reserva(models.Model):
             raise ValidationError(
                 _("Data de início deve ser anterior à data de término")
             )
-        if (
-            Reserva.objects.exclude(id=self.pk)
-            .filter(
-                espaco=self.espaco,
-                inicio__lte=self.termino,
-                termino__gte=self.inicio,
+        reservas_conflitantes = Reserva.objects.exclude(id=self.pk).filter(
+            espaco=self.espaco,
+            inicio__lte=self.termino,
+            termino__gte=self.inicio,
+            status=Reserva.STATUS_ATIVO,
+        )
+
+        if reservas_conflitantes.exists():
+            link_list = ", ".join(
+                [
+                    f"<a href='"
+                    f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}'>"
+                    f"{ reserva }</a>"
+                    for reserva in reservas_conflitantes
+                ]
             )
-            .exists()
-        ):
             raise ValidationError(
-                _(
-                    "Já existe um evento neste mesmo espaço que conflita com "
-                    "as datas solicitadas"
+                mark_safe(
+                    _(
+                        "Existe(m) reserva(s) que conflita(m) com essas datas: "
+                        f"{ link_list }"
+                    )
                 )
             )
         return super().clean()
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        return super().save(*args, **kwargs)
 
     def get_sigad_url(self):
         m = re.match(

@@ -15,6 +15,7 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao, Servidor
 from sigi.apps.contatos.models import Municipio
+from sigi.apps.espacos.models import Reserva
 from sigi.apps.servidores.models import Servidor
 
 
@@ -374,6 +375,9 @@ class Evento(models.Model):
         blank=True,
         null=True,
     )
+    reserva = models.OneToOneField(
+        Reserva, blank=True, null=True, on_delete=models.PROTECT
+    )
     local = models.TextField(_("Local do evento"), blank=True)
     observacao = models.TextField(_("Observações e anotações"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)
@@ -606,6 +610,39 @@ class Evento(models.Model):
 
         self.save()
 
+    def clean(self):
+        super().clean()
+        if (
+            self.data_inicio
+            and self.data_termino
+            and self.data_inicio > self.data_termino
+        ):
+            raise ValidationError(
+                _("Data de término deve ser posterior à data de início")
+            )
+        if self.reserva:
+            self.update_reserva()
+            self.reserva.clean()
+
+    def update_reserva(self):
+        # Prepara e valida a reserva de espaço para ser salva 
+        # Gertiq #167321
+        if self.reserva is not None:
+            self.reserva.proposito = self.nome
+            self.reserva.virtual = self.virtual
+            self.reserva.data_pedido = self.data_pedido
+            self.reserva.inicio = self.data_inicio
+            self.reserva.termino = self.data_termino
+            self.reserva.num_processo = self.num_processo
+            self.reserva.informacoes = self.observacao
+            self.reserva.solicitante = self.solicitante
+            self.reserva.contato = self.contato
+            self.reserva.telefone_contato = self.telefone
+            if self.status in (self.STATUS_CANCELADO, self.STATUS_SOBRESTADO):
+                self.reserva.status = Reserva.STATUS_CANCELADO
+            else:
+                self.reserva.status = Reserva.STATUS_ATIVO
+
     def save(self, *args, **kwargs):
         # Força que a casa anfitriã de todas as visitas seja Senado
         # Gertik #165751
@@ -622,15 +659,6 @@ class Evento(models.Model):
         if self.status != Evento.STATUS_CANCELADO:
             self.data_cancelamento = None
             self.motivo_cancelamento = ""
-        if (
-            self.data_inicio
-            and self.data_termino
-            and self.data_inicio > self.data_termino
-        ):
-            raise ValidationError(
-                _("Data de término deve ser posterior à data de início")
-            )
-
         if (
             self.turma == ""
             and self.data_inicio
@@ -653,7 +681,15 @@ class Evento(models.Model):
             self.turma = f"{proximo:02}/{ano:04}"
 
         # É preciso salvar para poder usar o relacionamento com convites
+        if self.reserva is None:
+            reservas_remover = list(Reserva.objects.filter(evento=self))
+        else:
+            self.update_reserva()
+            self.reserva.save()
+            reservas_remover = Reserva.objects.none()
         super().save(*args, **kwargs)
+        for reserva in reservas_remover:
+            reserva.delete()
 
         if self.total_participantes == 0 and self.moodle_courseid is None:
             # Só calcula total_participantes se não tem curso relacionado

@@ -76,7 +76,7 @@ main_menu:
     children:
       - title: Reservas
         view_name: admin:espacos_reserva_changelist
-        querystr: status=A
+        querystr: status__exact=A
       - title: Agenda de reservas
         view_name: espacos_agenda
       - title: Uso dos espaços
