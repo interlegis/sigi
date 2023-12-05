@@ -625,7 +625,7 @@ class Evento(models.Model):
             self.reserva.clean()
 
     def update_reserva(self):
-        # Prepara e valida a reserva de espaço para ser salva 
+        # Prepara e valida a reserva de espaço para ser salva
         # Gertiq #167321
         if self.reserva is not None:
             self.reserva.proposito = self.nome
@@ -642,6 +642,19 @@ class Evento(models.Model):
                 self.reserva.status = Reserva.STATUS_CANCELADO
             else:
                 self.reserva.status = Reserva.STATUS_ATIVO
+
+    def delete(self, *args, **kwargs):
+        result = super().delete(*args, **kwargs)
+        if self.reserva:
+            rr = self.reserva.delete()
+            result = tuple(
+                map(
+                    lambda a, b: a + b if isinstance(a, int) else a | b,
+                    result,
+                    rr,
+                )
+            )
+        return result
 
     def save(self, *args, **kwargs):
         # Força que a casa anfitriã de todas as visitas seja Senado

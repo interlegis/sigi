@@ -21,6 +21,7 @@ from django.db.models import (
 from django.db.models.functions import ExtractDay, Cast
 from django.conf import settings
 from django.contrib import admin, messages
+from django.contrib.admin.utils import get_deleted_objects
 from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
@@ -1168,6 +1169,18 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                         ),
                         level=messages.SUCCESS,
                     )
+
+    def get_deleted_objects(self, objs, request):
+        deleted_objects = super().get_deleted_objects(objs, request)
+        dr = get_deleted_objects(
+            [o.reserva for o in objs if hasattr(o, "reserva")],
+            request,
+            self.admin_site,
+        )
+        deleted_objects[0].extend(dr[0])
+        deleted_objects[1].update(dr[1])
+        deleted_objects[2].update(dr[2])
+        return deleted_objects
 
     def declaracao_report(self, request, object_id):
         if request.method == "POST":
