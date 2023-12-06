@@ -1,6 +1,7 @@
 import datetime
 import pandas as pd
 import time
+from admin_auto_filters.filters import AutocompleteFilter
 from moodle import Moodle
 from typing import Any
 from django.db import models
@@ -37,7 +38,7 @@ from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from weasyprint import HTML
 from sigi.apps.convenios.models import Convenio
-from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.contatos.models import UnidadeFederativa, Municipio
 from sigi.apps.eventos.models import (
     Checklist,
     Cronograma,
@@ -103,6 +104,13 @@ class NumeroParticipantesFilter(admin.SimpleListFilter):
             return queryset.annotate(
                 diferenca=F("inscritos_saberes") - F("aprovados_saberes")
             ).filter(diferenca__gte=10)
+
+
+class MicrorregiaoFilter(AutocompleteFilter):
+    title = _("Microrregião")
+    parameter_name = "casa__municipio__microrregiao__codigo_ibge__exact"
+    field_name = "microrregiao"
+    rel_model = Municipio
 
 
 class SolicitacaoResource(LabeledResourse):
@@ -414,6 +422,7 @@ class SolicitacaoAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
         "itemsolicitado__tipo_evento",
         "status",
         ActVigenteFilter,
+        MicrorregiaoFilter,
     )
     list_select_related = ["casa", "casa__municipio", "casa__municipio__uf"]
     search_fields = (
@@ -468,6 +477,11 @@ class SolicitacaoAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
     readonly_fields = ("servidor", "data_analise")
     inlines = (ItemSolicitadoInline, AnexoSolicitacaoInline)
     autocomplete_fields = ("casa",)
+
+    def lookup_allowed(self, lookup, value):
+        return super().lookup_allowed(lookup, value) or (
+            lookup == MicrorregiaoFilter.parameter_name
+        )
 
     def get_queryset(self, request):
         acts = Convenio.objects.filter(
