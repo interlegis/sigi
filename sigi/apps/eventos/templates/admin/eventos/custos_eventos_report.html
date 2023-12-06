@@ -52,9 +52,49 @@
   .label-resumo {
     min-width: 30em;
   }
+  .timestamp-container {
+    width: 100%;
+    margin: 24px 10px;
+    border-left: 5px solid #ee6e73;
+    font-size: 1.3em;
+  }
+  .timestamp-row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .timestamp-col {
+    position: relative;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  .timestamp-label {
+    flex: 0 0 12%;
+    max-width: 12%;
+    font-weight: bold;
+  }
 {% endblock %}
 
 {% block main_content %}
+  <div class="timestamp-container">
+    <div class="timestamp-row">
+      <div class="timestamp-col timestamp-label">
+        {% trans "Data inicial" %}:
+      </div>
+      <div class="timestamp-col timestamp-data">
+        {{ data_inicio|date:"SHORT_DATE_FORMAT" }}<br/>
+      </div>
+    </div>
+    <div class="timestamp-row">
+      <div class="timestamp-col timestamp-label">
+        {% trans "Data final" %}:
+      </div>
+      <div class="timestamp-col timestamp-data">
+        {{ data_fim|date:"SHORT_DATE_FORMAT" }}
+      </div>
+    </div>
+  </div>
+
   <table repeat="2">
     <thead>
       <tr>

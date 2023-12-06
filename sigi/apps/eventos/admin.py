@@ -1597,11 +1597,26 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             for sigla, nome in UnidadeFederativa.REGIAO_CHOICES
         ]
 
+        data_inicio = (
+            self.get_queryset(request)
+            .order_by("data_inicio")
+            .first()
+            .data_inicio
+        )
+        data_fim = (
+            self.get_queryset(request)
+            .order_by("data_termino")
+            .last()
+            .data_termino
+        )
+
         context = {
-            "eventos": eventos,
+            "eventos": eventos.order_by("data_inicio"),
             "resumo": resumo,
             "custos_regiao": custos_regiao,
             "title": _("Custos por eventos"),
+            "data_inicio": data_inicio,
+            "data_fim": data_fim,
         }
         return WeasyTemplateResponse(
             filename=f"custos_eventos-{timezone.localdate()}.pdf",
@@ -1666,10 +1681,26 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                 ),
             )
         )
+
+        data_inicio = (
+            self.get_queryset(request)
+            .order_by("data_inicio")
+            .first()
+            .data_inicio
+        )
+        data_fim = (
+            self.get_queryset(request)
+            .order_by("data_termino")
+            .last()
+            .data_termino
+        )
+
         context = {
-            "servidores": servidores,
+            "servidores": servidores.order_by("nome_completo"),
             "totais": totais,
             "title": _("Custos por servidor"),
+            "data_inicio": data_inicio,
+            "data_fim": data_fim,
         }
         return WeasyTemplateResponse(
             filename=f"custos_servidor-{timezone.localdate()}.pdf",
