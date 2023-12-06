@@ -1,5 +1,5 @@
 import csv
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
@@ -9,6 +9,7 @@ from import_export import resources
 from import_export.fields import Field
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
+from sigi.apps.eventos.models import Evento
 from sigi.apps.servicos.models import Servico
 from sigi.apps.utils import to_ascii
 
@@ -48,6 +49,12 @@ class CasasAtendidasListView(ListView):
         param = self.kwargs["param"]
         search_param = self.request.GET.get("search", None)
 
+        oficinas_qs = (
+            Evento.objects.exclude(data_inicio=None)
+            .exclude(data_termino=None)
+            .filter(status=Evento.STATUS_REALIZADO)
+        )
+
         queryset = super().get_queryset()
         queryset = (
             queryset.filter(
@@ -60,7 +67,14 @@ class CasasAtendidasListView(ListView):
                 "casa_legislativa__municipio__uf",
                 "casa_legislativa__tipo",
             )
-            .prefetch_related("casa_legislativa__convenio_set")
+            .prefetch_related(
+                "casa_legislativa__convenio_set",
+                Prefetch(
+                    "casa_legislativa__evento_set",
+                    oficinas_qs,
+                    to_attr="oficinas",
+                ),
+            )
             .order_by(
                 "casa_legislativa__municipio__uf__nome",
                 "casa_legislativa__tipo__nome",
