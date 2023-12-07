@@ -151,6 +151,7 @@
                       <tr>
                         <th>{% trans "Período" %}</th>
                         <th>{% trans "Nome" %}</th>
+                        <th>{% trans "Processo administrativo" %}</th>
                         <th>{% trans "Participantes" %}</th>
                       </tr>
                       {% for oficina in srv.casa_legislativa.oficinas %}
@@ -161,6 +162,7 @@
                             {% endblocktranslate %}
                           </td>
                           <td>{{ oficina.nome }}</td>
+                          <td>{{ oficina.num_processo|default:"-" }}</td>
                           <td>{{ oficina.total_participantes|default:"-" }}</td>
                         </tr>
                       {% endfor %}
