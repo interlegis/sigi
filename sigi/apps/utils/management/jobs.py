@@ -21,6 +21,7 @@ class JobReportMixin:
     report_template = "emails/base_report.rst"
     report_data = None
     sys_user = None
+    send_report_mail = True
 
     def execute(self):
         start_time = datetime.datetime.now()
@@ -108,10 +109,11 @@ class JobReportMixin:
                 "output_encoding": "unicode",
             },
         )
-        mail_admins(
-            subject=f"JOB: {self.help}",
-            message=rst,
-            html_message=html,
-            fail_silently=True,
-        )
+        if self.send_report_mail:
+            mail_admins(
+                subject=f"JOB: {self.help}",
+                message=rst,
+                html_message=html,
+                fail_silently=True,
+            )
         print(rst)

@@ -617,6 +617,12 @@ class Gescon(models.Model):
             self.save()
 
     def importa_contratos(self):
+        """Importa dados de convênios do GESCON
+
+        Returns:
+            boolean: Indica se há o que reportar ao usuário (erro ou dados
+                     importados/atualizados)
+        """
         self.ultima_importacao = ""
         if self.checksums is None:
             self.checksums = {}
@@ -635,12 +641,13 @@ class Gescon(models.Model):
                 ),
                 True,
             )
+            return True
 
         if self.subespecies == "":
             self.add_message(
                 _("Nenhuma subespécie definida - processo " "abortado."), True
             )
-            return
+            return True
 
         if "{s}" not in self.url_gescon:
             self.add_message(
@@ -651,7 +658,7 @@ class Gescon(models.Model):
                 ),
                 True,
             )
-            return
+            return True
 
         palavras = self.palavras.splitlines()
         excludentes = self.palavras_excluir.splitlines()
@@ -664,6 +671,7 @@ class Gescon(models.Model):
         }
 
         requests.packages.urllib3.disable_warnings()
+        report_user = False
 
         for sigla_gescon, sigla_sigi in subespecies:
             self.add_message(_(f"\n**Importando subespécie {sigla_gescon}**"))
@@ -675,12 +683,14 @@ class Gescon(models.Model):
                 response = requests.get(url, verify=False)
             except Exception as e:
                 self.add_message(_(f"\tErro ao acessar {url}: {e.message}"))
+                report_user = True
                 continue
 
             if not response.ok:
                 self.add_message(
                     _(f"\tErro ao acessar {url}: {response.reason}")
                 )
+                report_user = True
                 continue
 
             if not "application/json" in response.headers.get("Content-Type"):
@@ -690,6 +700,7 @@ class Gescon(models.Model):
                         "retornou dados em formato json"
                     )
                 )
+                report_user = True
                 continue
 
             md5sum = md5(response.text.encode(response.encoding)).hexdigest()
@@ -945,6 +956,9 @@ class Gescon(models.Model):
                     erros += 1
                     continue
 
+            if novos or erros or alertas or atualizados:
+                report_user = True
+
             self.add_message(
                 _(
                     f"\t{novos} novos convenios adicionados ao SIGI, "
@@ -955,6 +969,7 @@ class Gescon(models.Model):
             self.checksums[sigla_gescon] = md5sum
 
         self.save()
+        return report_user
 
     @classmethod
     def load(cls):

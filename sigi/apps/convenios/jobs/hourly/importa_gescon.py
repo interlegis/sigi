@@ -12,5 +12,5 @@ class Job(JobReportMixin, HourlyJob):
 
     def do_job(self):
         gescon = Gescon.load()
-        gescon.importa_contratos()
+        self.send_report_mail = gescon.importa_contratos()
         self.report_data = gescon.ultima_importacao.splitlines()

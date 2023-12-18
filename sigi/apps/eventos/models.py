@@ -414,6 +414,9 @@ class Evento(models.Model):
         null=True,
         editable=False,
     )
+    origem_sincronizacao = models.CharField(
+        _("origem da sincronização"), max_length=100, blank=True
+    )
     status = models.CharField(
         _("Status"), max_length=1, choices=STATUS_CHOICES
     )
@@ -545,7 +548,7 @@ class Evento(models.Model):
             + f"/course/view.php?id={self.moodle_courseid}"
         )
 
-    def sincroniza_saberes(self):
+    def sincroniza_saberes(self, origem="Cronjob"):
         if self.moodle_courseid is None:
             raise Evento.SaberesSyncException(
                 _("Este evento não tem curso associado no Saberes"),
@@ -602,6 +605,7 @@ class Evento(models.Model):
         self.inscritos_saberes = len(participantes)
         self.aprovados_saberes = aprovados
         self.data_sincronizacao = timezone.localtime()
+        self.origem_sincronizacao = origem
 
         # O total de participantes em eventos que possuem curso no Saberes
         # é sempre o número de aprovados no Saberes, independente do que o

@@ -904,6 +904,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                     "inscritos_saberes",
                     "aprovados_saberes",
                     "data_sincronizacao",
+                    "origem_sincronizacao",
                     "data_cancelamento",
                     "motivo_cancelamento",
                 )
@@ -985,6 +986,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         "inscritos_saberes",
         "aprovados_saberes",
         "data_sincronizacao",
+        "origem_sincronizacao",
     )
     inlines = (
         EquipeInline,
@@ -1869,7 +1871,12 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             return redirect(change_url)
 
         try:
-            evento.sincroniza_saberes()
+            evento.sincroniza_saberes(
+                origem=_(
+                    "Sincronizado manualmente por "
+                    f"{request.user.get_full_name()}"
+                )
+            )
         except Evento.SaberesSyncException as e:
             self.message_user(
                 request,
