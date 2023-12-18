@@ -147,6 +147,8 @@ class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
         if not obj.erro_atualizacao:
             return ""
         url = obj.url
+        if not url:
+            return obj.erro_atualizacao
         if url[-1] != "/":
             url += "/"
         if obj.tipo_servico.string_pesquisa:
