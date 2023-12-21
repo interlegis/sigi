@@ -101,6 +101,7 @@ EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=None)
 DEFAULT_FROM_EMAIL = env(
     "DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br"
 )
+SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
