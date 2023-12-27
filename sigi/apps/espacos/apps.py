@@ -7,3 +7,8 @@ class EspacosConfig(AppConfig):
     name = "espacos"
     name = "sigi.apps.espacos"
     verbose_name = _("Agenda de espaços")
+
+    def ready(self):
+        from . import signals
+
+        return super().ready()
