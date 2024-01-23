@@ -698,13 +698,13 @@ class Evento(models.Model):
             self.turma = f"{proximo:02}/{ano:04}"
 
         # É preciso salvar para poder usar o relacionamento com convites
+        super().save(*args, **kwargs)
         if self.reserva is None:
             reservas_remover = list(Reserva.objects.filter(evento=self))
         else:
             self.update_reserva()
             self.reserva.save()
             reservas_remover = Reserva.objects.none()
-        super().save(*args, **kwargs)
         for reserva in reservas_remover:
             reserva.delete()
 
