@@ -17,7 +17,7 @@ class Job(JobReportMixin, DailyJob):
 
     def do_job(self):
         hoje = timezone.localtime().replace(hour=23, minute=59, second=59)
-        anteontem = hoje - timezone.timedelta(days=3)
+        retroagir = hoje - timezone.timedelta(days=30)
 
         encerrar_inscricao = (
             Evento.objects.exclude(publicar=False)
@@ -38,7 +38,7 @@ class Job(JobReportMixin, DailyJob):
         )
 
         despublicar = Evento.objects.exclude(publicar=False).filter(
-            data_termino__lte=anteontem
+            data_termino__lte=retroagir
         )
 
         self.report_data.append(_("Despublicados"))
