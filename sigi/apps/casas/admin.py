@@ -512,6 +512,7 @@ class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         ) or lookup in [
             "tipo__legislativo__exact",
             "tipo__sigla__exact",
+            "tipo__sigla__in",
             "municipio__uf__codigo_ibge__exact",
             "convenio__projeto__id__exact",
         ]

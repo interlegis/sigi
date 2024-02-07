@@ -40,6 +40,18 @@ main_menu:
       - title: Demais órgãos
         view_name: admin:casas_orgao_changelist
         querystr: tipo__legislativo__exact=0
+      - title: Câmaras, assembleias, Escolas
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__in=CM,AL,EL
+      - title: Câmaras, Assembleias
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__in=CM,AL
+      - title: Câmaras, Escolas
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__in=CM,EL
+      - title: Assembleias, Escolas
+        view_name: admin:casas_orgao_changelist
+        querystr: tipo__sigla__in=AL,EL
   - title: Gerência Interlegis
     icon: people
     children:
