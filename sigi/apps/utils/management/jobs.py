@@ -86,12 +86,17 @@ class JobReportMixin:
         )
         print(rst)
 
-    def report(self, start_time, end_time):
-        if self.report_data is None:
-            raise MisconfiguredError(
-                "Job needs to define 'report_data' property"
-            )
+    def prepare_report(self, start_time, end_time):
+        """Prepara RST e HTML do relatório do JOB
 
+        Args:
+            start_time (datetime): Timestamp do início da execução
+            end_time (datetime): Timestamp do término da execução
+
+        Returns:
+            tupla(rst: str, html:str): Retorna o relatório do job formatado em
+                                       RST e HTML.
+        """
         rst = render_to_string(
             self.report_template,
             {
@@ -109,6 +114,16 @@ class JobReportMixin:
                 "output_encoding": "unicode",
             },
         )
+        return (rst, html)
+
+    def report(self, start_time, end_time):
+        if self.report_data is None:
+            raise MisconfiguredError(
+                "Job needs to define 'report_data' property"
+            )
+
+        rst, html = self.prepare_report(start_time, end_time)
+
         if self.send_report_mail:
             mail_admins(
                 subject=f"JOB: {self.help}",

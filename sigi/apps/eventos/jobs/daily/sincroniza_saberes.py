@@ -13,6 +13,7 @@ class Job(JobReportMixin, DailyJob):
     report_data = []
 
     def do_job(self):
+        self.report_data = []
         infos = []
         errors = []
         total_sinc = 0

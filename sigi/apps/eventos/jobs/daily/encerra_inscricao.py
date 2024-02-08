@@ -16,6 +16,7 @@ class Job(JobReportMixin, DailyJob):
     report_data = []
 
     def do_job(self):
+        self.report_data = []
         hoje = timezone.localtime().replace(hour=23, minute=59, second=59)
         retroagir = hoje - timezone.timedelta(days=30)
 

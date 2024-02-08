@@ -1,4 +1,4 @@
-{% load menus %}
+{% load menus sigi_tags %}
 {% for menu in menu_items %}
   {% if menu.children %}
   <li class="scrollspy">
@@ -9,7 +9,11 @@
     <div class="collapsible-body">
       {% for child in menu.children %}
         {% if child.view_name %}
-          {% url child.view_name as item_url %}
+          {% if child.view_param %}
+            {% url child.view_name child.view_param as item_url%}
+          {% else %}
+            {% url child.view_name as item_url %}
+          {% endif %}
           <div{% if item_url in request.path and child.querystr == None or child.querystr in request.get_full_path %} class="active"{% endif %}>
             <a href="{{ item_url }}{% if child.querystr %}?{{ child.querystr }}{% endif %}">{{ child.title }}</a>
           </div>

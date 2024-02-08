@@ -12,6 +12,12 @@ admin_menu:
         view_name: admin:parlamentares_senador_changelist
       - title: Avisos do sistema
         view_name: admin:utils_sigialert_changelist
+      - title: Sincroniza eventos com Saberes
+        view_name: utils_runjob
+        view_param: sincroniza_saberes
+      - title: Encerra inscrições de eventos
+        view_name: utils_runjob
+        view_param: encerra_inscricao
 
 main_menu:
   - title: Municípios
