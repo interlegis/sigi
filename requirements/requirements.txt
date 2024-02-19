@@ -6,7 +6,7 @@ ipython==8.14.0
 moodlepy==0.23.10
 pandas==2.0.2
 parsel==1.8.1
-Pillow==10.0.1
+Pillow==10.2.0
 psycopg2-binary==2.9.6
 PyYAML==6.0.1
 python-docx==0.8.11
