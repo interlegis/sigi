@@ -18,6 +18,11 @@ admin_menu:
       - title: Encerra inscrições de eventos
         view_name: utils_runjob
         view_param: encerra_inscricao
+      - title: Jobs de cron
+        view_name: admin:utils_cronjob_changelist
+      - title: Jobs agendados
+        view_name: admin_utils_jobschedule_changelist
+        querystr: status__exact=A
 
 main_menu:
   - title: Municípios

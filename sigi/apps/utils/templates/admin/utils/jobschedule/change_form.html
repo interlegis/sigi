@@ -1,0 +1,33 @@
+{% extends "admin/change_form.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+  <style type="text/css">
+    .display {
+        flex: 1;
+    }
+    h1 {
+      font-size: 2.5rem;
+    }
+    h2 {
+      font-size: 2rem;
+    }
+    h3 {
+      font-size: 1.5rem;
+    }
+  </style>
+{% endblock %}
+
+{% block after_field_sets %}
+<fieldset class="module aligned ">
+  <div class="form-row field-resultado">
+    <div class="input-field">
+      <div class="readonly-label"><label>Resultado:</label></div>
+      <div class="readonly">
+        <pre>{{ original.resultado }}</pre>
+      </div>
+    </div>
+  </div>
+</fieldset>
+{% endblock %}
