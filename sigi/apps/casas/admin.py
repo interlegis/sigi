@@ -1,3 +1,4 @@
+from email_validator import validate_email, EmailNotValidError
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.template.loader import render_to_string
@@ -44,7 +45,9 @@ class OrgaoExportResourceContato(LabeledResourse):
 
     def export(self, queryset=None, *args, **kwargs):
         if queryset is not None:
-            queryset = queryset.exclude(email="")
+            queryset = queryset.exclude(email="").filter(
+                email__regex=r"([A-Za-z0-9]+[.\-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+"
+            )
         return super().export(queryset, *args, **kwargs)
 
 
