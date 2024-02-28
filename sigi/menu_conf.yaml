@@ -21,7 +21,7 @@ admin_menu:
       - title: Jobs de cron
         view_name: admin:utils_cronjob_changelist
       - title: Jobs agendados
-        view_name: admin_utils_jobschedule_changelist
+        view_name: admin:utils_jobschedule_changelist
         querystr: status__exact=A
 
 main_menu:

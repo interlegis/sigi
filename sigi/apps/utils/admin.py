@@ -31,12 +31,19 @@ class JobScheduleInline(admin.TabularInline):
         return False
 
     @mark_safe
-    @admin.display(description=_("executar"))
+    @admin.display(description=_("Ver/executar"))
     def get_runner(self, sched):
         if sched.status == JobSchedule.STATUS_AGENDADO:
             url = reverse("admin:utils_jobschedule_runjob", args=[sched.id])
             return (
-                f"<a href='{url}'><i class='material-icons'>play_arrow</i></a>"
+                f"<a href='{url}' title='{_('Executar')}'>"
+                "<i class='material-icons'>play_arrow</i></a>"
+            )
+        elif sched.status == JobSchedule.STATUS_CONCLUIDO:
+            url = reverse("admin:utils_jobschedule_change", args=[sched.id])
+            return (
+                f"<a href='{url}' title='{_('Ver resultado')}'>"
+                "<i class='material-icons'>description</i></a>"
             )
         return ""
 
