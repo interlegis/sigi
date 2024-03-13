@@ -2,6 +2,7 @@
 {% load static i18n sigi_tags %}
 
 {% block page_size %}A4 landscape{% endblock page_size %}
+{% block page_margin %}3cm 1cm 2cm 1cm{% endblock page_margin %};
 
 {% block extra_style %}
   {{ block.super }}
@@ -141,22 +142,22 @@
             {% if not forloop.first %}<tr class="{{ row_class }}">{% endif %}
             <td>{{ membro.membro.get_apelido }}</td>
             <td>{{ membro.funcao }}</td>
-            <td class="right-align">{{ membro.qtde_diarias|default:"-" }}</td>
-            <td class="right-align">{{ membro.total_diarias|default:"-" }}</td>
-            <td class="right-align">{{ membro.total_passagens|default:"-" }}</td>
+            <td class="right-align">{{ membro.qtde_diarias|floatformat:2|default:"-" }}</td>
+            <td class="right-align">{{ membro.total_diarias|floatformat:2|default:"-" }}</td>
+            <td class="right-align">{{ membro.total_passagens|floatformat:2|default:"-" }}</td>
             <td>{{ membro.emissao_passagens|default:"-" }}</td>
             <td class="right-align">{{ membro.antecedencia|default:"-" }}</td>
             {% if forloop.first %}
-              <td rowspan="{{ equipe_count }}" class="right-align">{{ evento.custo_total|default:"-" }}</td>
-              <td rowspan="{{ equipe_count }}" class="right-align">{{ evento.custo_medio_participante|default:"-" }}</td>
-              <td rowspan="{{ equipe_count }}"class="right-align">{{ evento.custo_medio_membro|default:"-" }}</td>
+              <td rowspan="{{ equipe_count }}" class="right-align">{{ evento.custo_total|floatformat:2|default:"-" }}</td>
+              <td rowspan="{{ equipe_count }}" class="right-align">{{ evento.custo_medio_participante|floatformat:2|default:"-" }}</td>
+              <td rowspan="{{ equipe_count }}"class="right-align">{{ evento.custo_medio_membro|floatformat:2|default:"-" }}</td>
             {% endif %}
             </tr>
           {% empty %}
             <td colspan="7" class="center-align">{% trans "Equipe não definida" %}</td>
-            <td class="right-align">{{ evento.custo_total|default:"-" }}</td>
-            <td class="right-align">{{ evento.custo_medio_participante|default:"-" }}</td>
-            <td class="right-align">{{ evento.custo_medio_membro|default:"-" }}</td>
+            <td class="right-align">{{ evento.custo_total|floatformat:2|default:"-" }}</td>
+            <td class="right-align">{{ evento.custo_medio_participante|floatformat:2|default:"-" }}</td>
+            <td class="right-align">{{ evento.custo_medio_membro|floatformat:2|default:"-" }}</td>
             </tr>
           {% endfor %}
         {% endwith %}
@@ -248,7 +249,7 @@
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Antecedência média na emissão de passagens" %}</th>
-          <td class="right-align">{{ resumo.media_antecedencia|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_antecedencia|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
@@ -268,42 +269,42 @@
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Custo total" %}</th>
-          <td class="right-align">{{ resumo.tot_custo_total|default:"-" }}</td>
+          <td class="right-align">{{ resumo.tot_custo_total|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Total com diárias" %}</th>
-          <td class="right-align">{{ resumo.tot_custo_diarias|default:"-" }}</td>
+          <td class="right-align">{{ resumo.tot_custo_diarias|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Total com passagens" %}</th>
-          <td class="right-align">{{ resumo.tot_custo_passagens|default:"-" }}</td>
+          <td class="right-align">{{ resumo.tot_custo_passagens|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Custo médio dos eventos [Q / A]" %}</th>
-          <td class="right-align">{{ resumo.media_custo_total|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_custo_total|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Custo médio de diárias por evento [R / A]" %}</th>
-          <td class="right-align">{{ resumo.media_custo_diarias|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_custo_diarias|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Custo médio de passagens por evento [S / A]" %}</th>
-          <td class="right-align">{{ resumo.media_custo_passagens|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_custo_passagens|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Custo médio por participante [Q / B]" %}</th>
-          <td class="right-align">{{ resumo.media_custo_participantes|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_custo_participantes|floatformat:2|default:"-" }}</td>
         </tr>
         <tr>
           <th class="index-cell">{% cycle letra %}</th>
           <th class="label-resumo">{% trans "Gasto médio por membro da equipe" %}</th>
-          <td class="right-align">{{ resumo.media_custo_membro|default:"-" }}</td>
+          <td class="right-align">{{ resumo.media_custo_membro|floatformat:2|default:"-" }}</td>
         </tr>
       </table>
     </div>
@@ -335,18 +336,18 @@
           {% for data in custos_regiao %}
             <tr>
               <th>{{ data.nome }}</th>
-              <td class="right-align">{{ data.extrato.tot_diarias.min|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_diarias.mean|default:"-"|floatformat:2 }}</td>
-              <td class="right-align">{{ data.extrato.tot_diarias.max|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_diarias.sum|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_passagens.min|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_passagens.mean|default:"-"|floatformat:2 }}</td>
-              <td class="right-align">{{ data.extrato.tot_passagens.max|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_passagens.sum|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_custo.min|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_custo.mean|default:"-"|floatformat:2 }}</td>
-              <td class="right-align">{{ data.extrato.tot_custo.max|default:"-" }}</td>
-              <td class="right-align">{{ data.extrato.tot_custo.sum|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.min|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.mean|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.max|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_diarias.sum|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.min|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.mean|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.max|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_passagens.sum|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.min|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.mean|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.max|floatformat:2|default:"-" }}</td>
+              <td class="right-align">{{ data.extrato.tot_custo.sum|floatformat:2|default:"-" }}</td>
             </tr>
           {% endfor %}
         </tbody>

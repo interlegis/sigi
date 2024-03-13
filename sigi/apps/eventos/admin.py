@@ -1488,7 +1488,8 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                 ),
                 qtde_diarias=Sum("equipe__qtde_diarias"),
                 vlr_tot_diarias=Sum(
-                    F("equipe__qtde_diarias") * F("equipe__valor_diaria")
+                    F("equipe__qtde_diarias") * F("equipe__valor_diaria"),
+                    output_field=my_decimal_field,
                 ),
                 vlr_tot_passagens=Sum("equipe__total_passagens"),
                 custo_total=F("vlr_tot_diarias") + F("vlr_tot_passagens"),

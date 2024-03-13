@@ -2,6 +2,7 @@
 {% load static i18n sigi_tags %}
 
 {% block page_size %}A4 landscape{% endblock page_size %}
+{% block page_margin %}3cm 1cm 2cm 1cm{% endblock page_margin %};
 
 {% block extra_style %}
   {{ block.super }}
@@ -111,21 +112,21 @@
         <tr>
           <td>{{ servidor.nome_completo }}</td>
           <td class="right-align">{{ servidor.qtde_eventos|default:"-" }}</td>
-          <td class="right-align">{{ servidor.qtde_diarias|default:"-" }}</td>
-          <td class="right-align">{{ servidor.media_diarias|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_diarias|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_passagens|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_custo|default:"-" }}</td>
+          <td class="right-align">{{ servidor.qtde_diarias|floatformat:2|default:"-" }}</td>
+          <td class="right-align">{{ servidor.media_diarias|floatformat:2|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_diarias|floatformat:2|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_passagens|floatformat:2|default:"-" }}</td>
+          <td class="right-align">{{ servidor.total_custo|floatformat:2|default:"-" }}</td>
         </tr>
       {% endfor %}
       <tr>
         <th class="right-align">{% trans "Totais" %}</th>
         <th class="right-align">{{ totais.qtde_eventos|default:"-" }}</th>
-        <th class="right-align">{{ totais.qtde_diarias|default:"-" }}</th>
-        <th class="right-align">{{ totais.media_diarias|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_diarias|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_passagens|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_custo|default:"-" }}</th>
+        <th class="right-align">{{ totais.qtde_diarias|floatformat:2|default:"-" }}</th>
+        <th class="right-align">{{ totais.media_diarias|floatformat:2|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_diarias|floatformat:2|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_passagens|floatformat:2|default:"-" }}</th>
+        <th class="right-align">{{ totais.total_custo|floatformat:2|default:"-" }}</th>
       </tr>
     </tbody>
   </table>

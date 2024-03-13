@@ -810,11 +810,15 @@ class Equipe(models.Model):
     assina_oficio = models.BooleanField(
         _("Assina ofício de comparecimento"), default=False
     )
-    qtde_diarias = models.PositiveIntegerField(
-        _("quantidade de diárias"), blank=True, null=True
+    qtde_diarias = models.DecimalField(
+        _("quantidade de diárias"),
+        max_digits=14,
+        decimal_places=2,
+        blank=True,
+        null=True,
     )
     valor_diaria = models.DecimalField(
-        _("valor da diária (R$)"),
+        _("valor unitário da diária (R$)"),
         max_digits=14,
         decimal_places=2,
         blank=True,
