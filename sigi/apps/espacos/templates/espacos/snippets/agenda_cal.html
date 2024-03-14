@@ -8,9 +8,14 @@
       {% endblocktranslate %}
     </blockquote>
     <table class="calendar-table">
+      <colgroup>
+        <col class="col-sala"/>
+        <col class="col-horario"/>
+      </colgroup>
       <thead>
         <tr>
           <th rowspan="2">{% trans "Espaço" %}</th>
+          <th rowspan="2" class="col-horario"></th>
           {% for name in day_names %}
             <th>{{ name }}</th>
           {% endfor %}
@@ -22,33 +27,40 @@
         </tr>
       </thead>
       <tbody>
-        {% for espaco, reservas in semana.reservas.items %}
-          <tr class="linha-evento">
-            <th>{{ espaco.sigla }}</th>
-            {% for reserva, tupla in reservas %}
-              {% for x in ""|ljust:tupla.0|make_list %}<td></td>{% endfor %}
-              <td colspan="{{ tupla.1 }}" class="blue lighten-4">
-                <p>
-                  <strong>
-                    <a href="{% url "admin:espacos_reserva_change" reserva.id %}">
-                      {{ reserva.proposito }}
-                    </a>
-                  </strong>
-                </p>
-                <p>{{ reserva.inicio|interval:reserva.termino }}</p>
-                <p>
-                  {% blocktranslate with solicitante=reserva.solicitante %}
-                    solicitado por {{ solicitante }}
-                  {% endblocktranslate %}
-                </p>
-              </td>
-              {% if forloop.last %}
-                {% for x in ""|ljust:tupla.2|make_list %}<td></td>{% endfor %}
-              {% endif %}
-            {% empty %}
-              {% for x in "1234567"|make_list %}<td></td>{% endfor %}
+        {% for espaco, linhas in semana.items %}          
+          {% if espaco != "datas" %}
+            {% for linha in linhas %}
+              <tr class="linha-evento{% if forloop.last %} last{% endif %}">
+                {% if forloop.first %}
+                  <th rowspan="{{ linhas|length}}">{{ espaco.sigla }}</th>
+                {% endif %}
+                <td class="col-horario">{{ linha.hora }}</td>
+                {% for coluna in linha.colunas %}
+                  {% if "reserva" in coluna %}
+                    <td colspan="{{ coluna.colspan}}" rowspan="{{ coluna.rowspan}}" class="blue lighten-4">
+                      <p>
+                        <strong>
+                          <a href="{% url "admin:espacos_reserva_change" coluna.reserva.id %}">
+                            {{ coluna.reserva.proposito }}
+                          </a>
+                        </strong>
+                      </p>
+                      <p>{{ coluna.reserva.data_inicio|interval:coluna.reserva.data_termino }}</p>
+                      <p>
+                        {% blocktranslate with solicitante=coluna.reserva.solicitante %}
+                          solicitado por {{ solicitante }}
+                        {% endblocktranslate %}
+                      </p>
+                    </td>
+                  {% else %}
+                    {% if not coluna is None %}
+                      <td></td>
+                    {% endif %}
+                  {% endif %}
+                {% endfor %}
+              </tr>
             {% endfor %}
-          </tr>
+          {% endif %}
         {% endfor %}
       </tbody>
     </table>

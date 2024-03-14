@@ -17,6 +17,22 @@ class Espaco(models.Model):
             "Indique o prédio/bloco/sala onde este espaço está localizado."
         ),
     )
+    capacidade = models.PositiveBigIntegerField(
+        _("capacidade"),
+        default=0,
+        help_text=_("Número de acentos ou lotação máxima do espaço"),
+    )
+    reserva_eventos = models.BooleanField(
+        _("reserva para eventos"),
+        default=False,
+        help_text=_("Pode ser reservado para eventos cadastrados no SIGI"),
+    )
+    id_sala = models.PositiveIntegerField(
+        _("ID da sala"),
+        blank=True,
+        null=True,
+        help_text=_("ID da sala no sistema de reserva de salas do ILB"),
+    )
 
     class Meta:
         verbose_name = _("espaço")
@@ -31,6 +47,13 @@ class Recurso(models.Model):
     nome = models.CharField(_("nome"), max_length=100)
     sigla = models.CharField(_("sigla"), max_length=20)
     descricao = models.TextField(_("descrição"), blank=True)
+    id_equipamento = models.PositiveBigIntegerField(
+        _("ID do equipamento"),
+        blank=True,
+        null=True,
+        unique=True,
+        help_text=_("ID do equipamento no sistema de reserva de salas do ILB"),
+    )
 
     class Meta:
         verbose_name = _("recurso")
@@ -44,10 +67,12 @@ class Recurso(models.Model):
 class Reserva(models.Model):
     STATUS_ATIVO = "A"
     STATUS_CANCELADO = "C"
+    STATUS_CONFLITO = "O"
 
     STATUS_CHOICES = (
         (STATUS_ATIVO, _("Ativo")),
         (STATUS_CANCELADO, _("Cancelado")),
+        (STATUS_CONFLITO, _("Conflito de datas")),
     )
 
     status = models.CharField(
@@ -72,8 +97,10 @@ class Reserva(models.Model):
         _("total de participantes"), default=0
     )
     data_pedido = models.DateField(_("data do pedido"), blank=True, null=True)
-    inicio = models.DateTimeField(_("data/hora de início"))
-    termino = models.DateTimeField(_("data/hora de término"))
+    data_inicio = models.DateField(_("data início"))
+    data_termino = models.DateField(_("data término"))
+    hora_inicio = models.TimeField(_("hora início"))
+    hora_termino = models.TimeField(_("hora término"))
     num_processo = models.CharField(
         _("número do processo SIGAD"),
         max_length=20,
@@ -113,49 +140,71 @@ class Reserva(models.Model):
             "Indique o telefone/ramal da pessoa responsável pela reserva."
         ),
     )
+    id_reserva = models.PositiveBigIntegerField(
+        _("ID da reserva"), blank=True, null=True, editable=False, unique=True
+    )
+    data_ult_atualizacao = models.DateTimeField(
+        _("data da última atualização"), blank=True, null=True, editable=False
+    )
 
     class Meta:
         verbose_name = _("reserva")
         verbose_name_plural = _("reservas")
-        ordering = ("inicio", "espaco", "proposito")
+        ordering = ("data_inicio", "hora_inicio", "espaco", "proposito")
 
     def __str__(self):
         return _(f"{self.proposito} em {self.espaco.nome}")
 
     def clean(self):
-        if self.inicio > self.termino:
+        if self.data_inicio > self.data_termino:
             raise ValidationError(
                 _("Data de início deve ser anterior à data de término")
             )
-        reservas_conflitantes = Reserva.objects.exclude(id=self.pk).filter(
-            espaco=self.espaco,
-            inicio__lte=self.termino,
-            termino__gte=self.inicio,
-            status=Reserva.STATUS_ATIVO,
-        )
-
-        if reservas_conflitantes.exists():
-            link_list = ", ".join(
-                [
-                    f"<a href='"
-                    f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}'>"
-                    f"{ reserva }</a>"
-                    for reserva in reservas_conflitantes
-                ]
-            )
+        if self.hora_inicio > self.hora_termino:
             raise ValidationError(
-                mark_safe(
-                    _(
-                        "Existe(m) reserva(s) que conflita(m) com essas datas: "
-                        f"{ link_list }"
+                _("Hora de início deve ser anterior à hora de término")
+            )
+        reservas_conflitantes = self.get_conflitantes()
+        if reservas_conflitantes.exists():
+            if self.status == Reserva.STATUS_CONFLITO:
+                # Marco as conflitantes com status CONFLITO e deixo seguir
+                reservas_conflitantes.update(status=Reserva.STATUS_CONFLITO)
+            elif self.status == Reserva.STATUS_ATIVO:
+                # Não pode salvar assim. Lança exceção
+                link_list = ", ".join(
+                    [
+                        f"<a href='"
+                        f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}'>"
+                        f"{ reserva }</a>"
+                        for reserva in reservas_conflitantes
+                    ]
+                )
+                raise ValidationError(
+                    mark_safe(
+                        _(
+                            "Existe(m) reserva(s) que conflita(m) "
+                            f"com essas datas: { link_list }"
+                        )
                     )
                 )
-            )
         return super().clean()
 
     def save(self, *args, **kwargs):
         self.clean()
         return super().save(*args, **kwargs)
+
+    def get_conflitantes(self):
+        return (
+            Reserva.objects.exclude(id=self.pk)
+            .exclude(status=Reserva.STATUS_CANCELADO)
+            .filter(
+                espaco=self.espaco,
+                data_inicio__lte=self.data_termino,
+                data_termino__gte=self.data_inicio,
+                hora_inicio__lte=self.hora_termino,
+                hora_termino__gte=self.hora_inicio,
+            )
+        )
 
     def get_sigad_url(self):
         m = re.match(

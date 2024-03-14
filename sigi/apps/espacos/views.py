@@ -37,9 +37,11 @@ class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         locale.setlocale(locale.LC_ALL, lang)
 
         for ano, mes in (
-            Reserva.objects.values_list("inicio__year", "inicio__month")
-            .order_by("inicio__year", "inicio__month")
-            .distinct("inicio__year", "inicio__month")
+            Reserva.objects.values_list(
+                "data_inicio__year", "data_inicio__month"
+            )
+            .order_by("data_inicio__year", "data_inicio__month")
+            .distinct("data_inicio__year", "data_inicio__month")
         ):
             if ano in meses:
                 meses[ano][mes] = calendar.month_name[mes]
@@ -49,50 +51,75 @@ class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         espacos = list(Espaco.objects.all())
 
         semanas = [
-            {"datas": s, "reservas": {espaco: [] for espaco in espacos}}
+            {"datas": s}
             for s in calendar.Calendar().monthdatescalendar(
                 ano_pesquisa, mes_pesquisa
             )
         ]
 
-        primeiro_dia = timezone.make_aware(
-            timezone.datetime(*semanas[0]["datas"][0].timetuple()[:6])
-        )
-        ultimo_dia = timezone.make_aware(
-            timezone.datetime(*semanas[-1]["datas"][-1].timetuple()[:6])
-        )
+        primeiro_dia = semanas[0]["datas"][0]
+        ultimo_dia = semanas[-1]["datas"][-1]
+        shift = primeiro_dia.isocalendar().week
 
-        for reserva in Reserva.objects.exclude(
-            status=Reserva.STATUS_CANCELADO
+        for reserva in Reserva.objects.filter(
+            status=Reserva.STATUS_ATIVO
         ).filter(
-            Q(inicio__range=[primeiro_dia, ultimo_dia])
-            | Q(termino__range=[primeiro_dia, ultimo_dia])
+            Q(data_inicio__range=[primeiro_dia, ultimo_dia])
+            | Q(data_termino__range=[primeiro_dia, ultimo_dia])
         ):
-            for semana in semanas:
-                if not (
-                    (reserva.termino.date() < semana["datas"][0])
-                    or (reserva.inicio.date() > semana["datas"][-1])
-                ):
-                    start = max(semana["datas"][0], reserva.inicio.date())
-                    end = min(semana["datas"][-1], reserva.termino.date())
-                    semana["reservas"][reserva.espaco].append(
-                        [
-                            reserva,
-                            [
-                                start.weekday(),
-                                end.weekday() - start.weekday() + 1,
-                                6 - end.weekday(),
-                            ],
-                        ]
-                    )
+            for ix in range(
+                reserva.data_inicio.isocalendar().week - shift,
+                reserva.data_termino.isocalendar().week - shift + 1,
+            ):
+                if ix < 0 or ix > len(semanas):
+                    continue
+                semana = semanas[ix]
+                start = max(semana["datas"][0], reserva.data_inicio).weekday()
+                end = min(semana["datas"][-1], reserva.data_termino).weekday()
+                if reserva.espaco not in semana:
+                    semana[reserva.espaco] = []
+                semana[reserva.espaco].append(
+                    {
+                        "reserva": reserva,
+                        "col_start": start,
+                        "col_end": end,
+                    }
+                )
 
         for semana in semanas:
-            for espaco, reservas in semana["reservas"].items():
-                last_pos = 0
+            for espaco, reservas in semana.items():
+                if not isinstance(espaco, Espaco):
+                    continue
+                horas = sorted(
+                    {
+                        h
+                        for hh in [
+                            (
+                                r["reserva"].hora_inicio,
+                                r["reserva"].hora_termino,
+                            )
+                            for r in reservas
+                        ]
+                        for h in hh
+                    }
+                )
+                semana[espaco] = [
+                    {"hora": h, "colunas": [False] * 7} for h in horas
+                ]
                 for reserva in reservas:
-                    if last_pos > 0:
-                        reserva[1][0] -= last_pos
-                    last_pos += reserva[1][0] + reserva[1][1]
+                    row_start = horas.index(reserva["reserva"].hora_inicio)
+                    row_end = horas.index(reserva["reserva"].hora_termino)
+                    col_start = reserva["col_start"]
+                    col_end = reserva["col_end"]
+                    semana[espaco][row_start]["colunas"][col_start] = {
+                        "reserva": reserva["reserva"],
+                        "colspan": col_end - col_start + 1,
+                        "rowspan": row_end - row_start + 1,
+                    }
+                    for rx in range(row_start, row_end + 1):
+                        for cx in range(col_start, col_end + 1):
+                            if rx != row_start or cx != col_start:
+                                semana[espaco][rx]["colunas"][cx] = None
 
         context = super().get_context_data(**kwargs)
         context["mes_pesquisa"] = mes_pesquisa
@@ -153,7 +180,9 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
 
         if agrupar_espacos:
             espacos = (
-                sel_espacos.filter(q_virtual, reserva__status=Reserva.STATUS_ATIVO)
+                sel_espacos.filter(
+                    q_virtual, reserva__status=Reserva.STATUS_ATIVO
+                )
                 .filter(
                     Q(reserva__inicio__range=(data_inicio, data_fim))
                     | Q(reserva__termino__range=(data_inicio, data_fim))

@@ -16,7 +16,7 @@ class EventoAdminForm(forms.ModelForm):
     espaco = forms.ModelChoiceField(
         label=_("Reservar espaço"),
         required=False,
-        queryset=Espaco.objects.all(),
+        queryset=Espaco.objects.filter(reserva_eventos=True),
     )
 
     class Meta:
@@ -33,6 +33,8 @@ class EventoAdminForm(forms.ModelForm):
             "data_recebido_coperi",
             "data_inicio",
             "data_termino",
+            "hora_inicio",
+            "hora_termino",
             "carga_horaria",
             "casa_anfitria",
             "espaco",
@@ -64,11 +66,19 @@ class EventoAdminForm(forms.ModelForm):
         cleaned_data = super().clean()
         data_inicio = cleaned_data.get("data_inicio")
         data_termino = cleaned_data.get("data_termino")
+        hora_inicio = cleaned_data.get("hora_inicio")
+        hora_termino = cleaned_data.get("hora_termino")
         publicar = cleaned_data.get("publicar")
 
         if data_inicio and data_termino and data_inicio > data_termino:
             raise forms.ValidationError(
                 _("Data término deve ser posterior à data inicio"),
+                code="invalid_period",
+            )
+
+        if hora_inicio and hora_termino and hora_inicio > hora_termino:
+            raise forms.ValidationError(
+                _("Hora término deve ser posterior à hora inicio"),
                 code="invalid_period",
             )
 

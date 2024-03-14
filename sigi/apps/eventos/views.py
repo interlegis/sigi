@@ -127,11 +127,11 @@ def calendario(request):
         for e in eventos:
             for s in semanas:
                 if not (
-                    (e.data_termino.date() < s["datas"][0])
-                    or (e.data_inicio.date() > s["datas"][-1])
+                    (e.data_termino < s["datas"][0])
+                    or (e.data_inicio > s["datas"][-1])
                 ):
-                    start = max(s["datas"][0], e.data_inicio.date())
-                    end = min(s["datas"][-1], e.data_termino.date())
+                    start = max(s["datas"][0], e.data_inicio)
+                    end = min(s["datas"][-1], e.data_termino)
                     s["eventos"].append(
                         (
                             e,
@@ -246,24 +246,20 @@ def alocacao_equipe(request):
             if mes_pesquisa > 0:
                 if semana_pesquisa > 0:
                     for dia in dias:
-                        if (
-                            evento.data_inicio.date()
-                            <= dia
-                            <= evento.data_termino.date()
-                        ):
+                        if evento.data_inicio <= dia <= evento.data_termino:
                             registro[2][dia].append(evento)
                 else:
                     for idx, [inicio, fim] in enumerate(semanas):
-                        if inicio <= evento.data_inicio.date() <= fim:
+                        if inicio <= evento.data_inicio <= fim:
                             registro[2][idx]["dias"] += (
-                                min(fim, evento.data_termino.date())
-                                - evento.data_inicio.date()
+                                min(fim, evento.data_termino)
+                                - evento.data_inicio
                             ).days + 1
                             registro[2][idx]["eventos"] += 1
-                        elif inicio <= evento.data_termino.date() <= fim:
+                        elif inicio <= evento.data_termino <= fim:
                             registro[2][idx]["dias"] += (
-                                min(fim, evento.data_termino.date())
-                                - evento.data_inicio.date()
+                                min(fim, evento.data_termino)
+                                - evento.data_inicio
                             ).days + 1
                             registro[2][idx]["eventos"] += 1
             else:
@@ -295,18 +291,22 @@ def alocacao_equipe(request):
             linhas.append(
                 [r[1]]
                 + [
-                    _(
-                        ngettext("%(dias)s dia", "%(dias)s dias", d["dias"])
-                        + " em "
-                        + ngettext(
-                            "%(eventos)s evento",
-                            "%(eventos)s eventos",
-                            d["eventos"],
+                    (
+                        _(
+                            ngettext(
+                                "%(dias)s dia", "%(dias)s dias", d["dias"]
+                            )
+                            + " em "
+                            + ngettext(
+                                "%(eventos)s evento",
+                                "%(eventos)s eventos",
+                                d["eventos"],
+                            )
                         )
+                        % d
+                        if d["dias"] > 0 or d["eventos"] > 0
+                        else ""
                     )
-                    % d
-                    if d["dias"] > 0 or d["eventos"] > 0
-                    else ""
                     for d in r[2]
                 ]
             )
@@ -353,9 +353,9 @@ def alocacao_equipe(request):
         )
     elif formato == "csv":
         response = HttpResponse(content_type="text/csv")
-        response[
-            "Content-Disposition"
-        ] = 'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
+        response["Content-Disposition"] = (
+            'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
+        )
         writer = csv.writer(response)
         writer.writerow(cabecalho)
         writer.writerows(linhas)

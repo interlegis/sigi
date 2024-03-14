@@ -71,26 +71,33 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
     form = ReservaAdminForm
     resource_classes = [ReservaResource]
     list_display = [
-        "get_status",
+        "status",
         "proposito",
         "get_link_sigad",
         "get_espaco",
-        "inicio",
-        "termino",
+        "data_inicio",
+        "data_termino",
+        "hora_inicio",
+        "hora_termino",
         "virtual",
         "solicitante",
         "contato",
         "telefone_contato",
     ]
-    list_display_links = ["get_status", "proposito"]
-    list_filter = ["status", "espaco", "virtual"]
+    list_display_links = ["status", "proposito"]
+    list_filter = [
+        "espaco",
+        "virtual",
+        "status",
+        ("id_reserva", admin.EmptyFieldListFilter),
+    ]
     search_fields = [
         "proposito",
         "espaco__nome",
         "espaco__sigla",
         "num_processo",
     ]
-    date_hierarchy = "inicio"
+    date_hierarchy = "data_inicio"
     fieldsets = [
         (None, {"fields": ("status",)}),
         (
@@ -111,8 +118,8 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
             _("Detalhes"),
             {
                 "fields": (
-                    "inicio",
-                    "termino",
+                    ("data_inicio", "hora_inicio"),
+                    ("data_termino", "hora_termino"),
                     "informacoes",
                 )
             },
@@ -121,9 +128,13 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
             _("Contato"),
             {"fields": ("solicitante", "contato", "telefone_contato")},
         ),
+        (
+            _("Integração com sistema de reservas"),
+            {"fields": ("id_reserva", "data_ult_atualizacao")},
+        ),
     ]
     autocomplete_fields = ["espaco"]
-    readonly_fields = ("evento",)
+    readonly_fields = ("evento", "id_reserva", "data_ult_atualizacao")
     inlines = [RecursoSolicitadoInline]
 
     def get_readonly_fields(self, request, obj=None):
@@ -141,10 +152,6 @@ class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
                 self._readonly_evento_alerted = True
             return self.get_fields(request)
         return super().get_readonly_fields(request, obj)
-
-    @admin.display(description=_("Status"), ordering="status", boolean=True)
-    def get_status(self, obj):
-        return obj.status == Reserva.STATUS_ATIVO
 
     @admin.display(description=_("Espaço"), ordering="espaco")
     def get_espaco(self, obj):

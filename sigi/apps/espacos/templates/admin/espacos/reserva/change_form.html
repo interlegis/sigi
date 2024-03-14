@@ -1,0 +1,52 @@
+{% extends 'admin/change_form.html' %}
+{% load i18n admin_urls %}
+
+
+{% block extrastyle %}
+{{ block.super }}
+    <style>
+        .conflito {
+            color: var(--error-fg) !important;
+            border-color: var(--error-fg) !important;
+        }
+    </style>        
+{% endblock extrastyle %}
+    
+{% block after_related_objects %}
+  {% if original.get_conflitantes.exists %}
+    <fieldset class="module">
+      <h2 class="conflito">{% translate "Reservas conflitantes" %}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>&nbsp;</th>
+            <th scope="row" class="column-status">{% translate "Status" %}</th>
+            <th scope="row" class="column-proposito">{% translate "Propósito" %}</th>
+            <th scope="row" class="column-inicio">{% translate "Data/hora início" %}</th>
+            <th scope="row" class="column-termino">{% translate "Data/hora término" %}</th>
+            <th scope="row" class="column-solicitante">{% translate "Senador/autoridade solicitante" %}</th>
+            <th scope="row" class="column-contato">{% translate "Pessoa de contato" %}</th>
+            <th scope="row" class="column-telefone">{% translate "Telefone de contato" %}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for conf in original.get_conflitantes %}
+            <tr class="form-row {% cycle 'row1' 'row2' %}">
+              <td>
+                <a href="{% url opts|admin_urlname:'change' conf.pk %}">
+                  <i class="material-icons small-icon" aria-hidden="true" title="Modificar">edit</i>
+                </a>
+              </td>
+              <td>{{ conf.get_status_display }}</td>
+              <td>{{ conf.proposito }}</td>
+              <td>{{ conf.data_inicio|date:"SHORT_DATE_FORMAT" }} {{ conf.hora_inicio|time }}</td>
+              <td>{{ conf.data_termino|date:"SHORT_DATE_FORMAT" }} {{ conf.hora_termino|time }}</td>
+              <td>{{ conf.solicitante }}</td>
+              <td>{{ conf.contato }}</td>
+              <td>{{ conf.telefone_contato }}</td>
+            </tr>
+          {% endfor %}
+        </table>
+    </fieldset>
+  {% endif %}
+{% endblock %}

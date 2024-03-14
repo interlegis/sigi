@@ -361,12 +361,10 @@ class Evento(models.Model):
         verbose_name=_("Solicitação de origem"),
         on_delete=models.SET_NULL,
     )
-    data_inicio = models.DateTimeField(
-        _("Data/hora do Início"), null=True, blank=True
-    )
-    data_termino = models.DateTimeField(
-        _("Data/hora do Termino"), null=True, blank=True
-    )
+    data_inicio = models.DateField(_("data início"), null=True, blank=True)
+    data_termino = models.DateField(_("data término"), null=True, blank=True)
+    hora_inicio = models.TimeField(_("hora início"), null=True, blank=True)
+    hora_termino = models.TimeField(_("hora término"), null=True, blank=True)
     carga_horaria = models.PositiveIntegerField(_("carga horária"), default=0)
     casa_anfitria = models.ForeignKey(
         Orgao,
@@ -624,6 +622,14 @@ class Evento(models.Model):
             raise ValidationError(
                 _("Data de término deve ser posterior à data de início")
             )
+        if (
+            self.hora_inicio
+            and self.hora_termino
+            and self.hora_inicio > self.hora_termino
+        ):
+            raise ValidationError(
+                _("Hora de término deve ser posterior à hora de início")
+            )
         if self.reserva:
             self.update_reserva()
             self.reserva.clean()
@@ -635,8 +641,10 @@ class Evento(models.Model):
             self.reserva.proposito = self.nome
             self.reserva.virtual = self.virtual
             self.reserva.data_pedido = self.data_pedido
-            self.reserva.inicio = self.data_inicio
-            self.reserva.termino = self.data_termino
+            self.reserva.data_inicio = self.data_inicio
+            self.reserva.data_termino = self.data_termino
+            self.reserva.hora_inicio = self.hora_inicio
+            self.reserva.hora_termino = self.hora_termino
             self.reserva.num_processo = self.num_processo
             self.reserva.informacoes = self.observacao
             self.reserva.solicitante = self.solicitante
@@ -778,7 +786,7 @@ class Evento(models.Model):
             == 0
         ]
         for item in leafs:
-            ajusta_data(item, self.data_termino.date())
+            ajusta_data(item, self.data_termino)
 
 
 class Funcao(models.Model):

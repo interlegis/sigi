@@ -296,3 +296,9 @@ MOODLE_STUDENT_ROLES = env("MOODLE_STUDENT_ROLES", eval, default=(5, 9))
 MOODLE_COMPLETE_CRITERIA_TYPE = env(
     "MOODLE_COMPLETE_CRITERIA_TYPE", int, default=6  # Type Grade
 )
+
+# Integração com reserva de salas
+
+RESERVA_SALA_BASE_URL = env("RESERVA_SALA_BASE_URL", default=None)
+RESERVA_SALA_API_USER = env("RESERVA_SALA_API_USER", default=None)
+RESERVA_SALA_API_PASSWORD = env("RESERVA_SALA_API_PASSWORD", default=None)

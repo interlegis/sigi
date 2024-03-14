@@ -884,8 +884,8 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                     "num_processo",
                     "data_pedido",
                     "data_recebido_coperi",
-                    "data_inicio",
-                    "data_termino",
+                    ("data_inicio", "hora_inicio"),
+                    ("data_termino", "hora_termino"),
                     "carga_horaria",
                     "casa_anfitria",
                     "espaco",
@@ -939,6 +939,8 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         "get_link_sigad",
         "data_inicio",
         "data_termino",
+        "hora_inicio",
+        "hora_termino",
         "get_municipio",
         "get_uf",
         "get_regiao",
@@ -1161,8 +1163,8 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                 self.message_user(
                     request,
                     _(
-                        f"Reserva do espaço '{obj.reserva.espaco}' criada para "
-                        "este evento.",
+                        f"Reserva do espaço '{obj.reserva.espaco}' criada para"
+                        " este evento.",
                     ),
                     level=messages.SUCCESS,
                 )
@@ -1759,8 +1761,8 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             self.message_user(
                 request,
                 _(
-                    "O evento precisa ter datas de início e término para criar "
-                    "curso no Saberes."
+                    "O evento precisa ter datas de início e término para criar"
+                    " curso no Saberes."
                 ),
                 level=messages.ERROR,
             )
@@ -1781,8 +1783,14 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
         fullname = f"{evento.tipo_evento.nome} - {evento.casa_anfitria.municipio.nome}/{evento.casa_anfitria.municipio.uf.sigla} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
         shortname = f"{abreviatura(evento.tipo_evento.nome)} - {evento.tipo_evento.prefixo_turma}{evento.turma}"
-        inicio = int(time.mktime(evento.data_inicio.astimezone().timetuple()))
-        fim = int(time.mktime(evento.data_termino.astimezone().timetuple()))
+        dt_inicio = datetime.datetime.combine(
+            evento.data_inicio, evento.hora_inicio
+        ).replace(tzinfo=timezone.get_current_timezone())
+        dt_termino = datetime.datetime.combine(
+            evento.data_termino, evento.hora_termino
+        ).replace(tzinfo=timezone.get_current_timezone())
+        inicio = int(time.mktime(dt_inicio.astimezone().timetuple()))
+        fim = int(time.mktime(dt_termino.astimezone().timetuple()))
         erros = []
         try:  # Criar novo curso a partir do template
             novo_curso = mws.core.course.duplicate_course(
