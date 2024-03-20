@@ -2,6 +2,7 @@
 from datetime import datetime
 from django.db import migrations
 from django.db import migrations
+from django.conf import settings
 from sigi.apps.espacos.jobs.hourly.sincroniza_reservas import Job
 
 
@@ -15,10 +16,18 @@ def forward(apps, schema_editor):
         espaco.id_sala = id_sala
         espaco.save()
 
+    if (
+        settings.RESERVA_SALA_BASE_URL is None
+        or settings.RESERVA_SALA_API_USER is None
+        or settings.RESERVA_SALA_API_PASSWORD is None
+    ):
+        # Acesso ao sistema não configurado. Não fazer nada
+        return
+
     job = Job()
     job.carrega_salas()
     job.carrega_recursos()
-    job.carrega_reservas(ontem="2023-04-01")
+    job.carrega_reservas(ontem="2023-12-31")
     job.report(start, datetime.now())
 
 

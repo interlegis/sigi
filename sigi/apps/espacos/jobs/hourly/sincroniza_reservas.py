@@ -290,7 +290,8 @@ class Job(JobReportMixin, HourlyJob):
                     )
                     if conflitos:
                         # Verificar se existe um conflitante com as mesmas
-                        # datas/horas e coordenador.
+                        # datas/horas e que tenha sido cadastrado diretamente
+                        # no SIGI (id_reserva = None)
                         reserva_sigi = Reserva.objects.filter(
                             espaco=espaco,
                             id_reserva=None,
@@ -298,7 +299,6 @@ class Job(JobReportMixin, HourlyJob):
                             data_termino=data_termino,
                             hora_inicio=hora_inicio,
                             hora_termino=hora_termino,
-                            contato=reserva["coordenador"],
                         ).first()
                         if reserva_sigi:
                             # Se existe, então é a mesma, bastando vincular
@@ -516,13 +516,14 @@ class Job(JobReportMixin, HourlyJob):
         hora_inicio,
         hora_termino,
     ):
+        data_pedido = min(timezone.localdate(), data_inicio)
         reserva_sigi = Reserva(
             status=status,
             espaco=espaco,
             proposito=reserva["evento"],
             virtual=False,
             total_participantes=reserva["quantidadeAlunos"],
-            data_pedido=timezone.localdate(),
+            data_pedido=data_pedido,
             data_inicio=data_inicio,
             data_termino=data_termino,
             hora_inicio=hora_inicio,
