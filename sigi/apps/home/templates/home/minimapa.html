@@ -1,0 +1,14 @@
+{% load static i18n %}<!DOCTYPE html>
+<html lang="pt_BR">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'home/css/minimapa.css' %}" />
+    <title>{% trans "Mapa de órgãos legislativos atendidos pelo Interlegis" %}</title>
+  </head>
+  <body>
+    <div class="minimapa">
+      {% include 'home/minimapa.svg' %}
+    </div>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 import csv
-from django.db.models import Q, Prefetch
+from django.db.models import Q, Prefetch, Count
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
@@ -9,7 +9,8 @@ from import_export import resources
 from import_export.fields import Field
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.eventos.models import Evento
+from sigi.apps.convenios.models import Convenio
+from sigi.apps.eventos.models import Evento, TipoEvento
 from sigi.apps.servicos.models import Servico
 from sigi.apps.utils import to_ascii
 
@@ -41,7 +42,7 @@ class ServicoResource(resources.ModelResource):
 
 
 class CasasAtendidasListView(ListView):
-    model = Servico
+    model = Orgao
     template_name = "servicos/casas_atendidas.html"
     paginate_by = 100
 
@@ -49,61 +50,66 @@ class CasasAtendidasListView(ListView):
         param = self.kwargs["param"]
         search_param = self.request.GET.get("search", None)
 
-        oficinas_qs = (
+        sq_servicos = Servico.objects.filter(data_desativacao=None)
+        sq_eventos = (
             Evento.objects.exclude(data_inicio=None)
             .exclude(data_termino=None)
+            .exclude(tipo_evento__categoria=TipoEvento.CATEGORIA_VISITA)
             .filter(status=Evento.STATUS_REALIZADO)
         )
-
         queryset = super().get_queryset()
         queryset = (
-            queryset.filter(
-                data_desativacao=None, casa_legislativa__tipo__legislativo=True
+            queryset.filter(tipo__legislativo=True)
+            .filter(
+                Q(
+                    id__in=sq_eventos.order_by()
+                    .distinct("casa_anfitria")
+                    .values("casa_anfitria_id")
+                )
+                | Q(
+                    id__in=sq_servicos.order_by()
+                    .distinct("casa_legislativa")
+                    .values("casa_legislativa_id")
+                )
             )
-            .select_related(
-                "tipo_servico",
-                "casa_legislativa",
-                "casa_legislativa__municipio",
-                "casa_legislativa__municipio__uf",
-                "casa_legislativa__tipo",
-            )
+            .select_related("municipio", "municipio__uf", "tipo")
             .prefetch_related(
-                "casa_legislativa__convenio_set",
                 Prefetch(
-                    "casa_legislativa__evento_set",
-                    oficinas_qs,
-                    to_attr="oficinas",
+                    "servico_set", queryset=sq_servicos, to_attr="servicos"
+                ),
+                Prefetch("evento_set", queryset=sq_eventos, to_attr="eventos"),
+                Prefetch(
+                    "convenio_set",
+                    queryset=Convenio.objects.select_related("projeto"),
+                    to_attr="convenios",
                 ),
             )
-            .order_by(
-                "casa_legislativa__municipio__uf__nome",
-                "casa_legislativa__tipo__nome",
-                "casa_legislativa__nome",
-                "tipo_servico__nome",
-            )
-        )
+        ).order_by("municipio__uf__nome", "tipo__nome", "nome")
+
         if search_param:
             filter = [
-                Q(casa_legislativa__search_text__icontains=to_ascii(t.lower()))
+                Q(search_text__icontains=to_ascii(t.lower()))
                 for t in search_param.split()
             ]
             queryset = queryset.filter(*filter)
         if param.isdigit():
-            queryset = queryset.filter(casa_legislativa__id=param)
+            queryset = queryset.filter(id=param)
         elif param != "_all_":
-            queryset = queryset.filter(
-                casa_legislativa__municipio__uf__sigla=param
-            )
+            queryset = queryset.filter(municipio__uf__sigla=param)
         return queryset
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         param = self.kwargs["param"]
-        context["tot_orgaos"] = (
-            self.get_queryset()
-            .order_by()
-            .distinct("casa_legislativa__id")
-            .count()
+        context["tot_orgaos"] = self.get_queryset().count()
+        context["mapa_valores"] = dict(
+            Orgao.objects.exclude(municipio__uf__sigla="ZZ")
+            .exclude(servico=None, evento=None)
+            .exclude(~Q(servico__data_desativacao=None))
+            .filter(tipo__legislativo=True)
+            .order_by("municipio__uf__sigla")
+            .values_list("municipio__uf__sigla")
+            .annotate(Count("id", distinct=True))
         )
         context["regioes"] = [
             (
@@ -120,7 +126,10 @@ class CasasAtendidasListView(ListView):
     def render_to_response(self, context, **response_kwargs):
         format = self.request.GET.get("format", "html")
         if format == "csv":
-            servicos = self.get_queryset()
+            orgaos = self.get_queryset().values_list("id")
+            servicos = Servico.objects.filter(
+                data_desativacao=None, casa_legislativa_id__in=orgaos
+            )
             data = ServicoResource().export(servicos)
             return HttpResponse(
                 data.csv,

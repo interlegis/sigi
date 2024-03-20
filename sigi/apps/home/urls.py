@@ -86,4 +86,6 @@ urlpatterns = [
         views.report_sem_convenio,
         name="home_reportsemconvenio",
     ),
+    path("minimapa/", views.minimapa, name="home_minimapa"),
+    path("minimapa.svg", views.minimapa_svg, name="home_minimapa_svg"),
 ]

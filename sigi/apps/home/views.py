@@ -16,7 +16,7 @@ from django.contrib.auth import views as auth_views
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-from django.db.models import Q, Count
+from django.db.models import Q, Count, F
 from django.http import (
     HttpResponse,
     HttpResponseForbidden,
@@ -51,17 +51,15 @@ from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import to_ascii
 
 
-getcolor = (
-    lambda s=None: f"#{randint(32,255):02x}{randint(32,255):02x}"
-    f"{randint(32,255):02x}"
+getcolor = lambda s=None: (
+    f"#{randint(32,255):02x}{randint(32,255):02x}{randint(32,255):02x}"
     if s is None
     else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
     f"{randint(32,255):02x}"
 )
 
-gethighlight = (
-    lambda s=None: f"#{randint(32,255):02x}{randint(32,255):02x}"
-    f"{randint(32,255):02x}c0"
+gethighlight = lambda s=None: (
+    f"#{randint(32,255):02x}{randint(32,255):02x}{randint(32,255):02x}c0"
     if s is None
     else f"{seed(s) or ''}#{randint(32,255):02x}{randint(32,255):02x}"
     f"{randint(32,255):02x}c0"
@@ -372,6 +370,44 @@ def openmapsearch(request):
         for d in dados
     ]
     return JsonResponse(list(dados), safe=False)
+
+
+@xframe_options_exempt
+def minimapa(request):
+    return render(
+        request,
+        "home/minimapa.html",
+        context={
+            "mapa_valores": dict(
+                Orgao.objects.exclude(municipio__uf__sigla="ZZ")
+                .exclude(servico=None)
+                .exclude(~Q(servico__data_desativacao=None))
+                .filter(tipo__legislativo=True)
+                .order_by("municipio__uf__sigla")
+                .values_list("municipio__uf__sigla")
+                .annotate(orgaos_atendidos=Count("id", distinct=True))
+            )
+        },
+    )
+
+
+@xframe_options_exempt
+def minimapa_svg(request):
+    return render(
+        request,
+        "home/minimapa.svg",
+        context={
+            "mapa_valores": dict(
+                Orgao.objects.exclude(municipio__uf__sigla="ZZ")
+                .exclude(servico=None)
+                .exclude(~Q(servico__data_desativacao=None))
+                .filter(tipo__legislativo=True)
+                .order_by("municipio__uf__sigla")
+                .values_list("municipio__uf__sigla")
+                .annotate(orgaos_atendidos=Count("id", distinct=True))
+            )
+        },
+    )
 
 
 ################################################################################
@@ -1095,9 +1131,9 @@ def report_sem_convenio(request):
 
     if fmt == "csv":
         response = HttpResponse(content_type="text/csv")
-        response[
-            "Content-Disposition"
-        ] = f"attachment; filename={ titulo }.csv"
+        response["Content-Disposition"] = (
+            f"attachment; filename={ titulo }.csv"
+        )
         writer = csv.writer(response)
         writer.writerow([titulo])
         writer.writerow([""])
