@@ -23,7 +23,8 @@ admin_menu:
       - title: Jobs agendados
         view_name: admin:utils_jobschedule_changelist
         querystr: status__exact=A
-
+      - title: Configurações
+        view_name: admin:utils_config_changelist
 main_menu:
   - title: Municípios
     icon: location_city

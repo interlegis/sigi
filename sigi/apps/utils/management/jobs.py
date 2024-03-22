@@ -1,11 +1,13 @@
 import datetime
 import docutils.core
 import traceback
+from django.conf import settings
 from django.contrib.admin.models import LogEntry, ADDITION, CHANGE
 from django.contrib.contenttypes.models import ContentType
-from django.core.mail import mail_admins
+from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django_extensions.management.jobs import BaseJob
+from sigi.apps.utils.models import Config
 
 
 class MisconfiguredError(Exception):
@@ -78,11 +80,13 @@ class JobReportMixin:
                 "output_encoding": "unicode",
             },
         )
-        mail_admins(
-            subject=self.help,
+        send_mail(
+            subject=f"JOB: {self.help}",
             message=rst,
-            html_message=html,
+            from_email=settings.SERVER_EMAIL,
+            recipient_list=Config.get_param("EMAIL_JOBS"),
             fail_silently=True,
+            html_message=html,
         )
         print(rst)
 
@@ -125,10 +129,12 @@ class JobReportMixin:
         rst, html = self.prepare_report(start_time, end_time)
 
         if self.send_report_mail:
-            mail_admins(
+            send_mail(
                 subject=f"JOB: {self.help}",
                 message=rst,
-                html_message=html,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=Config.get_param("EMAIL_JOBS"),
                 fail_silently=True,
+                html_message=html,
             )
         print(rst)

@@ -9,7 +9,6 @@ from django.utils.formats import localize
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
-from sigi.apps.utils.management.jobs import JobReportMixin
 
 
 class SigiAlert(models.Model):
@@ -182,3 +181,44 @@ class JobSchedule(models.Model):
         self.status = JobSchedule.STATUS_CONCLUIDO
         self.tempo_gasto = timezone.localtime() - self.iniciado
         self.save()
+
+
+class Config(models.Model):
+    PARAMETRO_CHOICES = (
+        ("ENCERRA_INSCRICAO", _("Encerra inscrições de oficinas no Portal")),
+        ("EMAIL_JOBS", _("E-mail de jobs")),
+    )
+    DEFAULTS = {
+        "ENCERRA_INSCRICAO": "30",
+        "EMAIL_JOBS": "sigi@interlegis.leg.br",
+    }
+    parametro = models.CharField(
+        _("parâmetro"), max_length=100, choices=PARAMETRO_CHOICES
+    )
+    valor = models.CharField(_("valor do parâmettro"), max_length=200)
+
+    class Meta:
+        ordering = ("parametro",)
+        verbose_name = _("Parâmetro de configuração")
+        verbose_name_plural = _("Parâmetros de configuração")
+
+    def __str__(self):
+        return f"{self.get_parametro_display()}: {self.valor}"
+
+    @classmethod
+    def get_param(cls, parametro):
+        if parametro not in cls.DEFAULTS:
+            raise cls.DoesNotExist(
+                _(
+                    f"Não existe o parâmetro '{parametro}'. "
+                    f"As opções são {', '.join(cls.DEFAULTS.keys())}."
+                )
+            )
+        valores = list(
+            cls.objects.filter(parametro=parametro).values_list(
+                "valor", flat=True
+            )
+        )
+        if not valores:
+            valores.append(cls.DEFAULTS[parametro])
+        return valores

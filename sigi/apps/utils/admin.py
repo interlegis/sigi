@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
-from sigi.apps.utils.models import SigiAlert, Cronjob, JobSchedule
+from sigi.apps.utils.models import SigiAlert, Cronjob, JobSchedule, Config
 
 
 class JobScheduleInline(admin.TabularInline):
@@ -212,3 +212,9 @@ class JobScheduleAdmin(admin.ModelAdmin):
             messages.SUCCESS,
         )
         return redirect("admin:utils_jobschedule_change", object_id=object_id)
+
+
+@admin.register(Config)
+class ConfigAdmin(admin.ModelAdmin):
+    list_display = ["parametro", "valor"]
+    list_filter = ["parametro"]
