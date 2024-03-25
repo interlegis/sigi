@@ -173,8 +173,6 @@ class Job(JobReportMixin, DailyJob):
                     )
                     continue
             # Verificar se tem registro de suspensão do namespace
-            if namespace == "acegua-rs":
-                breakpoint()
             suspenso = [
                 ns["metadata"]["annotations"]["suspenso"]
                 for ns in namespaces
