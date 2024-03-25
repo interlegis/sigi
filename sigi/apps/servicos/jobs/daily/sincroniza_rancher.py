@@ -59,7 +59,13 @@ class Job(JobReportMixin, DailyJob):
         portais = [
             item
             for item in json_data["items"]
-            if item["spec"]["chart"]["metadata"]["name"] == tipo.tipo_rancher
+            if item["kind"].lower() == "app"
+            and item["spec"]["chart"]["metadata"]["name"] == tipo.tipo_rancher
+        ]
+        namespaces = [
+            item
+            for item in json_data["items"]
+            if item["kind"].lower() == "namespace"
         ]
 
         encontrados = 0
@@ -72,7 +78,8 @@ class Job(JobReportMixin, DailyJob):
 
         # Atualiza portais existentes e cria novos #
         for p in portais:
-            iname = p["metadata"]["name"]
+            namespace = p["metadata"]["namespace"]
+            name = p["metadata"]["name"]
             if tipo.spec_rancher in p["spec"]["values"]:
                 if "hostname" in p["spec"]["values"][tipo.spec_rancher]:
                     hostname = p["spec"]["values"][tipo.spec_rancher][
@@ -84,7 +91,7 @@ class Job(JobReportMixin, DailyJob):
                     hostname = NAO_CONSTA
                     self.errors[tipo].append(
                         _(
-                            f"Instância {iname} de {tipo.nome} sem URL no "
+                            f"Instância {namespace} de {tipo.nome} sem URL no "
                             "rancher"
                         )
                     )
@@ -99,7 +106,9 @@ class Job(JobReportMixin, DailyJob):
             else:
                 hostname = NAO_CONSTA
                 self.errors[tipo].append(
-                    _(f"Instância {iname} de {tipo.nome} sem URL no rancher")
+                    _(
+                        f"Instância {namespace} de {tipo.nome} sem URL no rancher"
+                    )
                 )
 
             nova_versao = (
@@ -114,24 +123,33 @@ class Job(JobReportMixin, DailyJob):
 
             try:
                 portal = Servico.objects.get(
-                    instancia=iname, tipo_servico=tipo, data_desativacao=None
+                    instancia=namespace,
+                    tipo_servico=tipo,
+                    data_desativacao=None,
                 )
                 encontrados += 1
             except Servico.MultipleObjectsReturned:
                 self.errors[tipo].append(
                     _(
-                        f"Existe mais de um registro ativo da instância {iname}"
+                        f"Existe mais de um registro ativo da instância {namespace}"
                         f" de {tipo}."
                     )
                 )
                 continue
             except Servico.DoesNotExist:
-                if iname in self.nomes_gerados:
-                    orgao = self.nomes_gerados[iname]
+                if (
+                    namespace in self.nomes_gerados
+                    or name in self.nomes_gerados
+                ):
+                    orgao = (
+                        self.nomes_gerados[namespace]
+                        if namespace in self.nomes_gerados
+                        else self.nomes_gerados[name]
+                    )
                     portal = Servico(
                         casa_legislativa=orgao,
                         tipo_servico=tipo,
-                        instancia=iname,
+                        instancia=namespace,
                         url=nova_url,
                         versao=nova_versao,
                         data_ativacao=p["spec"]["info"]["firstDeployed"][:10],
@@ -142,18 +160,36 @@ class Job(JobReportMixin, DailyJob):
                     novos += 1
                     self.infos[tipo].append(
                         _(
-                            f"Criada instância {iname} de {tipo.nome} para "
+                            f"Criada instância {namespace} de {tipo.nome} para "
                             f"{orgao.nome} ({orgao.municipio.uf.sigla})"
                         )
                     )
                 else:
                     self.errors[tipo].append(
                         _(
-                            f"{iname} ({hostname}) não parece pertencer a "
+                            f"{namespace} ({hostname}) não parece pertencer a "
                             "nenhum órgão."
                         )
                     )
                     continue
+            # Verificar se tem registro de suspensão do namespace
+            if namespace == "acegua-rs":
+                breakpoint()
+            suspenso = [
+                ns["metadata"]["annotations"]["suspenso"]
+                for ns in namespaces
+                if ns["metadata"]["name"] == namespace
+                and "suspenso" in ns["metadata"]["annotations"]
+            ]
+            if suspenso:
+                # Desativar o portal no SIGI
+                portal.data_desativacao = timezone.localdate()
+                portal.motivo_desativacao = (
+                    "Suspenso no Rancher com os seguintes apontamentos:"
+                    + ", ".join([f'"{s}"' for s in suspenso])
+                )
+                portal.save()
+                self.admin_log_change(portal, portal.motivo_desativacao)
             # atualiza o serviço no SIGI
             if (
                 nova_versao != portal.versao
