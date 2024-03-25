@@ -8,7 +8,8 @@
   </head>
   <body>
     <div class="minimapa">
-      {% include 'home/minimapa.svg' %}
+      {% url 'servicos_casas_atendidas' as base_url %}
+      {% include 'home/minimapa.svg' with base_url=base_url end_slash="/" %}
     </div>
   </body>
 </html>

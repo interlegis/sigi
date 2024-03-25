@@ -396,6 +396,7 @@ def minimapa_svg(request):
     return render(
         request,
         "home/minimapa.svg",
+        content_type="image/svg+xml",
         context={
             "mapa_valores": dict(
                 Orgao.objects.exclude(municipio__uf__sigla="ZZ")
@@ -405,7 +406,12 @@ def minimapa_svg(request):
                 .order_by("municipio__uf__sigla")
                 .values_list("municipio__uf__sigla")
                 .annotate(orgaos_atendidos=Count("id", distinct=True))
-            )
+            ),
+            "base_url": (
+                "https://www.senado.leg.br/senado/hotsites/"
+                "interlegis/orgaos-atendidos.asp?uf="
+            ),
+            "end_slash": "",
         },
     )
 

@@ -1,12 +1,12 @@
 <svg version="1.1" id="svg-map" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewbox="0 0 495 460" enable-background="new 0 0 550 460" xml:space="preserve" style="margin-top:2em;">
    <g>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'TO' %}" id="map-TO">
+     <a xlink:href="{{ base_url }}TO{{ end_slash }}" id="map-TO">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M289.558,235.641
        c16.104,0.575,44.973-31.647,44.835-45.259c-0.136-13.612-17.227-58.446-22.349-66.088c-5.122-7.628-37.905,2.506-37.905,2.506
        S234.852,233.695,289.558,235.641z"></path>
        <text transform="matrix(1 0 0 1 287.0137 188.3208)" fill="#FFFFFF" class="uf-nome">TO</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 287.0137, 200.3208)" fill="#FFFFFF">{{ mapa_valores.TO }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'BA' %}" id="map-BA">
+     <a xlink:href="{{ base_url }}BA{{ end_slash }}" id="map-BA">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M313.276,197.775
        c2.084-2.739,3.506-7.012,6.464-8.764c1.641-0.973,3.232-4.684,4.271-5.163c2.304-1.014,12.161-25.143,20.706-22.513
        c1.095,0.342,29.881,3.478,32.153,7.532c2.246-0.506,17.582-8.804,25.829-4.999c9.172,4.246,11.225,20.679,11.2,20.843
@@ -17,7 +17,7 @@
        c-0.546-1.725-5.396-6.079-0.026-7.175c-3.175,0.959-1.944-4.027,0.875-3.012C316.726,200.733,314.044,200.527,313.276,197.775z"></path>
        <text transform="matrix(1 0 0 1 359.7324 210.1221)" fill="#FFFFFF" class="uf-nome">BA</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 359.7324, 222.1221)" fill="#FFFFFF">{{ mapa_valores.BA }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'SE' %}" id="map-SE">
+     <a xlink:href="{{ base_url }}SE{{ end_slash }}" id="map-SE">
       <line stroke="#000" stroke-width="1.0404" x1="420" y1="190" x2="425" y2="235"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M408.561,191.735
        c0.521-1.505,2.465-0.725,3.533-0.794c2.273-0.164,0.494-2.738,1.095-3.778c2.026-3.793-2.738-5.999-1.998-10.408
@@ -27,7 +27,7 @@
        <text transform="matrix(1 0 0 1 415.5 232)" fill="#FFFFFF" class="uf-nome">SE</text>
        <text class="uf-valor" transform="matrix(1, 0, 0, 1, 415.5, 246)" fill="#FFFFFF">{{ mapa_valores.SE }}</text>
       </a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'PE' %}" id="map-PE">
+     <a xlink:href="{{ base_url }}PE{{ end_slash }}" id="map-PE">
       <line stroke="#000" stroke-width="1.0404" x1="440" y1="160" x2="475" y2="180"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M373.011,167.238
        c2.709-0.795,6.218-14.106,8.325-15.106c4.136-1.986,17.255-1.437,17.8,4.903c-0.437-0.068,8.189-2.273,7.479-1.466
@@ -40,7 +40,7 @@
        <text transform="matrix(1 0 0 1 465.5 177)" fill="#FFFFFF" class="uf-nome">PE</text>
        <text class="uf-valor" transform="matrix(1, 0, 0, 1, 465.5, 191)" fill="#FFFFFF">{{ mapa_valores.PE }}</text>
       </a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'AL' %}" id="map-AL">
+     <a xlink:href="{{ base_url }}AL{{ end_slash }}" id="map-AL">
       <line stroke="#000" stroke-width="1.0404" x1="432" y1="177" x2="459" y2="216"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M413.953,169.018
        c3.78,3.313,9.424,5.505,12.547,5.491c3.229-0.013,5.009-3.328,7.421-4.794c1.177-0.712,10.297-1.93,9.174,1.042
@@ -50,7 +50,7 @@
        <text transform="matrix(1 0 0 1 450.5 213)" fill="#FFFFFF" class="uf-nome">AL</text>
        <text class="uf-valor" transform="matrix(1, 0, 0, 1, 450.5, 227)" fill="#FFFFFF">{{ mapa_valores.AL }}</text>
       </a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'RN' %}" id="map-RN">
+     <a xlink:href="{{ base_url }}RN{{ end_slash }}" id="map-RN">
       <line stroke="#000" stroke-width="1.0404" x1="426" y1="130" x2="460" y2="105"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M404.698,138.795
        c2.383-4.027,6.574-6.123,8.49-11.149c1.973-5.107,3.834-5.818,8.764-4.642c5.041,1.207,9.339,0.837,14.57,1.671
@@ -60,7 +60,7 @@
        <text transform="matrix(1 0 0 1 450.5 102)" fill="#FFFFFF" class="uf-nome">RN</text>
        <text class="uf-valor" transform="matrix(1, 0, 0, 1, 450.5, 116)" fill="#FFFFFF">{{ mapa_valores.RN }}</text>
     </a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'CE' %}" id="map-CE">
+     <a xlink:href="{{ base_url }}CE{{ end_slash }}" id="map-CE">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M372.379,104.409
        c0.437-1.368,2.961-3.627,1.043-5.025c12.106-1.328,17.581-0.849,27.66,6.723c4.026,3.054,6.822,5.574,10.571,9.147
        c1.317,1.273,7.614,4.313,7.914,6.164c-0.054-0.316-5.396,3.696-5.997,5.217c-1.066,2.684-2.659,6.093-4.3,8.298
@@ -70,7 +70,7 @@
        C373.035,102.314,374.815,105.971,372.379,104.409z"></path>
        <text transform="matrix(1 0 0 1 386.8379 129.0347)" fill="#FFFFFF" class="uf-nome">CE</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 386.8379, 141.0347)" fill="#FFFFFF">{{ mapa_valores.CE }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'PI' %}" id="map-PI">
+     <a xlink:href="{{ base_url }}PI{{ end_slash }}" id="map-PI">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M320.781,185.478
        c2.465-5.149-7.505-20.801-7.505-20.801s47.354-65.868,54.285-66.841c0.299-0.042,6.243,1.768,6.463,2.219
        c0.438,0.863-0.821,5.244-0.685,6.587c0.275,2.629,2.879,6.587,2.328,8.684c-1.15,4.736-1.863,6.134,1.369,9.901
@@ -80,7 +80,7 @@
        C328.176,198.748,327.409,180.727,320.781,185.478z"></path>
        <text transform="matrix(1 0 0 1 355.127 158.1045)" fill="#FFFFFF" class="uf-nome">PI</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 355.127, 170.1045)" fill="#FFFFFF">{{ mapa_valores.PI }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'MA' %}" id="map-MA">
+     <a xlink:href="{{ base_url }}MA{{ end_slash }}" id="map-MA">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M288.845,127.827
        c4.108-2.726,31.195-48.985,31.386-50.395c1.235,0.397,6.084,7.435,7.562,5.025c0.493,0.013-0.328,2.15-0.547,2.396
        c-0.054-0.135,2.189-2.286,2.52-2.436c0.521-0.233,1.948,1.903,3.451-0.726c5.642,1.575,1.314,14.31,9.121,11.694
@@ -95,7 +95,7 @@
        C290.983,125.675,290.983,128.044,288.845,127.827z"></path>
        <text transform="matrix(1 0 0 1 318.2754 126.7036)" fill="#FFFFFF" class="uf-nome">MA</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 318.2754, 138.7036)" fill="#FFFFFF">{{ mapa_valores.MA }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'AP' %}" id="map-AP">
+     <a xlink:href="{{ base_url }}AP{{ end_slash }}" id="map-AP">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M225.198,39.089
        c3.274,1.165,3.985-1.315,6.572-1.74c3.616-0.603,5.683,2.725,9.037,2.067c4.055-0.78,7.093-8.025,7.314-11.598
        c4.492-3.534,5.503-11.258,9.42-14.68c6.055,4.258,6.11,15.788,7.589,22.485c-0.164,0.083,6.57,7.998,7.944,8.682
@@ -103,7 +103,7 @@
        C221.814,36.458,223.334,38.417,225.198,39.089z"></path>
        <text transform="matrix(1 0 0 1 245.9023 52.6099)" fill="#FFFFFF" class="uf-nome">AP</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 245.9023, 64.6099)" fill="#FFFFFF">{{ mapa_valores.AP }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'PA' %}" id="map-PA">
+     <a xlink:href="{{ base_url }}PA{{ end_slash }}" id="map-PA">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M173.378,50.619
        c2.259,2.63,5.629-4.478,7.901-3.82c3.19,0.918,1.478-1.108,5.026-1.752c1.931,0.806,3.096,0.273,3.519-1.631
        c0.535-1.26,1.453-1.726,2.725-1.384c1.768-1.684,13.558,3.603,14.68,0.384c0.629-1.821-4.287-5.709-0.302-6.997
@@ -120,7 +120,7 @@
        C319.302,76.912,319.74,78.76,319.139,77.664z"></path>
        <text transform="matrix(1 0 0 1 232.7725 122.5137)" fill="#FFFFFF" class="uf-nome">PA</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 232.7725, 134.5137)" fill="#FFFFFF">{{ mapa_valores.PA }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'RR' %}" id="map-RR">
+     <a xlink:href="{{ base_url }}RR{{ end_slash }}" id="map-RR">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M113.18,24.107
        c-0.972-2.753-7.861-5.889-6.999-8.984c0.068-0.232,13.229,6.053,12.79,2.808c0.398,1.329,1.219,1.889,2.439,1.685
        c1.889-1.301,7.148,4.204,8.216,1.889c0.438-0.959-1.657-3.753,0.74-3.848c1.026,0.438,1.534,0.164,1.52-0.822
@@ -131,7 +131,7 @@
        s-12.517-52.736-20.335-54.063C115.261,36.417,111.523,25.682,113.18,24.107z"></path>
        <text transform="matrix(1 0 0 1 136.2939 42.3862)" fill="#FFFFFF" class="uf-nome">RR</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 136.2939, 54.3862)" fill="#FFFFFF">{{ mapa_valores.RR }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'AM' %}" id="map-AM">
+     <a xlink:href="{{ base_url }}AM{{ end_slash }}" id="map-AM">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M10.078,136.412
        c1.15-4.972,4.258-10.394,8.215-13.105c4.41-3.027,7.656-5.71,13.105-6.082c2.165-0.149,10.216-5.75,11.983-2.984
        c3.711,5.765,4.998-3.739,5.574-7.025c1.726-9.667,3.697-19.322,4.86-29.086c-0.342-1.356-2.013-6.231-2.833-7.163
@@ -151,7 +151,7 @@
        c-8.601-4.381-16.61-8.981-26.088-11.05c-10.282-2.259-20.635-4.793-29.878-10.011C4.121,145.766,12.433,144.779,10.078,136.412z"></path>
        <text transform="matrix(1 0 0 1 98.1406 119.0591)" fill="#FFFFFF" class="uf-nome">AM</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 98.1406, 131.0591)" fill="#FFFFFF">{{ mapa_valores.AM }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'AC' %}" id="map-AC">
+     <a xlink:href="{{ base_url }}AC{{ end_slash }}" id="map-AC">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M3.656,148.545
        c12.557,7.544,27.524,8.367,41.082,13.2c12.802,8.065,27.278,12.845,40.616,19.872c-2.834,1.205-7.587,4.382-9.983,6.395
        c-2.93,2.45-1.3,2.04-4.628,1.957c-2.93-0.069-3.957,4.615-7.203,5.259c-2.999,0.603-7.161-1.958-10.995-1.697
@@ -163,7 +163,7 @@
        <text transform="matrix(1 0 0 1 37.5 202)" fill="#FFFFFF" class="uf-nome">AC</text>
        <text class="uf-valor" transform="matrix(1, 0, 0, 1, 37.5, 216)" fill="#FFFFFF">{{ mapa_valores.AC }}</text>
       </a>
-      <a xlink:href="{% url 'servicos_casas_atendidas' 'RO' %}" id="map-RO">
+      <a xlink:href="{{ base_url }}RO{{ end_slash }}" id="map-RO">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M83.34,180.232
        c0.931-1.574,5.341-4.668,6.312-4.656c1.355-0.067,2.671,0.138,3.958,0.603c3.012,1.44,2.039-1.135,5.341-0.123
        c-1.274-2.287,3.793-2.943,2.86-0.315c3.068,0.247,2.725-4.683,6.668-5.12c4.438-0.508,5.054-0.646,7.122-4.534
@@ -175,7 +175,7 @@
        c-0.384-6.081-1.028-1.986-3.382-1.903C94.336,180.686,85.957,181.671,83.34,180.232z"></path>
        <text transform="matrix(1 0 0 1 118.1299 195.3193)" fill="#FFFFFF" class="uf-nome">RO</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 118.1299, 207.3193)" fill="#FFFFFF">{{ mapa_valores.RO }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'MT' %}" id="map-MT">
+     <a xlink:href="{{ base_url }}MT{{ end_slash }}" id="map-MT">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M142.237,173.962
        c4-0.316-1.888-6.452,5-5.738c7.914,0.808,16.295,0.328,24.279,0.218c1.629-0.013,8.902,1.288,7.395-1.833
        c-1.192-2.453,1.821-6.425,0.425-9.725c2.027-0.864,1.289-3.807,2.629-5.107c1.151-1.123,4.176,7.244,4.436,7.819
@@ -190,7 +190,7 @@
        C143.581,176.618,141.937,174.714,142.237,173.962z"></path>
        <text transform="matrix(1 0 0 1 200.0244 218.4175)" fill="#FFFFFF" class="uf-nome">MT</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 200.0244, 230.4175)" fill="#FFFFFF">{{ mapa_valores.MT }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'MS' %}" id="map-MS">
+     <a xlink:href="{{ base_url }}MS{{ end_slash }}" id="map-MS">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M183.198,294.536
        c2.136-4.464,3.177-9.394,5.312-13.61c1.712-3.344-4.067-7.587-2.423-9.807c0.027-0.026,2.738,3.641,3.917,3.725
        c3.204-1.534,4.807-2.272,6.984-5.228c2.615-3.59,10.832-3.014,14.051-0.305c1.259,1.041,3.068,2.107,4.668,2.574
@@ -202,7 +202,7 @@
        c0.932-2.847,1.411-9.912,0.453-11.856c-0.165-0.331-3.52-7.232-2.547-8.108C186.306,297.688,182.334,299.415,183.198,294.536z"></path>
        <text transform="matrix(1 0 0 1 213.2939 306.7236)" fill="#FFFFFF" class="uf-nome">MS</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 213.2939, 318.7236)" fill="#FFFFFF">{{ mapa_valores.MS }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'GO' %}" id="map-GO">
+     <a xlink:href="{{ base_url }}GO{{ end_slash }}" id="map-GO">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M237.768,270.519
        c0.628-2.904,1.835-7.396,4.709-8.766c1.015-1.644,1.754-5.147,2.275-5.586c2.408-2.247,3.889-3.783,6.63-4.656
        c3.723-1.205,3.338-5.342,4.846-8.165c1.504-2.845,4.736-1.15,5.942-3.382c1.479-2.834,0.741-6.161,2.189-8.874
@@ -218,7 +218,7 @@
        c-3.724-0.604,1.04-3.231,0.22-4.109c-1.89-1.916-4.382,1.756-3.588-3.012C239.602,274.627,237.055,273.038,237.768,270.519z"></path>
        <text transform="matrix(1 0 0 1 266.9111 254.2139)" fill="#FFFFFF" class="uf-nome">GO</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 266.9111, 266.2139)" fill="#FFFFFF">{{ mapa_valores.GO }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'PR' %}" id="map-PR">
+     <a xlink:href="{{ base_url }}PR{{ end_slash }}" id="map-PR">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M222.225,363.694
        c1.807-2.138,1.889-4.881,2.424-7.479c0.301-1.453,0.465-7.86,1.369-8.736c2.3-0.684,2.3-3.315,2.726-5.204
        c0.616-2.738,2.821-2.958,3.984-5.616c4.369-9.91,38.947-9.529,46.476-9.227c4.658,0.193,15.775,34.563,17.916,33.794
@@ -226,7 +226,7 @@
        c-3.875-1.449-2.698-6.491-6.054-8.216C226.663,364.623,222.498,367.8,222.225,363.694z"></path>
        <text transform="matrix(1 0 0 1 248.4453 356.1045)" fill="#FFFFFF" class="uf-nome">PR</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 248.4453, 368.1045)" fill="#FFFFFF">{{ mapa_valores.PR }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'SC' %}" id="map-SC">
+     <a xlink:href="{{ base_url }}SC{{ end_slash }}" id="map-SC">
       <line stroke="#000" stroke-width="1.0404" x1="270" y1="390" x2="315" y2="393"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M231.029,383.959
        c1.669-3.338-0.284-10.516,4.573-10.569c6.631-0.109,13.639,3.559,20.402,3.888c1.317,0.055,5.231,2.163,4.357-1.15
@@ -236,7 +236,7 @@
        <circle cx="315" cy="393" r="18"></circle>
        <text transform="matrix(1 0 0 1 305.5 391)" fill="#FFFFFF" class="uf-nome">SC</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 305.5, 405)" fill="#FFFFFF">{{ mapa_valores.SC }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'RS' %}" id="map-RS">
+     <a xlink:href="{{ base_url }}RS{{ end_slash }}" id="map-RS">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M191.236,416.881
        c0.52-2.684,7.38-8.409,9.477-10.351c0.37-0.359,8.599-10.08,9.174-8.329c-1.301-3.89,2.781-1.589,3.917-4.819
        c0.26-0.521,7.04-4.821,7.109-4.795c1.436-0.191,6.721-3.695,7.421-3.257c1.204-2.028,8.927-1.479,8.653-0.824
@@ -247,7 +247,7 @@
        c-2.3-1.999-4.793-5.479-7.737-6.68c-3.478-1.367-5.615,5.145-9.052,0.821C189.168,418.854,190.332,418.032,191.236,416.881z"></path>
        <text transform="matrix(1 0 0 1 231.0313 414.4658)" fill="#FFFFFF" class="uf-nome">RS</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 231.0313, 426.4658)" fill="#FFFFFF">{{ mapa_valores.RS }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'SP' %}" id="map-SP">
+     <a xlink:href="{{ base_url }}SP{{ end_slash }}" id="map-SP">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M239.3,330.554
        c3.26-4.356,9.56-5.039,11.531-10.792c1.369-3.942,3.889-8.818,6.135-13.036c1.561-2.957,7.749-7.121,10.517-8.65
        c0.383-0.196,32.974-6.138,42.234-1.701c20.265,9.724,26.017,33.879,27.854,33.304c4.408-1.425,5.34,3.778,2.106,4.49
@@ -259,7 +259,7 @@
        C247.982,330.386,239.876,331.21,239.3,330.554z"></path>
        <text transform="matrix(1 0 0 1 280.6816 327.3193)" fill="#FFFFFF" class="uf-nome">SP</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 280.6816, 339.3193)" fill="#FFFFFF">{{ mapa_valores.SP }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'MG' %}" id="map-MG">
+     <a xlink:href="{{ base_url }}MG{{ end_slash }}" id="map-MG">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M262.881,297.305
        c-1.696-5.094,15.531-19.882,18.844-13.421c5.531-7.367,15.886,1.588,19.773-3.944c0.988-1.367,3.015-1.453,3.725-2.957
        c0.326-0.711-0.493-2.793-0.056-3.888c1.369-3.398-4.873-2.355-0.109-6.603c4.547-4.053-1.917-4.739-1.204-8.186
@@ -278,7 +278,7 @@
        c-4.708-0.353-5.53-1.613-9.858,0.631C262.993,300.562,262.336,299.274,262.881,297.305z"></path>
        <text transform="matrix(1 0 0 1 328.4063 286.4561)" fill="#FFFFFF" class="uf-nome">MG</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 328.4063, 298.4561)" fill="#FFFFFF">{{ mapa_valores.MG }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'RJ' %}" id="map-RJ">
+     <a xlink:href="{{ base_url }}RJ{{ end_slash }}" id="map-RJ">
       <line stroke="#000" stroke-width="1.0404" x1="360" y1="330" x2="385" y2="352"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M332.886,337.429
        c-1.26-2.768,8.409-4.795,7.89-6.71c-3.177-1.864-4.602,1.148-6.63-2.959c4.274-0.686,9.533-4.49,13.831-3.562
@@ -291,7 +291,7 @@
        <circle cx="385" cy="352" r="18"></circle>
        <text transform="matrix(1 0 0 1 375.5 350)" fill="#FFFFFF" class="uf-nome">RJ</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 375.5, 364)" fill="#FFFFFF">{{ mapa_valores.RJ }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'ES' %}" id="map-ES">
+     <a xlink:href="{{ base_url }}ES{{ end_slash }}" id="map-ES">
        <line stroke="#000" stroke-width="1.0404" x1="380" y1="295" x2="415" y2="305"></line>
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M367.119,308.834
        c1.044-1.999-0.298-5.451,1.841-6.326c3.697-1.453,3.858-0.467,5.941-4.49c0.767-1.563,3.999-5.807,2.848-7.835
@@ -302,14 +302,14 @@
        <circle cx="415" cy="305" r="18"></circle>
        <text transform="matrix(1 0 0 1 405.5 302)" fill="#FFFFFF" class="uf-nome">ES</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 405.5, 316)" fill="#FFFFFF">{{ mapa_valores.ES }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'DF' %}" id="map-DF">
+     <a xlink:href="{{ base_url }}DF{{ end_slash }}" id="map-DF">
        <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M292.461,246.197
        c0,0,12.929-2.903,14.188,0c1.233,2.903,0.659,10.683-1.424,11.504c-2.08,0.849-14.296-1.806-14.023-3.313
        C291.503,252.853,292.461,246.197,292.461,246.197z"></path>
        <circle cx="308" cy="254.2" r="16"></circle>
        <text transform="matrix(1 0 0 1 299.5 254.2139)" fill="#FFFFFF" class="uf-nome">DF</text>
      <text class="uf-valor" transform="matrix(1, 0, 0, 1, 302, 267)" fill="#FFFFFF">{{ mapa_valores.DF }}</text></a>
-     <a xlink:href="{% url 'servicos_casas_atendidas' 'PB' %}" id="map-PB">
+     <a xlink:href="{{ base_url }}PB{{ end_slash }}" id="map-PB">
       <line stroke="#000" stroke-width="1.0404" x1="428" y1="150" x2="475" y2="141"></line>
       <path stroke="#FFFFFF" stroke-width="1.0404" stroke-linecap="round" stroke-linejoin="round" d="M401.575,141.096
        c2.081-3.081,16.791-6.82,19.117-4.616c0,1.918,7.259,1.686,10.133,2.712c-0.492,3.038,12.652,1.533,14.408,2.259
