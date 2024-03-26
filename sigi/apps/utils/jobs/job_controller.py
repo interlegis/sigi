@@ -24,6 +24,7 @@ class Job(BaseJob):
         self.sync_new_jobs()
         self.run_scheduled()
         self.schedule_jobs()
+        self.remove_old_logs()
 
     def remove_old_jobs(self):
         """Remover das tabelas os jobs que foram removidos do código"""
@@ -88,3 +89,17 @@ class Job(BaseJob):
                 f"\t\tAgendado job {sched.job.job_name} "
                 f"para {localize(sched.iniciar)}"
             )
+
+    def remove_old_logs(self):
+        print("\tExcluir logs antigos...")
+        for job in Cronjob.objects.exclude(manter_logs=0):
+            limite = timezone.localtime() - timezone.timedelta(
+                days=job.manter_logs
+            )
+            result = JobSchedule.objects.filter(
+                job=job,
+                status=JobSchedule.STATUS_CONCLUIDO,
+                iniciado__lt=limite,
+            ).delete()
+            if result[0] > 0:
+                print(f"\t\t{result[0]} logs excluídos do job '{job}'")

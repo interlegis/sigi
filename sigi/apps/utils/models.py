@@ -50,6 +50,14 @@ class Cronjob(models.Model):
             "</a>"
         ),
     )
+    manter_logs = models.PositiveIntegerField(
+        _("dias para manter log"),
+        help_text=_(
+            "Número de dias que os logs de execução serão mantidos "
+            "na base de dados. Zero significa que o log jamais será apagado."
+        ),
+        default=30,
+    )
 
     class Meta:
         ordering = ("app_name", "job_name")
@@ -141,7 +149,7 @@ class JobSchedule(models.Model):
     )
 
     class Meta:
-        ordering = ("iniciar",)
+        ordering = ("-iniciar",)
         verbose_name = _("Agenda de execução")
         verbose_name_plural = _("Agenda de execuções")
 

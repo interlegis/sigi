@@ -66,7 +66,13 @@ class CronjobAdmin(admin.ModelAdmin):
         "get_schedule",
         "get_runner",
     )
-    fields = ["job_name", "app_name", "get_help", "expressao_cron"]
+    fields = [
+        "job_name",
+        "app_name",
+        "get_help",
+        "expressao_cron",
+        "manter_logs",
+    ]
     readonly_fields = ("job_name", "app_name", "get_help")
     inlines = [JobScheduleInline]
 
