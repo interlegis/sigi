@@ -186,7 +186,10 @@ class JobScheduleAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        if obj is None or obj.status == JobSchedule.STATUS_CONCLUIDO:
+            return super().has_delete_permission(request, obj)
+        else:
+            return False
 
     def has_change_permission(self, request, obj=None):
         return False
