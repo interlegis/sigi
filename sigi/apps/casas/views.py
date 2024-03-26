@@ -53,9 +53,11 @@ def resumo_carteira(casas):
         total["total"] += quantidade
 
     for r in (
-        casas.values("municipio__uf__regiao", "servico__tipo_servico__id")
-        .annotate(quantidade=Count("id"))
+        casas.filter(servico__data_desativacao=None)
         .order_by()
+        # .distinct("id")
+        .values("municipio__uf__regiao", "servico__tipo_servico__id")
+        .annotate(quantidade=Count("id"))
     ):
         regiao = r["municipio__uf__regiao"]
         servico = r["servico__tipo_servico__id"]
@@ -120,7 +122,7 @@ def resumo_carteira(casas):
     )
     resumo.extend(
         [
-            [ts.nome, dados[ts.id]["total"]]
+            [_(f"Casas usando {ts.nome}"), dados[ts.id]["total"]]
             + [dados[ts.id][r[0]] for r in UnidadeFederativa.REGIAO_CHOICES]
             for ts in tipos_servico
         ]
