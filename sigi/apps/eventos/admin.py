@@ -1229,7 +1229,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                         "pagemargin": modelo.margem,
                         "evento": evento,
                         "servidor": servidor,
-                        "data": evento.data_inicio.date(),
+                        "data": evento.data_inicio,
                     }
                 )
                 string = Template(template_string).render(context)

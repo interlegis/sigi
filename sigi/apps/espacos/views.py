@@ -172,10 +172,10 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         reservas_qs = (
             Reserva.objects.filter(q_virtual, status=Reserva.STATUS_ATIVO)
             .filter(
-                Q(inicio__range=(data_inicio, data_fim))
-                | Q(termino__range=(data_inicio, data_fim))
+                Q(data_inicio__range=(data_inicio, data_fim))
+                | Q(data_termino__range=(data_inicio, data_fim))
             )
-            .order_by("inicio", "termino")
+            .order_by("data_inicio", "data_termino")
         )
 
         if agrupar_espacos:
@@ -184,8 +184,8 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
                     q_virtual, reserva__status=Reserva.STATUS_ATIVO
                 )
                 .filter(
-                    Q(reserva__inicio__range=(data_inicio, data_fim))
-                    | Q(reserva__termino__range=(data_inicio, data_fim))
+                    Q(reserva__data_inicio__range=(data_inicio, data_fim))
+                    | Q(reserva__data_termino__range=(data_inicio, data_fim))
                 )
                 .distinct()
                 .prefetch_related(
