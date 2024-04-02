@@ -131,3 +131,6 @@ table.numeros>tbody>tr>td {
 .xlsx-download {
     height: 24px;
 }
+.collapsible-body>hr {
+    height: 1px;
+}

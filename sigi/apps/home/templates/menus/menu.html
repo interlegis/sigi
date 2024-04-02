@@ -14,11 +14,23 @@
           {% else %}
             {% url child.view_name as item_url %}
           {% endif %}
+          {% if 'before' in child.separator %}
+            <hr/>
+          {% endif %}
           <div{% if item_url in request.path and child.querystr == None or child.querystr in request.get_full_path %} class="active"{% endif %}>
             <a href="{{ item_url }}{% if child.querystr %}?{{ child.querystr }}{% endif %}">{{ child.title }}</a>
           </div>
+          {% if 'after' in child.separator %}
+            <hr/>
+          {% endif %}
         {% else %}
+          {% if 'before' in child.separator %}
+            <hr/>
+          {% endif %}
           <div class="disabled"><a href="#" class="disabled">{{ child.title }}</a></div>
+          {% if 'after' in child.separator %}
+            <hr/>
+          {% endif %}
         {% endif %}
       {% endfor %}
     </div>
