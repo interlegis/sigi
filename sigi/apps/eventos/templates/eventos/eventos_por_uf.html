@@ -1,0 +1,93 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style type="text/css">
+    #content {
+      display: block;
+    }
+    .table-responsive {
+      overflow: auto;
+      width: 100%;
+    }
+    table {
+      table-layout: auto !important;
+      width: 100%;
+    }
+    table.fixed {
+      table-layout: fixed;
+    }
+    th.sep_regiao {
+      text-align: center;
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background: var(--body-bg);
+    }
+    .numero {
+      text-align: right;
+    }
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}
+  <h5>{% trans 'Eventos por Unidade da Federação' %}</h5>
+  {% if data_inicio %}
+    <h6>
+      {% blocktranslate with inicio=data_inicio|date:"SHORT_DATE_FORMAT" fim=data_fim|date:"SHORT_DATE_FORMAT" %}
+      Período: {{ inicio }} a {{ fim }}
+      {% endblocktranslate %}
+    </h6>
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+  <div class="row">
+    <div class="col s12">
+      <div class="card">
+        <form>
+          <div class="card-content">
+            {{ form }}
+          </div>
+          <div class="card-action">
+            <button type="submit" class="waves-effect waves-light btn">{% trans 'Pesquisar' %}</button>
+            {% if not pivo_uf is None %}
+            <div class="fixed-action-btn">
+              <a class="btn-floating">
+                <i class="large material-icons">print</i>
+              </a>
+              <ul>
+                <li><button type="submit" name="fmt" value="pdf" class="btn-floating" title="{% trans 'Exportar para PDF' %}"><i class="material-icons">picture_as_pdf</i></button></li>
+                <li><button type="submit" name="fmt" value="csv" class="btn-floating" title="{% trans 'Exportar para CSV' %}"><i class="material-icons">file_download</i></button></li>
+              </ul>
+            </div>
+          {% endif %}
+          </div>
+        </form>        
+      </div>
+    </div>
+  </div>
+  {% if not pivo_uf is None %}
+    {% include "eventos/snippets/eventos_por_uf_snippet.html" with mode="html" %}
+  {% endif %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  {{ form.media }}  
+  <script>
+    $(document).ready(function(){
+      M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+      M.Modal.init($(".modal"));
+    })
+  </script>
+{% endblock %}

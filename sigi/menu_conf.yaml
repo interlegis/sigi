@@ -26,6 +26,23 @@ admin_menu:
       - title: Configurações
         view_name: admin:utils_config_changelist
 main_menu:
+  - title: Relatórios
+    icon: print
+    children:
+      - title: Eventos por UF
+        view_name: eventos_eventosporuf
+      - title: Calendário de eventos
+        view_name: eventos_calendario
+      - title: Alocação de equipe eventos
+        view_name: eventos_alocacaoequipe
+        separator: [after,]
+      - title: Reservas de espaços
+        view_name: espacos_agenda
+      - title: Uso dos espaços
+        view_name: espacos_usoespaco
+        separator: [after,]
+      - title: Lista de gerentes
+        view_name: casas_gerentes
   - title: Municípios
     icon: location_city
     children:
@@ -71,8 +88,6 @@ main_menu:
         view_name:
       - title: Organizar relacionamentos
         view_name:
-      - title: Lista de gerentes
-        view_name: casas_gerentes
   - title: Convênios
     icon: assignment
     children:
@@ -101,10 +116,6 @@ main_menu:
       - title: Reservas
         view_name: admin:espacos_reserva_changelist
         querystr: status__exact=A
-      - title: Agenda de reservas
-        view_name: espacos_agenda
-      - title: Uso dos espaços
-        view_name: espacos_usoespaco
   - title: Eventos
     icon: school
     children:
@@ -128,10 +139,6 @@ main_menu:
       - title: Visitas Interlegis
         view_name: admin:eventos_evento_changelist
         querystr: tipo_evento__categoria__exact=V
-      - title: Calendário mensal
-        view_name: eventos_calendario
-      - title: Alocação de equipe
-        view_name: eventos_alocacaoequipe
   - title: Servidores
     icon: account_circle
     children:

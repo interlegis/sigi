@@ -1,0 +1,48 @@
+{% extends "pdf/base_report.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+{% block extra_style %}
+  {{ block.super }}
+  a {
+    color: black;
+    text-decoration: none;
+  }
+  h4 {
+    padding: 24px 0 24px 0;
+    line-height: 1.5em;
+  }
+  .row {
+    margin-bottom: 12px;
+  }
+  .card-title {
+    font-size: 1.2em;
+    margin: 20px 4px;
+    padding-left: 1.5rem;
+    border-left: 5px solid #ee6e73;
+  }
+  .sep_regiao {
+    text-align: center;
+    text-transform: uppercase;
+  }
+  .center {
+    text-align: center;
+  }
+  .numero {
+    text-align: right;
+  }
+{% endblock %}
+
+
+{% block main_content %}
+  <h4>
+    {% blocktranslate with inicio=data_inicio|date:"SHORT_DATE_FORMAT" fim=data_fim|date:"SHORT_DATE_FORMAT" %}
+      Período: {{ inicio }} a {{ fim }}
+    {% endblocktranslate %}
+    <br/>
+    {% trans 'Categoria(s)' %}: {{ categorias|join:", " }}<br/>
+    {% trans 'Modo(s)' %}: {{ virtual|join:", " }}<br/>
+  </h4>
+  {% include "eventos/snippets/eventos_por_uf_snippet.html" %}
+{% endblock %}

@@ -5,10 +5,18 @@ from django.core.files.base import File
 from django.db.models.base import Model
 from django.forms.utils import ErrorList
 from django.utils.translation import gettext as _
-from material.admin.widgets import MaterialAdminTextareaWidget
+from material.admin.widgets import (
+    MaterialAdminTextareaWidget,
+    MaterialAdminDateWidget,
+)
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.espacos.models import Espaco, Reserva
-from sigi.apps.eventos.models import Convite, ModeloDeclaracao, Evento
+from sigi.apps.eventos.models import (
+    Convite,
+    ModeloDeclaracao,
+    Evento,
+    TipoEvento,
+)
 from sigi.apps.parlamentares.models import Parlamentar
 
 
@@ -113,6 +121,46 @@ class SelecionaModeloForm(forms.Form):
         required=True,
         label=_("Modelo de declaração"),
     )
+
+
+class EventosPorUfForm(forms.Form):
+    MODO_CHOICES = (
+        ("V", _("Virtual")),
+        ("P", _("Presencial")),
+    )
+    data_inicio = forms.DateField(
+        required=True,
+        label=_("data de início"),
+        widget=MaterialAdminDateWidget,
+    )
+    data_fim = forms.DateField(
+        required=True,
+        label=_("data de término"),
+        widget=MaterialAdminDateWidget,
+    )
+    categoria = forms.MultipleChoiceField(
+        required=False,
+        label=_("Categoria"),
+        choices=TipoEvento.CATEGORIA_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+    virtual = forms.MultipleChoiceField(
+        required=False,
+        label=_("Modo"),
+        choices=MODO_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Media:
+        css = {"all": ["css/change_form.css"]}
+        js = [
+            "admin/js/vendor/select2/select2.full.js",
+            "admin/js/change_form.js",
+            "admin/js/vendor/select2/i18n/pt-BR.js",
+            "material/admin/js/widgets/TimeInput.js",
+            "admin/js/core.js",
+            "/admin/jsi18n/",
+        ]
 
 
 class ConviteForm(forms.ModelForm):

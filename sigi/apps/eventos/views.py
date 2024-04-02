@@ -1,7 +1,10 @@
 import calendar
 import csv
+import datetime
 import locale
+import pandas as pd
 from functools import reduce
+from itertools import groupby
 from rest_framework import mixins, generics
 from typing import OrderedDict
 from django import forms
@@ -9,6 +12,7 @@ from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
+from django.db.models import Count, Sum, Q
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, get_object_or_404
 from django.template import Template, Context
@@ -27,11 +31,13 @@ from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Projeto
 from sigi.apps.eventos.models import TipoEvento, Evento
 from sigi.apps.eventos.forms import (
     SelecionaModeloForm,
     ConviteForm,
+    EventosPorUfForm,
     CasaForm,
     FuncionarioForm,
     ParlamentarForm,
@@ -345,7 +351,7 @@ def alocacao_equipe(request):
         context["title"] = _("Alocação de equipe")
         context["pdf"] = True
         return WeasyTemplateResponse(
-            # filename="alocacao_equipe.pdf",
+            filename="alocacao_equipe.pdf",
             request=request,
             template="eventos/alocacao_equipe_pdf.html",
             context=context,
@@ -362,6 +368,253 @@ def alocacao_equipe(request):
         return response
 
     return render(request, "eventos/alocacao_equipe.html", context)
+
+
+@login_required
+@staff_member_required
+def eventos_por_uf(request):
+    formato = request.GET.get("fmt", "html")
+    initials = {
+        "data_inicio": datetime.date.today().replace(day=1),
+        "data_fim": datetime.date.today().replace(
+            day=calendar.monthrange(
+                datetime.date.today().year, datetime.date.today().month
+            )[1]
+        ),
+        "categoria": [c[0] for c in TipoEvento.CATEGORIA_CHOICES],
+        "virtual": [m[0] for m in EventosPorUfForm.MODO_CHOICES],
+    }
+    if "data_inicio" in request.GET or "data_fim" in request.GET:
+        form = EventosPorUfForm(request.GET)
+    else:
+        form = EventosPorUfForm(initial=initials)
+    if not form.is_valid():
+        return render(
+            request, "eventos/eventos_por_uf.html", context={"form": form}
+        )
+    data_inicio = form.cleaned_data.get("data_inicio")
+    data_fim = form.cleaned_data.get("data_fim")
+    categorias = form.cleaned_data.get("categoria", initials["categoria"])
+    virtual = form.cleaned_data.get("virtual", initials["virtual"])
+    annotates = dict()
+    aggfuncs = dict()
+    if "P" in virtual:
+        annotates["eventos_presenciais"] = Count(
+            "municipio__orgao__evento__id",
+            distinct=True,
+            filter=Q(municipio__orgao__evento__virtual=False),
+        )
+        annotates["participantes_presenciais"] = Sum(
+            "municipio__orgao__evento__total_participantes",
+            filter=Q(municipio__orgao__evento__virtual=False),
+        )
+        aggfuncs["nº eventos presenciais"] = sum
+        aggfuncs["participantes presenciais"] = sum
+    if "V" in virtual:
+        annotates["eventos_virtuais"] = Count(
+            "municipio__orgao__evento__id",
+            distinct=True,
+            filter=Q(municipio__orgao__evento__virtual=True),
+        )
+        annotates["participantes_virtuais"] = Sum(
+            "municipio__orgao__evento__total_participantes",
+            filter=Q(municipio__orgao__evento__virtual=True),
+        )
+        aggfuncs["nº eventos virtuais"] = sum
+        aggfuncs["participantes virtuais"] = sum
+    eventos = (
+        UnidadeFederativa.objects.filter(
+            municipio__orgao__evento__status=Evento.STATUS_REALIZADO,
+            municipio__orgao__evento__data_inicio__range=(
+                data_inicio,
+                data_fim,
+            ),
+            municipio__orgao__evento__tipo_evento__categoria__in=categorias,
+        )
+        .order_by("regiao", "nome")
+        .values(
+            "regiao",
+            "nome",
+            "municipio__orgao__evento__tipo_evento__categoria",
+        )
+        .annotate(**annotates)
+    )
+    df = pd.DataFrame(eventos)
+    if df.empty:
+        messages.add_message(
+            request,
+            messages.ERROR,
+            _("Nenhum evento foi realizado no período solicitado"),
+        )
+        return render(
+            request, "eventos/eventos_por_uf.html", context={"form": form}
+        )
+    # Renomeia colunas
+    df.rename(
+        columns={
+            "municipio__orgao__evento__tipo_evento__categoria": "categoria",
+            "eventos_presenciais": "nº eventos presenciais",
+            "eventos_virtuais": "nº eventos virtuais",
+            "participantes_presenciais": "participantes presenciais",
+            "participantes_virtuais": "participantes virtuais",
+        },
+        inplace=True,
+    )
+    # Troca a sigla pelo nome da região
+    for sigla, nome in UnidadeFederativa.REGIAO_CHOICES:
+        df["regiao"].replace(sigla, nome, inplace=True)
+    # Troca o código pelo nome da categoria de eventos
+    for cod, nome in TipoEvento.CATEGORIA_CHOICES:
+        df["categoria"].replace(cod, nome, inplace=True)
+    # Cria tabela pivot das UFs
+    pivo_uf = df.pivot_table(
+        index=["regiao", "nome"],
+        columns="categoria",
+        aggfunc=aggfuncs,
+        fill_value=0,
+    )
+    if len(categorias) > 1:
+        # calcula os totais de eventos e de participantes para as UFs
+        ix_eventos_presenciais = [
+            i for i in pivo_uf.columns if i[0] == "nº eventos presenciais"
+        ]
+        ix_eventos_virtuais = [
+            i for i in pivo_uf.columns if i[0] == "nº eventos virtuais"
+        ]
+        ix_participantes_presenciais = [
+            i for i in pivo_uf.columns if i[0] == "participantes presenciais"
+        ]
+        ix_participantes_virtuais = [
+            i for i in pivo_uf.columns if i[0] == "participantes virtuais"
+        ]
+        if ix_eventos_presenciais:
+            pivo_uf[("nº eventos presenciais", "total")] = pivo_uf[
+                ix_eventos_presenciais
+            ].sum(axis=1)
+            ix_eventos_presenciais.append(("nº eventos presenciais", "total"))
+        if ix_eventos_virtuais:
+            pivo_uf[("nº eventos virtuais", "total")] = pivo_uf[
+                ix_eventos_virtuais
+            ].sum(axis=1)
+            ix_eventos_virtuais.append(("nº eventos virtuais", "total"))
+        if ix_participantes_presenciais:
+            pivo_uf[("participantes presenciais", "total")] = pivo_uf[
+                ix_participantes_presenciais
+            ].sum(axis=1)
+            ix_participantes_presenciais.append(
+                ("participantes presenciais", "total")
+            )
+        if ix_participantes_virtuais:
+            pivo_uf[("participantes virtuais", "total")] = pivo_uf[
+                ix_participantes_virtuais
+            ].sum(axis=1)
+            ix_participantes_virtuais.append(
+                ("participantes virtuais", "total")
+            )
+        pivo_uf = pivo_uf[
+            ix_eventos_presenciais
+            + ix_eventos_virtuais
+            + ix_participantes_presenciais
+            + ix_participantes_virtuais
+        ]
+    # Cria tabela pivot das regiões
+    pivo_regiao = df.pivot_table(
+        index="regiao",
+        columns="categoria",
+        aggfunc=aggfuncs,
+        fill_value=0,
+    )
+    # Calcula os totais de eventos e participantes para as regiões
+    if len(categorias) > 1:
+        ix_eventos_presenciais = [
+            i for i in pivo_regiao.columns if i[0] == "nº eventos presenciais"
+        ]
+        ix_eventos_virtuais = [
+            i for i in pivo_regiao.columns if i[0] == "nº eventos virtuais"
+        ]
+        ix_participantes_presenciais = [
+            i
+            for i in pivo_regiao.columns
+            if i[0] == "participantes presenciais"
+        ]
+        ix_participantes_virtuais = [
+            i for i in pivo_regiao.columns if i[0] == "participantes virtuais"
+        ]
+        if ix_eventos_presenciais:
+            pivo_regiao[("nº eventos presenciais", "total")] = pivo_regiao[
+                ix_eventos_presenciais
+            ].sum(axis=1)
+            ix_eventos_presenciais.append(("nº eventos presenciais", "total"))
+        if ix_eventos_virtuais:
+            pivo_regiao[("nº eventos virtuais", "total")] = pivo_regiao[
+                ix_eventos_virtuais
+            ].sum(axis=1)
+            ix_eventos_virtuais.append(("nº eventos virtuais", "total"))
+        if ix_participantes_presenciais:
+            pivo_regiao[("participantes presenciais", "total")] = pivo_regiao[
+                ix_participantes_presenciais
+            ].sum(axis=1)
+            ix_participantes_presenciais.append(
+                ("participantes presenciais", "total")
+            )
+        if ix_participantes_virtuais:
+            pivo_regiao[("participantes virtuais", "total")] = pivo_regiao[
+                ix_participantes_virtuais
+            ].sum(axis=1)
+            ix_participantes_virtuais.append(
+                ("participantes virtuais", "total")
+            )
+        pivo_regiao = pivo_regiao[
+            ix_eventos_presenciais
+            + ix_eventos_virtuais
+            + ix_participantes_presenciais
+            + ix_participantes_virtuais
+        ]
+    # Cabeçalhos para impressão
+    cabecalho_uf = [
+        (k, [i[1] for i in v])
+        for k, v in groupby(pivo_uf.columns, lambda x: x[0])
+    ]
+    cabecalho_regiao = [
+        (k, [i[1] for i in v])
+        for k, v in groupby(pivo_regiao.columns, lambda x: x[0])
+    ]
+    # Imprimir
+    context = {
+        "form": form,
+        "data_inicio": data_inicio,
+        "data_fim": data_fim,
+        "categorias": [
+            c[1] for c in TipoEvento.CATEGORIA_CHOICES if c[0] in categorias
+        ],
+        "virtual": [
+            m[1] for m in EventosPorUfForm.MODO_CHOICES if m[0] in virtual
+        ],
+        "pivo_uf": pivo_uf,
+        "pivo_regiao": pivo_regiao,
+        "cabecalho_uf": cabecalho_uf,
+        "cabecalho_regiao": cabecalho_regiao,
+        "total_uf": pivo_uf.sum(),
+        "total_regiao": pivo_regiao.sum(),
+    }
+    if formato == "pdf":
+        context["title"] = _("Eventos por Unidade da Federação")
+        context["pdf"] = True
+        return WeasyTemplateResponse(
+            filename=f"eventos_por_uf-{data_inicio}-{data_fim}.pdf",
+            request=request,
+            template="eventos/eventos_por_uf_pdf.html",
+            context=context,
+            content_type="application/pdf",
+        )
+    elif formato == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            f'attachment; filename="eventos_por_uf-{data_inicio}-{data_fim}.csv"'
+        )
+        pivo_uf.to_csv(response)
+        return response
+    return render(request, "eventos/eventos_por_uf.html", context=context)
 
 
 class ApiEventoAbstract:

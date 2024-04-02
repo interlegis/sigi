@@ -6,4 +6,5 @@ urlpatterns = [
     path(
         "alocacaoequipe/", views.alocacao_equipe, name="eventos_alocacaoequipe"
     ),
+    path("eventosporuf/", views.eventos_por_uf, name="eventos_eventosporuf"),
 ]
