@@ -68,6 +68,9 @@ class ServicoSerializer(serializers.ModelSerializer):
         read_only=True, slug_field="nome"
     )
     url = serializers.SerializerMethodField("get_url")
+    data_verificacao = serializers.SerializerMethodField(
+        "get_data_verificacao"
+    )
     resultado_verificacao = serializers.SerializerMethodField(
         "get_resultado_verificacao"
     )
@@ -90,6 +93,11 @@ class ServicoSerializer(serializers.ModelSerializer):
             return obj.url
         else:
             return f"http://{ obj.url }"
+
+    def get_data_verificacao(self, obj):
+        if obj.data_verificacao:
+            return obj.data_verificacao.date()
+        return None
 
     def get_resultado_verificacao(self, obj):
         return obj.get_resultado_verificacao_display()
