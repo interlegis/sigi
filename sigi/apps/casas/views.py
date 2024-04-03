@@ -1,6 +1,6 @@
 import csv
 from functools import reduce
-from django.db.models import Count, Q
+from django.db.models import Count, Q, Prefetch
 from django.contrib.admin.sites import site
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import get_user_model
@@ -21,8 +21,10 @@ from django.views.generic import (
     UpdateView,
     DetailView,
 )
+from rest_framework import generics, filters
 from sigi.apps.casas.forms import FuncionarioForm
 from sigi.apps.casas.models import Funcionario, Orgao, TipoOrgao
+from sigi.apps.casas.serializers import OrgaoAtendidoSerializer
 from sigi.apps.home.mixins import ContatoInterlegisViewMixin
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import (
@@ -31,7 +33,9 @@ from sigi.apps.contatos.models import (
     Microrregiao,
 )
 from sigi.apps.ocorrencias.models import Ocorrencia
-from sigi.apps.servicos.models import TipoServico
+from sigi.apps.servicos.models import Servico, TipoServico
+from sigi.apps.eventos.models import Evento, TipoEvento
+from sigi.apps.convenios.models import Convenio
 
 
 def resumo_carteira(casas):
@@ -514,3 +518,53 @@ class FuncionarioDeleteView(
         self.object.desativado = True
         self.object.save()
         return HttpResponseRedirect(success_url)
+
+
+class ApiOrgaoAtendidoList(generics.ListAPIView):
+    """
+    Lista os órgãos legislativos atendidos pelo Interlegis.
+    """
+
+    serializer_class = OrgaoAtendidoSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["search_text"]
+
+    def get_queryset(self):
+        sq_servicos = Servico.objects.filter(data_desativacao=None)
+        sq_eventos = (
+            Evento.objects.exclude(data_inicio=None)
+            .exclude(data_termino=None)
+            .exclude(tipo_evento__categoria=TipoEvento.CATEGORIA_VISITA)
+            .filter(status=Evento.STATUS_REALIZADO)
+        )
+        queryset = (
+            Orgao.objects.filter(tipo__legislativo=True)
+            .filter(
+                Q(
+                    id__in=sq_eventos.order_by()
+                    .distinct("casa_anfitria")
+                    .values("casa_anfitria_id")
+                )
+                | Q(
+                    id__in=sq_servicos.order_by()
+                    .distinct("casa_legislativa")
+                    .values("casa_legislativa_id")
+                )
+            )
+            .select_related("municipio", "municipio__uf", "tipo")
+            .prefetch_related(
+                Prefetch("servico_set", queryset=sq_servicos),
+                Prefetch("evento_set", queryset=sq_eventos),
+                Prefetch(
+                    "convenio_set",
+                    queryset=Convenio.objects.select_related("projeto"),
+                ),
+            )
+        ).order_by("municipio__uf__nome", "tipo__nome", "nome")
+        if "pk" in self.kwargs:
+            queryset = queryset.filter(id=self.kwargs["pk"])
+        elif "uf" in self.kwargs:
+            queryset = queryset.filter(
+                municipio__uf__sigla=self.kwargs["uf"].upper()
+            )
+        return queryset
