@@ -1,5 +1,5 @@
 import csv
-from django.db.models import Q, Prefetch, Count
+from django.db.models import Q, Prefetch, Count, F, Value, Case, When
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils.translation import gettext as _
@@ -7,11 +7,13 @@ from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
 from import_export import resources
 from import_export.fields import Field
+from rest_framework import generics
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.eventos.models import Evento, TipoEvento
 from sigi.apps.servicos.models import Servico
+from sigi.apps.servicos.serializers import ProdutosSerializer
 from sigi.apps.utils import to_ascii
 
 
@@ -143,3 +145,30 @@ class CasasAtendidasListView(ListView):
     @xframe_options_exempt
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
+
+
+class ResumoProdutosApiView(generics.ListAPIView):
+    """
+    Lista os produtos Interlegis com a quantidade atual de instâncias
+    """
+
+    serializer_class = ProdutosSerializer
+
+    def get_queryset(self):
+        query_case = Case(
+            *[
+                When(tipo_evento__categoria=c[0], then=Value(c[1]))
+                for c in TipoEvento.CATEGORIA_CHOICES
+            ]
+        )
+        produtos = (
+            Servico.objects.filter(data_desativacao=None)
+            .values(produto=F("tipo_servico__nome"))
+            .annotate(quantidade=Count("id"))
+        ).union(
+            Evento.objects.order_by()
+            .filter(status=Evento.STATUS_REALIZADO)
+            .values(produto=query_case)
+            .annotate(quantidade=Count("id"))
+        )
+        return produtos

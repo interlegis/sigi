@@ -68,6 +68,7 @@ urlpatterns = [
     ),
     path("api/casas/", include("sigi.apps.casas.api_urls")),
     path("api/eventos/", include("sigi.apps.eventos.api_urls")),
+    path("api/servicos/", include("sigi.apps.servicos.api_urls")),
     path("tinymce/", include("tinymce.urls")),
     path("accounts/", include("sigi.apps.home.accounts_urls")),
     path("", include("sigi.apps.home.urls")),
