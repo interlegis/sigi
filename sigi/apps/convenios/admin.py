@@ -160,6 +160,15 @@ class ConvenioAdmin(
             },
         ),
         (
+            _("Extinção / desistência"),
+            {
+                "fields": (
+                    "data_extincao",
+                    "motivo_extincao",
+                )
+            },
+        ),
+        (
             _("Gescon"),
             {
                 "fields": (
@@ -235,7 +244,7 @@ class ConvenioAdmin(
             return ""
         status = obj.get_status()
 
-        if status in ["Vencido", "Desistência", "Cancelado"]:
+        if status in ["Vencido", "Desistência", "Cancelado", "Extinto"]:
             label = r"danger"
         elif status == "Vigente":
             label = r"success"

@@ -316,6 +316,12 @@ class Convenio(models.Model):
         blank=True,
         help_text=_("Data do retorno do convênio sem assinatura"),
     )
+    data_extincao = models.DateField(
+        _("data de extinção/desistência"), null=True, blank=True
+    )
+    motivo_extincao = models.TextField(
+        _("motivo da extinção/desistência"), blank=True
+    )
     conveniada = models.BooleanField(default=False)
     equipada = models.BooleanField(default=False)
     atualizacao_gescon = models.DateTimeField(
@@ -328,6 +334,9 @@ class Convenio(models.Model):
     def get_status(self):
         if self.status and self.status.cancela:
             return _("Cancelado")
+
+        if self.data_extincao:
+            return _("Extinto")
 
         if self.data_retorno_assinatura is not None:
             if self.data_termino_vigencia is not None:
@@ -407,6 +416,9 @@ class Convenio(models.Model):
         SDF = settings.SHORT_DATE_FORMAT
         number = self.num_convenio
         project = self.projeto.sigla
+        if self.data_extincao:
+            date = date_format(self.data_extincao, SDF)
+            return _(f"{project} nº {number} extinto em {date}")
         if (self.data_retorno_assinatura is None) and (
             self.equipada and self.data_termo_aceite is not None
         ):

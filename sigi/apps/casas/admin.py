@@ -210,7 +210,7 @@ class ConveniosInline(admin.TabularInline):
         if obj.pk is None:
             return ""
         status = obj.get_status()
-        if status in ["Vencido", "Desistência", "Cancelado"]:
+        if status in ["Vencido", "Desistência", "Cancelado", "Extinto"]:
             label = r"danger"
         elif status == "Vigente":
             label = r"success"
