@@ -1,6 +1,3 @@
-import base64
-import magic
-from pathlib import Path
 from rest_framework import serializers
 from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Convenio, Anexo
@@ -108,7 +105,6 @@ class OrgaoAtendidoSerializer(serializers.ModelSerializer):
     municipio = serializers.SlugRelatedField(read_only=True, slug_field="nome")
     uf_nome = serializers.SerializerMethodField("get_uf_nome")
     uf_sigla = serializers.SerializerMethodField("get_uf_sigla")
-    foto_base64 = serializers.SerializerMethodField("get_foto_base64")
     convenio_set = ConvenioSerializer(many=True, read_only=True)
     evento_set = EventoSerializer(many=True, read_only=True)
     servico_set = ServicoSerializer(many=True, read_only=True)
@@ -130,7 +126,6 @@ class OrgaoAtendidoSerializer(serializers.ModelSerializer):
             "email",
             "telefone_geral",
             "foto",
-            "foto_base64",
             "convenio_set",
             "evento_set",
             "servico_set",
@@ -141,11 +136,3 @@ class OrgaoAtendidoSerializer(serializers.ModelSerializer):
 
     def get_uf_sigla(self, obj):
         return obj.municipio.uf.sigla
-
-    def get_foto_base64(self, obj):
-        if obj.foto and Path(obj.foto.path).exists():
-            mime_type = magic.from_file(obj.foto.path, mime=True)
-            obj.foto.file.seek(0)  # Garante que está no início do arquivo
-            b64str = (base64.b64encode(obj.foto.file.read())).decode("ascii")
-            return f"data:{mime_type};base64, {b64str}"
-        return None
