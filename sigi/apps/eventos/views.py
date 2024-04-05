@@ -579,6 +579,9 @@ def eventos_por_uf(request):
         (k, [i[1] for i in v])
         for k, v in groupby(pivo_regiao.columns, lambda x: x[0])
     ]
+    # Fixar tudo em int
+    pivo_uf = pivo_uf.astype(int)
+    pivo_regiao = pivo_regiao.astype(int)
     # Imprimir
     context = {
         "form": form,
