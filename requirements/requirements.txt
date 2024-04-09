@@ -4,6 +4,7 @@ docutils==0.20.1
 email_validator==2.1.1
 gunicorn==21.2.0
 ibge==0.0.5
+inflection==0.5.1
 ipython==8.23.0
 moodlepy==0.24.0
 pandas==2.2.1
