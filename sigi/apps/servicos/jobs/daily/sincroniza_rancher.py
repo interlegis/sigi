@@ -121,6 +121,14 @@ class Job(JobReportMixin, DailyJob):
             else:
                 nova_url = f"https://{hostname}/"
 
+            # Identificar registro de suspensão do namespace
+            suspenso = [
+                ns["metadata"]["annotations"]["suspenso"]
+                for ns in namespaces
+                if ns["metadata"]["name"] == namespace
+                and "suspenso" in ns["metadata"]["annotations"]
+            ]
+
             try:
                 portal = Servico.objects.get(
                     instancia=namespace,
@@ -131,12 +139,18 @@ class Job(JobReportMixin, DailyJob):
             except Servico.MultipleObjectsReturned:
                 self.errors[tipo].append(
                     _(
-                        f"Existe mais de um registro ativo da instância {namespace}"
-                        f" de {tipo}."
+                        f"Existe mais de um registro ativo da instância "
+                        f"{namespace} de {tipo}."
                     )
                 )
                 continue
             except Servico.DoesNotExist:
+                # Se a instância está suspensa, não precisa criar o registro
+                # no SIGI.
+
+                if suspenso:
+                    continue
+
                 if (
                     namespace in self.nomes_gerados
                     or name in self.nomes_gerados
@@ -172,13 +186,7 @@ class Job(JobReportMixin, DailyJob):
                         )
                     )
                     continue
-            # Verificar se tem registro de suspensão do namespace
-            suspenso = [
-                ns["metadata"]["annotations"]["suspenso"]
-                for ns in namespaces
-                if ns["metadata"]["name"] == namespace
-                and "suspenso" in ns["metadata"]["annotations"]
-            ]
+            # se tem registro de suspensão do namespace
             if suspenso:
                 # Desativar o portal no SIGI
                 portal.data_desativacao = timezone.localdate()
@@ -207,7 +215,7 @@ class Job(JobReportMixin, DailyJob):
                         else ""
                     )
                     + (
-                        f"hospedagem interlegis"
+                        "hospedagem interlegis"
                         if not portal.hospedagem_interlegis
                         else ""
                     )
