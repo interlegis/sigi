@@ -30,8 +30,8 @@
         {% endif %}
         <td>{{ reserva.num_processo }}</td>
         <td>{{ reserva.virtual|yesno }}</td>
-        <td>{{ reserva.inicio }}</td>
-        <td>{{ reserva.termino }}</td>
+        <td>{{ reserva.data_inicio }}</td>
+        <td>{{ reserva.data_termino }}</td>
         <td>{{ reserva.proposito }}</td>
         <td>{{ reserva.total_participantes|default:"-" }}</td>
         <td>{{ reserva.solicitante }}</td>
