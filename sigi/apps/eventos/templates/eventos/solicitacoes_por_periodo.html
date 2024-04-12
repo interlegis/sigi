@@ -1,0 +1,112 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style type="text/css">
+    #content {
+      display: block;
+    }
+    .table-responsive {
+      overflow: auto;
+      width: 100%;
+    }
+    table {
+      table-layout: auto !important;
+      width: 100%;
+    }
+    table.fixed {
+      table-layout: fixed;
+    }
+    th.sep_regiao {
+      text-align: center;
+      text-transform: uppercase;
+    }
+    tr:nth-child(even) {
+      background: var(--body-bg);
+    }
+    .numero {
+      text-align: right;
+    }
+  </style>
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}
+  <h5>{% trans 'Solicitações de evento por período' %}</h5>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+  {% if solicitacoes is None %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <form>
+            <div class="card-content">
+              {{ form }}
+            </div>
+            <div class="card-action">
+              <button type="submit" class="waves-effect waves-light btn">{% trans 'Pesquisar' %}</button>
+              {% if not solicitacoes is None %}
+              <div class="fixed-action-btn">
+                <a class="btn-floating">
+                  <i class="large material-icons">print</i>
+                </a>
+                <ul>
+                  <li><button type="submit" name="fmt" value="pdf" class="btn-floating" title="{% trans 'Exportar para PDF' %}"><i class="material-icons">picture_as_pdf</i></button></li>
+                  <li><button type="submit" name="fmt" value="csv" class="btn-floating" title="{% trans 'Exportar para CSV' %}"><i class="material-icons">file_download</i></button></li>
+                </ul>
+              </div>
+            {% endif %}
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% else %}
+    <div class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            <span class="card-title">{% trans 'Legenda' %}</span>
+            {% include "eventos/snippets/solicitacoes_por_periodo_legenda_snippet.html" %}
+          </div>
+          <div class="card-action">
+            <a href="{% url 'eventos_solicitacoesporperiodo' %}">Nova pesquisa</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% include "eventos/snippets/solicitacoes_por_periodo_snippet.html" with mode="html" %}
+    <form>
+      {% for field in form %}{{ field.as_hidden }}{% endfor %}
+      <div class="fixed-action-btn">
+        <a class="btn-floating">
+          <i class="large material-icons">print</i>
+        </a>
+        <ul>
+          <li><button type="submit" name="fmt" value="pdf" class="btn-floating" title="{% trans 'Exportar para PDF' %}"><i class="material-icons">picture_as_pdf</i></button></li>
+          <li><button type="submit" name="fmt" value="csv" class="btn-floating" title="{% trans 'Exportar para CSV' %}"><i class="material-icons">file_download</i></button></li>
+        </ul>
+      </div>
+    </form>
+  {% endif %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  {{ form.media }}  
+  <script>
+    $(document).ready(function(){
+      M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+      M.Modal.init($(".modal"));
+    })
+  </script>
+{% endblock %}

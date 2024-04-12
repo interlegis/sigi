@@ -1,0 +1,38 @@
+{% load i18n %}
+
+<div class="legenda">
+  <table>
+    <colgroup>
+      <col style="width: 20%;"/>
+      <col/>
+    </colgroup>
+    <tr>
+      <th>{% trans 'Período' %}</th>
+      <td>
+        {% blocktranslate with inicio=data_inicio|date:"SHORT_DATE_FORMAT" fim=data_fim|date:"SHORT_DATE_FORMAT" %}
+          {{ inicio }} a {{ fim }}
+        {% endblocktranslate %}
+      </td>
+    </tr>
+    <tr>
+      <th>{% trans 'Status' %}</th>
+      <td>
+        <ul>
+          {% for i, label in status_choices %}
+            <li><strong>{{ i }}</strong>: {{ label }}</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+    <tr>
+      <th>{% trans 'Oficinas' %}</th>
+      <td>
+        <ul>
+          {% for sigla, nome in legenda_oficinas %}
+            <li><strong>{{ sigla }}</strong>: {{ nome }}</li>
+          {% endfor %}
+        </ul>
+      </td>
+    </tr>
+  </table>
+</div>

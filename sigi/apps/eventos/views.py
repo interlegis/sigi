@@ -5,49 +5,40 @@ import locale
 import pandas as pd
 from functools import reduce
 from itertools import groupby
-from rest_framework import mixins, generics
+from rest_framework import generics
 from typing import OrderedDict
-from django import forms
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.core.paginator import Paginator
-from django.db.models import Count, Sum, Q
+from django.db.models import Count, Sum, Q, F, OuterRef, Subquery
 from django.http import HttpResponse
-from django.shortcuts import redirect, render, get_object_or_404
-from django.template import Template, Context
+from django.shortcuts import render
 from django.utils import timezone
-from django.utils.text import slugify
 from django.utils.translation import (
     to_locale,
     get_language,
     ngettext,
     gettext as _,
 )
-from django.urls import reverse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
-from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
-from weasyprint import HTML
-from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Projeto
-from sigi.apps.eventos.models import TipoEvento, Evento
+from sigi.apps.eventos.models import (
+    TipoEvento,
+    Evento,
+    Equipe,
+    Solicitacao,
+    ItemSolicitado,
+)
 from sigi.apps.eventos.forms import (
-    SelecionaModeloForm,
-    ConviteForm,
     EventosPorUfForm,
-    CasaForm,
-    FuncionarioForm,
-    ParlamentarForm,
+    SolicitacoesPorPeriodoForm,
 )
 from sigi.apps.eventos.serializers import (
     EventoSerializer,
     EventoListSerializer,
 )
-from sigi.apps.parlamentares.models import Parlamentar
-from sigi.apps.servidores.models import Servidor
 
 
 @login_required
@@ -154,7 +145,6 @@ def calendario(request):
     if pdf:
         context["title"] = _("Calendário de eventos")
         context["pdf"] = True
-        # return render(request, "eventos/calendario_pdf.html", context)
         return WeasyTemplateResponse(
             filename=f"calendario_{ano_pesquisa:04}{mes_pesquisa:02}.pdf",
             request=request,
@@ -618,6 +608,232 @@ def eventos_por_uf(request):
         pivo_uf.to_csv(response)
         return response
     return render(request, "eventos/eventos_por_uf.html", context=context)
+
+
+@login_required
+@staff_member_required
+def solicitacoes_por_periodo(request):
+    formato = request.GET.get("fmt", "html")
+    initials = {
+        "data_inicio": datetime.date.today().replace(day=1),
+        "data_fim": datetime.date.today().replace(
+            day=calendar.monthrange(
+                datetime.date.today().year, datetime.date.today().month
+            )[1]
+        ),
+        "tipos_evento": TipoEvento.objects.all(),
+        "virtual": [m[0] for m in SolicitacoesPorPeriodoForm.MODO_CHOICES],
+        "status": [s[0] for s in Solicitacao.STATUS_CHOICES],
+    }
+    if "data_inicio" in request.GET or "data_fim" in request.GET:
+        form = SolicitacoesPorPeriodoForm(request.GET)
+    else:
+        form = SolicitacoesPorPeriodoForm(initial=initials)
+    if not form.is_valid():
+        return render(
+            request,
+            "eventos/solicitacoes_por_periodo.html",
+            context={"form": form},
+        )
+    data_inicio = form.cleaned_data.get("data_inicio")
+    data_fim = form.cleaned_data.get("data_fim")
+    tipos_evento = form.cleaned_data.get(
+        "tipos_evento", initials["tipos_evento"]
+    )
+    virtual = form.cleaned_data.get("virtual", initials["virtual"])
+    status = form.cleaned_data.get("status", initials["status"])
+
+    sq_equipe = (
+        Equipe.objects.order_by()
+        .annotate(
+            tot=Sum(
+                F("qtde_diarias") * F("valor_diaria") + F("total_passagens")
+            )
+        )
+        .values("tot")
+    )
+    sq_equipe.query.group_by = []
+    solicitacoes = Solicitacao.objects.filter(
+        data_pedido__range=(data_inicio, data_fim),
+        itemsolicitado__tipo_evento__in=tipos_evento,
+        itemsolicitado__virtual__in=virtual,
+        status__in=status,
+    )
+    legenda_oficinas = (
+        solicitacoes.order_by("itemsolicitado__tipo_evento__sigla")
+        .values_list(
+            "itemsolicitado__tipo_evento__sigla",
+            "itemsolicitado__tipo_evento__nome",
+        )
+        .distinct()
+    )
+    solicitacoes = (
+        solicitacoes.order_by(
+            "casa__municipio__uf__regiao",
+            "casa__municipio__uf",
+            "casa__nome",
+            "data_pedido",
+        )
+        .annotate(
+            qtde_solicitadas=Count("itemsolicitado__id"),
+            qtde_atendidas=Count(
+                "itemsolicitado__id",
+                filter=Q(
+                    itemsolicitado__status=ItemSolicitado.STATUS_AUTORIZADO
+                ),
+            ),
+            qtde_rejeitadas=Count(
+                "itemsolicitado__id",
+                filter=Q(
+                    itemsolicitado__status=ItemSolicitado.STATUS_REJEITADO
+                ),
+            ),
+            participantes=Sum("itemsolicitado__evento__total_participantes"),
+            custo_total=Subquery(
+                sq_equipe.filter(
+                    evento__itemsolicitado__solicitacao=OuterRef("pk")
+                )[:1]
+            ),
+        )
+        .select_related(
+            "casa",
+            "casa__municipio",
+            "casa__municipio__uf",
+            "casa__municipio__microrregiao",
+        )
+        .prefetch_related("itemsolicitado_set")
+    )
+    sumario = solicitacoes.aggregate(
+        Sum("qtde_solicitadas"),
+        Sum("qtde_atendidas"),
+        Sum("qtde_rejeitadas"),
+        Sum("participantes"),
+        Sum("custo_total"),
+    ).values()
+    resumo_uf = (
+        pd.DataFrame(
+            solicitacoes.values(
+                "casa__municipio__uf__regiao",
+                "casa__municipio__uf__sigla",
+                "senador",
+                "qtde_solicitadas",
+                "qtde_atendidas",
+                "qtde_rejeitadas",
+                "participantes",
+                "custo_total",
+            )
+        )
+        .rename(
+            columns={
+                "casa__municipio__uf__regiao": "regiao",
+                "casa__municipio__uf__sigla": "uf",
+            }
+        )
+        .fillna(0)
+        .replace({"regiao": dict(UnidadeFederativa.REGIAO_CHOICES)})
+        .groupby(["regiao", "uf", "senador"], as_index=False)
+        .sum()
+    )
+    resumo_uf["participantes"] = resumo_uf["participantes"].astype("int")
+    resumo_regiao = resumo_uf.groupby(["regiao"], as_index=False)[
+        [
+            "qtde_solicitadas",
+            "qtde_atendidas",
+            "qtde_rejeitadas",
+            "participantes",
+            "custo_total",
+        ]
+    ].sum()
+    resumo_uf.replace([0], [None], inplace=True)
+    resumo_regiao.replace([0], [None], inplace=True)
+    resumo_tipo_evento = (
+        pd.DataFrame(
+            ItemSolicitado.objects.filter(solicitacao__in=solicitacoes)
+            .order_by("tipo_evento__sigla", "tipo_evento__nome")
+            .values("tipo_evento__sigla", "tipo_evento__nome")
+            .annotate(
+                qtde_solicitadas=Count("id"),
+                qtde_atendidas=Count(
+                    "id", filter=Q(status=ItemSolicitado.STATUS_AUTORIZADO)
+                ),
+                qtde_rejeitadas=Count(
+                    "id", filter=Q(status=ItemSolicitado.STATUS_REJEITADO)
+                ),
+                participantes=Sum("evento__total_participantes"),
+                custo_total=Subquery(
+                    sq_equipe.filter(evento__itemsolicitado=OuterRef("pk"))[:1]
+                ),
+            )
+        )
+        .rename(
+            columns={
+                "tipo_evento__sigla": "sigla",
+                "tipo_evento__nome": "nome",
+            }
+        )
+        .groupby(["sigla", "nome"], as_index=False)
+        .sum()
+        .fillna(0)
+    )
+    resumo_tipo_evento["participantes"] = resumo_tipo_evento[
+        "participantes"
+    ].astype("int")
+    resumo_tipo_evento.replace([0], [None], inplace=True)
+    # Imprimir
+    context = {
+        "form": form,
+        "data_inicio": data_inicio,
+        "data_fim": data_fim,
+        "status_choices": ItemSolicitado.STATUS_CHOICES,
+        "legenda_oficinas": legenda_oficinas,
+        "tipos_evento": tipos_evento,
+        "virtual": [
+            m[1]
+            for m in SolicitacoesPorPeriodoForm.MODO_CHOICES
+            if m[0] in virtual
+        ],
+        "solicitacoes": solicitacoes,
+        "sumario": sumario,
+        "resumo_uf": resumo_uf,
+        "resumo_regiao": resumo_regiao,
+        "resumo_tipo_evento": resumo_tipo_evento,
+    }
+    if formato == "pdf":
+        context["title"] = _("Solicitações por período")
+        context["pdf"] = True
+        return WeasyTemplateResponse(
+            filename=f"solicitacoes_por_periodo-{data_inicio}-{data_fim}.pdf",
+            request=request,
+            template="eventos/solicitacoes_por_periodo_pdf.html",
+            context=context,
+            content_type="application/pdf",
+        )
+    elif formato == "csv":
+        response = HttpResponse(content_type="text/csv")
+        response["Content-Disposition"] = (
+            f'attachment; filename="solicitacoes_por_periodo-{data_inicio}-{data_fim}.csv"'
+        )
+        fieldnames = [
+            "id",
+            "casa__nome",
+            "casa__municipio__microrregiao__nome",
+            "casa__municipio__uf__sigla",
+            "casa__municipio__uf__regiao",
+            "senador",
+            "data_pedido",
+            "qtde_solicitadas",
+            "qtde_atendidas",
+            "qtde_rejeitadas",
+            "participantes",
+            "custo_total",
+        ]
+        writer = csv.DictWriter(response, fieldnames)
+        writer.writeheader()
+        writer.writerows(solicitacoes.values(*fieldnames))
+        return response
+    return render(
+        request, "eventos/solicitacoes_por_periodo.html", context=context
+    )
 
 
 class ApiEventoAbstract:

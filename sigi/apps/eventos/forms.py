@@ -16,6 +16,7 @@ from sigi.apps.eventos.models import (
     ModeloDeclaracao,
     Evento,
     TipoEvento,
+    Solicitacao,
 )
 from sigi.apps.parlamentares.models import Parlamentar
 
@@ -148,6 +149,51 @@ class EventosPorUfForm(forms.Form):
         required=False,
         label=_("Modo"),
         choices=MODO_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+
+    class Media:
+        css = {"all": ["css/change_form.css"]}
+        js = [
+            "admin/js/vendor/select2/select2.full.js",
+            "admin/js/change_form.js",
+            "admin/js/vendor/select2/i18n/pt-BR.js",
+            "material/admin/js/widgets/TimeInput.js",
+            "admin/js/core.js",
+            "/admin/jsi18n/",
+        ]
+
+
+class SolicitacoesPorPeriodoForm(forms.Form):
+    MODO_CHOICES = (
+        (True, _("Virtual")),
+        (False, _("Presencial")),
+    )
+    data_inicio = forms.DateField(
+        required=True,
+        label=_("data de início"),
+        widget=MaterialAdminDateWidget,
+    )
+    data_fim = forms.DateField(
+        required=True,
+        label=_("data de término"),
+        widget=MaterialAdminDateWidget,
+    )
+    tipos_evento = forms.ModelMultipleChoiceField(
+        required=False,
+        label=_("Tipos de evento"),
+        queryset=TipoEvento.objects.all(),
+    )
+    virtual = forms.MultipleChoiceField(
+        required=False,
+        label=_("Modo"),
+        choices=MODO_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+    status = forms.MultipleChoiceField(
+        required=False,
+        label=_("Status"),
+        choices=Solicitacao.STATUS_CHOICES,
         widget=forms.CheckboxSelectMultiple,
     )
 

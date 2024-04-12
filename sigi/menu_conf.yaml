@@ -31,6 +31,8 @@ main_menu:
     children:
       - title: Eventos por UF
         view_name: eventos_eventosporuf
+      - title: Solicitações de eventos por período
+        view_name: eventos_solicitacoesporperiodo
       - title: Calendário de eventos
         view_name: eventos_calendario
       - title: Alocação de equipe eventos

@@ -1,0 +1,200 @@
+{% load i18n %}
+<div class="row">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{% trans 'Solicitações' %}</span>
+        <div class="table-responsive">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th rowspan="2">{% trans 'UF' %}</th>
+                <th rowspan="2">{% trans 'Microrregião' %}</th>
+                <th rowspan="2">{% trans 'Casa solicitante' %}</th>
+                <th rowspan="2">{% trans 'Senador' %}</th>
+                <th rowspan="2">{% trans 'Data pedido' %}</th>
+                <th rowspan="2">{% trans 'Oficinas (status)' %}</th>
+                <th colspan="4" class="center">{% trans 'Quantidade' %}</th>
+                <th rowspan="2" class="numero">{% trans 'Custo total' %}</th>
+              </tr>
+              <tr>
+                <th  class="numero">{% trans 'Solicitada' %}</th>
+                <th  class="numero">{% trans 'Atendida' %}</th>
+                <th  class="numero">{% trans 'Não atendida' %}</th>
+                <th  class="numero">{% trans 'Participantes' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for sol in solicitacoes.all %}
+                {% ifchanged sol.casa.municipio.uf.regiao %}
+                  <tr>
+                    <th colspan="11" class="center">
+                      {{ sol.casa.municipio.uf.get_regiao_display }}
+                    </th>
+                  </tr>
+                {% endifchanged %}
+                <tr>
+                  <td>{{ sol.casa.municipio.uf.sigla }}</td>
+                  <td>{{ sol.casa.municipio.microrregiao.nome }}</td>
+                  <td>{{ sol.casa.nome }}</td>
+                  <td>{{ sol.senador }}</td>
+                  <td>{{ sol.data_pedido|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>
+                    <ul class="report-list">
+                      {% for item in sol.itemsolicitado_set.all %}
+                        <li title="{{ item.tipo_evento.nome }} ({{ item.get_status_display }})">{{ item.tipo_evento.sigla }} ({{ item.status }})</li>
+                      {% endfor %}
+                    </ul>
+                  </td>
+                  <td  class="numero">{{ sol.qtde_solicitadas }}</td>
+                  <td  class="numero">{{ sol.qtde_atendidas|default:"-" }}</td>
+                  <td  class="numero">{{ sol.qtde_rejeitadas|default:"-" }}</td>
+                  <td  class="numero">{{ sol.participantes|default:"-" }}</td>
+                  <td  class="numero">{{ sol.custo_total|floatformat:2|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+              <tr>
+                <th colspan="6">{% trans 'Sumário' %}</th>
+                {% for valor in sumario %}
+                  <th class="numero">
+                    {% if forloop.last %}
+                      {{ valor|floatformat:2|default:"-" }}
+                    {% else %}
+                      {{ valor|default:"-" }}
+                    {% endif %}
+                  </th>
+                {% endfor %}
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row new-page">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{% trans 'Resumo por Senador' %}</span>
+        <div class="table-responsive">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th rowspan="2">{% trans 'UF' %}</th>
+                <th rowspan="2">{% trans 'Senador' %}</th>
+                <th colspan="4" class="center">{% trans 'Quantidade' %}</th>
+                <th rowspan="2" class="numero">{% trans 'Custo total' %}</th>
+              </tr>
+              <tr>
+                <th  class="numero">{% trans 'Solicitada' %}</th>
+                <th  class="numero">{% trans 'Atendida' %}</th>
+                <th  class="numero">{% trans 'Não atendida' %}</th>
+                <th  class="numero">{% trans 'Participantes' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for uf in resumo_uf.itertuples %}
+                {% ifchanged uf.regiao %}
+                  <tr>
+                    <th  class="sep_regiao" colspan="7">{{ uf.regiao }}</th>
+                  </tr>
+                {% endifchanged %}
+                <tr>
+                  <td>{{ uf.uf }}</td>
+                  <td>{{ uf.senador }}</td>
+                  <td  class="numero">{{ uf.qtde_solicitadas }}</td>
+                  <td  class="numero">{{ uf.qtde_atendidas|default:"-" }}</td>
+                  <td  class="numero">{{ uf.qtde_rejeitadas|default:"-" }}</td>
+                  <td  class="numero">{{ uf.participantes|default:"-" }}</td>
+                  <td  class="numero">{{ uf.custo_total|floatformat:2|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row new-page">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{% trans 'Resumo por Região' %}</span>
+        <div class="table-responsive">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th rowspan="2">{% trans 'Região' %}</th>
+                <th colspan="4" class="center">{% trans 'Quantidade' %}</th>
+                <th rowspan="2" class="numero">{% trans 'Custo total' %}</th>
+              </tr>
+              <tr>
+                <th  class="numero">{% trans 'Solicitada' %}</th>
+                <th  class="numero">{% trans 'Atendida' %}</th>
+                <th  class="numero">{% trans 'Não atendida' %}</th>
+                <th  class="numero">{% trans 'Participantes' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for regiao in resumo_regiao.itertuples %}
+                <tr>
+                  <td>{{ regiao.regiao }}</td>
+                  <td  class="numero">{{ regiao.qtde_solicitadas }}</td>
+                  <td  class="numero">{{ regiao.qtde_atendidas|default:"-" }}</td>
+                  <td  class="numero">{{ regiao.qtde_rejeitadas|default:"-" }}</td>
+                  <td  class="numero">{{ regiao.participantes|default:"-" }}</td>
+                  <td  class="numero">{{ regiao.custo_total|floatformat:2|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row new-page">
+  <div class="col s12">
+    <div class="card">
+      <div class="card-content">
+        <span class="card-title">{% trans 'Resumo por tipo de evento' %}</span>
+        <div class="table-responsive">
+          <table class="striped">
+            <thead>
+              <tr>
+                <th rowspan="2">{% trans 'Sigla' %}</th>
+                <th rowspan="2">{% trans 'Nome' %}</th>
+                <th colspan="4" class="center">{% trans 'Quantidade' %}</th>
+                <th rowspan="2" class="numero">{% trans 'Custo total' %}</th>
+              </tr>
+              <tr>
+                <th  class="numero">{% trans 'Solicitada' %}</th>
+                <th  class="numero">{% trans 'Atendida' %}</th>
+                <th  class="numero">{% trans 'Não atendida' %}</th>
+                <th  class="numero">{% trans 'Participantes' %}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tipo in resumo_tipo_evento.itertuples %}
+                <tr>
+                  <td>{{ tipo.sigla }}</td>
+                  <td>{{ tipo.nome }}</td>
+                  <td  class="numero">{{ tipo.qtde_solicitadas }}</td>
+                  <td  class="numero">{{ tipo.qtde_atendidas|default:"-" }}</td>
+                  <td  class="numero">{{ tipo.qtde_rejeitadas|default:"-" }}</td>
+                  <td  class="numero">{{ tipo.participantes|default:"-" }}</td>
+                  <td  class="numero">{{ tipo.custo_total|floatformat:2|default:"-" }}</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
