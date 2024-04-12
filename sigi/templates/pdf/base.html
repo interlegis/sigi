@@ -11,6 +11,10 @@
         margin: {% block page_margin %}3cm 2cm 2cm 2cm{% endblock page_margin %};
         font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;
+        border-top: 1px solid #037036;
+        border-bottom: 1px solid #037036;
+        padding-top: 24px;
+        padding-bottom: 24px;
         {% block page-header-settings %}
         @top-left {content: url("{% static 'img/logo-senado.png' %}");}
         @top-center { content: element(header); }
@@ -43,15 +47,6 @@
         font-family: "Helvetica", "Arial", "sans-serif";
         font-size: 10px;
       }
-      div.page-border {
-        position:fixed;
-        left: 0;
-        right: 0;
-        top: 0;
-        bottom: 0;
-        border-top: 2px solid #037036;
-        border-bottom: 2px solid #037036;
-      }
       div.new-page {
         break-before: always;
       }
@@ -79,7 +74,6 @@
     <title>{% block title %}{{ title|default:"SIGI report" }}{% endblock title %}</title>
   </head>
   <body class="{% block body_class %}{% endblock body_class %}">
-    <div class="page-border"></div>
     {% block body_content %}{% endblock body_content %}
   </body>
 </html>
