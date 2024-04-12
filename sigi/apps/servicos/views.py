@@ -1,8 +1,5 @@
-import csv
 from django.db.models import Q, Prefetch, Count, F, Value, Case, When
 from django.http import HttpResponse
-from django.shortcuts import render
-from django.utils.translation import gettext as _
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
 from import_export import resources
@@ -79,7 +76,9 @@ class CasasAtendidasListView(ListView):
                 Prefetch(
                     "servico_set", queryset=sq_servicos, to_attr="servicos"
                 ),
-                Prefetch("evento_set", queryset=sq_eventos, to_attr="eventos"),
+                Prefetch(
+                    "evento_set", queryset=sq_eventos, to_attr="oficinas"
+                ),
                 Prefetch(
                     "convenio_set",
                     queryset=Convenio.objects.select_related("projeto"),
