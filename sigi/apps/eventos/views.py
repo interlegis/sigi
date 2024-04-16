@@ -653,7 +653,7 @@ def solicitacoes_por_periodo(request):
         .values("tot")
     )
     sq_equipe.query.group_by = []
-    solicitacoes = Solicitacao.objects.filter(
+    solicitacoes = Solicitacao.objects.order_by().filter(
         data_pedido__range=(data_inicio, data_fim),
         itemsolicitado__tipo_evento__in=tipos_evento,
         itemsolicitado__virtual__in=virtual,
@@ -670,9 +670,9 @@ def solicitacoes_por_periodo(request):
     solicitacoes = (
         solicitacoes.order_by(
             "casa__municipio__uf__regiao",
-            "casa__municipio__uf",
-            "casa__nome",
             "data_pedido",
+            "casa__municipio__uf",
+            "senador",
         )
         .annotate(
             qtde_solicitadas=Count("itemsolicitado__id"),
@@ -712,7 +712,11 @@ def solicitacoes_por_periodo(request):
     ).values()
     resumo_uf = (
         pd.DataFrame(
-            solicitacoes.values(
+            solicitacoes.order_by(
+                "casa__municipio__uf__regiao",
+                "senador",
+                "casa__municipio__uf",
+            ).values(
                 "casa__municipio__uf__regiao",
                 "casa__municipio__uf__sigla",
                 "senador",
@@ -731,7 +735,7 @@ def solicitacoes_por_periodo(request):
         )
         .fillna(0)
         .replace({"regiao": dict(UnidadeFederativa.REGIAO_CHOICES)})
-        .groupby(["regiao", "uf", "senador"], as_index=False)
+        .groupby(["regiao", "senador", "uf"], as_index=False)
         .sum()
     )
     resumo_uf["participantes"] = resumo_uf["participantes"].astype("int")
