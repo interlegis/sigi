@@ -2,7 +2,7 @@ cron-converter==1.1.0
 dnspython==2.6.1
 docutils==0.20.1
 email_validator==2.1.1
-gunicorn==21.2.0
+gunicorn==22.0.0
 ibge==0.0.5
 inflection==0.5.1
 ipython==8.23.0
