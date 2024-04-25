@@ -45,10 +45,13 @@
     </a>
   {% endif %}
   {% if not user.is_anonymous %}
-    <a href="{% url 'logout' %}">
-      {% trans 'Log out' %}
-      <i class="material-icons" aria-hidden="true">exit_to_app</i>
-    </a>
+    <form id="logout-form" method="post" action="{% url 'admin:logout' %}">
+      {% csrf_token %}
+      <button type="submit">
+        {% translate 'Log out' %}
+        <i class="material-icons" aria-hidden="true">exit_to_app</i>
+      </button>
+    </form>
   {% endif %}
 {% endblock %}
 
