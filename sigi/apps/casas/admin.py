@@ -466,17 +466,17 @@ class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                         )
         return super().save_related(request, form, formsets, change)
 
+    @admin.display(
+        description=_("Unidade da Federação"), ordering="municipio__uf__nome"
+    )
     def get_uf(self, obj):
         return obj.municipio.uf.nome
 
-    get_uf.short_description = _("Unidade da Federação")
-    get_uf.admin_order_field = "municipio__uf__nome"
-
+    @admin.display(description=_("Gerente Interlegis"))
     def get_gerentes(self, obj):
         return mark_safe(obj.lista_gerentes())
 
-    get_gerentes.short_description = _("Gerente Interlegis")
-
+    @admin.display(description=_("Convênios"))
     def get_convenios(self, obj):
         return mark_safe(
             "<ul>"
@@ -491,8 +491,7 @@ class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             + "</ul>"
         )
 
-    get_convenios.short_description = _("Convênios")
-
+    @admin.display(description=_("Serviços"))
     def get_servicos(self, obj):
         return mark_safe(
             "<ul>"
@@ -506,8 +505,6 @@ class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             )
             + "</ul>"
         )
-
-    get_servicos.short_description = _("Serviços")
 
     def lookup_allowed(self, lookup, value):
         return super(OrgaoAdmin, self).lookup_allowed(

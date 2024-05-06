@@ -23,3 +23,6 @@
 .readonly-label {
     height: unset;
 }
+.form-row.errors {
+    flex-direction: column;
+}

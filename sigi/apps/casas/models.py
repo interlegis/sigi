@@ -9,7 +9,7 @@ from django.utils.translation import gettext as _
 
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils import SearchField
+from sigi.apps.utils import SearchField, mask_cnpj, valida_cnpj
 
 
 class TipoOrgao(models.Model):
@@ -223,6 +223,14 @@ class Orgao(models.Model):
 
         if address_changed:
             self.ult_alt_endereco = timezone.localtime()
+
+        # Mascara corretamente o CNPJ
+        if (
+            self.cnpj != ""
+            and valida_cnpj(self.cnpj)
+            and self.cnpj != mask_cnpj(self.cnpj)
+        ):
+            self.cnpj = mask_cnpj(self.cnpj)
 
         return super(Orgao, self).save(*args, **kwargs)
 

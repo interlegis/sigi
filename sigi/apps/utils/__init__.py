@@ -1,3 +1,4 @@
+import re
 from unicodedata import normalize
 from django.contrib import admin as django_admin
 from django.core.exceptions import FieldDoesNotExist
@@ -88,3 +89,20 @@ def abreviatura(name):
     for conector in [" da ", " de ", " do ", " das ", " dos ", " e "]:
         name = name.replace(conector, " ")
     return ("".join([w[0] for w in name.split()])).upper()
+
+
+def valida_cnpj(cnpj):
+    cnpj = re.sub("[^\d]", "", cnpj).zfill(14)
+    if cnpj == (cnpj[0] * len(cnpj)):
+        return False
+    calc_dv = f"{0 if 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-2])))])%11) >= 10 else 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-2])))])%11)}{0 if 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-1])))])%11) >= 10 else 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-1])))])%11)}"
+    return calc_dv == cnpj[-2:]
+
+
+def mask_cnpj(cnpj):
+    if cnpj == "":
+        return ""
+    cnpj = re.sub("[^\d]", "", cnpj).zfill(14)
+    return re.sub(
+        r"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", r"\1.\2.\3/\4-\5", cnpj
+    )
