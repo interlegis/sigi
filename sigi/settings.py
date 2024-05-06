@@ -135,7 +135,6 @@ FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "sigi.wsgi.application"
 
-167808
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
 
