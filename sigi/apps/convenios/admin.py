@@ -318,9 +318,7 @@ class GesconAdmin(admin.ModelAdmin):
         "url_gescon",
         "email",
     )
-    exclude = [
-        "ultima_importacao",
-    ]
+    exclude = ["ultima_importacao", "checksums"]
 
 
 admin.site.register(StatusConvenio)

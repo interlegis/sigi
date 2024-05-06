@@ -1,9 +1,10 @@
 import re
 import requests
+from difflib import SequenceMatcher
 from hashlib import md5
 from pathlib import Path
 from django.db import models
-from django.db.models import Q, fields
+from django.db.models import Q, F
 from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.template import Template, Context
@@ -17,12 +18,11 @@ from docx import Document
 from tinymce.models import HTMLField
 from weasyprint import HTML
 from sigi.apps.contatos.models import Municipio, UnidadeFederativa
-from sigi.apps.eventos.models import Evento
 from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import to_ascii
-from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.casas.models import Funcionario, Orgao, TipoOrgao
 from sigi.apps.servidores.models import Servidor, Servico
-from sigi.apps.utils import editor_help
+from sigi.apps.utils import editor_help, mask_cnpj
 
 
 class Projeto(models.Model):
@@ -608,7 +608,7 @@ class Gescon(models.Model):
         pass  # Highlander is immortal
 
     def add_message(self, msg, save=False):
-        self.ultima_importacao += msg + "\n"
+        self.ultima_importacao += msg + "\n\n"
         if save:
             self.save()
             self.email_report()
@@ -635,6 +635,21 @@ class Gescon(models.Model):
             boolean: Indica se há o que reportar ao usuário (erro ou dados
                      importados/atualizados)
         """
+
+        def mathnames(nome, orgaos):
+            for o, nome_canonico in orgaos:
+                ratio = SequenceMatcher(
+                    None, to_ascii(nome).lower(), nome_canonico
+                ).ratio()
+                if ratio > 0.9:
+                    yield (o, ratio)
+
+        def get_semelhantes(nome, orgaos):
+            return sorted(
+                mathnames(nome, orgaos),
+                key=lambda m: m[1],
+            )
+
         self.ultima_importacao = ""
         if self.checksums is None:
             self.checksums = {}
@@ -657,7 +672,7 @@ class Gescon(models.Model):
 
         if self.subespecies == "":
             self.add_message(
-                _("Nenhuma subespécie definida - processo " "abortado."), True
+                _("Nenhuma subespécie definida - processo abortado."), True
             )
             return True
 
@@ -676,11 +691,12 @@ class Gescon(models.Model):
         excludentes = self.palavras_excluir.splitlines()
         orgaos = self.orgaos_gestores.split()
         subespecies = {tuple(s.split("=")) for s in self.subespecies.split()}
-        lista_cnpj = {
-            re.sub("[^\d]", "", o.cnpj).zfill(14): o
-            for o in Orgao.objects.exclude(cnpj="")
-            if re.sub("[^\d]", "", o.cnpj) != ""
-        }
+        todos_orgaos = [
+            (o, f"{to_ascii(o.nome)} - {o.uf_sigla}".lower())
+            for o in Orgao.objects.all()
+            .order_by()
+            .annotate(uf_sigla=F("municipio__uf__sigla"))
+        ]
 
         requests.packages.urllib3.disable_warnings()
         report_user = False
@@ -705,7 +721,7 @@ class Gescon(models.Model):
                 report_user = True
                 continue
 
-            if not "application/json" in response.headers.get("Content-Type"):
+            if "application/json" not in response.headers.get("Content-Type"):
                 self.add_message(
                     _(
                         f"\tResultado da consulta à {url} não "
@@ -721,8 +737,8 @@ class Gescon(models.Model):
                 and self.checksums[sigla_gescon] == md5sum
             ):
                 self.add_message(
-                    f"Dados da subespécie {sigla_gescon} inalterados no Gescon."
-                    " Processamento desnecessário."
+                    f"\tDados da subespécie {sigla_gescon} inalterados no "
+                    "Gescon. Processamento desnecessário."
                 )
                 continue
 
@@ -754,103 +770,218 @@ class Gescon(models.Model):
             atualizados = 0
 
             for contrato in nossos:
-                numero = contrato["numero"].zfill(8)
-                numero = f"{numero[:4]}/{numero[4:]}"
-                sigad = contrato["processo"].zfill(17)
-                sigad = (
-                    f"{sigad[:5]}.{sigad[5:11]}/{sigad[11:15]}-{sigad[15:]}"
+                numero = re.sub(
+                    r"(\d{4})(\d{4})", r"\1/\2", contrato["numero"].zfill(8)
+                )
+                sigad = re.sub(
+                    r"(\d{5})(\d{6})(\d{4})(\d{2})",
+                    r"\1.\2/\3-\4",
+                    contrato["processo"].zfill(17),
                 )
 
                 if contrato["cnpjCpfFornecedor"]:
                     cnpj = contrato["cnpjCpfFornecedor"].zfill(14)
-                    cnpj_masked = (
-                        f"{cnpj[:2]}.{cnpj[2:5]}.{cnpj[5:8]}/"
-                        f"{cnpj[8:12]}-{cnpj[12:]}"
-                    )
+                    cnpj_masked = mask_cnpj(cnpj)
                 else:
                     cnpj = None
 
                 if contrato["nomeFornecedor"]:
-                    nome = contrato["nomeFornecedor"]
-                    nome = nome.replace("VEREADORES DE", "")
-                    nome = nome.split("-")[0]
-                    nome = nome.split("/")[0]
-                    nome = nome.strip()
-                    nome = nome.replace("  ", " ")
-                    nome = to_ascii(nome)
+                    nome = to_ascii(
+                        contrato["nomeFornecedor"]
+                        .replace("VEREADORES DE", "")
+                        .replace("DO ESTADO", "")
+                        .split("-")[0]
+                        .split("/")[0]
+                        .strip()
+                        .replace("  ", " ")
+                    )
                 else:
                     nome = None
 
-                if (cnpj is None) and (nome is None):
+                # Buscar o Convenio pelo NUP #
+                try:
+                    convenio = Convenio.objects.get(
+                        projeto=projeto, num_processo_sf=sigad
+                    )
+                except Convenio.DoesNotExist:
+                    # Encontrou 0: Pode ser que só exista com o código Gescon
+                    try:
+                        convenio = Convenio.objects.get(
+                            Q(projeto=projeto)
+                            & Q(
+                                Q(num_convenio=numero)
+                                | Q(num_processo_sf=numero)
+                            )
+                        )
+                    except Convenio.DoesNotExist:
+                        # Encontrou 0: Não existe mesmo. Precisa ser criado.
+                        # Para não esticar muito a profundidade do código,
+                        # vou setar convenio para None e tratar o caso lá na
+                        # frente.
+                        convenio = None
+                    except Convenio.MultipleObjectsReturned:
+                        # Encontrou N: Reportar erro
+                        self.add_message(
+                            _(
+                                f"\t* O contrato {numero} no Gescon pode ser "
+                                "relacionado aos seguintes convênios do SIGI:"
+                                + ", ".join(
+                                    [
+                                        reverse(
+                                            "admin:convenios_convenio_change",
+                                            args=[c.id],
+                                        )
+                                        for c in Convenio.objects.filter(
+                                            Q(num_convenio=numero)
+                                            | Q(num_processo_sf=numero)
+                                        )
+                                    ]
+                                )
+                            )
+                        )
+                        erros += 1
+                        continue
+                except Convenio.MultipleObjectsReturned:
                     self.add_message(
                         _(
-                            f"\tO contrato {numero} no Gescon não informa o CNPJ"
-                            "nem o nome do órgão."
+                            f"\t* O contrato {numero} no Gescon pode ser "
+                            "relacionado aos seguintes convênios do SIGI: "
+                            + ", ".join(
+                                [
+                                    reverse(
+                                        "admin:convenios_convenio_change",
+                                        args=[c.id],
+                                    )
+                                    for c in Convenio.objects.filter(
+                                        num_processo_sf=sigad
+                                    )
+                                ]
+                            )
                         )
                     )
                     erros += 1
                     continue
+                if convenio is not None:
+                    # Encontrou 1: Basta atualizar
+                    convenio.projeto = projeto
+                    convenio.num_processo_sf = sigad
+                    convenio.num_convenio = numero
+                    convenio.data_sigad = contrato["assinatura"]
+                    convenio.observacao = contrato["objeto"]
+                    convenio.data_retorno_assinatura = contrato[
+                        "inicioVigencia"
+                    ]
+                    convenio.data_termino_vigencia = contrato[
+                        "terminoVigencia"
+                    ]
+                    convenio.data_pub_diario = contrato["publicacao"]
+                    convenio.atualizacao_gescon = timezone.localtime()
+                    atualizados += 1
+                    continue
 
-                orgao = None
-
-                if cnpj is not None:
-                    if cnpj in lista_cnpj:
-                        orgao = lista_cnpj[cnpj]
-                    else:
-                        try:
-                            orgao = Orgao.objects.get(cnpj=cnpj_masked)
-                        except (
-                            Orgao.DoesNotExist,
-                            Orgao.MultipleObjectsReturned,
-                        ) as e:
-                            orgao = None
-                            pass
-
-                if (orgao is None) and (nome is not None):
-                    try:
-                        orgao = Orgao.objects.get(search_text__iexact=nome)
-                    except (
-                        Orgao.DoesNotExist,
-                        Orgao.MultipleObjectsReturned,
-                    ) as e:
-                        orgao = None
-                        pass
-
-                if orgao is None:
+                # Não encontrou o convênio. Vamos tentar criar...
+                # Primeiro, é preciso identificar qual órgão consta no
+                # contrato do Gescon
+                if (cnpj is None) and (nome is None):
                     self.add_message(
                         _(
-                            f"\tÓrgão não encontrado no SIGI ou mais de um "
-                            f"órgão encontrado com o mesmo CNPJ ou nome. Favor "
-                            f"regularizar o cadastro: "
+                            f"\t* O contrato {numero} no Gescon não informa "
+                            "nem o CNPJ nem o nome do órgão, então não é "
+                            "possível importar para o SIGI."
+                        )
+                    )
+                    erros += 1
+                    continue
+                # Vamos tentar primeiro com o CNPJ
+                if cnpj is not None:
+                    try:
+                        orgao = Orgao.objects.get(cnpj=cnpj_masked)
+                    except Orgao.MultipleObjectsReturned:
+                        # Pode acontecer de uma cãmara usar o mesmo CNPJ
+                        # da prefeitura, e ambos terem convênio com o ILB.
+                        # Podemos tentar desambiguar pelo nome mais
+                        # semelhante.
+                        orgao = get_semelhantes(
+                            to_ascii(contrato["nomeFornecedor"]).lower(),
+                            [
+                                (
+                                    o,
+                                    f"{to_ascii(o.nome)} - {o.uf_sigla}".lower(),
+                                )
+                                for o in Orgao.objects.filter(cnpj=cnpj_masked)
+                                .order_by()
+                                .annotate(uf_sigla=F("municipio__uf__sigla"))
+                            ],
+                        )[0][0]
+                    except Orgao.DoesNotExist:
+                        # Encontrou 0: Vamos seguir sem órgao e tentar
+                        # encontrar pelo nome logo abaixo
+                        orgao = None
+
+                if orgao is None:
+                    # Não achou pelo CNPJ. Bora ver se acha por similaridade
+                    # do nome
+                    if nome is None:
+                        # Também não tem nome... então temos que reportar erro
+                        self.add_message(
+                            _(
+                                f"\t* O contrato {numero} no Gescon "
+                                f"com NUP sigad {sigad}, fornecedor "
+                                f"{cnpj_masked} não pode ser imortado porque "
+                                "não é possível identificar o órgão no SIGI. "
+                                "Cadastre um órgão com o CNPJ desse "
+                                "fornecedor, que na próxima importação este "
+                                "contrato será importado."
+                            )
+                        )
+                        erros += 1
+                        continue
+                    # Primeiro com o nome igual veio do GESCON
+                    semelhantes = get_semelhantes(
+                        to_ascii(contrato["nomeFornecedor"]).lower(),
+                        todos_orgaos,
+                    )
+                    if not semelhantes:
+                        # Não achou, então vamos tentar com o nome limpado
+                        semelhantes = get_semelhantes(
+                            to_ascii(nome).lower(),
+                            todos_orgaos,
+                        )
+                    if len(semelhantes) > 0:
+                        # Encontrou algo semelhante.... bora usar.
+                        orgao = semelhantes[0][0]
+                    else:
+                        # Não encontrou nada parecido. Bora reportar como erro
+                        self.add_message(
+                            _(
+                                f"\t* O contrato {numero} no Gescon "
+                                f"com NUP Sigad {sigad}, indica o "
+                                f"fornecedor com CNPJ {cnpj_masked} "
+                                f"e com o nome {contrato['nomeFornecedor']}, "
+                                "que não tem correspondência no SIGI. "
+                                "Este convênio precisa ser cadastrado "
+                                "manualmente no SIGI para este erro "
+                                "parar de acontecer."
+                            )
+                        )
+                        erros += 1
+                        continue
+                # Não encontrou o órgão... bora reportar o erro
+                if orgao is None:
+                    # Em teoria, nunca vai cair aqui... mas...
+                    self.add_message(
+                        _(
+                            f"\t* Órgão não encontrado no SIGI ou mais de um "
+                            f"órgão encontrado com o mesmo CNPJ ou nome. Favor"
+                            f" regularizar o cadastro: "
                             f"CNPJ: {contrato['cnpjCpfFornecedor']}, "
                             f"Nome: {contrato['nomeFornecedor']}"
                         )
                     )
                     erros += 1
                     continue
-
-                # O mais seguro é o NUP sigad
-                convenios = Convenio.objects.filter(num_processo_sf=sigad)
-                chk = convenios.count()
-
-                if chk == 0:
-                    # NUP não encontrado, talvez exista apenas com o número
-                    # do GESCON
-                    convenios = Convenio.objects.filter(
-                        Q(num_convenio=numero) | Q(num_processo_sf=numero)
-                    )
-                    chk = convenios.count()
-                    if chk > 1:
-                        # Pode ser que existam vários contratos de subespécies
-                        # diferentes com o mesmo número Gescon. Neste caso, o
-                        # ideal é filtrar pelo tipo de projeto. Existindo, é
-                        # ele mesmo. Se não existir, então segue com os
-                        # múltiplos para registrar o problema mais adiante
-                        if convenios.filter(projeto=projeto).count() == 1:
-                            convenios = convenios.filter(projeto=projeto)
-                            chk = 1
-
-                if chk == 0:
+                else:
+                    # Bora criar o convênio
                     convenio = Convenio(
                         casa_legislativa=orgao,
                         projeto=projeto,
@@ -864,108 +995,11 @@ class Gescon(models.Model):
                         data_pub_diario=contrato["publicacao"],
                         atualizacao_gescon=timezone.localtime(),
                         observacao_gescon=_(
-                            "Importado integralmente do" "Gescon"
+                            "Importado integralmente do Gescon"
                         ),
                     )
                     convenio.save()
                     novos += 1
-                    continue
-                elif chk == 1:
-                    convenio = convenios.get()
-                    convenio.atualizacao_gescon = timezone.localtime()
-                    convenio.observacao_gescon = ""
-                    if convenio.casa_legislativa != orgao:
-                        self.add_message(
-                            _(
-                                f"\tO órgao no convênio {convenio.id} diverge do "
-                                f"que consta no Gescon ({cnpj}, "
-                                f"{contrato['nomeFornecedor']})"
-                            )
-                        )
-                        convenio.observacao_gescon = _(
-                            "ERRO: Órgão diverge do Gescon. Não atualizado!"
-                        )
-                        convenio.save()
-                        erros += 1
-                        continue
-
-                    if convenio.num_processo_sf != sigad:
-                        self.add_message(
-                            _(
-                                f"\tO contrato Gescon nº {numero} corresponde"
-                                f" ao convênio SIGI {convenio.id}, mas o NUP "
-                                f"sigad diverge (Gescon: {sigad}, "
-                                f"SIGI: {convenio.num_processo_sf}). "
-                                "CORRIGIDO!"
-                            )
-                        )
-                        convenio.num_processo_sf = sigad
-                        convenio.observacao_gescon += _(
-                            "Número do SIGAD atualizado.\n"
-                        )
-                        alertas += 1
-
-                    if convenio.num_convenio != numero:
-                        self.add_message(
-                            _(
-                                f"\tO contrato Gescon ID {contrato['id']} "
-                                f"corresponde ao convênio SIGI {convenio.id}, "
-                                "mas o número do convênio diverge ("
-                                f"Gescon: {numero}, SIGI: {convenio.num_convenio}"
-                                "). CORRIGIDO!"
-                            )
-                        )
-                        convenio.num_convenio = numero
-                        convenio.observacao_gescon += _(
-                            "Número do convênio atualizado.\n"
-                        )
-                        alertas += 1
-
-                    if contrato["objeto"] not in convenio.observacao:
-                        convenio.observacao += "\n" + contrato["objeto"]
-                        convenio.observacao_gescon += _(
-                            "Observação atualizada.\n"
-                        )
-
-                    convenio.data_sigad = contrato["assinatura"]
-                    convenio.data_retorno_assinatura = contrato[
-                        "inicioVigencia"
-                    ]
-                    convenio.data_termino_vigencia = contrato[
-                        "terminoVigencia"
-                    ]
-                    convenio.data_pub_diario = contrato["publicacao"]
-                    if contrato["codTextoContrato"]:
-                        convenio.id_contrato_gescon = contrato[
-                            "codTextoContrato"
-                        ]
-                    else:
-                        convenio.id_contrato_gescon = ""
-
-                    try:
-                        convenio.save()
-                    except Exception as e:
-                        self.add_message(
-                            _(
-                                "Ocorreu um erro ao salvar o convênio "
-                                f"{convenio.id} no SIGI. Alguma informação do "
-                                "Gescon pode ter quebrado o sistema. Informe ao "
-                                f"suporte. Erro: {e.message}"
-                            )
-                        )
-                        erros += 1
-                        continue
-
-                    atualizados += 1
-                else:
-                    self.add_message(
-                        _(
-                            f"\tExistem {chk} convênios no SIGI que "
-                            "correspondem ao mesmo contrato no Gescon (contrato "
-                            f"{numero}, sigad {sigad})"
-                        )
-                    )
-                    erros += 1
                     continue
 
             if novos or erros or alertas or atualizados:
@@ -973,7 +1007,7 @@ class Gescon(models.Model):
 
             self.add_message(
                 _(
-                    f"\t{novos} novos convenios adicionados ao SIGI, "
+                    f"\n\n\t{novos} novos convenios adicionados ao SIGI, "
                     f"{atualizados} atualizados, sendo {alertas} com alertas, e "
                     f"{erros} reportados com erro."
                 )
