@@ -1,0 +1,44 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+	<style type="text/css">
+		table {
+			width: auto;
+		}
+    .bordered {
+      border-top: 1px solid var(--body-fg);
+    }
+	</style>
+	<link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}
+  <h5>{% blocktranslate with count=orgaos.count %}{{ count }} órgãos com CNPJ duplicado{% endblocktranslate %}</h5>
+{% endblock %}
+
+{% block content %}
+  <div class="fixed-action-btn">
+    <a class="btn-floating">
+      <i class="large material-icons">print</i>
+    </a>
+    <ul>
+      <li><a class="btn-floating" href="?fmt=pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></a></li>
+      <li><a class="btn-floating" href="?fmt=csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></a></li>
+    </ul>
+  </div>
+	{% include "casas/snippets/cnpj_duplicado_snippet.html" with mode="html" %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+	<script>
+		$(document).ready(function(){
+			M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+			M.Modal.init($(".modal"));
+		})
+	</script>
+{% endblock %}

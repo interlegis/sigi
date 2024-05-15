@@ -29,6 +29,12 @@ main_menu:
   - title: Relatórios
     icon: print
     children:
+      - title: Erros importação Gescon
+        view_name: convenios-report_erros_gescon
+      - title: Órgãos com CNPJ duplicado
+        view_name: casas_cnpj_duplicado
+      - title: Órgãos com CNPJ errado
+        view_name: casas_cnpj_errado
       - title: Eventos por UF
         view_name: eventos_eventosporuf
       - title: Solicitações de eventos por período

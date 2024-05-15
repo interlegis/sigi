@@ -1,6 +1,5 @@
 from django.db.models import Q
 from django.contrib import admin
-from django.http import HttpResponse, HttpResponseRedirect
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
@@ -14,12 +13,10 @@ from sigi.apps.convenios.models import (
     Convenio,
     EquipamentoPrevisto,
     Anexo,
-    Tramitacao,
     Gescon,
 )
 from sigi.apps.utils.mixins import AsciifyQParameter
-from sigi.apps.servidores.models import Servidor
-from sigi.apps.casas.admin import ConveniosInline, GerentesInterlegisFilter
+from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.utils.mixins import (
     ReturnMixin,
     CartExportReportMixin,
@@ -172,6 +169,7 @@ class ConvenioAdmin(
             _("Gescon"),
             {
                 "fields": (
+                    "erro_gescon",
                     "atualizacao_gescon",
                     "observacao_gescon",
                     "link_gescon",
@@ -181,6 +179,7 @@ class ConvenioAdmin(
     )
     readonly_fields = (
         "data_sigi",
+        "erro_gescon",
         "atualizacao_gescon",
         "observacao_gescon",
         "link_gescon",
@@ -210,6 +209,7 @@ class ConvenioAdmin(
         "conveniada",
         "equipada",
         "casa_legislativa__municipio__uf",
+        "erro_gescon",
     )
     ordering = (
         "casa_legislativa__municipio__uf__sigla",

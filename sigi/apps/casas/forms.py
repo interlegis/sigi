@@ -105,3 +105,11 @@ class FuncionarioForm(forms.ModelForm):
         widgets = {
             "redes_sociais": MaterialAdminTextareaWidget,
         }
+
+
+class CnpjErradoForm(forms.Form):
+    has_convenio = forms.BooleanField(
+        label=_("Mostrar apenas órgãos com convênio"),
+        required=False,
+        initial=False,
+    )

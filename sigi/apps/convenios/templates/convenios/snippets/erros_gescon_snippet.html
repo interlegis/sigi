@@ -1,0 +1,39 @@
+{% load i18n %}
+<div class="card">
+  <div class="card-content">
+    <table class="striped">
+      <thead>
+        <tr>
+          <th>{% translate "id SIGI" %}</th>
+          <th>{% translate "NUP sigad" %}</th>
+          <th>{% translate "Número" %}</th>
+          <th>{% translate "Projeto" %}</th>
+          <th>{% translate "Órgão conveniado" %}</th>
+          <th>{% translate "UF" %}</th>
+          <th>{% translate "Erro encontrado" %}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for convenio in convenios %}
+          <tr>
+            <td>
+              <a href="{% url 'admin:convenios_convenio_change' convenio.id %}">{{ convenio.id|stringformat:"s" }}</a>
+            </td>
+            <td>{{ convenio.num_processo_sf }}</td>
+            <td>{{ convenio.num_convenio }}</td>
+            <td>{{ convenio.projeto.nome }}</td>
+            <td>{{ convenio.casa_legislativa }}</td>
+            <td>{{ convenio.casa_legislativa.municipio.uf.sigla }}</td>
+            <td>{{ convenio.observacao_gescon|safe }}</td>
+          </tr>
+        {% empty %}
+          <tr>
+            <td colspam="7">
+              {% translate "Nenhum convênio com erro de importação do Gescon." %}
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>

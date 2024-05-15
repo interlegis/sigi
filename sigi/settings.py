@@ -66,6 +66,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "django.contrib.sites",
     "django_extensions",
     "django_filters",
 ]
@@ -80,6 +81,8 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "sigi.apps.utils.middleware.SigiAlertsMiddleware",
 ]
+
+SITE_ID = 1
 
 if DEBUG:
     INSTALLED_APPS = [

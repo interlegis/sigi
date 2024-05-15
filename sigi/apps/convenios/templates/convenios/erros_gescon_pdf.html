@@ -1,0 +1,21 @@
+{% extends "pdf/base_report.html" %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+
+{% block report_name %}
+  {% blocktranslate count counter=convenios.count %}
+    Um convênio com erro na importação do Gescon
+  {% plural %}
+    {{ counter }} convênios com erro na importação do Gescon
+  {% endblocktranslate %}
+{% endblock report_name %}
+
+{% block main_content %}
+	{% include "convenios/snippets/erros_gescon_snippet.html" %}
+  <div class="new-page"></div>
+  <div style="padding: 24px;">
+    <h1>{% translate "Resumo da última importação de dados do Gescon" %}</h1>
+    {{ ultima_importacao }}
+  </div>
+{% endblock %}
