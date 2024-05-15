@@ -5,21 +5,15 @@ from django.db import migrations
 
 def mailleg_fw(apps, schema_editor):
     TipoServico = apps.get_model("servicos", "TipoServico")
-    tipo = TipoServico.objects.get(sigla__icontains="mail")
+    try:
+        tipo = TipoServico.objects.get(sigla__icontains="mail")
+    except TipoServico.DoesNotExist:
+        return
+
     tipo.tipo_rancher = "emailleg"
     tipo.arquivo_rancher = "mail.json"
     tipo.spec_rancher = "mail"
     tipo.prefixo_padrao = "correioadm"
-    tipo.save()
-
-
-def mailleg_rw(apps, schema_editor):
-    TipoServico = apps.get_model("servicos", "TipoServico")
-    tipo = TipoServico.objects.get(sigla__icontains="mail")
-    tipo.tipo_rancher = ""
-    tipo.arquivo_rancher = ""
-    tipo.spec_rancher = ""
-    tipo.prefixo_padrao = ""
     tipo.save()
 
 
@@ -29,5 +23,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunPython(mailleg_fw, mailleg_rw),
+        migrations.RunPython(mailleg_fw, migrations.RunPython.noop),
     ]

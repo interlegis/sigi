@@ -11,10 +11,17 @@ def forward(apps, schema_editor):
     Espaco = apps.get_model("espacos", "Espaco")
     DEPARA_SALAS = [(5, 62), (4, 66), (3, 63)]
 
+    if not Espaco.objects.filter(id__in=[v[0] for v in DEPARA_SALAS]).exists():
+        # As salas não existem. Não há nada a fazer.
+        return
+
     for espaco_id, id_sala in DEPARA_SALAS:
-        espaco = Espaco.objects.get(id=espaco_id)
-        espaco.id_sala = id_sala
-        espaco.save()
+        try:
+            espaco = Espaco.objects.get(id=espaco_id)
+            espaco.id_sala = id_sala
+            espaco.save()
+        except Espaco.DoesNotExist:
+            pass
 
     if (
         settings.RESERVA_SALA_BASE_URL is None

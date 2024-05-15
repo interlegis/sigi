@@ -8,7 +8,12 @@ def forwards_migration(apps, schema_editor):
     Servidor = apps.get_model("servidores", "Servidor")
     User = get_user_model()
 
-    sigi = Servidor.objects.get(sigi=True)
+    try:
+        sigi = Servidor.objects.get(sigi=True)
+    except Servidor.DoesNotExist:
+        # Cria o Servidor do SIGI
+        sigi = Servidor(nome_completo="Administrador do SIGI", sigi=True)
+        sigi.save()
 
     if sigi.user is not None:
         # everything is already fine

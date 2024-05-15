@@ -7,7 +7,9 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
     initial = True
 
-    dependencies = []
+    dependencies = [
+        ("eventos", "0053_visita_anfitria_senado_oficina_remove_convite")
+    ]
 
     operations = [
         migrations.CreateModel(

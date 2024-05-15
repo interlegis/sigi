@@ -24,6 +24,10 @@ def update_user_from_ldap(user, ldap_attrs):
 
 
 def forwards(apps, schema_editor):
+    if not hasattr(settings, "AUTH_LDAP_SERVER_URI"):
+        # Não está conectado ao LDAP. Nada a fazer
+        return
+
     User = get_user_model()
 
     coder = _DeepStringCoder("utf8")
@@ -296,8 +300,12 @@ def forwards(apps, schema_editor):
     ]
 
     for source_id, target_id in manuais:
-        servidor_source = Servidor.objects.get(id=source_id)
-        servidor_target = Servidor.objects.get(id=target_id)
+        try:
+            servidor_source = Servidor.objects.get(id=source_id)
+            servidor_target = Servidor.objects.get(id=target_id)
+        except Servidor.DoesNotExist:
+            # Se um não existe, não há nada a fazer
+            continue
         print(
             f"\tJoining {servidor_source.nome_completo} "
             f"to {servidor_target.nome_completo}"
@@ -307,6 +315,7 @@ def forwards(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
+        ("auth", "0001_initial"),
         ("servidores", "0014_servidor_ldap_dn_alter_servidor_user"),
     ]
 

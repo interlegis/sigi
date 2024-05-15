@@ -10,11 +10,14 @@ def forwards(apps, schema_editor):
     # Define casa_anfitria = senado para todas as visitas
     # Gertik #165751 (2)
 
-    senado = Orgao.objects.get(tipo__sigla="SF")
-
-    Evento.objects.filter(tipo_evento__categoria="V").update(
-        casa_anfitria=senado
-    )
+    try:
+        senado = Orgao.objects.get(tipo__sigla="SF")
+        Evento.objects.filter(tipo_evento__categoria="V").update(
+            casa_anfitria=senado
+        )
+    except Orgao.DoesNotExist:
+        # Não existe o órgão SF, então basta seguir
+        pass
 
     # Deletar todos os convites (casas convidadas) das oficinas que têm vínculo
     # com o saberes moodle_courseid not NULL

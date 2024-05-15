@@ -2,7 +2,7 @@
 
 from django.db import migrations
 
-SQL_STMT = "DROP VIEW viw_eventos;"
+SQL_STMT = "DROP VIEW IF EXISTS viw_eventos;"
 SQL_REVERSE_STMT = """
 create view viw_eventos as
 select e.id, e.nome, e.descricao, e.solicitante, e.data_inicio, e.data_termino,
