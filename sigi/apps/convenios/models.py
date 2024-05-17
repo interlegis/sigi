@@ -706,8 +706,6 @@ class Gescon(models.Model):
 
         requests.packages.urllib3.disable_warnings()
         report_user = False
-        Convenio.objects.update(erro_gescon=False)
-
         dominio = get_current_site(None).domain
 
         for sigla_gescon, sigla_sigi in subespecies:
@@ -752,6 +750,7 @@ class Gescon(models.Model):
                 continue
 
             contratos = response.json()
+            Convenio.objects.filter(projeto=projeto).update(erro_gescon=False)
 
             # Pegar só os contratos que possuem alguma das palavras-chave
 
