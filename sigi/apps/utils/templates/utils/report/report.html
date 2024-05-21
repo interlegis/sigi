@@ -1,0 +1,73 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block extrastyle %}
+{{ block.super }}
+	<style type="text/css">
+		table {
+			width: auto;
+		}
+    tr.changed {
+      border-top: 1px solid var(--body-fg);
+    }
+    tr.changed td {
+      border-top: 1px solid var(--body-fg);
+    }
+	</style>
+	<link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock %}
+
+{% block coltype %}colMS{% endblock %}
+
+{% block content_title %}
+  <h5>{{ report_title }}</h5>
+{% endblock %}
+
+{% block content %}
+  {% if form %}
+    <form class="row">
+      <div class="col s12">
+        <div class="card">
+          <div class="card-content">
+            {% block filterform %}{{ form }}{% endblock filterform %}
+          </div>
+          <div class="card-action">
+            <button class="waves-effect waves-light btn" type="submit">{% translate "Submit" %}</button>
+            <div class="fixed-action-btn">
+              <a class="btn-floating">
+                <i class="large material-icons">print</i>
+              </a>
+              <ul>
+                <li><button class="btn-floating" type="submit" name="fmt" value="pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></button></li>
+                <li><button class="btn-floating" type="submit" name="fmt" value="csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></button></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  {% else %}
+    <div class="fixed-action-btn">
+      <a class="btn-floating">
+        <i class="large material-icons">print</i>
+      </a>
+      <ul>
+        <li><a class="btn-floating" href="?fmt=pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></a></li>
+        <li><a class="btn-floating" href="?fmt=csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></a></li>
+      </ul>
+    </div>
+  {% endif %}
+  {% include "utils/report/report_items_snippet.html" with mode="html" %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+	<script>
+		$(document).ready(function(){
+			M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+			M.Modal.init($(".modal"));
+		})
+	</script>
+{% endblock %}

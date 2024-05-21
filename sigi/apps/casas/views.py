@@ -6,12 +6,13 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import (
     LoginRequiredMixin,
     PermissionRequiredMixin,
+    UserPassesTestMixin,
 )
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.urls import reverse_lazy
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 from django.views.generic import (
     CreateView,
     DeleteView,
@@ -35,6 +36,7 @@ from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.eventos.models import Evento, TipoEvento
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.utils import valida_cnpj
+from sigi.apps.utils.views import ReportListView
 
 
 def resumo_carteira(casas):
@@ -338,67 +340,61 @@ def painel_relacionamento(request):
     return render(request, "casas/painel.html", context)
 
 
-@login_required
-@staff_member_required
-def cnpj_duplicado(request):
-    formato = request.GET.get("fmt", "html")
-    dups = (
-        Orgao.objects.exclude(cnpj="")
-        .order_by("cnpj")
-        .values("cnpj")
-        .annotate(tot=Count("cnpj"))
-        .filter(tot__gt=1)
-        .values("cnpj")
-    )
-    orgaos = (
-        Orgao.objects.filter(cnpj__in=dups)
-        .order_by("cnpj", "nome", "municipio__nome", "municipio__uf")
-        .prefetch_related("tipo", "municipio", "municipio__uf")
-    )
-    context = {
-        "orgaos": orgaos,
-        "title": _("Órgãos com CNPJ duplicado"),
-    }
-    if formato == "pdf":
-        return WeasyTemplateResponse(
-            filename="cnpj_duplicado.pdf",
-            request=request,
-            template="casas/cnpj_duplicado_pdf.html",
-            context=context,
-            content_type="application/pdf",
+class CnpjDuplicadoReport(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
+    title = _("Órgãos com CNPJ duplicado")
+    empty_message = _("Nenhum órgão com CNPJ duplicado!")
+    queryset = Orgao.objects.filter(
+        cnpj__in=(
+            Orgao.objects.exclude(cnpj="")
+            .order_by("cnpj")
+            .values("cnpj")
+            .annotate(tot=Count("cnpj"))
+            .filter(tot__gt=1)
+            .values("cnpj")
         )
-    elif formato == "csv":
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = (
-            'attachment; filename="cnpj_duplicado.csv"'
+    ).prefetch_related("tipo", "municipio", "municipio__uf")
+    ordering = ["cnpj", "nome", "municipio__nome", "municipio__uf"]
+    list_fields = [
+        "id",
+        "cnpj",
+        "tipo__nome",
+        "sigla",
+        "nome",
+        "municipio__nome",
+        "municipio__uf__sigla",
+    ]
+    list_labels = [
+        "ID",
+        "CNPJ",
+        "Tipo de órgão",
+        "Sigla",
+        "Nome",
+        "Cidade",
+        "UF",
+    ]
+    link_fields = ["id"]
+    change_field = "cnpj"
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_title(self):
+        count = self.get_queryset().count()
+        return ngettext(
+            "Um órgão com CNPJ duplicado",
+            f"{count} órgãos com CNPJ duplicado",
+            count,
         )
-        fieldnames = [
-            "id",
-            "cnpj",
-            "tipo__nome",
-            "sigla",
-            "nome",
-            "municipio__nome",
-            "municipio__uf__sigla",
-        ]
-        writer = csv.DictWriter(response, fieldnames)
-        writer.writeheader()
-        writer.writerows(orgaos.values(*fieldnames))
-        return response
-    return render(request, "casas/cnpj_duplicado.html", context=context)
 
 
-@login_required
-@staff_member_required
-def cnpj_errado(request):
-    formato = request.GET.get("fmt", "html")
-    form = CnpjErradoForm(request.GET)
-    if form.is_valid():
-        has_convenio = form.cleaned_data.get("has_convenio", False)
-    else:
-        has_convenio = False
-
-    todos_orgaos = (
+class CnpjErradoReport(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
+    title = _("Órgãos com CNPJ digitado errado")
+    empty_message = _("Nenhum órgão com CNPJ digitado errado")
+    queryset = (
         Orgao.objects.exclude(cnpj="")
         .order_by("tipo", "cnpj", "nome")
         .annotate(
@@ -407,46 +403,48 @@ def cnpj_errado(request):
             uf_sigla=F("municipio__uf__sigla"),
         )
     )
-    if has_convenio:
-        todos_orgaos = todos_orgaos.exclude(convenio=None)
-    orgaos = []
-    for orgao in todos_orgaos:
-        if not valida_cnpj(orgao.cnpj):
-            orgaos.append(orgao)
-    context = {
-        "orgaos": orgaos,
-        "form": form,
-        "title": _("Órgãos com CNPJ digitado errado"),
-    }
-    if formato == "pdf":
-        return WeasyTemplateResponse(
-            filename="cnpj_errado.pdf",
-            request=request,
-            template="casas/cnpj_errado_pdf.html",
-            context=context,
-            content_type="application/pdf",
+    filter_form = CnpjErradoForm
+    list_fields = ["id", "cnpj", "sigla", "nome", "municipio_nome", "uf_sigla"]
+    list_labels = ["ID", "CNPJ", "Sigla", "Nome", "Cidade", "UF"]
+    link_fields = ["id"]
+    break_field = "tipo_nome"
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_title(self):
+        count = len(self.get_queryset())
+        return ngettext(
+            "Um órgão com CNPJ digitado errado",
+            f"{count} órgãos com CNPJ digitado errado",
+            count,
         )
-    elif formato == "csv":
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = (
-            'attachment; filename="cnpj_errado.csv"'
+
+    def filter_queryset(self, queryset):
+        form = self.get_filter_form_instance()
+        if form.is_valid():
+            has_convenio = form.cleaned_data["has_convenio"]
+        else:
+            has_convenio = False
+        if has_convenio:
+            queryset = queryset.exclude(convenio=None)
+        orgaos = []
+        for orgao in queryset:
+            if not valida_cnpj(orgao.cnpj):
+                orgaos.append(orgao)
+        return orgaos
+
+    def get_dataset(self):
+        return (
+            [
+                {f: getattr(o, f) for f in self.list_fields}
+                for o in self.get_queryset()
+            ],
+            self.list_fields,
         )
-        fieldnames = [
-            "id",
-            "cnpj",
-            "tipo_nome",
-            "sigla",
-            "nome",
-            "municipio_nome",
-            "uf_sigla",
-        ]
-        writer = csv.DictWriter(response, fieldnames)
-        writer.writeheader()
-        writer.writerows(
-            [{f: getattr(o, f) for f in fieldnames} for o in orgaos]
-        )
-        return response
-    return render(request, "casas/cnpj_errado.html", context=context)
+
+    def _get_options(self):
+        return Orgao._meta
 
 
 class GerentesListView(PermissionRequiredMixin, ListView):

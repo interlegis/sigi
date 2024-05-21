@@ -1,0 +1,20 @@
+{% extends "pdf/base_report.html" %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+
+{% block extra_style %}
+  {{ block.super }}
+  tr.changed {
+	border-top: 1px solid var(--body-fg);
+  }
+  tr.changed td {
+	border-top: 1px solid var(--body-fg);
+  }
+{% endblock %}
+
+{% block report_name %}{{ report_title }}{% endblock report_name %}
+
+{% block main_content %}
+	{% include "utils/report/report_items_snippet.html" %}
+{% endblock %}

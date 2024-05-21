@@ -4,7 +4,7 @@ from sigi.apps.convenios import views
 urlpatterns = [
     path(
         "errosgescon/",
-        views.report_erros_gescon,
+        views.ErrosGesconReportView.as_view(),
         name="convenios-report_erros_gescon",
     ),
     path(

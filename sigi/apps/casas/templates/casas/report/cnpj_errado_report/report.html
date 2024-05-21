@@ -1,0 +1,8 @@
+{% extends 'utils/report/report.html' %}
+
+{% block filterform %}
+  <label for="{{ form.has_convenio.id_for_label }}">
+    {{ form.has_convenio }}
+    <span>{{ form.has_convenio.label }}</span>
+  </label>
+{% endblock filterform %}

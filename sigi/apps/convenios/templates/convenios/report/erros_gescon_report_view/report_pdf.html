@@ -1,0 +1,11 @@
+{% extends "utils/report/report_pdf.html" %}
+{% load i18n %}
+
+{% block main_content %}
+  {{ block.super }}
+  <div class="new-page"></div>
+  <div style="padding: 24px;">
+    <h1>{% translate "Resumo da última importação de dados do Gescon" %}</h1>
+    {{ ultima_importacao }}
+  </div>
+{% endblock %}

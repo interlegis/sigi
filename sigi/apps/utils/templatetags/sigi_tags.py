@@ -1,6 +1,6 @@
 import datetime
 from django import template
-from django.conf import settings
+from django.db import models
 from django.utils import timezone
 from django.utils.translation import gettext as _
 
@@ -36,3 +36,13 @@ def sum(value, arg):
 @register.simple_tag
 def multiply(value, arg):
     return value * arg
+
+
+@register.filter
+def valueof(obj, attr_name):
+    if hasattr(obj, attr_name):
+        return getattr(obj, attr_name)
+    if isinstance(obj, models.Model):
+        for part in attr_name.split("__"):
+            obj = getattr(obj, part)
+        return str(obj)

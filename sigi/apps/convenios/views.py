@@ -3,78 +3,74 @@ from docutils.core import publish_parts
 from django.utils.safestring import mark_safe
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render, get_list_or_404
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Gescon, Projeto
+from sigi.apps.utils.views import ReportListView
 
 
-@login_required
-@staff_member_required
-def report_erros_gescon(request):
-    formato = request.GET.get("fmt", "html")
-    convenios = (
-        Convenio.objects.filter(erro_gescon=True)
-        .order_by(
-            "num_processo_sf",
-            "projeto",
-            "num_convenio",
-            "casa_legislativa",
-        )
-        .prefetch_related(
-            "casa_legislativa", "casa_legislativa__municipio__uf"
-        )
+class ErrosGesconReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
+    title = _("Convênios com erros no Gescon")
+    empty_message = _("Nenhum convênio com erro de importação do Gescon!")
+    queryset = Convenio.objects.filter(erro_gescon=True).prefetch_related(
+        "casa_legislativa", "casa_legislativa__municipio__uf"
     )
-    rst = Gescon.load().ultima_importacao
-    parts = publish_parts(
-        rst,
-        writer_name="html5",
-        settings_overrides={
-            "input_encoding": "unicode",
-            "output_encoding": "unicode",
-        },
-    )
-    context = {
-        "convenios": convenios,
-        "ultima_importacao": mark_safe(parts["html_body"]),
-        "title": "Convênios com erros no Gescon",
-    }
-    if formato == "pdf":
-        return WeasyTemplateResponse(
-            filename="erros_gescon.pdf",
-            request=request,
-            template="convenios/erros_gescon_pdf.html",
-            context=context,
-            content_type="application/pdf",
+    ordering = [
+        "num_processo_sf",
+        "projeto",
+        "num_convenio",
+        "casa_legislativa__nome",
+    ]
+    list_fields = [
+        "id",
+        "num_processo_sf",
+        "num_convenio",
+        "projeto__nome",
+        "casa_legislativa__nome",
+        "casa_legislativa__municipio__uf__sigla",
+        "observacao_gescon",
+    ]
+    list_labels = [
+        _("id SIGI"),
+        _("NUP sigad"),
+        _("Número"),
+        _("Projeto"),
+        _("Órgão conveniado"),
+        _("UF"),
+        _("Erro encontrado"),
+    ]
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_title(self):
+        count = self.get_queryset().count()
+        return ngettext(
+            "Um convênio com erro no Gescon",
+            f"{count} convênios com erros no Gescon",
+            count,
         )
-    elif formato == "csv":
-        response = HttpResponse(content_type="text/csv")
-        response["Content-Disposition"] = (
-            'attachment; filename="erros_gescon.csv"'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        rst = Gescon.load().ultima_importacao
+        parts = publish_parts(
+            rst,
+            writer_name="html5",
+            settings_overrides={
+                "input_encoding": "unicode",
+                "output_encoding": "unicode",
+            },
         )
-        fieldnames = [
-            "id",
-            "num_processo_sf",
-            "num_convenio",
-            "projeto__nome",
-            "casa_legislativa__nome",
-            "casa_legislativa__municipio__uf__sigla",
-            "observacao_gescon",
-        ]
-        writer = csv.DictWriter(response, fieldnames)
-        writer.writeheader()
-        writer.writerows(convenios.values(*fieldnames))
-        response.write("\n\nResumo da última importação do Gescon\n\n")
-        response.write('"' + rst.replace("\n", '"\n"') + '"')
-        return response
-    return render(
-        request,
-        "convenios/erros_gescon.html",
-        context=context,
-    )
+        context["ultima_importacao"] = mark_safe(parts["html_body"])
+        return context
 
 
 @login_required
