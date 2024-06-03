@@ -26,44 +26,51 @@
 {% endblock %}
 
 {% block content %}
-  {% if form %}
-    <form class="row">
-      <div class="col s12">
-        <div class="card">
-          <div class="card-content">
-            {% block filterform %}{{ form }}{% endblock filterform %}
-          </div>
-          <div class="card-action">
-            <button class="waves-effect waves-light btn" type="submit">{% translate "Submit" %}</button>
-            <div class="fixed-action-btn">
-              <a class="btn-floating">
-                <i class="large material-icons">print</i>
-              </a>
-              <ul>
-                <li><button class="btn-floating" type="submit" name="fmt" value="pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></button></li>
-                <li><button class="btn-floating" type="submit" name="fmt" value="csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></button></li>
-              </ul>
+  {% block form %}
+    {% if form %}
+      <form class="row">
+        <div class="col s12">
+          <div class="card">
+            <div class="card-content">
+              {% block filterform %}{{ form }}{% endblock filterform %}
+            </div>
+            <div class="card-action">
+              <button class="waves-effect waves-light btn" type="submit">{% translate "Submit" %}</button>
+              <div class="fixed-action-btn">
+                <a class="btn-floating">
+                  <i class="large material-icons">print</i>
+                </a>
+                <ul>
+                  <li><button class="btn-floating" type="submit" name="fmt" value="pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></button></li>
+                  <li><button class="btn-floating" type="submit" name="fmt" value="csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></button></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
+      </form>
+    {% else %}
+      <div class="fixed-action-btn">
+        <a class="btn-floating">
+          <i class="large material-icons">print</i>
+        </a>
+        <ul>
+          <li><a class="btn-floating" href="?fmt=pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></a></li>
+          <li><a class="btn-floating" href="?fmt=csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></a></li>
+        </ul>
       </div>
-    </form>
-  {% else %}
-    <div class="fixed-action-btn">
-      <a class="btn-floating">
-        <i class="large material-icons">print</i>
-      </a>
-      <ul>
-        <li><a class="btn-floating" href="?fmt=pdf" title="{% trans 'Exportar para PDF' %}" ><i class="material-icons">picture_as_pdf</i></a></li>
-        <li><a class="btn-floating" href="?fmt=csv" title="{% trans 'Exportar para CSV' %}" ><i class="material-icons">file_download</i></a></li>
-      </ul>
-    </div>
-  {% endif %}
-  {% include "utils/report/report_items_snippet.html" with mode="html" %}
+    {% endif %}
+  {% endblock form %}
+  {% block data %}
+    {% include "utils/report/report_items_snippet.html" with mode="html" %}
+  {% endblock data %}
 {% endblock %}
 
 {% block footer %}
   {{ block.super }}
+  {% if form %}
+    {{ form.media }}
+  {% endif %}
 	<script>
 		$(document).ready(function(){
 			M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
