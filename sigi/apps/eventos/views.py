@@ -10,7 +10,18 @@ from typing import OrderedDict
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
-from django.db.models import Count, Sum, Q, F, OuterRef, Subquery
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
+from django.db.models import (
+    Count,
+    Sum,
+    Q,
+    F,
+    OuterRef,
+    Subquery,
+    Case,
+    When,
+    Value,
+)
 from django.http import HttpResponse
 from django.shortcuts import render
 from django.utils import timezone
@@ -30,6 +41,7 @@ from sigi.apps.eventos.models import (
     Equipe,
     Solicitacao,
     ItemSolicitado,
+    ParticipantesEvento,
 )
 from sigi.apps.eventos.forms import (
     EventosPorUfForm,
@@ -39,6 +51,136 @@ from sigi.apps.eventos.serializers import (
     EventoSerializer,
     EventoListSerializer,
 )
+from sigi.apps.utils.views import ReportListView
+
+
+class AlunosPorUfReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
+    title = _("Alunos por UF")
+    empty_message = _("Nenhum evento para os parâmetros solicitados")
+    filter_form = EventosPorUfForm
+    list_fields = ["evento__nome", "uf__sigla", "inscritos", "aprovados"]
+    list_labels = [""]
+
+    def test_func(self):
+        return self.request.user.is_staff
+
+    def get_queryset(self):
+        form = self.get_filter_form_instance()
+        queryset = ParticipantesEvento.objects.none()
+        if form.is_valid():
+            data_inicio = form.cleaned_data.get("data_inicio")
+            data_fim = form.cleaned_data.get("data_fim")
+            categorias = form.cleaned_data.get(
+                "categoria", [c[0] for c in TipoEvento.CATEGORIA_CHOICES]
+            )
+            modo = form.cleaned_data.get("virtual", ["V", "P"])
+            queryset = ParticipantesEvento.objects.filter(
+                evento__status=Evento.STATUS_REALIZADO,
+                evento__data_inicio__gte=data_inicio,
+                evento__data_termino__lte=data_fim,
+                evento__tipo_evento__categoria__in=categorias,
+            )
+            if len(modo) == 1:
+                if "V" in modo:
+                    queryset = queryset.filter(evento__virtual=True)
+                else:
+                    queryset = queryset.filter(evento__virtual=False)
+        return queryset
+
+    def get_dataset(self):
+        queryset = self.get_queryset()
+        fieldnames = [
+            "evento__nome",
+            "evento__virtual",
+            "uf__nome",
+            "uf__sigla",
+            "uf__regiao",
+            "inscritos",
+            "aprovados",
+        ]
+        queryset = queryset.values(*fieldnames)
+        return queryset, fieldnames
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        queryset = self.get_queryset()
+        if queryset:
+            uf_sigla = Case(
+                When(uf__sigla=None, then=Value("*")), default="uf__sigla"
+            )
+            uf_regiao = Case(
+                *[
+                    When(uf__regiao=r[0], then=Value(r[1]))
+                    for r in UnidadeFederativa.REGIAO_CHOICES
+                ],
+                default=Value("*"),
+            )
+            modo = Case(
+                When(evento__virtual=True, then=Value("Virtual")),
+                default=Value("Presencial"),
+            )
+
+            df = pd.DataFrame(
+                queryset.order_by("evento", "uf").values(
+                    "evento__nome",
+                    "inscritos",
+                    "aprovados",
+                    uf_sigla=uf_sigla,
+                    modo=modo,
+                )
+            )
+            context["inscritos_uf"] = df.pivot_table(
+                values="inscritos",
+                index=["evento__nome", "modo"],
+                columns="uf_sigla",
+                aggfunc="sum",
+                margins=True,
+                margins_name="Total",
+                sort=True,
+                fill_value=0,
+            ).astype(pd.Int64Dtype())
+            context["aprovados_uf"] = df.pivot_table(
+                values="aprovados",
+                index=["evento__nome", "modo"],
+                columns="uf_sigla",
+                aggfunc="sum",
+                margins=True,
+                margins_name="Total",
+                sort=True,
+                fill_value=0,
+            ).astype(pd.Int64Dtype())
+            df = pd.DataFrame(
+                queryset.order_by("evento", "uf__regiao").values(
+                    "evento__nome",
+                    "inscritos",
+                    "aprovados",
+                    uf_regiao=uf_regiao,
+                    modo=modo,
+                )
+            )
+            context["inscritos_regiao"] = df.pivot_table(
+                values="inscritos",
+                index=["evento__nome", "modo"],
+                columns="uf_regiao",
+                aggfunc="sum",
+                margins=True,
+                margins_name="Total",
+                sort=True,
+                fill_value=0,
+            ).astype(pd.Int64Dtype())
+            context["aprovados_regiao"] = df.pivot_table(
+                values="aprovados",
+                index=["evento__nome", "modo"],
+                columns="uf_regiao",
+                aggfunc="sum",
+                margins=True,
+                margins_name="Total",
+                sort=True,
+                fill_value=0,
+            ).astype(pd.Int64Dtype())
+        return context
 
 
 @login_required

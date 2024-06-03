@@ -298,6 +298,7 @@ MOODLE_STUDENT_ROLES = env("MOODLE_STUDENT_ROLES", eval, default=(5, 9))
 MOODLE_COMPLETE_CRITERIA_TYPE = env(
     "MOODLE_COMPLETE_CRITERIA_TYPE", int, default=6  # Type Grade
 )
+MOODLE_UF_CUSTOMFIELD = env("MOODLE_UF_CUSTOMFIELD", str, default="estado")
 
 # Integração com reserva de salas
 

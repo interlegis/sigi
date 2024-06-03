@@ -3,7 +3,6 @@ import pandas as pd
 import time
 from admin_auto_filters.filters import AutocompleteFilter
 from moodle import Moodle
-from typing import Any
 from django.db import models
 from django.db.models import (
     F,
@@ -23,7 +22,6 @@ from django.db.models.functions import ExtractDay, Cast
 from django.conf import settings
 from django.contrib import admin, messages
 from django.contrib.admin.utils import get_deleted_objects
-from django.core.exceptions import ValidationError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, render, redirect
 from django.template import Template, Context
@@ -53,6 +51,7 @@ from sigi.apps.eventos.models import (
     Equipe,
     Convite,
     Anexo,
+    ParticipantesEvento,
 )
 from sigi.apps.eventos.forms import EventoAdminForm, SelecionaModeloForm
 from sigi.apps.servidores.models import Servidor
@@ -358,6 +357,12 @@ class AnexoInline(admin.StackedInline):
 class CronogramaInline(admin.StackedInline):
     model = Cronograma
     extra = 0
+
+
+class ParticipantesEventoInline(admin.TabularInline):
+    model = ParticipantesEvento
+    fields = ("uf", "inscritos", "aprovados")
+    autocomplete_fields = ["uf"]
 
 
 class ItemSolicitadoInline(admin.StackedInline):
@@ -993,6 +998,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
     inlines = (
         EquipeInline,
         ConviteInline,
+        ParticipantesEventoInline,
         ModuloInline,
         AnexoInline,
         CronogramaInline,
@@ -1819,7 +1825,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
                 "startdate": inicio,
                 "enddate": fim,
             }
-            res = mws.core.course.update_courses([changes])
+            mws.core.course.update_courses([changes])
         except Exception as e:
             erros.append(
                 _(

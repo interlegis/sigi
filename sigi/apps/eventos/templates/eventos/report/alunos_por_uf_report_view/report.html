@@ -1,0 +1,35 @@
+{% extends 'utils/report/report.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style type="text/css">
+    tr.total-row td, td.total-col {
+      background: var(--darkened-bg);
+      border-top: 1px solid var(--hairline-color);
+      border-bottom: 1px solid var(--hairline-color);
+      color: var(--body-quiet-color);
+      font-size: 0.6875rem;
+      font-weight: 600;
+      line-height: normal;
+      padding: 5px 10px;
+      text-transform: uppercase;
+    }
+  </style>
+{% endblock %}
+
+{% block data %}
+  {% if not inscritos_uf is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=inscritos_uf data_title=_("Total de alunos inscritos por UF") %}
+  {% endif %}
+  {% if not aprovados_uf is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=aprovados_uf data_title=_("Total de alunos aprovados por UF") %}
+  {% endif %}
+
+  {% if not inscritos_regiao is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=inscritos_regiao data_title=_("Total de alunos inscritos por região") %}
+  {% endif %}
+  {% if not aprovados_regiao is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=aprovados_regiao data_title=_("Total de alunos aprovados por região") %}
+  {% endif %}
+{% endblock data %}

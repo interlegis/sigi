@@ -1,0 +1,83 @@
+{% extends 'utils/report/report_pdf.html' %}
+{% load i18n %}
+
+{% block extra_style %}
+  {{ block.super }}
+  tr.total-row td, td.total-col {
+    background-color: #007433;
+    border-top: 1px solid var(--hairline-color);
+    border-bottom: 1px solid var(--hairline-color);
+    color: white;
+    font-weight: 600;
+    padding: 5px 10px;
+    text-transform: uppercase;
+  }
+  .card-title {
+    font-weight: 600;
+    font-size: 1.5em;
+    margin: 20px 0;
+  }
+  table.applied-filter caption {
+    font-size: 1.2em;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-left: 4px;
+  }
+  table.applied-filter {
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 5px;
+  }
+  table.applied-filter tr {
+    background-color: white !important;
+    font-weight: 600;
+  }
+  table.applied-filter tr th {
+    text-align: left;
+    padding-right: 48px;
+    width: 20%;
+    background-color: unset !important;
+  }
+  table.applied-filter tr td {
+    width: 80%;
+    background-color: unset !important;
+    padding: 0 24px;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+{% endblock %}
+
+{% block main_content %}
+  <table class="applied-filter">
+    <caption>{% translate "Filtros aplicados" %}</caption>
+    {% for field in form %}
+      <tr>
+        <th>{{ field.label }}</th>
+        <td>
+          {% for choice in field.field.choices %}
+            {% if choice.0 in field.value %}{{ choice.1 }}, {% endif %}
+          {% empty %}
+            {{ field.value|default:"" }}
+          {% endfor %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+  <div style="height: 24px; width: 100%;"></div>
+  {% if not inscritos_uf is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=inscritos_uf data_title=_("Total de alunos inscritos por UF") %}
+    <div class="new-page">
+  {% endif %}
+  {% if not aprovados_uf is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=aprovados_uf data_title=_("Total de alunos aprovados por UF") %}
+    <div class="new-page">
+  {% endif %}
+  {% if not inscritos_regiao is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=inscritos_regiao data_title=_("Total de alunos inscritos por região") %}
+    <div class="new-page">
+  {% endif %}
+  {% if not aprovados_regiao is None %}
+    {% include 'eventos/report/alunos_por_uf_report_view/dataset_snippet.html' with dataset=aprovados_regiao data_title=_("Total de alunos aprovados por região") %}
+  {% endif %}
+
+{% endblock %}

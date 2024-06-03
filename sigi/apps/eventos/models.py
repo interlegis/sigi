@@ -14,9 +14,8 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao, Servidor
-from sigi.apps.contatos.models import Municipio
+from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.espacos.models import Reserva
-from sigi.apps.servidores.models import Servidor
 
 
 class TipoEvento(models.Model):
@@ -577,7 +576,25 @@ class Evento(models.Model):
         )
 
         aprovados = 0
+        self.participantesevento_set.update(inscritos=0, aprovados=0)
         for participante in participantes:
+            try:
+                nome_uf = [
+                    f["value"].lower()
+                    for f in participante["customfields"]
+                    if f["shortname"] == settings.MOODLE_UF_CUSTOMFIELD
+                ][0]
+                uf = UnidadeFederativa.objects.get(nome__iexact=nome_uf)
+            except (
+                IndexError,
+                UnidadeFederativa.DoesNotExist,
+                UnidadeFederativa.MultipleObjectsReturned,
+            ):
+                uf = None
+            part_uf, created = ParticipantesEvento.objects.get_or_create(
+                evento=self, uf=uf
+            )
+            part_uf.inscritos += 1
             try:
                 completion_data = mws.post(
                     "core_completion_get_course_completion_status",
@@ -599,6 +616,8 @@ class Evento(models.Model):
                 )
             ):
                 aprovados += 1
+                part_uf.aprovados += 1
+            part_uf.save()
 
         self.inscritos_saberes = len(participantes)
         self.aprovados_saberes = aprovados
@@ -935,6 +954,41 @@ class Modulo(models.Model):
 
     def __str__(self):
         return _(f"{self.nome} ({self.get_tipo_display()})")
+
+
+class ParticipantesEvento(models.Model):
+    evento = models.ForeignKey(
+        Evento, verbose_name=_("evento"), on_delete=models.CASCADE
+    )
+    uf = models.ForeignKey(
+        UnidadeFederativa,
+        verbose_name=_("uf"),
+        on_delete=models.CASCADE,
+        blank=True,
+        null=True,
+    )
+    inscritos = models.PositiveIntegerField(_("total de inscritos"), default=0)
+    aprovados = models.PositiveIntegerField(_("total de aprovados"), default=0)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint("evento", "uf", name="unique_evento_uf")
+        ]
+        verbose_name = _("Participante por UF")
+        verbose_name_plural = _("Participantes por UF")
+
+    def __str__(self):
+        if self.uf is None:
+            return _(
+                f"{self.inscritos} pessoas se inscreveram no "
+                f"evento {self.evento.nome}, tendo {self.aprovados} "
+                "pessoas aprovadas, mas não informaram a UF onde residem."
+            )
+        return _(
+            f"{self.inscritos} pessoas de {self.uf.nome} se inscreveram no "
+            f"evento {self.evento.nome}, tendo {self.aprovados} "
+            "pessoas aprovadas"
+        )
 
 
 class ModeloDeclaracao(models.Model):
