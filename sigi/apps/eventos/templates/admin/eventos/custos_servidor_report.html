@@ -1,133 +1,28 @@
-{% extends 'pdf/base_report.html' %}
-{% load static i18n sigi_tags %}
+{% extends 'utils/report/report.html' %}
+{% load i18n %}
 
-{% block page_size %}A4 landscape{% endblock page_size %}
-{% block page_margin %}3cm 1cm 2cm 1cm{% endblock page_margin %};
-
-{% block extra_style %}
-  {{ block.super }}
-  aside {
-    margin-left: 8px;
-    font-size: 0.8em;
-    color: #666;
-  }
-  blockquote {
-    margin: 12px 0 12px;
-    padding-left: 1.5rem;
-    border-left: 5px solid #ee6e73;
-    font-size: 1.4em;
-    font-weight: bold;
-  }
-  tr:nth-child(even) {
-    background-color: initial;
-  }
-  .even-row {
-    background-color: #d2d2d2 !important;
-  }
-  .sessao-resumo {
-    align-items: stretch;
-    display: flex;
-    flex-wrap: wrap;
-    width: 100%;
-    margin-top: 24px;
-  }
-  .card-resumo {
-    background-color: #eeeeef;
-    border-radius: 2px;
-    box-sizing: border-box;
-    margin: 6px;
-    flex-basis: 49%;
-    padding: 0 6px 6px 6px;
-    position: relative;
-    width: 100%;
-  }
-  .card-resumo.full {
-    flex-basis: 98%;
-  }
-
-  .index-cell {
-    width: 2em;
-    text-align: center;
-  }
-  .label-resumo {
-    min-width: 30em;
-  }
-  .timestamp-container {
-    width: 100%;
-    margin: 24px 10px;
-    border-left: 5px solid #ee6e73;
-    font-size: 1.3em;
-  }
-  .timestamp-row {
-    display: flex;
-    flex-wrap: wrap;
-    margin-bottom: 6px;
-  }
-  .timestamp-col {
-    position: relative;
-    padding-left: 15px;
-    padding-right: 15px;
-  }
-  .timestamp-label {
-    flex: 0 0 12%;
-    max-width: 12%;
-    font-weight: bold;
-  }
+{% block extrastyle %}
+{{ block.super }}
+	<style type="text/css">
+    .sessao-resumo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+    .card-resumo {
+      flex-grow: 1;
+    }
+  </style>
 {% endblock %}
 
-{% block main_content %}
-  <div class="timestamp-container">
-    <div class="timestamp-row">
-      <div class="timestamp-col timestamp-label">
-        {% trans "Data inicial" %}:
-      </div>
-      <div class="timestamp-col timestamp-data">
-        {{ data_inicio|date:"SHORT_DATE_FORMAT" }}<br/>
-      </div>
-    </div>
-    <div class="timestamp-row">
-      <div class="timestamp-col timestamp-label">
-        {% trans "Data final" %}:
-      </div>
-      <div class="timestamp-col timestamp-data">
-        {{ data_fim|date:"SHORT_DATE_FORMAT" }}
+{% block data %}
+  {% if not servidores is None %}
+  <div class="row">
+    <div class="col s12">
+      <div class="card-panel">
+        {% include "admin/eventos/custos_servidor_report_snippet.html" %}
       </div>
     </div>
   </div>
-
-  <table repeat="2">
-    <thead>
-      <tr>
-        <th>{% trans "Membro da equipe" %}</th>
-        <th>{% trans "Qtde eventos" %}</th>
-        <th>{% trans "Qtde diárias" %}</th>
-        <th>{% trans "Valor médio diária" %}</th>
-        <th>{% trans "Total diárias" %}</th>
-        <th>{% trans "Total passagens" %}</th>
-        <th>{% trans "Total" %}</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for servidor in servidores %}
-        <tr>
-          <td>{{ servidor.nome_completo }}</td>
-          <td class="right-align">{{ servidor.qtde_eventos|default:"-" }}</td>
-          <td class="right-align">{{ servidor.qtde_diarias|floatformat:2|default:"-" }}</td>
-          <td class="right-align">{{ servidor.media_diarias|floatformat:2|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_diarias|floatformat:2|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_passagens|floatformat:2|default:"-" }}</td>
-          <td class="right-align">{{ servidor.total_custo|floatformat:2|default:"-" }}</td>
-        </tr>
-      {% endfor %}
-      <tr>
-        <th class="right-align">{% trans "Totais" %}</th>
-        <th class="right-align">{{ totais.qtde_eventos|default:"-" }}</th>
-        <th class="right-align">{{ totais.qtde_diarias|floatformat:2|default:"-" }}</th>
-        <th class="right-align">{{ totais.media_diarias|floatformat:2|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_diarias|floatformat:2|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_passagens|floatformat:2|default:"-" }}</th>
-        <th class="right-align">{{ totais.total_custo|floatformat:2|default:"-" }}</th>
-      </tr>
-    </tbody>
-  </table>
-{% endblock %}
+  {% endif %}
+{% endblock data %}

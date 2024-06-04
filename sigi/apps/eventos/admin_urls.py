@@ -17,4 +17,14 @@ urlpatterns = [
         views.solicitacoes_por_periodo,
         name="eventos_solicitacoesporperiodo",
     ),
+    path(
+        "custoseventos/",
+        views.CustosEventosReport.as_view(),
+        name="eventos_custoseventos",
+    ),
+    path(
+        "custosservidor/",
+        views.CustosServidorReport.as_view(),
+        name="eventos_custosservidor",
+    ),
 ]

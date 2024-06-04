@@ -434,7 +434,7 @@ class CnpjErradoReport(
                 orgaos.append(orgao)
         return orgaos
 
-    def get_dataset(self):
+    def get_dataset(self, context):
         return (
             [
                 {f: getattr(o, f) for f in self.list_fields}

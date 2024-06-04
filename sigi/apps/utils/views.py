@@ -85,7 +85,7 @@ class ReportListView(ListView):
 
     def render_to_response(self, context, **response_kwargs):
         if self._is_csv():
-            dataset, fieldnames = self.get_dataset()
+            dataset, fieldnames = self.get_dataset(context)
             response = HttpResponse(content_type="text/csv")
             response["Content-Disposition"] = (
                 f'attachment; filename="{self.get_filename()}.csv"'
@@ -119,7 +119,7 @@ class ReportListView(ListView):
                 form = self.filter_form(self.request.GET)
         return form
 
-    def get_dataset(self):
+    def get_dataset(self, context):
         return (
             self.get_queryset().values(*self.list_fields),
             self.list_fields,

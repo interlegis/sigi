@@ -40,6 +40,10 @@ main_menu:
         view_name: eventos_eventosporuf
       - title: Alunos por UF
         view_name: eventos_alunosporuf
+      - title: Custos por evento
+        view_name: eventos_custoseventos
+      - title: Custos por servidor
+        view_name: eventos_custosservidor
       - title: Solicitações de eventos por período
         view_name: eventos_solicitacoesporperiodo
       - title: Calendário de eventos
