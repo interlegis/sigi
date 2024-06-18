@@ -1,11 +1,21 @@
 import string
 from math import log10
 from django import forms
-from django.db.models import Q
 from django.contrib import admin
 from django.contrib.admin.options import IncorrectLookupParameters
-from django.utils.translation import ngettext, gettext as _
+from django.contrib.admin.utils import (
+    build_q_object_from_lookup_parameters,
+    prepare_lookup_value,
+)
 from django.core.exceptions import ValidationError
+from django.utils.translation import ngettext, gettext as _
+
+
+def filter_single_value(value):
+    if isinstance(value, list):
+        return value[0]
+    else:
+        return value
 
 
 class NotEmptyableField(Exception):
@@ -14,7 +24,7 @@ class NotEmptyableField(Exception):
 
 class AlphabeticFilter(admin.SimpleListFilter):
     title = ""
-    parameter_name = ""
+    parameter_name = None
 
     def lookups(self, request, model_admin):
         return (
@@ -26,10 +36,13 @@ class AlphabeticFilter(admin.SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
-        if self.value():
-            return queryset.filter(
-                (self.parameter_name + "__istartswith", self.value())
+        if self.value() is not None:
+            queryset = queryset.filter(
+                build_q_object_from_lookup_parameters(
+                    {self.parameter_name + "__istartswith": self.value()}
+                )
             )
+        return queryset
 
 
 class RangeFilter(admin.FieldListFilter):
@@ -45,9 +58,6 @@ class RangeFilter(admin.FieldListFilter):
             field, request, params, model, model_admin, field_path
         )
 
-        if self.parameter_name in params:
-            value = params.pop(self.parameter_name)
-            self.used_parameters[self.parameter_name] = value
         lookup_choices = self.lookups(request, model_admin)
 
         if lookup_choices is None:
@@ -65,10 +75,10 @@ class RangeFilter(admin.FieldListFilter):
             value = tudo[i * passo]
             if value > 100:
                 if value > 1000:
-                    l = int(log10(value))
+                    log_val = int(log10(value))
                 else:
-                    l = int(log10(value)) - 1
-                value = value // (10**l) * (10**l)
+                    log_val = int(log10(value)) - 1
+                value = value // (10**log_val) * (10**log_val)
             yield (i, ultimo, value)
             ultimo = value
 
@@ -78,18 +88,18 @@ class RangeFilter(admin.FieldListFilter):
         def humanize(num):
             if num < 1000:
                 return num
-            l = int(log10(num))
-            if l < 6:
+            log_val = int(log10(num))
+            if log_val < 6:
                 return ngettext(
                     f"{num//10**3} mil", f"{num//10**3} mil", num // 10**3
                 )
-            elif l < 9:
+            elif log_val < 9:
                 return ngettext(
                     f"{num//10**6} milhão",
                     f"{num//10**6} milhões",
                     num // 10**6,
                 )
-            elif l < 12:
+            elif log_val < 12:
                 return ngettext(
                     f"{num//10**9} bilhão",
                     f"{num//10**9} bilhões",
@@ -114,7 +124,10 @@ class RangeFilter(admin.FieldListFilter):
         return self.model.objects.exists()
 
     def value(self):
-        return self.used_parameters.get(self.parameter_name)
+        value = self.used_parameters.get(self.parameter_name)
+        if isinstance(value, list):
+            return value[-1]
+        return value
 
     def expected_parameters(self):
         return [
@@ -131,7 +144,7 @@ class RangeFilter(admin.FieldListFilter):
         }
         for lookup, title in self.lookup_choices:
             yield {
-                "selected": self.value() == str(lookup),
+                "selected": str(lookup) == self.value(),
                 "query_string": changelist.get_query_string(
                     {self.parameter_name: lookup}
                 ),
@@ -141,7 +154,7 @@ class RangeFilter(admin.FieldListFilter):
     def queryset(self, request, queryset):
         try:
             for value, min, max in self.ranges(self.model):
-                if self.value() == str(value):
+                if str(value) == self.value():
                     return queryset.filter(
                         (f"{self.field_path}__gte", min),
                         (f"{self.field_path}__lt", max),
@@ -159,15 +172,20 @@ class DateRangeFilter(admin.FieldListFilter):
         self.model = model
         self.model_admin = model_admin
         self.lookup_kwargs = [f"{field_path}__gte", f"{field_path}__lte"]
-
+        form_data = {}
+        for p in self.expected_parameters():
+            if p in params:
+                value = params.pop(p)[-1]
+                form_data[p] = prepare_lookup_value(
+                    p, value, self.list_separator
+                )
         super().__init__(
             field, request, params, model, model_admin, field_path
         )
-
-        form = self.get_date_form(self.used_parameters)
+        form = self.get_date_form(form_data)
         if form.is_valid():
             self.used_parameters = {
-                key: value
+                key: [value]
                 for key, value in form.cleaned_data.items()
                 if value is not None
             }
@@ -181,12 +199,15 @@ class DateRangeFilter(admin.FieldListFilter):
         return self.lookup_kwargs
 
     def choices(self, changelist):
+        form_params = {
+            key: value[-1] for key, value in self.used_parameters.items()
+        }
         return [
             {
                 "query_string": changelist.get_query_string(
                     remove=self.lookup_kwargs
                 ),
-                "form": self.get_date_form(self.used_parameters, changelist),
+                "form": self.get_date_form(form_params, changelist),
             }
         ]
 
@@ -201,13 +222,15 @@ class DateRangeFilter(admin.FieldListFilter):
                         "placeholder": (
                             _("De") if "__gte" in name else _("Até")
                         ),
-                        "data-clear": changelist.get_query_string(
-                            remove=[
-                                name,
-                            ]
-                        )
-                        if changelist
-                        else "",
+                        "data-clear": (
+                            changelist.get_query_string(
+                                remove=[
+                                    name,
+                                ]
+                            )
+                            if changelist
+                            else ""
+                        ),
                     }
                 ),
             )

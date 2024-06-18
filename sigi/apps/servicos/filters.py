@@ -4,24 +4,15 @@ from django.contrib import admin
 
 
 class ServicoAtivoFilter(admin.FieldListFilter):
-    parameter_name = None
-
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.model = model
         self.model_admin = model_admin
         self.parameter_name = f"{field_path}__isnull"
-
         super().__init__(
             field, request, params, model, model_admin, field_path
         )
-
         self.title = _("Serviço ativo")
-
-        if self.parameter_name in params:
-            value = params.pop(self.parameter_name)
-            self.used_parameters[self.parameter_name] = value
         lookup_choices = self.lookups(request, model_admin)
-
         if lookup_choices is None:
             lookup_choices = ()
         self.lookup_choices = list(lookup_choices)
@@ -41,8 +32,11 @@ class ServicoAtivoFilter(admin.FieldListFilter):
         ]
 
     def choices(self, changelist):
+        value = self.value()
+        if isinstance(value, list):
+            value = value[-1]
         yield {
-            "selected": self.value() is None,
+            "selected": value is None,
             "query_string": changelist.get_query_string(
                 remove=[self.parameter_name]
             ),
@@ -50,7 +44,7 @@ class ServicoAtivoFilter(admin.FieldListFilter):
         }
         for lookup, title in self.lookup_choices:
             yield {
-                "selected": str(self.value()) == str(lookup),
+                "selected": str(value) == str(lookup),
                 "query_string": changelist.get_query_string(
                     {self.parameter_name: lookup}
                 ),
@@ -77,32 +71,23 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
         if self.value() is not None:
             queryset = queryset.exclude(tipo_servico__string_pesquisa="")
             if self.value() == "err":
-                queryset = queryset.exclude(erro_atualizacao="")
-            elif self.value() == "year":
+                return queryset.exclude(erro_atualizacao="")
+            if self.value() == "year":
                 limite = date.today() - timedelta(days=366)
-                queryset = queryset.filter(data_ultimo_uso__lte=limite)
-            else:
-                de = date.today() - (
-                    timedelta(days=365)
-                    if self.value() == "semester"
-                    else timedelta(days=6 * 30)
-                    if self.value() == "quarter"
-                    else timedelta(days=3 * 30)
-                    if self.value() == "month"
-                    else timedelta(days=30)
-                    if self.value() == "week"
-                    else timedelta(days=6)
-                )
-                ate = date.today() - (
-                    timedelta(days=6 * 30 + 1)
-                    if self.value() == "semester"
-                    else timedelta(days=3 * 30 + 1)
-                    if self.value() == "quarter"
-                    else timedelta(days=31)
-                    if self.value() == "month"
-                    else timedelta(days=7)
-                    if self.value() == "week"
-                    else timedelta(days=0)
-                )
-                queryset = queryset.filter(data_ultimo_uso__range=(de, ate))
-        return queryset
+                return queryset.filter(data_ultimo_uso__lte=limite)
+            if self.value() == "updated":
+                limite = date.today() - timedelta(days=7)
+                return queryset.filter(data_ultimo_uso__gte=limite)
+            if self.value() == "semester":
+                de = date.today() - timedelta(days=365)
+                ate = date.today() - timedelta(days=6 * 30 + 1)
+            elif self.value() == "quarter":
+                de = date.today() - timedelta(days=6 * 30)
+                ate = date.today() - timedelta(days=3 * 30 + 1)
+            elif self.value() == "month":
+                de = date.today() - timedelta(days=3 * 30)
+                ate = date.today() - timedelta(days=31)
+            elif self.value() == "week":
+                de = date.today() - timedelta(days=30)
+                ate = date.today() - timedelta(days=7)
+            return queryset.filter(data_ultimo_uso__range=(de, ate))

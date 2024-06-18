@@ -80,6 +80,7 @@ class ActVigenteFilter(admin.SimpleListFilter):
             return queryset.exclude(act_id=None)
         if self.value() == "no":
             return queryset.filter(act_id=None)
+        return queryset
 
 
 class NumeroParticipantesFilter(admin.SimpleListFilter):
@@ -102,6 +103,7 @@ class NumeroParticipantesFilter(admin.SimpleListFilter):
             return queryset.annotate(
                 diferenca=F("inscritos_saberes") - F("aprovados_saberes")
             ).filter(diferenca__gte=10)
+        return queryset
 
 
 class MicrorregiaoFilter(AutocompleteFilter):

@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.contrib.admin.utils import build_q_object_from_lookup_parameters
 from django.utils.translation import gettext as _
 from sigi.apps.convenios.models import Projeto
 
@@ -49,13 +50,16 @@ class TipoProjetoFilter(admin.FieldListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            if value == "SC":
+            if value[-1] == "SC":
                 queryset = queryset.filter(**{self.field_path: None})
-            elif value == "CC":
+            elif value[-1] == "CC":
                 queryset = queryset.exclude(**{self.field_path: None})
             else:
-                queryset = queryset.filter(**{self.field_path: value})
-
+                queryset = queryset.filter(
+                    build_q_object_from_lookup_parameters(
+                        {self.field_path: value}
+                    )
+                )
         return queryset
 
 
@@ -103,5 +107,7 @@ class ExcluirTipoProjetoFilter(admin.FieldListFilter):
     def queryset(self, request, queryset):
         value = self.value()
         if value is not None:
-            queryset = queryset.exclude(**{self.field_path: value})
+            queryset = queryset.exclude(
+                build_q_object_from_lookup_parameters({self.field_path: value})
+            )
         return queryset
