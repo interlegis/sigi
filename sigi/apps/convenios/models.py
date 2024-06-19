@@ -6,6 +6,7 @@ from pathlib import Path
 from django.db import models
 from django.db.models import Q, F
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.exceptions import ValidationError, NON_FIELD_ERRORS
 from django.core.mail import send_mail
 from django.core.validators import FileExtensionValidator
 from django.template import Template, Context
@@ -406,10 +407,59 @@ class Convenio(models.Model):
             return self.anexo_set.first().arquivo.url
         return ""
 
+    def clean(self):
+        # Gertiq #184827
+        if self.num_convenio:
+            if (
+                self.data_retorno_assinatura is None
+                or self.data_termino_vigencia is None
+            ):
+                errors = {
+                    NON_FIELD_ERRORS: ValidationError(
+                        _(
+                            "Um convênio vigente precisa ter as datas de "
+                            "início e término de vigência"
+                        )
+                    )
+                }
+                if self.data_retorno_assinatura is None:
+                    errors["data_retorno_assinatura"] = ValidationError(
+                        _("Obrigatório para convênios vigentes")
+                    )
+                if self.data_termino_vigencia is None:
+                    errors["data_termino_vigencia"] = ValidationError(
+                        _("Obrigatório para convênios vigentes")
+                    )
+                raise ValidationError(errors)
+        else:
+            if (
+                self.data_retorno_assinatura is not None
+                or self.data_termino_vigencia is not None
+            ):
+                errors = {
+                    NON_FIELD_ERRORS: ValidationError(
+                        _(
+                            "Um convênio pendente não pode ter datas de "
+                            "início e término de vigência"
+                        )
+                    )
+                }
+                if self.data_retorno_assinatura is not None:
+                    errors["data_retorno_assinatura"] = ValidationError(
+                        _("Não pode ser preenchido para convênios pendentes")
+                    )
+                if self.data_termino_vigencia is not None:
+                    errors["data_termino_vigencia"] = ValidationError(
+                        _("Não pode ser preenchido para convênios pendentes")
+                    )
+                raise ValidationError(errors)
+
+        return super().clean()
+
     def save(self, *args, **kwargs):
         self.conveniada = self.data_retorno_assinatura is not None
         self.equipada = self.data_termo_aceite is not None
-        super(Convenio, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     class Meta:
         get_latest_by = "id"
