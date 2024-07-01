@@ -30,4 +30,4 @@ django-localflavor==4.0
 django-material-admin==1.8.6
 django-tinymce==4.0.0
 django-weasyprint==2.3.0
-djangorestframework==3.15.1
+djangorestframework==3.15.2
