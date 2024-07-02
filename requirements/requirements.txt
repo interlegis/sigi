@@ -28,6 +28,6 @@ django-filter==24.2
 django-import-export==3.3.9
 django-localflavor==4.0
 django-material-admin==1.8.6
-django-tinymce==4.0.0
+django-tinymce==4.1.0
 django-weasyprint==2.3.0
 djangorestframework==3.15.1
