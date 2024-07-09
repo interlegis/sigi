@@ -43,7 +43,10 @@ def dashboard(request):
     if request.path != reverse("admin:index"):
         return {}
     my_dash = get_or_create_dash(request.user)
-    selected = request.GET.get("dash", my_dash[0]["slug"])
+    if my_dash:
+        selected = request.GET.get("dash", my_dash[0]["slug"])
+    else:
+        selected = ""
     return {
         "sigi_dashes": my_dash,
         "sigi_dash_selected": selected,
