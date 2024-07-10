@@ -42,6 +42,8 @@ def multiply(value, arg):
 def valueof(obj, attr_name):
     if hasattr(obj, attr_name):
         return getattr(obj, attr_name)
+    if attr_name in obj:
+        return obj[attr_name]
     if isinstance(obj, models.Model):
         for part in attr_name.split("__"):
             obj = getattr(obj, part)
