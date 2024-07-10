@@ -2,7 +2,8 @@ import calendar
 import locale
 from typing import Any
 from django import http
-from django.db.models import Q, Count, Prefetch
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db.models import Q, Count, Sum, Avg, Prefetch
 from django.utils import timezone
 from django.utils.translation import (
     to_locale,
@@ -13,6 +14,7 @@ from django.views.generic.base import TemplateView
 from sigi.apps.espacos.models import Espaco, Reserva
 from sigi.apps.espacos.forms import UsoEspacoReportForm
 from sigi.apps.utils.mixins import ReportViewMixin, StaffMemberRequiredMixin
+from sigi.apps.utils.views import ReportListView
 
 
 class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
@@ -138,7 +140,6 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
     pdf_template_name = "espacos/uso_espaco_pdf.html"
     report_title = _("Uso dos espaços - Auditórios e Salas")
     pagesize = "A4 landscape"
-    attachment = False
 
     def get_context_data(self, **kwargs):
         form = UsoEspacoReportForm(self.request.GET)
@@ -212,3 +213,64 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         )
 
         return context
+
+
+class ResumoReservasReport(
+    LoginRequiredMixin, StaffMemberRequiredMixin, ReportListView
+):
+    title = _("Resumo das reservas de espaços")
+    empty_message = _(
+        "Nenhuma reserva de espaço para os parâmetros solicitados"
+    )
+    filter_form = UsoEspacoReportForm
+    queryset = Reserva.objects.all()
+    list_fields = [
+        "espaco__nome",
+        "tot_reservas",
+        "tot_eventos",
+        "tot_participantes",
+        "media_participantes",
+    ]
+    list_labels = [
+        "Espaço",
+        "Total de reservas",
+        "Vinculadas a eventos Interlegis",
+        "total de participantes",
+        "Média de participantes",
+    ]
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = (
+            queryset.order_by("espaco__nome")
+            .values("espaco__nome")
+            .annotate(
+                tot_reservas=Count("id"),
+                tot_eventos=Count("evento"),
+                tot_participantes=Sum("total_participantes"),
+                media_participantes=Avg("total_participantes"),
+            )
+        )
+        return queryset
+
+    def filter_queryset(self, queryset):
+        form = self.get_filter_form_instance()
+        if form:
+            if form.is_valid():
+                filter = form.cleaned_data
+            else:
+                filter = self.filter_form_initials
+            if filter:
+                data_inicio = filter.get("data_inicio")
+                data_fim = filter.get("data_fim")
+                virtual = filter.get("virtual")
+                espaco = filter.get("espaco")
+                queryset = queryset.filter(
+                    data_inicio__range=(data_inicio, data_fim)
+                )
+                if virtual == UsoEspacoReportForm.VIRTUAL_VIRTUAL:
+                    queryset = queryset.filter(virtual=True)
+                elif virtual == UsoEspacoReportForm.VIRTUAL_PRESENCIAL:
+                    queryset = queryset.filter(virtual=False)
+                queryset = queryset.filter(espaco__in=espaco)
+        return queryset

@@ -1,0 +1,14 @@
+{% extends "utils/report/report.html" %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style type="text/css">
+    .cellnumber {
+      text-align: right;
+    }
+  </style>
+{% endblock %}
+
+{% block data %}
+  {% include "espacos/report/resumo_reservas_report/report_items_snippet.html" with mode="html" %}
+{% endblock data %}

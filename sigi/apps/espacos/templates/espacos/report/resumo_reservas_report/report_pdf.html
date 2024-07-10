@@ -1,0 +1,39 @@
+{% extends "utils/report/report_pdf.html" %}
+{% load static i18n %}
+
+{% block page_size %}A4 portrait{% endblock %}
+
+{% block extra_style %}
+  {{ block.super }}
+  .cellnumber {
+    text-align: right;
+  }
+{% endblock %}
+
+{% block main_content %}
+  <div class="card">
+    <h5>Filtros</h5>
+    <table>
+      <tr>
+        <th>{% translate "Período" %}</th>
+        <td>
+          {% blocktranslate with data_inicio=form.data.data_inicio data_fim=form.data.data_fim %}
+            de {{ data_inicio }} a {{ data_fim }}
+          {% endblocktranslate %}
+        </td>
+      </tr>
+      {% if form.virtual != "A" %}
+        <tr>
+          <th>{% translate "Modo" %}</th>
+          <td>
+            {% if form.virtual == "V" %}
+              {% translate "Apenas virtual" %}
+            {% else %}
+              {% translate "Apenas presencial" %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endif %}
+  </div>
+	{% include "espacos/report/resumo_reservas_report/report_items_snippet.html" %}
+{% endblock %}
