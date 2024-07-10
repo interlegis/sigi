@@ -18,7 +18,7 @@ requests==2.32.3
 uritemplate==4.1.1
 weasyprint==62.2
 XlsxWriter==3.2.0
-Django==5.0.6
+Django==5.0.7
 django-admin-autocomplete-filter==0.7.1
 django-auth-ldap==4.8.0
 django-debug-toolbar==4.4.2
