@@ -55,6 +55,8 @@ main_menu:
         view_name: espacos_agenda
       - title: Uso dos espaços
         view_name: espacos_usoespaco
+      - title: Resumo das reservas de espaços
+        view_name: espacos_resumoreservas
         separator: [after,]
       - title: Lista de gerentes
         view_name: casas_gerentes
