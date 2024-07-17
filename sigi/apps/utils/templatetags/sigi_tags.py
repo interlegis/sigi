@@ -48,3 +48,8 @@ def valueof(obj, attr_name):
         for part in attr_name.split("__"):
             obj = getattr(obj, part)
         return str(obj)
+
+
+@register.filter
+def has_errors(obj):
+    return any([obj.form.has_error(field_name) for field_name in obj.fields])

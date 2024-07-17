@@ -422,14 +422,6 @@ class Convenio(models.Model):
                         )
                     )
                 }
-                if self.data_retorno_assinatura is None:
-                    errors["data_retorno_assinatura"] = ValidationError(
-                        _("Obrigatório para convênios vigentes")
-                    )
-                if self.data_termino_vigencia is None:
-                    errors["data_termino_vigencia"] = ValidationError(
-                        _("Obrigatório para convênios vigentes")
-                    )
                 raise ValidationError(errors)
         else:
             if (
@@ -444,16 +436,7 @@ class Convenio(models.Model):
                         )
                     )
                 }
-                if self.data_retorno_assinatura is not None:
-                    errors["data_retorno_assinatura"] = ValidationError(
-                        _("Não pode ser preenchido para convênios pendentes")
-                    )
-                if self.data_termino_vigencia is not None:
-                    errors["data_termino_vigencia"] = ValidationError(
-                        _("Não pode ser preenchido para convênios pendentes")
-                    )
                 raise ValidationError(errors)
-
         return super().clean()
 
     def save(self, *args, **kwargs):

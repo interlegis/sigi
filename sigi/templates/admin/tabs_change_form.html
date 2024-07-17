@@ -1,5 +1,5 @@
 {% extends "admin/change_form.html" %}
-{% load i18n %}
+{% load i18n sigi_tags %}
 
 {% block extrastyle %}
   {{ block.super }}
@@ -14,12 +14,22 @@
   {% endblock %}
 
 {% block form_top %}
+<p class="errornote">
+  {% if errors|length > 0 %}
+    {% translate "As abas com erro estão marcadas com " %}
+    <i class="material-icons">error</i>
+  {% endif %}
+</p>
+
 <div class="row">
   <div class="col s12">
     <ul class="tabs">
       {% for fieldset in adminform %}
       <li class="tab">
         <a href="#{{ fieldset.name|default:'geral'|slugify }}">
+          {% if fieldset|has_errors %}
+            <i class="material-icons">error</i>
+          {% endif %}
           {{ fieldset.name|default:_("Geral") }}
         </a>
       </li>
@@ -27,6 +37,9 @@
       {% for inline_admin_formset in inline_admin_formsets %}
       <li class="tab">
         <a href="#{{ inline_admin_formset.opts.verbose_name_plural|slugify }}">
+          {% if inline_admin_formset.formset.total_error_count > 0 %}
+            <i class="material-icons">error</i>
+          {% endif %}
           {{ inline_admin_formset.opts.verbose_name_plural|default:_("inline") }}
         </a>
       </li>
