@@ -1,4 +1,8 @@
+from typing import Any
+from django.db.models.query import QuerySet
+from django.http import HttpRequest
 from email_validator import validate_email, EmailNotValidError
+from django.db.models import F
 from django.contrib import admin
 from django.contrib.contenttypes.admin import GenericTabularInline
 from django.template.loader import render_to_string
@@ -205,20 +209,30 @@ class ConveniosInline(admin.TabularInline):
     show_change_link = True
     can_delete = False
 
+    def get_queryset(self, request: HttpRequest):
+        return (
+            super()
+            .get_queryset(request)
+            .order_by(
+                F("data_retorno_assinatura").desc(nulls_last=True),
+                F("data_termino_vigencia").desc(nulls_last=True),
+            )
+        )
+
     @admin.display(description=_("Status do convênio"))
     def status_convenio(self, obj):
         if obj.pk is None:
             return ""
         status = obj.get_status()
         if status in ["Vencido", "Desistência", "Cancelado", "Extinto"]:
-            label = r"danger"
+            label = r"red lighten-3"
         elif status == "Vigente":
-            label = r"success"
+            label = r"green lighten-3"
         elif status == "Pendente":
-            label = r"warning"
+            label = r"deep-orange lighten-3"
         else:
-            label = r"info"
-        return mark_safe(f'<p class="label label-{label}">{status}</p>')
+            label = r""
+        return mark_safe(f'<p class="{label}">{status}</p>')
 
     @admin.display(description=_("Ver no SIGAD"))
     def link_sigad(self, obj):
