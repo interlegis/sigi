@@ -119,6 +119,7 @@ class HomeView(LoginRequiredMixin, TemplateView):
     template_name = "home/public_site/index.html"
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         user = self.request.user
         casa_id = self.request.GET.get(
             "id", self.request.session.get("casa_id", None)
@@ -136,18 +137,17 @@ class HomeView(LoginRequiredMixin, TemplateView):
                 casa = None
         if casa:
             self.request.session["casa_id"] = casa.id
-            ocorrencias = casa.ocorrencia_set.filter(
+            context["ocorrencias"] = casa.ocorrencia_set.filter(
                 status__in=[
                     Ocorrencia.STATUS_ABERTO,
                     Ocorrencia.STATUS_REABERTO,
                 ]
+            )[:5]
+            context["servicos"] = casa.servico_set.filter(
+                data_desativacao=None
             )
-            servicos = casa.servico_set.filter(data_desativacao=None)
-        context = super().get_context_data(**kwargs)
         context["casas"] = casas.values()
         context["casa"] = casa
-        context["ocorrencias"] = ocorrencias[:5]
-        context["servicos"] = servicos
         return context
 
 
@@ -1253,7 +1253,7 @@ def busca_informacoes_camara(tipos=["CM"], label_tipo=_("Câmaras Municipais")):
 
     df = (
         pd.DataFrame.from_dict(dataset, orient="index")
-        .replace(np.NaN, 0)
+        .replace(np.nan, 0)
         .convert_dtypes()
     )
 

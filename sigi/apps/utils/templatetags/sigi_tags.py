@@ -40,14 +40,18 @@ def multiply(value, arg):
 
 @register.filter
 def valueof(obj, attr_name):
-    if hasattr(obj, attr_name):
-        return getattr(obj, attr_name)
-    if attr_name in obj:
-        return obj[attr_name]
-    if isinstance(obj, models.Model):
-        for part in attr_name.split("__"):
-            obj = getattr(obj, part)
-        return str(obj)
+    try:
+        if hasattr(obj, attr_name):
+            return getattr(obj, attr_name)
+        if isinstance(obj, models.Model):
+            for part in attr_name.split("__"):
+                obj = getattr(obj, part)
+            return str(obj)
+        if attr_name in obj:
+            return obj[attr_name]
+    except:
+        pass
+    return None
 
 
 @register.filter
