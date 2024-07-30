@@ -9,6 +9,9 @@ from django.utils.formats import localize
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import timedelta
 
 
 class SigiAlert(models.Model):
@@ -57,6 +60,34 @@ class Cronjob(models.Model):
             "na base de dados. Zero significa que o log jamais será apagado."
         ),
         default=30,
+    )
+
+    destinatario_email = models.TextField(
+        _("destinatário(s) de e-mail"),
+        help_text=_("Insira um endereço de e-mail por linha."),
+        blank=True,
+    )
+
+    def get_emails_list(self):
+        return [
+            email.strip()
+            for email in self.destinatario_email.splitlines()
+            if email.strip()
+        ]
+
+    def __str__(self):
+        return f"Destinatários: {', '.join(self.get_emails_list())}"
+
+    DIGEST_CHOICES = [
+        ("N", _("Enviar sem digest")),
+        ("D", _("Enviar com digest diário")),
+        ("S", _("Enviar com digest semanal")),
+    ]
+    digest = models.CharField(
+        _("digest"),
+        max_length=1,
+        choices=DIGEST_CHOICES,
+        default="N",
     )
 
     class Meta:
@@ -147,6 +178,7 @@ class JobSchedule(models.Model):
     resultado = models.TextField(
         _("resultado da execução"), blank=True, editable=False
     )
+    enviado = models.BooleanField(_("enviado"), default=False)
 
     class Meta:
         ordering = ("-iniciar",)
@@ -189,6 +221,59 @@ class JobSchedule(models.Model):
         self.status = JobSchedule.STATUS_CONCLUIDO
         self.tempo_gasto = timezone.localtime() - self.iniciado
         self.save()
+
+        if self.job.destinatario_email == "":
+            return
+
+        if self.job.digest == "N":
+            send_mail(
+                subject=f"JOB: {self.job.job_name}",
+                message=self.resultado,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=self.resultado,
+            )
+            self.enviado = True
+            self.save()
+
+        elif self.job.digest == "D":
+            self.send_digest_email(frequency="daily")
+
+        elif self.job.digest == "S":
+            self.send_digest_email(frequency="weekly")
+
+    def send_digest_email(self, frequency):
+        """Envia email de digest diário ou semanal."""
+        now = timezone.localtime()
+        if frequency == "daily":
+            start_time = now - timedelta(days=1)
+        elif frequency == "weekly":
+            start_time = now - timedelta(weeks=1)
+        else:
+            raise ValueError("Invalid frequency for digest email.")
+
+        job_schedules = JobSchedule.objects.filter(
+            job=self.job,
+            status=JobSchedule.STATUS_CONCLUIDO,
+            iniciado__gte=start_time,
+            enviado=False,
+        )
+
+        if job_schedules.exists():
+            message = "\n\n".join(
+                [f"{js.iniciado}: {js.resultado}" for js in job_schedules]
+            )
+            send_mail(
+                subject=f"Digest JOB: {self.job.job_name} ({frequency})",
+                message=message,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=message,
+            )
+
+            job_schedules.update(enviado=True)
 
 
 class Config(models.Model):
