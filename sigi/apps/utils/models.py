@@ -38,6 +38,17 @@ class SigiAlert(models.Model):
 
 
 class Cronjob(models.Model):
+    DIGEST_CHOICES = [
+        ("N", _("Enviar sem digest")),
+        ("D", _("Enviar com digest diário")),
+        ("S", _("Enviar com digest semanal")),
+    ]
+    digest = models.CharField(
+        _("digest"),
+        max_length=1,
+        choices=DIGEST_CHOICES,
+        default="N",
+    )
     app_name = models.CharField(_("app"), max_length=100, editable=False)
     job_name = models.CharField(_("job"), max_length=100, editable=False)
     expressao_cron = models.CharField(
@@ -77,18 +88,6 @@ class Cronjob(models.Model):
 
     def __str__(self):
         return f"Destinatários: {', '.join(self.get_emails_list())}"
-
-    DIGEST_CHOICES = [
-        ("N", _("Enviar sem digest")),
-        ("D", _("Enviar com digest diário")),
-        ("S", _("Enviar com digest semanal")),
-    ]
-    digest = models.CharField(
-        _("digest"),
-        max_length=1,
-        choices=DIGEST_CHOICES,
-        default="N",
-    )
 
     class Meta:
         ordering = ("app_name", "job_name")
@@ -246,24 +245,45 @@ class JobSchedule(models.Model):
     def send_digest_email(self, frequency):
         """Envia email de digest diário ou semanal."""
         now = timezone.localtime()
+
+        # Definir horário estático
+        send_time = timezone.datetime.min.time()  # Meia-noite
+        today = now.date()
+
         if frequency == "daily":
-            start_time = now - timedelta(days=1)
+            # Verifica se é meia-noite
+            if now.time() != send_time:
+                return
+
+            # Definir início do período como o dia anterior
+            period_start = today - timedelta(days=1)
+
         elif frequency == "weekly":
-            start_time = now - timedelta(weeks=1)
+            # Verifica se é segunda-feira e se é meia-noite
+            if today.weekday() != 0 or now.time() != send_time:
+                return
+
+            # Define o início do período como segunda-feira da semana passada
+            period_start = today - timedelta(days=7)
+
         else:
             raise ValueError("Invalid frequency for digest email.")
 
         job_schedules = JobSchedule.objects.filter(
             job=self.job,
             status=JobSchedule.STATUS_CONCLUIDO,
-            iniciado__gte=start_time,
+            iniciado__gte=period_start,
             enviado=False,
         )
 
         if job_schedules.exists():
-            message = "\n\n".join(
-                [f"{js.iniciado}: {js.resultado}" for js in job_schedules]
-            )
+            message_lines = []
+            for js in job_schedules:
+                message_lines.append(
+                    f"{localize(js.iniciado)}: {js.resultado}"
+                )
+            message = "\n\n".join(message_lines)
+
             send_mail(
                 subject=f"Digest JOB: {self.job.job_name} ({frequency})",
                 message=message,
