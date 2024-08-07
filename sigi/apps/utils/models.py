@@ -9,6 +9,9 @@ from django.utils.formats import localize
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import timedelta
 
 
 class SigiAlert(models.Model):
@@ -35,6 +38,17 @@ class SigiAlert(models.Model):
 
 
 class Cronjob(models.Model):
+    DIGEST_CHOICES = [
+        ("N", _("Enviar sem digest")),
+        ("D", _("Enviar com digest diário")),
+        ("S", _("Enviar com digest semanal")),
+    ]
+    digest = models.CharField(
+        _("digest"),
+        max_length=1,
+        choices=DIGEST_CHOICES,
+        default="N",
+    )
     app_name = models.CharField(_("app"), max_length=100, editable=False)
     job_name = models.CharField(_("job"), max_length=100, editable=False)
     expressao_cron = models.CharField(
@@ -58,6 +72,22 @@ class Cronjob(models.Model):
         ),
         default=30,
     )
+
+    destinatario_email = models.TextField(
+        _("destinatário(s) de e-mail"),
+        help_text=_("Insira um endereço de e-mail por linha."),
+        blank=True,
+    )
+
+    def get_emails_list(self):
+        return [
+            email.strip()
+            for email in self.destinatario_email.splitlines()
+            if email.strip()
+        ]
+
+    def __str__(self):
+        return f"Destinatários: {', '.join(self.get_emails_list())}"
 
     class Meta:
         ordering = ("app_name", "job_name")
@@ -147,6 +177,7 @@ class JobSchedule(models.Model):
     resultado = models.TextField(
         _("resultado da execução"), blank=True, editable=False
     )
+    enviado = models.BooleanField(_("enviado"), default=False)
 
     class Meta:
         ordering = ("-iniciar",)
@@ -189,6 +220,80 @@ class JobSchedule(models.Model):
         self.status = JobSchedule.STATUS_CONCLUIDO
         self.tempo_gasto = timezone.localtime() - self.iniciado
         self.save()
+
+        if self.job.destinatario_email == "":
+            return
+
+        if self.job.digest == "N":
+            send_mail(
+                subject=f"JOB: {self.job.job_name}",
+                message=self.resultado,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=self.resultado,
+            )
+            self.enviado = True
+            self.save()
+
+        elif self.job.digest == "D":
+            self.send_digest_email(frequency="daily")
+
+        elif self.job.digest == "S":
+            self.send_digest_email(frequency="weekly")
+
+    def send_digest_email(self, frequency):
+        """Envia email de digest diário ou semanal."""
+        now = timezone.localtime()
+
+        # Definir horário estático
+        send_time = timezone.datetime.min.time()  # Meia-noite
+        today = now.date()
+
+        if frequency == "daily":
+            # Verifica se é meia-noite
+            if now.time() != send_time:
+                return
+
+            # Definir início do período como o dia anterior
+            period_start = today - timedelta(days=1)
+
+        elif frequency == "weekly":
+            # Verifica se é segunda-feira e se é meia-noite
+            if today.weekday() != 0 or now.time() != send_time:
+                return
+
+            # Define o início do período como segunda-feira da semana passada
+            period_start = today - timedelta(days=7)
+
+        else:
+            raise ValueError("Invalid frequency for digest email.")
+
+        job_schedules = JobSchedule.objects.filter(
+            job=self.job,
+            status=JobSchedule.STATUS_CONCLUIDO,
+            iniciado__gte=period_start,
+            enviado=False,
+        )
+
+        if job_schedules.exists():
+            message_lines = []
+            for js in job_schedules:
+                message_lines.append(
+                    f"{localize(js.iniciado)}: {js.resultado}"
+                )
+            message = "\n\n".join(message_lines)
+
+            send_mail(
+                subject=f"Digest JOB: {self.job.job_name} ({frequency})",
+                message=message,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=message,
+            )
+
+            job_schedules.update(enviado=True)
 
 
 class Config(models.Model):
