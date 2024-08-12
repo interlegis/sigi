@@ -67,6 +67,7 @@ class CronjobAdmin(admin.ModelAdmin):
         "get_runner",
         "destinatario_email",
         "digest",
+        "last_digest",
     )
     fields = [
         "job_name",
@@ -76,6 +77,7 @@ class CronjobAdmin(admin.ModelAdmin):
         "manter_logs",
         "destinatario_email",
         "digest",
+        "last_digest",
     ]
     readonly_fields = ("job_name", "app_name", "get_help")
     inlines = [JobScheduleInline]
@@ -161,7 +163,6 @@ class JobScheduleAdmin(admin.ModelAdmin):
         "iniciado",
         "tempo_gasto",
         "get_runner",
-        "enviado",
     ]
     fields = [
         "job",
@@ -169,7 +170,6 @@ class JobScheduleAdmin(admin.ModelAdmin):
         "iniciar",
         "iniciado",
         "tempo_gasto",
-        "enviado",
     ]
     readonly_fields = fields
     list_filter = ("status", "job")
