@@ -79,7 +79,7 @@ class CronjobAdmin(admin.ModelAdmin):
         "digest",
         "last_digest",
     ]
-    readonly_fields = ("job_name", "app_name", "get_help")
+    readonly_fields = ("job_name", "app_name", "get_help", "last_digest")
     inlines = [JobScheduleInline]
 
     def get_urls(self):

@@ -1,6 +1,7 @@
 import io
 from contextlib import redirect_stderr, redirect_stdout
 from cron_converter import Cron
+from pyexpat import model
 from django.db import models
 from django.contrib.auth.models import Group
 from django.utils import timezone
