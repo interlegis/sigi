@@ -9,6 +9,9 @@ from django.utils.formats import localize
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
+from django.core.mail import send_mail
+from django.conf import settings
+from datetime import timedelta
 
 
 class SigiAlert(models.Model):
@@ -35,6 +38,17 @@ class SigiAlert(models.Model):
 
 
 class Cronjob(models.Model):
+    DIGEST_CHOICES = [
+        ("N", _("Enviar sem digest")),
+        ("D", _("Enviar com digest diário")),
+        ("S", _("Enviar com digest semanal")),
+    ]
+    digest = models.CharField(
+        _("digest"),
+        max_length=1,
+        choices=DIGEST_CHOICES,
+        default="N",
+    )
     app_name = models.CharField(_("app"), max_length=100, editable=False)
     job_name = models.CharField(_("job"), max_length=100, editable=False)
     expressao_cron = models.CharField(
@@ -58,6 +72,21 @@ class Cronjob(models.Model):
         ),
         default=30,
     )
+    destinatario_email = models.TextField(
+        _("destinatário(s) de e-mail"),
+        help_text=_("Insira um endereço de e-mail por linha."),
+        blank=True,
+    )
+    last_digest = models.DateTimeField(
+        _("último envio de digest"), blank=True, null=True
+    )
+
+    def get_emails_list(self):
+        return [
+            email.strip()
+            for email in self.destinatario_email.splitlines()
+            if email.strip()
+        ]
 
     class Meta:
         ordering = ("app_name", "job_name")
@@ -189,6 +218,81 @@ class JobSchedule(models.Model):
         self.status = JobSchedule.STATUS_CONCLUIDO
         self.tempo_gasto = timezone.localtime() - self.iniciado
         self.save()
+
+        if self.job.destinatario_email == "":
+            return
+
+        now = timezone.localtime()
+
+        if self.job.digest == "N":
+            # Envia imediatamente sem acumular
+            send_mail(
+                subject=f"JOB: {self.job.job_name}",
+                message=self.resultado,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=self.resultado,
+            )
+            self.job.last_digest = now
+            self.job.save()
+
+        else:
+            # Determina o período de digest
+            if self.job.digest == "D":
+                period = timedelta(days=1)
+            elif self.job.digest == "S":
+                period = timedelta(weeks=1)
+            else:
+                raise ValueError(
+                    f"Valor inválido para digest: {self.job.digest}"
+                )
+
+            # Se o período foi atingido desde o último digest, envia
+            if (
+                not self.job.last_digest
+                or now >= self.job.last_digest + period
+            ):
+                self.send_digest_email(frequency=self.job.digest)
+                self.job.last_digest = now
+                self.job.save()
+
+    def send_digest_email(self, frequency):
+        """Envia email de digest acumulando jobs desde o último digest."""
+        now = timezone.localtime()
+
+        # Determina o período de acumulação baseado no último digest
+        if self.job.last_digest:
+            period_start = self.job.last_digest
+        else:
+            period_start = (
+                now - timedelta(days=1)
+                if frequency == "D"
+                else now - timedelta(weeks=1)
+            )
+
+        job_schedules = JobSchedule.objects.filter(
+            job=self.job,
+            status=JobSchedule.STATUS_CONCLUIDO,
+            iniciado__gte=period_start,
+        )
+
+        if job_schedules.exists():
+            message_lines = []
+            for js in job_schedules:
+                message_lines.append(
+                    f"{localize(js.iniciado)}: {js.resultado}"
+                )
+            message = "\n\n".join(message_lines)
+
+            send_mail(
+                subject=f"Digest JOB: {self.job.job_name} ({frequency})",
+                message=message,
+                from_email=settings.SERVER_EMAIL,
+                recipient_list=self.job.get_emails_list(),
+                fail_silently=True,
+                html_message=message,
+            )
 
 
 class Config(models.Model):

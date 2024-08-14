@@ -80,14 +80,14 @@ class JobReportMixin:
                 "output_encoding": "unicode",
             },
         )
-        send_mail(
-            subject=f"JOB: {self.help}",
-            message=rst,
-            from_email=settings.SERVER_EMAIL,
-            recipient_list=Config.get_param("EMAIL_JOBS"),
-            fail_silently=True,
-            html_message=html,
-        )
+        # send_mail(
+        #     subject=f"JOB: {self.help}",
+        #     message=rst,
+        #     from_email=settings.SERVER_EMAIL,
+        #     recipient_list=Config.get_param("EMAIL_JOBS"),
+        #     fail_silently=True,
+        #     html_message=html,
+        # )
         print(rst)
 
     def prepare_report(self, start_time, end_time):
@@ -128,13 +128,13 @@ class JobReportMixin:
 
         rst, html = self.prepare_report(start_time, end_time)
 
-        if self.send_report_mail:
-            send_mail(
-                subject=f"JOB: {self.help}",
-                message=rst,
-                from_email=settings.SERVER_EMAIL,
-                recipient_list=Config.get_param("EMAIL_JOBS"),
-                fail_silently=True,
-                html_message=html,
-            )
+        # if self.send_report_mail:
+        #     send_mail(
+        #         subject=f"JOB: {self.help}",
+        #         message=rst,
+        #         from_email=settings.SERVER_EMAIL,
+        #         recipient_list=Config.get_param("EMAIL_JOBS"),
+        #         fail_silently=True,
+        #         html_message=html,
+        #     )
         print(rst)
