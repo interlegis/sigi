@@ -12,6 +12,8 @@ from tinymce.models import HTMLField
 from django.core.mail import send_mail
 from django.conf import settings
 from datetime import timedelta
+from docutils.core import publish_string
+from django.utils.html import format_html
 
 
 class SigiAlert(models.Model):
@@ -224,6 +226,12 @@ class JobSchedule(models.Model):
 
         now = timezone.localtime()
 
+        # Converte o resultado para HTML usando docutils
+        try:
+            html_result = publish_string(self.resultado, writer_name="html")
+        except Exception as e:
+            html_result = f"<p>Erro ao converter o log para HTML: {str(e)}</p>"
+
         if self.job.digest == "N":
             # Envia imediatamente sem acumular
             send_mail(
@@ -232,7 +240,7 @@ class JobSchedule(models.Model):
                 from_email=settings.SERVER_EMAIL,
                 recipient_list=self.job.get_emails_list(),
                 fail_silently=True,
-                html_message=self.resultado,
+                html_message=html_result.decode("utf-8"),
             )
             self.job.last_digest = now
             self.job.save()
@@ -279,11 +287,24 @@ class JobSchedule(models.Model):
 
         if job_schedules.exists():
             message_lines = []
+            html_message_lines = []
             for js in job_schedules:
                 message_lines.append(
                     f"{localize(js.iniciado)}: {js.resultado}"
                 )
+                try:
+                    html_message_lines.append(
+                        publish_string(
+                            js.resultado, writer_name="html"
+                        ).decode("utf-8")
+                    )
+                except Exception as e:
+                    html_message_lines.append(
+                        f"<p>Erro ao converter o log para HTML: {str(e)}</p>"
+                    )
+
             message = "\n\n".join(message_lines)
+            html_message = "<br><br>".join(html_message_lines)
 
             send_mail(
                 subject=f"Digest JOB: {self.job.job_name} ({frequency})",
@@ -291,7 +312,7 @@ class JobSchedule(models.Model):
                 from_email=settings.SERVER_EMAIL,
                 recipient_list=self.job.get_emails_list(),
                 fail_silently=True,
-                html_message=message,
+                html_message=html_message,
             )
 
 
