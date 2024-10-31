@@ -1,6 +1,6 @@
 admin_menu:
   - title: Superusuários
-    icon: settings
+    icon: bi bi-gear
     children:
       - title: Usuários
         view_name: admin:auth_user_changelist
@@ -27,23 +27,10 @@ admin_menu:
         view_name: admin:utils_config_changelist
 main_menu:
   - title: Relatórios
-    icon: print
+    icon: bi bi-filetype-pdf
     children:
-      - title: VALIDAÇÃO - Erros importação Gescon
-        view_name: convenios-report_erros_gescon
-      - title: VALIDAÇÃO - Órgãos com CNPJ duplicado
-        view_name: casas_cnpj_duplicado
-      - title: VALIDAÇÃO - Órgãos com CNPJ errado
-        view_name: casas_cnpj_errado
-        separator: [after,]
       - title: Eventos por UF
         view_name: eventos_eventosporuf
-      - title: Alunos por UF
-        view_name: eventos_alunosporuf
-      - title: Custos por evento
-        view_name: eventos_custoseventos
-      - title: Custos por servidor
-        view_name: eventos_custosservidor
       - title: Solicitações de eventos por período
         view_name: eventos_solicitacoesporperiodo
       - title: Calendário de eventos
@@ -55,13 +42,11 @@ main_menu:
         view_name: espacos_agenda
       - title: Uso dos espaços
         view_name: espacos_usoespaco
-      - title: Resumo das reservas de espaços
-        view_name: espacos_resumoreservas
         separator: [after,]
       - title: Lista de gerentes
         view_name: casas_gerentes
   - title: Municípios
-    icon: location_city
+    icon: bi bi-globe-americas
     children:
       - title: Municípios
         view_name: admin:contatos_municipio_changelist
@@ -70,7 +55,7 @@ main_menu:
       - title: Mesorregiões
         view_name: admin:contatos_mesorregiao_changelist
   - title: Casas e órgãos
-    icon: account_balance
+    icon: bi bi-bank
     children:
       - title: Todo legislativo
         view_name: admin:casas_orgao_changelist
@@ -99,14 +84,14 @@ main_menu:
         view_name: admin:casas_orgao_changelist
         querystr: tipo__sigla__in=AL,EL
   - title: Gerência Interlegis
-    icon: people
+    icon: bi bi-people
     children:
       - title: Carteira de relacionamentos
         view_name:
       - title: Organizar relacionamentos
         view_name:
   - title: Convênios
-    icon: assignment
+    icon: bi bi-file-earmark-check
     children:
       - title: Convênios
         view_name: admin:convenios_convenio_changelist
@@ -114,12 +99,10 @@ main_menu:
         view_name: ocorrencias_painel
         querystr: tipo_categoria=C&status=1&status=2
   - title: Serviços SEIT
-    icon: cloud_done
-    children:
-      - title: Lista de serviços
-        view_name: admin:servicos_servico_changelist
+    icon: bi bi-cloud-fog2
+    view_name: admin:servicos_servico_changelist
   - title: Ocorrências
-    icon: comment
+    icon: bi bi-telephone
     children:
       - title: Registro de ocorrências
         view_name: admin:ocorrencias_ocorrencia_changelist
@@ -128,13 +111,11 @@ main_menu:
         view_name: ocorrencias_painel
         querystr: status=1&status=2
   - title: Reserva de espaços
-    icon: event
-    children:
-      - title: Reservas
-        view_name: admin:espacos_reserva_changelist
-        querystr: status__exact=A
+    icon: bi bi-book
+    view_name: admin:espacos_reserva_changelist
+    querystr: status__exact=A
   - title: Eventos
-    icon: school
+    icon: bi bi-calendar-week
     children:
       - title: Solicitações
         view_name: admin:eventos_solicitacao_changelist
@@ -157,14 +138,14 @@ main_menu:
         view_name: admin:eventos_evento_changelist
         querystr: tipo_evento__categoria__exact=V
   - title: Servidores
-    icon: account_circle
+    icon: bi bi-person-badge
     children:
       - title: Serviços (unidades do ILB)
         view_name: admin:servidores_servico_changelist
       - title: Servidores e colaboradores
         view_name: admin:servidores_servidor_changelist
   - title: Tabelas auxiliares
-    icon: settings
+    icon: bi bi-database
     children:
       - title: Tipos de órgãos
         view_name: admin:casas_tipoorgao_changelist

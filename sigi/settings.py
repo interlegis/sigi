@@ -248,7 +248,7 @@ br_formats.DATETIME_FORMAT = br_formats.SHORT_DATETIME_FORMAT
 # djbs-theme settings - Django Bootstrap Theme
 # https://github.com/interlegis/djbs-theme/?tab=readme-ov-file#customizing
 
-DJBSTHEME_DEFAULTS = {
+DJBSTHEME = {
     "SEARCH_URL": None,
     "SEARCH_PARAM": None,
     "MENU_FILE": BASE_DIR / "menu_conf.yaml",
