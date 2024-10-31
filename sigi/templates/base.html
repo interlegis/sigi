@@ -1,0 +1,7 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extrastyle %}
+  {{ block.supper }}
+  <link rel="stylesheet" href="{% static 'css/base_sigi.css' %}">
+{% endblock %}
