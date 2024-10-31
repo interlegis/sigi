@@ -8,7 +8,6 @@ from django.utils.encoding import force_str
 from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import ngettext, gettext as _
-from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.eventos.models import TipoEvento
 from sigi.apps.ocorrencias.models import Ocorrencia, Comentario, Anexo
@@ -70,10 +69,7 @@ class ComentarioForm(forms.ModelForm):
             "descricao",
             "novo_status",
         ]
-        widgets = {
-            "ocorrencia": forms.HiddenInput(),
-            "descricao": MaterialAdminTextareaWidget(),
-        }
+        widgets = {"ocorrencia": forms.HiddenInput}
 
 
 class OcorrenciaForm(forms.ModelForm):
@@ -159,15 +155,12 @@ class PresidenteForm(forms.ModelForm):
             "email",
             "redes_sociais",
         ]
-        widgets = {
-            "redes_sociais": MaterialAdminTextareaWidget,
-        }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields[
-            "parlamentar"
-        ].queryset = self.instance.casa_legislativa.parlamentar_set.all()
+        self.fields["parlamentar"].queryset = (
+            self.instance.casa_legislativa.parlamentar_set.all()
+        )
 
 
 class ContatoForm(forms.ModelForm):
@@ -182,10 +175,6 @@ class ContatoForm(forms.ModelForm):
             "email",
             "redes_sociais",
         ]
-        widgets = {
-            "nota": MaterialAdminTextareaWidget,
-            "redes_sociais": MaterialAdminTextareaWidget,
-        }
 
 
 class DocumentoForm(forms.ModelForm):
@@ -208,7 +197,6 @@ class ComentarioForm(forms.ModelForm):
     class Meta:
         model = Comentario
         fields = ["descricao"]
-        widgets = {"descricao": MaterialAdminTextareaWidget}
 
 
 class ComentarioInternoForm(forms.ModelForm):

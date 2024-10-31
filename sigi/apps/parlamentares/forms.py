@@ -1,7 +1,6 @@
 from requests import options
 from django import forms
 from django.utils.translation import gettext as _
-from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.parlamentares.models import Parlamentar
 
@@ -61,6 +60,3 @@ class ParlamentarForm(forms.ModelForm):
             "email",
             "redes_sociais",
         ]
-        widgets = {
-            "redes_sociais": MaterialAdminTextareaWidget,
-        }
