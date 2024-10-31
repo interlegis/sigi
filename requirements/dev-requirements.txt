@@ -1,4 +1,4 @@
 -r requirements.txt
-black==24.4.2
+black==24.10.0
 ipdb==0.13.13
-pygraphviz==1.13
+pygraphviz==1.14
