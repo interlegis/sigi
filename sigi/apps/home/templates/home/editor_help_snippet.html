@@ -1,0 +1,21 @@
+
+Utilize os seguintes <a class="modal-trigger" href="#help_modal_{{ field_name }}"><i>placeholders</i></a>
+<div id="help_modal_{{ field_name }}" class="modal">
+  <div class="modal-content">
+    <h5>Placeholders</h5>
+    <ul class="collection">
+      {% for placeholder in placeholders %}
+      <li class="collection-item"><b>{{ placeholder.0 }}</b>: {{ placeholder.1 }}</li>
+      {% endfor %}
+    </ul>
+  </div>
+  <div class="modal-footer">
+    <a href="#!" class="modal-close waves-effect waves-green btn-small btn-flat">Fechar</a>
+  </div>
+</div>
+<script>
+  console.log("Rodou");
+  $(document).ready(function(){
+    M.Modal.init($('.modal'), {});
+  });
+</script>
