@@ -1,31 +1,27 @@
 {% load i18n %}
 <div id="alertModal" class="modal fade" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-  <div class="modal-dialog">
+  <div class="modal-dialog modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">{% translate "Avisos" %}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <div class="tab-content" id="alertTabContent">
+        <ul class="nav nav-underline" id="alertTab" role="tablist">
           {% for alerta in alertas %}
-            <div class="tab-pane fade container{% if forloop.first %} show active{% endif %}" id="{{ alerta.titulo|lower|slugify }}-pane" role="tabpanel" aria-labelledby="{{ alerta.titulo|lower|slugify }}-tab" tabindex="0">
-              <h5>{{ alerta.titulo }}</h5>
-              {{ alerta.mensagem|safe }}
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-      <div class="modal-footer">
-        <ul class="nav nav-pills" id="alertTab" role="tablist">
-          {% for alerta in alertas %}
-            <li class="nav-item" role="presentation">
+            <li class="nav-item" role="presentation" data-bs-toggle="tooltip" title="{{ alerta.titulo }}">
               <button class="nav-link{% if forloop.first %} active{% endif %}" id="{{ alerta.titulo|lower|slugify }}-tab" data-bs-toggle="tab" data-bs-target="#{{ alerta.titulo|lower|slugify }}-pane" type="button" role="tab" aria-controls="{{ alerta.titulo|lower|slugify }}-pane"{% if forloop.first %} aria-selected="true"{% endif %}> # {{ forloop.counter }}</button>
             </li>
           {% endfor %}
-        </ul>
-
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% translate "Close" %}</button>
+        </ul>        
+        <div class="tab-content" id="alertTabContent">
+          {% for alerta in alertas %}
+            <div class="tab-pane fade{% if forloop.first %} show active{% endif %}" id="{{ alerta.titulo|lower|slugify }}-pane" role="tabpanel" aria-labelledby="{{ alerta.titulo|lower|slugify }}-tab" tabindex="0">
+              <h5>{{ alerta.titulo }}</h5>
+              <div class="mx-2">{{ alerta.mensagem|safe }}</div>
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>
