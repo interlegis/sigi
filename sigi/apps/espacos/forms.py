@@ -1,7 +1,6 @@
 import calendar
 from django.utils import timezone
 from django import forms
-from material.admin.widgets import MaterialAdminDateWidget
 from django.forms.widgets import CheckboxSelectMultiple
 from django.utils.translation import gettext as _
 from sigi.apps.espacos.models import Espaco, Reserva
@@ -44,12 +43,8 @@ class UsoEspacoReportForm(forms.Form):
             if s[0] <= timezone.localdate() <= s[-1]
         ][0]
 
-    data_inicio = forms.DateField(
-        label=_("Data início"), required=True, widget=MaterialAdminDateWidget
-    )
-    data_fim = forms.DateField(
-        label=_("Data fim"), required=True, widget=MaterialAdminDateWidget
-    )
+    data_inicio = forms.DateField(label=_("Data início"), required=True)
+    data_fim = forms.DateField(label=_("Data fim"), required=True)
     virtual = forms.ChoiceField(
         label=_("Tipo de uso"), choices=VIRTUAL_CHOICES, initial=VIRTUAL_ALL
     )

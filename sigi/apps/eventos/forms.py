@@ -1,9 +1,5 @@
 from django import forms
 from django.utils.translation import gettext as _
-from material.admin.widgets import (
-    MaterialAdminTextareaWidget,
-    MaterialAdminDateWidget,
-)
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.espacos.models import Espaco, Reserva
 from sigi.apps.eventos.models import (
@@ -124,16 +120,8 @@ class EventosPorUfForm(forms.Form):
         ("V", _("Virtual")),
         ("P", _("Presencial")),
     )
-    data_inicio = forms.DateField(
-        required=True,
-        label=_("data de início"),
-        widget=MaterialAdminDateWidget,
-    )
-    data_fim = forms.DateField(
-        required=True,
-        label=_("data de término"),
-        widget=MaterialAdminDateWidget,
-    )
+    data_inicio = forms.DateField(required=True, label=_("data de início"))
+    data_fim = forms.DateField(required=True, label=_("data de término"))
     categoria = forms.MultipleChoiceField(
         required=False,
         label=_("Categoria"),
@@ -164,16 +152,8 @@ class SolicitacoesPorPeriodoForm(forms.Form):
         (True, _("Virtual")),
         (False, _("Presencial")),
     )
-    data_inicio = forms.DateField(
-        required=True,
-        label=_("data de início"),
-        widget=MaterialAdminDateWidget,
-    )
-    data_fim = forms.DateField(
-        required=True,
-        label=_("data de término"),
-        widget=MaterialAdminDateWidget,
-    )
+    data_inicio = forms.DateField(required=True, label=_("data de início"))
+    data_fim = forms.DateField(required=True, label=_("data de término"))
     tipos_evento = forms.ModelMultipleChoiceField(
         required=False,
         label=_("Tipos de evento"),
@@ -208,7 +188,6 @@ class ConviteForm(forms.ModelForm):
     class Meta:
         model = Convite
         fields = ["nomes_participantes"]
-        widgets = {"nomes_participantes": MaterialAdminTextareaWidget}
 
 
 class CasaForm(forms.ModelForm):
@@ -237,10 +216,6 @@ class FuncionarioForm(forms.ModelForm):
             "email",
             "redes_sociais",
         ]
-        widgets = {
-            "nota": MaterialAdminTextareaWidget,
-            "redes_sociais": MaterialAdminTextareaWidget,
-        }
 
 
 class ParlamentarForm(forms.ModelForm):
@@ -259,7 +234,5 @@ class ParlamentarForm(forms.ModelForm):
         ]
         widgets = {
             "nome_completo": forms.HiddenInput,
-            "redes_sociais": MaterialAdminTextareaWidget,
-            "observacoes": MaterialAdminTextareaWidget,
             "status_mandato": forms.RadioSelect,
         }

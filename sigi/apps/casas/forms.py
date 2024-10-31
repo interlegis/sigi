@@ -2,7 +2,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from localflavor.br.forms import BRZipCodeField
-from material.admin.widgets import MaterialAdminTextareaWidget
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import valida_cnpj
@@ -102,9 +101,6 @@ class FuncionarioForm(forms.ModelForm):
             "email",
             "redes_sociais",
         ]
-        widgets = {
-            "redes_sociais": MaterialAdminTextareaWidget,
-        }
 
 
 class CnpjErradoForm(forms.Form):
