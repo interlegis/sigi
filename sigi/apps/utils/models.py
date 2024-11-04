@@ -1,4 +1,5 @@
 import io
+import re
 from contextlib import redirect_stderr, redirect_stdout
 from cron_converter import Cron
 from pyexpat import model
@@ -14,6 +15,8 @@ from django.conf import settings
 from datetime import timedelta
 from docutils.core import publish_string
 from django.utils.html import format_html
+from docutils.utils import SystemMessage
+from docutils.parsers.rst import directives, Directive
 
 
 class SigiAlert(models.Model):
@@ -206,6 +209,28 @@ class JobSchedule(models.Model):
             f"levando {self.tempo_gasto} para concluir"
         )
 
+    @staticmethod
+    def preprocess_rst(rst_content):
+        """Pré-processa o conteúdo RST para corrigir indentação e espaços em branco,
+        evitando erros de parsing com docutils."""
+
+        # Remove espaços em branco extras e corrige indentação acidental
+        lines = rst_content.splitlines()
+        processed_lines = []
+
+        for line in lines:
+            # Remove indentação extra
+            processed_line = re.sub(r"^\s+", "", line)
+            processed_lines.append(processed_line)
+
+        # Insere linhas em branco necessárias para blocos de citação ou listas
+        processed_rst = "\n".join(processed_lines)
+        processed_rst = re.sub(
+            r"\n(\S)", r"\n\n\1", processed_rst
+        )  # Adiciona linha em branco entre blocos
+
+        return processed_rst
+
     def run_job(self):
         """Executa o job agendado. Esta rotina não verifica se a agenda está
         na hora certa, apenas executa o job associado."""
@@ -226,10 +251,20 @@ class JobSchedule(models.Model):
 
         now = timezone.localtime()
 
-        # Converte o resultado para HTML usando docutils
+        # Pré-processa o conteúdo RST antes da conversão
+        rst_content = self.preprocess_rst(self.resultado)
+
+        # Converte o resultado para HTML usando docutils com tratamento de warnings
         try:
-            html_result = publish_string(self.resultado, writer_name="html")
-        except Exception as e:
+            # Tenta converter para HTML e captura warnings de formatação
+            html_result = publish_string(
+                rst_content,
+                writer_name="html",
+                settings_overrides={"report_level": 2},
+            )
+            html_result = html_result.decode("utf-8")
+        except SystemMessage as e:
+            # Em caso de erro, mostra mensagem alternativa
             html_result = f"<p>Erro ao converter o log para HTML: {str(e)}</p>"
 
         if self.job.digest == "N":
@@ -240,7 +275,7 @@ class JobSchedule(models.Model):
                 from_email=settings.SERVER_EMAIL,
                 recipient_list=self.job.get_emails_list(),
                 fail_silently=True,
-                html_message=html_result.decode("utf-8"),
+                html_message=html_result,
             )
             self.job.last_digest = now
             self.job.save()
@@ -292,13 +327,19 @@ class JobSchedule(models.Model):
                 message_lines.append(
                     f"{localize(js.iniciado)}: {js.resultado}"
                 )
+
+                # Pré-processa o conteúdo RST do job
+                processed_rst = self.preprocess_rst(js.resultado)
+
+                # Converte o conteúdo processado para HTML
                 try:
-                    html_message_lines.append(
-                        publish_string(
-                            js.resultado, writer_name="html"
-                        ).decode("utf-8")
+                    html_result = publish_string(
+                        processed_rst,
+                        writer_name="html",
+                        settings_overrides={"report_level": 2},
                     )
-                except Exception as e:
+                    html_message_lines.append(html_result.decode("utf-8"))
+                except SystemMessage as e:
                     html_message_lines.append(
                         f"<p>Erro ao converter o log para HTML: {str(e)}</p>"
                     )
