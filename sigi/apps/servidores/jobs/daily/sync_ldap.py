@@ -113,24 +113,20 @@ class Job(JobReportMixin, DailyJob):
                 "como Externos"
             )
         )
-        self.report_data.append(
-            _(
-                "============================================================="
-                "============="
-            )
-        )
+        self.report_data.append("=" * 72)
         self.report_data.append("")
 
         for s in Servidor.objects.filter(
             ldap_dn="", externo=False, sigi=False
         ).order_by("nome_completo"):
-            self.report_data.append(s.nome_completo)
+            self.report_data.append(f"- {s.nome_completo}")
 
         self.report_data.append("")
-        self.report_data.append(_("RESUMO"))
-        self.report_data.append(_("======"))
+        self.report_data.append("RESUMO")
+        self.report_data.append("=" * 6)
         self.report_data.append("")
-        self.report_data.append(_(f"{total_ldap} usuários lidos do LDAP"))
-        self.report_data.append(_(f"{total_create} novos servidores criados"))
-        self.report_data.append(_(f"{total_update} servidores atualizados"))
-        self.report_data.append(_(f"{total_deactive} usuários desativados"))
+        self.report_data.append(f"* {total_ldap} usuários lidos do LDAP")
+        self.report_data.append(f"* {total_create} novos servidores criados")
+        self.report_data.append(f"* {total_update} servidores atualizados")
+        self.report_data.append(f"* {total_deactive} usuários desativados")
+        self.report_data.append("")
