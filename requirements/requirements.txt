@@ -30,4 +30,4 @@ django-localflavor==4.0
 django-tinymce==4.1.0
 django-weasyprint==2.3.0
 djangorestframework==3.15.2
-djbs-theme_sesostris @ git+https://github.com/interlegis/djbs-theme.git@57566d3a350e227dff00e40a83c634dbb099d1b3
+djbs-theme_sesostris @ git+https://github.com/interlegis/djbs-theme.git
