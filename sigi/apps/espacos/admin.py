@@ -5,6 +5,8 @@ from django.urls import path, reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _, ngettext
 from django.shortcuts import get_object_or_404, redirect
+from import_export import resources
+from import_export.admin import ExportActionMixin
 from import_export.fields import Field
 from sigi.apps.espacos.models import (
     Espaco,
@@ -13,10 +15,9 @@ from sigi.apps.espacos.models import (
     RecursoSolicitado,
 )
 from sigi.apps.espacos.forms import ReservaAdminForm
-from sigi.apps.utils.mixins import CartExportMixin, LabeledResourse
 
 
-class ReservaResource(LabeledResourse):
+class ReservaResource(resources.ModelResource):
     recursos_solicitados = Field(column_name="recursos solicitados")
 
     class Meta:
@@ -67,7 +68,7 @@ class RecursoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Reserva)
-class ReservaAdmin(CartExportMixin, admin.ModelAdmin):
+class ReservaAdmin(ExportActionMixin, admin.ModelAdmin):
     form = ReservaAdminForm
     resource_classes = [ReservaResource]
     list_display = [

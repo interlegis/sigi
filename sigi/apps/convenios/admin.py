@@ -4,6 +4,8 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 from django_weasyprint.views import WeasyTemplateResponse
+from import_export import resources
+from import_export.admin import ExportActionMixin
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from sigi.apps.convenios.models import (
@@ -17,15 +19,11 @@ from sigi.apps.convenios.models import (
 )
 from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.casas.admin import GerentesInterlegisFilter
-from sigi.apps.utils.mixins import (
-    ReturnMixin,
-    CartExportReportMixin,
-    LabeledResourse,
-)
+from sigi.apps.utils.mixins import ReturnMixin
 from sigi.apps.utils.filters import DateRangeFilter
 
 
-class ConvenioExportResourse(LabeledResourse):
+class ConvenioExportResourse(resources.ModelResource):
     class Meta:
         model = Convenio
         fields = (
@@ -112,7 +110,7 @@ class ProjetoAdmin(admin.ModelAdmin):
 
 @admin.register(Convenio)
 class ConvenioAdmin(
-    AsciifyQParameter, ReturnMixin, CartExportReportMixin, admin.ModelAdmin
+    AsciifyQParameter, ReturnMixin, ExportActionMixin, admin.ModelAdmin
 ):
     fieldsets = (
         (
