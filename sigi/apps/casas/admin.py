@@ -11,6 +11,8 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
+from import_export import resources
+from import_export.admin import ExportActionMixin
 from import_export.fields import Field
 from sigi.apps.casas.forms import OrgaoForm
 from sigi.apps.casas.models import Orgao, Funcionario, TipoOrgao
@@ -30,14 +32,10 @@ from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.filters import ServicoAtivoFilter
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.mixins import AsciifyQParameter
-from sigi.apps.utils.mixins import (
-    ReturnMixin,
-    CartExportReportMixin,
-    LabeledResourse,
-)
+from sigi.apps.utils.mixins import ReturnMixin
 
 
-class OrgaoExportResourceContato(LabeledResourse):
+class OrgaoExportResourceContato(resources.ModelResource):
     class Meta:
         model = Orgao
         fields = ("nome", "email")
@@ -55,7 +53,7 @@ class OrgaoExportResourceContato(LabeledResourse):
         return super().export(queryset, *args, **kwargs)
 
 
-class OrgaoExportResourseGeral(LabeledResourse):
+class OrgaoExportResourseGeral(resources.ModelResource):
     presidente = Field(column_name="presidente")
     telefone = Field(column_name="telefone")
     # servicos_seit = Field(column_name='servicos_seit')
@@ -346,7 +344,7 @@ class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
 
 
 @admin.register(Orgao)
-class OrgaoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
+class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     form = OrgaoForm
     resource_classes = [OrgaoExportResourseGeral, OrgaoExportResourceContato]
     inlines = (

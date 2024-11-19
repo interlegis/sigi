@@ -27,6 +27,8 @@ from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.utils import django_url_fetcher
 from django_weasyprint.views import WeasyTemplateResponse
+from import_export import resources
+from import_export.admin import ExportActionMixin
 from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
@@ -56,13 +58,7 @@ from sigi.apps.eventos.views import (
 )
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import DateRangeFilter
-from sigi.apps.utils.mixins import (
-    AsciifyQParameter,
-    CartExportMixin,
-    CartExportReportMixin,
-    LabeledResourse,
-    ValueLabeledResource,
-)
+from sigi.apps.utils.mixins import AsciifyQParameter
 
 
 class ActVigenteFilter(admin.SimpleListFilter):
@@ -113,7 +109,7 @@ class MicrorregiaoFilter(AutocompleteFilter):
     rel_model = Municipio
 
 
-class SolicitacaoResource(LabeledResourse):
+class SolicitacaoResource(resources.ModelResource):
     act_vigente = Field(column_name="ACT vigente")
     data_termino_act = Field(column_name="término vigência ACT")
     oficinas = Field(column_name="oficinas solicitadas")
@@ -246,7 +242,7 @@ class SolicitacaoResource(LabeledResourse):
         return obj.casa.municipio.uf.get_regiao_display()
 
 
-class EventoResource(ValueLabeledResource):
+class EventoResource(resources.ModelResource):
     class Meta:
         model = Evento
         fields = (
@@ -397,7 +393,7 @@ class TipoEventoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Solicitacao)
-class SolicitacaoAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
+class SolicitacaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     resource_class = SolicitacaoResource
     list_display = (
         "casa",
@@ -873,7 +869,7 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Evento)
-class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
+class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     form = EventoAdminForm
     resource_class = EventoResource
     fieldsets = (
@@ -1005,6 +1001,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
         CronogramaInline,
     )
     save_as = True
+    actions = ["custos_eventos_report", "custos_servidor_report"]
     reports = ["custos_eventos_report", "custos_servidor_report"]
 
     @admin.display(description=_("banner"))
@@ -1481,19 +1478,14 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             content_type="application/pdf",
         )
 
-    def custos_eventos_report(self, request):
-        context = context_custos_eventos(self.get_queryset(request))
+    @admin.action(description=_("Custos por eventos"))
+    def custos_eventos_report(self, request, queryset):
+        context = context_custos_eventos(queryset)
         context["data_inicio"] = (
-            self.get_queryset(request)
-            .order_by("data_inicio")
-            .first()
-            .data_inicio
+            queryset.order_by("data_inicio").first().data_inicio
         )
         context["data_fim"] = (
-            self.get_queryset(request)
-            .order_by("data_termino")
-            .last()
-            .data_termino
+            queryset.order_by("data_termino").last().data_termino
         )
         return WeasyTemplateResponse(
             filename=f"custos_eventos-{timezone.localdate()}.pdf",
@@ -1503,8 +1495,9 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             content_type="application/pdf",
         )
 
-    custos_eventos_report.title = _("Custos por eventos")
+    custos_eventos_report.djbs_icon = "report"
 
+    @admin.action(description=_("Custos por servidor"))
     def custos_servidor_report(self, request):
         context = context_custos_servidor(self.get_queryset(request))
         context["data_inicio"] = (
@@ -1529,7 +1522,7 @@ class EventoAdmin(AsciifyQParameter, CartExportReportMixin, admin.ModelAdmin):
             content_type="application/pdf",
         )
 
-    custos_servidor_report.title = _("Custos por servidor")
+    custos_servidor_report.djbs_icon = "report"
 
     def create_course(self, request, object_id):
         evento = get_object_or_404(Evento, id=object_id)

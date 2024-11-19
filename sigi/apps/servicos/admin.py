@@ -4,7 +4,9 @@ from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import gettext as _
+from import_export import resources
 from import_export.fields import Field
+from import_export.admin import ExportActionMixin
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.servicos.models import Servico, LogServico, TipoServico
 from sigi.apps.servicos.filters import (
@@ -16,14 +18,10 @@ from sigi.apps.convenios.filters import (
     ExcluirTipoProjetoFilter,
 )
 from sigi.apps.utils.filters import DateRangeFilter
-from sigi.apps.utils.mixins import (
-    ReturnMixin,
-    CartExportMixin,
-    ValueLabeledResource,
-)
+from sigi.apps.utils.mixins import ReturnMixin
 
 
-class ServicoExportResourse(ValueLabeledResource):
+class ServicoExportResourse(resources.ModelResource):
     hospedagem_interlegis = Field(column_name="hospedagem no interlegis")
 
     class Meta:
@@ -76,7 +74,7 @@ class TipoServicoAdmin(admin.ModelAdmin):
 
 
 @admin.register(Servico)
-class ServicoAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
+class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     actions = [
         "calcular_data_uso",
     ]

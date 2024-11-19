@@ -1,6 +1,8 @@
 from admin_auto_filters.filters import AutocompleteFilter
 from django.contrib import admin
 from django.utils.translation import gettext as _
+from import_export import resources
+from import_export.admin import ExportActionMixin
 from sigi.apps.utils.filters import RangeFilter
 from sigi.apps.contatos.models import (
     UnidadeFederativa,
@@ -12,11 +14,6 @@ from sigi.apps.contatos.models import (
 )
 from sigi.apps.parlamentares.models import Senador
 from sigi.apps.utils.mixins import AsciifyQParameter
-from sigi.apps.utils.mixins import (
-    ReturnMixin,
-    CartExportMixin,
-    LabeledResourse,
-)
 
 
 class MicrorregiaoFilter(AutocompleteFilter):
@@ -24,7 +21,7 @@ class MicrorregiaoFilter(AutocompleteFilter):
     field_name = "microrregiao"
 
 
-class UnidadeFederativaResource(LabeledResourse):
+class UnidadeFederativaResource(resources.ModelResource):
     class Meta:
         model = UnidadeFederativa
         fields = ("codigo_ibge", "nome", "sigla", "regiao", "populacao")
@@ -35,7 +32,7 @@ class UnidadeFederativaResource(LabeledResourse):
         return dict(UnidadeFederativa.REGIAO_CHOICES)[uf.regiao]
 
 
-class MunicipioResource(LabeledResourse):
+class MunicipioResource(resources.ModelResource):
     class Meta:
         model = Municipio
         fields = (
@@ -81,7 +78,7 @@ class SenadorInline(admin.StackedInline):
 
 @admin.register(UnidadeFederativa)
 class UnidadeFederativaAdmin(
-    AsciifyQParameter, CartExportMixin, admin.ModelAdmin
+    AsciifyQParameter, ExportActionMixin, admin.ModelAdmin
 ):
     actions = None
     resource_classes = [UnidadeFederativaResource]
@@ -117,7 +114,7 @@ class MicrorregiaoAdmin(AsciifyQParameter, admin.ModelAdmin):
 
 
 @admin.register(Municipio)
-class MunicipioAdmin(AsciifyQParameter, CartExportMixin, admin.ModelAdmin):
+class MunicipioAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     actions = None
     resource_classes = [MunicipioResource]
     list_display = (

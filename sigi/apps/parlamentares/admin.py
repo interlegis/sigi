@@ -9,22 +9,17 @@ from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from import_export import resources
-from import_export.admin import ImportMixin
+from import_export.admin import ImportMixin, ExportActionMixin
 from import_export.formats.base_formats import CSV
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.parlamentares.jobs import import_path, json_path
 from sigi.apps.parlamentares.models import Partido, Parlamentar, Senador
 from sigi.apps.parlamentares.forms import ImportForm
 from sigi.apps.utils.filters import AlphabeticFilter
-from sigi.apps.utils.mixins import (
-    ReturnMixin,
-    CartImportExportMixin,
-    CartExportMixin,
-    LabeledResourse,
-)
+from sigi.apps.utils.mixins import ReturnMixin
 
 
-class ParlamentarResource(LabeledResourse):
+class ParlamentarResource(resources.ModelResource):
     class Meta:
         model = Parlamentar
         fields = (
@@ -142,13 +137,13 @@ class ParlamentarNomeCompletoFilter(AlphabeticFilter):
 
 
 @admin.register(Partido)
-class PartidoAdmin(CartImportExportMixin, admin.ModelAdmin):
+class PartidoAdmin(ImportMixin, ExportActionMixin, admin.ModelAdmin):
     list_display = ("legenda", "nome", "sigla")
     search_fields = ("legenda", "nome", "sigla")
 
 
 @admin.register(Parlamentar)
-class ParlamentarAdmin(ReturnMixin, CartExportMixin, admin.ModelAdmin):
+class ParlamentarAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     resource_class = ParlamentarResource
     import_export_change_list_template = (
         "admin/parlamentares/parlamentar/cart/"

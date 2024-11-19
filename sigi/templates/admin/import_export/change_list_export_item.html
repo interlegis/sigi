@@ -1,0 +1,9 @@
+{% load i18n djbs_extras %}
+{% load admin_urls %}
+
+{% if has_export_permission %}
+<a href="{% url opts|admin_urlname:'export' %}{{cl.get_query_string}}" class="export_link nav-link" aria-labelledby="text-tool-export-all" title="{% translate "Export all" %}">
+  {% icon "export-all" %}
+  <span id="text-tool-export-all" class="d-lg-none">{% translate "Export all" %}</span>
+</a>
+{% endif %}
