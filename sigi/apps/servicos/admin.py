@@ -19,9 +19,10 @@ from sigi.apps.convenios.filters import (
 )
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import ReturnMixin
+from sigi.apps.utils.resources import ValueModelResource
 
 
-class ServicoExportResourse(resources.ModelResource):
+class ServicoExportResourse(ValueModelResource):
     hospedagem_interlegis = Field(column_name="hospedagem no interlegis")
 
     class Meta:

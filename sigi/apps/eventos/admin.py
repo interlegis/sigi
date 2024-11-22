@@ -59,6 +59,7 @@ from sigi.apps.eventos.views import (
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import AsciifyQParameter
+from sigi.apps.utils.resources import ValueModelResource
 
 
 class ActVigenteFilter(admin.SimpleListFilter):
@@ -242,7 +243,7 @@ class SolicitacaoResource(resources.ModelResource):
         return obj.casa.municipio.uf.get_regiao_display()
 
 
-class EventoResource(resources.ModelResource):
+class EventoResource(ValueModelResource):
     class Meta:
         model = Evento
         fields = (
