@@ -51,6 +51,7 @@ from sigi.apps.eventos.models import (
 from sigi.apps.eventos.forms import (
     EventosPorUfForm,
     SolicitacoesPorPeriodoForm,
+    CalendarioForm,
 )
 from sigi.apps.eventos.serializers import (
     EventoSerializer,
@@ -192,31 +193,30 @@ class AlunosPorUfReportView(
 @login_required
 @staff_member_required
 def calendario(request):
-    mes_pesquisa = int(request.GET.get("mes", timezone.localdate().month))
-    ano_pesquisa = int(request.GET.get("ano", timezone.localdate().year))
-    sel_categorias = request.GET.getlist(
-        "categoria", [c[0] for c in TipoEvento.CATEGORIA_CHOICES]
-    )
-    sel_status = request.GET.getlist(
-        "status", [s[0] for s in Evento.STATUS_CHOICES]
-    )
-    formato = request.GET.get("fmt", "cal")
-    pdf = bool(request.GET.get("pdf", 0))
+    fmt = request.GET.get("fmt", "html")
+    if "mes_ano" in request.GET:
+        form = CalendarioForm(request.GET)
+    else:
+        form = CalendarioForm(
+            initial={
+                "mes_ano": timezone.localdate().replace(day=1),
+                "categorias": [c[0] for c in TipoEvento.CATEGORIA_CHOICES],
+                "status": [s[0] for s in Evento.STATUS_CHOICES],
+            }
+        )
 
-    meses = {}
+    context = {"form": form}
+
+    if not form.is_valid():
+        return render(request, "eventos/calendario.html", context)
+
+    mes_pesquisa = form.cleaned_data["mes_ano"].month
+    ano_pesquisa = form.cleaned_data["mes_ano"].year
+    sel_categorias = form.cleaned_data["categorias"]
+    sel_status = form.cleaned_data["status"]
+
     lang = to_locale(get_language()) + ".UTF-8"
     locale.setlocale(locale.LC_ALL, lang)
-
-    for ano, mes in (
-        Evento.objects.exclude(data_inicio=None)
-        .values_list("data_inicio__year", "data_inicio__month")
-        .order_by("data_inicio__year", "data_inicio__month")
-        .distinct("data_inicio__year", "data_inicio__month")
-    ):
-        if ano in meses:
-            meses[ano][mes] = calendar.month_name[mes]
-        else:
-            meses[ano] = {mes: calendar.month_name[mes]}
 
     eventos = (
         Evento.objects.exclude(data_inicio=None)
@@ -230,67 +230,47 @@ def calendario(request):
         .order_by("data_inicio")
     )
 
-    context = {
-        "ano_pesquisa": ano_pesquisa,
-        "mes_pesquisa": mes_pesquisa,
-        "formato": formato,
-        "sel_categorias": sel_categorias,
-        "categorias": dict(
-            map(
-                lambda x, y: (x[0], {"label": x[1], "color": y}),
-                TipoEvento.CATEGORIA_CHOICES,
-                ["red", "purple", "blue", "orange", "brown"],
-            )
-        ),
-        "sel_status": sel_status,
-        "status": dict(
-            map(
-                lambda x, y: (x[0], {"label": x[1], "icon": y}),
-                Evento.STATUS_CHOICES,
-                [
-                    "access_time",
-                    "thumb_up",
-                    "done_all",
-                    "mood_bad",
-                    "archive",
-                ],
-            )
-        ),
-        "meses": meses,
-        "day_names": calendar.day_abbr,
-        "eventos": eventos,
-    }
+    semanas = [
+        {"datas": s, "eventos": []}
+        for s in calendar.Calendar().monthdatescalendar(
+            ano_pesquisa, mes_pesquisa
+        )
+    ]
 
-    if formato == "cal" or pdf:
-        semanas = [
-            {"datas": s, "eventos": []}
-            for s in calendar.Calendar().monthdatescalendar(
-                ano_pesquisa, mes_pesquisa
-            )
-        ]
-
-        for e in eventos:
-            for s in semanas:
-                if not (
-                    (e.data_termino < s["datas"][0])
-                    or (e.data_inicio > s["datas"][-1])
-                ):
-                    start = max(s["datas"][0], e.data_inicio)
-                    end = min(s["datas"][-1], e.data_termino)
-                    s["eventos"].append(
+    for e in eventos:
+        for s in semanas:
+            if not (
+                (e.data_termino < s["datas"][0])
+                or (e.data_inicio > s["datas"][-1])
+            ):
+                start = max(s["datas"][0], e.data_inicio)
+                end = min(s["datas"][-1], e.data_termino)
+                s["eventos"].append(
+                    (
+                        e,
                         (
-                            e,
-                            (
-                                start.weekday(),
-                                end.weekday() - start.weekday() + 1,
-                                6 - end.weekday(),
-                            ),
-                        )
+                            start.weekday(),
+                            end.weekday() - start.weekday() + 1,
+                            6 - end.weekday(),
+                        ),
                     )
+                )
 
-        context["semanas"] = semanas
+    context.update(
+        {
+            "ano_pesquisa": ano_pesquisa,
+            "mes_pesquisa": mes_pesquisa,
+            "sel_categorias": sel_categorias,
+            "sel_status": sel_status,
+            "day_names": calendar.day_abbr,
+            "categorias": TipoEvento.CATEGORIA_CHOICES,
+            "status": Evento.STATUS_CHOICES,
+            "eventos": eventos,
+            "semanas": semanas,
+        }
+    )
 
-    if pdf:
+    if fmt == "pdf":
         context["title"] = _("Calendário de eventos")
         context["pdf"] = True
         return WeasyTemplateResponse(
@@ -300,8 +280,7 @@ def calendario(request):
             context=context,
             content_type="application/pdf",
         )
-    else:
-        return render(request, "eventos/calendario.html", context)
+    return render(request, "eventos/calendario.html", context)
 
 
 class EventoListView(ListView):
@@ -742,7 +721,7 @@ def eventos_por_uf(request):
         context["title"] = _("Eventos por Unidade da Federação")
         context["pdf"] = True
         return WeasyTemplateResponse(
-            filename=f"eventos_por_uf-{data_inicio}-{data_fim}.pdf",
+            # filename=f"eventos_por_uf-{data_inicio}-{data_fim}.pdf",
             request=request,
             template="eventos/eventos_por_uf_pdf.html",
             context=context,
@@ -858,79 +837,83 @@ def solicitacoes_por_periodo(request):
         Sum("participantes"),
         Sum("custo_total"),
     ).values()
-    resumo_uf = (
-        pd.DataFrame(
-            solicitacoes.order_by(
-                "casa__municipio__uf__regiao",
-                "senador",
-                "casa__municipio__uf",
-            ).values(
-                "casa__municipio__uf__regiao",
-                "casa__municipio__uf__sigla",
-                "senador",
-                "qtde_solicitadas",
-                "qtde_atendidas",
-                "qtde_rejeitadas",
-                "participantes",
-                "custo_total",
-            )
-        )
-        .rename(
-            columns={
-                "casa__municipio__uf__regiao": "regiao",
-                "casa__municipio__uf__sigla": "uf",
-            }
-        )
-        .fillna(0)
-        .replace({"regiao": dict(UnidadeFederativa.REGIAO_CHOICES)})
-        .groupby(["regiao", "senador", "uf"], as_index=False)
-        .sum()
-    )
-    resumo_uf["participantes"] = resumo_uf["participantes"].astype("int")
-    resumo_regiao = resumo_uf.groupby(["regiao"], as_index=False)[
-        [
+    resumo_uf = pd.DataFrame(
+        solicitacoes.order_by(
+            "casa__municipio__uf__regiao",
+            "senador",
+            "casa__municipio__uf",
+        ).values(
+            "casa__municipio__uf__regiao",
+            "casa__municipio__uf__sigla",
+            "senador",
             "qtde_solicitadas",
             "qtde_atendidas",
             "qtde_rejeitadas",
             "participantes",
             "custo_total",
-        ]
-    ].sum()
-    resumo_uf.replace([0], [None], inplace=True)
-    resumo_regiao.replace([0], [None], inplace=True)
-    resumo_tipo_evento = (
-        pd.DataFrame(
-            ItemSolicitado.objects.filter(solicitacao__in=solicitacoes)
-            .order_by("tipo_evento__sigla", "tipo_evento__nome")
-            .values("tipo_evento__sigla", "tipo_evento__nome")
-            .annotate(
-                qtde_solicitadas=Count("id"),
-                qtde_atendidas=Count(
-                    "id", filter=Q(status=ItemSolicitado.STATUS_AUTORIZADO)
-                ),
-                qtde_rejeitadas=Count(
-                    "id", filter=Q(status=ItemSolicitado.STATUS_REJEITADO)
-                ),
-                participantes=Sum("evento__total_participantes"),
-                custo_total=Subquery(
-                    sq_equipe.filter(evento__itemsolicitado=OuterRef("pk"))[:1]
-                ),
-            )
         )
-        .rename(
-            columns={
-                "tipo_evento__sigla": "sigla",
-                "tipo_evento__nome": "nome",
-            }
-        )
-        .groupby(["sigla", "nome"], as_index=False)
-        .sum()
-        .fillna(0)
+    ).rename(
+        columns={
+            "casa__municipio__uf__regiao": "regiao",
+            "casa__municipio__uf__sigla": "uf",
+        }
     )
-    resumo_tipo_evento["participantes"] = resumo_tipo_evento[
-        "participantes"
-    ].astype("int")
-    resumo_tipo_evento.replace([0], [None], inplace=True)
+
+    if resumo_uf.empty:
+        resumo_regiao = resumo_uf
+    else:
+        resumo_uf = (
+            resumo_uf.fillna(0)
+            .replace({"regiao": dict(UnidadeFederativa.REGIAO_CHOICES)})
+            .groupby(["regiao", "senador", "uf"], as_index=False)
+            .sum()
+        )
+        resumo_uf["participantes"] = resumo_uf["participantes"].astype("int")
+        resumo_regiao = resumo_uf.groupby(["regiao"], as_index=False)[
+            [
+                "qtde_solicitadas",
+                "qtde_atendidas",
+                "qtde_rejeitadas",
+                "participantes",
+                "custo_total",
+            ]
+        ].sum()
+        resumo_uf.replace([0], [None], inplace=True)
+        resumo_regiao.replace([0], [None], inplace=True)
+    resumo_tipo_evento = pd.DataFrame(
+        ItemSolicitado.objects.filter(solicitacao__in=solicitacoes)
+        .order_by("tipo_evento__sigla", "tipo_evento__nome")
+        .values("tipo_evento__sigla", "tipo_evento__nome")
+        .annotate(
+            qtde_solicitadas=Count("id"),
+            qtde_atendidas=Count(
+                "id", filter=Q(status=ItemSolicitado.STATUS_AUTORIZADO)
+            ),
+            qtde_rejeitadas=Count(
+                "id", filter=Q(status=ItemSolicitado.STATUS_REJEITADO)
+            ),
+            participantes=Sum("evento__total_participantes"),
+            custo_total=Subquery(
+                sq_equipe.filter(evento__itemsolicitado=OuterRef("pk"))[:1]
+            ),
+        )
+    ).rename(
+        columns={
+            "tipo_evento__sigla": "sigla",
+            "tipo_evento__nome": "nome",
+        }
+    )
+
+    if not resumo_tipo_evento.empty:
+        resumo_tipo_evento = (
+            resumo_tipo_evento.groupby(["sigla", "nome"], as_index=False)
+            .sum()
+            .fillna(0)
+        )
+        resumo_tipo_evento["participantes"] = resumo_tipo_evento[
+            "participantes"
+        ].astype("int")
+        resumo_tipo_evento.replace([0], [None], inplace=True)
     # Imprimir
     context = {
         "form": form,

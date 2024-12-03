@@ -1,0 +1,37 @@
+{% load i18n %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th rowspan="2">{% trans 'Região' %}</th>
+      {% for label, items in cabecalho_regiao %}
+        <th colspan="{{ items|length }}" class="center">{{ label|capfirst }}</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for top, items in cabecalho_regiao %}
+        {% for label in items %}
+          <th class="numero">{{ label }}</th>
+        {% endfor %}
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for datarow in pivo_regiao.itertuples %}
+      <tr>
+        {% for datacol in datarow %}
+          {% if forloop.first %}
+            <th>{{ datacol }}</th>
+          {% else %}
+            <td class="numero">{{ datacol|default:"-" }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    <tr>
+      <th>{% trans 'Sumário' %}</th>
+      {% for total in total_regiao %}
+        <th class="numero">{{ total }}</th>
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>

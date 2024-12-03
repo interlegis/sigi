@@ -1,0 +1,111 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock extrastyle %}
+
+{% block breadcrumbs %}{% trans 'Solicitações de evento por período' %}{% endblock %}
+
+{% block content_title %}
+  <h5>{% trans 'Solicitações de evento por período' %}</h5>
+{% endblock %}
+
+{% block content %}
+  {% if not solicitacoes is None and not solicitacoes.exists %}
+    <div class="alert alert-warning" role="alert">
+      {% icon "alert" %}
+      Nenhuma solicitação encontrada para o filtro informado
+    </div>
+  {% endif %}
+  <form>
+    <div class="card mb-3">
+      <div class="card-header">
+        <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if solicitacoes is None or not solicitacoes.exists %}true{% else %}false{% endif %}" aria-controls="filterFormCollapse">
+          {% icon "filter" %} {% translate "Filtros" %}
+        </a>
+      </div>
+      <div class="card-body collapse{% if solicitacoes is None or not solicitacoes.exists %} show{% endif %}" id="filterFormCollapse">
+        {{ form }}
+      </div>
+      <div class="card-footer d-flex justify-content-end">
+        <div>
+          <button type="submit" class="btn btn-primary">{% trans 'Ver dados' %}</button>
+          <button type="submit" name="fmt" value="pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+            {% icon "pdf" %}
+            {% trans 'Exportar para PDF' %}
+          </button>
+          <button type="submit" name="fmt" value="csv" class="btn btn-primary" title="{% trans 'Exportar para CSV' %}">
+            {% icon "csv" %}
+            {% trans 'Exportar para CSV' %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+  {% if solicitacoes %}
+    <div class="accordion" id="accordionReport">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLegenda" aria-expanded="true" aria-controls="collapseLegenda">
+            {% translate "Legenda" %}
+          </button>
+        </h2>
+        <div id="collapseLegenda" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/solicitacoes_por_periodo_legenda_snippet.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSolicitacoes" aria-expanded="true" aria-controls="collapseSolicitacoes">
+            {% trans 'Solicitações' %}
+          </button>
+        </h2>
+        <div id="collapseSolicitacoes" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/solicitacoes_por_periodo_solicitacoes_snippet.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSenador" aria-expanded="true" aria-controls="collapseSenador">
+            {% trans 'Resumo por Senador' %}
+          </button>
+        </h2>
+        <div id="collapseSenador" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/solicitacoes_por_periodo_senador_snippet.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRegiao" aria-expanded="true" aria-controls="collapseRegiao">
+            {% trans 'Resumo por Região' %}
+          </button>
+        </h2>
+        <div id="collapseRegiao" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/solicitacoes_por_periodo_regiao_snippet.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTipo" aria-expanded="true" aria-controls="collapseTipo">
+            {% trans 'Resumo por tipo de evento' %}
+          </button>
+        </h2>
+        <div id="collapseTipo" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/solicitacoes_por_periodo_tipo_snippet.html" %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

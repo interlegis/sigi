@@ -1,0 +1,28 @@
+{% load i18n %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th rowspan="2">{% trans 'Região' %}</th>
+      <th colspan="4" class="center">{% trans 'Quantidade' %}</th>
+      <th rowspan="2" class="numero">{% trans 'Custo total' %}</th>
+    </tr>
+    <tr>
+      <th  class="numero">{% trans 'Solicitada' %}</th>
+      <th  class="numero">{% trans 'Atendida' %}</th>
+      <th  class="numero">{% trans 'Não atendida' %}</th>
+      <th  class="numero">{% trans 'Participantes' %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for regiao in resumo_regiao.itertuples %}
+      <tr>
+        <td>{{ regiao.regiao }}</td>
+        <td  class="numero">{{ regiao.qtde_solicitadas }}</td>
+        <td  class="numero">{{ regiao.qtde_atendidas|default:"-" }}</td>
+        <td  class="numero">{{ regiao.qtde_rejeitadas|default:"-" }}</td>
+        <td  class="numero">{{ regiao.participantes|default:"-" }}</td>
+        <td  class="numero">{{ regiao.custo_total|floatformat:2|default:"-" }}</td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>

@@ -1,0 +1,77 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  {{ form.media }}
+{% endblock extrastyle %}
+
+{% block breadcrumbs %}{% trans 'Eventos por Unidade da Federação' %}{% endblock %}
+
+{% block content_title %}
+  <h5>{% trans 'Eventos por Unidade da Federação' %}</h5>
+  {% if data_inicio %}
+    <h6>
+      {% blocktranslate with inicio=data_inicio|date:"SHORT_DATE_FORMAT" fim=data_fim|date:"SHORT_DATE_FORMAT" %}
+      Período: {{ inicio }} a {{ fim }}
+      {% endblocktranslate %}
+    </h6>
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+  <form>
+    <div class="card mb-3">
+      <div class="card-header">
+        <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if pivo_uf is None %}true{% else %}false{% endif %}" aria-controls="filterFormCollapse">
+          {% icon "filter" %} {% translate "Filtros" %}
+        </a>
+      </div>
+      <div class="card-body collapse{% if pivo_uf is None %} show{% endif %}" id="filterFormCollapse">
+        {{ form }}
+      </div>
+      <div class="card-footer d-flex justify-content-end">
+        <div>
+          <button type="submit" class="btn btn-primary">{% trans 'Ver dados' %}</button>
+          <button type="submit" name="fmt" value="pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+            {% icon "pdf" %}
+            {% trans 'Exportar para PDF' %}
+          </button>
+          <button type="submit" name="fmt" value="csv" class="btn btn-primary" title="{% trans 'Exportar para CSV' %}">
+            {% icon "csv" %}
+            {% trans 'Exportar para CSV' %}
+          </button>
+        </div>
+      </div>
+    </div>
+  </form>
+
+  {% if not pivo_uf is None %}
+    <div class="accordion" id="accordionReport">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRegiao" aria-expanded="true" aria-controls="collapseRegiao">
+            {% translate 'Resumo por Região' %}
+          </button>
+        </h2>
+        <div id="collapseRegiao" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/resumo_por_regiao_snippet.html" with mode="html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseData" aria-expanded="true" aria-controls="collapseData">
+            {% translate 'Resumo por Unidade da Federação' %}
+          </button>
+        </h2>
+        <div id="collapseData" class="accordion-collapse collapse show">
+          <div class="accordion-body container">
+            {% include "eventos/snippets/eventos_por_uf_snippet.html" with mode="html" %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}

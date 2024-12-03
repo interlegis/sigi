@@ -10,6 +10,7 @@ from sigi.apps.eventos.models import (
     Solicitacao,
 )
 from sigi.apps.parlamentares.models import Parlamentar
+from sigi.apps.utils.forms.fields import MonthField
 
 
 class EventoAdminForm(forms.ModelForm):
@@ -236,3 +237,19 @@ class ParlamentarForm(forms.ModelForm):
             "nome_completo": forms.HiddenInput,
             "status_mandato": forms.RadioSelect,
         }
+
+
+class CalendarioForm(forms.Form):
+    mes_ano = MonthField(label=_("Mês"), required=True)
+    categorias = forms.MultipleChoiceField(
+        required=False,
+        label=_("Categorias"),
+        choices=TipoEvento.CATEGORIA_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )
+    status = forms.MultipleChoiceField(
+        required=False,
+        label=_("Status"),
+        choices=Evento.STATUS_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+    )

@@ -1,9 +1,50 @@
-#content {
-    display: block;
+.categoria_C {
+    --bs-table-bg: #ffcdd2;
+    background-color: #ffcdd2 !important;
 }
 
-.evento {
-    padding: 0 6px;
+.categoria_E {
+    --bs-table-bg: #e1bee7;
+    background-color: #e1bee7 !important;
+}
+
+.categoria_O {
+    --bs-table-bg: #bbdefb;
+    background-color: #bbdefb !important;
+}
+
+.categoria_S {
+    --bs-table-bg: #ffe0b2;
+    background-color: #ffe0b2 !important;
+}
+
+.categoria_V {
+    --bs-table-bg: #d7ccc8;
+    background-color: #d7ccc8 !important;
+}
+
+.status_P::before {
+    content: "\f293";
+}
+
+.status_O::before {
+    content: "\f417";
+}
+
+.status_R::before {
+    content: "\f360";
+}
+
+.status_C::before {
+    content: "\f368";
+}
+
+.status_Q::before {
+    content: "\f35e";
+}
+
+table.calendar-table {
+    table-layout: fixed;
 }
 
 .data-evento {
@@ -19,22 +60,8 @@
     margin-bottom: 8px;
 }
 
-.card-title {
-    font-size: 20px !important;
-    margin-bottom: -6px !important;
-}
 
-.card .card-content p {
-    margin: 12px;
-}
-
-a.format-selector .material-icons {
-    line-height: 48px;
-}
-
-table {
-    table-layout: fixed;
-}
+/*-------------------------------------------------
 
 tr {
     border-bottom: none;
@@ -48,11 +75,6 @@ tr.linha-dias {
     background: var(--darkened-bg);
 }
 
-
-span.numero-dia {
-    font-size: 1em;
-}
-
 tr.linha-evento {
     background: var(--body-bg);
 }
@@ -60,3 +82,14 @@ tr.linha-evento {
 .calendar-wrapper {
     width: 100%;
 }
+
+.evento {
+    padding: 0 6px;
+}
+
+
+span.numero-dia {
+    font-size: 1em;
+}
+
+---------------------------------------------------*/

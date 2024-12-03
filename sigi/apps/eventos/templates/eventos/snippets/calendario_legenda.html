@@ -1,0 +1,30 @@
+{% load i18n djbs_extras %}
+
+<table class="table table-sm table-info">
+  <tr>
+    <th>{% trans 'Mês / ano' %}</th>
+    <td>
+      {{ mes_pesquisa|stringformat:"02d" }} / {{ ano_pesquisa|stringformat:"02d" }}
+    </td>
+  </tr>
+  <tr>
+    <th>{% trans 'Categorias' %}</th>
+    <td>
+      <div  class="d-flex justify-content-evenly flex-wrap">
+        {% for key, name in categorias %}
+          <span class="categoria_{{ key }} py-1 px-4">{{ name }}</span>
+        {% endfor %}
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <th>{% trans 'Status' %}</th>
+    <td>
+      <div  class="d-flex justify-content-evenly flex-wrap">
+        {% for key, name in status %}
+          <span class="py-1 px-4"><i class="bi status_{{ key }}"></i> {{ name }}</span>
+        {% endfor %}
+      </div>
+    </td>
+  </tr>
+</table>
