@@ -1,0 +1,86 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">{% translate "Relatórios" %}</li>
+  <li class="breadcrumb-item">{% translate "Calendário de eventos" %}</li>
+{% endblock %}
+
+{% block content %}
+  {% if not eventos is None and not eventos.exists %}
+    <div class="alert alert-warning" role="alert">
+      {% icon "alert" %}
+      Nenhum evento encontrado para o filtro informado
+    </div>
+  {% endif %}
+
+  <form>
+    <div class="card mb-3">
+      <div class="card-header">
+        <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if eventos is None %}true{% else %}false{% endif %}" aria-controls="filterFormCollapse">
+          {% icon "filter" %} {% translate "Filtros" %}
+        </a>
+      </div>
+      <div class="card-body collapse{% if eventos is None %} show{% endif %}" id="filterFormCollapse">
+        {{ form }}
+      </div>
+      <div class="card-footer d-flex justify-content-end">
+        <div>
+          <button type="submit" class="btn btn-primary">{% trans 'Ver calendário' %}</button>
+          <button type="submit" name="fmt" value="pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+            {% icon "pdf" %}
+            {% trans 'Exportar para PDF' %}
+          </button>
+        </div>
+      </div>
+    </div>    
+  </form>
+
+  {% if eventos.exists %}
+    <div class="accordion" id="accordionReport">
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLegenda" aria-expanded="true" aria-controls="collapseLegenda">
+            {% translate "Legenda" %}
+          </button>
+        </h2>
+        <div id="collapseLegenda" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/calendario_legenda.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalendario" aria-expanded="true" aria-controls="collapseCalendario">
+            {% trans 'Calendário' %}
+          </button>
+        </h2>
+        <div id="collapseCalendario" class="accordion-collapse collapse show">
+          <div class="accordion-body">
+            {% include "eventos/snippets/calendario_cal.html" %}
+          </div>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <h2 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLista" aria-expanded="false" aria-controls="collapseLista">
+            {% trans 'Lista' %}
+          </button>
+        </h2>
+        <div id="collapseLista" class="accordion-collapse collapse">
+          <div class="accordion-body">
+            {% include "eventos/snippets/calendario_lista.html" %}
+          </div>
+        </div>
+      </div>      
+    </div>
+    {% include "eventos/snippets/calendario_modals.html" %}
+  {% endif %}
+
+{% endblock %}

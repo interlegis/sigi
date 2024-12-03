@@ -1,0 +1,25 @@
+{% load i18n %}
+
+{% for evento in eventos %}
+  <div class="modal fade" id="modal{{ evento.id|safe }}" tabindex="-1" aria-labelledby="label{{ evento.id|safe }}" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered modal-lg">
+      <div class="modal-content">
+        <div class="modal-header categoria_{{ evento.tipo_evento.categoria }}">
+          <h5 class="modal-title" id="label{{ evento.id|safe }}">
+            <i class="bi status_{{ evento.status }}"></i>
+            {{ evento.nome }}
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{% translate "Close" %}"></button>
+        </div>
+        <div class="modal-body">
+          {% include "eventos/snippets/calendario_detail.html" with evento=evento %}
+        </div>
+        <div class="modal-footer">
+          <a href="{{ evento.get_absolute_url }}">{% trans "Ver no site" %}</a>
+          <a href="{% url 'admin:eventos_evento_change' evento.id %}">{% trans "Editar" %}</a>
+        </div>
+    
+      </div>
+    </div>
+  </div>
+{% endfor %}

@@ -1,0 +1,97 @@
+{% extends 'pdf/base_report.html' %}
+{% load static i18n %}
+
+{% block extra_style %}
+  {{ block.super }}
+  a {
+    color: black;
+    text-decoration: none;
+  }
+  .calendar-table {
+    table-layout: fixed;    
+    border-collapse: collapse;
+    border-spacing: 0;
+    border: 1px solid #d2d2d2;
+  }
+  .calendar-table td+td {
+    border-left: 1px solid #d2d2d2 !important;
+  }
+  table td,
+  table td * {
+    vertical-align: top;
+  }
+  .calendar-table tr:nth-child(even) {
+    background-color: white;
+  }
+  tr.linha-dias {
+    background-color: #d2d2d2 !important;
+    border-top: 1px solid #d2d2d2;
+  }
+  span.numero-dia {
+    font-size: 1em;
+  }
+  .d-flex span {
+    margin-left: 8px;
+  }
+  .py-1 {
+    padding-top: .25rem!important;
+    padding-bottom: .25rem!important;
+  }
+  .px-4 {
+    padding-right: 1.5rem!important;
+    padding-left: 1.5rem!important;
+  }
+  .mb-3 {
+    margin-bottom: 1rem!important;
+  }  
+  .card {
+    background-color: #fff;
+    padding: 4px;
+    margin: 10px 0;
+    border: 1px solid rgba(0,0,0,0.125);
+  }
+  .card-header {
+    padding: 0.5rem 1rem;
+    margin-bottom: 1rem;
+  }
+  .card-footer {
+    display: none;
+  }
+  .data-evento {
+    font-size: 1em;
+    display: block;
+  }
+  .tipo-evento {
+    font-size: 1em;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .evento {
+    margin: 0;
+    padding: 5px 10px;
+  }
+  @font-face {
+    font-style: normal;
+    font-weight: 400;
+  }
+  @media print {
+    div.card {
+      break-inside: avoid;
+    }
+  }  
+{% endblock %}
+
+{% block main_content %}
+  <h1>
+    {% blocktrans with month=mes_pesquisa|stringformat:"02d" year=ano_pesquisa|stringformat:"04d" %}Mês: {{ month }}/{{year}}{% endblocktrans %}
+  </h1>
+  <div class="legenda">
+    {% include "eventos/snippets/calendario_legenda.html" %}
+  </div>
+  <div class="calenario">
+    {% include "eventos/snippets/calendario_cal.html" %}
+  </div>
+  <div class="lista">
+    {% include "eventos/snippets/calendario_lista.html" %}
+  </div>
+{% endblock main_content %}

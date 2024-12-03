@@ -1,0 +1,34 @@
+{% extends "pdf/base_report.html" %}
+{% load i18n static djbs_extras %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+
+{% block main_content %}
+  <div class="legenda">
+    <h4>{% translate "Legenda" %}</h4>
+    {% include "eventos/snippets/solicitacoes_por_periodo_legenda_snippet.html" %}
+  </div>
+  {% if not solicitacoes %}
+    <div class="alert alert-warning" role="alert">
+      {% icon "alert" %}
+      Nenhuma solicitação encontrada para o filtro informado
+    </div>
+    {% else %}
+    <div class="solicitacoes">
+      <h4>{% trans 'Solicitações' %}</h4>
+      {% include "eventos/snippets/solicitacoes_por_periodo_solicitacoes_snippet.html" %}
+    </div>
+    <div class="senador new-page">
+      <h4>{% trans 'Resumo por Senador' %}</h4>
+      {% include "eventos/snippets/solicitacoes_por_periodo_senador_snippet.html" %}
+    </div>
+    <div class="regiao new-page">
+      <h4>{% trans 'Resumo por Região' %}</h4>
+      {% include "eventos/snippets/solicitacoes_por_periodo_regiao_snippet.html" %}
+    </div>
+    <div class="tipo new-page">
+      <h4>{% trans 'Resumo por tipo de evento' %}</h4>
+      {% include "eventos/snippets/solicitacoes_por_periodo_tipo_snippet.html" %}
+    </div>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% load i18n static dict_get %}
+
+<div class="calendar-wrapper">
+  <table class="table table-bordered table-sm calendar-table">
+    <thead>
+      {% for name in day_names %}
+        <th>{{ name }}</th>
+      {% endfor %}
+    </thead>
+    <tbody class="table-group-divider">
+      {% for semana in semanas %}
+        <tr class="linha-dias">
+          {% for dia in semana.datas %}
+          <td>
+            <span class="numero-dia">
+              {% if dia.month == mes_pesquisa %}{{ dia.day }}{% endif %}
+            </span>
+          </td>
+          {% endfor %}
+        </tr>
+        {% for evento, tupla in semana.eventos %}
+          <tr class="linha-evento table-info">
+            {% for x in ""|ljust:tupla.0|make_list %}<td></td>{% endfor %}
+            <td colspan="{{ tupla.1 }}" class="categoria_{{ evento.tipo_evento.categoria }}">
+              <p class="evento">
+                <i class="bi status_{{ evento.status }}" title="{{ evento.get_status_display }}"></i>
+                <a class="modal-trigger" data-bs-toggle="modal" data-bs-target="#modal{{ evento.id|safe }}" title="{{ evento.nome }}">{{ evento.nome }}</a>
+              </p>
+            </td>
+            {% for x in ""|ljust:tupla.2|make_list %}<td></td>{% endfor %}
+          </tr>
+        {% empty %}
+          <tr class="table-info">
+            {% for x in "1234567" %}<td>&nbsp;</td>{% endfor %}
+          </tr>
+        {% endfor %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

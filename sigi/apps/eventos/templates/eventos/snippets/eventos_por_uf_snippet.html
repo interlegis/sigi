@@ -1,0 +1,46 @@
+{% load i18n %}
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th rowspan="2">{% trans 'Unidade Federativa' %}</th>
+      {% for label, items in cabecalho_uf %}
+        <th colspan="{{ items|length }}" class="center">{{ label|capfirst }}</th>
+      {% endfor %}
+    </tr>
+    <tr>
+      {% for top, items in cabecalho_uf %}
+        {% for label in items %}
+          <th class="numero">{{ label }}</th>
+        {% endfor %}
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    {% for datarow in pivo_uf.itertuples %}
+      {% ifchanged datarow.Index.0 %}
+        <tr>
+          {% with l1=cabecalho_uf.0.1|length l2=cabecalho_uf.1.1|length l3=cabecalho_uf.2.1|length l4=cabecalho_uf.3.1|length %}
+            <th  class="sep_regiao" colspan="{{ l1|add:l2|add:l3|add:l4|add:1 }}">{{ datarow.Index.0 }}</th>
+          {% endwith %}
+          </th>
+        </tr>
+      {% endifchanged %}
+      <tr>
+        {% for datacol in datarow %}
+          {% if forloop.first %}
+            <th>{{ datacol.1 }}</th>
+          {% else %}
+            <td class="numero">{{ datacol|default:"-" }}</td>
+          {% endif %}
+        {% endfor %}
+      </tr>
+    {% endfor %}
+    <tr>
+      <th>{% trans 'Sumário' %}</th>
+      {% for total in total_uf %}
+        <th class="numero">{{ total }}</th>
+      {% endfor %}
+    </tr>
+  </tbody>
+</table>
+

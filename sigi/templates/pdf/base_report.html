@@ -1,0 +1,137 @@
+{% extends 'pdf/base.html' %}
+{% load static i18n %}
+
+{% block title %}{{ title }}{% endblock title %}
+
+{% block extra_head %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock extra_head %}
+
+{% block extra_style %}
+h1, h2, h3, h4, h5, h6 {
+  margin: 24px 0 8px 8px;
+}
+h1 {font-size: 1.6em;}
+h2 {font-size: 1.5em;}
+h3 {font-size: 1.4em;}
+h4 {font-size: 1.3em;}
+h5 {font-size: 1.2em;}
+h6 {font-size: 1.1em;}
+header {
+  font-size: 1.4em;
+  font-weight: bold;
+  text-align: left;
+}
+header p {
+  margin: 0;
+}
+
+footer {
+  text-align: right;
+}
+footer img {
+  width: 105mm;
+}
+
+.report_name {
+  font-size: 1.6em;
+  margin-top: 5px;
+}
+
+table {
+  border: 2px solid white;
+  width: 100%;
+}
+th,td {
+  padding: 4px;
+}
+th {
+  background-color: #007433;
+  color: white;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+tr:nth-child(even) {
+  background-color: #d2d2d2;
+}
+.title_row {
+  background-color: #b2b2b2;
+}
+.left-align {
+  text-align: left;
+}
+.center-align {
+  text-align: center;
+}
+.right-align {
+  text-align: right;
+}
+.bold {
+  font-weight: bold;
+}
+ul {
+  list-style-type: none;
+  margin: 0px;
+  padding: 0px;
+}
+.filter-panel {
+  margin: 0 8px 12px;
+}
+.center {
+  text-align: center;
+}
+.numero {
+  text-align: right;
+}
+.alert {
+  --bs-alert-bg: transparent;
+  --bs-alert-padding-x: 1rem;
+  --bs-alert-padding-y: 1rem;
+  --bs-alert-margin-bottom: 1rem;
+  --bs-alert-color: inherit;
+  --bs-alert-border-color: transparent;
+  --bs-alert-border: 1px solid var(--bs-alert-border-color);
+  --bs-alert-border-radius: 0.375rem;
+  --bs-alert-link-color: inherit;
+  position: relative;
+  padding: var(--bs-alert-padding-y) var(--bs-alert-padding-x);
+  margin-bottom: var(--bs-alert-margin-bottom);
+  color: var(--bs-alert-color);
+  background-color: var(--bs-alert-bg);
+  border: var(--bs-alert-border);
+  border-radius: var(--bs-alert-border-radius);
+}
+.alert-warning {
+  --bs-alert-color: #8c5a1d;
+  --bs-alert-bg: #fde9d0;
+  --bs-alert-border-color: #ffe8a1;
+  --bs-alert-link-color: #8c5a1d;
+}
+{% endblock extra_style %}
+
+{% block body_content %}
+{% spaceless %}
+  <header>
+    {% block header %}
+      <p>{% trans 'SENADO FEDERAL' %}</p>
+      <p>{% trans 'Instituto Legislativo Brasileiro - ILB - Interlegis' %}</p>
+      <p class="report_name">{% block report_name %}{{ title|upper }}{% endblock report_name %}</p>
+    {% endblock header %}
+  </header>
+  <div class="footerLeft">
+    {% block footer_text %}
+      {% trans 'Emitido em' %}
+      <br/>
+      {% now "DATETIME_FORMAT" %}
+    {% endblock footer_text %}
+  </div>
+  <footer>
+    {% block footer %}
+      {% block footer_image %}<img src="{% static 'img/logos_rodape.png' %}" />{% endblock footer_image %}
+    {% endblock footer %}
+  </footer>
+  {% endspaceless %}
+
+  {% block main_content %}{% endblock main_content %}
+{% endblock body_content %}

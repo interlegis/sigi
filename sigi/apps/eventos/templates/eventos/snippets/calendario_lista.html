@@ -1,0 +1,19 @@
+{% load i18n static %}
+
+{% for evento in eventos %}
+  <div class="card mb-3">
+    <div class="card-header categoria_{{ evento.tipo_evento.categoria }}">
+      <i class="bi status_{{ evento.status }}"></i>
+      {{ evento.nome }}
+    </div>
+    <div class="card-body">
+      {% include "eventos/snippets/calendario_detail.html" with evento=evento %}
+    </div>
+    <div class="card-footer">
+      <div class="d-flex">
+        <a class="ms-auto" href="{{ evento.get_absolute_url }}">{% trans "Ver no site" %}</a>
+        <a class="ms-2" href="{% url 'admin:eventos_evento_change' evento.id %}">{% trans "Editar" %}</a>
+      </div>
+    </div>
+  </div>
+{% endfor %}

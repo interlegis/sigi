@@ -1,0 +1,20 @@
+{% extends "pdf/base_report.html" %}
+{% load static i18n %}
+
+{% block page_size %}A4 landscape{% endblock page_size %}
+
+{% block main_content %}
+  <div class="filter-panel">
+    <p>
+    {% blocktranslate with inicio=data_inicio|date:"SHORT_DATE_FORMAT" fim=data_fim|date:"SHORT_DATE_FORMAT" %}
+      Período: {{ inicio }} a {{ fim }}
+    {% endblocktranslate %}
+    </p>
+    <p>{% trans 'Categoria(s)' %}: {{ categorias|join:", " }}</p>
+    <p>{% trans 'Modo(s)' %}: {{ virtual|join:", " }}</p>
+  </div>
+  <h4>{% translate 'Resumo por Região' %}</h4>
+  {% include "eventos/snippets/resumo_por_regiao_snippet.html" %}
+  <h4>{% translate 'Resumo por Unidade da Federação' %}</h4>
+  {% include "eventos/snippets/eventos_por_uf_snippet.html" %}
+{% endblock %}
