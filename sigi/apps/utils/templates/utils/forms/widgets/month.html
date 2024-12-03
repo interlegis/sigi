@@ -1,0 +1,1 @@
+<input type="month" name="{{ widget.name }}" {% if widget.value != None %} value="{{ widget.value|date:'Y-m' }}"{% endif %} {% include "django/forms/widgets/attrs.html" %} style="width: max-content;">
