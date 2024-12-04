@@ -315,8 +315,9 @@ def alocacao_equipe(request):
     lang = to_locale(get_language()) + ".UTF-8"
     locale.setlocale(locale.LC_ALL, lang)
 
-    dados = []
-    eventos = Evento.objects.exclude(status="C").prefetch_related("equipe_set")
+    eventos = Evento.objects.exclude(
+        status__in=(Evento.STATUS_CANCELADO, Evento.STATUS_SOBRESTADO)
+    ).prefetch_related("equipe_set")
 
     num_cols = 12
 
@@ -344,6 +345,7 @@ def alocacao_equipe(request):
     else:
         eventos = eventos.filter(data_inicio__year=ano_pesquisa)
 
+    dados = []
     for evento in eventos:
         for p in evento.equipe_set.all():
             registro = None
@@ -355,13 +357,13 @@ def alocacao_equipe(request):
                 if semana_pesquisa > 0:
                     registro = [
                         p.membro.pk,
-                        p.membro.nome_completo,
+                        p.membro.get_apelido(),
                         OrderedDict([(dia, []) for dia in dias]),
                     ]
                 else:
                     registro = [
                         p.membro.pk,
-                        p.membro.nome_completo,
+                        p.membro.get_apelido(),
                         [{"dias": 0, "eventos": 0} for __ in range(num_cols)],
                     ]
                 dados.append(registro)
@@ -441,11 +443,15 @@ def alocacao_equipe(request):
         .values_list("data_inicio__year", flat=True),
         "ano_pesquisa": ano_pesquisa,
         "linhas": linhas,
+        "meses": meses,
     }
 
     if mes_pesquisa > 0:
         context["mes_pesquisa"] = mes_pesquisa
-        context["meses"] = meses
+        context["semanas"] = [
+            _(f"de {inicio:%d/%m} a {fim:%d/%m}") for inicio, fim in semanas
+        ]
+
         if semana_pesquisa > 0:
             cabecalho = [_("Servidor")] + dias
             context["semana_pesquisa"] = semana_pesquisa
@@ -468,7 +474,7 @@ def alocacao_equipe(request):
         context["title"] = _("Alocação de equipe")
         context["pdf"] = True
         return WeasyTemplateResponse(
-            filename="alocacao_equipe.pdf",
+            filename=f"alocacao_equipe_{ano_pesquisa}.pdf",
             request=request,
             template="eventos/alocacao_equipe_pdf.html",
             context=context,
@@ -477,7 +483,7 @@ def alocacao_equipe(request):
     elif formato == "csv":
         response = HttpResponse(content_type="text/csv")
         response["Content-Disposition"] = (
-            'attachment; filename="alocacao_equipe_%s.csv"' % (ano_pesquisa,)
+            f'attachment; filename="alocacao_equipe_{ano_pesquisa}.csv"'
         )
         writer = csv.writer(response)
         writer.writerow(cabecalho)

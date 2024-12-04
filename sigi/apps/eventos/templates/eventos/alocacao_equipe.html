@@ -1,0 +1,75 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="/static/css/calendario.css">
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">{% translate "Relatórios" %}</li>
+  <li class="breadcrumb-item">{% translate "Alocação de equipes" %}</li>
+{% endblock %}
+
+{% block content_title %}
+  <h5>
+    {% if semana_pesquisa %}
+      {% for s in semanas %}
+        {% if forloop.counter == semana_pesquisa %}
+          {% blocktrans with s=s %}Alocação de equipe na semana {{ s }}{% endblocktrans %}
+        {% endif %}
+      {% endfor %}
+    {% elif mes_pesquisa %}
+      {% blocktrans with ano=ano_pesquisa|stringformat:"04d" mes=mes_pesquisa|stringformat:"02d" %}Alocação de equipe em {{ mes }} / {{ ano }}{% endblocktrans %}
+    {% else %}
+      {% blocktrans with ano=ano_pesquisa|stringformat:"04d" %}Alocação de equipe em {{ ano }}{% endblocktrans %}
+    {% endif %}
+  </h5>
+{% endblock %}
+
+{% block content %}
+  <div class="card mb-3">
+    <div class="card-header">
+      {% icon "filter" %} {% translate "Filtros" %}
+    </div>
+    <div class="card-body">
+      <ul class="nav nav-pills">
+        {% for ano in anos %}
+          <li class="nav-item">
+            <a class="nav-link{% if ano == ano_pesquisa %} active{% endif %}" aria-current="page" href="?ano={{ ano|safe }}">{{ ano|stringformat:"02d" }}</a>
+          </li>
+        {% endfor %}
+      </ul>
+      <ul class="nav nav-pills">
+			  {% for mes in meses %}
+          <li class="nav-item">
+				    <a class="nav-link{% if forloop.counter == mes_pesquisa %} active{% endif %}" href="?ano={{ ano_pesquisa|safe }}&mes={{ forloop.counter|safe }}">{{ mes|safe }}</a>
+          </li>
+  			{% endfor %}
+      </ul>
+      {% if semanas %}
+        <ul class="nav nav-pills">
+          {% for s in semanas %}
+            <li class="nav-item">
+              <a class="nav-link{% if forloop.counter == semana_pesquisa %} active{% endif %}" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&semana={{ forloop.counter }}">{{ s }}</a>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+      <div>
+        <a class="btn btn-primary" role="button" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=pdf" title="{% trans 'Exportar para PDF' %}">{% icon "pdf" %} {% trans 'Exportar para PDF' %}</a>
+        <a class="btn btn-primary" role="button" href="?ano={{ ano_pesquisa|safe }}{% if mes_pesquisa %}&mes={{ mes_pesquisa|safe }}{% endif %}{% if semana_pesquisa %}&semana={{ semana_pesquisa|safe }}{% endif %}&fmt=csv" title="{% trans 'Exportar para CSV' %}">{% icon "csv" %} {% trans 'Exportar para CSV' %}</a>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      {% include "eventos/snippets/alocacao_equipe_snippet.html" with mode="html" %}
+    </div>
+  </div>
+	{% if semana_pesquisa %}
+		{% include "eventos/snippets/calendario_modals.html" %}
+	{% endif %}
+{% endblock %}
