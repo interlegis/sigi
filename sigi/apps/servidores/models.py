@@ -87,17 +87,19 @@ class Servidor(models.Model):
         if self.apelido:
             return self.apelido
         else:
-            nomes = self.nome_completo.split(" ")
-            return nomes[0]
+            nomes = self.nome_completo.strip().split(" ")
+            return " ".join(nomes[:: len(nomes) - 1])
 
 
 # Soluçao alternativa para extender o usuário do django
 # Acessa do servidor de um objeto user criando um profile
 # baseado nos dados do LDAP
 User.servidor = property(
-    lambda user: Servidor.objects.get(user=user)
-    if Servidor.objects.filter(user=user).exists()
-    else None
+    lambda user: (
+        Servidor.objects.get(user=user)
+        if Servidor.objects.filter(user=user).exists()
+        else None
+    )
 )
 
 
