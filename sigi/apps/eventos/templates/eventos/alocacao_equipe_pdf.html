@@ -1,0 +1,29 @@
+{% extends "pdf/base_report.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block page_size %}A4 landscape{% endblock %}
+{% block extra_style %}
+	{{ block.super }}
+	a {
+		color: black;
+		text-decoration: none;
+	}
+{% endblock %}
+
+{% block main_content %}
+	<h5>
+    {% if semana_pesquisa %}
+      {% for s in semanas %}
+        {% if forloop.counter == semana_pesquisa %}
+          {% blocktrans with s=s %}Alocação de equipe na semana {{ s }}{% endblocktrans %}
+        {% endif %}
+      {% endfor %}
+    {% elif mes_pesquisa %}
+      {% blocktrans with ano=ano_pesquisa|stringformat:"04d" mes=mes_pesquisa|stringformat:"02d" %}Alocação de equipe em {{ mes }} / {{ ano }}{% endblocktrans %}
+    {% else %}
+      {% blocktrans with ano=ano_pesquisa|stringformat:"04d" %}Alocação de equipe em {{ ano }}{% endblocktrans %}
+    {% endif %}
+  </h5>
+	{% include "eventos/snippets/alocacao_equipe_snippet.html" %}
+{% endblock %}
