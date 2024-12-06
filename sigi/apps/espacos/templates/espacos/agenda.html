@@ -1,0 +1,58 @@
+{% extends "eventos/calendario.html" %}
+{% load i18n static sigi_tags djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <style>
+	tr.linha-evento {
+		border-bottom: 1px solid var(--hairline-color);
+	}
+	tr.linha-evento.last {
+		border-bottom: 1px solid var(--main-bg-color);
+	}
+	tr td {
+		border-left: 1px solid var(--hairline-color);
+	}
+	.col-horario {
+		width: 5em;
+		text-aign: right;
+	}
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">{% translate "Relatórios" %}</li>
+  <li class="breadcrumb-item">{% translate "Reserva de espaços" %}</li>
+{% endblock %}
+
+{% block content %}
+  <div class="card mb-3">
+    <div class="card-header">
+      {% icon "filter" %} {% translate "Filtros" %}
+    </div>
+    <div class="card-body">
+      <ul class="nav nav-tabs" id="anoTab" role="tablist">
+        {% for ano in meses %}
+          <li class="nav-item" role="presentation">
+            <button class="nav-link{% if ano == ano_pesquisa %} active{% endif %}" id="tab-{{ ano|safe }}" data-bs-toggle="tab" data-bs-target="#tab-pane-{{ ano|safe }}" type="button" role="tab" aria-controls="tab-pane-{{ ano|safe }}" aria-selected="{% if ano == ano_pesquisa %}true{% else %}false{% endif %}">{{ ano|safe }}</button>
+          </li>
+        {% endfor %}
+		  </ul>
+      <div class="tab-content" id="anoTabContent">
+        {% for ano, lista in meses.items %}
+          <div class="tab-pane fade p-3{% if ano == ano_pesquisa %} show active{% endif %}" id="tab-pane-{{ ano|safe }}" role="tabpanel" aria-labelledby="tab-{{ ano|safe }}" tabindex="0">
+            {% for mes, nome in lista.items %}
+              <a class="btn btn-outline-primary btn-sm{% if ano == ano_pesquisa and mes == mes_pesquisa %} disabled{% endif %}" href="?ano={{ ano|safe }}&mes={{ mes|safe }}">{{ nome }}</a>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="card-footer d-flex justify-content-end">
+      <div>
+        <a class="btn btn-primary" role="button" href="?ano={{ ano_pesquisa|safe }}&mes={{ mes_pesquisa|safe }}&pdf=1" title="{% trans 'Exportar para PDF' %}">{% icon "pdf" %} {% trans 'Exportar para PDF' %}</a>
+      </div>
+    </div>
+  </div>
+  {% include "espacos/snippets/agenda_cal.html" %}
+{% endblock %}

@@ -1,0 +1,78 @@
+{% load i18n static sigi_tags %}
+
+{% for semana in semanas %}
+  {% if pdf and not forloop.last and not forloop.first and semana|length > 1 %}
+    <div class="new-page"></div>
+  {% endif %}
+
+  <div class="card mb-3">
+    <div class="card-header">
+      {% blocktranslate with start=semana.datas|first|date:"SHORT_DATE_FORMAT" end=semana.datas|last|date:"SHORT_DATE_FORMAT" %}
+        Semana de {{ start }} a {{ end }}
+      {% endblocktranslate %}
+    </div>
+    <div class="card-body">
+      {% if semana|length > 1 %}
+        <table class="table table-responsive table-sm table-bordered">
+          <colgroup>
+            <col class="col-sala"/>
+            <col class="col-horario"/>
+          </colgroup>
+          <thead>
+            <tr>
+              <th rowspan="2">{% trans "Espaço" %}</th>
+              <th rowspan="2" class="col-horario"></th>
+              {% for name in day_names %}
+                <th>{{ name }}</th>
+              {% endfor %}
+            </tr>
+            <tr>
+              {% for dia in semana.datas %}
+                <th>{{ dia|date:"d/m"}}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody class="table-group-divider">
+            {% for espaco, linhas in semana.items %}          
+              {% if espaco != "datas" %}
+                {% for linha in linhas %}
+                  <tr class="linha-evento{% if forloop.last %} last{% endif %}">
+                    {% if forloop.first %}
+                      <th rowspan="{{ linhas|length}}">{{ espaco.sigla }}</th>
+                    {% endif %}
+                    <td class="col-horario">{{ linha.hora }}</td>
+                    {% for coluna in linha.colunas %}
+                      {% if "reserva" in coluna %}
+                        <td colspan="{{ coluna.colspan}}" rowspan="{{ coluna.rowspan}}" class="blue lighten-4">
+                          <p>
+                            <strong>
+                              <a href="{% url "admin:espacos_reserva_change" coluna.reserva.id %}">
+                                {{ coluna.reserva.proposito }}
+                              </a>
+                            </strong>
+                          </p>
+                          <p>{{ coluna.reserva.data_inicio|interval:coluna.reserva.data_termino }}</p>
+                          <p>
+                            {% blocktranslate with solicitante=coluna.reserva.solicitante %}
+                              solicitado por {{ solicitante }}
+                            {% endblocktranslate %}
+                          </p>
+                        </td>
+                      {% else %}
+                        {% if not coluna is None %}
+                          <td></td>
+                        {% endif %}
+                      {% endif %}
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              {% endif %}
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p class="card-text">{% translate "Nenhuma reserva de espaço nesta semana" %}</p>
+      {% endif %}
+    </div>
+  </div>
+{% endfor %}
