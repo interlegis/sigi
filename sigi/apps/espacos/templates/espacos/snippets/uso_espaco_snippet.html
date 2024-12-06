@@ -1,0 +1,52 @@
+{% load i18n static sigi_tags dict_get %}
+
+<div class="table-responsive">
+  <table class="table table-sm table-stripped calendar-table" repeat="2">
+    <thead>
+      <tr>
+        {% if not espacos %}
+          <th rowspan="2">{% trans "Espaço" %}</th>
+        {% endif %}
+        <th rowspan="2">{% trans "SIGAD" %}</th>
+        <th rowspan="2">{% trans "Virtual" %}</th>
+        <th rowspan="2">{% trans "Data início" %}</th>
+        <th rowspan="2">{% trans "Data término" %}</th>
+        <th rowspan="2">{% trans "Propósito" %}</th>
+        <th rowspan="2">{% trans "Total participantes" %}</th>
+        <th rowspan="2">{% trans "Autoridade solicitante" %}</th>
+        <th colspan="2">{% trans "Contato" %}</th>
+        <th rowspan="2">{% trans "Informações adicionais" %}</th>
+        <th rowspan="2">{% trans "Recursos solicitados" %}</th>
+      </tr>
+      <tr>
+        <th>{% trans "Nome" %}</th>
+        <th>{% trans "Telefone" %}</th>
+      </tr>
+    </thead>
+    <tbody class="table-group-divider">
+      {% for reserva in reservas %}
+        <tr>
+          {% if not espacos %}
+            <th>{{ reserva.espaco.nome }}</th>
+          {% endif %}
+          <td>{{ reserva.num_processo }}</td>
+          <td>{{ reserva.virtual|yesno }}</td>
+          <td>{{ reserva.data_inicio }}</td>
+          <td>{{ reserva.data_termino }}</td>
+          <td>{{ reserva.proposito }}</td>
+          <td>{{ reserva.total_participantes|default:"-" }}</td>
+          <td>{{ reserva.solicitante }}</td>
+          <td>{{ reserva.contato }}</td>
+          <td>{{ reserva.telefone_contato }}</td>
+          <td>{{ reserva.informacoes }}</td>
+          <td>
+            {% for recurso in reserva.recursosolicitado_set.all %}
+              {{ recurso.quantidade|default:"" }} {{ recurso.recurso.sigla }}
+              {% if not forloop.last %}<br/>{% endif %}
+            {% endfor %}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>

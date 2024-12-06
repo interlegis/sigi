@@ -142,6 +142,7 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
     pagesize = "A4 landscape"
 
     def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         form = UsoEspacoReportForm(self.request.GET)
         if form.is_valid():
             data_inicio = form.cleaned_data["data_inicio"]
@@ -150,15 +151,10 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
             virtual = form.cleaned_data["virtual"]
             agrupar_espacos = form.cleaned_data["agrupar_espacos"]
         else:
-            form = UsoEspacoReportForm(
+            context["form"] = UsoEspacoReportForm(
                 initial={"espaco": Espaco.objects.all()}
             )
-            semana = form.get_semana()
-            data_inicio = semana["first"]
-            data_fim = semana["last"]
-            virtual = UsoEspacoReportForm.VIRTUAL_ALL
-            agrupar_espacos = False
-            sel_espacos = None
+            return context
 
         if not sel_espacos:
             sel_espacos = Espaco.objects.all()
@@ -200,7 +196,6 @@ class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         else:
             espacos = None
 
-        context = super().get_context_data(**kwargs)
         context.update(
             {
                 "espacos": espacos,
