@@ -1,0 +1,104 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n static djbs_extras %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">{% translate "Relatórios" %}</li>
+  <li class="breadcrumb-item">{% translate "Lista de gerentes" %}</li>
+{% endblock %}
+
+{% block content_title %}
+  <h5>{% translate "Lista de gerentes" %}</h5>
+{% endblock %}
+
+{% block content %}
+  {% comment %} <nav class="nav my-3 bg-body-tertiary">
+    <a class="nav-link ms-lg-auto" href="?fmt=pdf">{% icon "pdf" %}Exportar para PDF</a>
+    <a class="nav-link" href="?fmt=csv&casas=yes">{% icon "csv" %} Exportar CSV com casas</a>
+    <a class="nav-link" href="?fmt=csv&casas=no">{% icon "csv" %} Exportar CSV sem casas</a>
+  </nav> {% endcomment %}
+
+  {% for gerente in object_list %}
+    <div class="card mb-3">
+      <div class="card-header">
+        {% if gerente.foto %}
+          <img class="rounded-circle user-image" src="{{ gerente.foto.url }}"/>
+        {% else %}
+          {% icon "user" %}
+        {% endif %}
+        {{ gerente.nome_completo }}
+      </div>
+      <div class="card-body">
+        <p class="card-text">
+          <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}" title="{% trans "Ver no mapa" %}">
+          {% blocktrans with total=gerente.tot_casas %}
+          Atende a {{ total }} casas legislativas.
+          </a>
+          {% endblocktrans %}
+        </p>
+        <div class="accordion" id="accordion{{ gerente.id }}">
+          {% for regiao, tot_casas, ufs in gerente.regioes %}
+            <div class="accordion-item">
+              <h2 class="accordion-header">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-{{ gerente.id }}-{{ regiao|slugify }}" aria-expanded="false" aria-controls="collapse-{{ gerente.id }}-{{ regiao|slugify }}">
+                  <strong>{{ regiao }}:&nbsp;</strong>
+                  <em>
+                    {% blocktrans with total=tot_casas %}
+                      {{ total }} casas atendidas
+                    {% endblocktrans %}
+                  </em>
+                </button>
+              </h2>
+              <div id="collapse-{{ gerente.id }}-{{ regiao|slugify }}" class="accordion-collapse collapse" data-bs-parent="#accordion{{ gerente.id }}">
+                <div class="accordion-body">
+                  <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}{% for uf_rec in ufs %}&uf={{ uf_rec.0 }}{% endfor %}" title="{% trans "Ver no mapa" %}">
+                    <em>
+                      {% blocktrans with total=tot_casas %}
+                      Ver as {{ total }} casas atendidas na região {{ regiao }} no mapa.
+                      {% endblocktrans %}
+                    </em>
+                  </a>
+                  <table class="table table-sm table-striped">
+                    <thead>
+                      <tr>
+                        <th>{% trans "Unidade da Federação" %}</th>
+                        <th class="right-align">{% trans "Total de Casas" %}</th>
+                        {% for tipo in tipos_orgao %}
+                          <th class="right-align">{{ tipo.nome }}</th>
+                        {% endfor %}
+                      </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                      {% for uf_rec in ufs %}
+                        <tr>
+                          {% for value in uf_rec|slice:"1:" %}
+                            {% if forloop.first %}
+                              <td>
+                                <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}&uf={{ uf_rec.0 }}" title="{% trans "Ver no mapa" %}">
+                                  {{ value }}
+                                </a>
+                              </td>
+                            {% else %}
+                              <td class="right-align">
+                                {% if forloop.counter > 2 and value > 0 %}
+                                  <a href="{% url 'openmap' %}?tipo_servico=ignore&tipo_convenio=ignore&gerente={{ gerente.id|stringformat:'s' }}&uf={{ uf_rec.0 }}&tipo_orgao={% for tipo in tipos_orgao %}{% if forloop.counter == forloop.parentloop.counter|add:-2 %}{{ tipo.sigla }}{% endif %}{% endfor %}" title="{% trans "Ver no mapa" %}">
+                                    {{ value }}
+                                  </a>
+                                {% else %}
+                                  {{ value|default:"-" }}
+                                {% endif %}
+                              </td>
+                            {% endif %}
+                          {% endfor %}
+                        </tr>
+                      {% endfor %}
+                    </tbody>
+                  </table>                
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}
