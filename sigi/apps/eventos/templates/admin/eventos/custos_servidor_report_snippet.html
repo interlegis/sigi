@@ -1,0 +1,36 @@
+{% load i18n %}
+<table class="table table-sm table-striped" repeat="2">
+  <thead>
+    <tr>
+      <th>{% trans "Membro da equipe" %}</th>
+      <th>{% trans "Qtde eventos" %}</th>
+      <th>{% trans "Qtde diárias" %}</th>
+      <th>{% trans "Valor médio diária" %}</th>
+      <th>{% trans "Total diárias" %}</th>
+      <th>{% trans "Total passagens" %}</th>
+      <th>{% trans "Total" %}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for servidor in servidores.itertuples %}
+      <tr>
+        <td>{{ servidor.nome_completo }}</td>
+        <td class="right-align">{{ servidor.qtde_eventos|default:"-" }}</td>
+        <td class="right-align">{{ servidor.qtde_diarias|floatformat:2|default:"-" }}</td>
+        <td class="right-align">{{ servidor.media_diarias|floatformat:2|default:"-" }}</td>
+        <td class="right-align">{{ servidor.total_diarias|floatformat:2|default:"-" }}</td>
+        <td class="right-align">{{ servidor.total_passagens|floatformat:2|default:"-" }}</td>
+        <td class="right-align">{{ servidor.total_custo|floatformat:2|default:"-" }}</td>
+      </tr>
+    {% endfor %}
+    <tr>
+      <th class="right-align">{% trans "Totais" %}</th>
+      <th class="right-align">{{ totais.qtde_eventos|default:"-" }}</th>
+      <th class="right-align">{{ totais.qtde_diarias|floatformat:2|default:"-" }}</th>
+      <th class="right-align">{{ totais.media_diarias|floatformat:2|default:"-" }}</th>
+      <th class="right-align">{{ totais.total_diarias|floatformat:2|default:"-" }}</th>
+      <th class="right-align">{{ totais.total_passagens|floatformat:2|default:"-" }}</th>
+      <th class="right-align">{{ totais.total_custo|floatformat:2|default:"-" }}</th>
+    </tr>
+  </tbody>
+</table>

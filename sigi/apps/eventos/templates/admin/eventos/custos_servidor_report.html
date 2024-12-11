@@ -1,0 +1,22 @@
+{% extends 'utils/report/report.html' %}
+{% load i18n %}
+
+{% block extrastyle %}
+{{ block.super }}
+	<style type="text/css">
+    .sessao-resumo {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5em;
+    }
+    .card-resumo {
+      flex-grow: 1;
+    }
+  </style>
+{% endblock %}
+
+{% block data %}
+  {% if not servidores is None %}
+    {% include "admin/eventos/custos_servidor_report_snippet.html" %}
+  {% endif %}
+{% endblock data %}

@@ -1068,8 +1068,9 @@ class CustosEventosReport(
             context["data_inicio"] = form.cleaned_data["data_inicio"]
             context["data_fim"] = form.cleaned_data["data_fim"]
         else:
-            context = {}
+            context = {"object_list": False}
         context["form"] = form
+        context["report_title"] = self.get_title()
         return context
 
     def get_dataset(self, context):
@@ -1278,7 +1279,8 @@ def context_custos_eventos(queryset):
         "eventos": eventos.order_by("data_inicio"),
         "resumo": resumo,
         "custos_regiao": custos_regiao,
-        "title": _("Custos por eventos"),
+        "report_title": _("Custos por eventos"),
+        "object_list": True,
     }
 
 
@@ -1331,7 +1333,8 @@ def context_custos_servidor(queryset):
     )
     totais["media_diarias"] = totais["total_diarias"] / totais["qtde_diarias"]
     return {
+        "object_list": True,
         "servidores": servidores.fillna(0),
         "totais": totais.fillna(0),
-        "title": _("Custos por servidor"),
+        "report_title": _("Custos por servidor"),
     }
