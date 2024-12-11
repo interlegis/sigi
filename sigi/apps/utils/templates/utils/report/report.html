@@ -1,0 +1,82 @@
+{% extends "admin/base_site.html" %}
+{% load static i18n djbs_extras %}
+
+{% if form %}
+  {% block extrastyle %}
+    {{ block.super }}
+    {{ form.media }}
+  {% endblock extrastyle %}
+{% endif %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item">{% translate "Relatórios" %}</li>
+  <li class="breadcrumb-item">{{ report_title }}</li>
+{% endblock %}
+
+{% block content_title %}
+  <h5>{{ report_title }}</h5>
+{% endblock %}
+
+{% block content %}
+  {% block form %}
+    {% if form %}
+      <form>
+        <div class="card mb-3">
+          <div class="card-header">
+            <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if not object_list %}true{% else %}false{% endif %}" aria-controls="filterFormCollapse">
+              {% icon "filter" %} {% translate "Filtros" %}
+            </a>
+          </div>
+          <div class="card-body collapse{% if not object_list %} show{% endif %}" id="filterFormCollapse">
+            {% block filterform %}{{ form }}{% endblock %}
+          </div>
+          <div class="card-footer d-flex justify-content-end">
+            <div>
+              {% block formactionbar %}
+                <button type="submit" class="btn btn-primary">{% trans 'Ver dados' %}</button>
+                <button type="submit" name="fmt" value="pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+                  {% icon "pdf" %}
+                  {% trans 'Exportar para PDF' %}
+                </button>
+                <button type="submit" name="fmt" value="csv" class="btn btn-primary" title="{% trans 'Exportar para CSV' %}">
+                  {% icon "csv" %}
+                  {% trans 'Exportar para CSV' %}
+                </button>
+              {% endblock formactionbar %}
+            </div>
+          </div>
+        </div>
+      </form>
+    {% else %}
+      {% block actionbar %}
+        <nav class="nav my-3 bg-body-tertiary">
+          <a class="nav-link ms-lg-auto" href="?fmt=pdf">{% icon "pdf" %}Exportar para PDF</a>
+          <a class="nav-link" href="?fmt=csv&casas=yes">{% icon "csv" %} Exportar para CSV</a>
+        </nav>
+      {% endblock actionbar %}
+    {% endif %}
+  {% endblock form %}
+
+  {% block datacard %}
+    <div class="card">
+      <div class="card-body">
+        {% block data %}
+          {% include "utils/report/report_items_snippet.html" with mode="html" %}
+        {% endblock data %}
+      </div>
+    </div>
+  {% endblock datacard %}
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  {% if form %}
+    {{ form.media }}
+  {% endif %}
+	<script>
+		$(document).ready(function(){
+			M.FloatingActionButton.init($('.fixed-action-btn'), {hoverEnabled: false});
+			M.Modal.init($(".modal"));
+		})
+	</script>
+{% endblock %}

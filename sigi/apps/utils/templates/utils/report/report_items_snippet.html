@@ -1,0 +1,41 @@
+{% load i18n admin_urls sigi_tags %}
+
+<table class="table table-sm table-striped">
+  <thead>
+    <tr>
+      {% for label in list_labels %}
+        <th>{{ label }}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody class="table-group-divider">
+    {% for obj in object_list %}
+      {% if break_field %}
+        {% with obj|valueof:break_field as monitor_break %}
+          {% ifchanged monitor_break %}
+            <tr><th colspan="{{ list_fields|length }}">{{ monitor_break }}</th></tr>
+          {% endifchanged %}
+        {% endwith %}
+      {% endif %}
+      <tr{% if change_field %}{% with obj|valueof:change_field as monitor_change %}{% ifchanged monitor_change %} class="changed {{ change_field }}-changed"{% endifchanged %}{% endwith %}{% endif %}>
+        {% for field_name in list_fields %}
+          <td>
+            {% if field_name in link_fields %}
+              <a href="{% url opts|admin_urlname:'change' obj.pk %}">
+                {{ obj|valueof:field_name|safe }}
+              </a>
+            {% else %}
+              {{ obj|valueof:field_name|safe }}
+            {% endif %}
+          </td>
+        {% endfor %}
+      </tr>
+    {% empty %}
+      <tr>
+        <td colspam="{{ list_labels|length }}">
+          {{ empty_message|default:_("Nenhum dado para exibir") }}
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>
