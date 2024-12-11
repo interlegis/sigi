@@ -29,8 +29,21 @@ main_menu:
   - title: Relatórios
     icon: bi bi-filetype-pdf
     children:
+      - title: VALIDAÇÃO - Erros importação Gescon
+        view_name: convenios-report_erros_gescon
+      - title: VALIDAÇÃO - Órgãos com CNPJ duplicado
+        view_name: casas_cnpj_duplicado
+      - title: VALIDAÇÃO - Órgãos com CNPJ errado
+        view_name: casas_cnpj_errado
+        separator: [after,]
       - title: Eventos por UF
         view_name: eventos_eventosporuf
+      - title: Alunos por UF
+        view_name: eventos_alunosporuf
+      - title: Custos por evento
+        view_name: eventos_custoseventos
+      - title: Custos por servidor
+        view_name: eventos_custosservidor
       - title: Solicitações de eventos por período
         view_name: eventos_solicitacoesporperiodo
       - title: Calendário de eventos
@@ -42,6 +55,8 @@ main_menu:
         view_name: espacos_agenda
       - title: Uso dos espaços
         view_name: espacos_usoespaco
+      - title: Resumo das reservas de espaços
+        view_name: espacos_resumoreservas
         separator: [after,]
       - title: Lista de gerentes
         view_name: casas_gerentes
