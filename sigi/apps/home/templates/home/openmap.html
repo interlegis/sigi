@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% load static i18n djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+  crossorigin=""/>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.14.1/themes/base/jquery-ui.css">  
+  <link rel="stylesheet" href="{% static 'home/css/openmap.css' %}" />
+{% endblock %}
+
+{% block extrahead %}
+  {{ block.super }}
+  <script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Type" content="text/xhtml; charset=UTF-8" />
+  <meta name="robots" content="NONE,NOARCHIVE" />
+  <meta name="referrer" content="strict-origin-when-cross-origin"/>
+  <script type="text/javascript">
+    //<![CDATA[
+    window.__admin_media_prefix__ = "{% filter escapejs %}{% static "admin / " %}{% endfilter %}";
+    window.__openmapdetail_prefix__ = "{% url 'openmapdetail' 'changeme' %}";
+    window.__openmapdata__ = "{% url 'openmapdata' %}";
+      //]]>
+  </script>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""></script>
+  <script type="text/javascript" src="{% static 'js/search.js' %}"></script>
+  <script type="text/javascript" src="{% static 'home/js/openmap.js' %}"></script>
+{% endblock %}
+
+{% block nav-breadcrumbs %}{% endblock %}
+
+{% block title %}{% if subtitle %}{{ subtitle }} | {% endif %}{{ title }} | {{ site_title|default:_('Django site admin') }}{% endblock %}
+
+{% block navbar-branding %}
+  <a class="navbar-brand" href="{% if user.is_staff %}{% url 'admin:index' %}{% else %}{% url "openmap" %}{% endif %}">
+    <img src="{% static 'img/logo.svg' %}" height="48px"/>
+    <span class="sidenav-collapsible collapse collapse-horizontal show fw-bold ms-2">{{ site_header|default:_('Django administration') }}</span>
+  </a>
+  {{ block.super }}
+{% endblock %}
+
+{% block toolclass %}{{ block.super }} ms-auto{% endblock %}
+
+{% block nav-global %}
+<a id="center-map" class="nav-link" href="#" title="{% trans 'Centralizar o mapa' %}">{% icon "map-cross" %} {% trans 'Centralizar o mapa' %}</a>
+<a class="nav-link" data-bs-toggle="offcanvas" href="#sidebar-offcanvas" title="{% trans "Filtrar dados" %}">{% icon "filter" %} {% trans "Filtrar dados" %}</a>
+<a id="clear-filters" class="nav-link" href="#" title="{% trans 'Remover todos os filtros' %}">{% icon "error" %} {% trans 'Remover todos os filtros' %}</a>
+<a id="" class="nav-link" href="{% url 'admin:index' %}" title="{% trans "Login" %}">{% icon "login" %} {% trans "Login" %}</a>
+{% endblock %}
+
+{% block side_nav %}{% endblock %}
+
+{% block menu %}{% endblock %}
+{% block coltype %}py-2{% endblock %}
+
+{% block search %}
+  <form id="searchform" class="d-flex gap-2 ms-2" role="search">
+    {% icon "search" "d-none d-lg-inline-block navbar-text" %}
+    <input id="map-search" type="search" class="form-control" placeholder="{% trans "Procurar" %}" aria-label="{% trans "Procurar" %}" data-source="{% url 'openmapsearch' %}">
+  </form>
+
+{% endblock search %}
+
+{% block content %}
+  <div id="filter-spinner" class="fixed-top vh-100 bg-secondary bg-opacity-50 d-none flex-wrap justify-content-center align-content-center">
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">{% trans "Loading..." %}</span>
+    </div>    
+  </div>
+  <div id="map">
+    <!-- open street map -->
+  </div>
+{% endblock %}
+
+{% block sidebar-title %}{% translate "Filtrar" %}{% endblock sidebar-title %}
+
+{% block sidebar-body %}
+  <div class="mb-3 text-body-secondary d-flex">
+    <small class="me-auto"><strong>Total de Órgãos selecionados: </strong></small>
+    <span class="badge text-bg-info" id="totalOrgao">-</span>
+  </div>
+  {% include "home/mapfilter.html" %}
+{% endblock sidebar-body %}

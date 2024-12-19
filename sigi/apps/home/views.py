@@ -346,28 +346,26 @@ def openmapdetail(request, orgao_id):
 
 
 def openmapsearch(request):
-    q = request.GET.get("q", "")
+    q = request.GET.get("q", request.GET.get("term", ""))
     if len(q) < 3:
         return JsonResponse({"result": "unsearchable"})
 
-    dados = Orgao.objects.filter(
-        tipo__legislativo=True, search_text__icontains=to_ascii(q)
-    )[:10]
-    dados = dados.values(
-        "id",
-        "nome",
-        "municipio__uf__sigla",
-        "municipio__latitude",
-        "municipio__longitude",
-    )
     dados = [
         {
             "id": d["id"],
-            "label": f"{d['nome']} - {d['municipio__uf__sigla']}",
+            "label": f"{d['nome']}, {d['municipio__uf__sigla']}",
             "lat": d["municipio__latitude"],
             "lng": d["municipio__longitude"],
         }
-        for d in dados
+        for d in Orgao.objects.filter(
+            tipo__legislativo=True, search_text__icontains=to_ascii(q)
+        )[:10].values(
+            "id",
+            "nome",
+            "municipio__uf__sigla",
+            "municipio__latitude",
+            "municipio__longitude",
+        )
     ]
     return JsonResponse(list(dados), safe=False)
 

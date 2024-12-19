@@ -1,0 +1,47 @@
+<table class="table table-sm table-striped">
+  <tr>
+    <th colspan="2">
+      {% if user.is_staff %}
+        {% url "admin:casas_orgao_change" orgao.id as orgao_url %}
+      {% else %}
+        {% url "servicos_casas_atendidas" orgao.id as orgao_url %}
+      {% endif %}
+      <a href="{{ orgao_url }}" target="_blank">
+        {{ orgao }}
+      </a>
+    </th>
+  </tr>
+  <tr><th>Endereço</th><td><address>{{ orgao.logradouro }}, {{ orgao.bairro }}, {{ orgao.municipio.nome }}, {{ orgao.municipio.uf.sigla }}, CEP: {{ orgao.cep }}</address></td></tr>
+  {% if telefones %}
+    <tr>
+      <th>Telefones</th>
+      <td>
+        {% for telefone in telefones %}
+          <a href="tel:{{ telefone }}">{{ telefone }}</a>
+          {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+      </td>
+    </tr>
+  {% endif %}
+  {% if orgao.email %}<tr><th>E-mail</th><td><a href="mailto:{{ orgao.email }}">{{ orgao.email }}</a></td></tr>{% endif %}
+  {% if orgao.convenio_set.all %}
+  <tr>
+    <th>Convênios</th>
+    <td>
+      {% for c in orgao.convenio_set.all %}
+        {% if user.is_staff %}
+          <a href="{% url 'admin:convenios_convenio_change' c.id %}" target="_blank">
+            {{ c.projeto.sigla }} ({{ c.get_status }})
+          </a>
+        {% else %}
+            {{ c.projeto.sigla }} ({{ c.get_status }})
+        {% endif %}
+        {% if not forloop.last %}, {% endif %}
+      {% endfor %}
+    </td>
+  </tr>
+  {% endif %}
+  {% if orgao.servico_set.all %}
+  <tr><th>Serviços</th><td>{% for s in servicos.all %}{% if s.url %}<a href="{% if '//' not in s.url %}//{% endif %}{{ s.url }}" target="_blank">{{ s }}</a>{% else %}{{ s }}{% endif %}{% if not forloop.last %}, {% endif %}{% endfor %}</td></tr>
+  {% endif %}
+</table>

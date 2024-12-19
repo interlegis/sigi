@@ -1,0 +1,123 @@
+{% load i18n %}
+
+<form id="filterForm" action="" method="get">{{ csrftoken }}
+  <div class="accordion" id="accordionMapFilter">
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOrgao" aria-expanded="false" aria-controls="collapseOrgao">
+          {% trans "Órgão" %}
+        </button>
+      </h2>
+      <div id="collapseOrgao" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          {% for o in tipos_orgao %}
+            <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+              <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_orgao_{{ o.sigla }}" name="tipo_orgao" value="{{ o.sigla }}"{% if o.sigla in pre_tipos_orgao or not pre_tipos_orgao %} checked{% endif %}/>
+              <label class="form-check-label" for="tipo_orgao_{{ o.sigla }}">{{ o.nome }}</label>
+            </div>          
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseServico" aria-expanded="false" aria-controls="collapseServico">
+          {% trans "Serviço" %}
+        </button>
+      </h2>
+      <div id="collapseServico" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_servico_ignore" name="ignore_tipo_servico" value="ignore" data-controls="tipo_servico"{% if 'ignore' in pre_tipos_servico %} checked{% endif %} />
+            <label class="form-check-label" for="tipo_servico_ignore">{% trans "Ignorar" %}</label>
+          </div>
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_servico_none" name="tipo_servico" value="none"{% if 'none' in pre_tipos_servico %} checked{% endif %} />
+            <label class="form-check-label" for="tipo_servico_none">{% trans "Nenhum serviço" %}</label>
+          </div>
+          {% for s in tipos_servico %}
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_servico_{{ s.sigla }}" name="tipo_servico" value="{{ s.sigla }}"{% if s.sigla in pre_tipos_servico or not pre_tipos_servico %} checked{% endif %} />
+            <label class="form-check-label" for="tipo_servico_{{ s.sigla }}">{{ s.nome }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseConvenio" aria-expanded="false" aria-controls="collapseConvenio">
+          {% trans "Convênio" %}
+        </button>
+      </h2>
+      <div id="collapseConvenio" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_convenio_ignore" name="ignore_tipo_convenio" value="ignore" data-controls="tipo_convenio"{% if 'ignore' in pre_tipos_convenio %} checked{% endif %} />
+            <label class="form-check-label" for="tipo_convenio_ignore">{% trans "Ignorar" %}</label>
+          </div>
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_convenio_none" name="tipo_convenio" value="none"{% if "none" in pre_tipos_convenio %} checked{% endif %} />
+            <label class="form-check-label" for="tipo_convenio_none">{% trans "Sem convênio" %}</label>
+          </div>
+          {% for c in tipos_convenio %}
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="tipo_convenio_{{ c.sigla }}" name="tipo_convenio" value="{{ c.sigla }}"{% if c.sigla in pre_tipos_convenio or not pre_tipos_convenio %} checked{% endif %}/>
+            <label class="form-check-label" for="tipo_convenio_{{ c.sigla }}">{{ c.nome }}</label>
+          </div>
+          {% endfor %}          
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseRegiao" aria-expanded="false" aria-controls="collapseRegiao">
+          {% trans "Região / estados" %}
+        </button>
+      </h2>
+      <div id="collapseRegiao" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          {% for s, n, ufs in regioes %}
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="regiao_{{ s }}" name="regiao" value="{{ s }}" />
+            <label class="form-check-label" for="regiao_{{ s }}">{{ n }}</label>
+          </div>
+          <div class="ps-3">
+            {% for uf in ufs %}
+            <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+              <input class="form-check-input" type="checkbox" form="filterForm" id="uf_{{ uf.sigla }}" name="uf" value="{{ uf.sigla }}" data-regiao="{{ s }}" {% if uf.sigla in pre_ufs %} checked{% endif %}/>
+              <label class="form-check-label" for="uf_{{ uf.sigla }}">{{ uf.nome }}</label>
+            </div>
+            {% endfor %}
+          </div>
+          {% endfor %}          
+        </div>
+      </div>
+    </div>
+    <div class="accordion-item">
+      <h2 class="accordion-header">
+        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseGerente" aria-expanded="false" aria-controls="collapseGerente">
+          {% trans "Gerente" %}
+        </button>
+      </h2>
+      <div id="collapseGerente" class="accordion-collapse collapse">
+        <div class="accordion-body">
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="gerente_ignore" name="gerente_ignore" value="ignore" data-controls="gerente"{% if "ignore" in pre_gerentes %} checked{% endif %} />
+            <label class="form-check-label" for="gerente_ignore">{% trans "Ignorar" %}</label>
+          </div>
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="gerente_none" name="gerente" value="none" {% if "none" in pre_gerentes %} checked{% endif %}/>
+            <label class="form-check-label" for="gerente_none">{% trans "Sem gerente" %}</label>
+          </div>
+          {% for g in gerentes %}
+          <div class="form-check{% if djbs.CHECK_AS_SWITCH %} form-switch{% endif %}"{% if djbs.CHECK_AS_SWITCH %} role="switch"{% endif %}>
+            <input class="form-check-input" type="checkbox" form="filterForm" id="gerente_{{ g.id|stringformat:"s" }}" name="gerente" value="{{ g.id|stringformat:"s" }}" {% if g.id|stringformat:"s" in pre_gerentes or not pre_gerentes%} checked{% endif %}/>
+            <label class="form-check-label" for="gerente_{{ g.id|stringformat:"s" }}">{{ g.nome_completo }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
