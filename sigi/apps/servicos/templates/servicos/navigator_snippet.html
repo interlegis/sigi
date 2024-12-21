@@ -1,0 +1,26 @@
+{% load i18n %}
+{% if paginator.num_pages > 1 %}
+<div class="table-responsive">
+  <nav aria-label="Page navigation">
+    <ul class="pagination pagination-sm mt-3">
+      <li class="page-item{% if not page_obj.has_previous %} disabled{% endif %}"><a class="page-link" href="?page=1" aria-label="{% trans "Primeira página" %}" title="{% trans "Primeira página" %}"><i class="bi bi-chevron-double-left"></i></a></li>
+      <li class="page-item{% if not page_obj.has_previous %} disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_previous %}{{ page_obj.previous_page_number }}{% else %}1{% endif %}" aria-label="{% trans "Página anterior" %}" title="{% trans "Página anterior" %}"><i class="bi bi-chevron-left"></i></a></li>
+      {% for page in paginator.page_range %}
+        {% with minor=page_obj.number|add:"-3" major=page_obj.number|add:"3" %}
+          {% if page == minor and minor > 1 %}
+            <li class="page-item disabled"><p class="page-link" >...</p></li>
+          {% endif %}
+          {% if page > minor and page < major %}
+            <li class="page-item{% if page == page_obj.number %} active{% endif %} "><a class="page-link" href="?page={{ page }}">{{ page }}</a></li>
+          {% endif %}
+          {% if page == major and major < page_obj.paginator.num_pages %}
+            <li class="page-item disabled"><p class="page-link" >...</p></li>
+          {% endif %}
+        {% endwith %}
+      {% endfor %}
+      <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}"><a class="page-link" href="?page={% if page_obj.has_next %}{{ page_obj.next_page_number }}{% else %}{{ page_obj.paginator.num_pages }}{% endif %}" aria-label="{% trans "Próxima página" %}" title="{% trans "Próxima página" %}"><i class="bi bi-chevron-right"></i></a></li>
+      <li class="page-item{% if not page_obj.has_next %} disabled{% endif %}"><a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="{% trans "Última página" %}" title="{% trans "Última página" %}"><i class="bi bi-chevron-double-right"></i></a></li>
+    </ul>
+  </nav>
+</div>
+{% endif %}
