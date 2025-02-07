@@ -21,6 +21,9 @@ from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import TemplateView, RedirectView
 
+from dashboard.registry import dashboard
+from django.views.generic import TemplateView
+
 urlpatterns = [
     path("casas/", include("sigi.apps.casas.urls")),
     path("ocorrencias/", include("sigi.apps.ocorrencias.urls")),
@@ -33,6 +36,7 @@ urlpatterns = [
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
     path("admin/utils/", include("sigi.apps.utils.admin_urls")),
     path("admin/", admin.site.urls),
+    path("dash/", dashboard.urls),
     path(
         "api/",
         RedirectView.as_view(pattern_name="swagger-ui", permanent=False),

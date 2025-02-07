@@ -1,0 +1,12 @@
+{% extends 'admin/index.html' %}
+
+{% block extrahead %}
+  {{ block.super }}
+  {{ dashboard.media }}
+{% endblock %}
+
+{% block content %}
+  <div id="content-main" class="dashboard py-2">
+    {% include 'admin/dashboard.html' %}
+  </div>
+{% endblock %}

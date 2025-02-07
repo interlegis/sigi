@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     "sigi.apps.servicos",
     "sigi.apps.servidores",
     "sigi.apps.utils",
+    "dashboard",
 ]
 
 MIDDLEWARE = [
@@ -128,9 +129,10 @@ TEMPLATES = [
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
                 "django.template.context_processors.media",
+                "django.template.context_processors.request",
                 "djbs.context_processors.sets",
+                "dashboard.context_processors.dashboard",
                 "sigi.apps.utils.context_processors.site_context",
-                "sigi.apps.home.context_processors.dashboard",
             ],
         },
     },
