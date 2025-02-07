@@ -1,0 +1,30 @@
+{% load i18n %}
+<table class="table table-hover table-sm">
+  <thead>
+    <tr>
+      <th>&nbsp;</th>
+    {% for item in datasets.data_frame.columns %}
+      <th>{{ item }}</th>
+    {% endfor %}
+    </tr>
+  </thead>
+  <tbody class="table-group-divider">
+    {% for label, values in datasets.data_frame.iterrows %}
+    <tr>
+      <th>{{ label }}</th>
+      {% for value in values %}
+      <td>{{ value }}</td>
+      {% endfor %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<table class="table table-hover table-sm">
+  {% for label, value in datasets.totais %}
+    <tr>
+      <th>{{ label }}</th>
+      <td>{{ value }}</td>
+    </tr>
+  {% endfor %}
+</table>
