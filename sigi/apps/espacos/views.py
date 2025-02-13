@@ -17,11 +17,31 @@ from sigi.apps.utils.mixins import ReportViewMixin, StaffMemberRequiredMixin
 from sigi.apps.utils.views import ReportListView
 
 
-class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
-    html_template_name = "espacos/agenda.html"
-    pdf_template_name = "espacos/agenda_pdf.html"
+class Agenda(StaffMemberRequiredMixin, ReportListView):
+    template_name = "espacos/agenda.html"
+    template_name_pdf = "espacos/agenda_pdf.html"
     report_title = _("Reserva de espaços do ILB")
     pagesize = "A4 landscape"
+    model = Reserva
+    list_fields = [
+        "espaco__nome",
+        "data_inicio",
+        "data_termino",
+        "hora_inicio",
+        "hora_termino",
+        "status",
+    ]
+    list_labels = [
+        "Espaço",
+        "Data Início",
+        "Data Término",
+        "Hora Início",
+        "Hora Término",
+        "Status",
+    ]
+
+    def get_list_labels(self):
+        return self.list_labels
 
     def get_context_data(self, **kwargs):
         mes_pesquisa = int(
@@ -135,11 +155,29 @@ class Agenda(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
         return context
 
 
-class UsoEspacos(ReportViewMixin, StaffMemberRequiredMixin, TemplateView):
-    html_template_name = "espacos/uso_espaco.html"
-    pdf_template_name = "espacos/uso_espaco_pdf.html"
+class UsoEspacos(StaffMemberRequiredMixin, ReportListView):
+    template_name = "espacos/uso_espaco.html"
+    template_name_pdf = "espacos/uso_espaco_pdf.html"
     report_title = _("Uso dos espaços - Auditórios e Salas")
     pagesize = "A4 landscape"
+    model = Reserva
+    list_fields = [
+        "espaco__nome",
+        "data_inicio",
+        "data_termino",
+        "virtual",
+        "status",
+    ]
+    list_labels = [
+        "Espaço",
+        "Data Início",
+        "Data Término",
+        "Virtual",
+        "Status",
+    ]
+
+    def get_list_labels(self):
+        return self.list_labels
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
