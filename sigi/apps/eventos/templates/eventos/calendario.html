@@ -22,17 +22,76 @@
   <form>
     <div class="card mb-3">
       <div class="card-header">
-        <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if eventos is None %}true{% else %}false{% endif %}" aria-controls="filterFormCollapse">
+        <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse"
+           aria-expanded="{% if eventos is None %}true{% else %}false{% endif %}"
+           aria-controls="filterFormCollapse">
           {% icon "filter" %} {% translate "Filtros" %}
         </a>
       </div>
+
       <div class="card-body collapse{% if eventos is None %} show{% endif %}" id="filterFormCollapse">
-        {{ form }}
+        
+        {% for field in form %}
+          {% if field.name != "mes_ano" and field.name != "categorias" and field.name != "status" %}
+            {{ field }}
+        {% endif %}
+      
+        {% endfor %}
+
+        
+        <div class="mb-3">
+          <fieldset>
+            <legend>Categorias:</legend>
+            {{ form.categorias }}
+          </fieldset>
+        </div>
+
+        
+        <div class="mb-3">
+          <fieldset>
+            <legend>Status:</legend>
+            {{ form.status }}
+          </fieldset>
+        </div>
+
+        
+        <div class="mb-3">
+          <fieldset>
+            <legend>Período:</legend>
+            <div class="mb-3">
+              <label for="id_year" class="form-label">Ano:</label>
+              <input type="number" id="id_year" class="form-control" placeholder="YYYY"
+                     style="width: max-content;" required min="1000" max="9999">
+            </div>
+            <div class="mb-3">
+              <label for="id_month" class="form-label">Mês:</label>
+              <select id="id_month" class="form-select" style="width: max-content;" required>
+                <option value="">Selecione</option>
+                <option value="01">Janeiro</option>
+                <option value="02">Fevereiro</option>
+                <option value="03">Março</option>
+                <option value="04">Abril</option>
+                <option value="05">Maio</option>
+                <option value="06">Junho</option>
+                <option value="07">Julho</option>
+                <option value="08">Agosto</option>
+                <option value="09">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+              </select>
+            </div>
+            
+            <input type="hidden" name="mes_ano" id="id_mes_ano" value="">
+          </fieldset>
+        </div>
       </div>
+
       <div class="card-footer d-flex justify-content-end">
         <div>
           <button type="submit" class="btn btn-primary">{% trans 'Ver calendário' %}</button>
-          <button type="submit" name="fmt" value="pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+          <button type="submit" name="fmt" value="pdf" class="btn btn-primary"
+                  title="{% trans 'Exportar para PDF' %}">
             {% icon "pdf" %}
             {% trans 'Exportar para PDF' %}
           </button>
@@ -45,7 +104,8 @@
     <div class="accordion" id="accordionReport">
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLegenda" aria-expanded="true" aria-controls="collapseLegenda">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseLegenda" aria-expanded="true" aria-controls="collapseLegenda">
             {% translate "Legenda" %}
           </button>
         </h2>
@@ -57,7 +117,8 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseCalendario" aria-expanded="true" aria-controls="collapseCalendario">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseCalendario" aria-expanded="true" aria-controls="collapseCalendario">
             {% trans 'Calendário' %}
           </button>
         </h2>
@@ -69,7 +130,8 @@
       </div>
       <div class="accordion-item">
         <h2 class="accordion-header">
-          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseLista" aria-expanded="false" aria-controls="collapseLista">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse"
+                  data-bs-target="#collapseLista" aria-expanded="false" aria-controls="collapseLista">
             {% trans 'Lista' %}
           </button>
         </h2>
@@ -83,4 +145,24 @@
     {% include "eventos/snippets/calendario_modals.html" %}
   {% endif %}
 
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const yearInput = document.getElementById('id_year');
+      const monthSelect = document.getElementById('id_month');
+      const hiddenMesAno = document.getElementById('id_mes_ano');
+
+      function updateHiddenField() {
+        const year = yearInput.value.trim();
+        const month = monthSelect.value;
+        if (year && month) {
+          hiddenMesAno.value = year + '-' + month;
+        } else {
+          hiddenMesAno.value = '';
+        }
+      }
+
+      yearInput.addEventListener('input', updateHiddenField);
+      monthSelect.addEventListener('change', updateHiddenField);
+    });
+  </script>
 {% endblock %}
