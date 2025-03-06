@@ -145,10 +145,6 @@ class PartidoAdmin(ImportMixin, ExportActionMixin, admin.ModelAdmin):
 @admin.register(Parlamentar)
 class ParlamentarAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     resource_class = ParlamentarResource
-    import_export_change_list_template = (
-        "admin/parlamentares/parlamentar/cart/"
-        "change_list_import_cart_export.html"
-    )
     list_display = (
         "get_foto",
         "nome_completo",
@@ -157,6 +153,7 @@ class ParlamentarAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
         "get_uf",
         "partido",
     )
+    list_display_links = ["get_foto", "nome_completo"]
     list_filter = (
         "casa_legislativa__municipio__uf",
         ("casa_legislativa__tipo", admin.RelatedOnlyFieldListFilter),
@@ -234,10 +231,9 @@ class ParlamentarAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
         if obj.foto:
             return f'<img class="circle" src="{obj.foto.url}" style="width: 58px; height: 58px;"/>'
         else:
-            return (
-                '<i class="material-icons medium grey-text">account_circle</i>'
-            )
+            return '<i class="bi bi-camera fs-2"></i>'
 
+    # TODO: Criar uma rotina separada para importar parlamentares, como do Gescon
     def import_action(self, request, *args, **kwargs):
         def save_file(uploaded, destination_path):
             with open(destination_path / uploaded.name, "wb") as dst_file:
