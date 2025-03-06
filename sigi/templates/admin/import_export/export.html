@@ -10,71 +10,58 @@
 {% endblock %}
 
 {% block breadcrumbs_last %}
-{% translate "Export" %}
+  <li class="breadcrumb-item active" aria-current="page">{% translate "Export" %}</li>
 {% endblock %}
 
 {% block content %}
-{% if form.errors %}
-  {{ form.errors }}
-{% endif %}
-<form action="{{ export_url }}" method="POST">
-  {% csrf_token %}
-  {# Export request has originated from an Admin UI action #}
-  {% if form.initial.export_items %}
-    <p>
-    {% blocktranslate count len=form.initial.export_items|length %}
-      Export {{ len }} selected item.
-      {% plural %}
-      Export {{ len }} selected items.
-    {% endblocktranslate %}
-    </p>
+  {% if form.errors %}
+    {{ form.errors }}
   {% endif %}
-
-  {# Fields list is not required with selectable fields form #}
-  {% if not form.is_selectable_fields_form %}
-    {% include "admin/import_export/resource_fields_list.html" with import_or_export="export" %}
-  {% endif %}
-  <p></p>
-
-  <fieldset class="module">
-    <p style="padding: 0;">{% translate "This exporter will export the following fields:" %}</p>
-    
-    <div class="row">
-      {% for field in form.visible_fields %}
-        {% if field.name != "format" %} {# Excluindo o campo "Formato" da lista automática #}
-          <div class="col-md-4 col-lg-3 mb-4">
-            <div class="card h-100" style="width: 100%;">
-              <div class="card-body">
-                <label for="{{ field.id_for_label }}" class="form-label d-block">
-                  {{ field.label }}
-                </label>
-                {{ field }}
-                {% if field.field.help_text %}
-                  <small class="text-muted d-block mt-1">
-                    {{ field.field.help_text|safe }}
-                  </small>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        {% endif %}
-      {% endfor %}
-    </div>
-  
+  <form action="{{ export_url }}" method="POST">{% csrf_token %}
     {% for field in form.hidden_fields %}
       {{ field }}
-    {% endfor %}
-  </fieldset>
-  
-  {# Campo "Formato" separado, posicionado de forma independente #}
-  <div class="mt-4">
-    <label for="{{ form.format.id_for_label }}" class="form-label">{{ form.format.label }}</label>
-    {{ form.format }}
-  </div>
-  
-  <div class="submit-row mt-4">
-    <input type="submit" class="btn btn-outline-primary" value="{% translate "Submit" %}">
-  </div>
-  
-</form>
+    {% endfor %}    
+    {# Export request has originated from an Admin UI action #}
+    {% if form.initial.export_items %}
+      <div class="alert alert-info" role="alert">
+        {% blocktranslate count len=form.initial.export_items|length %}
+          Export {{ len }} selected item.
+        {% plural %}
+          Export {{ len }} selected items.
+        {% endblocktranslate %}
+      </div>
+    {% endif %}
+
+    {# Fields list is not required with selectable fields form #}
+    {% if not form.is_selectable_fields_form %}
+      {% include "admin/import_export/resource_fields_list.html" with import_or_export="export" %}
+    {% endif %}
+
+    <div class="d-flex gap-1 align-items-baseline my-2">
+      {{ form.format.label_tag }}<div class="flex-grow-1">{{ form.format }}</div>
+      <input type="submit" class="btn btn-outline-primary" value="{% translate "Export" %}">
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        {% translate "This exporter will export the following fields:" %}
+      </div>
+      <div class="card-body">
+        {% for field in form.visible_fields %}
+          {% if field.name != "format" %} {# Excluindo o campo "Formato" da lista automática #}
+            <div class="form-check">
+              {{ field.as_field_group }}
+              {% if field.field.help_text %}
+                <small class="text-muted d-block mt-1">
+                  {{ field.field.help_text|safe }}
+                </small>
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}        
+      </div>
+      <div class="card-footer">
+      </div>
+    </div>    
+  </form>
 {% endblock %}

@@ -1,0 +1,12 @@
+{% extends "admin/submit_line.html" %}
+{% load i18n djbs_extras %}
+
+{% block submit-row %}
+  {{ block.super }}
+  {% if show_change_form_export %}
+    <button type="submit" value="{% translate 'Export' %}" title="{% translate 'Export' %}" class="default btn btn-outline-success" name="_export-item">
+      {% icon "export" %}
+      {% if submit_buttons_position != "top" %}{% translate 'Export' %}{% endif %}
+    </button>
+  {% endif %}
+{% endblock %}

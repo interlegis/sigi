@@ -1,22 +1,13 @@
 {% extends "admin/base_site.html" %}
-{% load i18n admin_modify %}
-{% load admin_urls %}
-{% load static %}
+{% load i18n admin_modify admin_urls static %}
 
 {% block extrastyle %}{{ block.super }}<link rel="stylesheet" type="text/css" href="{% static "admin/css/forms.css" %}" />{% endblock %}
 
 {% if not is_popup %}
-  {% block nav-breadcrumbs %}
-    <nav aria-label="{% translate 'Breadcrumbs' %}">
-      {% block breadcrumbs %}
-        <div class="breadcrumbs">
-          <a href="{% url 'admin:index' %}">{% translate 'Home' %}</a>
-          &rsaquo; <a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a>
-          &rsaquo; <a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a>
-          &rsaquo; {% block breadcrumbs_last %}{% endblock %}
-        </div>
-      {% endblock %}
-    </nav>
+  {% block breadcrumbs %}
+    <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label=opts.app_label %}">{{ opts.app_config.verbose_name }}</a></li>
+    <li class="breadcrumb-item"><a href="{% url opts|admin_urlname:'changelist' %}">{{ opts.verbose_name_plural|capfirst }}</a></li>
+    {% block breadcrumbs_last %}{% endblock %}
   {% endblock %}
 {% endif %}
 
