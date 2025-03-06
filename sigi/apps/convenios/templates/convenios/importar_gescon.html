@@ -1,0 +1,42 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n djbs_extras %}
+
+{% block extrastyle %}
+  <style type="text/css">
+    pre {
+      white-space: pre-wrap;
+    }
+  </style>
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item active" aria-current="page">{% trans 'Importar dados do Gescon' %}</li>
+{% endblock %}
+
+{% block content %}
+<div class="btn-toolbar mb-3" role="toolbar" aria-label="{% translate "Toolbar de ações" %}">
+  <div class="btn-group me-2" role="group" aria-label="{% translate "Importar" %}">
+    <a class="btn btn-primary" href="{% url 'importar-gescon' %}?action=importar">
+      {% icon "import" %} {% trans "Importar" %}
+    </a>
+  </div>
+  <div class="btn-group me-2" role="group" aria-label="{% translate "Importar" %}">
+    <a class="btn btn-primary" href="{% url 'admin:convenios_gescon_change' gescon.id %}">
+      {% icon "config" %} {% trans "Configurações" %}
+    </a>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body">
+    {% if gescon.ultima_importacao %}
+      <pre class="w-100"><code>{{ gescon.ultima_importacao|safe }}</code></pre>
+    {% else %}
+      {% blocktrans %}
+        <p><strong>Nenhuma importação anterior foi realizada!</strong></p>
+        <p>Configure a conexão com o Gescon para realizar a primeira importação.</p>
+      {% endblocktrans %}
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
