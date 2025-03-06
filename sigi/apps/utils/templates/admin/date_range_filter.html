@@ -1,0 +1,11 @@
+{% load i18n %}
+{% with choice=choices.0 %}
+<div class="col s12">
+  <label>{% blocktrans with filter_title=title %} By {{ filter_title }} {% endblocktrans %}</label>
+  <p></p><a href="{{ choice.query_string|iriencode }}">{% trans 'All' %}</a></p>
+  {% for field in choice.form %}
+    {{ field }}
+    <!-- input id="{{ field.id }}" name="{{ field.name }}" type="text" class="datepicker admin_filter" value="{{ field.value|default_if_none:''|date:'SHORT_DATE_FORMAT' }}" placeholder="{{ field.label }}" data-clear="{{ choice.query_string|iriencode }}"/ -->
+  {% endfor %}
+</div>
+{% endwith %}

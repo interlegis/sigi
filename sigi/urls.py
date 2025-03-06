@@ -19,10 +19,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
+from django.utils.translation import gettext_lazy as _
 from django.views.generic import TemplateView, RedirectView
-
 from dashboard.registry import dashboard
-from django.views.generic import TemplateView
+
+admin.site.site_header = admin.site.site_title = _("SIGI")
+admin.site.index_title = _("Sistema de Informações Gerenciais do Interlegis")
 
 urlpatterns = [
     path("casas/", include("sigi.apps.casas.urls")),
