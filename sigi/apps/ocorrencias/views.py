@@ -56,6 +56,7 @@ class PainelOcorrenciaFilter(django_filters.FilterSet):
         label=_("Nome da casa contém"),
         field_name="casa_legislativa__search_text",
         lookup_expr=_("icontains"),
+        method="nome_casa_filter",
     )
     gerente = django_filters.ModelChoiceFilter(
         label=_("Casas gerenciadas por"),
@@ -91,6 +92,10 @@ class PainelOcorrenciaFilter(django_filters.FilterSet):
             "tipo_categoria",
             "categoria",
         ]
+
+    def nome_casa_filter(self, queryset, name, value):
+        value = to_ascii(value).lower()
+        return queryset.filter(**{f"{name}__icontains": value})
 
     def servidor_filter(self, queryset, name, value):
         return queryset.filter(
@@ -311,9 +316,11 @@ class OficinaChangeView(BaseOcorrenciaChangeView):
                     f"{tipo_evento.nome} na {ocorrencia.casa_legislativa.nome}, oriunda da Ocorrência #{ocorrencia.id}"
                 ),
                 virtual=dados["virtual"],
-                solicitante=ocorrencia.casa_legislativa.presidente.nome_completo
-                if ocorrencia.casa_legislativa.presidente
-                else "",
+                solicitante=(
+                    ocorrencia.casa_legislativa.presidente.nome_completo
+                    if ocorrencia.casa_legislativa.presidente
+                    else ""
+                ),
                 num_processo=ocorrencia.processo_sigad,
                 data_pedido=ocorrencia.data_criacao,
                 solicitacao=ocorrencia,
@@ -602,13 +609,19 @@ class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
                 self.tab = (
                     "casa"
                     if "casa_legislativa" not in self.infos
-                    else "presidente"
-                    if "presidente" not in self.infos
-                    else "contato"
-                    if "contato" not in self.infos
-                    else "documentos"
-                    if "documento" in self.infos
-                    else "resumo"
+                    else (
+                        "presidente"
+                        if "presidente" not in self.infos
+                        else (
+                            "contato"
+                            if "contato" not in self.infos
+                            else (
+                                "documentos"
+                                if "documento" in self.infos
+                                else "resumo"
+                            )
+                        )
+                    )
                 )
             else:
                 return self.cria_solicitacao(request, *args, **kwargs)

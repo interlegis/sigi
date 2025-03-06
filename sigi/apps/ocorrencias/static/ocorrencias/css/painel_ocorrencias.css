@@ -1,14 +1,11 @@
-#content {
-    display: block;
-}
-
 .user-image {
     width: 64px;
     height: 64px;
     font-size: 64px !important;
+    display: block;
 }
 
-commenter-image {
+.user-image-sm {
     width: 32px;
     height: 32px;
     font-size: 32px !important;
@@ -17,53 +14,4 @@ commenter-image {
 .card-details,
 .user-name {
     font-size: 10px;
-}
-
-.priority {
-    background-color: grey;
-}
-
-.priority {
-    background-color: antiquewhite;
-    margin-left: 5px;
-    min-width: 60px;
-}
-
-.chip>img {
-    float: left;
-    margin: 0 8px 0 -12px;
-    height: 32px;
-    width: 32px;
-    border-radius: 50%;
-}
-
-.span-list {
-    padding: 2px 6px;
-    margin-left: 4px;
-    background-color: var(--selected-bg);
-    line-height: 24px;
-    border-radius: 12px;
-    white-space: nowrap;
-}
-
-.card-inbox {
-    width: 100%;
-    border: 1px solid var(--hairline-color);
-    padding: 12px;
-    border-radius: 12px;
-}
-
-.card-inbox p {
-    margin-bottom: 6px !important;
-}
-
-.inbox-title {
-    font-weight: bold;
-    text-transform: uppercase;
-    font-size: smaller;
-}
-
-.strong {
-    font-weight: 800;
-    text-transform: uppercase;
 }

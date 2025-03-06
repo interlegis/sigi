@@ -1,0 +1,169 @@
+{% load i18n djbs_extras %}
+
+<div id="ocorrencia-{{ ocorrencia.id|safe }}" class="card mb-2">
+  <div class="card-header">
+    {% block edit_link %}
+      {% if user.is_staff %}
+        {% if has_change_permission %}
+          <a href="{% url "admin:ocorrencias_ocorrencia_change" ocorrencia.id %}" title="{% translate "Editar" %}">{% icon "edit" %}</a>
+        {% endif %}
+        {{ ocorrencia.casa_legislativa.nome }}, {{ ocorrencia.casa_legislativa.municipio.uf.sigla }}
+      {% else %}
+        {{ ocorrencia.assunto }}
+      {% endif %}
+    {% endblock edit_link %}
+    <p class="card-details">
+    {% blocktrans with data_criacao=ocorrencia.data_criacao|date:"SHORT_DATE_FORMAT" tipo_contato=ocorrencia.tipo_contato categoria=ocorrencia.categoria status=ocorrencia.get_status_display prioridade=ocorrencia.get_prioridade_display %}
+      Criado em {{ data_criacao }} via {{ tipo_contato }} solicitando {{ categoria }}, com status {{ status }}. Prioridade: {{ prioridade }}
+    {% endblocktrans %}
+  </p>    
+  </div>
+  <div class="card-body">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <div class="text-center text-wrap">
+        {% if ocorrencia.servidor_registro.foto %}
+          <img class="rounded-circle user-image" src="{{ MEDIA_URL }}{{ ocorrencia.servidor_registro.foto }}"/>
+        {% else %}
+          {% icon "user" "user-image" %}
+        {% endif %}
+        <span class="user-name">{{ ocorrencia.servidor_registro.get_apelido }}</span>
+      </div>
+      <p class="flex-grow-1">{{ ocorrencia.descricao }}</p>
+    </div>
+
+    {% block card-adesao %}
+      {% if 'solicita_convenio' in ocorrencia.infos %}
+        <div class="mb-2">
+          <div class="d-flex align-items-center">
+            <h6 class="card-title text-uppercase me-auto">{% trans "Solicitação de convênio" %}</h6>
+            {% if user.is_staff %}
+              <a class="btn btn-outline-primary btn-sm" href="{% url 'ocorrencias_painel_convenio' ocorrencia.id %}{% if filter.preserve_filter %}?list_filter={{ filter.preserve_filter|urlencode }}{% endif %}" role="button">{% icon "config" %} Gerenciar</a>
+            {% endif %}
+          </div>
+          <div class="d-md-flex gap-2">
+            <span class="ms-4 fs-6 fw-bold">{% translate "Etapas:" %}</span>
+            {% for key, value in ocorrencia.get_infos_details.items %}
+              <span class="badge text-bg-light">
+                {% if value.0 %}{% icon "check" "text-success" %}{% else %}{% icon "dismiss" "text-danger" %}{% endif %}
+                {{ value.1 }}
+              </span>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+    {% endblock card-adesao %}
+  
+    {% block card-oficina %}
+      {% if 'solicita_oficinas' in ocorrencia.infos %}
+        <div class="mb-2">
+          <div class="d-flex align-items-center">
+            <h6 class="card-title text-uppercase me-auto">{% trans "Solicitação de oficinas" %}</h6>
+            {% if user.is_staff %}
+              <a class="btn btn-outline-primary btn-sm" href="{% url 'ocorrencias_painel_oficina' ocorrencia.id %}{% if filter.preserve_filter %}?list_filter={{ filter.preserve_filter|urlencode }}{% endif %}" role="button">{% icon "config" %} Gerenciar</a>
+            {% endif %}
+          </div>
+          <div class="table-responsive">
+            <table class="table table-sm">
+              <tr>
+                <th>{% trans "Oficinas solicitadas:" %}</th>
+                <td>
+                  {% for oficina in ocorrencia.get_infos_oficinas %}
+                    <span class="badge text-bg-secondary">{{ oficina.nome }}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+              <tr>
+                <th>{% trans "Oficinas autorizadas:" %}</th>
+                <td>
+                  {% for oficina in ocorrencia.evento_set.all %}
+                    <span class="badge text-bg-secondary">{{ oficina }}</span>
+                  {% empty %}
+                    <span class="badge text-bg-secondary">{% trans "Nenhuma" %}</span>
+                  {% endfor %}
+                </td>
+              </tr>
+              <tr>
+                <th>{% trans "Senadores selecionados:" %}</th>
+                <td>
+                  {% for senador in ocorrencia.get_infos_senadores %}
+                    <span class="badge text-bg-secondary">{{ senador.nome_completo }} ({{ senador.partido.sigla }})</span>
+                  {% endfor %}
+                </td>
+              </tr>
+            </table>
+          </div>
+        </div>
+      {% endif %}
+    {% endblock card-oficina %}    
+
+    {% block card-anexos %}
+      <div class="mb-2">
+        <h6 class="card-title text-uppercase">{% trans "Anexos" %}</h6>
+        <div class="table-responsive">
+          <table class="table table-sm table-striped">
+            <thead>
+              <tr>
+                <th>{% trans "Data de publicação" %}</th>
+                <th>{% trans "Descrição" %}</th>
+                <th>{% trans "Arquivo" %}</th>
+              </tr>
+            </thead>
+            <tbody class="table-group-divider">
+              {% for anexo in ocorrencia.anexo_set.all %}
+                <tr>
+                  <td>{{ anexo.data_pub|date:"SHORT_DATE_FORMAT" }}</td>
+                  <td>{{ anexo.descricao }}</td>
+                  <td><a href="{{ anexo.arquivo.url }}" download>{% icon anexo.arquivo.name|filesuffix|default:"upload" %} {{ anexo.arquivo.name|filename }}</a></td>
+                </tr>
+              {% empty %}
+                <tr><td colspan="3">{% trans "Nenhum anexo" %}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% if anexo_form %}
+          <form action="" method="post" enctype="multipart/form-data">{% csrf_token %}
+            <button class="btn btn-outline-primary btn-sm" type="submit" name="anexo_save">{% icon "save" %} {% translate "Submit" %}</button>
+            {{ anexo_form }}
+            <input type="hidden" name="ocorrencia_id" value="{{ ocorrencia.id|safe }}"/>
+          </form>
+        {% endif %}
+      </div>
+    {% endblock card-anexos %}
+
+    {% block card-comentarios %}
+      <div class="mb-2">
+        <h6 class="card-title text-uppercase">{% trans "Comentários" %}</h6>
+        <ul class="list-group list-group-flush">
+          {% for comentario in ocorrencia.comentarios.all %}
+            {% if user.is_staff or comentario.interno == False %}
+              <li class="list-group-item">
+                {% if comentario.usuario.foto %}
+                  <img class="rounded-circle user-image-sm" src="{{ comentario.usuario.foto.url }}"/>
+                {% else %}
+                  {% icon "user" %}
+                {% endif %}
+                {% blocktranslate with data=comentario.data_criacao nome=comentario.usuario.get_apelido %}Em {{ data }}, {{ nome }} disse:{% endblocktranslate %}
+                <span class="title">{{ comentario.descricao }}</span>
+                {% if comentario.novo_status %}
+                  {% blocktranslate with status=comentario.get_novo_status_display|default:"-" %}Status: {{ status }}{% endblocktranslate %}
+                {% endif %}
+              </li>
+            {% endif %}
+          {% empty %}
+            <li class="list-group-item">{% trans "Nenhum comentário" %}</li>
+          {% endfor %}
+          {% if comentario_form %}
+            <li class="list-group-item">
+              <form action="" method="post">{% csrf_token %}
+                <button type="submit" name="comentario_save" class="btn btn-outline-primary btn-sm">{% icon "save" %}{% translate "Submit" %}</button>
+                {{ comentario_form }}
+                <input type="hidden" name="ocorrencia_id" value="{{ ocorrencia.id|safe }}"/>
+              </form>
+            </li>
+          {% endif %}
+        </ul>
+      </div>
+    {% endblock card-comentarios %}
+  </div>
+</div>

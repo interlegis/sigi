@@ -1,0 +1,102 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static admin_urls djbs_extras %}
+
+{% block extrastyle %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'ocorrencias/css/painel_ocorrencias.css' %}">
+{% endblock %}
+
+{% block content_title %}
+  <h3>{{ panel_title }}</h3>
+{% endblock content_title %}
+
+{% block content_subtitle %}
+  {% if panel_subtitles %}
+    <div class="card border-light m-4">
+      <div class="card-body">
+        <h6 class="card-title">{% trans "Filtros aplicados:" %}</h6>
+        <div class="d-md-flex gap-2">
+          {% for subt in panel_subtitles %}
+            <span class="badge text-bg-info">{{ subt }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block search %}
+  <form class="d-flex gap-2 ms-2" role="search" action="">
+    {% for field in filter.form %}
+      {% if field != filter.form.nome_casa %}
+        {{ field.as_hidden }}
+      {% endif %}
+    {% endfor %}
+    {% icon "search" "d-none d-lg-inline-block navbar-text" %}
+    {{ filter.form.nome_casa }}
+    <button class="btn btn-outline-secondary" type="submit">
+      <span class="d-none d-lg-inline-block">{% translate "Search" %}</span>
+      {% icon "search" "d-inline-block d-lg-none" %}
+    </button>
+  </form>
+{% endblock %}
+
+{% block object-tools %}
+  {% if has_add_permission %}
+    <a class="addlink nav-link" href="{% url 'admin:ocorrencias_ocorrencia_add' %}" aria-labelledby="text-tool-add" title="{% translate "Nova Ocorrência" %}">
+      {% icon 'add' %} <span id="text-tool-add" class="d-lg-none">{% translate "Nova Ocorrência" %}</span>
+    </a>
+  {% endif %}
+{% endblock %}
+
+{% block breadcrumbs %}
+  <li class="breadcrumb-item"><a href="{% url 'admin:app_list' app_label="ocorrencias" %}">{% translate "Ocorrências" %}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{% translate "Painel" %}</li>
+{% endblock %}
+
+{% block content %}
+  {% block ocorrencia_cards %}
+    {% for ocorrencia in ocorrencias %}
+      {% include 'ocorrencias/painel_snippet.html' %}
+    {% endfor %}
+  {% endblock ocorrencia_cards %}
+
+  {% block paginator %}
+    {% if is_paginated %}
+      <ul class="pagination">
+        {% if page_obj.has_previous %}
+          <li class="waves-effect"><a href="?{{ filter.preserve_filter }}&page={{ page_obj.previous_page_number }}"><i class="material-icons">chevron_left</i></a></li>
+        {% else %}
+          <li class="disabled"><a href="?{{ filter.preserve_filter }}"><i class="material-icons">chevron_left</i></a></li>
+        {% endif %}
+        {% for page_number in page_obj.paginator.page_range %}
+          <li class=" {% if page_number == page_obj.number %}active{% else %}waves-effect{% endif %}"><a href="?{{ filter.preserve_filter }}&page={{ page_number }}">{{ page_number }}</a></li>
+        {% endfor %}
+        {% if page_obj.has_next %}
+          <li class="waves-effect"><a href="?{{ filter.preserve_filter }}&page={{ page_obj.next_page_number }}"><i class="material-icons">chevron_right</i></a></li>
+        {% else %}
+          <li class="disabled"><a href="?{{ filter.preserve_filter }}"><i class="material-icons">chevron_right</i></a></li>
+        {% endif %}
+      </ul>
+    {% endif %}
+  {% endblock paginator %}
+{% endblock %}
+
+{% block sidebar-title %}{% translate 'Filter' %}{% endblock sidebar-title %}
+
+{% block sidebar-body %}
+  <div id="panel-filter">
+    <div id="changelist-filter-extra-actions" class="nav bg-body-tertiary shadow-sm mb-3">
+      <a href="?" class="nav-link">{% icon "dismiss" %} {% trans "Clear all filters" %}</a>
+    </div>
+    <form id="filter-form" method="get">
+      {{ filter.form }}
+      <button id="apply-filters" type="submit" class="btn btn-outline-secondary">{% translate 'Filter' %}</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block footer %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'ocorrencias/js/painel_ocorrencias.js' %}"></script>
+{% endblock %}
