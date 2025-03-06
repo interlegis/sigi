@@ -140,21 +140,8 @@ class Orgao(models.Model):
         verbose_name = _("órgão")
         verbose_name_plural = _("órgãos")
 
-    def lista_gerentes(self, fmt="html"):
-        if not self.gerentes_interlegis.exists():
-            return ""
-        if fmt == "html":
-            return (
-                "<ul><li>"
-                + "</li><li>".join(
-                    [g.nome_completo for g in self.gerentes_interlegis.all()]
-                )
-                + "</li></ul>"
-            )
-        else:
-            return ", ".join(
-                [g.nome_completo for g in self.gerentes_interlegis.all()]
-            )
+    def lista_gerentes(self):
+        return [g.get_apelido() for g in self.gerentes_interlegis.all()]
 
     @property
     def num_parlamentares(self):

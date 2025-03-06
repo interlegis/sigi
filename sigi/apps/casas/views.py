@@ -317,7 +317,7 @@ def painel_relacionamento(request):
                         c.municipio.uf.sigla,
                         c.municipio.microrregiao.mesorregiao.nome,
                         c.municipio.microrregiao.nome,
-                        c.lista_gerentes(fmt="lista"),
+                        ", ".join(c.lista_gerentes()),
                         (
                             ", ".join(
                                 [

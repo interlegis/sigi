@@ -11,6 +11,7 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
+from djbs import djbs_constants as djbsc
 from import_export import resources
 from import_export.admin import ExportActionMixin
 from import_export.fields import Field
@@ -113,7 +114,6 @@ class TelefonesInline(GenericTabularInline):
 
 class ParlamentarInline(admin.TabularInline):
     model = Parlamentar
-    template = "admin/casas/orgao/tabular.html"
     fields = (
         "get_foto",
         "nome_parlamentar",
@@ -146,7 +146,6 @@ class ParlamentarInline(admin.TabularInline):
 
 class FuncionarioInline(admin.TabularInline):
     model = Funcionario
-    template = "admin/casas/orgao/tabular.html"
     fields = (
         "get_setor",
         "nome",
@@ -186,7 +185,6 @@ class FuncionarioInline(admin.TabularInline):
 
 class ConveniosInline(admin.TabularInline):
     model = Convenio
-    template = "admin/casas/orgao/tabular.html"
     fields = (
         "num_processo_sf",
         "link_sigad",
@@ -247,7 +245,6 @@ class ConveniosInline(admin.TabularInline):
 
 class ServicoInline(admin.TabularInline):
     model = Servico
-    template = "admin/casas/orgao/tabular.html"
     fields = (
         "get_tipo_servico",
         "get_url",
@@ -276,7 +273,6 @@ class ServicoInline(admin.TabularInline):
 
 class OcorrenciaInline(admin.TabularInline):
     model = Ocorrencia
-    template = "admin/casas/orgao/tabular.html"
     fields = (
         "data_criacao",
         "data_modificacao",
@@ -345,6 +341,7 @@ class FuncionarioAdmin(ReturnMixin, admin.ModelAdmin):
 
 @admin.register(Orgao)
 class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
+    save_on_top = True
     form = OrgaoForm
     resource_classes = [OrgaoExportResourseGeral, OrgaoExportResourceContato]
     inlines = (
@@ -383,13 +380,14 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     ordering = ("municipio__uf__nome", "nome")
     fieldsets = (
         (
-            None,
+            _("Identificação"),
             {
                 "fields": (
                     "tipo",
                     "nome",
                     "sigla",
                     "cnpj",
+                    "data_instalacao",
                     "gerentes_interlegis",
                 )
             },
@@ -398,7 +396,6 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             _("Endereço"),
             {
                 "fields": (
-                    "data_instalacao",
                     "logradouro",
                     "bairro",
                     "municipio",
@@ -486,7 +483,9 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
 
     @admin.display(description=_("Gerente Interlegis"))
     def get_gerentes(self, obj):
-        return mark_safe(obj.lista_gerentes())
+        return mark_safe(
+            "<ul><li>" + "</li><li>".join(obj.lista_gerentes()) + "</ul>"
+        )
 
     @admin.display(description=_("Convênios"))
     def get_convenios(self, obj):
