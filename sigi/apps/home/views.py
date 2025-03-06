@@ -1147,7 +1147,7 @@ def report_sem_convenio(request):
                 [
                     casa.nome,
                     casa.municipio.uf.sigla,
-                    casa.lista_gerentes(fmt="lista"),
+                    ", ".join(casa.lista_gerentes()),
                     (
                         ", ".join(
                             casa.servico_set.filter(
