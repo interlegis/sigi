@@ -256,8 +256,8 @@ DJBSTHEME = {
     "MENU_FILE": BASE_DIR / "menu_conf.yaml",
     "CHECK_AS_SWITCH": True,
     "FILTER_STYLE": djbs_constants.FILTER_STYLE_CLASSIC,
-    "FIELDSET_STYLE": djbs_constants.STYLE_CARD,
-    "INLINESET_STYLE": djbs_constants.STYLE_CARD,
+    "FIELDSET_STYLE": djbs_constants.STYLE_TAB,
+    "INLINESET_STYLE": djbs_constants.STYLE_TAB,
     "BADGERIZE_FACETS": True,
 }
 
