@@ -447,9 +447,24 @@ class CnpjErradoReport(
         return Orgao._meta
 
 
-class GerentesListView(PermissionRequiredMixin, ListView):
+class GerentesListView(PermissionRequiredMixin, ReportListView):
     template_name = "admin/casas/gerentes_list.html"
     _tipos = None
+    list_fields = [
+        "id",
+        "nome_completo",
+        "tot_casas",
+        "regioes_formatadas",
+    ]
+    list_labels = [
+        "ID",
+        "Nome",
+        "Total de Casas",
+        "Casas Atendidas por Região",
+    ]
+    filter_form = None
+    report_title = "Lista de Gerentes"
+    model = Servidor
 
     def get_tipos(self):
         if self._tipos is None:
@@ -465,39 +480,40 @@ class GerentesListView(PermissionRequiredMixin, ListView):
         return self.request.user.is_staff
 
     def get_queryset(self):
+        return Servidor.objects.exclude(casas_que_gerencia=None).order_by(
+            "nome_completo"
+        )
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         regioes_dict = dict(UnidadeFederativa.REGIAO_CHOICES)
         counters = {
             f"c_{t}": Count("id", filter=Q(tipo__id=t))
             for t in self.get_tipos()
         }
         gerentes = list(
-            Servidor.objects.exclude(casas_que_gerencia=None)
-            .order_by("nome_completo")
-            .annotate(tot_casas=Count("casas_que_gerencia"))
+            self.get_queryset().annotate(tot_casas=Count("casas_que_gerencia"))
         )
 
         for gerente in gerentes:
-            regioes = [
-                (
-                    regioes_dict[r],
-                    t,
+            regioes = []
+            for r, t in (
+                gerente.casas_que_gerencia.order_by("municipio__uf__regiao")
+                .values_list("municipio__uf__regiao")
+                .annotate(tot_casas=Count("*"))
+            ):
+                ufs = (
                     gerente.casas_que_gerencia.filter(municipio__uf__regiao=r)
                     .order_by("municipio__uf__nome")
                     .values_list("municipio__uf__sigla", "municipio__uf__nome")
                     .annotate(tot_casas=Count("*"))
-                    .annotate(**counters),
+                    .annotate(**counters)
                 )
-                for r, t in gerente.casas_que_gerencia.order_by(
-                    "municipio__uf__regiao"
-                )
-                .values_list("municipio__uf__regiao")
-                .annotate(tot_casas=Count("*"))
-            ]
-            setattr(gerente, "regioes", regioes)
-        return gerentes
+                regioes.append((regioes_dict[r], t, list(ufs)))
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
+            setattr(gerente, "regioes", regioes)
+
+        context["object_list"] = gerentes
         context["tipos_orgao"] = TipoOrgao.objects.filter(
             id__in=self.get_tipos()
         ).order_by("id")

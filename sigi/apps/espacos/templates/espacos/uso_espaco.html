@@ -12,7 +12,7 @@
 {% endblock %}
 
 {% block content %}
-  <form>
+  <form method="get" action="">
     <div class="card mb-3">
       <div class="card-header">
         <a class="icon-link" data-bs-toggle="collapse" href="#filterFormCollapse" aria-expanded="{% if reservas %}false{% else %}true{% endif %}" aria-controls="filterFormCollapse">
@@ -25,10 +25,10 @@
       <div class="card-footer d-flex justify-content-end">
         <div>
           <button type="submit" class="btn btn-primary">{% trans 'Visualizar' %}</button>
-          <button type="submit" name="pdf" value="1" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
+          <a href="?{{ request.GET.urlencode }}&fmt=pdf" class="btn btn-primary" title="{% trans 'Exportar para PDF' %}">
             {% icon "pdf" %}
             {% trans 'Exportar para PDF' %}
-          </button>
+          </a>
         </div>
       </div>
     </div>
