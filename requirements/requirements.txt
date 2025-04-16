@@ -5,30 +5,30 @@ email_validator==2.2.0
 gunicorn==23.0.0
 ibge==0.0.5
 inflection==0.5.1
-ipython==9.0.1
+ipython==9.1.0
 moodlepy==0.24.1
 pandas==2.2.3
 parsel==1.10.0
-pillow==11.1.0
+pillow==11.2.1
 psycopg2-binary==2.9.10
 python-docx==1.1.2
 python-magic==0.4.27
 PyYAML==6.0.2
 requests==2.32.3
 uritemplate==4.1.1
-weasyprint==64.1
+weasyprint==65.1
 XlsxWriter==3.2.2
-Django==5.1.7
+Django==5.2
 django-admin-autocomplete-filter==0.7.1
 django-auth-ldap==5.1.0
-django-debug-toolbar==5.0.1
+django-debug-toolbar==5.1.0
 django-environ==0.12.0
-django-extensions==3.2.3
+django-extensions==4.1
 django-filter==25.1
 django-import-export==4.3.7
 django-localflavor==4.0
 django-tinymce==4.1.0
 django-weasyprint==2.4.0
-djangorestframework==3.15.2
-djbs-theme_sesostris @ git+https://github.com/interlegis/djbs-theme.git
+djangorestframework==3.16.0
+djbs-theme @ git+https://github.com/interlegis/djbs-theme.git
 django-dashboard @ git+https://github.com/interlegis/django-dashboard.git

@@ -33,6 +33,7 @@ class ReservaResource(resources.ModelResource):
             "solicitante",
             "contato",
             "telefone_contato",
+            "recursos_solicitados",
         )
         export_order = fields
 

@@ -1,4 +1,4 @@
-FROM python:3.10-slim-bullseye
+FROM python:3.13-slim-bullseye
 
 # Setup env
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -45,7 +45,7 @@ ENV MOODLE_API_TOKEN=''
 # Install env
 ENV RUN_PACKAGES gcc locales build-essential python3-dev graphviz \
     libgraphviz-dev pkg-config libmagic-dev libpq-dev postgresql-client \
-    libsasl2-dev libldap2-dev libssl-dev vim nginx cron
+    libsasl2-dev libldap2-dev libssl-dev vim nginx cron git
 
 # Install required packages
 RUN apt-get update && \
