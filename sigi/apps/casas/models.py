@@ -1,4 +1,5 @@
 import random
+from difflib import SequenceMatcher
 from string import ascii_uppercase
 from unicodedata import normalize
 from django.contrib.contenttypes.fields import GenericRelation
@@ -9,7 +10,7 @@ from django.utils.translation import gettext as _
 
 from sigi.apps.contatos.models import Municipio
 from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils import SearchField, mask_cnpj, valida_cnpj
+from sigi.apps.utils import SearchField, mask_cnpj, valida_cnpj, to_ascii
 
 
 class TipoOrgao(models.Model):
@@ -134,6 +135,28 @@ class Orgao(models.Model):
     )
     brasao_largura = models.SmallIntegerField(editable=False, null=True)
     brasao_altura = models.SmallIntegerField(editable=False, null=True)
+
+    def _mathnames(nome, orgaos):
+        for o, nome_canonico in orgaos:
+            ratio = SequenceMatcher(
+                None, to_ascii(nome).lower(), nome_canonico
+            ).ratio()
+            if ratio > 0.9:
+                yield (o, ratio)
+
+    @classmethod
+    def get_semelhantes(cls, nome, orgaos=None):
+        if orgaos is None:
+            orgaos = [
+                (o, f"{to_ascii(o.nome)} - {o.uf_sigla}".lower())
+                for o in Orgao.objects.all()
+                .order_by()
+                .annotate(uf_sigla=models.F("municipio__uf__sigla"))
+            ]
+        return sorted(
+            cls._mathnames(nome, orgaos),
+            key=lambda m: m[1],
+        )
 
     class Meta:
         ordering = ("nome",)

@@ -675,20 +675,6 @@ class Gescon(models.Model):
                      importados/atualizados)
         """
 
-        def mathnames(nome, orgaos, all=False):
-            for o, nome_canonico in orgaos:
-                ratio = SequenceMatcher(
-                    None, to_ascii(nome).lower(), nome_canonico
-                ).ratio()
-                if ratio > 0.9:
-                    yield (o, ratio)
-
-        def get_semelhantes(nome, orgaos, all=False):
-            return sorted(
-                mathnames(nome, orgaos, all),
-                key=lambda m: m[1],
-            )
-
         self.ultima_importacao = ""
         if self.checksums is None:
             self.checksums = {}
@@ -946,7 +932,7 @@ class Gescon(models.Model):
                         # da prefeitura, e ambos terem convênio com o ILB.
                         # Podemos tentar desambiguar pelo nome mais
                         # semelhante.
-                        orgao = get_semelhantes(
+                        orgao = Orgao.get_semelhantes(
                             to_ascii(contrato["nomeFornecedor"]).lower(),
                             [
                                 (
@@ -957,7 +943,6 @@ class Gescon(models.Model):
                                 .order_by()
                                 .annotate(uf_sigla=F("municipio__uf__sigla"))
                             ],
-                            all=True,
                         )[0][0]
                     except Orgao.DoesNotExist:
                         # Encontrou 0: Vamos seguir sem órgao e tentar
@@ -982,13 +967,13 @@ class Gescon(models.Model):
                         erros += 1
                         continue
                     # Tentar primeiro com o nome igual veio do GESCON
-                    semelhantes = get_semelhantes(
+                    semelhantes = Orgao.get_semelhantes(
                         to_ascii(contrato["nomeFornecedor"]).lower(),
                         todos_orgaos,
                     )
                     if not semelhantes:
                         # Não achou, então vamos tentar com o nome limpado
-                        semelhantes = get_semelhantes(
+                        semelhantes = Orgao.get_semelhantes(
                             to_ascii(nome).lower(),
                             todos_orgaos,
                         )
