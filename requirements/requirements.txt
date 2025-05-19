@@ -5,7 +5,7 @@ email_validator==2.2.0
 gunicorn==23.0.0
 ibge==0.0.5
 inflection==0.5.1
-ipython==9.1.0
+ipython==9.2.0
 moodlepy==0.24.1
 pandas==2.2.3
 parsel==1.10.0
@@ -17,11 +17,11 @@ PyYAML==6.0.2
 requests==2.32.3
 uritemplate==4.1.1
 weasyprint==65.1
-XlsxWriter==3.2.2
-Django==5.2
+XlsxWriter==3.2.3
+Django==5.2.1
 django-admin-autocomplete-filter==0.7.1
-django-auth-ldap==5.1.0
-django-debug-toolbar==5.1.0
+django-auth-ldap==5.2.0
+django-debug-toolbar==5.2.0
 django-environ==0.12.0
 django-extensions==4.1
 django-filter==25.1
