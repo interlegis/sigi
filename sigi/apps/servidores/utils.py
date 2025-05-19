@@ -160,7 +160,7 @@ def user_staff_and_group(user, ldap_attrs):
 def servidor_update_from_ldap(servidor, ldap_attrs, commit=True):
     sigla_servico = ldap_attrs.get("department", [""])[0].split("-")[-1]
     nome_cargo = ldap_attrs.get("title", [""])[0].split("-")[-1].strip()
-    nome_completo = ldap_attrs.get("name", [""])[0]
+    nome_completo = ldap_attrs.get("displayName", [""])[0]
     dn = ldap_attrs.get("distinguishedName", [""])[0]
     cargo = f"{nome_cargo} - {sigla_servico}"
     servico = Servico.objects.filter(sigla=sigla_servico).first()
