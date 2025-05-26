@@ -1,6 +1,5 @@
 import re
 import requests
-from difflib import SequenceMatcher
 from hashlib import md5
 from pathlib import Path
 from django.db import models
@@ -55,6 +54,14 @@ class Projeto(models.Model):
     )
     nome = models.CharField(max_length=50)
     sigla = models.CharField(max_length=10)
+    termino_indefinido = models.BooleanField(
+        _("Término indefinido"),
+        default=True,
+        help_text=_(
+            "Indica se os convênios deste tipo podem estar vigentes sem ter "
+            "uma data de término de vigência."
+        ),
+    )
     texto_oficio = HTMLField(
         _("texto do ofício"), blank=True, help_text=OFICIO_HELP
     )
@@ -380,17 +387,18 @@ class Convenio(models.Model):
             if display_type == "numero":
                 display = self.num_processo_sf
             else:
-                display = "<i class='material-icons'>visibility</i>"
+                display = '<i class="bi bi-eye"></i>'
             return (
                 f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
                 f"impressao.asp?area=processo&txt_numero_orgao={orgao}"
                 f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '
+                f'title="{self.num_processo_sf}" '
                 f'target="_blank">{display}</a>'
             )
         if display_type == "numero":
             return self.num_processo_sf
         else:
-            return "<i class='material-icons'>visibility_off</i>"
+            return '<i class="bi bi-eye-slash"></i>'
 
     def get_url_gescon(self):
         if not self.id_contrato_gescon:
@@ -410,7 +418,7 @@ class Convenio(models.Model):
     def clean(self):
         # Gertiq #184827
         if self.num_convenio:
-            if (
+            if not self.projeto.termino_indefinido and (
                 self.data_retorno_assinatura is None
                 or self.data_termino_vigencia is None
             ):

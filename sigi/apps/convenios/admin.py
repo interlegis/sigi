@@ -104,7 +104,7 @@ class ConvenioVigenteFilter(admin.filters.SimpleListFilter):
 
 @admin.register(Projeto)
 class ProjetoAdmin(admin.ModelAdmin):
-    list_display = ("sigla", "nome")
+    list_display = ("sigla", "nome", "termino_indefinido")
     formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
 
 
