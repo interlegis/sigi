@@ -215,20 +215,21 @@ class ConveniosInline(admin.TabularInline):
             )
         )
 
+    @mark_safe
     @admin.display(description=_("Status do convênio"))
     def status_convenio(self, obj):
         if obj.pk is None:
-            return ""
+            return None
         status = obj.get_status()
         if status in ["Vencido", "Desistência", "Cancelado", "Extinto"]:
-            label = r"red lighten-3"
+            label = r"bg-danger"
         elif status == "Vigente":
-            label = r"green lighten-3"
+            label = r"bg-success"
         elif status == "Pendente":
-            label = r"deep-orange lighten-3"
+            label = r"bg-alert"
         else:
             label = r""
-        return mark_safe(f'<p class="{label}">{status}</p>')
+        return f'<span class="{label} p-1 rounded">{status}</span>'
 
     @admin.display(description=_("Ver no SIGAD"))
     def link_sigad(self, obj):
