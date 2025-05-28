@@ -144,19 +144,25 @@ class ParlamentarInline(admin.TabularInline):
         return obj.partido.sigla
 
 
-class FuncionarioInline(admin.TabularInline):
+class FuncionarioInline(admin.StackedInline):
     model = Funcionario
     fields = (
-        "get_setor",
+        "desativado",
+        "setor",
         "nome",
         "nota",
-        "get_email_link",
+        "email",
+        "sexo",
+        "cpf",
+        "identidade",
+        "redes_sociais",
+        "cargo",
+        "funcao",
         "ult_alteracao",
         "observacoes",
     )
-    readonly_fields = fields
+    readonly_fields = ["ult_alteracao"]
     extra = 0
-    max_num = 0
     show_change_link = True
     can_delete = False
     verbose_name_plural = _("Contatos da Casa")
@@ -165,22 +171,6 @@ class FuncionarioInline(admin.TabularInline):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.exclude(desativado=True)
-
-    @admin.display(description=_("setor"))
-    def get_setor(self, func):
-        if func.setor == "contato_interlegis":
-            return format_html(
-                "<span class='green lighten-5 z-depth-1'>{setor}</span>",
-                setor=func.get_setor_display(),
-            )
-        return func.get_setor_display()
-
-    @admin.display(description=_("e-mail"))
-    def get_email_link(self, func):
-        return format_html(
-            "<a href='mailto:{email}' targe='_blank'>{email}</a>",
-            email=func.email,
-        )
 
 
 class ConveniosInline(admin.TabularInline):
@@ -272,7 +262,7 @@ class ServicoInline(admin.TabularInline):
         return f"<a href='{obj.url}' target='_blank'>{obj.url}</a>"
 
 
-class OcorrenciaInline(admin.TabularInline):
+class OcorrenciaInline(admin.StackedInline):
     model = Ocorrencia
     fields = (
         "data_criacao",
@@ -282,12 +272,15 @@ class OcorrenciaInline(admin.TabularInline):
         "assunto",
         "prioridade",
         "status",
+        "ticket",
+        "descricao",
+        "resolucao",
+        "servidor_registro",
     )
     autocomplete_fields = ("categoria", "tipo_contato")
-    readonly_fields = fields
+    readonly_fields = ["data_criacao", "data_modificacao", "servidor_registro"]
     ordering = ("-data_modificacao",)
     extra = 0
-    max_num = 0
     show_change_link = True
     can_delete = False
 
@@ -463,17 +456,22 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
     def save_related(self, request, form, formsets, change):
-        for formset in formsets:
-            if formset.model == Ocorrencia:
-                formset.save(commit=False)
-                for obj in formset.new_objects:
+        ocorrencia_formset = next(
+            filter(lambda f: f.model == Ocorrencia, formsets), None
+        )
+        if ocorrencia_formset is not None:
+            try:
+                servidor = Servidor.objects.get(user=request.user)
+            except Servidor.DoesNotExist:
+                servidor = None
+            if servidor is not None:
+                ocorrencia_formset.save(commit=False)
+                for obj in ocorrencia_formset.new_objects:
                     if (
                         not hasattr(obj, "servidor_registro")
                         or obj.servidor_registro is None
                     ):
-                        obj.servidor_registro = Servidor.objects.get(
-                            user=request.user
-                        )
+                        obj.servidor_registro = servidor
         return super().save_related(request, form, formsets, change)
 
     @admin.display(
