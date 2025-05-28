@@ -175,8 +175,8 @@ class Solicitacao(models.Model):
     @admin.display(description=_("SIGAD"), ordering="num_processo")
     def get_sigad_url(self):
         m = re.match(
-            "(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            "\d{4})-\d{2}",
+            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
+            r"\d{4})-\d{2}",
             self.num_processo,
         )
         if m:
@@ -311,7 +311,7 @@ class Evento(models.Model):
         blank=True,
         validators=[
             RegexValidator(
-                "^\d{2}/\d{4}$",
+                r"^\d{2}/\d{4}$",
                 _(
                     "Formato inválido. Utilize nn/aaaa, onde 'nn' são dígitos "
                     "numéricos e 'aaaa' o ano com quatro dígitos."
@@ -519,8 +519,8 @@ class Evento(models.Model):
 
     def get_sigad_url(self):
         m = re.match(
-            "(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            "\d{4})-\d{2}",
+            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
+            r"\d{4})-\d{2}",
             self.num_processo,
         )
         if m:
@@ -713,7 +713,7 @@ class Evento(models.Model):
             ultimo_evento = (
                 Evento.objects.filter(
                     tipo_evento=self.tipo_evento,
-                    turma__regex=f"\d{{2}}/{ano:04}$",
+                    turma__regex=f"\\d{{2}}/{ano:04}$",
                 )
                 .order_by("turma")
                 .last()
