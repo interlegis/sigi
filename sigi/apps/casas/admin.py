@@ -146,20 +146,15 @@ class ParlamentarInline(admin.TabularInline):
 
 class FuncionarioInline(admin.StackedInline):
     model = Funcionario
+    djbs_cols = "1"
     fields = (
-        "desativado",
+        ("desativado", "ult_alteracao"),
         "setor",
         "nome",
-        "nota",
-        "email",
-        "sexo",
-        "cpf",
-        "identidade",
-        "redes_sociais",
-        "cargo",
-        "funcao",
-        "ult_alteracao",
-        "observacoes",
+        ("cpf", "identidade", "sexo"),
+        ("nota", "email"),
+        ("cargo", "funcao"),
+        ("redes_sociais", "observacoes"),
     )
     readonly_fields = ["ult_alteracao"]
     extra = 0
@@ -171,6 +166,46 @@ class FuncionarioInline(admin.StackedInline):
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return qs.exclude(desativado=True)
+
+
+class ListaFuncionarioInline(admin.TabularInline):
+    model = Funcionario
+    fields = (
+        "get_setor",
+        "nome",
+        "nota",
+        "get_email_link",
+        "observacoes",
+        "ult_alteracao",
+    )
+    readonly_fields = fields
+    extra = 0
+    max_num = 0
+    show_change_link = True
+    can_delete = False
+    verbose_name_plural = _("Lista de contatos")
+    ordering = ["setor", "-ult_alteracao"]
+    djbs_hide_original = True
+
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.exclude(desativado=True)
+
+    @admin.display(description=_("setor"))
+    def get_setor(self, func):
+        if func.setor == "contato_interlegis":
+            return format_html(
+                "<span class='green lighten-5 z-depth-1'>{setor}</span>",
+                setor=func.get_setor_display(),
+            )
+        return func.get_setor_display()
+
+    @admin.display(description=_("e-mail"))
+    def get_email_link(self, func):
+        return format_html(
+            "<a href='mailto:{email}' targe='_blank'>{email}</a>",
+            email=func.email,
+        )
 
 
 class ConveniosInline(admin.TabularInline):
@@ -341,6 +376,7 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     inlines = (
         TelefonesInline,
         ParlamentarInline,
+        ListaFuncionarioInline,
         FuncionarioInline,
         ConveniosInline,
         ServicoInline,
