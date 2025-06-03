@@ -208,8 +208,8 @@ class Reserva(models.Model):
 
     def get_sigad_url(self):
         m = re.match(
-            "(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            "\d{4})-\d{2}",
+            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
+            r"\d{4})-\d{2}",
             self.num_processo,
         )
         if m:

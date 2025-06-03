@@ -92,7 +92,7 @@ def abreviatura(name):
 
 
 def valida_cnpj(cnpj):
-    cnpj = re.sub("[^\d]", "", cnpj).zfill(14)
+    cnpj = re.sub(r"[^\d]", "", cnpj).zfill(14)
     if cnpj == (cnpj[0] * len(cnpj)):
         return False
     calc_dv = f"{0 if 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-2])))])%11) >= 10 else 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-2])))])%11)}{0 if 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-1])))])%11) >= 10 else 11-(sum([(i%8+2)*int(d) for i, d in enumerate(reversed(list(cnpj[:-1])))])%11)}"
@@ -102,7 +102,7 @@ def valida_cnpj(cnpj):
 def mask_cnpj(cnpj):
     if cnpj == "":
         return ""
-    cnpj = re.sub("[^\d]", "", cnpj).zfill(14)
+    cnpj = re.sub(r"[^\d]", "", cnpj).zfill(14)
     return re.sub(
         r"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", r"\1.\2.\3/\4-\5", cnpj
     )
