@@ -191,6 +191,9 @@ class ListaFuncionarioInline(admin.TabularInline):
         qs = super().get_queryset(request)
         return qs.exclude(desativado=True)
 
+    def has_change_permission(self, request, obj):
+        return False
+
     @admin.display(description=_("setor"))
     def get_setor(self, func):
         if func.setor == "contato_interlegis":
@@ -469,8 +472,9 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         "bairro",
         "logradouro",
         "cep",
-        "municipio__nome",
-        "municipio__uf__nome",
+        "municipio__search_text",
+        "municipio__uf__search_text",
+        "municipio__uf__sigla",
         "municipio__codigo_ibge",
         "pagina_web",
         "observacoes",
@@ -491,6 +495,15 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
+    def changeform_view(
+        self, request, object_id, form_url, extra_context=None
+    ):
+        extra_context = extra_context or {}
+        extra_context["show_save_and_add_another"] = False
+        return super().changeform_view(
+            request, object_id, form_url, extra_context
+        )
+
     def save_related(self, request, form, formsets, change):
         ocorrencia_formset = next(
             filter(lambda f: f.model == Ocorrencia, formsets), None
@@ -501,13 +514,14 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             except Servidor.DoesNotExist:
                 servidor = None
             if servidor is not None:
-                ocorrencia_formset.save(commit=False)
-                for obj in ocorrencia_formset.new_objects:
+                instances = ocorrencia_formset.save(commit=False)
+                for obj in instances:
                     if (
                         not hasattr(obj, "servidor_registro")
                         or obj.servidor_registro is None
                     ):
                         obj.servidor_registro = servidor
+                        obj.save()
         return super().save_related(request, form, formsets, change)
 
     @admin.display(
