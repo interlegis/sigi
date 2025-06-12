@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext as _
 from localflavor.br.forms import BRZipCodeField
 from sigi.apps.casas.models import Funcionario, Orgao
+from sigi.apps.ocorrencias.models import Ocorrencia, Anexo
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils import valida_cnpj
 
@@ -109,3 +110,26 @@ class CnpjErradoForm(forms.Form):
         required=False,
         initial=False,
     )
+
+
+class OcorrenciaInlineForm(forms.ModelForm):
+    anexo = forms.FileField(label=_("Adicionar anexo"), required=False)
+    descricao_anexo = forms.CharField(
+        label=_("Descrição do novo anexo"), max_length=70, required=False
+    )
+
+    class Meta:
+        model = Ocorrencia
+        fields = "__all__"
+
+    def save(self, commit=True):
+        instance = super().save(commit=False)
+        arquivo = self.cleaned_data["anexo"]
+        descricao = self.cleaned_data["descricao_anexo"]
+        if arquivo:
+            anexo = Anexo(arquivo=arquivo, descricao=descricao)
+            instance.anexo_set.add(anexo, bulk=False)
+            self.cleaned_data["anexo"] = None
+        if commit:
+            instance.save()
+        return instance

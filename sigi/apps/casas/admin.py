@@ -15,7 +15,7 @@ from djbs import djbs_constants as djbsc
 from import_export import resources
 from import_export.admin import ExportActionMixin
 from import_export.fields import Field
-from sigi.apps.casas.forms import OrgaoForm
+from sigi.apps.casas.forms import OrgaoForm, OcorrenciaInlineForm
 from sigi.apps.casas.models import Orgao, Funcionario, TipoOrgao
 from sigi.apps.casas.filters import (
     GerentesInterlegisFilter,
@@ -146,7 +146,7 @@ class ParlamentarInline(admin.TabularInline):
 
 class FuncionarioInline(admin.StackedInline):
     model = Funcionario
-    djbs_cols = "1"
+    stacked_cols = "1"
     fields = (
         ("desativado", "ult_alteracao"),
         "setor",
@@ -302,21 +302,25 @@ class ServicoInline(admin.TabularInline):
 
 class OcorrenciaInline(admin.StackedInline):
     model = Ocorrencia
+    form = OcorrenciaInlineForm
+    stacked_cols = 1
     fields = (
-        "data_criacao",
-        "data_modificacao",
-        "categoria",
-        "tipo_contato",
+        ("data_criacao", "data_modificacao"),
+        ("categoria", "tipo_contato"),
         "assunto",
-        "prioridade",
-        "status",
-        "ticket",
-        "descricao",
-        "resolucao",
+        ("prioridade", "status", "ticket"),
+        ("descricao", "resolucao"),
         "servidor_registro",
+        ("anexo", "descricao_anexo"),
+        "get_anexos",
     )
     autocomplete_fields = ("categoria", "tipo_contato")
-    readonly_fields = ["data_criacao", "data_modificacao", "servidor_registro"]
+    readonly_fields = [
+        "data_criacao",
+        "data_modificacao",
+        "servidor_registro",
+        "get_anexos",
+    ]
     ordering = ("-data_modificacao",)
     extra = 0
     show_change_link = True
@@ -331,6 +335,18 @@ class OcorrenciaInline(admin.StackedInline):
         if Servidor.objects.filter(user=request.user).exists():
             return super().has_change_permission(request, obj)
         return False
+
+    @admin.display(description=_("Anexos"))
+    @mark_safe
+    def get_anexos(self, obj):
+        anexos = [
+            f"<li><a href='{a.arquivo.url}'>{a.descricao}</a></li>"
+            for a in obj.anexo_set.all()
+        ]
+        if anexos:
+            return "<ul>" + "".join(anexos) + "</ul>"
+        else:
+            return "Sem anexos"
 
 
 @admin.register(TipoOrgao)
