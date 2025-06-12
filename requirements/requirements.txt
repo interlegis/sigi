@@ -30,5 +30,5 @@ django-localflavor==4.0
 django-tinymce==4.1.0
 django-weasyprint==2.4.0
 djangorestframework==3.16.0
-djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@1.0.2
+djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@1.0.3
 django-dashboard @ git+https://github.com/interlegis/django-dashboard.git
