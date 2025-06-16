@@ -123,13 +123,17 @@ class OcorrenciaInlineForm(forms.ModelForm):
         fields = "__all__"
 
     def save(self, commit=True):
-        instance = super().save(commit=False)
+        instance = super().save(commit=commit)
+        # Ocorrencia instance needs to have a value for field "id" before
+        # their relationships can be used.
+        if instance.id is None:
+            return instance
         arquivo = self.cleaned_data["anexo"]
         descricao = self.cleaned_data["descricao_anexo"]
         if arquivo:
-            anexo = Anexo(arquivo=arquivo, descricao=descricao)
-            instance.anexo_set.add(anexo, bulk=False)
+            anexo = Anexo(
+                ocorrencia=instance, arquivo=arquivo, descricao=descricao
+            )
+            anexo.save()
             self.cleaned_data["anexo"] = None
-        if commit:
-            instance.save()
         return instance

@@ -1,5 +1,7 @@
+from pathlib import Path
 from typing import Any
 from django.db.models.query import QuerySet
+from django.forms import ValidationError
 from django.http import HttpRequest
 from email_validator import validate_email, EmailNotValidError
 from django.db.models import F
@@ -340,11 +342,15 @@ class OcorrenciaInline(admin.StackedInline):
     @mark_safe
     def get_anexos(self, obj):
         anexos = [
-            f"<li><a href='{a.arquivo.url}'>{a.descricao}</a></li>"
+            f'<a href="{a.arquivo.url}" '
+            'class="list-group-item list-group-item-action" download>'
+            '<i class="bi bi-filetype-'
+            f'{Path(a.arquivo.path).suffix.replace('.','')}"></i> '
+            f"{a.descricao or Path(a.arquivo.path).name}</a>"
             for a in obj.anexo_set.all()
         ]
         if anexos:
-            return "<ul>" + "".join(anexos) + "</ul>"
+            return '<div class="list-group">' + "".join(anexos) + "</div>"
         else:
             return "Sem anexos"
 
@@ -528,7 +534,10 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             try:
                 servidor = Servidor.objects.get(user=request.user)
             except Servidor.DoesNotExist:
-                servidor = None
+                raise ValidationError(
+                    _("Seu usuário não pode registrar ocorrênciaa"),
+                    code="invalid_user",
+                )
             if servidor is not None:
                 instances = ocorrencia_formset.save(commit=False)
                 for obj in instances:
