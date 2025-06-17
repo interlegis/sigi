@@ -10,7 +10,7 @@
   </h6>
   <div class="list-group">
     {% for reserva in reservas_conflitantes %}
-      <a href="{% url "admin:espacos_reserva_change" reserva.pk %}" class="list-group-item list-group-item-action list-group-item-danger alert-danger">
+      <a href="{% url "admin:espacos_reserva_change" reserva.pk %}" class="list-group-item list-group-item-action list-group-item-danger alert-danger" target="_blank">
         <p class="alert-link mb-0">{{ reserva }}</p>
         <small>
           {% blocktranslate with data_inicio=reserva.data_inicio|date:"SHORT_DATE_FORMAT" hora_inicio=reserva.hora_inicio|time:"TIME_FORMAT" data_termino=reserva.data_termino|date:"SHORT_DATE_FORMAT" hora_termino=reserva.hora_termino|time:"TIME_FORMAT" %}
