@@ -1,6 +1,7 @@
 import re
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
@@ -179,7 +180,7 @@ class Reserva(models.Model):
                     _("Hora de início deve ser anterior à hora de término")
                 )
 
-        if self.espaco is None:
+        if not hasattr(self, "espaco"):
             # Se não informou o espaço, não há como verificar conflito
             # Deixa seguir para o clean_fields lançar a exceção
             return super().clean()
@@ -191,26 +192,11 @@ class Reserva(models.Model):
                 reservas_conflitantes.update(status=Reserva.STATUS_CONFLITO)
             elif self.status == Reserva.STATUS_ATIVO:
                 # Não pode salvar assim. Lança exceção
-                link_list = "\n".join(
-                    [
-                        f"<a href='"
-                        f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}' "
-                        'class="list-group-item list-group-item-action list-group-item-danger">'
-                        f"{ reserva }</a>"
-                        for reserva in reservas_conflitantes
-                    ]
+                erro_txt = render_to_string(
+                    "espacos/snippets/alerta_conflitos_snippet.html",
+                    context={"reservas_conflitantes": reservas_conflitantes},
                 )
-                raise ValidationError(
-                    mark_safe(
-                        _(
-                            "<div class='mx-2 w-100'>"
-                            "<h6>Existe(m) reserva(s) que conflita(m) "
-                            f"com essas datas:</h6>"
-                            f'<div class="list-group">{link_list}</div>'
-                            "</div>"
-                        )
-                    )
-                )
+                raise ValidationError(mark_safe(erro_txt))
         return super().clean()
 
     def save(self, *args, **kwargs):

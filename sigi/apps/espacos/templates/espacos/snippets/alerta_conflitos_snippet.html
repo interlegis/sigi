@@ -1,0 +1,25 @@
+{% load i18n %}
+
+<div class="mx-2 w-100">
+  <h6>
+    {% blocktranslate count counter=reservas_conflitantes.count %}
+      Existe uma reserva que conflita com essas datas:
+    {% plural %}
+      Existem {{ counter }} reservas que conflitam com essas datas:
+    {% endblocktranslate %}
+  </h6>
+  <div class="list-group">
+    {% for reserva in reservas_conflitantes %}
+      <a href="{% url "admin:espacos_reserva_change" reserva.pk %}" class="list-group-item list-group-item-action list-group-item-danger alert-danger">
+        <p class="alert-link mb-0">{{ reserva }}</p>
+        <small>
+          {% blocktranslate with data_inicio=reserva.data_inicio|date:"SHORT_DATE_FORMAT" hora_inicio=reserva.hora_inicio|time:"TIME_FORMAT" data_termino=reserva.data_termino|date:"SHORT_DATE_FORMAT" hora_termino=reserva.hora_termino|time:"TIME_FORMAT" %}
+            De {{ data_inicio }} {{ hora_inicio }} até {{ data_termino }} {{ hora_termino }}
+          {% endblocktranslate %}
+        </small>
+      </a>
+    {% endfor %}
+  </div>
+</div>
+
+
