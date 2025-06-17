@@ -156,14 +156,34 @@ class Reserva(models.Model):
         return _(f"{self.proposito} em {self.espaco.nome}")
 
     def clean(self):
+        if (
+            self.data_inicio is None
+            or self.data_termino is None
+            or self.hora_inicio is None
+            or self.hora_termino is None
+        ):
+            # Não tem como fazer as verificações de data.
+            # Deixa seguir para que o clean_fields lance as exceções
+            return super().clean()
+
         if self.data_inicio > self.data_termino:
             raise ValidationError(
                 _("Data de início deve ser anterior à data de término")
             )
-        if self.hora_inicio > self.hora_termino:
-            raise ValidationError(
-                _("Hora de início deve ser anterior à hora de término")
-            )
+        if self.hora_inicio and self.hora_termino:
+            if (
+                self.data_inicio == self.data_termino
+                and self.hora_inicio > self.hora_termino
+            ):
+                raise ValidationError(
+                    _("Hora de início deve ser anterior à hora de término")
+                )
+
+        if self.espaco is None:
+            # Se não informou o espaço, não há como verificar conflito
+            # Deixa seguir para o clean_fields lançar a exceção
+            return super().clean()
+
         reservas_conflitantes = self.get_conflitantes()
         if reservas_conflitantes.exists():
             if self.status == Reserva.STATUS_CONFLITO:
@@ -171,10 +191,11 @@ class Reserva(models.Model):
                 reservas_conflitantes.update(status=Reserva.STATUS_CONFLITO)
             elif self.status == Reserva.STATUS_ATIVO:
                 # Não pode salvar assim. Lança exceção
-                link_list = ", ".join(
+                link_list = "\n".join(
                     [
                         f"<a href='"
-                        f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}'>"
+                        f"{reverse('admin:espacos_reserva_change', args=[reserva.pk])}' "
+                        'class="list-group-item list-group-item-action list-group-item-danger">'
                         f"{ reserva }</a>"
                         for reserva in reservas_conflitantes
                     ]
@@ -182,8 +203,11 @@ class Reserva(models.Model):
                 raise ValidationError(
                     mark_safe(
                         _(
-                            "Existe(m) reserva(s) que conflita(m) "
-                            f"com essas datas: { link_list }"
+                            "<div class='mx-2 w-100'>"
+                            "<h6>Existe(m) reserva(s) que conflita(m) "
+                            f"com essas datas:</h6>"
+                            f'<div class="list-group">{link_list}</div>'
+                            "</div>"
                         )
                     )
                 )
