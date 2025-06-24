@@ -323,7 +323,7 @@ class OcorrenciaInline(admin.StackedInline):
         "servidor_registro",
         "get_anexos",
     ]
-    ordering = ("-data_modificacao",)
+    ordering = ("-data_criacao", "-data_modificacao")
     extra = 0
     show_change_link = True
     can_delete = False
