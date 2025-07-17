@@ -1196,7 +1196,11 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     def get_deleted_objects(self, objs, request):
         deleted_objects = super().get_deleted_objects(objs, request)
         dr = get_deleted_objects(
-            [o.reserva for o in objs if hasattr(o, "reserva")],
+            [
+                o.reserva
+                for o in objs
+                if hasattr(o, "reserva") and o.reserva is not None
+            ],
             request,
             self.admin_site,
         )
