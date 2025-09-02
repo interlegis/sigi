@@ -17,16 +17,11 @@
 {% block page_margin %}3cm {{ pagemargin }}cm 2cm {{ pagemargin }}cm{% endblock page_margin %}
 
 {% block main_content %}
-  {% for convite in evento.convite_set.all %}
-    {% with convite.casa as casa %}
-      {% for nome in convite.nomes_participantes.splitlines %}
-        <div class="text-box">
-          {% block text_body %}{% endblock %}
-        </div>
-        {% if not forloop.last %}
-          <div class="new-page"/>
-        {% endif %}
-      {% endfor %}
+  {% for participante in evento.participante_set.all %}
+    {% with casa=participante.casa_legislativa %}
+      <div class="text-box">
+        {% block text_body %}{% endblock %}
+      </div>
     {% endwith %}
     {% if not forloop.last %}
       <div class="new-page"/>

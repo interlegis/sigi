@@ -136,7 +136,8 @@ class Orgao(models.Model):
     brasao_largura = models.SmallIntegerField(editable=False, null=True)
     brasao_altura = models.SmallIntegerField(editable=False, null=True)
 
-    def _mathnames(nome, orgaos):
+    @classmethod
+    def _mathnames(cls, nome, orgaos):
         for o, nome_canonico in orgaos:
             ratio = SequenceMatcher(
                 None, to_ascii(nome).lower(), nome_canonico

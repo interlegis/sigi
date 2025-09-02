@@ -1,0 +1,51 @@
+{% extends "admin/change_form_object_tools.html" %}
+{% load i18n admin_urls djbs_extras %}
+
+{% block object-tools-items %}
+  {{ block.super }}
+
+  {% if original.equipe_set.exists %}
+    {% url opts|admin_urlname:'custos' original.pk|admin_urlquote as custos_url %}
+    <a class="addlink nav-link custos" href="{% add_preserved_filters custos_url %}" aria-labelledby="text-tool-custos" title="{% translate 'Relatório de custos' %}">
+      {% icon "money" %} <span id="text-tool-custos" class="d-lg-none">{% translate "Relatório de custos" %}</span>
+    </a>
+  {% endif %}
+
+  {% if original.cronograma_set.exists %}
+    {% url opts|admin_urlname:'gantreport' original.pk|admin_urlquote as gant_url %}
+    {% url opts|admin_urlname:'checklistreport' original.pk|admin_urlquote as checklist_url %}
+    {% url opts|admin_urlname:'comunicacaoreport' original.pk|admin_urlquote as comunicacao_url %}
+    <a class="addlink nav-link gant" href="{% add_preserved_filters gant_url %}" aria-labelledby="text-tool-gant" title="{% translate 'Gráfico de gant' %}">
+      {% icon "chart" %} <span id="text-tool-gant" class="d-lg-none">{% translate "Gráfico de gant" %}</span>
+    </a>
+    <a class="addlink nav-link checklist" href="{% add_preserved_filters checklist_url %}" aria-labelledby="text-tool-checklist" title="{% translate 'Checklist' %}">
+      {% icon "checklist" %} <span id="text-tool-checklist" class="d-lg-none">{% translate "Checklist" %}</span>
+    </a>
+    <a class="addlink nav-link comunicacao" href="{% add_preserved_filters comunicacao_url %}" aria-labelledby="text-tool-comunicacao" title="{% translate 'Plano de comunicação' %}">
+      {% icon "speak" %} <span id="text-tool-comunicacao" class="d-lg-none">{% translate "Plano de comunicação" %}</span>
+    </a>
+  {% endif %}
+
+  {% if original.moodle_courseid is None %}
+    {% if original.tipo_evento.moodle_template_courseid is not None and evento.tipo_evento.moodle_categoryid is not None %}
+      {% url opts|admin_urlname:'createcourse' original.pk|admin_urlquote as createcourse_url %}
+      <a class="addlink nav-link createcourse" href="{% add_preserved_filters createcourse_url %}" aria-labelledby="text-tool-createcourse" title="{% translate 'Criar curso no Saberes' %}">
+        {% icon "create" %} <span id="text-tool-createcourse" class="d-lg-none">{% translate "Criar curso no Saberes" %}</span>
+      </a>
+    {% endif %}
+  {% endif %}
+
+  {% if original.moodle_courseid is not None %}
+    {% url opts|admin_urlname:'updateparticipantes' original.pk|admin_urlquote as updateparticipantes_url %}
+    <a class="addlink nav-link updateparticipantes" href="{% add_preserved_filters updateparticipantes_url %}" aria-labelledby="text-tool-updateparticipantes" title="{% translate 'Atualizar lista de participantes (Saberes)' %}">
+      {% icon "refresh" %} <span id="text-tool-updateparticipantes" class="d-lg-none">{% translate "Atualizar lista de participantes (Saberes)" %}</span>
+    </a>
+  {% endif %}
+
+  {% if original.tipo_evento.categoria == "V" %}
+    {% url opts|admin_urlname:'declaracaoreport' original.pk|admin_urlquote as declaracao_url %}
+    <a class="addlink nav-link declaracao" href="{% add_preserved_filters declaracao_url %}" aria-labelledby="text-tool-declaracao" title="{% translate 'Declaração' %}">
+      {% icon "pdf" %} <span id="text-tool-declaracao" class="d-lg-none">{% translate "Declaração" %}</span>
+    </a>
+  {% endif %}
+{% endblock %}

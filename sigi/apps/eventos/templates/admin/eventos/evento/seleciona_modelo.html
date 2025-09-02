@@ -1,0 +1,26 @@
+{% extends "admin/change_form.html" %}
+{% load i18n static admin_urls djbs_extras %}
+
+{% block content %}
+  <div id="content-main" class="container">
+    <div class="card">
+      <div class="card-body">
+        <form id="select-form" name="select-form" action="" method="post" novalidate>
+          {% csrf_token %}
+          {{ form }}
+        </form>
+      </div>
+    </div>
+
+    <div class="submit-row btn-toolbar hstack justify-content-end mx-2 my-5 gap-2">
+      <button class="default btn btn-outline-success" type="submit" form="select-form" name="submit" value="print">
+        {% icon "print" %} {% trans "Imprimir" %}
+      </button>
+      {% url opts|admin_urlname:'change' evento_id|admin_urlquote as change_url %}
+      <a href="{% add_preserved_filters change_url %}" class="closelink btn btn-outline-success" title="{% translate 'Close' %}">
+        {% icon "dismiss" %} {% translate 'Close' %}
+      </a>
+    </div>
+  </div>
+{% endblock %}
+

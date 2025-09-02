@@ -6,6 +6,7 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from sigi.apps.utils.management.jobs import JobReportMixin
 from sigi.apps.eventos.models import Evento
+from sigi.apps.eventos.saberes import SaberesSyncException
 
 
 class Job(JobReportMixin, DailyJob):
@@ -42,11 +43,11 @@ class Job(JobReportMixin, DailyJob):
                     total_sinc += 1
                 else:
                     total_ok += 1
-            except Evento.SaberesSyncException as err:
+            except SaberesSyncException as err:
                 errors.append(
                     _(
                         f"Erro ao sincronizar evento {evento.nome} "
-                        f"({evento,id}), com a mensagem '{err.message}'"
+                        f"({evento.id}), com a mensagem '{err.message}'"
                     )
                 )
                 total_erros += 1

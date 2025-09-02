@@ -1,6 +1,8 @@
 from collections.abc import Iterable
 import datetime
 import re
+import lxml
+import lxml.html
 from moodle import Moodle
 from tinymce.models import HTMLField
 from django.conf import settings
@@ -16,6 +18,8 @@ from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao, Servidor
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.espacos.models import Reserva
+from sigi.apps.utils.templatetags.model_fields import verbose_name
+from sigi.apps.eventos.saberes import EventoSaberes
 
 
 class TipoEvento(models.Model):
@@ -281,11 +285,6 @@ class AnexoSolicitacao(models.Model):
 
 
 class Evento(models.Model):
-    class SaberesSyncException(Exception):
-        @property
-        def message(self):
-            return str(self)
-
     STATUS_PREVISTO = "P"
     STATUS_AUTORIZADO = "O"
     STATUS_REALIZADO = "R"
@@ -546,81 +545,39 @@ class Evento(models.Model):
         )
 
     def sincroniza_saberes(self, origem="Cronjob"):
-        if self.moodle_courseid is None:
-            raise Evento.SaberesSyncException(
-                _("Este evento não tem curso associado no Saberes"),
-            )
-
-        api_url = f"{settings.MOODLE_BASE_URL}/webservice/rest/server.php"
-        mws = Moodle(api_url, settings.MOODLE_API_TOKEN)
-        try:
-            inscritos = mws.post(
-                "core_enrol_get_enrolled_users",
-                courseid=self.moodle_courseid,
-            )
-        except Exception as e:
-            raise Evento.SaberesSyncException(
-                _(
-                    "Ocorreu um erro ao acessar o curso no Saberes com "
-                    f"a mensagem {e.message}"
-                ),
-            )
-        participantes = list(
-            filter(
-                lambda u: any(
-                    r["roleid"] in settings.MOODLE_STUDENT_ROLES
-                    for r in u["roles"]
-                ),
-                inscritos,
-            )
-        )
-
-        aprovados = 0
+        saberes = EventoSaberes(self)
+        participantes = saberes.get_participantes()
+        tot_aprovados = len(saberes.get_aprovados())
         self.participantesevento_set.update(inscritos=0, aprovados=0)
+        self.participante_set.all().delete()
+        saberes.identifica_orgaos()
         for participante in participantes:
-            try:
-                nome_uf = [
-                    f["value"].lower()
-                    for f in participante["customfields"]
-                    if f["shortname"] == settings.MOODLE_UF_CUSTOMFIELD
-                ][0]
-                uf = UnidadeFederativa.objects.get(nome__iexact=nome_uf)
-            except (
-                IndexError,
-                UnidadeFederativa.DoesNotExist,
-                UnidadeFederativa.MultipleObjectsReturned,
-            ):
-                uf = None
+            uf = participante["uf"]
             part_uf, created = ParticipantesEvento.objects.get_or_create(
                 evento=self, uf=uf
             )
             part_uf.inscritos += 1
-            try:
-                completion_data = mws.post(
-                    "core_completion_get_course_completion_status",
-                    courseid=self.moodle_courseid,
-                    userid=participante["id"],
-                )
-            except Exception:
-                completion_data = None
-
-            if completion_data and (
-                completion_data["completionstatus"]["completed"]
-                or any(
-                    filter(
-                        lambda c: c["type"]
-                        == settings.MOODLE_COMPLETE_CRITERIA_TYPE
-                        and c["complete"],
-                        completion_data["completionstatus"]["completions"],
-                    )
-                )
-            ):
-                aprovados += 1
+            if participante["completed"]:
                 part_uf.aprovados += 1
             part_uf.save()
+            part = Participante(evento=self)
+            if "orgao" in participante:
+                part.casa_legislativa = participante["orgao"]
+            part.cpf = participante["username"]
+            part.nome = participante["fullname"]
+            part.email = participante["email"]
+            local_trabalho = []
+            if "customfields" in participante:
+                for cf in participante["customfields"]:
+                    value = lxml.html.fromstring(cf["value"]).text_content()
+                    local_trabalho.append(f"{cf['name']}: {value}")
+            if "city" in participante:
+                local_trabalho.append(_(f"Cidade: {participante['city']}"))
+            part.local_trabalho = "\n".join(local_trabalho)
+            part.save()
 
         self.inscritos_saberes = len(participantes)
-        self.aprovados_saberes = aprovados
+        self.aprovados_saberes = tot_aprovados
         self.data_sincronizacao = timezone.localtime()
         self.origem_sincronizacao = origem
 
@@ -897,6 +854,36 @@ class Convite(models.Model):
         verbose_name = _("Casa convidada")
         verbose_name_plural = _("Casas convidadas")
 
+    def __str__(self):
+        return str(self.id)
+
+
+class Participante(models.Model):
+    evento = models.ForeignKey(
+        Evento, verbose_name=_("evento"), on_delete=models.CASCADE
+    )
+    casa_legislativa = models.ForeignKey(
+        Orgao,
+        verbose_name=_("casa legislativa"),
+        on_delete=models.SET_NULL,
+        blank=True,
+        null=True,
+    )
+    cpf = models.CharField(_("CPF"), max_length=30)
+    nome = models.CharField(_("nome completo"), max_length=100)
+    email = models.EmailField(_("e-mail"), blank=True)
+    local_trabalho = models.TextField(
+        _("local de trabalho / cargo"), blank=True
+    )
+
+    class Meta:
+        verbose_name = _("participante")
+        verbose_name_plural = _("participantes")
+        ordering = ("casa_legislativa", "nome")
+
+    def __str__(self):
+        return self.nome
+
 
 class Modulo(models.Model):
     TIPO_AULA = "A"
@@ -1011,17 +998,25 @@ class ModeloDeclaracao(models.Model):
     texto = HTMLField(
         _("Texto da declaração"),
         help_text=_(
-            "Use as seguintes marcações:<ul><li>{{ casa.nome }} para o"
-            " nome da Casa Legislativa / órgão</li>"
+            "Use as seguintes marcações:<ul>"
+            "<li>{{ casa.nome }} para o nome da Casa Legislativa / órgão</li>"
             "<li>{{ casa.municipio.uf.sigla }} para a sigla da UF da "
-            "Casa legislativa</li><li>{{ nome }} "
-            "para o nome do visitante</li><li>{{ data }} para a data "
-            "de emissão da declaração</li><li>{{ evento.data_inicio }}"
-            " para a data/hora do início da visita</li>"
+            "Casa legislativa</li>"
+            "<li>{{ participante.cpf }} para o CPF do visitante</li>"
+            "<li>{{ participante.nome }} para o nome do visitante</li>"
+            "<li>{{ participante.email }} para o e-mail do visitante</li>"
+            "<li>{{ participante.local_trabalho }} para o cargo / função / "
+            "local de trabalho do visitante</li>"
+            "<li>{{ data }} para a data de emissão da declaração</li>"
+            "<li>{{ evento.data_inicio }} para a data/hora do início "
+            "da visita</li>"
             "<li>{{ evento.data_termino }} para a data/hora do "
-            "término da visita</li><li>{{ evento.nome }} para o nome "
-            "do evento</li><li>{{ evento.descricao }} para a descrição"
-            " do evento</li></ul>"
+            "término da visita</li>"
+            "<li>{{ evento.nome }} para o nome do evento</li>"
+            "<li>{{ evento.descricao }} para a descrição do evento</li>"
+            "<li>{% include 'eventos/snippets/comitiva.html' %} para a tabela com toda"
+            " a comitiva da visita</li>"
+            "</ul>"
         ),
     )
 

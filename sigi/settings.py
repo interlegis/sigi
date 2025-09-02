@@ -259,6 +259,14 @@ DJBSTHEME = {
     "FIELDSET_STYLE": djbs_constants.STYLE_TAB,
     "INLINESET_STYLE": djbs_constants.STYLE_TAB,
     "BADGERIZE_FACETS": True,
+    "ICONS": {
+        "chart": "bi bi-graph-up",
+        "checklist": "bi bi-list-check",
+        "create": "bi bi-node-plus",
+        "money": "bi bi-coin",
+        "refresh": "bi bi-arrow-clockwise",
+        "speak": "bi bi-megaphone",
+    },
 }
 
 # tinyMCE rich text editor settings
@@ -299,7 +307,16 @@ MOODLE_STUDENT_ROLES = env("MOODLE_STUDENT_ROLES", eval, default=(5, 9))
 MOODLE_COMPLETE_CRITERIA_TYPE = env(
     "MOODLE_COMPLETE_CRITERIA_TYPE", int, default=6  # Type Grade
 )
+MOODLE_ORGAO_CUSTOMFIELD = env(
+    "MOODLE_ORGAO_CUSTOMFIELD", str, default="nomeorgao"
+)
 MOODLE_UF_CUSTOMFIELD = env("MOODLE_UF_CUSTOMFIELD", str, default="estado")
+MOODLE_MUNICIPIO_CUSTOMFIELD = env(
+    "MOODLE_MUNICIPIO_CUSTOMFIELD", str, default="Municipio"
+)
+MOODLE_SERVSENADO_CUSTOMFIELD = env(
+    "MOODLE_SERVSENADO_CUSTOMFIELD", str, default="servidorsenado"
+)
 
 # Integração com reserva de salas
 

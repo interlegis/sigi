@@ -1,25 +1,13 @@
-from collections import OrderedDict
-from django import forms
-from django.contrib import admin
-from django.contrib.admin import helpers
-from django.contrib.admin.options import csrf_protect_m
-from django.contrib.admin.utils import pretty_name
 from django.contrib.auth.mixins import UserPassesTestMixin
-from django.core.exceptions import PermissionDenied, ImproperlyConfigured
-from django.http import Http404
-from django.http.response import HttpResponse, HttpResponseRedirect
+from django.core.exceptions import ImproperlyConfigured
+from django.http.response import HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse_lazy
 from django.utils import timezone
-from django.utils.encoding import force_str
-from django.utils.translation import gettext as _, ngettext
+from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
-from import_export import resources
-from import_export.admin import ImportMixin, ExportMixin
-from import_export.fields import Field
-from import_export.forms import ExportForm
 from import_export.signals import post_export
-from sigi.apps.utils import field_label, to_ascii
+from sigi.apps.utils import to_ascii
 
 
 class ReturnMixin:

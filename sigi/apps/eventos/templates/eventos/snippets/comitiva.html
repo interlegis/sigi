@@ -1,0 +1,20 @@
+{% load i18n %}
+<table>
+  <tr>
+    <th>{% trans "CPF" %}</th>
+    <th>{% trans "Nome" %}</th>
+    <th>{% trans "Cargo / função / setor" %}</th>
+  </tr>
+  {% for membro in evento.participante_set.all %}
+    {% ifchanged membro.casa_legislativa %}
+      <tr>
+        <td  colspan="3">{{ membro.casa_legislativa.nome }}</td>
+      </tr>
+    {% endifchanged %}
+    <tr>
+      <td>{{ membro.cpf }}</td>
+      <td>{{ membro.nome }}</td>
+      <td>{{ membro.local_trabalho }}</td>
+    </tr>
+  {% endfor %}
+</table>

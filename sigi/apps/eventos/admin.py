@@ -40,6 +40,7 @@ from sigi.apps.eventos.models import (
     Cronograma,
     ModeloDeclaracao,
     Modulo,
+    Participante,
     TipoEvento,
     Solicitacao,
     AnexoSolicitacao,
@@ -56,6 +57,7 @@ from sigi.apps.eventos.views import (
     context_custos_eventos,
     context_custos_servidor,
 )
+from sigi.apps.eventos.saberes import SaberesSyncException
 from sigi.apps.utils import abreviatura
 from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import AsciifyQParameter
@@ -334,33 +336,73 @@ class ChecklistInline(admin.StackedInline):
 
 class EquipeInline(admin.StackedInline):
     model = Equipe
+    fields = (
+        ("membro", "funcao"),
+        "assina_oficio",
+        ("qtde_diarias", "valor_diaria"),
+        ("emissao_passagens", "total_passagens"),
+        "observacoes",
+    )
     autocomplete_fields = ("membro", "funcao")
+    stacked_cols = "1"
 
 
 class ConviteInline(admin.StackedInline):
     model = Convite
+    fields = [("casa", "qtde_participantes"), "nomes_participantes"]
     autocomplete_fields = ("casa",)
+    readonly_fields = ["nomes_participantes"]
+    stacked_cols = "1"
 
 
 class ModuloInline(admin.StackedInline):
     model = Modulo
+    fields = (
+        "nome",
+        "descricao",
+        "tipo",
+        ("inicio", "termino", "carga_horaria"),
+        ("apresentador", "monitor"),
+        "qtde_participantes",
+    )
     autocomplete_fields = ("apresentador", "monitor")
+    stacked_cols = "1"
 
 
-class AnexoInline(admin.StackedInline):
+class AnexoInline(admin.TabularInline):
     model = Anexo
     exclude = ("data_pub", "convite")
 
 
 class CronogramaInline(admin.StackedInline):
     model = Cronograma
-    extra = 0
+    fields = (
+        ("etapa", "nome"),
+        "descricao",
+        "duracao",
+        ("data_prevista_inicio", "data_prevista_termino"),
+        ("data_inicio", "data_termino"),
+        "dependencia",
+        "responsaveis",
+        "comunicar_inicio",
+        "comunicar_termino",
+        "recursos",
+    )
+    extra = 1
+    stacked_cols = "1"
 
 
 class ParticipantesEventoInline(admin.TabularInline):
     model = ParticipantesEvento
     fields = ("uf", "inscritos", "aprovados")
     autocomplete_fields = ["uf"]
+
+
+class ParticipanteInline(admin.StackedInline):
+    model = Participante
+    fields = ("casa_legislativa", ("cpf", "email"), "nome", "local_trabalho")
+    autocomplete_fields = ["casa_legislativa"]
+    stacked_cols = "1"
 
 
 class ItemSolicitadoInline(admin.StackedInline):
@@ -996,6 +1038,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     inlines = (
         EquipeInline,
         ConviteInline,
+        ParticipanteInline,
         ParticipantesEventoInline,
         ModuloInline,
         AnexoInline,
@@ -1210,10 +1253,10 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         return deleted_objects
 
     def declaracao_report(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
         if request.method == "POST":
             form = SelecionaModeloForm(request.POST)
             if form.is_valid():
-                evento = get_object_or_404(Evento, id=object_id)
                 modelo = form.cleaned_data["modelo"]
                 membro = (
                     evento.equipe_set.filter(assina_oficio=True).first()
@@ -1263,7 +1306,12 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             )
 
         context = {
+            **self.admin_site.each_context(request),
+            "title": _("Emitir declaração para os participantes da visita"),
+            "subtitle": str(evento) if evento else None,
             "form": form,
+            "object_id": object_id,
+            "original": evento,
             "evento_id": object_id,
             "opts": self.model._meta,
             "preserved_filters": self.get_preserved_filters(request),
@@ -1429,7 +1477,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         )
 
         if not evento.equipe_set.filter(
-            Q(valor_diaria__gte=0) | Q(total_passagens__gte=0)
+            Q(valor_diaria__gt=0) | Q(total_passagens__gt=0)
         ).exists():
             self.message_user(
                 request,
@@ -1684,7 +1732,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
                     f"{request.user.get_full_name()}"
                 )
             )
-        except Evento.SaberesSyncException as e:
+        except SaberesSyncException as e:
             self.message_user(
                 request,
                 _(f"Erro ao sincronizar dados do Saberes: '{e.message}'"),
