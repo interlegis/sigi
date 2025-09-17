@@ -6,6 +6,7 @@ from django.utils.safestring import mark_safe
 from django_weasyprint.views import WeasyTemplateResponse
 from import_export import resources
 from import_export.admin import ExportActionMixin
+from import_export.fields import Field
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from sigi.apps.convenios.models import (
@@ -24,29 +25,55 @@ from sigi.apps.utils.filters import DateRangeFilter
 
 
 class ConvenioExportResourse(resources.ModelResource):
+    num_processo_senado = Field(attribute="num_processo_sf")
+    num_convenio = Field(attribute="num_convenio")
+    tipo_convenio = Field(attribute="projeto__nome")
+    tipo_convenio_sigla = Field(attribute="projeto__sigla")
+    casa_legislativa = Field(attribute="casa_legislativa__nome")
+    municipio = Field(attribute="casa_legislativa__municipio__nome")
+    uf = Field(attribute="casa_legislativa__municipio__uf__sigla")
+    status_convenio = Field(attribute="get_status")
+    data_cadastro_sigi = Field(attribute="data_sigi")
+    data_cadastro_sigad = Field(attribute="data_sigad")
+    data_adesao = Field(attribute="data_adesao")
+    data_inicio_vigencia = Field(attribute="data_retorno_assinatura")
+    data_termino_vigencia = Field(attribute="data_termino_vigencia")
+    data_email_solicitacao = Field(attribute="data_solicitacao")
+    data_atualizacao_gescon = Field(attribute="atualizacao_gescon")
+    observacao_gescon = Field(attribute="observacao_gescon")
+    tipo_solicitacao = Field(attribute="tipo_solicitacao__nome")
+    servidor_acompanha = Field(attribute="acompanha__nome_completo")
+    servidor_gestao = Field(attribute="servidor_gestao__nome_completo")
+    observacao = Field(attribute="observacao")
+
     class Meta:
         model = Convenio
         fields = (
-            "num_processo_sf",
+            "num_processo_senado",
             "num_convenio",
-            "projeto__nome",
-            "casa_legislativa__nome",
-            "casa_legislativa__municipio__nome",
-            "casa_legislativa__municipio__uf__sigla",
-            "data_sigi",
-            "data_sigad",
+            "tipo_convenio",
+            "tipo_convenio_sigla",
+            "casa_legislativa",
+            "municipio",
+            "uf",
+            "status_convenio",
+            "data_cadastro_sigi",
+            "data_cadastro_sigad",
             "data_adesao",
-            "data_retorno_assinatura",
-            "data_solicitacao",
-            "atualizacao_gescon",
+            "data_inicio_vigencia",
+            "data_termino_vigencia",
+            "data_email_solicitacao",
+            "data_atualizacao_gescon",
             "observacao_gescon",
-            "tipo_solicitacao__nome",
-            "status__nome",
-            "acompanha__nome_completo",
-            "servidor_gestao__nome_completo",
+            "tipo_solicitacao",
+            "servidor_acompanha",
+            "servidor_gestao",
             "observacao",
         )
         export_order = fields
+
+        def dehydrate_status_convenio(self, convenio):
+            return convenio.get_status()
 
 
 class AnexosInline(admin.TabularInline):
