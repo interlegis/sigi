@@ -2,7 +2,7 @@ import calendar
 import datetime
 import locale
 from dashboard import Dashcard, getcolor
-from random import randint, seed
+from random import choice, randint, seed
 from django.db.models import Count, F, Q
 from django.db.models.functions import TruncMonth
 from django.http import QueryDict
@@ -26,16 +26,24 @@ class UsoServicosFilter(django_filters.FilterSet):
         fields = ["uf"]
 
 
+def get_anos_servico():
+    return (
+        (ano, str(ano))
+        for ano in Servico.objects.filter(hospedagem_interlegis=True)
+        .order_by("data_ativacao__year")
+        .values_list("data_ativacao__year", flat=True)
+        .distinct("data_ativacao__year")
+    )
+
+
 class AnoServicoFilter(django_filters.FilterSet):
-    ano = django_filters.ModelChoiceFilter(
-        field_name="data_ativacao__year",
+
+    ano = django_filters.ChoiceFilter(
+        field_name="data_ativacao",
+        lookup_expr="year",
         label=_("Ano"),
-        queryset=(
-            Servico.objects.filter(hospedagem_interlegis=True)
-            .order_by("data_ativacao__year")
-            .values_list("data_ativacao__year", flat=True)
-            .distinct("data_ativacao__year")
-        ),
+        choices=get_anos_servico,
+        empty_label=_("Todos os anos"),
     )
 
     class Meta:
@@ -290,9 +298,7 @@ class UsoServicos(Dashcard):
         return [
             {
                 "label": label,
-                "data": {
-                    r.sigla: getattr(r, f"{key}_count") for r in queryset
-                },
+                "data": {r.sigla: getattr(r, f"{key}_count") for r in queryset},
             }
             for key, label in Servico.RESULTADO_CHOICES
         ]
