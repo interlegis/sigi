@@ -16,7 +16,7 @@ python-magic==0.4.27
 PyYAML==6.0.2
 requests==2.32.4
 uritemplate==4.1.1
-weasyprint==65.1
+weasyprint==68.0
 XlsxWriter==3.2.3
 Django==5.2.2
 django-admin-autocomplete-filter==0.7.1
