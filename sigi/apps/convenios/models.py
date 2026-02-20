@@ -304,9 +304,7 @@ class Convenio(models.Model):
         _("data de devolução da via"),
         null=True,
         blank=True,
-        help_text=_(
-            "Data de devolução da via do convênio à Câmara Municipal."
-        ),
+        help_text=_("Data de devolução da via do convênio à Câmara Municipal."),
     )
     data_postagem_correio = models.DateField(
         _("data postagem correio"),
@@ -748,6 +746,13 @@ class Gescon(models.Model):
                 report_user = True
                 continue
 
+            if response.status_code != 200:
+                self.add_message(
+                    f"\tErro na leitura dos dados de {url}: "
+                    f"[{response.status_code}] {response.reason}"
+                )
+                continue
+
             if not response.ok:
                 self.add_message(
                     _(f"\tErro ao acessar {url}: {response.reason}")
@@ -805,6 +810,16 @@ class Gescon(models.Model):
             atualizados = 0
 
             for contrato in nossos:
+                if contrato["numero"] is None:
+                    self.add_message(
+                        _(
+                            "\t* O contrato de id {id} subespécie {sub} foi "
+                            "cadastrado no Gescon sem número e não será "
+                            "importado."
+                        ).format(id=contrato["id"], sub=contrato["subEspecie"])
+                    )
+                    report_user = True
+                    continue
                 numero = re.sub(
                     r"(\d{4})(\d{4})", r"\1/\2", contrato["numero"].zfill(8)
                 )
@@ -895,9 +910,7 @@ class Gescon(models.Model):
                     convenio.data_retorno_assinatura = contrato[
                         "inicioVigencia"
                     ]
-                    convenio.data_termino_vigencia = contrato[
-                        "terminoVigencia"
-                    ]
+                    convenio.data_termino_vigencia = contrato["terminoVigencia"]
                     convenio.data_pub_diario = contrato["publicacao"]
                     convenio.atualizacao_gescon = timezone.localtime()
                     convenio.erro_gescon = False
@@ -951,6 +964,7 @@ class Gescon(models.Model):
                                 .order_by()
                                 .annotate(uf_sigla=F("municipio__uf__sigla"))
                             ],
+                            min_ratio=0,
                         )[0][0]
                     except Orgao.DoesNotExist:
                         # Encontrou 0: Vamos seguir sem órgao e tentar
@@ -1035,9 +1049,7 @@ class Gescon(models.Model):
                         observacao_gescon=_(
                             "Importado integralmente do Gescon"
                         ),
-                        id_contrato_gescon=(
-                            contrato["codTextoContrato"] or ""
-                        ),
+                        id_contrato_gescon=(contrato["codTextoContrato"] or ""),
                     )
                     convenio.save()
                     novos += 1

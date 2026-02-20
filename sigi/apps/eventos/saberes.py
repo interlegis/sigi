@@ -71,9 +71,7 @@ class EventoSaberes(Moodle):
     def get_inscritos(self):
         if self.evento.moodle_courseid is None:
             raise SaberesSyncException(
-                _(
-                    f"O evento {self.evento} não tem curso associado no Saberes"
-                ),
+                _(f"O evento {self.evento} não tem curso associado no Saberes"),
             )
 
         if self._inscritos is None:
@@ -248,9 +246,7 @@ class EventoSaberes(Moodle):
                     settings.MOODLE_ORGAO_CUSTOMFIELD
                 ]
                 municipio = (
-                    p["dictcustomfields"][
-                        settings.MOODLE_MUNICIPIO_CUSTOMFIELD
-                    ]
+                    p["dictcustomfields"][settings.MOODLE_MUNICIPIO_CUSTOMFIELD]
                     if settings.MOODLE_MUNICIPIO_CUSTOMFIELD
                     in p["dictcustomfields"]
                     else p["city"] if "city" in p else ""
@@ -259,7 +255,7 @@ class EventoSaberes(Moodle):
                 for nome in nomes_possiveis:
                     semelhantes = Orgao.get_semelhantes(nome, orgaos)
                     if len(semelhantes) > 0:
-                        p["orgao"] = semelhantes[-1][0]
+                        p["orgao"] = semelhantes[0][0]
                         break
                 if "orgao" not in p:
                     # Buscar por sigla

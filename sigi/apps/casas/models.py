@@ -97,9 +97,7 @@ class Orgao(models.Model):
         null=True,
         blank=True,
     )
-    obs_pesquisa = models.TextField(
-        _("observações do pesquisador"), blank=True
-    )
+    obs_pesquisa = models.TextField(_("observações do pesquisador"), blank=True)
     ult_alt_endereco = models.DateTimeField(
         _("última alteração do endereço"), null=True, blank=True, editable=True
     )
@@ -137,16 +135,16 @@ class Orgao(models.Model):
     brasao_altura = models.SmallIntegerField(editable=False, null=True)
 
     @classmethod
-    def _mathnames(cls, nome, orgaos):
+    def _mathnames(cls, nome, orgaos, min_ratio=0.9):
         for o, nome_canonico in orgaos:
             ratio = SequenceMatcher(
                 None, to_ascii(nome).lower(), nome_canonico
             ).ratio()
-            if ratio > 0.9:
+            if ratio > min_ratio:
                 yield (o, ratio)
 
     @classmethod
-    def get_semelhantes(cls, nome, orgaos=None):
+    def get_semelhantes(cls, nome, orgaos=None, min_ratio=0.9):
         if orgaos is None:
             orgaos = [
                 (o, f"{to_ascii(o.nome)} - {o.uf_sigla}".lower())
@@ -155,8 +153,9 @@ class Orgao(models.Model):
                 .annotate(uf_sigla=models.F("municipio__uf__sigla"))
             ]
         return sorted(
-            cls._mathnames(nome, orgaos),
+            cls._mathnames(nome, orgaos, min_ratio),
             key=lambda m: m[1],
+            reverse=True,
         )
 
     class Meta:
