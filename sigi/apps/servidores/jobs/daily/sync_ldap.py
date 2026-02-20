@@ -1,9 +1,10 @@
+import sys
 import ldap
 from django.conf import settings
 from django.utils.translation import gettext as _
 from django_auth_ldap.config import _DeepStringCoder
 from django_extensions.management.jobs import DailyJob
-from sigi.apps.utils.management.jobs import JobReportMixin
+from sigi.apps.utils.management.jobs import AdminJobMixin
 from sigi.apps.servidores.models import Servico, Servidor
 from sigi.apps.servidores.utils import (
     servidor_update_from_ldap,
@@ -12,11 +13,11 @@ from sigi.apps.servidores.utils import (
 )
 
 
-class Job(JobReportMixin, DailyJob):
+class Job(AdminJobMixin, DailyJob):
     help = _("Sincroniza servidores com o ldap")
     report_data = []
 
-    def do_job(self):
+    def execute(self):
         coder = _DeepStringCoder("utf8")
 
         connect = ldap.initialize(settings.AUTH_LDAP_SERVER_URI)
@@ -60,21 +61,15 @@ class Job(JobReportMixin, DailyJob):
 
             for dn, ldap_user in decoded_data:
                 total_ldap += 1
-                resp, servidor = servidor_create_or_update(
-                    ldap_attrs=ldap_user
-                )
+                resp, servidor = servidor_create_or_update(ldap_attrs=ldap_user)
                 if servidor.user:
                     user_staff_and_group(servidor.user, ldap_user)
                 if resp == servidor_create_or_update.UPDATED:
                     total_update += 1
-                    self.report_data.append(
-                        _(f"{servidor.nome_completo} atualizado")
-                    )
+                    print(f"{servidor.nome_completo} atualizado")
                 elif resp == servidor_create_or_update.CREATED:
                     total_create += 1
-                    self.report_data.append(
-                        _(f"{servidor.nome_completo} criado")
-                    )
+                    print(f"{servidor.nome_completo} criado")
 
                 if dn in servidores:
                     del servidores[dn]
@@ -106,27 +101,21 @@ class Job(JobReportMixin, DailyJob):
 
         # Reporta servidores que não estão no LDAP e também não são externos
 
-        self.report_data.append("")
-        self.report_data.append(
-            _(
-                "Servidores que não estão no LDAP e também não estão marcados "
-                "como Externos"
-            )
-        )
-        self.report_data.append("=" * 72)
-        self.report_data.append("")
-
-        for s in Servidor.objects.filter(
+        nao_encontrados = Servidor.objects.filter(
             ldap_dn="", externo=False, sigi=False
-        ).order_by("nome_completo"):
-            self.report_data.append(f"- {s.nome_completo}")
+        ).order_by("nome_completo")
 
-        self.report_data.append("")
-        self.report_data.append("RESUMO")
-        self.report_data.append("=" * 6)
-        self.report_data.append("")
-        self.report_data.append(f"* {total_ldap} usuários lidos do LDAP")
-        self.report_data.append(f"* {total_create} novos servidores criados")
-        self.report_data.append(f"* {total_update} servidores atualizados")
-        self.report_data.append(f"* {total_deactive} usuários desativados")
-        self.report_data.append("")
+        if nao_encontrados.exists():
+            print(
+                "Servidores que não estão no LDAP e também não estão marcados "
+                "como Externos",
+                file=sys.stderr,
+            )
+            for s in nao_encontrados:
+                print(f"- {s.nome_completo}", file=sys.stderr)
+
+        print(f"* {total_ldap} usuários lidos do LDAP")
+        print(f"* {total_create} novos servidores criados")
+        print(f"* {total_update} servidores atualizados")
+        print(f"* {total_deactive} usuários desativados")
+        print(f"* {nao_encontrados.count()} servidores não encontrados no LDAP")

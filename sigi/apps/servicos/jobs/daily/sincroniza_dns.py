@@ -1,7 +1,9 @@
 import json
 import shutil
+import sys
 from django.conf import settings
 from django.db.models import Q
+from django.template.loader import render_to_string
 from django.utils import timezone
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
@@ -9,7 +11,7 @@ from sigi.apps.servicos import generate_instance_name, nomeia_instancias
 from sigi.apps.servicos.models import Servico, TipoServico
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.utils.management.jobs import JobReportMixin
+from sigi.apps.utils.management.jobs import AdminJobMixin
 
 LOG_GERAL = _("Mensagens gerais")
 IGNORES = ["_psl", "k8s", "www.", "sapl.", "addr.arpa"]
@@ -33,13 +35,12 @@ def get_log_entry():
     }
 
 
-class Job(JobReportMixin, DailyJob):
+class Job(AdminJobMixin, DailyJob):
     help = _("Sincronização dos registros de DNS da infraestrutura")
-    report_template = "servicos/emails/report_sincroniza_dns.rst"
     nomes_gerados = None
     report_data = {}
 
-    def do_job(self):
+    def execute(self):
         self.report_data[LOG_GERAL] = get_log_entry()
 
         if (
@@ -80,7 +81,15 @@ class Job(JobReportMixin, DailyJob):
         try:
             shutil.rmtree(settings.REGISTRO_PATH)
         except Exception as e:
-            self.info(_(f"Erro ao excluir diretório {settings.REGISTRO_PATH}"))
+            self.error(_(f"Erro ao excluir diretório {settings.REGISTRO_PATH}"))
+        print(
+            render_to_string(
+                "servicos/emails/report_sincroniza_dns.rst",
+                context={"report_data": self.report_data},
+            )
+        )
+        if any([len(d.erros) > 0 for uf, d in self.report_data.items()]):
+            print("* EXISTEM ERROS A SEREM ANALISADOS *", file=sys.stderr)
 
     def processa_rec(self, dns_rec, log_entry=LOG_GERAL):
         dominio = dns_rec["name"][:-1]

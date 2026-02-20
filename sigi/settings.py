@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django_extensions",
+    "job_controller",
     "django_filters",
     "localflavor",
     "import_export",
@@ -87,12 +88,8 @@ MIDDLEWARE = [
 SITE_ID = 1
 
 if DEBUG:
-    INSTALLED_APPS = [
-        "debug_toolbar",
-    ] + INSTALLED_APPS
-    MIDDLEWARE = [
-        "debug_toolbar.middleware.DebugToolbarMiddleware",
-    ] + MIDDLEWARE
+    INSTALLED_APPS += ["debug_toolbar"]
+    MIDDLEWARE += ["debug_toolbar.middleware.DebugToolbarMiddleware"]
 
 EMAIL_PORT = env("EMAIL_PORT", int, default=25)
 EMAIL_HOST = env("EMAIL_HOST", default="")
@@ -103,9 +100,7 @@ EMAIL_USE_LOCALTIME = env("EMAIL_USE_LOCALTIME", bool, default=False)
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", bool, default=False)
 EMAIL_USE_SSL = env("EMAIL_USE_SSL", bool, default=False)
 EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=None)
-DEFAULT_FROM_EMAIL = env(
-    "DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br"
-)
+DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
 # Database

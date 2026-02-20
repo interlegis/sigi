@@ -1,6 +1,6 @@
 admin_menu:
   - title: Superusuários
-    icon: bi bi-gear
+    icon: config
     children:
       - title: Usuários
         view_name: admin:auth_user_changelist
@@ -19,15 +19,15 @@ admin_menu:
         view_name: utils_runjob
         view_param: encerra_inscricao
       - title: Jobs de cron
-        view_name: admin:utils_cronjob_changelist
+        view_name: admin:job_controller_cronjob_changelist
       - title: Jobs agendados
-        view_name: admin:utils_jobschedule_changelist
+        view_name: admin:job_controller_jobschedule_changelist
         querystr: status__exact=A
       - title: Configurações
         view_name: admin:utils_config_changelist
 main_menu:
   - title: Relatórios
-    icon: bi bi-filetype-pdf
+    icon: pdf
     children:
       - title: VALIDAÇÃO - Erros importação Gescon
         view_name: convenios-report_erros_gescon
@@ -35,7 +35,7 @@ main_menu:
         view_name: casas_cnpj_duplicado
       - title: VALIDAÇÃO - Órgãos com CNPJ errado
         view_name: casas_cnpj_errado
-        separator: [after,]
+        separator: [after]
       - title: Eventos por UF
         view_name: eventos_eventosporuf
       - title: Alunos por UF
@@ -50,18 +50,18 @@ main_menu:
         view_name: eventos_calendario
       - title: Alocação de equipe eventos
         view_name: eventos_alocacaoequipe
-        separator: [after,]
+        separator: [after]
       - title: Reservas de espaços
         view_name: espacos_agenda
       - title: Uso dos espaços
         view_name: espacos_usoespaco
       - title: Resumo das reservas de espaços
         view_name: espacos_resumoreservas
-        separator: [after,]
+        separator: [after]
       - title: Lista de gerentes
         view_name: casas_gerentes
   - title: Municípios
-    icon: bi bi-globe-americas
+    icon: map
     children:
       - title: Municípios
         view_name: admin:contatos_municipio_changelist
@@ -70,7 +70,7 @@ main_menu:
       - title: Mesorregiões
         view_name: admin:contatos_mesorregiao_changelist
   - title: Casas e órgãos
-    icon: bi bi-bank
+    icon: building
     children:
       - title: Todo legislativo
         view_name: admin:casas_orgao_changelist
@@ -99,14 +99,14 @@ main_menu:
         view_name: admin:casas_orgao_changelist
         querystr: tipo__sigla__in=AL,EL
   - title: Gerência Interlegis
-    icon: bi bi-people
+    icon: people
     children:
       - title: Carteira de relacionamentos
         view_name:
       - title: Organizar relacionamentos
         view_name:
   - title: Convênios
-    icon: bi bi-file-earmark-check
+    icon: file-check
     children:
       - title: Convênios
         view_name: admin:convenios_convenio_changelist
@@ -114,10 +114,10 @@ main_menu:
         view_name: ocorrencias_painel
         querystr: tipo_categoria=C&status=1&status=2
   - title: Serviços SEIT
-    icon: bi bi-cloud-fog2
+    icon: cloud
     view_name: admin:servicos_servico_changelist
   - title: Ocorrências
-    icon: bi bi-telephone
+    icon: telephone
     children:
       - title: Registro de ocorrências
         view_name: admin:ocorrencias_ocorrencia_changelist
@@ -126,11 +126,11 @@ main_menu:
         view_name: ocorrencias_painel
         querystr: status=1&status=2
   - title: Reserva de espaços
-    icon: bi bi-book
+    icon: schedule
     view_name: admin:espacos_reserva_changelist
     querystr: status__exact=A
   - title: Eventos
-    icon: bi bi-calendar-week
+    icon: calendar
     children:
       - title: Solicitações
         view_name: admin:eventos_solicitacao_changelist
@@ -153,14 +153,14 @@ main_menu:
         view_name: admin:eventos_evento_changelist
         querystr: tipo_evento__categoria__exact=V
   - title: Servidores
-    icon: bi bi-person-badge
+    icon: badge
     children:
       - title: Serviços (unidades do ILB)
         view_name: admin:servidores_servico_changelist
       - title: Servidores e colaboradores
         view_name: admin:servidores_servidor_changelist
   - title: Tabelas auxiliares
-    icon: bi bi-database
+    icon: database
     children:
       - title: Tipos de órgãos
         view_name: admin:casas_tipoorgao_changelist
@@ -186,21 +186,20 @@ main_menu:
         view_name: admin:espacos_espaco_changelist
       - title: Recursos para eventos
         view_name: admin:espacos_recurso_changelist
-
-contato_menu:
-  - title: Casa legislativa
-    icon: account_balance
-    children:
-      - title: Dados cadastrais
-        view_name: casas:orgao_update
-      - title: Parlamentares
-        view_name: parlamentares:parlamentar_listview
-      - title: Contatos
-        view_name: casas:funcionario_listview
-  - title: Informações Interlegis
-    icon: cloud_done
-    children:
-      - title: Solicitar treinamentos
-        view_name: ocorrencias:solicita_oficina_create
-      - title: Ver ocorrências
-        view_name: ocorrencias:ocorrencia_listview
+# contato_menu:
+#   - title: Casa legislativa
+#     icon: account_balance
+#     children:
+#       - title: Dados cadastrais
+#         view_name: casas:orgao_update
+#       - title: Parlamentares
+#         view_name: parlamentares:parlamentar_listview
+#       - title: Contatos
+#         view_name: casas:funcionario_listview
+#   - title: Informações Interlegis
+#     icon: cloud_done
+#     children:
+#       - title: Solicitar treinamentos
+#         view_name: ocorrencias:solicita_oficina_create
+#       - title: Ver ocorrências
+#         view_name: ocorrencias:ocorrencia_listview

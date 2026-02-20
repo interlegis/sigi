@@ -1,3 +1,4 @@
+import sys
 import requests
 import datetime
 from django.conf import settings
@@ -6,7 +7,6 @@ from django.utils import timezone
 from django.utils.formats import localize
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import HourlyJob
-from sigi.apps.utils.management.jobs import JobReportMixin
 from sigi.apps.espacos.models import (
     Espaco,
     Recurso,
@@ -22,12 +22,8 @@ DEPARA_SITUACAO = {
 }
 
 
-class Job(JobReportMixin, HourlyJob):
+class Job(HourlyJob):
     help = "Sincroniza dados do sistema de reserva de salas"
-    report_data = []
-    resumo = []
-    infos = []
-    erros = []
 
     @property
     def auth_data(self):
@@ -36,11 +32,7 @@ class Job(JobReportMixin, HourlyJob):
             settings.RESERVA_SALA_API_PASSWORD,
         )
 
-    def do_job(self):
-        self.resumo = []
-        self.infos = []
-        self.erros = []
-
+    def execute(self):
         if (
             settings.RESERVA_SALA_BASE_URL is None
             or settings.RESERVA_SALA_API_USER is None
@@ -54,11 +46,7 @@ class Job(JobReportMixin, HourlyJob):
         self.carrega_reservas()
 
     def carrega_salas(self):
-        tit = ["", "\t*Carga de salas*", ""]
-        self.infos.extend(tit)
-        self.erros.extend(tit)
-        self.resumo.extend(tit)
-
+        print("\n", _("Carga de salas"), "\n==============\n")
         tot_novas = 0
         tot_erros = 0
         tot_atualizadas = 0
@@ -66,11 +54,13 @@ class Job(JobReportMixin, HourlyJob):
             settings.RESERVA_SALA_BASE_URL + "salas", auth=self.auth_data
         )
         if not req.ok:
-            self.erros.append(
+            print(
+                "\t",
                 _(
-                    "\t* Erro de autenticação na API do sistema de reserva "
-                    f"de salas, com a mensagem *{req.reason}*"
-                )
+                    "* Erro de autenticação na API do sistema de reserva "
+                    "de salas, com a mensagem *{reason}*"
+                ).format(reason=req.reason),
+                file=sys.stderr,
             )
             return
         for sala in req.json():
@@ -87,21 +77,28 @@ class Job(JobReportMixin, HourlyJob):
                     id_sala=sala["id"],
                 )
                 espaco.save()
-                self.infos.append(
+                print(
+                    "\t",
                     _(
-                        f"\t* Criado espaço *{espaco.id}* para a "
-                        f"sala *{sala['id']} - {sala['nome']}*"
-                    )
+                        "* Criado espaço *{espaco_id}* para a "
+                        "sala *{sala_id} - {sala_nome}*"
+                    ).format(
+                        espaco_id=espaco.id,
+                        sala_id=sala["id"],
+                        sala_nome=sala["nome"],
+                    ),
                 )
                 tot_novas += 1
                 continue
             except Espaco.MultipleObjectsReturned:
-                self.erros.append(
+                print(
+                    "\t",
                     _(
-                        "\t* Existe mais de um espaço com o mesmo ID de sala. "
+                        "* Existe mais de um espaço com o mesmo ID de sala. "
                         "Isso deve ser corrigido manualmente no SIGI. "
-                        f"id_sala={sala['id']}"
-                    )
+                        "id_sala={sala_id}"
+                    ).format(sala_id=sala["id"]),
+                    file=sys.stderr,
                 )
                 tot_erros += 1
                 continue
@@ -119,25 +116,21 @@ class Job(JobReportMixin, HourlyJob):
                 espaco.local = sala["local"]
                 espaco.capacidade = sala["capacidade"]
                 espaco.save()
-                self.infos.append(
+                print(
+                    "\t",
                     _(
-                        f"\t* Espaço *{espaco.id}* atualizado com novos dados "
-                        f"da sala *{sala['id']}*"
-                    )
+                        "* Espaço *{espaco_id}* atualizado com novos dados "
+                        "da sala *{sala_id}*"
+                    ).format(espaco_id=espaco.id, sala_id=sala["id"]),
                 )
                 tot_atualizadas += 1
-        self.resumo.append(
-            _(f"\t* Total de salas processadas: {len(req.json())}")
-        )
-        self.resumo.append(_(f"\t* Novos espaços criados: {tot_novas}"))
-        self.resumo.append(_(f"\t* Espaços atualizados: {tot_atualizadas}"))
-        self.resumo.append(_(f"\t* Erros encontrados nas salas: {tot_erros}"))
+        print("\t", _("* Total de salas processadas: %s") % len(req.json()))
+        print("\t", _("* Novos espaços criados: %s") % tot_novas)
+        print("\t", _("* Espaços atualizados: %s") % tot_atualizadas)
+        print("\t", _("* Erros encontrados nas salas: %s") % tot_erros)
 
     def carrega_recursos(self):
-        tit = ["", "\t*Carga de recursos*", ""]
-        self.infos.extend(tit)
-        self.erros.extend(tit)
-        self.resumo.extend(tit)
+        print("\n", _("Carga de recursos"), "\n=================\n")
 
         tot_novas = 0
         tot_erros = 0
@@ -148,11 +141,14 @@ class Job(JobReportMixin, HourlyJob):
             auth=self.auth_data,
         )
         if not req.ok:
-            self.erros.append(
+            print(
+                "\t",
                 _(
-                    "\t* Erro na API do sistema de reserva ao ler "
-                    f"equipamentos, com a mensagem *{req.reason}*"
+                    "* Erro na API do sistema de reserva ao ler "
+                    "equipamentos, com a mensagem *%s*"
                 )
+                % req.reason,
+                file=sys.stderr,
             )
             return
 
@@ -170,53 +166,58 @@ class Job(JobReportMixin, HourlyJob):
                     id_equipamento=equipamento["id"],
                 )
                 recurso.save()
-                self.infos.append(
-                    f"\t* Recurso *{recurso}* criado a partir do equipamento *{equipamento['id']} - {equipamento['nome']}*"
+                print(
+                    "\t",
+                    _(
+                        "* Recurso *{recurso}* criado a partir do equipamento "
+                        "*{equipamento_id} - {equipamento_nome}*"
+                    ).format(
+                        recurso=str(recurso),
+                        equipamento_id=equipamento["id"],
+                        equipamento_nome=equipamento["nome"],
+                    ),
                 )
                 tot_novas += 1
                 continue
             except Recurso.MultipleObjectsReturned:
-                lista = ", ".join(
-                    [
-                        str(r)
-                        for r in Recurso.objects.filter(
-                            id_equipamento=equipamento["id"]
-                        )
-                    ]
+                print(
+                    "\t",
+                    _(
+                        "* O equipamento *{id} - {nome}* possui os seguintes "
+                        "recursos com mesmo ID no SIGI:"
+                    ).format(id=equipamento["id"], nome=equipamento["nome"]),
+                    file=sys.stderr,
                 )
-                self.erros.append(
-                    f"\t* O equipamento *{equipamento['id']} - "
-                    f"{equipamento['nome']}* possui os seguintes recursos "
-                    f"com mesmo ID no SIGI: *{lista}*"
-                )
+                for r in Recurso.objects.filter(
+                    id_equipamento=equipamento["id"]
+                ):
+                    print("\t\t -", str(r), file=sys.stderr)
                 tot_erros += 1
                 continue
             if equipamento["nome"] != recurso.nome:
                 recurso.nome = equipamento["nome"]
                 recurso.save()
-                self.infos.append(
-                    f"\t* Recurso *{str(recurso)}* atualizado com as alterações "
-                    f"do equipamento *{equipamento['id']}*"
+                print(
+                    "\t",
+                    _(
+                        "* Recurso *{recurso}* atualizado com as alterações "
+                        "do equipamento *{id}*"
+                    ).format(recurso=str(recurso), id=equipamento["id"]),
                 )
                 tot_atualizadas += 1
 
-        self.resumo.append(
-            _(f"\t* Total de equipamentos processados: {len(req.json())}")
+        print(
+            "\t", _("* Total de equipamentos processados: %s") % len(req.json())
         )
-        self.resumo.append(_(f"\t* Novos recursos criados: {tot_novas}"))
-        self.resumo.append(_(f"\t* Recursos atualizados: {tot_atualizadas}"))
-        self.resumo.append(
-            _(f"\t* Erros encontrados nos equipamentos: {tot_erros}")
-        )
+        print("\t", _("* Novos recursos criados: %s") % tot_novas)
+        print("\t", _("* Recursos atualizados: %s") % tot_atualizadas)
+        print("\t", _("* Erros encontrados nos equipamentos: %s") % tot_erros)
 
     def carrega_reservas(
         self,
         ontem=(timezone.localdate() - timezone.timedelta(days=1)).isoformat(),
     ):
-        tit = ["", "\t*Carga de reservas*", ""]
-        self.infos.extend(tit)
-        self.erros.extend(tit)
-        self.resumo.extend(tit)
+        print("\n", _("Carga de reservas"), "\n=================\n")
 
         tot_processadas = 0
         tot_novas = 0
@@ -231,13 +232,16 @@ class Job(JobReportMixin, HourlyJob):
                 auth=self.auth_data,
             )
             if not req.ok:
-                self.erros.append(
+                print(
+                    "\t",
                     _(
-                        "\t* Erro na API do sistema de reserva ao ler "
-                        f"reservas da sala *{espaco.id_sala}*, com data de "
-                        f"início maior que *{ontem}*, "
-                        f"com a mensagem *{req.reason}*"
-                    )
+                        "* Erro na API do sistema de reserva ao ler reservas "
+                        "da sala *{id_sala}*, com data de início maior que "
+                        "*{ontem}*, com a mensagem *{msg}*"
+                    ).format(
+                        id_sala=espaco.id_sala, ontem=ontem, msg=req.reason
+                    ),
+                    file=sys.stderr,
                 )
                 continue
             tot_processadas += len(req.json())
@@ -258,12 +262,8 @@ class Job(JobReportMixin, HourlyJob):
                 reserva["coordenador"] = reserva["coordenador"][:100]
                 reserva["ramal"] = reserva["ramal"][:100]
 
-                data_inicio = datetime.date.fromisoformat(
-                    reserva["dataInicio"]
-                )
-                hora_inicio = datetime.time.fromisoformat(
-                    reserva["horaInicio"]
-                )
+                data_inicio = datetime.date.fromisoformat(reserva["dataInicio"])
+                hora_inicio = datetime.time.fromisoformat(reserva["horaInicio"])
                 data_termino = datetime.date.fromisoformat(reserva["dataFim"])
                 hora_termino = datetime.time.fromisoformat(reserva["horaFim"])
                 status = DEPARA_SITUACAO[reserva["situacao"]]
@@ -277,9 +277,7 @@ class Job(JobReportMixin, HourlyJob):
                     continue
                 # Tratar os demais casos
                 try:
-                    reserva_sigi = Reserva.objects.get(
-                        id_reserva=reserva["id"]
-                    )
+                    reserva_sigi = Reserva.objects.get(id_reserva=reserva["id"])
                 except Reserva.DoesNotExist:
                     conflitos = self.verifica_conflito(
                         espaco,
@@ -320,23 +318,36 @@ class Job(JobReportMixin, HourlyJob):
                             )
                             if reserva_sigi.status == Reserva.STATUS_CONFLITO:
                                 # Reportar como erro se a reserva é conflitante
-                                lista = ", ".join([str(c) for c in conflitos])
-                                self.erros.append(
-                                    f"\t* A reserva *{reserva['id']} - "
-                                    f"{reserva['evento']}"
-                                    "* do sistema de reservas conflita com "
-                                    "a(s) seguinte(s) reserva(s) do SIGI: "
-                                    f"*{lista}*. e foi copiada para o SIGI "
-                                    "como conflitante."
+                                print(
+                                    "\t",
+                                    _(
+                                        "* A reserva *{id} - {evento}* "
+                                        "do sistema de reservas conflita com "
+                                        "a(s) seguinte(s) reserva(s) do SIGI: "
+                                        "*{lista}*. e foi copiada para o SIGI "
+                                        "como conflitante."
+                                    ).format(
+                                        id=reserva["id"],
+                                        evento=reserva["evento"],
+                                        lista=", ".join(
+                                            [str(c) for c in conflitos]
+                                        ),
+                                    ),
+                                    file=sys.stderr,
                                 )
                                 tot_erros += 1
                             else:
                                 # Reportar como nova se o status for cancelada
-                                self.infos.append(
-                                    f"\t* Reserva *{str(reserva_sigi)}* "
-                                    "criada no SIGI a partir da reserva "
-                                    f"*{reserva['descricao']}* "
-                                    "do sistema de reservas"
+                                print(
+                                    "\t",
+                                    _(
+                                        "* Reserva *{res}* criada no SIGI a "
+                                        "partir da reserva *{desc}* do sistema "
+                                        "de reservas"
+                                    ).format(
+                                        res=str(reserva_sigi),
+                                        desc=reserva["descricao"],
+                                    ),
                                 )
                                 tot_novas += 1
                             continue
@@ -350,22 +361,28 @@ class Job(JobReportMixin, HourlyJob):
                             hora_inicio,
                             hora_termino,
                         )
-                        self.infos.append(
-                            f"\t* Reserva *{str(reserva_sigi)}* criada no SIGI"
-                            f" a partir da reserva *{reserva['descricao']}* "
-                            "do sistema de reservas"
+                        print(
+                            "\t",
+                            _(
+                                "* Reserva *{res}* criada no SIGI a partir da "
+                                "reserva *{desc}* do sistema de reservas"
+                            ).format(
+                                res=str(reserva_sigi), desc=reserva["descricao"]
+                            ),
                         )
                         tot_novas += 1
                         continue
                 except Reserva.MultipleObjectsReturned:
                     # Esse erro nunca poderia acontecer, mas ...
-                    self.erros.append(
+                    print(
+                        "\t",
                         _(
-                            "\t* Existe mais de uma reserva no SIGI com o "
+                            "* Existe mais de uma reserva no SIGI com o "
                             "mesmo ID de reserva do sistema de reservas. "
                             "Isso deve ser corrigido manualmente no SIGI. "
-                            f"id_reserva=*{reserva['id']}*"
-                        )
+                            f"id_reserva=*{id}*"
+                        ).format(id=reserva["id"]),
+                        file=sys.stderr,
                     )
                     tot_erros += 1
                     continue
@@ -392,31 +409,49 @@ class Job(JobReportMixin, HourlyJob):
                         reserva_sigi.data_termino = data_termino
                         reserva_sigi.hora_inicio = hora_inicio
                         reserva_sigi.hora_termino = hora_termino
-                        self.infos.append(
-                            f"\t* *{str(reserva_sigi)}* mudou para o período "
-                            f"de *{localize(data_inicio)} "
-                            f"{localize(hora_inicio)}* a "
-                            f"*{localize(data_termino)} "
-                            f"{localize(hora_termino)}*"
+                        print(
+                            "\t",
+                            _(
+                                "* *{res}* mudou para o período de "
+                                "*{dt_inicio} {hr_inicio} a *{dt_termino} "
+                                "{hr_termino}"
+                            ).format(
+                                res=str(reserva_sigi),
+                                dt_inicio=localize(data_inicio),
+                                hr_inicio=localize(hora_inicio),
+                                dt_termino=localize(data_termino),
+                                hr_termino=localize(hora_termino),
+                            ),
                         )
                         atualizou = True
                     else:
-                        lista = ", ".join([str(c) for c in conflitos])
-                        self.erros.append(
-                            f"\t* A reserva *{reserva['evento']}* no sistema "
-                            "de reservas mudou de data, mas esta mudança não "
-                            "pode ser aplicada no SIGI pois gera conflito "
-                            "com a(s) seguinte(s) outra(s) reserva(s): "
-                            f"*{lista}*"
+                        print(
+                            "\t",
+                            _(
+                                "* A reserva *{res}* no sistema de reservas "
+                                "mudou de data, mas esta mudança não pode ser "
+                                "aplicada no SIGI pois gera conflito com a(s) "
+                                "seguinte(s) outra(s) reserva(s): *{lista}*"
+                            ).format(
+                                res=reserva["evento"],
+                                lista=", ".join([str(c) for c in conflitos]),
+                            ),
+                            file=sys.stderr,
                         )
                         tot_erros += 1
                         continue
                 # Verificar outras atualizações
                 if reserva_sigi.status != status:
                     reserva_sigi.status = status
-                    self.infos.append(
-                        f"\t* A reserva SIGI *{str(reserva_sigi)}* mudou de "
-                        f"status para *{reserva_sigi.get_status_display()}*"
+                    print(
+                        "\t",
+                        _(
+                            "* A reserva SIGI *{res}* mudou de status para "
+                            "*{status}*"
+                        ).format(
+                            res=str(reserva_sigi),
+                            status=reserva_sigi.get_status_display(),
+                        ),
                     )
                     atualizou = True
                 rr = (
@@ -450,31 +485,32 @@ class Job(JobReportMixin, HourlyJob):
                     reserva_sigi.contato = reserva["coordenador"]
                     reserva_sigi.telefone_contato = reserva["ramal"]
                     reserva_sigi.save()
-                    self.infos.append(
-                        f"\t* A reserva SIGI *{str(reserva_sigi)}* foi "
-                        "atualizada com as alterações da "
-                        f"reserva *{reserva['id']}*"
+                    print(
+                        "\t",
+                        _(
+                            "* A reserva SIGI *{res}* foi atualizada com as "
+                            "alterações da reserva *{id}*"
+                        ).format(res=str(reserva_sigi), id=reserva["id"]),
                     )
                     atualizou = True
                 if self.recursos_solicitados(
                     reserva_sigi, reserva["equipamentos"]
                 ):
-                    self.infos.append(
-                        "\t* Os recursos solicitados da reserva SIGI "
-                        f"*{str(reserva_sigi)}* foram atualizados"
+                    print(
+                        "\t",
+                        _(
+                            "* Os recursos solicitados da reserva SIGI "
+                            "*{res}* foram atualizados"
+                        ).format(res=str(reserva_sigi)),
                     )
                     atualizou = True
                 if atualizou:
                     tot_atualizadas += 1
-        self.resumo.append(
-            _(f"\t* Total de reservas processadas: {tot_processadas}")
-        )
-        self.resumo.append(_(f"\t* Novas reservas criadas: {tot_novas}"))
-        self.resumo.append(_(f"\t* Reservas atualizados: {tot_atualizadas}"))
-        self.resumo.append(_(f"\t* Reservas excluídas: {tot_excluidas}"))
-        self.resumo.append(
-            _(f"\t* Erros encontrados nas reservas: {tot_erros}")
-        )
+        print("\t", _("* Total de reservas processadas: %s") % tot_processadas)
+        print("\t", _("* Novas reservas criadas: %s") % tot_novas)
+        print("\t", _("* Reservas atualizados: %s") % tot_atualizadas)
+        print("\t", _("* Reservas excluídas: %s") % tot_excluidas)
+        print("\t", _("* Erros encontrados nas reservas: %s") % tot_erros)
 
     def verifica_conflito(
         self,
@@ -570,37 +606,3 @@ class Job(JobReportMixin, HourlyJob):
                 )
                 atualizou = True
         return atualizou
-
-    def report(self, start_time, end_time):
-        self.report_data = [
-            "",
-            "",
-            "RESUMO",
-            "------",
-            "",
-            "",
-        ]
-        self.report_data.extend(self.resumo)
-        self.report_data.extend(
-            [
-                "",
-                "",
-                "ERROS ENCONTRADOS",
-                "-----------------",
-                "",
-                "",
-            ]
-        )
-        self.report_data.extend(self.erros)
-        self.report_data.extend(
-            [
-                "",
-                "",
-                "MAIS INFORMAÇÕES",
-                "----------------",
-                "",
-                "",
-            ]
-        )
-        self.report_data.extend(self.infos)
-        super().report(start_time, end_time)

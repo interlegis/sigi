@@ -1,21 +1,17 @@
-from django.db.models import Q
-from django.contrib.auth.models import User
+import sys
 from django.utils.translation import gettext as _
 from django_extensions.management.jobs import DailyJob
 from sigi.apps.casas.models import Orgao
-from sigi.apps.servidores.models import Servidor
-from sigi.apps.utils.management.jobs import JobReportMixin
 from email_validator import validate_email, EmailNotValidError
 
 
-class Job(JobReportMixin, DailyJob):
+class Job(DailyJob):
     help = (
         "Sanitiza sintaxe dos e-mails dos órgãos cadastrados, "
         "removendo os que não são válidos"
     )
 
-    def do_job(self):
-        self.report_data = []
+    def execute(self):
         corrigidos = []
         apagados = []
         total_corrigido = 0
@@ -53,53 +49,51 @@ class Job(JobReportMixin, DailyJob):
                     else:
                         tentar = False
                         limpar = True
-                        apagados.append(
-                            _(
-                                f"{orgao.email} do órgão {orgao.nome} "
-                                f"({orgao.id}) foi excluído porque não "
-                                f"pode ser corrigido: {str(e)}"
-                            )
-                        )
             if limpar:
+                apagados.append(
+                    _(
+                        "{email} do órgão {nome} ({id}) foi excluído porque "
+                        "não pode ser corrigido: {msg}"
+                    ).format(
+                        email=orgao.email,
+                        nome=orgao.nome,
+                        id=orgao.id,
+                        msg=msg,
+                    )
+                )
                 orgao.email = ""
                 orgao.save()
                 total_apagado += 1
             elif orgao.email != email:
                 corrigidos.append(
                     _(
-                        f"{orgao.email} corrigido para {email} do órgão "
-                        f"{orgao.nome} ({orgao.id})"
+                        "{email} corrigido para {novo_email} do órgão "
+                        "{nome} ({id})"
+                    ).format(
+                        email=orgao.email,
+                        novo_email=email,
+                        nome=orgao.nome,
+                        id=orgao.id,
                     )
                 )
                 total_corrigido += 1
                 orgao.email = email
                 orgao.save()
 
-        self.report_data.extend(
-            [
-                _("RESUMO"),
-                "------",
-                "",
-            ]
-        )
-        self.report_data.append(_(f"E-mails verificados: {queryset.count()}"))
-        self.report_data.append(_(f"E-mails corrigidos.: {total_corrigido}"))
-        self.report_data.append(_(f"E-mails apagados...: {total_apagado}"))
-        self.report_data.extend(
-            [
-                "",
-                _("E-MAILS CORRIGIDOS"),
-                "------------------",
-                "",
-            ]
-        )
-        self.report_data.extend(corrigidos)
-        self.report_data.extend(
-            [
-                "",
+        print(_("RESUMO"), "\n------\n\n")
+        print(_("E-mails verificados: {count}").format(count=queryset.count()))
+        print(_("E-mails corrigidos.: {count}").format(count=total_corrigido))
+        print(_("E-mails apagados...: {count}").format(count=total_apagado))
+
+        if total_corrigido > 0:
+            print("\n\n", _("E-MAILS CORRIGIDOS"), "\n------------------\n\n")
+            print("\n".join(corrigidos))
+
+        if total_apagado > 0:
+            print(
+                "\n\n",
                 _("E-MAILS APAGADOS"),
-                "----------------",
-                "",
-            ]
-        )
-        self.report_data.extend(apagados)
+                "\n----------------\n\n",
+                file=sys.stderr,
+            )
+            print("\n".join(apagados), file=sys.stderr)

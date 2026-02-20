@@ -2,10 +2,8 @@ import csv
 import zipfile
 from datetime import datetime
 import json
-import logging
 from django.contrib.auth import get_user_model
 from django.conf import settings
-from django.db import transaction
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
@@ -24,9 +22,11 @@ class Job(MinutelyJob):
             return
         json_data["inicio_processamento"] = str(datetime.now())
         print(
-            f"Start importing parlamentares at {json_data['inicio_processamento']}: Details: {json_data}"
+            _(
+                "Start importing parlamentares at "
+                "{start}: Details: {details}"
+            ).format(start=json_data["inicio_processamento"], details=json_data)
         )
-        result_final = []
         # Importa parlamentares #
         if "resultados" in json_data:
             result = self.importa_parlamentares(
@@ -36,8 +36,8 @@ class Job(MinutelyJob):
                 self.remove_files(json_data)
                 self.send_mail(result["erros"], json_data)
                 return
-            result_final.append(_("* IMPORTAÇÃO DOS PARLAMENTARES *"))
-            result_final.extend(result["infos"])
+            print(_("* IMPORTAÇÃO DOS PARLAMENTARES *"))
+            print(result["infos"])
         if "redes_sociais" in json_data:
             result = self.importa_redes(
                 import_path / json_data["redes_sociais"],
@@ -234,9 +234,11 @@ class Job(MinutelyJob):
                         nome_parlamentar=row["nm_urna_candidato"],
                         partido=partido,
                         casa_legislativa=casa,
-                        status_mandato="S"
-                        if row["ds_sit_totalizacao"] == "Suplente"
-                        else "E",
+                        status_mandato=(
+                            "S"
+                            if row["ds_sit_totalizacao"] == "Suplente"
+                            else "E"
+                        ),
                     )
                     imported += 1
             if result["erros"]:
