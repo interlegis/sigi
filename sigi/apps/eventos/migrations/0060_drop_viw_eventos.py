@@ -4,6 +4,8 @@ from django.db import migrations
 
 SQL_STMT = "DROP VIEW IF EXISTS viw_eventos;"
 SQL_REVERSE_STMT = """
+DO $$
+BEGIN
 create view viw_eventos as
 select e.id, e.nome, e.descricao, e.solicitante, e.data_inicio, e.data_termino,
        e.local, e.publico_alvo, 
@@ -33,7 +35,10 @@ from eventos_evento e
   inner join contatos_municipio m on m.codigo_ibge = o.municipio_id
   inner join contatos_unidadefederativa uf on uf.codigo_ibge = m.uf_id
   inner join eventos_tipoevento t on t.id = e.tipo_evento_id;
-grant select on viw_eventos to sigi_qs;
+if exists (select 1 from pg_roles where rolname = 'sigi_qs') then
+  grant select on viw_eventos to sigi_qs;
+end if;
+END $$
 """
 
 
@@ -43,6 +48,4 @@ class Migration(migrations.Migration):
         ("eventos", "0059_separa_hora_da_data"),
     ]
 
-    operations = [
-        migrations.RunSQL(sql=SQL_STMT, reverse_sql=SQL_REVERSE_STMT)
-    ]
+    operations = [migrations.RunSQL(sql=SQL_STMT, reverse_sql=SQL_REVERSE_STMT)]

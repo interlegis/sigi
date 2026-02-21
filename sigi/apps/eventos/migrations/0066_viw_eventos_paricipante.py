@@ -3,6 +3,8 @@
 from django.db import migrations
 
 SQL_STMT = """
+DO $$
+BEGIN
 create view viw_eventos_participante as
 select ep.evento_id as id_evento,
        ep.casa_legislativa_id as id_casa,
@@ -11,7 +13,10 @@ select ep.evento_id as id_evento,
        ep.email,
        ep.local_trabalho
 from eventos_participante ep;
-grant select on viw_eventos_participante to sigi_qs;
+if exists (select 1 from pg_roles where rolname = 'sigi_qs') then
+    grant select on viw_eventos_participante to sigi_qs;
+end if;
+END $$
 """
 SQL_REVERSE_STMT = "DROP VIEW viw_eventos_participante;"
 
@@ -22,6 +27,4 @@ class Migration(migrations.Migration):
         ("eventos", "0065_participantes_visitas"),
     ]
 
-    operations = [
-        migrations.RunSQL(sql=SQL_STMT, reverse_sql=SQL_REVERSE_STMT)
-    ]
+    operations = [migrations.RunSQL(sql=SQL_STMT, reverse_sql=SQL_REVERSE_STMT)]
