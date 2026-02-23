@@ -180,10 +180,8 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
         "Atualizar a data do último uso do(s) serviço(s)"
     )
 
-    def lookup_allowed(self, lookup, value):
-        return super(ServicoAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in [
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or lookup in [
             "casa_legislativa__municipio__uf__codigo_ibge__exact",
         ]
 

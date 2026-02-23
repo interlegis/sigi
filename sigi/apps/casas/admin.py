@@ -517,9 +517,7 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         queryset = super().get_queryset(request)
         return queryset.prefetch_related("gerentes_interlegis", "convenio_set")
 
-    def changeform_view(
-        self, request, object_id, form_url, extra_context=None
-    ):
+    def changeform_view(self, request, object_id, form_url, extra_context=None):
         extra_context = extra_context or {}
         extra_context["show_save_and_add_another"] = False
         return super().changeform_view(
@@ -591,10 +589,8 @@ class OrgaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             + "</ul>"
         )
 
-    def lookup_allowed(self, lookup, value):
-        return super(OrgaoAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in [
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or lookup in [
             "tipo__legislativo__exact",
             "tipo__sigla__exact",
             "tipo__sigla__in",

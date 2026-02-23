@@ -58,10 +58,10 @@ class PlanoDiretorAdmin(BaseModelAdmin):
     get_uf.short_description = _("UF")
     get_uf.admin_order_field = "casa_legislativa__municipio__uf__nome"
 
-    def lookup_allowed(self, lookup, value):
-        return super(PlanoDiretorAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in ["casa_legislativa__municipio__uf__codigo_ibge__exact"]
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or lookup in [
+            "casa_legislativa__municipio__uf__codigo_ibge__exact"
+        ]
 
     def changelist_view(self, request, extra_context=None):
         import re

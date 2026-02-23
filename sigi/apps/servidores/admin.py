@@ -133,10 +133,10 @@ class ServidorAdmin(admin.ModelAdmin):
         ),
     )
 
-    def lookup_allowed(self, lookup, value):
-        return super(ServidorAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in ["user__is_active__exact"]
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or lookup in [
+            "user__is_active__exact"
+        ]
 
     def is_active(self, servidor):
         if servidor.user:

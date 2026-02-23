@@ -523,8 +523,8 @@ class SolicitacaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     inlines = (ItemSolicitadoInline, AnexoSolicitacaoInline)
     autocomplete_fields = ("casa",)
 
-    def lookup_allowed(self, lookup, value):
-        return super().lookup_allowed(lookup, value) or (
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or (
             lookup == MicrorregiaoFilter.parameter_name
         )
 
@@ -655,9 +655,7 @@ class SolicitacaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
                             data_recebido_coperi=item.solicitacao.data_recebido_coperi,
                             data_inicio=item.inicio_desejado,
                             data_termino=item.inicio_desejado
-                            + datetime.timedelta(
-                                days=item.tipo_evento.duracao
-                            ),
+                            + datetime.timedelta(days=item.tipo_evento.duracao),
                             casa_anfitria=item.solicitacao.casa,
                             observacao=_(
                                 f"Autorizado por {servidor} com a justificativa '{item.justificativa}"
@@ -761,9 +759,7 @@ class SolicitacaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             + "</li></ul>"
         )
 
-    @admin.display(
-        description=_("Município"), ordering="casa__municipio__nome"
-    )
+    @admin.display(description=_("Município"), ordering="casa__municipio__nome")
     def get_municipio(self, obj):
         return obj.casa.municipio.nome
 
@@ -818,9 +814,7 @@ class SolicitacaoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     def get_populacao(self, obj):
         return obj.casa.municipio.populacao
 
-    @admin.display(
-        description=_("Oficinas atendidas/confirmadas no município")
-    )
+    @admin.display(description=_("Oficinas atendidas/confirmadas no município"))
     def get_oficinas_municipio(self, obj):
         ano_corrente = timezone.localdate().year
         counters = Evento.objects.filter(
@@ -1076,9 +1070,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         else:
             return None
 
-    @admin.display(
-        description=_("UF"), ordering="casa_anfitria__municipio__uf"
-    )
+    @admin.display(description=_("UF"), ordering="casa_anfitria__municipio__uf")
     def get_uf(self, obj):
         if obj.casa_anfitria:
             return obj.casa_anfitria.municipio.uf.nome
@@ -1152,10 +1144,8 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
             request, context, add, change, form_url, obj
         )
 
-    def lookup_allowed(self, lookup, value):
-        return super(EventoAdmin, self).lookup_allowed(
-            lookup, value
-        ) or lookup in [
+    def lookup_allowed(self, lookup, value, request):
+        return super().lookup_allowed(lookup, value, request) or lookup in [
             "tipo_evento__nome__exact",
             "tipo_evento__nome__contains",
         ]
@@ -1348,8 +1338,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         )
         termino = max(
             cronograma[-1].data_prevista_termino,
-            cronograma[-1].data_termino
-            or cronograma[-1].data_prevista_termino,
+            cronograma[-1].data_termino or cronograma[-1].data_prevista_termino,
         )
         datas = [
             inicio + datetime.timedelta(days=x)
