@@ -5,7 +5,7 @@ import locale
 import pandas as pd
 from functools import reduce
 from itertools import groupby
-from rest_framework import generics
+from rest_framework import generics, filters
 from typing import OrderedDict
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -190,21 +190,21 @@ class AlunosPorUfReportView(
         return context
 
 
-
-class CalendarioReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListView):
+class CalendarioReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
     title = _("Calendário de eventos")
     filter_form = CalendarioForm
     template_name = "eventos/calendario.html"
     template_name_pdf = "eventos/calendario_pdf.html"
-    
-    
+
     list_fields = []
     list_labels = []
-    
+
     def get_list_labels(self):
-        
+
         return []
-    
+
     def test_func(self):
         return self.request.user.is_staff
 
@@ -216,12 +216,12 @@ class CalendarioReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListVi
         }
 
     def get_queryset(self):
-        
+
         return Evento.objects.none()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        
+
         if "mes_ano" in self.request.GET:
             form = CalendarioForm(self.request.GET)
         else:
@@ -236,7 +236,6 @@ class CalendarioReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListVi
         sel_categorias = form.cleaned_data["categorias"]
         sel_status = form.cleaned_data["status"]
 
-        
         lang = to_locale(get_language()) + ".UTF-8"
         locale.setlocale(locale.LC_ALL, lang)
 
@@ -254,35 +253,44 @@ class CalendarioReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListVi
 
         semanas = [
             {"datas": s, "eventos": []}
-            for s in calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)
+            for s in calendar.Calendar().monthdatescalendar(
+                ano_pesquisa, mes_pesquisa
+            )
         ]
 
         for e in eventos:
             for s in semanas:
-                
-                if not (e.data_termino < s["datas"][0] or e.data_inicio > s["datas"][-1]):
+
+                if not (
+                    e.data_termino < s["datas"][0]
+                    or e.data_inicio > s["datas"][-1]
+                ):
                     start = max(s["datas"][0], e.data_inicio)
                     end = min(s["datas"][-1], e.data_termino)
-                    s["eventos"].append((
-                        e,
+                    s["eventos"].append(
                         (
-                            start.weekday(),
-                            end.weekday() - start.weekday() + 1,
-                            6 - end.weekday(),
-                        ),
-                    ))
+                            e,
+                            (
+                                start.weekday(),
+                                end.weekday() - start.weekday() + 1,
+                                6 - end.weekday(),
+                            ),
+                        )
+                    )
 
-        context.update({
-            "ano_pesquisa": ano_pesquisa,
-            "mes_pesquisa": mes_pesquisa,
-            "sel_categorias": sel_categorias,
-            "sel_status": sel_status,
-            "day_names": calendar.day_abbr,
-            "categorias": TipoEvento.CATEGORIA_CHOICES,
-            "status": Evento.STATUS_CHOICES,
-            "eventos": eventos,
-            "semanas": semanas,
-        })
+        context.update(
+            {
+                "ano_pesquisa": ano_pesquisa,
+                "mes_pesquisa": mes_pesquisa,
+                "sel_categorias": sel_categorias,
+                "sel_status": sel_status,
+                "day_names": calendar.day_abbr,
+                "categorias": TipoEvento.CATEGORIA_CHOICES,
+                "status": Evento.STATUS_CHOICES,
+                "eventos": eventos,
+                "semanas": semanas,
+            }
+        )
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -298,6 +306,7 @@ class CalendarioReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListVi
                 content_type="application/pdf",
             )
         return super().render_to_response(context, **response_kwargs)
+
 
 class EventoListView(ListView):
     model = Evento
@@ -319,12 +328,14 @@ class EventoListView(ListView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListView):
+
+class AlocacaoEquipeReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
     title = _("Alocação de equipe")
     template_name = "eventos/alocacao_equipe.html"
     template_name_pdf = "eventos/alocacao_equipe_pdf.html"
-    
-    
+
     list_fields = []
     list_labels = []
 
@@ -343,62 +354,60 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
     def get_context_data(self, **kwargs):
         """Reproduz a lógica original da FBV, populando o contexto com dados."""
         context = super().get_context_data(**kwargs)
-        
-        
-        ano_pesquisa = int(self.request.GET.get("ano", timezone.localdate().year))
+
+        ano_pesquisa = int(
+            self.request.GET.get("ano", timezone.localdate().year)
+        )
         mes_pesquisa = int(self.request.GET.get("mes", 0))
         semana_pesquisa = int(self.request.GET.get("semana", 0))
         formato = self.request.GET.get("fmt", "html")
 
-        
         lang = to_locale(get_language()) + ".UTF-8"
         locale.setlocale(locale.LC_ALL, lang)
 
-        
-        eventos = (
-            Evento.objects.exclude(
-                status__in=(Evento.STATUS_CANCELADO, Evento.STATUS_SOBRESTADO)
-            )
-            .prefetch_related("equipe_set")
-        )
+        eventos = Evento.objects.exclude(
+            status__in=(Evento.STATUS_CANCELADO, Evento.STATUS_SOBRESTADO)
+        ).prefetch_related("equipe_set")
 
-        num_cols = 12  
+        num_cols = 12
 
-        
         if mes_pesquisa > 0:
             semanas = [
                 [s[0], s[-1]]
-                for s in calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)
+                for s in calendar.Calendar().monthdatescalendar(
+                    ano_pesquisa, mes_pesquisa
+                )
             ]
             num_cols = len(semanas)
             if semana_pesquisa > 0:
-                
-                dias = calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)[semana_pesquisa - 1]
+
+                dias = calendar.Calendar().monthdatescalendar(
+                    ano_pesquisa, mes_pesquisa
+                )[semana_pesquisa - 1]
                 num_cols = len(dias)
                 eventos = eventos.filter(
                     data_inicio__gte=dias[0], data_inicio__lte=dias[-1]
                 )
             else:
-                
+
                 eventos = eventos.filter(
                     data_inicio__gte=semanas[0][0],
                     data_inicio__lte=semanas[-1][-1],
                 )
         else:
-            
+
             eventos = eventos.filter(data_inicio__year=ano_pesquisa)
 
-        
         dados = []
         for evento in eventos:
             for equipe in evento.equipe_set.all():
                 registro = None
-                
+
                 for r in dados:
                     if r[0] == equipe.membro.pk:
                         registro = r
                         break
-                
+
                 if not registro:
                     if semana_pesquisa > 0:
                         registro = [
@@ -410,11 +419,13 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                         registro = [
                             equipe.membro.pk,
                             equipe.membro.get_apelido(),
-                            [{"dias": 0, "eventos": 0} for __ in range(num_cols)],
+                            [
+                                {"dias": 0, "eventos": 0}
+                                for __ in range(num_cols)
+                            ],
                         ]
                     dados.append(registro)
 
-                
                 if mes_pesquisa > 0:
                     if semana_pesquisa > 0:
                         for dia in dias:
@@ -422,42 +433,41 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                                 registro[2][dia].append(evento)
                     else:
                         for idx, (inicio, fim) in enumerate(semanas):
-                            
+
                             if inicio <= evento.data_inicio <= fim:
                                 registro[2][idx]["dias"] += (
-                                    min(fim, evento.data_termino) - evento.data_inicio
+                                    min(fim, evento.data_termino)
+                                    - evento.data_inicio
                                 ).days + 1
                                 registro[2][idx]["eventos"] += 1
-                            
+
                             elif inicio <= evento.data_termino <= fim:
                                 registro[2][idx]["dias"] += (
-                                    min(fim, evento.data_termino) - evento.data_inicio
+                                    min(fim, evento.data_termino)
+                                    - evento.data_inicio
                                 ).days + 1
                                 registro[2][idx]["eventos"] += 1
                 else:
-                    
+
                     registro[2][evento.data_inicio.month - 1]["dias"] += (
                         evento.data_termino - evento.data_inicio
                     ).days + 1
                     registro[2][evento.data_inicio.month - 1]["eventos"] += 1
 
-        
         dados.sort(key=lambda x: x[1])
 
-        
-        meses = list(calendar.month_abbr)[1:]  
+        meses = list(calendar.month_abbr)[1:]
         linhas = []
 
         if semana_pesquisa:
-            
+
             linhas = [
-                [registro[1]] + list(registro[2].values()) 
-                for registro in dados
+                [registro[1]] + list(registro[2].values()) for registro in dados
             ]
         else:
-            
+
             for r in dados:
-                
+
                 r[2].append(
                     reduce(
                         lambda x, y: {
@@ -470,10 +480,12 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                 row = [r[1]]
                 for d in r[2]:
                     if d["dias"] > 0 or d["eventos"] > 0:
-                        
+
                         texto = (
                             _(
-                                ngettext("%(dias)s dia", "%(dias)s dias", d["dias"])
+                                ngettext(
+                                    "%(dias)s dia", "%(dias)s dias", d["dias"]
+                                )
                                 + " em "
                                 + ngettext(
                                     "%(eventos)s evento",
@@ -488,38 +500,39 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                         row.append("")
                 linhas.append(row)
 
-        
-        context.update({
-            "anos": (
-                Evento.objects.exclude(data_inicio=None)
-                .order_by("data_inicio__year")
-                .distinct("data_inicio__year")
-                .values_list("data_inicio__year", flat=True)
-            ),
-            "ano_pesquisa": ano_pesquisa,
-            "linhas": linhas,
-            "meses": meses,
-        })
+        context.update(
+            {
+                "anos": (
+                    Evento.objects.exclude(data_inicio=None)
+                    .order_by("data_inicio__year")
+                    .distinct("data_inicio__year")
+                    .values_list("data_inicio__year", flat=True)
+                ),
+                "ano_pesquisa": ano_pesquisa,
+                "linhas": linhas,
+                "meses": meses,
+            }
+        )
 
-        
         if mes_pesquisa > 0:
             context["mes_pesquisa"] = mes_pesquisa
-            
+
             semanas = [
                 [s[0], s[-1]]
-                for s in calendar.Calendar().monthdatescalendar(ano_pesquisa, mes_pesquisa)
+                for s in calendar.Calendar().monthdatescalendar(
+                    ano_pesquisa, mes_pesquisa
+                )
             ]
             context["semanas"] = [
-                _(f"de {inicio:%d/%m} a {fim:%d/%m}") 
-                for inicio, fim in semanas
+                _(f"de {inicio:%d/%m} a {fim:%d/%m}") for inicio, fim in semanas
             ]
             if semana_pesquisa > 0:
-                
+
                 context["semana_pesquisa"] = semana_pesquisa
                 context["eventos"] = eventos
                 cabecalho = [_("Servidor")] + list(dias)
             else:
-                
+
                 cabecalho = (
                     [_("Servidor")]
                     + [
@@ -529,11 +542,11 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                     + ["total"]
                 )
         else:
-            
+
             cabecalho = [_("Servidor")] + meses + ["total"]
 
         context["cabecalho"] = cabecalho
-        context["formato"] = formato  
+        context["formato"] = formato
 
         return context
 
@@ -543,7 +556,9 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
         if fmt == "pdf":
             context["pdf"] = True
             context["title"] = self.title
-            ano_pesquisa = context.get("ano_pesquisa", timezone.localdate().year)
+            ano_pesquisa = context.get(
+                "ano_pesquisa", timezone.localdate().year
+            )
             return WeasyTemplateResponse(
                 filename=f"alocacao_equipe_{ano_pesquisa}.pdf",
                 request=self.request,
@@ -552,29 +567,34 @@ class AlocacaoEquipeReportView(LoginRequiredMixin, UserPassesTestMixin, ReportLi
                 content_type="application/pdf",
             )
         elif fmt == "csv":
-            ano_pesquisa = context.get("ano_pesquisa", timezone.localdate().year)
+            ano_pesquisa = context.get(
+                "ano_pesquisa", timezone.localdate().year
+            )
             response = HttpResponse(content_type="text/csv")
-            response["Content-Disposition"] = f'attachment; filename="alocacao_equipe_{ano_pesquisa}.csv"'
+            response["Content-Disposition"] = (
+                f'attachment; filename="alocacao_equipe_{ano_pesquisa}.csv"'
+            )
             writer = csv.writer(response)
             writer.writerow(context["cabecalho"])
             writer.writerows(context["linhas"])
             return response
-        
+
         return super().render_to_response(context, **response_kwargs)
 
 
-class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListView):
+class EventosPorUfReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
     title = _("Eventos por UF")
     filter_form = EventosPorUfForm
     template_name = "eventos/eventos_por_uf.html"
     template_name_pdf = "eventos/eventos_por_uf_pdf.html"
-    
-    
-    list_fields = []  
+
+    list_fields = []
     list_labels = []
 
     def get_list_labels(self):
-        
+
         return []
 
     def test_func(self):
@@ -593,7 +613,7 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
         }
 
     def get_queryset(self):
-        
+
         return UnidadeFederativa.objects.none()
 
     def get_context_data(self, **kwargs):
@@ -603,7 +623,6 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
         if not form.is_valid():
             return context
 
-        
         data_inicio = form.cleaned_data.get("data_inicio")
         data_fim = form.cleaned_data.get("data_fim")
         initial = self.get_initial()
@@ -640,7 +659,10 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
         eventos = (
             UnidadeFederativa.objects.filter(
                 municipio__orgao__evento__status=Evento.STATUS_REALIZADO,
-                municipio__orgao__evento__data_inicio__range=(data_inicio, data_fim),
+                municipio__orgao__evento__data_inicio__range=(
+                    data_inicio,
+                    data_fim,
+                ),
                 municipio__orgao__evento__tipo_evento__categoria__in=categorias,
             )
             .order_by("regiao", "nome")
@@ -655,11 +677,10 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
         if df.empty:
             messages.error(
                 self.request,
-                _("Nenhum evento foi realizado no período solicitado")
+                _("Nenhum evento foi realizado no período solicitado"),
             )
             return context
 
-        
         df.rename(
             columns={
                 "municipio__orgao__evento__tipo_evento__categoria": "categoria",
@@ -674,7 +695,7 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
             df["regiao"].replace(sigla, nome, inplace=True)
         for cod, nome in TipoEvento.CATEGORIA_CHOICES:
             df["categoria"].replace(cod, nome, inplace=True)
-        
+
         pivo_uf = df.pivot_table(
             index=["regiao", "nome"],
             columns="categoria",
@@ -682,27 +703,53 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
             fill_value=0,
         )
         if len(categorias) > 1:
-            ix_eventos_presenciais = [i for i in pivo_uf.columns if i[0] == "nº eventos presenciais"]
-            ix_eventos_virtuais = [i for i in pivo_uf.columns if i[0] == "nº eventos virtuais"]
-            ix_participantes_presenciais = [i for i in pivo_uf.columns if i[0] == "participantes presenciais"]
-            ix_participantes_virtuais = [i for i in pivo_uf.columns if i[0] == "participantes virtuais"]
+            ix_eventos_presenciais = [
+                i for i in pivo_uf.columns if i[0] == "nº eventos presenciais"
+            ]
+            ix_eventos_virtuais = [
+                i for i in pivo_uf.columns if i[0] == "nº eventos virtuais"
+            ]
+            ix_participantes_presenciais = [
+                i
+                for i in pivo_uf.columns
+                if i[0] == "participantes presenciais"
+            ]
+            ix_participantes_virtuais = [
+                i for i in pivo_uf.columns if i[0] == "participantes virtuais"
+            ]
             if ix_eventos_presenciais:
-                pivo_uf[("nº eventos presenciais", "total")] = pivo_uf[ix_eventos_presenciais].sum(axis=1)
-                ix_eventos_presenciais.append(("nº eventos presenciais", "total"))
+                pivo_uf[("nº eventos presenciais", "total")] = pivo_uf[
+                    ix_eventos_presenciais
+                ].sum(axis=1)
+                ix_eventos_presenciais.append(
+                    ("nº eventos presenciais", "total")
+                )
             if ix_eventos_virtuais:
-                pivo_uf[("nº eventos virtuais", "total")] = pivo_uf[ix_eventos_virtuais].sum(axis=1)
+                pivo_uf[("nº eventos virtuais", "total")] = pivo_uf[
+                    ix_eventos_virtuais
+                ].sum(axis=1)
                 ix_eventos_virtuais.append(("nº eventos virtuais", "total"))
             if ix_participantes_presenciais:
-                pivo_uf[("participantes presenciais", "total")] = pivo_uf[ix_participantes_presenciais].sum(axis=1)
-                ix_participantes_presenciais.append(("participantes presenciais", "total"))
+                pivo_uf[("participantes presenciais", "total")] = pivo_uf[
+                    ix_participantes_presenciais
+                ].sum(axis=1)
+                ix_participantes_presenciais.append(
+                    ("participantes presenciais", "total")
+                )
             if ix_participantes_virtuais:
-                pivo_uf[("participantes virtuais", "total")] = pivo_uf[ix_participantes_virtuais].sum(axis=1)
-                ix_participantes_virtuais.append(("participantes virtuais", "total"))
+                pivo_uf[("participantes virtuais", "total")] = pivo_uf[
+                    ix_participantes_virtuais
+                ].sum(axis=1)
+                ix_participantes_virtuais.append(
+                    ("participantes virtuais", "total")
+                )
             pivo_uf = pivo_uf[
-                ix_eventos_presenciais + ix_eventos_virtuais +
-                ix_participantes_presenciais + ix_participantes_virtuais
+                ix_eventos_presenciais
+                + ix_eventos_virtuais
+                + ix_participantes_presenciais
+                + ix_participantes_virtuais
             ]
-        
+
         pivo_regiao = df.pivot_table(
             index="regiao",
             columns="categoria",
@@ -710,27 +757,57 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
             fill_value=0,
         )
         if len(categorias) > 1:
-            ix_eventos_presenciais = [i for i in pivo_regiao.columns if i[0] == "nº eventos presenciais"]
-            ix_eventos_virtuais = [i for i in pivo_regiao.columns if i[0] == "nº eventos virtuais"]
-            ix_participantes_presenciais = [i for i in pivo_regiao.columns if i[0] == "participantes presenciais"]
-            ix_participantes_virtuais = [i for i in pivo_regiao.columns if i[0] == "participantes virtuais"]
+            ix_eventos_presenciais = [
+                i
+                for i in pivo_regiao.columns
+                if i[0] == "nº eventos presenciais"
+            ]
+            ix_eventos_virtuais = [
+                i for i in pivo_regiao.columns if i[0] == "nº eventos virtuais"
+            ]
+            ix_participantes_presenciais = [
+                i
+                for i in pivo_regiao.columns
+                if i[0] == "participantes presenciais"
+            ]
+            ix_participantes_virtuais = [
+                i
+                for i in pivo_regiao.columns
+                if i[0] == "participantes virtuais"
+            ]
             if ix_eventos_presenciais:
-                pivo_regiao[("nº eventos presenciais", "total")] = pivo_regiao[ix_eventos_presenciais].sum(axis=1)
-                ix_eventos_presenciais.append(("nº eventos presenciais", "total"))
+                pivo_regiao[("nº eventos presenciais", "total")] = pivo_regiao[
+                    ix_eventos_presenciais
+                ].sum(axis=1)
+                ix_eventos_presenciais.append(
+                    ("nº eventos presenciais", "total")
+                )
             if ix_eventos_virtuais:
-                pivo_regiao[("nº eventos virtuais", "total")] = pivo_regiao[ix_eventos_virtuais].sum(axis=1)
+                pivo_regiao[("nº eventos virtuais", "total")] = pivo_regiao[
+                    ix_eventos_virtuais
+                ].sum(axis=1)
                 ix_eventos_virtuais.append(("nº eventos virtuais", "total"))
             if ix_participantes_presenciais:
-                pivo_regiao[("participantes presenciais", "total")] = pivo_regiao[ix_participantes_presenciais].sum(axis=1)
-                ix_participantes_presenciais.append(("participantes presenciais", "total"))
+                pivo_regiao[("participantes presenciais", "total")] = (
+                    pivo_regiao[ix_participantes_presenciais].sum(axis=1)
+                )
+                ix_participantes_presenciais.append(
+                    ("participantes presenciais", "total")
+                )
             if ix_participantes_virtuais:
-                pivo_regiao[("participantes virtuais", "total")] = pivo_regiao[ix_participantes_virtuais].sum(axis=1)
-                ix_participantes_virtuais.append(("participantes virtuais", "total"))
+                pivo_regiao[("participantes virtuais", "total")] = pivo_regiao[
+                    ix_participantes_virtuais
+                ].sum(axis=1)
+                ix_participantes_virtuais.append(
+                    ("participantes virtuais", "total")
+                )
             pivo_regiao = pivo_regiao[
-                ix_eventos_presenciais + ix_eventos_virtuais +
-                ix_participantes_presenciais + ix_participantes_virtuais
+                ix_eventos_presenciais
+                + ix_eventos_virtuais
+                + ix_participantes_presenciais
+                + ix_participantes_virtuais
             ]
-        
+
         cabecalho_uf = [
             (k, [i[1] for i in v])
             for k, v in groupby(pivo_uf.columns, lambda x: x[0])
@@ -739,22 +816,32 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
             (k, [i[1] for i in v])
             for k, v in groupby(pivo_regiao.columns, lambda x: x[0])
         ]
-        
+
         pivo_uf = pivo_uf.astype(int)
         pivo_regiao = pivo_regiao.astype(int)
-        
-        context.update({
-            "data_inicio": data_inicio,
-            "data_fim": data_fim,
-            "categorias": [c[1] for c in TipoEvento.CATEGORIA_CHOICES if c[0] in categorias],
-            "virtual": [m[1] for m in EventosPorUfForm.MODO_CHOICES if m[0] in virtual],
-            "pivo_uf": pivo_uf,
-            "pivo_regiao": pivo_regiao,
-            "cabecalho_uf": cabecalho_uf,
-            "cabecalho_regiao": cabecalho_regiao,
-            "total_uf": pivo_uf.sum(),
-            "total_regiao": pivo_regiao.sum(),
-        })
+
+        context.update(
+            {
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "categorias": [
+                    c[1]
+                    for c in TipoEvento.CATEGORIA_CHOICES
+                    if c[0] in categorias
+                ],
+                "virtual": [
+                    m[1]
+                    for m in EventosPorUfForm.MODO_CHOICES
+                    if m[0] in virtual
+                ],
+                "pivo_uf": pivo_uf,
+                "pivo_regiao": pivo_regiao,
+                "cabecalho_uf": cabecalho_uf,
+                "cabecalho_regiao": cabecalho_regiao,
+                "total_uf": pivo_uf.sum(),
+                "total_regiao": pivo_regiao.sum(),
+            }
+        )
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -780,18 +867,20 @@ class EventosPorUfReportView(LoginRequiredMixin, UserPassesTestMixin, ReportList
             return response
         return super().render_to_response(context, **response_kwargs)
 
-class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, ReportListView):
+
+class SolicitacoesPorPeriodoReportView(
+    LoginRequiredMixin, UserPassesTestMixin, ReportListView
+):
     title = _("Solicitações por período")
     filter_form = SolicitacoesPorPeriodoForm
     template_name = "eventos/solicitacoes_por_periodo.html"
     template_name_pdf = "eventos/solicitacoes_por_periodo_pdf.html"
-    
-    
+
     list_fields = []
     list_labels = []
-    
+
     def get_list_labels(self):
-        
+
         return []
 
     def test_func(self):
@@ -801,7 +890,9 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
         return {
             "data_inicio": datetime.date.today().replace(day=1),
             "data_fim": datetime.date.today().replace(
-                day=calendar.monthrange(datetime.date.today().year, datetime.date.today().month)[1]
+                day=calendar.monthrange(
+                    datetime.date.today().year, datetime.date.today().month
+                )[1]
             ),
             "tipos_evento": TipoEvento.objects.all(),
             "virtual": [m[0] for m in SolicitacoesPorPeriodoForm.MODO_CHOICES],
@@ -809,7 +900,7 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
         }
 
     def get_queryset(self):
-        
+
         return Solicitacao.objects.none()
 
     def get_context_data(self, **kwargs):
@@ -823,15 +914,18 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
         data_inicio = form.cleaned_data.get("data_inicio")
         data_fim = form.cleaned_data.get("data_fim")
         initial = self.get_initial()
-        tipos_evento = form.cleaned_data.get("tipos_evento", initial["tipos_evento"])
+        tipos_evento = form.cleaned_data.get(
+            "tipos_evento", initial["tipos_evento"]
+        )
         virtual = form.cleaned_data.get("virtual", initial["virtual"])
         status = form.cleaned_data.get("status", initial["status"])
 
-        
         sq_equipe = (
             Equipe.objects.order_by()
             .annotate(
-                tot=Sum(F("qtde_diarias") * F("valor_diaria") + F("total_passagens"))
+                tot=Sum(
+                    F("qtde_diarias") * F("valor_diaria") + F("total_passagens")
+                )
             )
             .values("tot")
         )
@@ -864,15 +958,23 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
                 qtde_solicitadas=Count("itemsolicitado__id"),
                 qtde_atendidas=Count(
                     "itemsolicitado__id",
-                    filter=Q(itemsolicitado__status=ItemSolicitado.STATUS_AUTORIZADO)
+                    filter=Q(
+                        itemsolicitado__status=ItemSolicitado.STATUS_AUTORIZADO
+                    ),
                 ),
                 qtde_rejeitadas=Count(
                     "itemsolicitado__id",
-                    filter=Q(itemsolicitado__status=ItemSolicitado.STATUS_REJEITADO)
+                    filter=Q(
+                        itemsolicitado__status=ItemSolicitado.STATUS_REJEITADO
+                    ),
                 ),
-                participantes=Sum("itemsolicitado__evento__total_participantes"),
+                participantes=Sum(
+                    "itemsolicitado__evento__total_participantes"
+                ),
                 custo_total=Subquery(
-                    sq_equipe.filter(evento__itemsolicitado__solicitacao=OuterRef("pk"))[:1]
+                    sq_equipe.filter(
+                        evento__itemsolicitado__solicitacao=OuterRef("pk")
+                    )[:1]
                 ),
             )
             .select_related(
@@ -923,7 +1025,9 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
                 .groupby(["regiao", "senador", "uf"], as_index=False)
                 .sum()
             )
-            resumo_uf["participantes"] = resumo_uf["participantes"].astype("int")
+            resumo_uf["participantes"] = resumo_uf["participantes"].astype(
+                "int"
+            )
             resumo_regiao = resumo_uf.groupby(["regiao"], as_index=False)[
                 [
                     "qtde_solicitadas",
@@ -942,8 +1046,12 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
             .values("tipo_evento__sigla", "tipo_evento__nome")
             .annotate(
                 qtde_solicitadas=Count("id"),
-                qtde_atendidas=Count("id", filter=Q(status=ItemSolicitado.STATUS_AUTORIZADO)),
-                qtde_rejeitadas=Count("id", filter=Q(status=ItemSolicitado.STATUS_REJEITADO)),
+                qtde_atendidas=Count(
+                    "id", filter=Q(status=ItemSolicitado.STATUS_AUTORIZADO)
+                ),
+                qtde_rejeitadas=Count(
+                    "id", filter=Q(status=ItemSolicitado.STATUS_REJEITADO)
+                ),
                 participantes=Sum("evento__total_participantes"),
                 custo_total=Subquery(
                     sq_equipe.filter(evento__itemsolicitado=OuterRef("pk"))[:1]
@@ -962,22 +1070,30 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
                 .sum()
                 .fillna(0)
             )
-            resumo_tipo_evento["participantes"] = resumo_tipo_evento["participantes"].astype("int")
+            resumo_tipo_evento["participantes"] = resumo_tipo_evento[
+                "participantes"
+            ].astype("int")
             resumo_tipo_evento.replace([0], [None], inplace=True)
 
-        context.update({
-            "data_inicio": data_inicio,
-            "data_fim": data_fim,
-            "status_choices": ItemSolicitado.STATUS_CHOICES,
-            "legenda_oficinas": legenda_oficinas,
-            "tipos_evento": tipos_evento,
-            "virtual": [m[1] for m in SolicitacoesPorPeriodoForm.MODO_CHOICES if m[0] in virtual],
-            "solicitacoes": solicitacoes,
-            "sumario": sumario,
-            "resumo_uf": resumo_uf,
-            "resumo_regiao": resumo_regiao,
-            "resumo_tipo_evento": resumo_tipo_evento,
-        })
+        context.update(
+            {
+                "data_inicio": data_inicio,
+                "data_fim": data_fim,
+                "status_choices": ItemSolicitado.STATUS_CHOICES,
+                "legenda_oficinas": legenda_oficinas,
+                "tipos_evento": tipos_evento,
+                "virtual": [
+                    m[1]
+                    for m in SolicitacoesPorPeriodoForm.MODO_CHOICES
+                    if m[0] in virtual
+                ],
+                "solicitacoes": solicitacoes,
+                "sumario": sumario,
+                "resumo_uf": resumo_uf,
+                "resumo_regiao": resumo_regiao,
+                "resumo_tipo_evento": resumo_tipo_evento,
+            }
+        )
         return context
 
     def render_to_response(self, context, **response_kwargs):
@@ -1018,6 +1134,7 @@ class SolicitacoesPorPeriodoReportView(LoginRequiredMixin, UserPassesTestMixin, 
             return response
         return super().render_to_response(context, **response_kwargs)
 
+
 class ApiEventoAbstract:
     queryset = (
         Evento.objects.filter(publicar=True)
@@ -1034,6 +1151,9 @@ class ApiEventoList(ApiEventoAbstract, generics.ListAPIView):
     """
 
     serializer_class = EventoListSerializer
+    filter_backends = [filters.OrderingFilter]
+    ordering_fields = "__all__"
+    ordering = ["-data_inicio"]
 
 
 class ApiEventoRetrieve(ApiEventoAbstract, generics.RetrieveAPIView):
