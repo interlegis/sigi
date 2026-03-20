@@ -106,3 +106,43 @@ def mask_cnpj(cnpj):
     return re.sub(
         r"(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})", r"\1.\2.\3/\4-\5", cnpj
     )
+
+
+def get_sigad_url(num_sigad, display_type="numero"):
+    m = re.match(
+        r"(?P<orgao>\d{5})\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}",
+        num_sigad,
+    )
+    if m:
+        orgao, sequencial, ano = m.groups()
+        if display_type == "icone":
+            display = '<i class="bi bi-eye"></i>'
+        elif display_type == "icone+numero":
+            display = f'<i class="bi bi-eye"></i> {num_sigad}'
+        else:
+            display = num_sigad
+        return (
+            f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
+            f"impressao.asp?area=processo&txt_numero_orgao={orgao}"
+            f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '
+            f'title="{num_sigad}" '
+            f'target="_blank">{display}</a>'
+        )
+    return num_sigad
+
+
+def unmask_sigad(num_sigad):
+    return re.sub(r"\D", "", num_sigad)
+
+
+def mask_sigad(num_sigad):
+    unmasked = unmask_sigad(num_sigad)
+    m = re.match(
+        r"(?P<orgao>00100|00200|00300)(?P<sequencial>\d{6})(?P<ano>\d{4})(?P<dv>\d{2})",
+        unmasked,
+    )
+    if m:
+        orgao, sequencial, ano, dv = m.groups()
+        return f"{orgao}.{sequencial}/{ano}-{dv}"
+    else:
+        return num_sigad

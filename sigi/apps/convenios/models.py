@@ -23,7 +23,7 @@ from sigi.apps.parlamentares.models import Parlamentar
 from sigi.apps.utils import to_ascii
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.servidores.models import Servidor, Servico
-from sigi.apps.utils import editor_help, mask_cnpj
+from sigi.apps.utils import editor_help, mask_cnpj, get_sigad_url
 
 
 class Projeto(models.Model):
@@ -376,27 +376,7 @@ class Convenio(models.Model):
         return obj.get_sigad_url()
 
     def get_sigad_url(self, display_type="numero"):
-        m = re.match(
-            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>\d{4})-\d{2}",
-            self.num_processo_sf,
-        )
-        if m:
-            orgao, sequencial, ano = m.groups()
-            if display_type == "numero":
-                display = self.num_processo_sf
-            else:
-                display = '<i class="bi bi-eye"></i>'
-            return (
-                f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
-                f"impressao.asp?area=processo&txt_numero_orgao={orgao}"
-                f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '
-                f'title="{self.num_processo_sf}" '
-                f'target="_blank">{display}</a>'
-            )
-        if display_type == "numero":
-            return self.num_processo_sf
-        else:
-            return '<i class="bi bi-eye-slash"></i>'
+        return get_sigad_url(self.num_processo_sf, display_type)
 
     def get_url_gescon(self):
         if not self.id_contrato_gescon:

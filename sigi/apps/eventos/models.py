@@ -18,6 +18,7 @@ from django.utils.translation import gettext as _
 from sigi.apps.casas.models import Orgao, Servidor
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.espacos.models import Reserva
+from sigi.apps.utils import get_sigad_url
 from sigi.apps.utils.templatetags.model_fields import verbose_name
 from sigi.apps.eventos.saberes import EventoSaberes
 
@@ -42,9 +43,7 @@ class TipoEvento(models.Model):
     categoria = models.CharField(
         _("Categoria"), max_length=1, choices=CATEGORIA_CHOICES
     )
-    casa_solicita = models.BooleanField(
-        _("casa pode solicitar"), default=False
-    )
+    casa_solicita = models.BooleanField(_("casa pode solicitar"), default=False)
     gerar_turma = models.BooleanField(
         _("Gerar turma"),
         default=True,
@@ -178,23 +177,7 @@ class Solicitacao(models.Model):
 
     @admin.display(description=_("SIGAD"), ordering="num_processo")
     def get_sigad_url(self):
-        m = re.match(
-            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            r"\d{4})-\d{2}",
-            self.num_processo,
-        )
-        if m:
-            return mark_safe(
-                (
-                    '<a href="https://intra.senado.leg.br/'
-                    "sigad/novo/protocolo/impressao.asp?area=processo"
-                    "&txt_numero_orgao={orgao}"
-                    "&txt_numero_sequencial={sequencial}"
-                    '&txt_numero_ano={ano}"'
-                    ' target="_blank">{processo}</a>'
-                ).format(processo=self.num_processo, **m.groupdict())
-            )
-        return self.num_processo
+        return get_sigad_url(self.num_processo)
 
 
 class ItemSolicitado(models.Model):
@@ -413,9 +396,7 @@ class Evento(models.Model):
     origem_sincronizacao = models.CharField(
         _("origem da sincronização"), max_length=100, blank=True
     )
-    status = models.CharField(
-        _("Status"), max_length=1, choices=STATUS_CHOICES
-    )
+    status = models.CharField(_("Status"), max_length=1, choices=STATUS_CHOICES)
     publicar = models.BooleanField(_("publicar no site"), default=False)
     moodle_courseid = models.PositiveBigIntegerField(
         _("ID do curso"),
@@ -517,21 +498,7 @@ class Evento(models.Model):
         return reverse("admin:eventos_evento_change", args=[self.id])
 
     def get_sigad_url(self):
-        m = re.match(
-            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            r"\d{4})-\d{2}",
-            self.num_processo,
-        )
-        if m:
-            return (
-                '<a href="https://intra.senado.leg.br/'
-                "sigad/novo/protocolo/impressao.asp?area=processo"
-                "&txt_numero_orgao={orgao}"
-                "&txt_numero_sequencial={sequencial}"
-                '&txt_numero_ano={ano}"'
-                ' target="_blank">{processo}</a>'
-            ).format(processo=self.num_processo, **m.groupdict())
-        return self.num_processo
+        return get_sigad_url(self.num_processo)
 
     @property
     def link_inscricao(self):
@@ -698,9 +665,9 @@ class Evento(models.Model):
             # preenchido com o total de aprovados quando da sincronização
             # veja o método self.sincroniza.saberes()
 
-            total = self.convite_set.aggregate(
-                total=Sum("qtde_participantes")
-            )["total"]
+            total = self.convite_set.aggregate(total=Sum("qtde_participantes"))[
+                "total"
+            ]
             if total and total > 0 and total != self.total_participantes:
                 self.total_participantes = total
                 # Salva de novo se o total de participantes mudou #
@@ -1116,9 +1083,7 @@ class Cronograma(models.Model):
         _("data prevista de término"), blank=True, null=True
     )
     data_inicio = models.DateField(_("data de início"), blank=True, null=True)
-    data_termino = models.DateField(
-        _("data de término"), blank=True, null=True
-    )
+    data_termino = models.DateField(_("data de término"), blank=True, null=True)
     dependencia = models.CharField(
         _("depende da etapa"),
         max_length=200,

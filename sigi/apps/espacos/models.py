@@ -5,6 +5,7 @@ from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from sigi.apps.utils import get_sigad_url
 
 
 class Espaco(models.Model):
@@ -217,21 +218,7 @@ class Reserva(models.Model):
         )
 
     def get_sigad_url(self):
-        m = re.match(
-            r"(?P<orgao>00100|00200)\.(?P<sequencial>\d{6})/(?P<ano>"
-            r"\d{4})-\d{2}",
-            self.num_processo,
-        )
-        if m:
-            return (
-                '<a href="https://intra.senado.leg.br/'
-                "sigad/novo/protocolo/impressao.asp?area=processo"
-                "&txt_numero_orgao={orgao}"
-                "&txt_numero_sequencial={sequencial}"
-                '&txt_numero_ano={ano}"'
-                ' target="_blank">{processo}</a>'
-            ).format(processo=self.num_processo, **m.groupdict())
-        return self.num_processo
+        return get_sigad_url(self.num_processo)
 
 
 class RecursoSolicitado(models.Model):
