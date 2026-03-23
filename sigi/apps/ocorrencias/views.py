@@ -143,30 +143,40 @@ class PainelOcorrenciaView(LoginRequiredMixin, UserPassesTestMixin, ListView):
         if filter.data:
             if filter.data.get("nome_casa"):
                 subts.append(
-                    _(f"Casas com \"{filter.data.get('nome_casa')}\" no nome")
+                    _('Casas com "{nome_casa}" no nome').format(
+                        nome_casa=filter.data.get("nome_casa")
+                    )
                 )
             if filter.data.get("gerente"):
                 gerente = Servidor.objects.get(id=filter.data.get("gerente"))
                 subts.append(
-                    _(f"Casas gerenciadas por {gerente.get_apelido()}")
+                    _("Casas gerenciadas por {gerente}").format(
+                        gerente=gerente.get_apelido()
+                    )
                 )
             if filter.data.get("servidor"):
                 servidor = Servidor.objects.get(id=filter.data.get("servidor"))
                 subts.append(
-                    _(
-                        f"Registradas ou comentadas por {servidor.get_apelido()}"
+                    _("Registradas ou comentadas por {servidor}").format(
+                        servidor=servidor.get_apelido()
                     )
                 )
             if filter.data.get("tipo_categoria"):
                 tipo = dict(Categoria.TIPO_CHOICES)[
                     filter.data.get("tipo_categoria")
                 ]
-                subts.append(_(f"Do tipo {tipo}"))
+                subts.append(_("Do tipo {tipo}".format(tipo=tipo)))
             if filter.data.get("categoria"):
                 categoria = Categoria.objects.get(
                     id=filter.data.get("categoria")
                 )
-                subts.append(_(f"Da categoria {categoria.nome}"))
+                subts.append(
+                    _(
+                        "Da categoria {categoria}".format(
+                            categoria=categoria.nome
+                        )
+                    )
+                )
             if filter.data.getlist("status"):
                 status_names = dict(Ocorrencia.STATUS_CHOICES)
                 subts.append(
@@ -309,11 +319,16 @@ class OficinaChangeView(BaseOcorrenciaChangeView):
         for tipo_evento in dados["oficinas"]:
             evento = Evento(
                 tipo_evento=tipo_evento,
-                nome=_(
-                    f"{tipo_evento.nome} na {ocorrencia.casa_legislativa.nome}"
+                nome=_("{tipo_evento} na {casa}").format(
+                    tipo_evento=tipo_evento.nome,
+                    casa=ocorrencia.casa_legislativa.nome,
                 ),
                 descricao=_(
-                    f"{tipo_evento.nome} na {ocorrencia.casa_legislativa.nome}, oriunda da Ocorrência #{ocorrencia.id}"
+                    "{tipo_evento} na {casa}, oriunda da Ocorrência #{ocorrencia_id}"
+                ).format(
+                    tipo_evento=tipo_evento.nome,
+                    casa=ocorrencia.casa_legislativa.nome,
+                    ocorrencia_id=ocorrencia.id,
                 ),
                 virtual=dados["virtual"],
                 solicitante=(
@@ -332,7 +347,9 @@ class OficinaChangeView(BaseOcorrenciaChangeView):
             )
             evento.save()
             total += 1
-        messages.info(self.request, _(f"{total} evento(s) criado(s)"))
+        messages.info(
+            self.request, _("{total} evento(s) criado(s)").format(total=total)
+        )
         return HttpResponseRedirect(self.get_success_url())
 
     def get_context_data(self, **kwargs):
@@ -671,7 +688,9 @@ class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
                 projeto = self.object.categoria.projeto
                 oficio = Anexo(
                     ocorrencia=self.object,
-                    descricao=f"Solicitação de {projeto.sigla}",
+                    descricao=_("Solicitação de {sigla}").format(
+                        sigla=projeto.sigla
+                    ),
                 )
                 oficio.arquivo.name = (
                     f"{Anexo.arquivo.field.upload_to}/"
@@ -687,7 +706,9 @@ class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
                 oficio.save()
                 minuta = Anexo(
                     ocorrencia=self.object,
-                    descricao=f"Minuta de {projeto.sigla}",
+                    descricao=_("Minuta de {sigla}").format(
+                        sigla=projeto.sigla
+                    ),
                 )
                 minuta.arquivo.name = (
                     f"{Anexo.arquivo.field.upload_to}/"
@@ -817,8 +838,8 @@ class SolicitaConvenioCreateView(ContatoInterlegisViewMixin, UpdateView):
                 tipo_contato=tipo_contato,
                 assunto=_("Solicitação de Adesão ao Programa Interlegis"),
                 descricao=_(
-                    f"A {casa.nome} solicita adesão ao Programa Interlegis"
-                ),
+                    "A {casa} solicita adesão ao Programa Interlegis"
+                ).format(casa=casa.nome),
                 servidor_registro=servidor,
                 infos={"solicita_convenio": {}},
             )
@@ -955,9 +976,9 @@ class SolicitaOficinaCreateView(ContatoInterlegisViewMixin, CreateView):
         self.object.assunto = _("Solicitação de oficinas Interlegis")
         self.object.interno = False
         self.object.descricao = _(
-            f"O Contato Interlegis { contato.nome } solicita a realização das "
-            f"seguites oficinas na { casa }, conforme ofício anexo:"
-        )
+            "O Contato Interlegis { contato } solicita a realização das "
+            "seguites oficinas na { casa }, conforme ofício anexo:"
+        ).format(contato=contato.nome, casa=casa)
         self.object.descricao = self.object.descricao + ", ".join(
             o.nome for o in oficinas
         )
