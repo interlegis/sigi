@@ -13,6 +13,7 @@ from django.template.exceptions import TemplateSyntaxError
 from django.urls import reverse
 from django.utils import timezone
 from django.utils.formats import date_format
+from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.utils import django_url_fetcher
 from docx import Document
@@ -376,7 +377,7 @@ class Convenio(models.Model):
         return obj.get_sigad_url()
 
     def get_sigad_url(self, display_type="numero"):
-        return get_sigad_url(self.num_processo_sf, display_type)
+        return mark_safe(get_sigad_url(self.num_processo_sf, display_type))
 
     def get_url_gescon(self):
         if not self.id_contrato_gescon:

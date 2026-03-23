@@ -177,7 +177,7 @@ class Solicitacao(models.Model):
 
     @admin.display(description=_("SIGAD"), ordering="num_processo")
     def get_sigad_url(self):
-        return get_sigad_url(self.num_processo)
+        return mark_safe(get_sigad_url(self.num_processo))
 
 
 class ItemSolicitado(models.Model):
@@ -498,7 +498,7 @@ class Evento(models.Model):
         return reverse("admin:eventos_evento_change", args=[self.id])
 
     def get_sigad_url(self):
-        return get_sigad_url(self.num_processo)
+        return mark_safe(get_sigad_url(self.num_processo))
 
     @property
     def link_inscricao(self):

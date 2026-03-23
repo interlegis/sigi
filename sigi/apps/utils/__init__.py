@@ -5,6 +5,7 @@ from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import force_str
+from django.utils.safestring import mark_safe
 
 
 class SearchField(models.TextField):
@@ -121,7 +122,7 @@ def get_sigad_url(num_sigad, display_type="numero"):
             display = f'<i class="bi bi-eye"></i> {num_sigad}'
         else:
             display = num_sigad
-        return (
+        return mark_safe(
             f'<a href="https://intra.senado.leg.br/sigad/novo/protocolo/'
             f"impressao.asp?area=processo&txt_numero_orgao={orgao}"
             f'&txt_numero_sequencial={sequencial}&txt_numero_ano={ano}" '

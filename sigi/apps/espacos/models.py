@@ -218,7 +218,7 @@ class Reserva(models.Model):
         )
 
     def get_sigad_url(self):
-        return get_sigad_url(self.num_processo)
+        return mark_safe(get_sigad_url(self.num_processo))
 
 
 class RecursoSolicitado(models.Model):
