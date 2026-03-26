@@ -3,6 +3,7 @@ import datetime
 import locale
 from dashboard import Dashcard, getcolor
 from random import choice, randint, seed
+from urllib.parse import urlencode
 from django.db.models import Count, F, Q
 from django.db.models.functions import TruncMonth
 from django.http import QueryDict
@@ -448,14 +449,21 @@ class ServicosAno(Dashcard):
         return labels
 
     def get_datasets(self, request, queryset=None):
+        meses = {calendar.month_abbr[x + 1]: str(x + 1) for x in range(12)}
+        ano = request.GET.get("ano", None)
         if queryset is None:
             queryset = self.get_queryset(request)
-        if request.GET.get("ano", None):
+        if ano:
             lang = to_locale(get_language()) + ".UTF-8"
             locale.setlocale(locale.LC_ALL, lang)
             map_function = lambda x: _(calendar.month_abbr[x])
+            map_yaxis = lambda x: {
+                "data_ativacao__year": ano,
+                "data_ativacao__month": meses[x],
+            }
         else:
             map_function = str
+            map_yaxis = lambda x: {"data_ativacao__year": x}
 
         labels = self.get_labels(request, queryset)
 
@@ -472,6 +480,26 @@ class ServicosAno(Dashcard):
                 "label": s,
                 "data": series[s],
                 "backgroundColor": getcolor(s),
+                "links": [
+                    self.get_view_link(s, map_yaxis(k), v)
+                    for k, v in series[s].items()
+                ],
             }
             for s in series
         ]
+
+    def get_view_link(self, xaxis, yaxis, value):
+        base_url = reverse("admin:servicos_servico_changelist")
+        if value > 0:
+            yaxis["hospedagem_interlegis__exact"] = 1
+            try:
+                yaxis["tipo_servico__id__exact"] = TipoServico.objects.get(
+                    sigla=xaxis
+                ).id
+            except (
+                TipoServico.DoesNotExist,
+                TipoServico.MultipleObjectsReturned,
+            ):
+                return None
+            return f"{base_url}?{urlencode(yaxis)}"
+        return None

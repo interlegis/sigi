@@ -107,6 +107,7 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     ]
     autocomplete_fields = ("casa_legislativa",)
     readonly_fields = ["data_alteracao"]
+    date_hierarchy = "data_ativacao"
     list_filter = (
         "tipo_servico",
         "hospedagem_interlegis",
