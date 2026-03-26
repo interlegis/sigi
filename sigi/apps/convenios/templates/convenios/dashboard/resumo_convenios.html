@@ -13,7 +13,7 @@
     <tr>
       <th>{{ label }}</th>
       {% for value in values %}
-      <td>{{ value }}</td>
+      <td class="text-end">{{ value }}</td>
       {% endfor %}
     </tr>
     {% endfor %}
@@ -24,7 +24,7 @@
   {% for label, value in datasets.totais %}
     <tr>
       <th>{{ label }}</th>
-      <td>{{ value }}</td>
+      <td class="text-end">{{ value }}</td>
     </tr>
   {% endfor %}
 </table>

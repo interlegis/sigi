@@ -1,3 +1,4 @@
+from django.urls import reverse
 import numpy as np
 import pandas as pd
 import django_filters
@@ -171,24 +172,28 @@ class ConvenioServico(Dashcard):
         if queryset is None:
             queryset = self.get_queryset(request)
         values = dict(queryset)
+        base_url = reverse("admin:casas_orgao_changelist")
         datasets = [
             {
                 "label": _(
                     "Casas sem convenio que utilizam algum serviço de hospedagem"
                 ),
                 "data": [values["hospedagem"]],
+                "links": [f"{base_url}?convenio=SC&servico=CH"],
             },
             {
                 "label": _(
                     "Casas sem convenio que utilizam somente serviço de registro"
                 ),
                 "data": [values["total"] - values["hospedagem"]],
+                "links": [f"{base_url}?convenio=SC&servico=CR"],
             },
             {
                 "label": _(
                     "Casas sem convenio que utilizam algum serviço de registro e/ou hospedagem"
                 ),
                 "data": [values["total"]],
+                "links": [f"{base_url}?convenio=SC&servico=CS"],
             },
         ]
         return datasets

@@ -6,6 +6,7 @@ from random import choice, randint, seed
 from django.db.models import Count, F, Q
 from django.db.models.functions import TruncMonth
 from django.http import QueryDict
+from django.urls import reverse
 from django.utils import timezone
 from django.utils.text import slugify
 from django.utils.translation import gettext as _, to_locale, get_language
@@ -81,6 +82,18 @@ class Sazonalidade(Dashcard):
                 .last()
             )
         return qs.filter(data_ativacao__year=ano)
+
+    def get_view_link(self, x_axis, y_axis, value):
+        try:
+            tipo = TipoServico.objects.get(sigla=x_axis)
+        except TipoServico.DoesNotExist:
+            return None
+        mes, ano = y_axis.split("/")
+        base_url = reverse("admin:servicos_servico_changelist")
+        return (
+            f"{base_url}?tipo_servico__id__exact={tipo.pk}"
+            f"&data_ativacao__year={ano}&data_ativacao__month={mes}"
+        )
 
     def get_prev_page(self, request=None, queryset=None):
         anos = Servico.objects.dates("data_ativacao", "year").values_list(
@@ -170,9 +183,13 @@ class ResumoSeit(Dashcard):
                 "total": s["total"],
                 mes_anterior: 0,
                 mes_atual: 0,
+                "servico_id": s["servico_id"],
             }
             for s in Servico.objects.filter(data_desativacao=None)
-            .values(servico=F("tipo_servico__nome"))
+            .values(
+                servico=F("tipo_servico__nome"),
+                servico_id=F("tipo_servico__id"),
+            )
             .annotate(total=Count("casa_legislativa", distinct=True))
         }
         for data in queryset:
@@ -186,9 +203,38 @@ class ResumoSeit(Dashcard):
                     labels[1]: data[mes_atual],
                     labels[2]: data[mes_anterior],
                 },
+                "links": [
+                    self.get_view_link(
+                        "total", data["servico_id"], data["total"]
+                    ),
+                    self.get_view_link(
+                        mes_atual, data["servico_id"], data[mes_atual]
+                    ),
+                    self.get_view_link(
+                        mes_anterior, data["servico_id"], data[mes_anterior]
+                    ),
+                ],
             }
             for label, data in datasets.items()
         ]
+
+    def get_view_link(self, x_axis, y_axis, value):
+        if value == 0:
+            return None
+        base_url = reverse("admin:servicos_servico_changelist")
+        qstrs = [
+            "data_desativacao__isnull=True",
+            f"tipo_servico__id__exact={y_axis}",
+        ]
+        if not isinstance(x_axis, str):
+            qstrs.extend(
+                [
+                    f"data_ativacao__year={x_axis.year}",
+                    f"data_ativacao__month={x_axis.month}",
+                ]
+            )
+        qstrs = "&".join(qstrs)
+        return f"{base_url}?{qstrs}"
 
     def get_prev_page(self, request=None, queryset=None):
         mes_atual, mes_anterior, mes_proximo = self.get_meses(request)
@@ -211,12 +257,13 @@ class AtualizacaoServicos(Dashcard):
     model = TipoServico
 
     intervalos = [
-        ("Na semana", 7),
-        ("No mês", 30),
-        ("No trimestre", 3 * 30),
-        ("No semestre", 6 * 30),
-        ("No ano", 365),
-        ("Mais de ano", None),
+        ("Na semana", 7, "updated"),
+        ("No mês", 30, "week"),
+        ("No trimestre", 90, "month"),
+        ("No semestre", 182, "quarter"),
+        ("No ano", 365, "semester"),
+        ("Mais de ano", 0, "year"),
+        ("Erro na verificação", None, "err"),
     ]
 
     def get_queryset(self, request):
@@ -224,17 +271,21 @@ class AtualizacaoServicos(Dashcard):
         hoje = timezone.localdate()
         ate = hoje
 
-        for label, dias in self.intervalos:
-            if dias is not None:
+        for label, dias, *__ in self.intervalos:
+            if dias is None:
+                counts[slugify(label)] = Count(
+                    "servico", ~Q(servico__erro_atualizacao="")
+                )
+            elif dias > 0:
                 de = hoje - datetime.timedelta(days=dias)
                 counts[slugify(label)] = Count(
                     "servico", Q(servico__data_ultimo_uso__range=(de, ate))
                 )
-            ate = de - datetime.timedelta(days=1)
-        else:
-            counts[slugify(label)] = Count(
-                "servico", Q(servico__data_ultimo_uso__lte=ate)
-            )
+                ate = de - datetime.timedelta(days=1)
+            else:
+                counts[slugify(label)] = Count(
+                    "servico", Q(servico__data_ultimo_uso__lte=ate)
+                )
 
         return (
             super()
@@ -259,9 +310,24 @@ class AtualizacaoServicos(Dashcard):
                     for label, *__ in self.intervalos
                 },
                 "backgroundColor": getcolor(ts.sigla),
+                "links": [
+                    self.get_view_link(
+                        ts.id, atualizacao, getattr(ts, slugify(label))
+                    )
+                    for label, dias, atualizacao in self.intervalos
+                ],
             }
             for ts in queryset
         ]
+
+    def get_view_link(self, x_axis, y_axis, value):
+        print(x_axis, y_axis, value)
+        base_url = reverse("admin:servicos_servico_changelist")
+        return (
+            f"{base_url}?data_desativacao__isnull=True"
+            f"&atualizacao={y_axis}"
+            f"&tipo_servico__id__exact={x_axis}"
+        )
 
 
 class UsoServicos(Dashcard):
@@ -299,9 +365,21 @@ class UsoServicos(Dashcard):
             {
                 "label": label,
                 "data": {r.sigla: getattr(r, f"{key}_count") for r in queryset},
+                "links": [
+                    self.get_view_link(r.id, key, getattr(r, f"{key}_count"))
+                    for r in queryset
+                ],
             }
             for key, label in Servico.RESULTADO_CHOICES
         ]
+
+    def get_view_link(self, x_axis, y_axis, value):
+        base_url = reverse("admin:servicos_servico_changelist")
+        return (
+            f"{base_url}?data_desativacao__isnull=True"
+            f"&resultado_verificacao__exact={y_axis}"
+            f"&tipo_servico__id__exact={x_axis}"
+        )
 
 
 class ServicosAno(Dashcard):

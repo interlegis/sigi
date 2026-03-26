@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.translation import gettext as _
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.convenios.models import Projeto
-from sigi.apps.servicos.models import TipoServico
+from sigi.apps.servicos.models import TipoServico, Servico
 
 
 class GerentesInterlegisFilter(admin.filters.RelatedFieldListFilter):
@@ -36,7 +36,14 @@ class ServicoFilter(admin.SimpleListFilter):
                 )
             elif self.value() == "CR":
                 queryset = queryset.exclude(
-                    servico__tipo_servico__modo="H"
+                    id__in=(
+                        Servico.objects.filter(
+                            data_desativacao__isnull=True,
+                            tipo_servico__modo="H",
+                        )
+                        .distinct("casa_legislativa_id")
+                        .values_list("casa_legislativa_id", flat=True)
+                    )
                 ).exclude(servico=None)
             elif self.value() == "CH":
                 queryset = queryset.filter(

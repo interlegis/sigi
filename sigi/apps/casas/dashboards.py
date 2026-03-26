@@ -1,3 +1,4 @@
+from django.urls import reverse
 import django_filters
 from dashboard import Dashcard, getcolor
 from django.db.models import Count
@@ -32,6 +33,16 @@ class CasasGerente(Dashcard):
             .exclude(casas_que_gerencia=None)
         )
 
+    def get_view_link(self, x_axis, y_axis, value):
+        try:
+            s = Servidor.objects.exclude(casas_que_gerencia=None).get(
+                nome_completo=x_axis
+            )
+        except:
+            return None
+        base_url = reverse("admin:casas_orgao_changelist")
+        return f"{base_url}?gerentes_interlegis__id__exact={s.id}"
+
 
 class PerformanceCarteira(Dashcard):
     chart_type = Dashcard.TYPE_DOUGHNUT
@@ -42,20 +53,9 @@ class PerformanceCarteira(Dashcard):
     LABEL_USAM = _("Utilizam serviços")
     LABEL_NAO_USAM = _("Não utilizam servços")
 
-    def apply_filters(self, request, queryset):
-        filter = self.filterset(request.GET, queryset=queryset)
-        valid = filter.is_valid()
-        if filter.form.cleaned_data["servidor"] is None:
-            if (
-                request.user.servidor
-                and request.user.servidor.casas_que_gerencia.exists()
-            ):
-                return request.user.servidor.casas_que_gerencia.all()
-        return (
-            super()
-            .apply_filters(request, queryset)
-            .exclude(gerentes_interlegis=None)
-        )
+    def get_queryset(self, request):
+        queryset = super().get_queryset(request)
+        return queryset.exclude(gerentes_interlegis=None)
 
     def get_labels(self, request, queryset=None):
         return [self.LABEL_USAM, self.LABEL_NAO_USAM]
@@ -63,11 +63,23 @@ class PerformanceCarteira(Dashcard):
     def get_datasets(self, request, queryset=None):
         if queryset is None:
             queryset = self.get_queryset(request)
+        base_url = reverse("admin:casas_orgao_changelist")
+        filter = self.get_filter(request.GET, queryset)
+        filter.is_valid()
+        servidor_id = filter.data.get("servidor")
+        if servidor_id:
+            servidor_qs = f"&gerentes_interlegis__id__exact={servidor_id}"
+        else:
+            servidor_qs = ""
         return [
             {
                 "data": [
                     queryset.exclude(servico=None).count(),
                     queryset.filter(servico=None).count(),
-                ]
+                ],
+                "links": [
+                    f"{base_url}?tipo__legislativo__exact=1&servico=CS{servidor_qs}",
+                    f"{base_url}?tipo__legislativo__exact=1&servico=SS{servidor_qs}",
+                ],
             }
         ]

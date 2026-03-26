@@ -1,5 +1,6 @@
 import calendar
 import datetime
+from django.urls import reverse
 import django_filters
 from dashboard import Dashcard, getcolor
 from django.db.models import F, Count, Q
@@ -32,15 +33,50 @@ class AnoFilterset(django_filters.FilterSet):
         fields = ["ano"]
 
 
+class AnoCategoriaFilterset(django_filters.FilterSet):
+    ano = django_filters.ChoiceFilter(
+        field_name="data_inicio",
+        lookup_expr="year",
+        label=_("Ano"),
+        distinct=True,
+        choices=get_anos,
+    )
+    categoria = django_filters.ChoiceFilter(
+        field_name="tipo_evento__categoria",
+        lookup_expr="exact",
+        label=_("Categoria"),
+        distinct=True,
+        choices=TipoEvento.CATEGORIA_CHOICES,
+    )
+
+    class Meta:
+        model = Evento
+        fields = ["ano", "categoria"]
+
+
 class EventosStatus(Dashcard):
     chart_type = Dashcard.TYPE_DOUGHNUT
     title = _("Eventos por status")
+    filterset = AnoCategoriaFilterset
     model = Evento
     label_field = ("status", F, lambda s: dict(Evento.STATUS_CHOICES)[s])
     datasets = [{"data_field": ("id", Count)}]
 
     def get_dataset_color(self, dataset_label):
         return getcolor(dataset_label)
+
+    def get_view_link(self, x_axis, y_axis, value):
+        base_url = reverse("admin:eventos_evento_changelist")
+        querystrs = [f"status__exact={x_axis}"]
+        filter = self.get_filter(self.request.GET)
+        if filter.is_valid():
+            ano = filter.data.get("ano")
+            categoria = filter.data.get("categoria")
+            if ano:
+                querystrs.append(f"data_inicio__year={ano}")
+            if categoria:
+                querystrs.append(f"tipo_evento__categoria__exact={categoria}")
+        return base_url + "?" + "&".join(querystrs)
 
 
 class EventosAno(Dashcard):
@@ -98,10 +134,7 @@ class EventosAno(Dashcard):
     def get_queryset(self, request):
         counts = self.get_counters(request)
         return (
-            super()
-            .get_queryset(request)
-            .values("categoria")
-            .annotate(**counts)
+            super().get_queryset(request).values("categoria").annotate(**counts)
         )
 
     def get_dataset_color(self, dataset_label):
@@ -116,6 +149,10 @@ class EventosAno(Dashcard):
             {
                 "label": categorias[r["categoria"]],
                 "data": [r[c] for c in counters],
+                "links": [
+                    self.get_view_link(r["categoria"], c, r[c])
+                    for c in counters
+                ],
                 "backgroundColor": self.get_dataset_color(r["categoria"]),
             }
             for r in queryset
@@ -128,6 +165,15 @@ class EventosAno(Dashcard):
     def get_prev_page(self, request=None, queryset=None):
         mes = self.get_meses(request)[-3]
         return f"ano={mes.year}&mes={mes.month}"
+
+    def get_view_link(self, x_axis, y_axis, value):
+        base_link = reverse("admin:eventos_evento_changelist")
+        return (
+            f"{base_link}?status__exact={Evento.STATUS_REALIZADO}"
+            f"&tipo_evento__categoria__exact={x_axis}"
+            f'&data_inicio__year={y_axis.split("_")[1]}'
+            f'&data_inicio__month={y_axis.split("_")[2]}'
+        )
 
 
 class EventosCategoria(Dashcard):
@@ -151,3 +197,16 @@ class EventosCategoria(Dashcard):
 
     def get_dataset_color(self, dataset_label):
         return getcolor(dataset_label)
+
+    def get_view_link(self, x_axis, y_axis, value):
+        base_url = reverse("admin:eventos_evento_changelist")
+        q_ano = ""
+        filter = self.get_filter(self.request.GET)
+        if filter.is_valid():
+            ano = filter.data.get("ano")
+            if ano:
+                q_ano = f"data_inicio__year={ano}&"
+        return (
+            f"{base_url}?{q_ano}status__exact={Evento.STATUS_REALIZADO}"
+            f"&tipo_evento__categoria__exact={x_axis}"
+        )
