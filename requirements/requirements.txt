@@ -21,7 +21,7 @@ ipython_pygments_lexers==1.1.1
 moodlepy==0.24.1
 pandas==3.0.1
 parsel==1.11.0
-pillow==12.1.1
+pillow==12.2.0
 psycopg2-binary==2.9.11
 python-docx==1.2.0
 python-magic==0.4.27
