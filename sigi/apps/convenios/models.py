@@ -15,7 +15,7 @@ from django.utils import timezone
 from django.utils.formats import date_format
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from docx import Document
 from tinymce.models import HTMLField
 from weasyprint import HTML
@@ -105,7 +105,7 @@ class Projeto(models.Model):
         string = Template(template_string).render(context)
         pdf = HTML(
             string=string,
-            url_fetcher=django_url_fetcher,
+            url_fetcher=DjangoURLFetcher(),
             encoding="utf-8",
             base_url=path,
         )

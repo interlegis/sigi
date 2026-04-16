@@ -1,35 +1,37 @@
-Django==6.0.2
+Django==6.0.4
 django-admin-autocomplete-filter==0.7.1
 django-auth-ldap==5.3.0
-django-debug-toolbar==6.2.0
+django-debug-toolbar==6.3.0
 django-environ==0.13.0
 django-extensions==4.1
 django-filter==25.2
 django-import-export==4.4.0
 django-localflavor==5.0
 django-tinymce==5.0.0
-django-weasyprint==2.4.0
-djangorestframework==3.16.1
+django-weasyprint==2.5.0
+djangorestframework==3.17.1
 dnspython==2.8.0
 docutils==0.22.4
 email-validator==2.3.0
-gunicorn==25.1.0
+gunicorn==25.3.0
 ibge==0.0.5
 inflection==0.5.1
-ipython==9.10.0
+ipython==9.12.0
 ipython_pygments_lexers==1.1.1
 moodlepy==0.24.1
-pandas==3.0.1
+odfpy==1.4.1
+pandas==3.0.2
 parsel==1.11.0
-pillow==12.1.1
+pillow==12.2.0
 psycopg2-binary==2.9.11
 python-docx==1.2.0
 python-magic==0.4.27
 PyYAML==6.0.3
-requests==2.32.5
+requests==2.33.1
+tzdata==2026.1
 uritemplate==4.2.0
 weasyprint==68.1
 xlsxwriter==3.2.9
 djbs-theme @ git+https://github.com/interlegis/djbs-theme.git
 django-dashboard @ git+https://github.com/interlegis/django-dashboard.git
-dx-job-controller @ git+https://github.com/interlegis/dx-job-controller.git
+dx-job-controller @ git+https://github.com/interlegis/dx-job-controller.git@v1.0.0

@@ -16,7 +16,7 @@ from django.utils.html import escape, quote
 from django.utils.translation import ngettext, gettext as _
 from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from weasyprint import HTML
 from sigi.apps.casas.models import Funcionario, Orgao
 from sigi.apps.eventos.models import Evento
@@ -1002,7 +1002,7 @@ class SolicitaOficinaCreateView(ContatoInterlegisViewMixin, CreateView):
         )
         pdf = HTML(
             string=html,
-            url_fetcher=django_url_fetcher,
+            url_fetcher=DjangoURLFetcher(),
             encoding="utf-8",
             base_url=self.request.build_absolute_uri("/"),
         )

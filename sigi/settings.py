@@ -35,7 +35,11 @@ INTERNAL_IPS = [
     "127.0.0.1",
 ]
 
-ADMINS = env("ADMINS", eval)
+ADMINS = env(
+    "ADMINS",
+    default=(("SIGI Administrator", "sigi@interlegis.leg.br"),),
+    cast=eval,
+)
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
 
@@ -96,10 +100,10 @@ EMAIL_HOST = env("EMAIL_HOST", default="")
 EMAIL_HOST_USER = env("EMAIL_HOST_USER", default="")
 EMAIL_HOST_PASSWORD = env("EMAIL_HOST_PASSWORD", default="")
 EMAIL_SUBJECT_PREFIX = env("EMAIL_SUBJECT_PREFIX", default="[SIGI]")
-EMAIL_USE_LOCALTIME = env("EMAIL_USE_LOCALTIME", bool, default=False)
+EMAIL_USE_LOCALTIME = env("EMAIL_USE_LOCALTIME", bool, default=True)
 EMAIL_USE_TLS = env("EMAIL_USE_TLS", bool, default=False)
 EMAIL_USE_SSL = env("EMAIL_USE_SSL", bool, default=False)
-EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=None)
+EMAIL_TIMEOUT = env("EMAIL_TIMEOUT", int, default=120)
 DEFAULT_FROM_EMAIL = env("DEFAULT_FROM_EMAIL", default="sigi@interlegis.leg.br")
 SERVER_EMAIL = DEFAULT_FROM_EMAIL
 
@@ -107,7 +111,7 @@ SERVER_EMAIL = DEFAULT_FROM_EMAIL
 # https://docs.djangoproject.com/en/5.0/ref/settings/#databases
 
 DATABASES = {
-    "default": env.db(),
+    "default": env.db(default="sqlite:////:memory:"),
 }
 
 ROOT_URLCONF = "sigi.urls"

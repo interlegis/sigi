@@ -25,7 +25,7 @@ from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
-from django_weasyprint.utils import django_url_fetcher
+from django_weasyprint.utils import DjangoURLFetcher
 from django_weasyprint.views import WeasyTemplateResponse
 from import_export import resources
 from import_export.admin import ExportActionMixin
@@ -1284,7 +1284,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
                 )
                 pdf = HTML(
                     string=string,
-                    url_fetcher=django_url_fetcher,
+                    url_fetcher=DjangoURLFetcher(),
                     encoding="utf-8",
                     base_url=request.build_absolute_uri("/"),
                 )
