@@ -5,7 +5,7 @@ django-debug-toolbar==6.3.0
 django-environ==0.13.0
 django-extensions==4.1
 django-filter==25.2
-django-import-export==4.4.0
+django-import-export[all]==4.4.0
 django-localflavor==5.0
 django-tinymce==5.0.0
 django-weasyprint==2.5.0
