@@ -29,7 +29,6 @@ class UsoEspacoReportForm(forms.Form):
             "admin/js/vendor/select2/select2.full.js",
             "admin/js/change_form.js",
             "admin/js/vendor/select2/i18n/pt-BR.js",
-            "material/admin/js/widgets/TimeInput.js",
             "admin/js/core.js",
             "/admin/jsi18n/",
         ]

@@ -13,7 +13,6 @@ from django.utils.html import format_html
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 from django_weasyprint.views import WeasyTemplateResponse
-from djbs import djbs_constants as djbsc
 from import_export import resources
 from import_export.admin import ExportActionMixin
 from import_export.fields import Field
@@ -187,7 +186,6 @@ class ListaFuncionarioInline(admin.TabularInline):
     can_delete = False
     verbose_name_plural = _("Lista de contatos")
     ordering = ["setor", "-ult_alteracao"]
-    djbs_hide_original = True
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)

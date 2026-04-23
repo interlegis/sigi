@@ -13,7 +13,7 @@ var map_center = [-14.235004, -51.92528];
 var options = { color: 'blue', fillColor: 'red', fillOpacity: 0.4, radius: 500 };
 var unfiltred_options = { color: 'red', fillColor: 'red', fillOpacity: 0, radius: 1000 };
 $(document).ready(function () {
-    $("input[type=checkbox]").change(filtra);
+    $("input[type=checkbox]").on("change", filtra);
     var search_field = $("#map-search");
 
     if (search_field) {
@@ -140,7 +140,7 @@ $(document).ready(function () {
         })
     }
 
-    $("#clear-filters").click(function (event) {
+    $("#clear-filters").on("click", function (event) {
         event.preventDefault();
         $("input[type=checkbox][name=tipo_orgao]").prop('checked', false);
         $("input[type=checkbox][name=tipo_servico]").prop('checked', false);
@@ -150,7 +150,7 @@ $(document).ready(function () {
         $("input[type=checkbox][name=gerente]").prop('checked', false);
         filtra();
     });
-    $("#center-map").click(function (event) {
+    $("#center-map").on("click", function (event) {
         event.preventDefault();
         mymap.flyTo(map_center, 4.5);
     });

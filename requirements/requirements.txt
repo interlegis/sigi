@@ -23,7 +23,7 @@ odfpy==1.4.1
 pandas==3.0.2
 parsel==1.11.0
 pillow==12.2.0
-psycopg2-binary==2.9.11
+psycopg2-binary==2.9.12
 python-docx==1.2.0
 python-magic==0.4.27
 PyYAML==6.0.3
@@ -32,6 +32,6 @@ tzdata==2026.1
 uritemplate==4.2.0
 weasyprint==68.1
 xlsxwriter==3.2.9
-djbs-theme @ git+https://github.com/interlegis/djbs-theme.git
+djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@v1.0.6
 django-dashboard @ git+https://github.com/interlegis/django-dashboard.git
 dx-job-controller @ git+https://github.com/interlegis/dx-job-controller.git@v1.0.0

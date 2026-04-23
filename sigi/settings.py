@@ -258,6 +258,7 @@ DJBSTHEME = {
     "FIELDSET_STYLE": djbs_constants.STYLE_TAB,
     "INLINESET_STYLE": djbs_constants.STYLE_TAB,
     "BADGERIZE_FACETS": True,
+    "HIDE_ORIGINAL": True,
     "ICONS": {
         "chart": "bi bi-graph-up",
         "checklist": "bi bi-list-check",
