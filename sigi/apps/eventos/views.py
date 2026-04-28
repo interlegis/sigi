@@ -5,7 +5,7 @@ import locale
 import pandas as pd
 from functools import reduce
 from itertools import groupby
-from rest_framework import generics, filters
+from rest_framework import generics
 from typing import OrderedDict
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -59,6 +59,7 @@ from sigi.apps.eventos.serializers import (
 )
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.utils.views import ReportListView
+from sigi.apps.utils.filters import DeterministicOrderingFilter
 
 
 class AlunosPorUfReportView(
@@ -1140,7 +1141,7 @@ class ApiEventoAbstract:
         Evento.objects.filter(publicar=True)
         .exclude(data_inicio=None)
         .exclude(data_termino=None)
-        .order_by("-data_inicio")
+        .order_by("-data_inicio", "id")
     )
     serializer_class = EventoSerializer
 
@@ -1151,7 +1152,7 @@ class ApiEventoList(ApiEventoAbstract, generics.ListAPIView):
     """
 
     serializer_class = EventoListSerializer
-    filter_backends = [filters.OrderingFilter]
+    filter_backends = [DeterministicOrderingFilter]
     ordering_fields = "__all__"
     ordering = ["-data_inicio"]
 

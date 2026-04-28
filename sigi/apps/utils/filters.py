@@ -9,6 +9,13 @@ from django.contrib.admin.utils import (
 )
 from django.core.exceptions import ValidationError
 from django.utils.translation import ngettext, gettext as _
+from rest_framework.filters import OrderingFilter
+
+
+class DeterministicOrderingFilter(OrderingFilter):
+    def filter_queryset(self, request, queryset, view):
+        queryset = super().filter_queryset(request, queryset, view)
+        return queryset.order_by(*queryset.query.order_by, "id")
 
 
 def filter_single_value(value):
@@ -54,9 +61,7 @@ class RangeFilter(admin.FieldListFilter):
         self.model_admin = model_admin
         self.parameter_name = f"{field_path}__range"
 
-        super().__init__(
-            field, request, params, model, model_admin, field_path
-        )
+        super().__init__(field, request, params, model, model_admin, field_path)
 
         lookup_choices = self.lookups(request, model_admin)
 
@@ -179,9 +184,7 @@ class DateRangeFilter(admin.FieldListFilter):
                 form_data[p] = prepare_lookup_value(
                     p, value, self.list_separator
                 )
-        super().__init__(
-            field, request, params, model, model_admin, field_path
-        )
+        super().__init__(field, request, params, model, model_admin, field_path)
         form = self.get_date_form(form_data)
         if form.is_valid():
             self.used_parameters = {
