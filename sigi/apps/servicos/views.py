@@ -76,9 +76,7 @@ class CasasAtendidasListView(ListView):
                 Prefetch(
                     "servico_set", queryset=sq_servicos, to_attr="servicos"
                 ),
-                Prefetch(
-                    "evento_set", queryset=sq_eventos, to_attr="oficinas"
-                ),
+                Prefetch("evento_set", queryset=sq_eventos, to_attr="oficinas"),
                 Prefetch(
                     "convenio_set",
                     queryset=Convenio.objects.select_related("projeto"),
@@ -96,7 +94,7 @@ class CasasAtendidasListView(ListView):
         if param.isdigit():
             queryset = queryset.filter(id=param)
         elif param != "_all_":
-            queryset = queryset.filter(municipio__uf__sigla=param)
+            queryset = queryset.filter(municipio__uf__sigla=param.upper())
         return queryset
 
     def get_context_data(self, **kwargs):
@@ -121,7 +119,9 @@ class CasasAtendidasListView(ListView):
         ]
         context["search_param"] = self.request.GET.get("search", None)
         if param != "_all_" and not param.isdigit():
-            context["uf"] = UnidadeFederativa.objects.get(sigla=param)
+            context["uf"] = UnidadeFederativa.objects.filter(
+                sigla=param.upper()
+            ).first()
         return context
 
     def render_to_response(self, context, **response_kwargs):
