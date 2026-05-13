@@ -2,16 +2,20 @@ from django.db.models import Q, Prefetch, Count, F, Value, Case, When
 from django.http import HttpResponse
 from django.views.decorators.clickjacking import xframe_options_exempt
 from django.views.generic import ListView
+from django_filters.rest_framework import DjangoFilterBackend
 from import_export import resources
 from import_export.fields import Field
-from rest_framework import generics
+from rest_framework import generics, filters
 from sigi.apps.casas.models import Orgao
+from sigi.apps.servicos.serializers import ServicoSerializer
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio
 from sigi.apps.eventos.models import Evento, TipoEvento
+from sigi.apps.servicos.filters import ServicoAPIFilter
 from sigi.apps.servicos.models import Servico
 from sigi.apps.servicos.serializers import ProdutosSerializer
 from sigi.apps.utils import to_ascii
+from sigi.apps.utils.filters import DeterministicOrderingFilter
 
 
 class ServicoResource(resources.ModelResource):
@@ -38,6 +42,32 @@ class ServicoResource(resources.ModelResource):
 
         def dehydrate_telefone(self, servico):
             return servico.casa_legislativa.telefone
+
+
+class ServicoListView(generics.ListAPIView):
+    """Lista de serviços ativos prestados pelo Interlegis às Casas Legislativas"""
+
+    queryset = Servico.objects.filter(data_desativacao=None).select_related(
+        "casa_legislativa__municipio__uf", "tipo_servico"
+    )
+    serializer_class = ServicoSerializer
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        DeterministicOrderingFilter,
+    ]
+    filterset_class = ServicoAPIFilter
+    search_fields = [
+        "casa_legislativa__nome",
+        "casa_legislativa__cnpj",
+    ]
+    ordering_fields = [
+        "casa_legislativa__municipio__uf__sigla",
+        "casa_legislativa__nome",
+        "tipo_servico__sigla",
+        "data_ativacao",
+    ]
+    ordering = ["-data_ativacao"]
 
 
 class CasasAtendidasListView(ListView):

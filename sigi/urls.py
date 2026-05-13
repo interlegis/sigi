@@ -14,7 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 
-from rest_framework.schemas import get_schema_view
+from drf_spectacular.views import (
+    SpectacularAPIView,
+    SpectacularSwaggerView,
+    SpectacularRedocView,
+)
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -47,29 +51,15 @@ urlpatterns = [
         "api/doc/",
         RedirectView.as_view(pattern_name="swagger-ui", permanent=False),
     ),
-    path(
-        "api/doc/schema.yaml",
-        get_schema_view(
-            title="SIGI rest API Schema",
-            description="REST API for SIGI opendata",
-            version="1.0.0",
-        ),
-        name="openapi-schema",
-    ),
+    path("api/schema/", SpectacularAPIView.as_view(), name="openapi-schema"),
     path(
         "api/doc/swagger-ui/",
-        TemplateView.as_view(
-            template_name="sigi/api/swagger-ui.html",
-            extra_context={"schema_url": "openapi-schema"},
-        ),
+        SpectacularSwaggerView.as_view(url_name="openapi-schema"),
         name="swagger-ui",
     ),
     path(
         "api/doc/redoc/",
-        TemplateView.as_view(
-            template_name="sigi/api/redoc.html",
-            extra_context={"schema_url": "openapi-schema"},
-        ),
+        SpectacularRedocView.as_view(url_name="openapi-schema"),
         name="redoc",
     ),
     path("api/casas/", include("sigi.apps.casas.api_urls")),

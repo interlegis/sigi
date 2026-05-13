@@ -16,7 +16,6 @@ from django.utils.translation import gettext_lazy as _
 from django.conf.locale.pt_BR import formats as br_formats
 from djbs import djbs_constants
 
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent
 
@@ -63,6 +62,7 @@ INSTALLED_APPS = [
     "import_export",
     "tinymce",
     "rest_framework",
+    "drf_spectacular",
     "sigi.apps.casas",
     "sigi.apps.contatos",
     "sigi.apps.convenios",
@@ -284,11 +284,29 @@ TINYMCE_DEFAULT_CONFIG = {
 # Rest Framework settings
 
 REST_FRAMEWORK = {
+    "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
     "DEFAULT_RENDERER_CLASSES": [
         "rest_framework.renderers.JSONRenderer",
     ],
     "DEFAULT_PAGINATION_CLASS": "sigi.apps.utils.pagination.SigiPageNumberPagination",
     "PAGE_SIZE": 100,
+}
+
+# drf-spectacular settings
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "SIGI API",
+    "DESCRIPTION": "API de dados abertos dos Serviços prestados pelo Interlegis / Senado Federal",
+    "VERSION": "1.0.0",
+    "SERVE_INCLUDE_SCHEMA": False,
+    "CONTACT": {
+        "name": "Serviço de Gestão de Informações Educacionais do ILB/Interlegis",
+        "email": "lct_seginfe@senado.leg.br",
+    },
+    "LICENSE": {
+        "name": "GPL-2.0.1",
+        "url": "https://github.com/interlegis/sigi?tab=GPL-2.0-1-ov-file#",
+    },
 }
 
 # SIGI specific settings

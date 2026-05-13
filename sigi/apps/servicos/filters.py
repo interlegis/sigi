@@ -1,6 +1,8 @@
+import django_filters
 from datetime import date, timedelta
 from django.utils.translation import gettext as _
 from django.contrib import admin
+from sigi.apps.servicos.models import Servico
 
 
 class ServicoAtivoFilter(admin.FieldListFilter):
@@ -8,9 +10,7 @@ class ServicoAtivoFilter(admin.FieldListFilter):
         self.model = model
         self.model_admin = model_admin
         self.parameter_name = f"{field_path}__isnull"
-        super().__init__(
-            field, request, params, model, model_admin, field_path
-        )
+        super().__init__(field, request, params, model, model_admin, field_path)
         self.title = _("Serviço ativo")
         lookup_choices = self.lookups(request, model_admin)
         if lookup_choices is None:
@@ -91,3 +91,25 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                 de = date.today() - timedelta(days=30)
                 ate = date.today() - timedelta(days=7)
             return queryset.filter(data_ultimo_uso__range=(de, ate))
+
+
+class ServicoAPIFilter(django_filters.FilterSet):
+    uf = django_filters.CharFilter(
+        field_name="casa_legislativa__municipio__uf__sigla",
+        lookup_expr="iexact",
+        label=_("Sigla da UF"),
+    )
+    tipo_servico = django_filters.CharFilter(
+        field_name="tipo_servico__sigla",
+        lookup_expr="iexact",
+        label=_("Sigla do tipo de serviço"),
+    )
+
+    class Meta:
+        model = Servico
+        fields = [
+            "uf",
+            "tipo_servico",
+            "hospedagem_interlegis",
+            "data_ativacao",
+        ]

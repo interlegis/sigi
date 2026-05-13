@@ -12,6 +12,7 @@ django-weasyprint==2.5.0
 djangorestframework==3.17.1
 dnspython==2.8.0
 docutils==0.22.4
+drf-spectacular==0.29.0
 email-validator==2.3.0
 gunicorn==25.3.0
 ibge==0.0.5
