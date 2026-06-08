@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.urls import reverse
 from django.utils.encoding import force_str
+from django.utils.html import escape
 from django.utils.safestring import mark_safe
 from django.http import Http404, HttpResponseRedirect
 from django.utils.translation import gettext as _
@@ -137,6 +138,8 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
 
     def getUrl(self, obj):
         url = obj.url
+        if url == "":
+            return ""
         if "//" not in url:
             url = "//" + url
         return mark_safe(f'<a href="{url}" target="_blank">{obj.url}</a>')
@@ -144,11 +147,12 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     getUrl.short_description = _("Url")
 
     def get_link_erro(self, obj):
-        if not obj.erro_atualizacao:
+        erro = escape(obj.erro_atualizacao)
+        if not erro:
             return ""
         url = obj.url
         if not url:
-            return obj.erro_atualizacao
+            return erro
         if url[-1] != "/":
             url += "/"
         if obj.tipo_servico.string_pesquisa:
@@ -157,9 +161,7 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
             ]
         elif obj.tipo_servico.modo == "R":
             url = f"https://toolbox.googleapps.com/apps/dig/#SOA/{obj.url}"
-        return mark_safe(
-            f'<a href="{url}" target="_blank">{obj.erro_atualizacao}</a>'
-        )
+        return mark_safe(f'<a href="{url}" target="_blank">{erro}</a>')
 
     get_link_erro.short_description = _("Erro na atualização")
     get_link_erro.admin_order_field = "erro_atualizacao"

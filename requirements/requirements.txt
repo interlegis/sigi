@@ -33,6 +33,6 @@ tzdata==2026.1
 uritemplate==4.2.0
 weasyprint==68.1
 xlsxwriter==3.2.9
-djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@v1.0.7
+djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@v1.0.8
 django-dashboard @ git+https://github.com/interlegis/django-dashboard.git
 dx-job-controller @ git+https://github.com/interlegis/dx-job-controller.git@v1.0.0
