@@ -19,8 +19,10 @@ from django.views.generic import (
     ListView,
     UpdateView,
 )
+from django_filters.rest_framework import DjangoFilterBackend
 from django_weasyprint.views import WeasyTemplateResponse
 from rest_framework import generics, filters
+from sigi.apps.casas.filters import OrgaoAtendidoFilterset
 from sigi.apps.casas.forms import FuncionarioForm, CnpjErradoForm
 from sigi.apps.casas.models import Funcionario, Orgao, TipoOrgao
 from sigi.apps.casas.serializers import OrgaoAtendidoSerializer
@@ -389,9 +391,7 @@ class CnpjDuplicadoReport(
         )
 
 
-class CnpjErradoReport(
-    LoginRequiredMixin, UserPassesTestMixin, ReportListView
-):
+class CnpjErradoReport(LoginRequiredMixin, UserPassesTestMixin, ReportListView):
     title = _("Órgãos com CNPJ digitado errado")
     empty_message = _("Nenhum órgão com CNPJ digitado errado")
     queryset = (
@@ -650,7 +650,8 @@ class ApiOrgaoAtendidoList(generics.ListAPIView):
     """
 
     serializer_class = OrgaoAtendidoSerializer
-    filter_backends = [filters.SearchFilter]
+    filter_backends = [filters.SearchFilter, DjangoFilterBackend]
+    filterset_class = OrgaoAtendidoFilterset
     search_fields = ["search_text"]
 
     def get_queryset(self):

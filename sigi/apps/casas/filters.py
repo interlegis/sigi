@@ -1,5 +1,8 @@
+from django_filters import CharFilter
+from django_filters.rest_framework import FilterSet
 from django.contrib import admin
 from django.utils.translation import gettext as _
+from sigi.apps.casas.models import Orgao
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.convenios.models import Projeto
 from sigi.apps.servicos.models import TipoServico, Servico
@@ -56,3 +59,25 @@ class ServicoFilter(admin.SimpleListFilter):
                 )
 
         return queryset.distinct("municipio__uf__nome", "nome")
+
+
+class OrgaoAtendidoFilterset(FilterSet):
+    convenio_sigla = CharFilter(
+        field_name="convenio__projeto__sigla", lookup_expr="iexact"
+    )
+    evento_categoria_sigla = CharFilter(
+        field_name="evento__tipo_evento__categoria", lookup_expr="iexact"
+    )
+    servico_sigla = CharFilter(
+        field_name="servico__tipo_servico__sigla", lookup_expr="iexact"
+    )
+    tipo_sigla = CharFilter(field_name="tipo__sigla", lookup_expr="iexact")
+
+    class Meta:
+        model = Orgao
+        fields = [
+            "convenio_sigla",
+            "evento_categoria_sigla",
+            "servico_sigla",
+            "tipo_sigla",
+        ]
