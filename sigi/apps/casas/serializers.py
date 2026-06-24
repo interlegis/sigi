@@ -145,3 +145,9 @@ class OrgaoAtendidoSerializer(serializers.ModelSerializer):
 
     def get_uf_sigla(self, obj):
         return obj.municipio.uf.sigla
+
+
+class OrgaoAtendidoUfTotalSerializer(serializers.Serializer):
+    uf_sigla = serializers.CharField()
+    uf_nome = serializers.CharField()
+    total = serializers.IntegerField()

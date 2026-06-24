@@ -25,7 +25,10 @@ from rest_framework import generics, filters
 from sigi.apps.casas.filters import OrgaoAtendidoFilterset
 from sigi.apps.casas.forms import FuncionarioForm, CnpjErradoForm
 from sigi.apps.casas.models import Funcionario, Orgao, TipoOrgao
-from sigi.apps.casas.serializers import OrgaoAtendidoSerializer
+from sigi.apps.casas.serializers import (
+    OrgaoAtendidoSerializer,
+    OrgaoAtendidoUfTotalSerializer,
+)
 from sigi.apps.home.mixins import ContatoInterlegisViewMixin
 from sigi.apps.servidores.models import Servidor
 from sigi.apps.contatos.models import (
@@ -693,3 +696,26 @@ class ApiOrgaoAtendidoList(generics.ListAPIView):
                 municipio__uf__sigla=self.kwargs["uf"].upper()
             )
         return queryset
+
+
+class ApiOrgaoAtendidoUfTotal(ApiOrgaoAtendidoList):
+    """
+    Total dos órgãos legislativos atendidos pelo Interlegis em cada UF.
+    """
+
+    serializer_class = OrgaoAtendidoUfTotalSerializer
+    filter_backends = []
+    filterset_class = None
+    search_fields = []
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        return (
+            queryset.prefetch_related(None)
+            .order_by("municipio__uf__sigla")
+            .values(
+                uf_sigla=F("municipio__uf__sigla"),
+                uf_nome=F("municipio__uf__nome"),
+            )
+            .annotate(total=Count("id"))
+        )
