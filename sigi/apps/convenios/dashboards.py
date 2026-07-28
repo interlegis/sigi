@@ -144,6 +144,14 @@ class ResumoConvenios(Dashcard):
 
         return {"data_frame": df, "totais": ds_totais}
 
+    def to_dataframe(self, request):
+        data = self.get_datasets(request)
+        df = data["data_frame"]
+        ds = pd.DataFrame(data["totais"]).set_index(0)
+        ds.index.name = None
+        ds.columns = [None]
+        return pd.concat([df, ds], axis=1)
+
 
 class ConvenioServico(Dashcard):
     chart_type = Dashcard.TYPE_TABLE
