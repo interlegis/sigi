@@ -140,7 +140,6 @@ class ProjetoAdmin(admin.ModelAdmin):
 class ConvenioAdmin(
     AsciifyQParameter, ReturnMixin, ExportActionMixin, admin.ModelAdmin
 ):
-    # filter_style = djbs_constants.FILTER_STYLE_FORM
     fieldsets = (
         (
             None,
