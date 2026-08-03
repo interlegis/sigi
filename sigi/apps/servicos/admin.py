@@ -8,6 +8,7 @@ from django.utils.translation import gettext as _
 from import_export import resources
 from import_export.fields import Field
 from import_export.admin import ExportActionMixin
+from rangefilter.filters import DateRangeFilterBuilder
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.servicos.models import Servico, LogServico, TipoServico
 from sigi.apps.servicos.filters import (
@@ -18,7 +19,6 @@ from sigi.apps.convenios.filters import (
     TipoProjetoFilter,
     ExcluirTipoProjetoFilter,
 )
-from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import ReturnMixin
 from sigi.apps.utils.resources import ValueModelResource
 
@@ -112,7 +112,7 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
     list_filter = (
         "tipo_servico",
         "hospedagem_interlegis",
-        ("data_ativacao", DateRangeFilter),
+        ("data_ativacao", DateRangeFilterBuilder()),
         ("data_desativacao", ServicoAtivoFilter),
         "resultado_verificacao",
         DataUtimoUsoFilter,

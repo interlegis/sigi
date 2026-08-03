@@ -30,6 +30,7 @@ from django_weasyprint.views import WeasyTemplateResponse
 from import_export import resources
 from import_export.admin import ExportActionMixin
 from import_export.fields import Field
+from rangefilter.filters import DateRangeFilterBuilder
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from weasyprint import HTML
@@ -59,7 +60,6 @@ from sigi.apps.eventos.views import (
 )
 from sigi.apps.eventos.saberes import SaberesSyncException
 from sigi.apps.utils import abreviatura
-from sigi.apps.utils.filters import DateRangeFilter
 from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.utils.resources import ValueModelResource
 
@@ -998,7 +998,7 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         "tipo_evento__categoria",
         "casa_anfitria__municipio__uf",
         "casa_anfitria__municipio__uf__regiao",
-        ("data_inicio", DateRangeFilter),
+        ("data_inicio", DateRangeFilterBuilder()),
         "virtual",
         "solicitante",
         ("moodle_courseid", admin.EmptyFieldListFilter),

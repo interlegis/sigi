@@ -4,9 +4,11 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.utils.safestring import mark_safe
 from django_weasyprint.views import WeasyTemplateResponse
+from djbs import djbs_constants
 from import_export import resources
 from import_export.admin import ExportActionMixin
 from import_export.fields import Field
+from rangefilter.filters import DateRangeFilterBuilder
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
 from sigi.apps.convenios.models import (
@@ -21,7 +23,6 @@ from sigi.apps.convenios.models import (
 from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.casas.admin import GerentesInterlegisFilter
 from sigi.apps.utils.mixins import ReturnMixin
-from sigi.apps.utils.filters import DateRangeFilter
 
 
 class ConvenioExportResourse(resources.ModelResource):
@@ -139,6 +140,7 @@ class ProjetoAdmin(admin.ModelAdmin):
 class ConvenioAdmin(
     AsciifyQParameter, ReturnMixin, ExportActionMixin, admin.ModelAdmin
 ):
+    # filter_style = djbs_constants.FILTER_STYLE_FORM
     fieldsets = (
         (
             None,
@@ -225,8 +227,8 @@ class ConvenioAdmin(
         "casa_legislativa",
     )
     list_filter = (
-        ("data_retorno_assinatura", DateRangeFilter),
-        ("data_termino_vigencia", DateRangeFilter),
+        ("data_retorno_assinatura", DateRangeFilterBuilder()),
+        ("data_termino_vigencia", DateRangeFilterBuilder()),
         ConvenioVigenteFilter,
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "projeto",

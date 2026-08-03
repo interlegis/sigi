@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "django.contrib.sites",
     "django_extensions",
+    "rangefilter",
     "job_controller",
     "django_filters",
     "localflavor",
