@@ -437,9 +437,7 @@ class Convenio(models.Model):
         verbose_name = _("convênio")
 
     def __str__(self):
-        from django.conf import settings
-
-        SDF = settings.SHORT_DATE_FORMAT
+        SDF = "SHORT_DATE_FORMAT"
         number = self.num_convenio
         project = self.projeto.sigla
         if self.data_extincao:
