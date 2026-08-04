@@ -63,6 +63,13 @@ class Projeto(models.Model):
             "uma data de término de vigência."
         ),
     )
+    extinto = models.BooleanField(
+        _("extinto"),
+        default=False,
+        help_text=_(
+            "Indica se este projeto foi extinto e todos os convênios dele devem ser extintos também."
+        ),
+    )
     texto_oficio = HTMLField(
         _("texto do ofício"), blank=True, help_text=OFICIO_HELP
     )
@@ -348,7 +355,7 @@ class Convenio(models.Model):
         if self.status and self.status.cancela:
             return _("Cancelado")
 
-        if self.data_extincao:
+        if self.data_extincao or self.projeto.extinto:
             return _("Extinto")
 
         if self.data_retorno_assinatura is not None:
