@@ -355,8 +355,11 @@ class Convenio(models.Model):
         if self.status and self.status.cancela:
             return _("Cancelado")
 
-        if self.data_extincao or self.projeto.extinto:
+        if self.data_extincao:
             return _("Extinto")
+
+        if self.projeto.extinto:
+            return _("Descontinuado")
 
         if self.data_retorno_assinatura is not None:
             if self.data_termino_vigencia is not None:
@@ -450,6 +453,8 @@ class Convenio(models.Model):
         if self.data_extincao:
             date = date_format(self.data_extincao, SDF)
             return _(f"{project} nº {number} extinto em {date}")
+        if self.projeto.extinto:
+            return _("{project} descontinuado").format(project=project)
         if (self.data_retorno_assinatura is None) and (
             self.equipada and self.data_termo_aceite is not None
         ):

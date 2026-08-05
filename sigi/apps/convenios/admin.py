@@ -270,12 +270,18 @@ class ConvenioAdmin(
             return ""
         status = obj.get_status()
 
-        if status in ["Vencido", "Desistência", "Cancelado", "Extinto"]:
-            label = r"danger"
+        if status in [
+            "Vencido",
+            "Desistência",
+            "Cancelado",
+            "Extinto",
+            "Descontinuado",
+        ]:
+            label = r"bg-danger"
         elif status == "Vigente":
-            label = r"success"
+            label = r"bg-success"
         elif status == "Pendente":
-            label = r"warning"
+            label = r"bg-warning"
         else:
             label = r"info"
         return mark_safe(f'<p class="label label-{label}">{status}</p>')
