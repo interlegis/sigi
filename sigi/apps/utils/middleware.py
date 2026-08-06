@@ -1,6 +1,6 @@
 from django.contrib.auth.models import AnonymousUser
 from django.db.models import Q
-from sigi.apps.utils.models import SigiAlert
+from sigi.apps.utils.models import AlertViews, SigiAlert
 from django.template.loader import render_to_string
 
 
@@ -24,13 +24,13 @@ class SigiAlertsMiddleware:
             else:
                 user = AnonymousUser()
 
-            destinos = ["A"]
+            destinos = [SigiAlert.DESTINATARIOS_TODOS]
             if user.is_anonymous or not user.is_authenticated:
-                destinos.append("N")
+                destinos.append(SigiAlert.DESTINATARIOS_ANONIMOS)
             if user.is_staff:
-                destinos.append("S")
+                destinos.append(SigiAlert.DESTINATARIOS_EQUIPE)
             if user.is_superuser:
-                destinos.append("D")
+                destinos.append(SigiAlert.DESTINATARIOS_ADMIN)
 
             alertas = SigiAlert.objects.filter(
                 Q(caminho=request.path_info)
@@ -38,9 +38,23 @@ class SigiAlertsMiddleware:
                 # & Q(Q(grupos__icontains=user.groups.all()) | Q(grupo__isnull=True))
             )
 
-            if len(alertas) > 0:
-                avisos = {}
-                context = {"alertas": alertas}
+            avisos = []
+            for alerta in alertas:
+                if user.is_anonymous or not user.is_authenticated:
+                    avisos.append([alerta, None])
+                else:
+                    av, created = AlertViews.objects.get_or_create(
+                        alert=alerta, usuario=user
+                    )
+                    if av.visualizacoes < alerta.repeticao:
+                        av.visualizacoes += 1
+                        avisos.append(
+                            [alerta, alerta.repeticao - av.visualizacoes]
+                        )
+                        av.save()
+
+            if len(avisos) > 0:
+                context = {"alertas": avisos}
                 snippet = render_to_string(
                     "sigialerts/alert_snippet.html",
                     request=request,
