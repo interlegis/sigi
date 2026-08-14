@@ -6,7 +6,12 @@ from django.utils.translation import gettext as _
 
 
 class TipoServico(models.Model):
-    MODO_CHOICES = (("H", _("Hospedagem")), ("R", _("Registro")))
+    MODO_HOSPEDAGEM = "H"
+    MODO_REGISTRO = "R"
+    MODO_CHOICES = (
+        (MODO_HOSPEDAGEM, _("Hospedagem")),
+        (MODO_REGISTRO, _("Registro")),
+    )
     email_help = "Use a marcação {url} para incluir a URL do serviço,<br/>"
     string_pesquisa_help = (
         "Parâmetros da pesquisa para averiguar a data da "
@@ -21,12 +26,6 @@ class TipoServico(models.Model):
     )
     tipo_rancher = models.CharField(
         _("tipo de objeto no Rancher"), max_length=100, blank=True
-    )
-    spec_rancher = models.CharField(
-        _("spec do serviço no Rancher"), max_length=100, blank=True
-    )
-    arquivo_rancher = models.CharField(
-        _("nome do arquivo gerado no rancher"), max_length=100, blank=True
     )
     prefixo_padrao = models.CharField(max_length=20, blank=True)
     string_pesquisa = models.TextField(
@@ -373,7 +372,7 @@ class LogServico(models.Model):
     log = models.TextField(_("Log da ação"))
 
     def __str__(self):
-        return f"{self.descricao} ({self.data})"
+        return f"{self.descricao}"
 
     class Meta:
         verbose_name = _("Log do serviço")

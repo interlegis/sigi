@@ -1,0 +1,2 @@
+class MultipleServicesReturned(Exception):
+    pass

@@ -32,6 +32,7 @@ PyYAML==6.0.3
 requests==2.33.1
 tzdata==2026.1
 uritemplate==4.2.0
+url-normalize==3.0.0
 weasyprint==68.1
 xlsxwriter==3.2.9
 djbs-theme @ git+https://github.com/interlegis/djbs-theme.git@v1.0.8

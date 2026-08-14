@@ -51,10 +51,11 @@ INSTALLED_APPS = [
     "admin_auto_filters",
     "django.contrib.auth",
     "django.contrib.contenttypes",
-    "django.contrib.sessions",
     "django.contrib.messages",
-    "django.contrib.staticfiles",
+    "django.contrib.postgres",
+    "django.contrib.sessions",
     "django.contrib.sites",
+    "django.contrib.staticfiles",
     "django_extensions",
     "rangefilter",
     "job_controller",
@@ -312,8 +313,8 @@ SPECTACULAR_SETTINGS = {
 
 # SIGI specific settings
 
-HOSPEDAGEM_PATH = Path(env("HOSPEDAGEM_PATH", default="/tmp/HOSP/"))
-REGISTRO_PATH = Path(env("REGISTRO_PATH", default="/tmp/DNS/"))
+HOSPEDAGEM_PATH = env("HOSPEDAGEM_PATH", default=None)
+REGISTRO_PATH = env("REGISTRO_PATH", default=None)
 
 # Integração com Moodle
 

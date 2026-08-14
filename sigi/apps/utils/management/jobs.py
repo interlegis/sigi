@@ -31,15 +31,17 @@ class AdminJobMixin:
                 pass
         return self._sys_user
 
-    def _admin_log(self, object, action_flag, message=""):
+    def _admin_log(self, queryset_or_object, action_flag, message=""):
         sys_user = self.get_sys_user()
         if sys_user is None:
             return  # No admin log
-        LogEntry.objects.log_action(
+        try:
+            iter(queryset_or_object)
+        except TypeError:
+            queryset_or_object = [queryset_or_object]
+        LogEntry.objects.log_actions(
             user_id=sys_user.id,
-            content_type_id=ContentType.objects.get_for_model(type(object)).pk,
-            object_id=object.pk,
-            object_repr=str(object),
+            queryset=queryset_or_object,
             action_flag=action_flag,
             change_message=message,
         )
