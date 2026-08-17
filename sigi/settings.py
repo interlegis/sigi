@@ -313,8 +313,14 @@ SPECTACULAR_SETTINGS = {
 
 # SIGI specific settings
 
-HOSPEDAGEM_PATH = env("HOSPEDAGEM_PATH", default=None)
-REGISTRO_PATH = env("REGISTRO_PATH", default=None)
+HOSPEDAGEM_PATH = env(
+    "HOSPEDAGEM_PATH",
+    default="https://getinfo-sigi.kn.f.interlegis.leg.br/getServices",
+)
+REGISTRO_PATH = env(
+    "REGISTRO_PATH",
+    default="https://getinfo-sigi.kn.f.interlegis.leg.br/getDNS",
+)
 
 # Integração com Moodle
 
