@@ -197,11 +197,11 @@ class Job(AdminJobMixin, DailyJob):
             self.counter += 1
             record = r.copy()
 
-            if "interlegis.leg.br" in record["url"]:
+            record["url"] = url_normalize(record["url"])
+
+            if record["tipo"] != "emailleg" and "interlegis" in record["url"]:
                 self.ignorados += 1
                 continue
-
-            record["url"] = url_normalize(record["url"])
 
             record["creationDate"] = (
                 datetime.strptime(record["creationDate"], "%d/%m/%Y").date()
