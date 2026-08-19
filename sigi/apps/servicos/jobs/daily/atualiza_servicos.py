@@ -31,7 +31,6 @@ class Job(AdminJobMixin, DailyJob):
     dados = None
 
     counter = 0
-    ignorados = 0
     erros = 0
     updates = 0
     desativados = 0
@@ -106,7 +105,6 @@ class Job(AdminJobMixin, DailyJob):
         print("\n\n", _("TOTAIS"))
         print("------", "\n\n")
         print("  * registros recebidos do webservice: ", total)
-        print("  * registros ignorados..............: ", self.ignorados)
         print("  * registros com erro...............: ", self.erros)
         print("  * atualizações realizadas..........: ", self.updates)
         print("  * serviços desativados.............: ", self.desativados)
@@ -190,7 +188,6 @@ class Job(AdminJobMixin, DailyJob):
             if not self._retrieve_json_data():
                 return
 
-        self.ignorados = 0
         self.counter = 0
 
         for r in self.dados:
@@ -198,10 +195,6 @@ class Job(AdminJobMixin, DailyJob):
             record = r.copy()
 
             record["url"] = url_normalize(record["url"])
-
-            if record["tipo"] != "emailleg" and "interlegis" in record["url"]:
-                self.ignorados += 1
-                continue
 
             record["creationDate"] = (
                 datetime.strptime(record["creationDate"], "%d/%m/%Y").date()
