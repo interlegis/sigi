@@ -50,8 +50,8 @@
     {% else %}
       {% block actionbar %}
         <nav class="nav my-3 bg-body-tertiary">
-          <a class="nav-link ms-lg-auto" href="?fmt=pdf">{% icon "pdf" %}Exportar para PDF</a>
-          <a class="nav-link" href="?fmt=csv&casas=yes">{% icon "csv" %} Exportar para CSV</a>
+          {% block pdf_link %}<a class="nav-link ms-lg-auto" href="?fmt=pdf">{% icon "pdf" %}Exportar para PDF</a>{% endblock pdf_link %}
+          {% block csv_link %}<a class="nav-link" href="?fmt=csv&casas=yes">{% icon "csv" %} Exportar para CSV</a>{% endblock csv_link %}
         </nav>
       {% endblock actionbar %}
     {% endif %}
