@@ -865,7 +865,7 @@ class Gescon(models.Model):
                         self._novos += 1
 
             if self._novos or self._erros or self._alertas or self._atualizados:
-                report_user = True
+                self._report_user = True
 
             self.add_message(
                 _(
@@ -881,7 +881,7 @@ class Gescon(models.Model):
             )
 
         self.save()
-        return report_user
+        return self._report_user
 
     def _get_contratos_gescon(self, sigla_gescon):
         requests.packages.urllib3.disable_warnings()
