@@ -31,6 +31,8 @@ main_menu:
     children:
       - title: VALIDAÇÃO - Erros importação Gescon
         view_name: convenios-report_erros_gescon
+      - title: VALIDAÇÃO - Convênios duplicados
+        view_name: convenios-report_duplicados
       - title: VALIDAÇÃO - Órgãos com CNPJ duplicado
         view_name: casas_cnpj_duplicado
       - title: VALIDAÇÃO - Órgãos com CNPJ errado

@@ -8,6 +8,11 @@ urlpatterns = [
         name="convenios-report_erros_gescon",
     ),
     path(
+        "duplicados/",
+        views.report_duplicados,
+        name="convenios-report_duplicados",
+    ),
+    path(
         "reportsRegiao/<str:regiao>/",
         views.report_regiao,
         name="convenios-report_regiao_pdf",

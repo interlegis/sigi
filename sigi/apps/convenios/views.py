@@ -1,7 +1,17 @@
 import csv
+import re
+import requests
 from docutils.core import publish_parts
+from django.contrib.admin.models import LogEntry, ADDITION
+from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
+from django.utils.formats import localize
 from django.utils.safestring import mark_safe
-from django.http import HttpResponse, HttpResponseForbidden
+from django.http import (
+    HttpResponse,
+    HttpResponseForbidden,
+    HttpResponseServerError,
+)
 from django.shortcuts import render, get_list_or_404
 from django.utils.translation import gettext as _, ngettext
 from django.contrib.admin.views.decorators import staff_member_required
@@ -11,6 +21,7 @@ from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.convenios.models import Convenio, Gescon, Projeto
+from sigi.apps.utils import get_sigad_url
 from sigi.apps.utils.views import ReportListView
 
 
@@ -107,6 +118,108 @@ def report_regiao(request, regiao):
     )
 
 
+@login_required
+@staff_member_required
+def report_duplicados(request):
+    format = request.GET.get("fmt", "html")
+
+    ct = ContentType.objects.get_for_model(Convenio)
+
+    # Buscar dados de ACT no Gescon
+    response = requests.get(
+        "https://adm.senado.gov.br/gestao-contratos/api/contratos/busca"
+        "?subespecie=AC"
+    )
+    if response.status_code != 200:
+        return HttpResponseServerError(
+            f"Erro de comunicação {response.status_code}: {response.reason}"
+        )
+    if "json" not in response.headers["content-type"]:
+        return HttpResponseServerError(
+            f"Gescon não retornou um json: {response.headers['content-type']}"
+        )
+    jdata = response.json()
+
+    # Encontrar ACTs duplicados
+    acts = {
+        c.num_processo_sf: [c]
+        for c in Convenio.objects.filter(projeto__sigla="ACT").exclude(
+            num_processo_sf=""
+        )
+    }
+    for c in Convenio.objects.exclude(num_processo_sf=""):
+        if c.num_processo_sf in acts and not any(
+            [a.id == c.id for a in acts[c.num_processo_sf]]
+        ):
+            acts[c.num_processo_sf].append(c)
+    duplicados = [
+        [k, get_sigad_url(k), [[c] for c in v]]
+        for k, v in acts.items()
+        if len(v) > 1
+    ]
+
+    for r in duplicados:
+        # Juntar dados do Gescon com os duplicados
+        processo = processo = re.sub(r"\D", "", r[0])
+        contratos = list(filter(lambda d: d["processo"] in processo, jdata))
+        r.append(contratos)
+        # Adicionar informação de origem em cada convênio
+        for t in r[2]:
+            log = LogEntry.objects.filter(
+                content_type=ct, object_id=t[0].id, action_flag=ADDITION
+            ).first()
+            if log:
+                fragment = ""
+                if t[0].atualizacao_gescon:
+                    if t[0].id_gescon:
+                        fragment = _(
+                            "Atualizado com dados do Gescon em {date}. ID no Gescon: {id}"
+                        ).format(
+                            date=localize(t[0].atualizacao_gescon),
+                            id=t[0].id_gescon,
+                        )
+                    else:
+                        fragment = _(
+                            "Atualizado com dados do Gescon em {date}."
+                        ).format(date=localize(t[0].atualizacao_gescon))
+                t.append(
+                    _("Cadastrado por {username} em {date}. {fragment}").format(
+                        username=log.user.get_full_name(),
+                        date=localize(log.action_time),
+                        fragment=fragment,
+                    )
+                )
+            else:
+                if t[0].id_gescon:
+                    t.append(
+                        _("Importado do Gescon em {date}, do ID {id}").format(
+                            date=localize(t[0].atualizacao_gescon),
+                            id=t[0].id_gescon,
+                        )
+                    )
+                else:
+                    t.append(
+                        _("Importado do Gescon em {date}").format(
+                            date=localize(t[0].atualizacao_gescon)
+                        )
+                    )
+
+    context = {
+        "duplicados": duplicados,
+        "report_title": _("Relação de Convênios duplicados no SIGI"),
+    }
+
+    if format == "pdf":
+        return WeasyTemplateResponse(
+            filename=f"duplicados-{timezone.localdate():%Y-%m-%d}.pdf",
+            request=request,
+            template="convenios/report/duplicados_pdf.html",
+            context=context,
+            content_type="application/pdf",
+        )
+    return render(request, "convenios/report/duplicados.html", context)
+
+
 def casas_estado_to_tabela(casas, convenios, regiao):
     estados = get_list_or_404(UnidadeFederativa, regiao=regiao)
 
@@ -118,9 +231,7 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     for estado in estados:
         linha = LinhaEstado()
 
-        convenios_est = convenios.filter(
-            casa_legislativa__municipio__uf=estado
-        )
+        convenios_est = convenios.filter(casa_legislativa__municipio__uf=estado)
         convenios_est_publicados = convenios_est.exclude(data_pub_diario=None)
         convenios_est_equipados = convenios_est.exclude(data_termo_aceite=None)
 
@@ -154,9 +265,7 @@ def casas_estado_to_tabela(casas, convenios, regiao):
     convenios_regiao = convenios.filter(
         casa_legislativa__municipio__uf__regiao=regiao
     )
-    convenios_regiao_publicados = convenios_regiao.exclude(
-        data_pub_diario=None
-    )
+    convenios_regiao_publicados = convenios_regiao.exclude(data_pub_diario=None)
     convenios_regiao_equipados = convenios_regiao.exclude(
         data_termo_aceite=None
     )
@@ -205,25 +314,7 @@ def importar_gescon(request):
     return render(request, "convenios/importar_gescon.html", context)
 
 
-"""
-def query_ordena(qs, o, ot):
-    list_display = ('num_convenio', 'casa_legislativa',
-                    'data_adesao', 'data_retorno_assinatura', 'data_termo_aceite',
-                    'projeto',
-                    )
-
-    aux = list_display[(int(o) - 1)]
-    if ot == 'asc':
-        qs = qs.order_by(aux)
-    else:
-        qs = qs.order_by("-" + aux)
-    return qs
-"""
-
-
 def normaliza_data(get, nome_param):
-    import re
-
     if nome_param in get:
         value = get.get(nome_param, "")
         if value == "":

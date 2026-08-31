@@ -1,0 +1,114 @@
+{% extends "utils/report/report.html" %}
+{% load i18n djbs_extras %}
+
+{% block csv_link %}{% endblock %}
+
+{% block datacard %}
+  <p class="lead">
+    {% blocktrans %}
+    As datas de início e término da vigência dos contratos do Gescon estão no
+    formato ISO-8601, que é AAAA-MM-DD, pois são recebidas asssim do webservice,
+    que obedece aos padrões de normalização para troca e comunicação de dados.
+    {% endblocktrans %}
+  </p>
+  <p class="lead">
+    <strong>
+      {% blocktrans with total=duplicados|length %}
+        {{ total }} processos duplicados no SIGI
+      {% endblocktrans %}
+    </strong>
+  </p>
+  {% for processo, sigad_url, convenios, contratos_gescon in duplicados %}
+    <div class="card mb-2">
+      <div class="card-header">
+        <h5 class="mb-0">{% trans "Nº do Processo:" %} {{ sigad_url }}</h5>
+      </div>
+      <div class="card-body">
+        <h6 class="card-subtitle my-2 text-body-secondary">
+          {% blocktrans with total=convenios|length%}
+            {{ total }} convênios com este mesmo número de processo no SIGI
+          {% endblocktrans %}
+        </h6>
+        <table class="table table-sm mb-4">
+          <thead>
+            <tr>
+              <th rowspan="2">{% trans "Projeto" %}</th>
+              <th rowspan="2">{% trans "Nº convênio" %}</th>
+              <th rowspan="2">{% trans "CNPJ" %}</th>
+              <th rowspan="2">{% trans "Casa Legislativa" %}</th>
+              <th rowspan="2">{% trans "Observação" %}</th>
+              <th colspan="2">{% trans "Vigência" %}</th>
+              <th rowspan="2">{% trans "Origem" %}</th>
+              <th rowspan="2">{% trans "Action" %}</th>
+            </tr>
+            <tr>
+              <th>{% trans "Início" %}</th>
+              <th>{% trans "Término" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for convenio, origem in convenios %}
+              <tr>
+                <td>{{ convenio.projeto.sigla }}</td>
+                <td>{{ convenio.num_convenio }}</td>
+                <td>{{ convenio.casa_legislativa.cnpj }}</td>
+                <td>{{ convenio.casa_legislativa.nome }}</td>
+                <td>{{ convenio.observacao|default:"" }}</td>
+                <td>{{ convenio.data_retorno_assinatura }}</td>
+                <td>{{ convenio.data_termino_vigencia }}</td>
+                <td>{{ origem }}</td>
+                <td>
+                  <a href="{% url "admin:convenios_convenio_delete" convenio.id %}" target="_blank" title="{% translate "Delete" %}">
+                    {% icon "delete" %}
+                  </a>
+                  <a href="{% url "admin:convenios_convenio_change" convenio.id %}" target="_blank" title="{% translate "Change" %}">
+                    {% icon "edit" %}
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <h6 class="card-subtitle my-2 text-body-secondary">
+          {% blocktrans count total=contratos_gescon|length%}
+            Um contrato com este número de processo no Gescon
+            {% plural %}
+            {{ total }} contratos com este mesmo número de processo no Gescon
+          {% endblocktrans %}
+        </h6>
+        <table class="table table-sm mb-2">
+          <thead>
+            <tr>
+              <th rowspan="2">{% trans "ID" %}</th>
+              <th rowspan="2">{% trans "Subespécie" %}</th>
+              <th rowspan="2">{% trans "Nº convênio" %}</th>
+              <th rowspan="2">{% trans "CNPJ" %}</th>
+              <th rowspan="2">{% trans "Nome do fornecedor" %}</th>
+              <th rowspan="2">{% trans "Objeto" %}</th>
+              <th colspan="2">{% trans "Vigência" %}</th>
+            </tr>
+            <tr>
+              <th>{% trans "Início" %}</th>
+              <th>{% trans "Término" %}</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for contrato in contratos_gescon %}
+              <tr>
+                <td>{{ contrato.id|stringformat:"d" }}</td>
+                <td>{{ contrato.subEspecie }}</td>
+                <td>{{ contrato.numero }}</td>
+                <td>{{ contrato.cnpjCpfFornecedor }}</td>
+                <td>{{ contrato.nomeFornecedor }}</td>
+                <td>{{ contrato.objeto }}</td>
+                <td>{{ contrato.inicioVigencia }}</td>
+                <td>{{ contrato.terminoVigencia }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endfor %}
+{% endblock %}
