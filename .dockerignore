@@ -13,3 +13,4 @@ static
 .travis.yml
 .env
 .idea
+**/__pycache__/

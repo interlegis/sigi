@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bullseye
+FROM python:3.13-slim-bookworm
 
 # Setup env
 ENV PYTHONDONTWRITEBYTECODE=1
