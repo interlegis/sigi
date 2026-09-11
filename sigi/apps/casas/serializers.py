@@ -77,6 +77,7 @@ class ServicoSerializer(serializers.ModelSerializer):
     resultado_verificacao = serializers.SerializerMethodField(
         "get_resultado_verificacao"
     )
+    data_ultimo_uso = serializers.SerializerMethodField("get_data_ultimo_uso")
 
     class Meta:
         model = Servico
@@ -105,6 +106,11 @@ class ServicoSerializer(serializers.ModelSerializer):
 
     def get_resultado_verificacao(self, obj):
         return obj.get_resultado_verificacao_display()
+
+    def get_data_ultimo_uso(self, obj):
+        if obj.data_ultimo_uso:
+            return obj.data_ultimo_uso
+        return None
 
 
 class OrgaoAtendidoSerializer(serializers.ModelSerializer):
