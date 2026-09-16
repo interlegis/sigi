@@ -1,4 +1,4 @@
-FROM python:3.13-slim-bookworm
+FROM python:3.14-slim-trixie
 
 # Setup env
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -16,7 +16,6 @@ ENV ADMINS="(('SIGI Administrator', 'sigi@interlegis.leg.br'),)"
 ENV EMAIL_PORT=25
 ENV EMAIL_HOST=mail.interlegis.leg.br
 ENV EMAIL_HOST_USER=''
-ENV EMAIL_HOST_PASSWORD=''
 ENV EMAIL_SUBJECT_PREFIX='[SIGI]'
 ENV EMAIL_USE_LOCALTIME=True
 ENV EMAIL_USE_TLS=False
@@ -24,33 +23,14 @@ ENV EMAIL_USE_SSL=False
 ENV EMAIL_TIMEOUT=120
 ENV DEFAULT_FROM_EMAIL=sigi@interlegis.leg.br
 ENV DATABASE_URL='sqlite:////:memory:'
-ENV AUTH_LDAP_SERVER_URI=''
-ENV AUTH_LDAP_BIND_DN=''
-ENV AUTH_LDAP_BIND_PASSWORD=''
-ENV AUTH_LDAP_USER=''
-ENV AUTH_LDAP_USER_SEARCH_STRING=''
-ENV AUTH_LDAP_GROUP=''
-ENV AUTH_LDAP_GROUP_SEARCH_STRING=''
-ENV AUTH_LDAP_GROUP_TYPE_STRING=''
-ENV AUTH_LDAP_USER_ATTR_MAP=''
-ENV AUTH_LDAP_PROFILE_ATTR_MAP=''
-ENV AUTH_LDAP_FIND_GROUP_PERMS=''
-ENV AUTH_LDAP_MIRROR_GROUPS=''
-ENV AUTH_LDAP_CACHE_GROUPS=''
-ENV AUTH_LDAP_GROUP_CACHE_TIMEOUT=''
-ENV AUTH_PROFILE_MODULE=''
-ENV MOODLE_BASE_URL=''
-ENV MOODLE_API_TOKEN=''
 
 # Install env
-ENV RUN_PACKAGES gcc locales build-essential python3-dev graphviz \
-    libgraphviz-dev pkg-config libmagic-dev libpq-dev postgresql-client \
-    libsasl2-dev libldap2-dev libssl-dev vim nginx cron git
-
 # Install required packages
 RUN apt-get update && \
     apt-get upgrade -y && \
-    apt-get install -y ${RUN_PACKAGES}
+    apt-get install -y gcc locales build-essential python3-dev graphviz \
+      libgraphviz-dev pkg-config libmagic-dev libpq-dev postgresql-client \
+      libsasl2-dev libldap2-dev libssl-dev vim nginx cron git
 
 # Set encode language/charset
 ENV DESIRED_LANG=pt_BR.UTF-8

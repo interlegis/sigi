@@ -1,10 +1,8 @@
-version: "3.3"
-
 services:
   sigidb:
-    image: postgres:alpine3.15
+    image: postgres:18-alpine
     volumes:
-      - ../data/db:/var/lib/postgresql/data
+      - ../volumes/db:/var/lib/postgresql/data
     environment:
       - LANG=pt_BR.UTF-8
       - POSTGRES_NAME=sigi
@@ -20,10 +18,11 @@ services:
     ports:
       - "8000:80"
     volumes:
-      - ../data/media:/srv/interlegis/sigi/media
+      - ../volumes/media:/srv/interlegis/sigi/media
     environment:
       - LANG=pt_BR.UTF-8
       - DATABASE_URL=psql://sigi:sigi@sigidb:5432/sigi
+      - DEBUG=True
     depends_on:
       - sigidb
     networks:
