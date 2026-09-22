@@ -40,7 +40,7 @@ urlpatterns = [
     path("admin/eventos/", include("sigi.apps.eventos.admin_urls")),
     path("admin/convenios/", include("sigi.apps.convenios.urls")),
     path("admin/ocorrencias/", include("sigi.apps.ocorrencias.admin_urls")),
-    path("admin/utils/", include("sigi.apps.utils.admin_urls")),
+    path("admin/", include("appconfig.urls")),
     path("admin/", admin.site.urls),
     path("dash/", dashboard.urls),
     path(

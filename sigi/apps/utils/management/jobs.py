@@ -7,11 +7,6 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django_extensions.management.jobs import BaseJob
-from sigi.apps.utils.models import Config
-
-
-class MisconfiguredError(Exception):
-    pass
 
 
 class QuarterDailyJob(BaseJob):

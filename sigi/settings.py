@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     "tinymce",
     "rest_framework",
     "drf_spectacular",
+    "appconfig",
     "sigi.apps.casas",
     "sigi.apps.contatos",
     "sigi.apps.convenios",

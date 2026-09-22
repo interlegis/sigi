@@ -1,7 +1,7 @@
+from appconfig import config
 from django_extensions.management.jobs import DailyJob
 from django.utils import timezone
 from django.utils.translation import gettext as _
-from sigi.apps.utils.models import Config
 from sigi.apps.eventos.models import Evento
 
 INSCRICOES_ENCERRADAS = _("INSCRIÇÕES ENCERRADAS")
@@ -14,10 +14,11 @@ class Job(DailyJob):
     report_data = []
 
     def execute(self):
-        dias_a_retroagir = int(Config.get_param("ENCERRA_INSCRICAO")[0])
         self.report_data = []
         hoje = timezone.localtime().replace(hour=23, minute=59, second=59)
-        retroagir = hoje - timezone.timedelta(days=dias_a_retroagir)
+        retroagir = hoje - timezone.timedelta(
+            days=config.eventos.encerra_inscricao
+        )
         total_encerrar = 0
         total_despublicar = 0
 

@@ -18,7 +18,6 @@ from sigi.apps.convenios.models import (
     Convenio,
     EquipamentoPrevisto,
     Anexo,
-    Gescon,
 )
 from sigi.apps.utils.mixins import AsciifyQParameter
 from sigi.apps.casas.admin import GerentesInterlegisFilter
@@ -342,15 +341,6 @@ class EquipamentoPrevistoAdmin(admin.ModelAdmin):
         "equipamento__modelo__modelo",
         "equipamento__modelo__tipo__tipo",
     )
-
-
-@admin.register(Gescon)
-class GesconAdmin(admin.ModelAdmin):
-    list_display = (
-        "url_gescon",
-        "email",
-    )
-    exclude = ["ultima_importacao", "checksums"]
 
 
 admin.site.register(StatusConvenio)

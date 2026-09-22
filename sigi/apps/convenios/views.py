@@ -20,7 +20,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django_weasyprint.views import WeasyTemplateResponse
 from sigi.apps.casas.models import Orgao
 from sigi.apps.contatos.models import UnidadeFederativa
-from sigi.apps.convenios.models import Convenio, Gescon, Projeto
+from sigi.apps.convenios.models import Convenio, Projeto
 from sigi.apps.utils import get_sigad_url
 from sigi.apps.utils.views import ReportListView
 
@@ -68,20 +68,6 @@ class ErrosGesconReportView(
             f"{count} convênios com erros no Gescon",
             count,
         )
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        rst = Gescon.load().ultima_importacao
-        parts = publish_parts(
-            rst,
-            writer_name="html5",
-            settings_overrides={
-                "input_encoding": "unicode",
-                "output_encoding": "unicode",
-            },
-        )
-        context["ultima_importacao"] = mark_safe(parts["html_body"])
-        return context
 
 
 @login_required
@@ -295,23 +281,6 @@ def casas_estado_to_tabela(casas, convenios, regiao):
         "cabecalho": cabecalho_topo,
         "sumario": sumario,
     }
-
-
-@login_required
-@staff_member_required
-def importar_gescon(request):
-    if not request.user.is_superuser:
-        return HttpResponseForbidden()
-
-    action = request.GET.get("action", "")
-    gescon = Gescon.load()
-
-    if action == "importar":
-        gescon.importa_contratos()
-
-    context = {"gescon": gescon}
-
-    return render(request, "convenios/importar_gescon.html", context)
 
 
 def normaliza_data(get, nome_param):

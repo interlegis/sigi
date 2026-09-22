@@ -17,5 +17,4 @@ urlpatterns = [
         views.report_regiao,
         name="convenios-report_regiao_pdf",
     ),
-    path("importar/", views.importar_gescon, name="importar-gescon"),
 ]

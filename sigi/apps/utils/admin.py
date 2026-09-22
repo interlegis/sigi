@@ -10,7 +10,7 @@ from django.utils.translation import gettext as _
 from django_extensions.management.jobs import get_job, get_jobs
 from tinymce.models import HTMLField
 from tinymce.widgets import AdminTinyMCE
-from sigi.apps.utils.models import SigiAlert, AlertViews, Config
+from sigi.apps.utils.models import SigiAlert, AlertViews
 
 
 class AlertViewsInline(admin.TabularInline):
@@ -26,9 +26,3 @@ class SigiAlertAdmin(admin.ModelAdmin):
     formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
     list_filter = ("destinatarios",)
     inlines = [AlertViewsInline]
-
-
-@admin.register(Config)
-class ConfigAdmin(admin.ModelAdmin):
-    list_display = ["parametro", "valor"]
-    list_filter = ["parametro"]
