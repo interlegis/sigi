@@ -65,6 +65,10 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
             ("month", _("Sem atualização de um a três meses")),
             ("week", _("Sem atualização de uma semana a um mês")),
             ("updated", _("Atualizado na última semana")),
+            ("updmonth", _("Atualizado no último mês")),
+            ("updquarter", _("Atualizado no último trimestre")),
+            ("updsemester", _("Atualizado no último semestre")),
+            ("updyear", _("Atualizado no último ano")),
         )
 
     def queryset(self, request, queryset):
@@ -77,6 +81,18 @@ class DataUtimoUsoFilter(admin.SimpleListFilter):
                 return queryset.filter(data_ultimo_uso__lte=limite)
             if self.value() == "updated":
                 limite = date.today() - timedelta(days=7)
+                return queryset.filter(data_ultimo_uso__gte=limite)
+            if self.value() == "updmonth":
+                limite = date.today() - timedelta(days=30)
+                return queryset.filter(data_ultimo_uso__gte=limite)
+            if self.value() == "updquarter":
+                limite = date.today() - timedelta(days=3 * 30)
+                return queryset.filter(data_ultimo_uso__gte=limite)
+            if self.value() == "updsemester":
+                limite = date.today() - timedelta(days=6 * 30)
+                return queryset.filter(data_ultimo_uso__gte=limite)
+            if self.value() == "updyear":
+                limite = date.today() - timedelta(days=365)
                 return queryset.filter(data_ultimo_uso__gte=limite)
             if self.value() == "semester":
                 de = date.today() - timedelta(days=365)

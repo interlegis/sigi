@@ -116,6 +116,7 @@ class ServicoAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
         ("data_desativacao", ServicoAtivoFilter),
         "resultado_verificacao",
         DataUtimoUsoFilter,
+        ("data_ultimo_uso", DateRangeFilterBuilder()),
         ("casa_legislativa__gerentes_interlegis", GerentesInterlegisFilter),
         "casa_legislativa__municipio__uf",
         ("casa_legislativa__convenio__projeto_id", TipoProjetoFilter),
