@@ -8,6 +8,7 @@ from django.urls import path, reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from djbs.templatetags.djbs_extras import icon
 from import_export import resources
 from import_export.admin import ImportMixin, ExportActionMixin
 from import_export.formats.base_formats import CSV
@@ -96,9 +97,7 @@ class SenadorImportResource(resources.ModelResource):
     def __init__(self):
         super().__init__()
         self.partidos = {p.sigla.upper(): p for p in Partido.objects.all()}
-        self.partidos.update(
-            {p.nome.upper(): p for p in Partido.objects.all()}
-        )
+        self.partidos.update({p.nome.upper(): p for p in Partido.objects.all()})
         self.ufs = {uf.sigla: uf for uf in UnidadeFederativa.objects.all()}
 
     def before_import_row(self, row, row_number=None, **kwargs):
@@ -231,7 +230,7 @@ class ParlamentarAdmin(ReturnMixin, ExportActionMixin, admin.ModelAdmin):
         if obj.foto:
             return f'<img class="circle" src="{obj.foto.url}" style="width: 58px; height: 58px;"/>'
         else:
-            return '<i class="bi bi-camera fs-2"></i>'
+            return '<i class="bi bi-person-circle fs-3"></i>'
 
     # TODO: Criar uma rotina separada para importar parlamentares, como do Gescon
     def import_action(self, request, *args, **kwargs):

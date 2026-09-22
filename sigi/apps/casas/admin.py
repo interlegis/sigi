@@ -119,16 +119,16 @@ class ParlamentarInline(admin.TabularInline):
         "get_foto",
         "nome_parlamentar",
         "status_mandato",
-        "get_partido",
+        "partido",
         "email",
         "redes_sociais",
         "presidente",
     )
-    readonly_fields = fields
-    extra = 0
-    max_num = 0
-    show_change_link = True
-    can_delete = False
+    readonly_fields = ["get_foto"]
+    # extra = 0
+    # max_num = 0
+    # show_change_link = True
+    # can_delete = False
 
     @mark_safe
     @admin.display(description=_("Foto"))
@@ -136,13 +136,11 @@ class ParlamentarInline(admin.TabularInline):
         if obj.foto:
             return f'<img class="circle" src="{obj.foto.url}" style="width: 58px; height: 58px;"/>'
         else:
-            return (
-                '<i class="material-icons medium grey-text">account_circle</i>'
-            )
+            return '<i class="bi bi-person-circle fs-3"></i>'
 
-    @admin.display(description=_("Partido"))
-    def get_partido(self, obj):
-        return obj.partido.sigla
+    # @admin.display(description=_("Partido"))
+    # def get_partido(self, obj):
+    #     return obj.partido.sigla
 
 
 class FuncionarioInline(admin.StackedInline):
