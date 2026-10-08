@@ -89,7 +89,7 @@ class Projeto(models.Model):
     )
 
     def __str__(self):
-        return self.sigla
+        return _("{sigla} - {nome}").format(sigla=self.sigla, nome=self.nome)
 
     class Meta:
         ordering = ("nome",)
