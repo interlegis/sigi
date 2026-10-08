@@ -1,11 +1,15 @@
+import datetime
 import re
+from threading import local
 from unicodedata import normalize
 from django.contrib import admin as django_admin
 from django.core.exceptions import FieldDoesNotExist
 from django.db import models
 from django.template.loader import render_to_string
 from django.utils.encoding import force_str
+from django.utils.formats import localize
 from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 
 class SearchField(models.TextField):
@@ -147,3 +151,33 @@ def mask_sigad(num_sigad):
         return f"{orgao}.{sequencial}/{ano}-{dv}"
     else:
         return num_sigad
+
+
+def periodo(inicio, termino):
+    if isinstance(inicio, datetime.datetime) and isinstance(
+        termino, datetime.datetime
+    ):
+        data_inicio = inicio.date()
+        hora_inicio = inicio.time()
+        data_termino = termino.date()
+        hora_termino = termino.time()
+        if data_inicio == data_termino:
+            if hora_inicio == hora_termino:
+                result = _("em {data_inicio}, às {hora_inicio}")
+            else:
+                result = _(
+                    "em {data_inicio}, de {hora_inicio} até {hora_termino}"
+                )
+        else:
+            result = _("de {inicio} até {termino}")
+    else:
+        data_inicio = hora_inicio = data_termino = hora_termino = None
+        result = _("de {inicio} até {termino}")
+    return result.format(
+        inicio=localize(inicio),
+        termino=localize(termino),
+        data_inicio=localize(data_inicio),
+        hora_inicio=localize(hora_inicio),
+        data_termino=localize(data_termino),
+        hora_termino=localize(hora_termino),
+    )

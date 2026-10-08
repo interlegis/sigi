@@ -144,8 +144,7 @@ main_menu:
         view_name: admin:eventos_evento_changelist
         querystr: tipo_evento__categoria__exact=S
       - title: Visitas Interlegis
-        view_name: admin:eventos_evento_changelist
-        querystr: tipo_evento__categoria__exact=V
+        view_name: admin:eventos_visita_changelist
   - title: Servidores
     icon: badge
     children:
@@ -178,6 +177,8 @@ main_menu:
         view_name: admin:parlamentares_partido_changelist
       - title: Espaços para eventos
         view_name: admin:espacos_espaco_changelist
+      - title: Locais para Visitas
+        view_name: admin:eventos_localvisita_changelist
       - title: Recursos para eventos
         view_name: admin:espacos_recurso_changelist
 # contato_menu:

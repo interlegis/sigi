@@ -15,12 +15,21 @@ from django.urls import reverse
 from django.utils import timezone
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
+from django.utils.formats import localize
 from sigi.apps.casas.models import Orgao, Servidor
 from sigi.apps.contatos.models import UnidadeFederativa
 from sigi.apps.espacos.models import Reserva
-from sigi.apps.utils import get_sigad_url
-from sigi.apps.utils.templatetags.model_fields import verbose_name
+from sigi.apps.utils import get_sigad_url, periodo
 from sigi.apps.eventos.saberes import EventoSaberes
+
+
+class VisitaManager(models.Manager):
+    def get_queryset(self):
+        return (
+            super()
+            .get_queryset()
+            .filter(tipo_evento__categoria=TipoEvento.CATEGORIA_VISITA)
+        )
 
 
 class TipoEvento(models.Model):
@@ -267,6 +276,18 @@ class AnexoSolicitacao(models.Model):
         return _(f"{self.descricao} publicado em {self.data_pub}")
 
 
+class LocalVisita(models.Model):
+    nome = models.CharField(_("nome do local"), max_length=100)
+    descricao = models.TextField(_("descrição do local"))
+
+    class Meta:
+        verbose_name = _("local de visita")
+        verbose_name_plural = _("locais de visita")
+
+    def __str__(self):
+        return self.nome
+
+
 class Evento(models.Model):
     STATUS_PREVISTO = "P"
     STATUS_AUTORIZADO = "O"
@@ -350,7 +371,7 @@ class Evento(models.Model):
     casa_anfitria = models.ForeignKey(
         Orgao,
         on_delete=models.PROTECT,
-        verbose_name=_("Casa anfitriã"),
+        verbose_name=_("instituição / casa anfitriã"),
         blank=True,
         null=True,
     )
@@ -358,7 +379,15 @@ class Evento(models.Model):
         Reserva, blank=True, null=True, on_delete=models.PROTECT
     )
     local = models.TextField(_("Local do evento"), blank=True)
+    local_visita = models.ForeignKey(
+        LocalVisita,
+        verbose_name=_("local da visita"),
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+    )
     observacao = models.TextField(_("Observações e anotações"), blank=True)
+    pesquisa_previa = models.URLField(_("pesquisa prévia"), blank=True)
     publico_alvo = models.TextField(_("Público alvo"), blank=True)
     total_participantes = models.PositiveIntegerField(
         _("total de participantes/aprovados"),
@@ -489,9 +518,20 @@ class Evento(models.Model):
         ]
 
     def __str__(self):
-        return _(
-            f"{self.nome} ({self.tipo_evento}): "
-            f"de {self.data_inicio} a {self.data_termino}"
+        inicio = (
+            datetime.datetime.combine(self.data_inicio, self.hora_inicio)
+            if self.data_inicio and self.hora_inicio
+            else self.data_inicio
+        )
+        termino = (
+            datetime.datetime.combine(self.data_termino, self.hora_termino)
+            if self.data_termino and self.hora_termino
+            else self.data_termino
+        )
+        return _("{nome} ({tipo_evento}): {periodo}").format(
+            nome=self.nome,
+            tipo_evento=self.tipo_evento,
+            periodo=periodo(inicio, termino),
         )
 
     def get_absolute_url(self):
@@ -614,8 +654,12 @@ class Evento(models.Model):
     def save(self, *args, **kwargs):
         # Força que a casa anfitriã de todas as visitas seja Senado
         # Gertik #165751
-        if self.tipo_evento.categoria == TipoEvento.CATEGORIA_VISITA:
-            self.casa_anfitria = Orgao.objects.get(tipo__sigla="SF")
+        # Mudado em 08/10/2025 porque as visitas foram destacadas dos eventos
+        # e agora o campo casa_anfitria servirá para indicar a Casa que fará
+        # a visita
+        # if self.tipo_evento.categoria == TipoEvento.CATEGORIA_VISITA:
+        #     self.casa_anfitria = Orgao.objects.get(tipo__sigla="SF")
+
         # Limpa casas convidadas se a categoria do evento for Oficina
         # e está vinculado com um curso no Saberes.
         # Gertik #165984: https://gertiq.senado.leg.br/redmine/issues/165984#3em-seguida-DELETAR-as-Casas-convidadas-DOS-registros-de-OFICINAS
@@ -730,6 +774,15 @@ class Evento(models.Model):
         ]
         for item in leafs:
             ajusta_data(item, self.data_termino)
+
+
+class Visita(Evento):
+    objects = VisitaManager()
+
+    class Meta:
+        proxy = True
+        verbose_name = _("Visita")
+        verbose_name_plural = _("Visitas")
 
 
 class Funcao(models.Model):

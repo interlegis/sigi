@@ -39,6 +39,7 @@ from sigi.apps.contatos.models import UnidadeFederativa, Municipio
 from sigi.apps.eventos.models import (
     Checklist,
     Cronograma,
+    LocalVisita,
     ModeloDeclaracao,
     Modulo,
     Participante,
@@ -48,6 +49,7 @@ from sigi.apps.eventos.models import (
     ItemSolicitado,
     Funcao,
     Evento,
+    Visita,
     Equipe,
     Convite,
     Anexo,
@@ -328,6 +330,42 @@ class EventoResource(ValueModelResource):
             if obj["convite__casa__municipio__uf__regiao"]
             else None
         )
+
+
+class VisitaResource(resources.ModelResource):
+    class Meta:
+        model = Visita
+        fields = (
+            "id",
+            "nome",
+            "descricao",
+            "virtual",
+            "solicitante",
+            "num_processo",
+            "data_pedido",
+            "data_inicio",
+            "data_termino",
+            "casa_anfitria__nome",
+            "casa_anfitria__logradouro",
+            "casa_anfitria__bairro",
+            "casa_anfitria__municipio__nome",
+            "casa_anfitria__municipio__populacao",
+            "casa_anfitria__municipio__uf__sigla",
+            "casa_anfitria__municipio__uf__regiao",
+            "casa_anfitria__cep",
+            "casa_anfitria__email",
+            "local_visita__nome",
+            "observacao",
+            "status",
+            "data_cancelamento",
+            "motivo_cancelamento",
+            "participante__casa_legislativa",
+            "participante__cpf",
+            "participante__email",
+            "participante__nome",
+            "participante__local_trabalho",
+        )
+        export_order = fields
 
 
 class ChecklistInline(admin.StackedInline):
@@ -905,6 +943,11 @@ class ModeloDeclaracaoAdmin(admin.ModelAdmin):
     formfield_overrides = {HTMLField: {"widget": AdminTinyMCE}}
 
 
+@admin.register(LocalVisita)
+class LocalVisitaAdmin(admin.ModelAdmin):
+    list_display = ("nome", "descricao")
+
+
 @admin.register(Evento)
 class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
     form = EventoAdminForm
@@ -1109,7 +1152,11 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
 
     def get_queryset(self, request):
         my_decimal_field = models.DecimalField(max_digits=14, decimal_places=2)
-        queryset = super().get_queryset(request)
+        queryset = (
+            super()
+            .get_queryset(request)
+            .exclude(tipo_evento__categoria=TipoEvento.CATEGORIA_VISITA)
+        )
         return queryset.annotate(
             custo_total=Sum(
                 (F("equipe__qtde_diarias") * F("equipe__valor_diaria"))
@@ -1739,3 +1786,170 @@ class EventoAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
         )
 
         return redirect(change_url)
+
+
+@admin.register(Visita)
+class VisitaAdmin(AsciifyQParameter, ExportActionMixin, admin.ModelAdmin):
+    resource_classes = [VisitaResource]
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": (
+                    "tipo_evento",
+                    "casa_anfitria",
+                    "nome",
+                    "descricao",
+                    "contato",
+                    "telefone",
+                    "data_pedido",
+                    "data_recebido_coperi",
+                    ("data_inicio", "hora_inicio"),
+                    ("data_termino", "hora_termino"),
+                    "local_visita",
+                    "virtual",
+                    "solicitante",
+                    "status",
+                    "data_cancelamento",
+                    "motivo_cancelamento",
+                    "pesquisa_previa",
+                    "observacao",
+                    "num_processo",
+                )
+            },
+        ),
+    )
+    list_display = (
+        "nome",
+        "casa_anfitria",
+        "status",
+        "data_inicio",
+        "hora_inicio",
+        "hora_termino",
+        "pesquisa_previa",
+        "get_link_sigad",
+    )
+    list_filter = (
+        "status",
+        ("num_processo", admin.EmptyFieldListFilter),
+        ("tipo_evento", admin.RelatedOnlyFieldListFilter),
+        "participante__casa_legislativa__municipio__uf",
+        "participante__casa_legislativa__municipio__uf__regiao",
+        ("data_inicio", DateRangeFilterBuilder()),
+        "virtual",
+        "solicitante",
+    )
+    date_hierarchy = "data_inicio"
+    autocomplete_fields = (
+        # "tipo_evento",
+        "casa_anfitria",
+    )
+
+    search_fields = (
+        "nome",
+        "tipo_evento__nome",
+        "participante__casa_legislativa__search_text",
+        "participante__casa_legislativa__municipio__search_text",
+        "solicitante",
+        "num_processo",
+    )
+    inlines = [ParticipanteInline]
+
+    def get_form(self, request, obj, change, **kwargs):
+        form = super().get_form(request, obj, change, **kwargs)
+        form.base_fields["tipo_evento"].queryset = form.base_fields[
+            "tipo_evento"
+        ].queryset.filter(categoria=TipoEvento.CATEGORIA_VISITA)
+        form.base_fields["casa_anfitria"].required = True
+        form.base_fields["local_visita"].required = True
+        if obj is None:
+            form.base_fields["tipo_evento"].initial = (
+                form.base_fields["tipo_evento"].queryset.first().pk
+            )
+        return form
+
+    @admin.display(description=_("SIGAD"), ordering="num_processo")
+    def get_link_sigad(self, obj):
+        if obj.pk is None:
+            return ""
+        return mark_safe(obj.get_sigad_url())
+
+    def declaracao_report(self, request, object_id):
+        evento = get_object_or_404(Evento, id=object_id)
+        if request.method == "POST":
+            form = SelecionaModeloForm(request.POST)
+            if form.is_valid():
+                modelo = form.cleaned_data["modelo"]
+                membro = (
+                    evento.equipe_set.filter(assina_oficio=True).first()
+                    or evento.equipe_set.first()
+                )
+                if membro:
+                    servidor = membro.membro
+                else:
+                    servidor = None
+                template_string = (
+                    """
+                    {% extends "eventos/declaracao_pdf.html" %}
+                    {% block text_body %}"""
+                    + modelo.texto
+                    + """
+                    {% endblock %}
+                    """
+                )
+                context = Context(
+                    {
+                        "pagesize": modelo.formato,
+                        "pagemargin": modelo.margem,
+                        "evento": evento,
+                        "servidor": servidor,
+                        "data": evento.data_inicio,
+                    }
+                )
+                string = Template(template_string).render(context)
+                # return HttpResponse(string)
+                response = HttpResponse(
+                    headers={
+                        "Content-Type": "application/pdf",
+                        "Content-Disposition": 'attachment; filename="declaração.pdf"',
+                    }
+                )
+                pdf = HTML(
+                    string=string,
+                    url_fetcher=DjangoURLFetcher(),
+                    encoding="utf-8",
+                    base_url=request.build_absolute_uri("/"),
+                )
+                pdf.write_pdf(target=response)
+                return response
+        else:
+            form = SelecionaModeloForm(
+                initial={"modelo": ModeloDeclaracao.objects.first().id}
+            )
+
+        context = {
+            **self.admin_site.each_context(request),
+            "title": _("Emitir declaração para os participantes da visita"),
+            "subtitle": str(evento) if evento else None,
+            "form": form,
+            "object_id": object_id,
+            "original": evento,
+            "evento_id": object_id,
+            "opts": self.model._meta,
+            "preserved_filters": self.get_preserved_filters(request),
+        }
+        return render(
+            request, "admin/eventos/evento/seleciona_modelo.html", context
+        )
+
+    def get_urls(self):
+        urls = super().get_urls()
+        model_info = self.get_model_info()
+        my_urls = [
+            path(
+                "<path:object_id>/declaracao/",
+                self.admin_site.admin_view(self.declaracao_report),
+                name="%s_%s_declaracaoreport" % model_info,
+            ),
+        ]
+        return my_urls + urls
