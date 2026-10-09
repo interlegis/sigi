@@ -10,7 +10,7 @@ django-import-export[all]==4.4.0
 django-localflavor==5.0
 django-tinymce==5.0.0
 django-weasyprint==2.5.0
-djangorestframework==3.17.1
+djangorestframework==3.17.2
 dnspython==2.8.0
 docutils==0.22.4
 drf-spectacular==0.29.0
