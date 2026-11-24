@@ -1,9 +1,8 @@
 {% extends "djbs/base.html" %}
 {% load static i18n djbs_extras %}
-
 {% block extrastyle %}
   <link rel="stylesheet" href="{% static 'home/css/minimapa.css' %}" />
-  <style type="text/css">
+  <style>
     .card-title {
       background-color: rgba(0,0,0,.03);
       padding-left: 24px;
@@ -11,49 +10,58 @@
     }
   </style>
 {% endblock %}
-
 {% block menu %}{% endblock %}
-
 {% block search %}{% endblock %}
-
 {% block navbarsupportedcontentclass %}collapse navbar-collapse{% endblock %}
-
 {% block navbar-branding %}
   <a class="navbar-brand mb-0 h1" href="{% url 'openmap' %}" target="_top">
     {% icon "map" "d-inline-block align-text-top" %}
     <span class="d-none d-md-inline-block">{% trans "VER MAPA" %}</span>
   </a>
-  <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+  <button class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarSupportedContent"
+          aria-controls="navbarSupportedContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation">
     <span class="navbar-toggler-icon"></span>
   </button>
 {% endblock %}
-
 {% block nav-global %}
-  <a class="nav-link" aria-current="page" href="{% url 'servicos_casas_atendidas' %}">{% trans "Tudo" %}</a>
-  <a class="nav-link" aria-current="page" href="{% url 'servicos_casas_atendidas' 'ZZ' %}">{% trans "Estrangeiros" %}</a>
+  <a class="nav-link"
+     aria-current="page"
+     href="{% url 'servicos_casas_atendidas' %}">{% trans "Tudo" %}</a>
+  <a class="nav-link"
+     aria-current="page"
+     href="{% url 'servicos_casas_atendidas' 'ZZ' %}">{% trans "Estrangeiros" %}</a>
   {% for regiao, ufs in regioes %}
     <div class="nav-item dropdown">
-      <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown-{{ regiao }}" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-        {{ regiao }}
-      </a>
+      <a class="nav-link dropdown-toggle"
+         href="#"
+         id="navbarDropdown-{{ regiao }}"
+         role="button"
+         data-bs-toggle="dropdown"
+         aria-expanded="false">{{ regiao }}</a>
       <ul class="dropdown-menu" aria-labelledby="navbarDropdown-{{ regiao }}">
         {% for uf in ufs %}
-          <li><a class="dropdown-item" href="{% url 'servicos_casas_atendidas' uf.sigla %}">{{ uf.nome }}</a></li>
+          <li><a class="dropdown-item"
+   href="{% url 'servicos_casas_atendidas' uf.sigla %}">{{ uf.nome }}</a></li>
         {% endfor %}
       </ul>
     </div>
   {% endfor %}
 {% endblock %}
-  
 {% block usertools %}
-  <a class="nav-link" aria-current="page" href="?format=csv{% if search_param %}?search={{ search_param }}{% endif %}">{% icon "csv" %} {% trans "Download CSV" %}</a>
+  <a class="nav-link"
+     aria-current="page"
+     href="?format=csv{% if search_param %}?search={{ search_param }}{% endif %}">{% icon "csv" %} {% trans "Download CSV" %}</a>
   {{ block.super }}
 {% endblock %}
-
 {% block nav-breadcrumbs %}{% endblock %}
-
-{% block content_title %}<h3 class="my-2">{% trans "Órgãos Legislativos atendidos pelo Interlegis" %}</h3>{% endblock %}
-
+{% block content_title %}
+  <h3 class="my-2">{% trans "Órgãos Legislativos atendidos pelo Interlegis" %}</h3>
+{% endblock %}
 {% block content_subtitle %}
   <h6>
     {% blocktranslate count counter=tot_orgaos %}
@@ -69,15 +77,21 @@
     {% endif %}
   </h6>
 {% endblock %}
-
 {% block content %}
   <div class="container-fluid mt-3">
     <div class="row align-items-center">
       <div class="col-md-8">
         <form class="d-flex">
           <div class="input-group">
-            <input class="form-control" name="search"{% if search_param %} value="{{ search_param }}"{% endif %} type="search" placeholder="{% trans "Pesquisar" %}" aria-label="{% trans "Pesquisar" %}">
-            <button class="btn btn-secondary" type="submit"><i class="bi bi-search"></i></button>
+            <input class="form-control"
+                   name="search"
+                   {% if search_param %} value="{{ search_param }}"{% endif %}
+                   type="search"
+                   placeholder="{% trans "Pesquisar" %}"
+                   aria-label="{% trans "Pesquisar" %}">
+            <button class="btn btn-secondary" type="submit">
+              <i class="bi bi-search"></i>
+            </button>
           </div>
         </form>
       </div>
@@ -89,7 +103,7 @@
             }    
           </style>
           {% url 'servicos_casas_atendidas' as base_url %}
-          {% include 'home/minimapa.svg' with base_url=base_url end_slash="/" %}
+          {% include "home/minimapa.svg" with base_url=base_url end_slash="/" %}
         </div>
       </div>
     </div>
@@ -103,18 +117,22 @@
           <div class="d-inline-flex">
             <div class="me-3 d-none d-lg-block">
               {% if orgao.foto %}
-                <img src="{{ orgao.foto.url }}" style="height: 120px;" height="120"/>
+                <img src="{{ orgao.foto.url }}" style="height: 120px;" height="120" />
               {% else %}
                 <i class="bi bi-buildings" style="font-size: 5rem;"></i>
               {% endif %}
             </div>
             <div class="d-block">
-              <strong>{{ orgao.nome }}</strong><br/>
-              <small>{{ orgao.cnpj}} - {{ orgao.tipo.nome }}</small>
+              <strong>{{ orgao.nome }}</strong>
+              <br />
+              <small>{{ orgao.cnpj }} - {{ orgao.tipo.nome }}</small>
               <address>
-                <strong>{{ orgao.logradouro }} {{ orgao.bairro }}</strong><br/>
-                {{ orgao.cep }} - {{ orgao.municipio.nome }}, {{ orgao.municipio.uf.sigla }}<br/>
-                {{ orgao.email|urlizetrunc:15 }} - <a href="tel:{{ orgao.telefone|phone2numeric }}" target="_blank">{{ orgao.telefone }}</a>
+                <strong>{{ orgao.logradouro }} {{ orgao.bairro }}</strong>
+                <br />
+                {{ orgao.cep }} - {{ orgao.municipio.nome }}, {{ orgao.municipio.uf.sigla }}
+                <br />
+                {{ orgao.email|urlizetrunc:15 }} - <a href="tel:{{ orgao.telefone|phone2numeric }}"
+    target="_blank">{{ orgao.telefone }}</a>
               </address>
             </div>
           </div>
@@ -130,7 +148,7 @@
                   <th>{% trans "Status" %}</th>
                   <th>{% trans "Início da vigência" %}</th>
                   <th>{% trans "Término da vigência" %}</th>
-                  <th>{% trans "Documentos" %}</th>
+                  {% comment %} <th>{% trans "Documentos" %}</th> {% endcomment %}
                 </tr>
                 {% for convenio in orgao.convenios %}
                   <tr>
@@ -139,7 +157,7 @@
                     <td>{{ convenio.get_status }}</td>
                     <td>{{ convenio.data_retorno_assinatura|default:"-" }}</td>
                     <td>{{ convenio.data_termino_vigencia|default:"-" }}</td>
-                    <td>
+                    {% comment %} <td>
                       <ul class="list-group">
                         {% if convenio.id_contrato_gescon %}
                           <li class="list-group-item">
@@ -152,7 +170,7 @@
                         </li>
                         {% endfor %}
                       </ul>
-                    </td>
+                    </td> {% endcomment %}
                   </tr>
                 {% endfor %}
               </table>
@@ -195,27 +213,29 @@
                   <th rowspan="2">{% trans "Última utilização" %}</th>
                 </tr>
                 <tr>
-                  <th>{% trans "Data" %}
-                  <th>{% trans "Resultado" %}</th>
-                </tr>
-                {% for srv in orgao.servicos %}
-                  <tr>
-                    <td>{{ srv.tipo_servico.nome }}</td>
-                    <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
-                    <td>
-                      {% if srv.url %}
-                        <a href="{% if 'http' in srv.url %}{{ srv.url }}{% else %}http://{{ srv.url }}{% endif %}" target="_blank">{{ srv.url}}</a>
-                      {% else %}
-                        <p>-</p>
-                      {% endif %}
-                    </td>
-                    <td>{{ srv.data_verificacao|default:"-" }}</td>
-                    <td>{{ srv.get_resultado_verificacao_display }}</td>
-                    <td>{{ srv.data_ultimo_uso|default:"-" }}</td>
+                  <th>
+                    {% trans "Data" %}
+                    <th>{% trans "Resultado" %}</th>
                   </tr>
-                {% endfor %}
-              </table>
-            </div>
+                  {% for srv in orgao.servicos %}
+                    <tr>
+                      <td>{{ srv.tipo_servico.nome }}</td>
+                      <td>{{ srv.data_ativacao|date:"SHORT_DATE_FORMAT" }}</td>
+                      <td>
+                        {% if srv.url %}
+                          <a href="{% if 'http' in srv.url %}{{ srv.url }}{% else %}http://{{ srv.url }}{% endif %}"
+                             target="_blank">{{ srv.url }}</a>
+                        {% else %}
+                          <p>-</p>
+                        {% endif %}
+                      </td>
+                      <td>{{ srv.data_verificacao|default:"-" }}</td>
+                      <td>{{ srv.get_resultado_verificacao_display }}</td>
+                      <td>{{ srv.data_ultimo_uso|default:"-" }}</td>
+                    </tr>
+                  {% endfor %}
+                </table>
+              </div>
           {% endif %}
         </div>
       </div>
@@ -223,5 +243,4 @@
     {% include "servicos/navigator_snippet.html" %}
   </div>
 {% endblock content %}
-
 {% block sidebar %}{% endblock %}

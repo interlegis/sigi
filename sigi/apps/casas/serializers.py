@@ -1,4 +1,6 @@
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
+from drf_spectacular.types import OpenApiTypes
 from sigi.apps.casas.models import Orgao
 from sigi.apps.convenios.models import Convenio, Anexo
 from sigi.apps.eventos.models import Evento
@@ -18,7 +20,8 @@ class ConvenioSerializer(serializers.ModelSerializer):
     inicio_vigencia = serializers.SerializerMethodField("get_inicio_vigencia")
     termino_vigencia = serializers.SerializerMethodField("get_termino_vigencia")
     documento_gescon = serializers.SerializerMethodField("get_documento_gescon")
-    anexo_set = AnexoConvenioSerializer(many=True, read_only=True)
+    # anexo_set = AnexoConvenioSerializer(many=True, read_only=True)
+    anexo_set = serializers.SerializerMethodField("get_anexo_set")
 
     class Meta:
         model = Convenio
@@ -43,7 +46,12 @@ class ConvenioSerializer(serializers.ModelSerializer):
         return obj.data_termino_vigencia
 
     def get_documento_gescon(self, obj):
-        return obj.get_url_gescon()
+        # return obj.get_url_gescon()
+        return ""
+
+    @extend_schema_field(serializers.ListField(child=serializers.CharField()))
+    def get_anexo_set(self, obj):
+        return []
 
 
 class EventoSerializer(serializers.ModelSerializer):
